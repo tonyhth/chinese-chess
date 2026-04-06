@@ -228,6 +228,7 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 ### 群结构
 - 一个飞书群「开发团队」
 - Luke 串行管理任务队列，同时只处理一个任务，群消息天然有序
+- 群 ID 需记录到丹妮 AGENTS.md（丹妮用 message tool 发群消息时需要）
 
 ### 群成员
 - 4 个编码飞书 bot（lead、coder、reviewer、tester）
@@ -558,8 +559,8 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
   → 转发到飞书编码群 @lead
 - 拿不准 → 问洪涛
 
-转发方式：用 message tool 发消息到飞书群「开发团队」，@lead 并描述需求
-结果接收：lead 完成后会通过 sessions_send 通知，收到后私聊告知洪涛
+转发方式：用 message tool 发消息到飞书群「开发团队」，@Luke 并描述需求（群 ID 记录在丹妮 AGENTS.md）
+结果接收：Luke 完成后会通过 sessions_send 通知，收到后私聊告知洪涛
 ```
 
 ## 十三、风险与注意事项
