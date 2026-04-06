@@ -74,12 +74,13 @@
 
 ### 通信规则
 
-- **需求转达**：丹妮 → `message` tool → 飞书群 @Luke（丹妮不进群）
+- **需求转达（洪涛直接）**：洪涛在群里 @Luke → 团队直接开始
+- **需求转达（丹妮转发）**：丹妮 → `sessions_send` → Luke session → Luke 在群里 @Cody 开始工作
 - **结果通知**：Luke 汇总后 → `sessions_send` → 丹妮 → 私聊通知洪涛
 - **进度查看**：洪涛直接在群里观察
 - **例外通信**：发现影响丹妮职责的问题（如丹妮用到的脚本有 bug），Luke 可直接 sessions_send 通知丹妮
 - **简单改动**（改一行代码、写简单脚本、修小 bug）→ 丹妮自己用 sessions_spawn 处理，不惊动团队
-- **开发任务**（新功能、多文件重构、需要测试的项目）→ 转发飞书编码群 @Luke
+- **开发任务**（新功能、多文件重构、需要测试的项目）→ sessions_send 转给 Luke
 - **拿不准** → 问洪涛
 
 ## 三、模型分配
@@ -228,8 +229,7 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 ### 群结构
 - 一个飞书群「开发团队」
 - Luke 串行管理任务队列，同时只处理一个任务，群消息天然有序
-- 群 ID 需记录到丹妮 AGENTS.md（丹妮用 message tool 发群消息时需要）
-
+- 
 ### 群成员
 - 4 个编码飞书 bot（lead、coder、reviewer、tester）
 - **洪涛个人号**
@@ -559,7 +559,7 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
   → 转发到飞书编码群 @lead
 - 拿不准 → 问洪涛
 
-转发方式：用 message tool 发消息到飞书群「开发团队」，@Luke 并描述需求（群 ID 记录在丹妮 AGENTS.md）
+转发方式：sessions_send 给 Luke，描述需求
 结果接收：Luke 完成后会通过 sessions_send 通知，收到后私聊告知洪涛
 ```
 
