@@ -1,7 +1,7 @@
 # Multi-Agent 架构升级方案
 
 > 制定日期：2026-04-06
-> 最后更新：2026-04-06（v4，链式流水线+串行队列）
+> 最后更新：2026-04-06（v5，双通道模式修复飞书 bot 间通信限制）
 > 状态：待实施
 
 ## 一、背景与目标
@@ -29,6 +29,10 @@
               │                     │
               │  洪涛(个人号)       │
               └─────────────────────┘
+
+              ⚠️ bot 间 @mention 不触发事件（飞书限制）
+              内部触发用 sessions_send
+              群内展示用 message tool（双通道模式）
                           │
                           │ lead 通过 sessions_send 通知丹妮
                           │ （不依赖丹妮观察群消息）
@@ -38,9 +42,11 @@
 
 **关键设计决策：**
 - 丹妮不进飞书群，避免群消息污染 context
-- 丹妮通过 `message` tool 向群发消息（转需求）
+- 丹妮通过 `message` tool 向群发消息（转需求，仅展示用）
 - lead 通过 `sessions_send` 通知丹妮（报结果）
 - 洪涛在群里可直接观察进度、@lead 插话
+- **飞书平台限制**：bot 发的消息不会触发其他 bot 的事件（2026-04-06 实测确认，见飞书官方文档 im:message.group_msg）
+- **双通道模式**：agent 间派活用 sessions_send（触发）+ message tool（群内展示），不依赖群 @mention
 
 ### 角色分工
 
@@ -55,13 +61,20 @@
 ### 工作流水线（单向流动，无回环）
 
 ```
-需求 → @Luke拆解 → @Cody写代码 → @Ruby审查(清单) → Cody修复 → @Tina测试 → @Luke汇总
-                                                                                    ↓
-                                                                        测试不过 → Luke判断是否返工
-                                                                        测试通过 → sessions_send通知丹妮
-                                                                                    ↓
-                                                                        丹妮私聊通知洪涛
+人@Luke拆解
+  → sessions_send(coder) + 群@Cody → Cody写代码
+  → sessions_send(reviewer) + 群@Ruby → Ruby审查(清单)
+  → sessions_send(coder, 清单) + sessions_send(lead, 摘要) → Cody修复
+  → sessions_send(tester, 附清单) + 群@Tina → Tina测试
+  → sessions_send(lead, 报告) + 群@Luke → Luke汇总
+                                                      ↓
+                                          测试不过 → Luke判断是否返工（新一轮流水线）
+                                          测试通过 → sessions_send(main) 通知丹妮
+                                                      ↓
+                                          丹妮私聊通知洪涛
 ```
+
+**⚠️ 群内 @bot 只是给人看的展示，不触发 bot。实际触发全靠 sessions_send。**
 
 **设计原则：单向链式流水线**
 - 每个角色做完自己的事就结束，**不回头**
@@ -75,13 +88,21 @@
 ### 通信规则
 
 - **需求转达（洪涛直接）**：洪涛在群里 @Luke → 团队直接开始
-- **需求转达（丹妮转发）**：丹妮 → `sessions_send` → Luke session → Luke 在群里 @Cody 开始工作
-- **结果通知**：Luke 汇总后 → `sessions_send` → 丹妮 → 私聊通知洪涛
+- **需求转达（丹妮转发）**：丹妮 → `sessions_send` → Luke session → Luke 用双通道派活
+- **结果通知**：Luke 汇总后 → `sessions_send(agentId="main")` → 丹妮 → 私聊通知洪涛
 - **进度查看**：洪涛直接在群里观察
 - **例外通信**：发现影响丹妮职责的问题（如丹妮用到的脚本有 bug），Luke 可直接 sessions_send 通知丹妮
 - **简单改动**（改一行代码、写简单脚本、修小 bug）→ 丹妮自己用 sessions_spawn 处理，不惊动团队
 - **开发任务**（新功能、多文件重构、需要测试的项目）→ sessions_send 转给 Luke
 - **拿不准** → 问洪涛
+
+#### 双通道模式（2026-04-06 实测确认）
+
+每次 agent 间派活必须同时执行两步：
+1. `sessions_send(agentId="xxx", message="...")` — 内部触发下游 agent
+2. `message(action="send", channel="feishu", accountId="xxx", target="oc_a1dce49...", message="@xxx ...")` — 群内展示
+
+群里 @bot 纯文本不触发事件（飞书平台限制），仅用于人查看协作进度。
 
 ## 三、模型分配
 
@@ -240,8 +261,9 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 - 结果通知：lead 通过 sessions_send 私信丹妮，丹妮私聊通知洪涛
 
 ### 群内路由
-- 4 个 bot 统一 `mentionOnly` 模式，只有被 @ 才回复
+- 4 个 bot 统一 `mentionOnly` 模式（配置在 `channels.feishu.accounts.<id>.mentionOnly`），只有被人类 @ 才回复
 - 不需要 mentionPatterns，飞书 @ 机制本身能区分
+- ⚠️ `mentionOnly` 放在 `agents.list[]` 会导致配置校验失败（已踩坑），必须放在 accounts 级别
 
 ### 飞书应用创建清单
 
@@ -262,22 +284,23 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 | Ruby·露比 | reviewer | Ruby | 女 | 审查者 |
 | Tina·蒂娜 | tester | Tina | 女 | 测试者 |
 
-## 七、agentToAgent 配置
+## 七、sessions_send 配置
 
-```json5
-{
-  tools: {
-    agentToAgent: {
-      enabled: true,
-      allow: ["main", "lead", "coder", "reviewer", "tester"]
-    }
-  }
-}
-```
+`sessions_send` 是 OpenClaw 内置工具，**不需要** `tools.agentToAgent` 配置即可使用。
 
-### agentToAgent 使用场景
-- **lead → main**：任务完成后 sessions_send 通知丹妮
-- **丹妮 → lead**：（备用）丹妮需要直接跟 lead 确认细节时
+### ⚠️ agentToAgent 配置风险
+- `agentToAgent.enabled: true` 与 `sessions_spawn` 冲突（Bug #5813），同时开启会导致子 agent 永不执行
+- 如果丹妮需要用 `sessions_spawn` 派临时子 agent，**不要开 agentToAgent**
+- 当前方案只用 `sessions_send`（持久 agent 间通信），不需要 `agentToAgent`
+
+### sessions_send 使用场景
+- **lead → main**：任务完成后通知丹妮
+- **丹妮 → lead**：转发编码需求
+- **coder → reviewer**：提交审查
+- **reviewer → coder**：返回审查清单
+- **reviewer → lead**：抄送审查摘要
+- **coder → tester**：提交测试
+- **tester → lead**：提交测试报告
 
 ## 八、openclaw.json 配置草案
 
@@ -357,26 +380,23 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
     ]
   },
   bindings: [
-    // 编码团队 → 飞书群（mentionOnly，只有被 @ 才回复）
+    // 编码团队 → 飞书群
+    // ⚠️ mentionOnly 在 accounts 级别配置，不在 bindings 里（bindings 里放会导致配置校验失败）
     {
       agentId: "lead",
-      match: { channel: "feishu", peer: { kind: "group", id: "<飞书群ID>" } },
-      groupChat: { mentionOnly: true }
+      match: { channel: "feishu", accountId: "lead", peer: { kind: "group", id: "<飞书群ID>" } }
     },
     {
       agentId: "coder",
-      match: { channel: "feishu", peer: { kind: "group", id: "<飞书群ID>" } },
-      groupChat: { mentionOnly: true }
+      match: { channel: "feishu", accountId: "coder", peer: { kind: "group", id: "<飞书群ID>" } }
     },
     {
       agentId: "reviewer",
-      match: { channel: "feishu", peer: { kind: "group", id: "<飞书群ID>" } },
-      groupChat: { mentionOnly: true }
+      match: { channel: "feishu", accountId: "reviewer", peer: { kind: "group", id: "<飞书群ID>" } }
     },
     {
       agentId: "tester",
-      match: { channel: "feishu", peer: { kind: "group", id: "<飞书群ID>" } },
-      groupChat: { mentionOnly: true }
+      match: { channel: "feishu", accountId: "tester", peer: { kind: "group", id: "<飞书群ID>" } }
     },
     // 丹妮 → 现有通道（不变），不绑定编码群
   ],
@@ -388,19 +408,23 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
         default: { /* 不变 */ },
         lead: {
           appId: "<lead appId>",
-          appSecret: { /* 从 secrets-devteam 读取 */ }
+          appSecret: { /* 从 secrets-devteam 读取 */ },
+          mentionOnly: true  // ⚠️ 在 accounts 级别，不在 bindings 里
         },
         coder: {
           appId: "<coder appId>",
-          appSecret: { /* 从 secrets-devteam 读取 */ }
+          appSecret: { /* 从 secrets-devteam 读取 */ },
+          mentionOnly: true
         },
         reviewer: {
           appId: "<reviewer appId>",
-          appSecret: { /* 从 secrets-devteam 读取 */ }
+          appSecret: { /* 从 secrets-devteam 读取 */ },
+          mentionOnly: true
         },
         tester: {
           appId: "<tester appId>",
-          appSecret: { /* 从 secrets-devteam 读取 */ }
+          appSecret: { /* 从 secrets-devteam 读取 */ },
+          mentionOnly: true
         }
       },
       // 群 allowlist 需加入编码群 ID
@@ -410,12 +434,9 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
       ]
     }
   },
-  tools: {
-    agentToAgent: {
-      enabled: true,
-      allow: ["main", "lead", "coder", "reviewer", "tester"]
-    }
-  }
+  // ⚠️ 不要开 agentToAgent，与 sessions_spawn 冲突（Bug #5813）
+  // sessions_send 是内置工具，不需要额外配置
+
 }
 ```
 
@@ -444,7 +465,7 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 - AGENTS.md：
   - 只读代码不改代码（工具层面已限制）
   - **一次性输出问题清单**：指出哪个文件、哪段逻辑、什么问题、优先级（P0阻断/P1重要/P2建议）
-  - 审查完 @Tina，将问题清单传递给下游。**不做复审、不等 Cody 修**
+  - 审查完双通道输出：sessions_send(coder, 清单) + sessions_send(lead, 摘要) + 群消息展示。**不做复审、不等 Cody 修**
   - 审查范围：逻辑正确性（边界条件、空值、异常处理）、安全风险、性能问题、可维护性
   - 对 Cody 的解释保持怀疑，除非有代码或文档证据
   - 遵循 ~/DevTeam/knowledge/review-checklist.md
@@ -577,14 +598,17 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 ## 十四、成功标准
 
 - [ ] 4 个编码 agent 在飞书群里能独立响应（mentionOnly 模式）
-- [ ] lead 能正确拆解任务并分配给 coder
-- [ ] coder 写完代码后 @reviewer 触发审查
-- [ ] reviewer 能给出有质量的审查意见
-- [ ] tester 能写测试并报告结果
-- [ ] lead 能汇总结果并通过 sessions_send 通知丹妮
-- [ ] 丹妮能通过 message tool 向编码群转发需求
+- [ ] lead 能正确拆解任务并用 sessions_send 分配给 coder（同时群消息可见）
+- [ ] coder 写完代码后 sessions_send(reviewer) 触发审查（同时群消息可见）
+- [ ] reviewer 能给出有质量的审查意见（sessions_send 回 coder + 抄送 Luke）
+- [ ] coder 修复后 sessions_send(tester) 触发测试（同时群消息可见）
+- [ ] tester 能写测试并 sessions_send 报告给 Luke
+- [ ] lead 能汇总结果并通过 sessions_send(agentId="main") 通知丹妮
+- [ ] Luke 决策后在群里发消息宣布结果
+- [ ] 丹妮能通过 sessions_send 向 Luke 转发需求
 - [ ] 丹妮不进群，context 不被群消息污染
 - [ ] 完整流程：洪涛 → 丹妮 → 飞书群 → 团队协作 → 结果 → 洪涛
+- [ ] 返工流程完整闭环（Luke → Cody → Ruby → Tina → Luke，新一轮流水线）
 
 ## 附录：改进审查记录（v1 → v2）
 
@@ -601,3 +625,8 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 | 9 | 流水线有回环（Ruby→Cody→Ruby 复审可能无限循环） | 改为单向流水线：Ruby 一次性输出清单不做复审，Tina 是最终质量关卡，Luke 做决策 | ✅ |
 | 10 | Tina 被 @ 两次（Ruby@Tina + Cody@Tina 几乎同时） | Ruby 不发 @，Cody 是唯一触发 Tina 的人，链式传递 | ✅ |
 | 11 | 群消息上下文混乱（多任务并行） | Luke 串行队列，同时只处理一个任务，不依赖 Thread | ✅ |
+| 12 | 飞书 bot 间 @mention 不触发事件 | 改为双通道模式：sessions_send 触发 + message tool 群展示 | ✅ |
+| 13 | mentionOnly 放在 agents.list[] 导致 Gateway abort | 必须放在 channels.feishu.accounts.<id>.mentionOnly | ✅ |
+| 14 | agentToAgent 与 sessions_spawn 冲突 | 不开 agentToAgent，sessions_send 内置可用 | ✅ |
+| 15 | Ruby 审查完不告诉 Luke，决策缺信息 | Ruby sessions_send 回 Cody + 抄送 Luke（审查摘要） | ✅ |
+| 16 | Luke 决策后群里看不到结果 | Luke 决策后发群消息宣布 + sessions_send 通知丹妮 | ✅ |
