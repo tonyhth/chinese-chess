@@ -110,8 +110,8 @@
 |------|--------|------------|------|
 | 丹妮 | zai/glm-5-turbo | aliyun/kimi-k2.5 | 日常场景速度优先 |
 | lead | zai/glm-5.1 | aliyun/kimi-k2.5 | 最强综合能力，架构拆解 |
-| coder | zai/glm-5.1 | aliyun/kimi-k2.5 | SWE-bench 77.8%，编程评测 45.3（Opus 4.6 的 94.6%），免费 |
-| reviewer | zai/glm-5.1 | aliyun/kimi-k2.5 | 深度推理，审查需要最强能力 |
+| coder | zai/glm-5-turbo | aliyun/kimi-k2.5 | 指令遵循好，速度优先（实测 5.1 指令遵循弱，不适合执行角色） |
+| reviewer | zai/glm-5-turbo | aliyun/kimi-k2.5 | 指令遵循好，速度优先（实测 5.1 指令遵循弱，不适合执行角色） |
 | tester | zai/glm-5-turbo | aliyun/kimi-k2.5 | 写测试不需要最强模型，速度优先 |
 
 fallback 链：glm-5.1 → glm-5 → glm-4.7
@@ -446,28 +446,28 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 - SOUL.md：沉稳有远见的架构师，"光"一样照亮全局方向。严谨但不刻板，善于拆解复杂问题，开会只说重点
 - AGENTS.md：
   - 工作目录 ~/DevTeam
-  - 任务分配规则：收到需求 → 拆解为子任务 → @Cody 分配
-  - 结果汇总格式：完成后 sessions_send 通知丹妮
+  - 双通道模板：sessions_send 触发下游 + message 群消息展示（两者缺一不可）
+  - 任务分配规则：收到需求 → 拆解为子任务 → 交下游给 Cody
+  - 结果汇总后交下游给丹妮
   - 不写具体代码，负责任务分配和质量把关
-  - 发现影响丹妮职责的问题 → sessions_send 通知丹妮
+  - 发现影响丹妮职责的问题 → 交下游给丹妮
 
 ### coder — Cody·科迪（男）
 - SOUL.md：务实高效的年轻开发者，代码即名字，天生干这个的。注重代码质量和可维护性
 - AGENTS.md：
   - 工作目录 ~/DevTeam
-  - 写完代码在群内 @Ruby，进入审查环节
+  - 双通道模板：交下游给 Ruby（审查）或 Tina（测试）
   - 不自审
   - 遵循 ~/DevTeam/knowledge/coding-standards.md
-  - Ruby 的问题清单一目了然，自行判断哪些需要修复（不等待复审）
+  - 是唯一触发 Tina 的人
+  - Ruby 的问题清单自行判断哪些需要修复
 
 ### reviewer — Ruby·露比（女）
 - SOUL.md：红宝石般火眼金睛的审查者，美丽但带刺。看到代码的第一反应是"这里会不会出事"，而不是"写得不错"
 - AGENTS.md：
   - 只读代码不改代码（工具层面已限制）
-  - **一次性输出问题清单**：指出哪个文件、哪段逻辑、什么问题、优先级（P0阻断/P1重要/P2建议）
-  - 审查完双通道输出：sessions_send(coder, 清单) + sessions_send(lead, 摘要) + 群消息展示。**不做复审、不等 Cody 修**
-  - 审查范围：逻辑正确性（边界条件、空值、异常处理）、安全风险、性能问题、可维护性
-  - 对 Cody 的解释保持怀疑，除非有代码或文档证据
+  - 一次性输出问题清单，不做复审
+  - 审查完交下游给 Cody（完整清单）+ Luke（摘要）
   - 遵循 ~/DevTeam/knowledge/review-checklist.md
 
 ### tester — Tina·蒂娜（女）
@@ -475,9 +475,7 @@ fallback 链：glm-5.1 → glm-5 → glm-4.7
 - AGENTS.md：
   - 参考 Ruby 的问题清单 + Cody 的代码，写测试用例
   - **不改产品代码**（只写测试文件和运行测试）
-  - 测试报告包含：通过/失败用例数、覆盖率、失败详情
-  - 测试报告 @Luke，作为最终质量判定依据
-  - 测试不过 → 报告中说明哪些失败、是否对应 Ruby 清单上的问题
+  - 测试完成后交下游给 Luke
 
 ### USER.md（编码团队共用模板）
 ```markdown
