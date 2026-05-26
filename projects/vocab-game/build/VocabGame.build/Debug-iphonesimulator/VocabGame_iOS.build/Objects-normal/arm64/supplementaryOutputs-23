@@ -1,0 +1,23 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/PetState.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetState.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetState.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetState.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetState.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetState.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/PlayerProfile.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PlayerProfile.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PlayerProfile.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PlayerProfile.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PlayerProfile.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PlayerProfile.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Repositories/PetRepository.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetRepository.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetRepository.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetRepository.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetRepository.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/arm64/PetRepository.swiftdeps"
+  }
+}

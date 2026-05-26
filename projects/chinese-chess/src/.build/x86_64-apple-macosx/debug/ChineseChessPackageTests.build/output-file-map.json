@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.build/master.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.derived/runner.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.build/runner.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.build/runner.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.build/runner~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.build/runner.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChessPackageTests.build/runner.dia"
+  }
+}

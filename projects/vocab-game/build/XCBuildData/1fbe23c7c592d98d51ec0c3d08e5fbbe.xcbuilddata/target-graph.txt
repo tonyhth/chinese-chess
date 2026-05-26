@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'VocabGameTests' in project 'VocabGame'
+➜ Explicit dependency on target 'VocabGame_iOS' in project 'VocabGame'
+Target 'VocabGame_iOS' in project 'VocabGame' (no dependencies)

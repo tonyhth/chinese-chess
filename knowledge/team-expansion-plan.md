@@ -354,7 +354,7 @@ Vera 会挑你方案的毛病。这是好事。她挑出来的问题越早暴露
 ## 🚨🚨🚨 交下游（必做，漏一个 = 断裂）
 
 sessions_send(agentId="__", sessionKey="agent:__:feishu:group:oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", timeoutSeconds=0)
-message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", accountId="architect")
+message(action="send", channel="openclaw-feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", accountId="architect")
 
 | 目标 | agentId |
 |------|---------|
@@ -430,7 +430,7 @@ message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f
 ## 🚨🚨🚨 交下游（必做，漏一个 = 断裂）
 
 sessions_send(agentId="__", sessionKey="agent:__:feishu:group:oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", timeoutSeconds=0)
-message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", accountId="inspector")
+message(action="send", channel="openclaw-feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", accountId="inspector")
 
 | 目标 | agentId |
 |------|---------|

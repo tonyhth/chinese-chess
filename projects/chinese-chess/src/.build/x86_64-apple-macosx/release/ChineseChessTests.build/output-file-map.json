@@ -1,0 +1,67 @@
+{
+  "": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ChineseChessTests.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ChineseChessTests.o",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/master.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/AIAdvancedTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIAdvancedTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIAdvancedTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIAdvancedTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIAdvancedTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/AIEngineTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIEngineTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIEngineTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIEngineTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/AIEngineTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/BoardTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/BoardTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/BoardTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/BoardTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/BoardTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/EdgeCaseTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/EdgeCaseTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/EdgeCaseTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/EdgeCaseTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/EdgeCaseTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameResultTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameResultTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameResultTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameResultTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameResultTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameViewModelTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameViewModelTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameViewModelTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameViewModelTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameViewModelTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/IntegrationTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/IntegrationTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/IntegrationTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/IntegrationTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/IntegrationTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/MoveValidatorTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/UndoMoveTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/UndoMoveTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/UndoMoveTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/UndoMoveTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/UndoMoveTests.dia"
+  }
+}

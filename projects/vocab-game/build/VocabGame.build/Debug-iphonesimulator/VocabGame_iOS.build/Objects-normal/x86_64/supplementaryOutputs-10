@@ -1,0 +1,23 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/ViewModels/ProfileViewModel.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileViewModel.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileViewModel.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileViewModel.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileViewModel.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileViewModel.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/PrimaryButtonStyle.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/PrimaryButtonStyle.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/PrimaryButtonStyle.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/PrimaryButtonStyle.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/PrimaryButtonStyle.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/PrimaryButtonStyle.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Profile/ProfileView.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileView.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileView.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileView.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileView.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/ProfileView.swiftdeps"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Helpers/Constants.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/Constants.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/Constants.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/Constants.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/Constants.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/Constants.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Services/AudioService.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AudioService.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AudioService.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AudioService.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AudioService.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AudioService.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/AnimationComponents.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AnimationComponents.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AnimationComponents.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AnimationComponents.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AnimationComponents.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/AnimationComponents.swiftdeps"
+  }
+}

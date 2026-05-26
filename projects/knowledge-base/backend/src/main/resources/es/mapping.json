@@ -1,0 +1,53 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "ik_index_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word"
+        },
+        "ik_search_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_smart"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "articleId": { "type": "long" },
+      "title": {
+        "type": "text",
+        "analyzer": "ik_index_analyzer",
+        "search_analyzer": "ik_search_analyzer",
+        "fields": {
+          "keyword": { "type": "keyword" },
+          "suggest": {
+            "type": "completion",
+            "analyzer": "ik_index_analyzer"
+          }
+        }
+      },
+      "summary": {
+        "type": "text",
+        "analyzer": "ik_index_analyzer",
+        "search_analyzer": "ik_search_analyzer"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "ik_index_analyzer",
+        "search_analyzer": "ik_search_analyzer"
+      },
+      "categoryId": { "type": "long" },
+      "categoryName": { "type": "keyword" },
+      "tagIds": { "type": "long" },
+      "tagNames": { "type": "keyword" },
+      "authorId": { "type": "long" },
+      "authorName": { "type": "keyword" },
+      "status": { "type": "keyword" },
+      "updatedAt": { "type": "date", "format": "yyyy-MM-dd'T'HH:mm:ss||epoch_millis" }
+    }
+  }
+}

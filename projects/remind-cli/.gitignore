@@ -1,0 +1,12 @@
+# Dependencies
+.build/
+.swiftpm/
+Package.resolved
+
+# Build artifacts
+*.o
+*.swiftdoc
+*.swiftmodule
+
+# OS
+.DS_Store

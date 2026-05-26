@@ -1,0 +1,14 @@
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/tag/TagServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/test/TestRedisConfig.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/upload/UploadServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/permission/service/ArticlePermissionServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/common/security/PermissionServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/article/ArticleVersionServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/comment/CommentServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/dashboard/DashboardControllerTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/common/security/RbacIntegrationTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/user/UserServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/debug/DataDebugTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/category/CategoryServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/article/ArticleBatchServiceTest.java
+/Users/hth/DevTeam/projects/knowledge-base/backend/src/test/java/com/kb/auth/AuthIntegrationTest.java

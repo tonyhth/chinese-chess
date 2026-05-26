@@ -1,0 +1,51 @@
+# Test profile: H2 内存数据库，无需外部依赖
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: false
+  flyway:
+    enabled: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-test.sql
+      # data-locations 改为用 @Sql 在每个测试类中加载
+      data-locations:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: test
+  secret-key: test
+  bucket: test
+  enabled: false
+
+elasticsearch:
+  enabled: false
+
+logging:
+  level:
+    com.kb: WARN
+
+jwt:
+  secret: test-secret-key-for-unit-tests-only-minimum-32-chars-long
+  access-expire: 3600
+  refresh-expire: 86400

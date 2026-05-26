@@ -1,0 +1,10 @@
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/AIAdvancedTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/AIEngineTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/BoardTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/EdgeCaseTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameResultTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameViewModelTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/IntegrationTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/MoveValidatorTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/UndoMoveTests.swift

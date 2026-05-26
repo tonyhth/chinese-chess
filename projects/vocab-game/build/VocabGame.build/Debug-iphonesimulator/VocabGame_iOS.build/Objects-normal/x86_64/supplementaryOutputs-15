@@ -1,0 +1,23 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Services/SpacedRepetitionService.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpacedRepetitionService.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpacedRepetitionService.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpacedRepetitionService.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpacedRepetitionService.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpacedRepetitionService.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/ViewModels/SpellChallengeViewModel.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeViewModel.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeViewModel.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeViewModel.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeViewModel.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeViewModel.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Game/SpellChallengeView.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeView.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeView.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeView.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeView.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build/VocabGame.build/Debug-iphonesimulator/VocabGame_iOS.build/Objects-normal/x86_64/SpellChallengeView.swiftdeps"
+  }
+}

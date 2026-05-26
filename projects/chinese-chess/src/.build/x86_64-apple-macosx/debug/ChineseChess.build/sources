@@ -1,0 +1,16 @@
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/AIEngine.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Board.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Enums.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Move.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/MoveValidator.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Piece.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Position.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/SoundEngine.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardView.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PieceView.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ToolbarView.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/DerivedSources/resource_bundle_accessor.swift

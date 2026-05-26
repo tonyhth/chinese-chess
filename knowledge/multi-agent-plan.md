@@ -100,7 +100,7 @@
 
 每次 agent 间派活必须同时执行两步：
 1. `sessions_send(agentId="xxx", message="...")` — 内部触发下游 agent
-2. `message(action="send", channel="feishu", accountId="xxx", target="oc_a1dce49...", message="@xxx ...")` — 群内展示
+2. `message(action="send", channel="openclaw-feishu", accountId="xxx", target="oc_a1dce49...", message="@xxx ...")` — 群内展示
 
 群里 @bot 纯文本不触发事件（飞书平台限制），仅用于人查看协作进度。
 

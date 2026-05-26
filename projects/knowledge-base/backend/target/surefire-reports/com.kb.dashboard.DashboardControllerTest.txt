@@ -1,0 +1,54 @@
+-------------------------------------------------------------------------------
+Test set: com.kb.dashboard.DashboardControllerTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 2, Errors: 1, Skipped: 0, Time elapsed: 0.194 s <<< FAILURE! -- in com.kb.dashboard.DashboardControllerTest
+com.kb.dashboard.DashboardControllerTest.admin_canAccess -- Time elapsed: 0.095 s <<< FAILURE!
+java.lang.AssertionError: No value at JSON path "$.data.articleCount"
+	at org.springframework.test.util.JsonPathExpectationsHelper.evaluateJsonPath(JsonPathExpectationsHelper.java:302)
+	at org.springframework.test.util.JsonPathExpectationsHelper.assertExistsAndReturn(JsonPathExpectationsHelper.java:326)
+	at org.springframework.test.util.JsonPathExpectationsHelper.assertValueIsNumber(JsonPathExpectationsHelper.java:155)
+	at org.springframework.test.web.servlet.result.JsonPathResultMatchers.lambda$isNumber$11(JsonPathResultMatchers.java:218)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.kb.dashboard.DashboardControllerTest.admin_canAccess(DashboardControllerTest.java:58)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+Caused by: com.jayway.jsonpath.PathNotFoundException: Missing property in path $['data']
+
+com.kb.dashboard.DashboardControllerTest.unauthenticated_401 -- Time elapsed: 0.005 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<401> but was:<403>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:59)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:122)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:637)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.kb.dashboard.DashboardControllerTest.unauthenticated_401(DashboardControllerTest.java:87)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+
+com.kb.dashboard.DashboardControllerTest.editor_forbidden -- Time elapsed: 0.076 s <<< ERROR!
+com.kb.common.BusinessException: 未认证
+	at com.kb.common.security.PermissionService.currentUser(PermissionService.java:44)
+	at com.kb.common.security.PermissionService.isAdmin(PermissionService.java:57)
+	at com.kb.common.security.PermissionService.checkAdminOnly(PermissionService.java:179)
+	at com.kb.user.service.UserService.create(UserService.java:51)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720)
+	at com.kb.user.service.UserService$$SpringCGLIB$$0.create(<generated>)
+	at com.kb.dashboard.DashboardControllerTest.editor_forbidden(DashboardControllerTest.java:71)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+

@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.kb.tag.TagServiceTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s -- in com.kb.tag.TagServiceTest

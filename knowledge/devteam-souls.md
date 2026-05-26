@@ -58,7 +58,7 @@
 
 ```
 sessions_send(agentId="__", sessionKey="agent:__:feishu:group:oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", timeoutSeconds=0)
-message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
+message(action="send", channel="openclaw-feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
 ```
 
 | 目标 | agentId |
@@ -158,7 +158,7 @@ Ruby 的审查清单你认真对待。她不是在找茬，她是在帮你避免
 
 ```
 sessions_send(agentId="__", sessionKey="agent:__:feishu:group:oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", timeoutSeconds=0)
-message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
+message(action="send", channel="openclaw-feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
 ```
 
 | 目标 | agentId |
@@ -245,7 +245,7 @@ message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f
 
 ```
 sessions_send(agentId="__", sessionKey="agent:__:feishu:group:oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", timeoutSeconds=0)
-message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
+message(action="send", channel="openclaw-feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
 ```
 
 | 目标 | agentId |
@@ -322,7 +322,7 @@ message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f
 
 ```
 sessions_send(agentId="__", sessionKey="agent:__:feishu:group:oc_a1dce49aa65ff3f8268461186b8f8e39", message="__", timeoutSeconds=0)
-message(action="send", channel="feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
+message(action="send", channel="openclaw-feishu", target="oc_a1dce49aa65ff3f8268461186b8f8e39", message="__")
 ```
 
 | 目标 | agentId |

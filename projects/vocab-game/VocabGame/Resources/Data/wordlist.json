@@ -1,0 +1,2258 @@
+[
+  {
+    "id": 1,
+    "text": "resemble",
+    "meaning": "v.像，与…相似",
+    "group": 1
+  },
+  {
+    "id": 2,
+    "text": "recognize",
+    "meaning": "v.认出，识别；承认",
+    "group": 1
+  },
+  {
+    "id": 3,
+    "text": "adjust",
+    "meaning": "v.调整，使适合",
+    "group": 1
+  },
+  {
+    "id": 4,
+    "text": "approach",
+    "meaning": "n.方法",
+    "group": 1
+  },
+  {
+    "id": 5,
+    "text": "fundamental",
+    "meaning": "adj.基本的，基础的",
+    "group": 1
+  },
+  {
+    "id": 6,
+    "text": "rely on",
+    "meaning": "依靠，依赖",
+    "group": 1
+  },
+  {
+    "id": 7,
+    "text": "domestic",
+    "meaning": "adj.家庭的；国内的",
+    "group": 1
+  },
+  {
+    "id": 8,
+    "text": "measure",
+    "meaning": "v.测量",
+    "group": 1
+  },
+  {
+    "id": 9,
+    "text": "trait",
+    "meaning": "n.特性，特征",
+    "group": 1
+  },
+  {
+    "id": 10,
+    "text": "coin",
+    "meaning": "v.创造",
+    "group": 1
+  },
+  {
+    "id": 11,
+    "text": "artificial",
+    "meaning": "adj.人造的，仿造的",
+    "group": 1
+  },
+  {
+    "id": 12,
+    "text": "prompt",
+    "meaning": "v.促进，激起",
+    "group": 1
+  },
+  {
+    "id": 13,
+    "text": "exchange",
+    "meaning": "v.交换",
+    "group": 1
+  },
+  {
+    "id": 14,
+    "text": "underlie",
+    "meaning": "v.成为……基础",
+    "group": 1
+  },
+  {
+    "id": 15,
+    "text": "ignore",
+    "meaning": "v.忽视，不顾",
+    "group": 1
+  },
+  {
+    "id": 16,
+    "text": "fertilizer",
+    "meaning": "n.化肥，肥料",
+    "group": 2
+  },
+  {
+    "id": 17,
+    "text": "that*",
+    "meaning": "pron.那个",
+    "group": 2
+  },
+  {
+    "id": 18,
+    "text": "and*",
+    "meaning": "conj.和，而且",
+    "group": 2
+  },
+  {
+    "id": 19,
+    "text": "rather than",
+    "meaning": "而非，不是",
+    "group": 2
+  },
+  {
+    "id": 20,
+    "text": "thanks to*",
+    "meaning": "由于，幸亏",
+    "group": 2
+  },
+  {
+    "id": 21,
+    "text": "diversity",
+    "meaning": "n.多样性，差异",
+    "group": 2
+  },
+  {
+    "id": 22,
+    "text": "detect",
+    "meaning": "v.查明，发现",
+    "group": 2
+  },
+  {
+    "id": 23,
+    "text": "isolate",
+    "meaning": "v.使隔离，使孤立",
+    "group": 2
+  },
+  {
+    "id": 24,
+    "text": "avoid",
+    "meaning": "v.避免",
+    "group": 2
+  },
+  {
+    "id": 25,
+    "text": "budget",
+    "meaning": "n.预算",
+    "group": 2
+  },
+  {
+    "id": 26,
+    "text": "adapt to",
+    "meaning": "使适应",
+    "group": 2
+  },
+  {
+    "id": 27,
+    "text": "alternative",
+    "meaning": "adj.供替代的 n.替代品",
+    "group": 2
+  },
+  {
+    "id": 28,
+    "text": "compensate",
+    "meaning": "v.补偿，赔偿",
+    "group": 2
+  },
+  {
+    "id": 29,
+    "text": "component",
+    "meaning": "n.成分，要素",
+    "group": 2
+  },
+  {
+    "id": 30,
+    "text": "military",
+    "meaning": "adj.军事的",
+    "group": 2
+  },
+  {
+    "id": 31,
+    "text": "criteria",
+    "meaning": "n.标准",
+    "group": 3
+  },
+  {
+    "id": 32,
+    "text": "curriculum",
+    "meaning": "n.课程",
+    "group": 3
+  },
+  {
+    "id": 33,
+    "text": "feasible",
+    "meaning": "adj.可行的",
+    "group": 3
+  },
+  {
+    "id": 34,
+    "text": "constrain",
+    "meaning": "v.束缚，限制",
+    "group": 3
+  },
+  {
+    "id": 35,
+    "text": "deficiency",
+    "meaning": "n.缺陷，缺点",
+    "group": 3
+  },
+  {
+    "id": 36,
+    "text": "supplement",
+    "meaning": "v.补充",
+    "group": 3
+  },
+  {
+    "id": 37,
+    "text": "distinguish",
+    "meaning": "v.区别，辨别",
+    "group": 3
+  },
+  {
+    "id": 38,
+    "text": "analyze",
+    "meaning": "v.分析，解释",
+    "group": 3
+  },
+  {
+    "id": 39,
+    "text": "emphasize",
+    "meaning": "v.强调，着重",
+    "group": 3
+  },
+  {
+    "id": 40,
+    "text": "enormous",
+    "meaning": "adj.庞大的，巨大的",
+    "group": 3
+  },
+  {
+    "id": 41,
+    "text": "imitate",
+    "meaning": "v.模仿",
+    "group": 3
+  },
+  {
+    "id": 42,
+    "text": "impair",
+    "meaning": "v.削弱，减少",
+    "group": 3
+  },
+  {
+    "id": 43,
+    "text": "hinder",
+    "meaning": "v.阻碍",
+    "group": 3
+  },
+  {
+    "id": 44,
+    "text": "legitimate",
+    "meaning": "adj.合法的",
+    "group": 3
+  },
+  {
+    "id": 45,
+    "text": "limitation",
+    "meaning": "n.限制",
+    "group": 3
+  },
+  {
+    "id": 46,
+    "text": "convention",
+    "meaning": "n.手法；习俗",
+    "group": 4
+  },
+  {
+    "id": 47,
+    "text": "demanding",
+    "meaning": "adj.要求的",
+    "group": 4
+  },
+  {
+    "id": 48,
+    "text": "determine",
+    "meaning": "v.决定",
+    "group": 4
+  },
+  {
+    "id": 49,
+    "text": "accelerate",
+    "meaning": "v.加速，促进",
+    "group": 4
+  },
+  {
+    "id": 50,
+    "text": "ancient",
+    "meaning": "adj.古代的；古老的",
+    "group": 4
+  },
+  {
+    "id": 51,
+    "text": "beneficial",
+    "meaning": "adj.有益的",
+    "group": 4
+  },
+  {
+    "id": 52,
+    "text": "chronic",
+    "meaning": "adj.慢性的，长期性的",
+    "group": 4
+  },
+  {
+    "id": 53,
+    "text": "conscious",
+    "meaning": "adj.有意识的，神志清醒的",
+    "group": 4
+  },
+  {
+    "id": 54,
+    "text": "minimize",
+    "meaning": "v.最小化，使减到最小",
+    "group": 4
+  },
+  {
+    "id": 55,
+    "text": "immunity",
+    "meaning": "n.免疫力",
+    "group": 4
+  },
+  {
+    "id": 56,
+    "text": "imperative",
+    "meaning": "adj.必要的，紧急的",
+    "group": 4
+  },
+  {
+    "id": 57,
+    "text": "secrete",
+    "meaning": "v.分泌",
+    "group": 4
+  },
+  {
+    "id": 58,
+    "text": "exaggerate",
+    "meaning": "v.夸大，夸张",
+    "group": 4
+  },
+  {
+    "id": 59,
+    "text": "transmit",
+    "meaning": "v.传达，传输",
+    "group": 4
+  },
+  {
+    "id": 60,
+    "text": "extinct",
+    "meaning": "adj.灭绝",
+    "group": 4
+  },
+  {
+    "id": 61,
+    "text": "exclusive",
+    "meaning": "adj.独有的；排外的；专一的",
+    "group": 5
+  },
+  {
+    "id": 62,
+    "text": "guarantee",
+    "meaning": "v.保证，担保",
+    "group": 5
+  },
+  {
+    "id": 63,
+    "text": "inherit",
+    "meaning": "v.继承",
+    "group": 5
+  },
+  {
+    "id": 64,
+    "text": "witness",
+    "meaning": "n.见证；目击者",
+    "group": 5
+  },
+  {
+    "id": 65,
+    "text": "magnetic",
+    "meaning": "adj.有磁性的",
+    "group": 5
+  },
+  {
+    "id": 66,
+    "text": "loss",
+    "meaning": "n.减少，失败，遗失",
+    "group": 5
+  },
+  {
+    "id": 67,
+    "text": "option",
+    "meaning": "n.选择",
+    "group": 5
+  },
+  {
+    "id": 68,
+    "text": "prefer to",
+    "meaning": "更喜欢",
+    "group": 5
+  },
+  {
+    "id": 69,
+    "text": "priority",
+    "meaning": "n.优先权",
+    "group": 5
+  },
+  {
+    "id": 70,
+    "text": "primary",
+    "meaning": "adj.主要的",
+    "group": 5
+  },
+  {
+    "id": 71,
+    "text": "principle",
+    "meaning": "n.原理",
+    "group": 5
+  },
+  {
+    "id": 72,
+    "text": "potential",
+    "meaning": "n.潜能 adj.潜在的",
+    "group": 5
+  },
+  {
+    "id": 73,
+    "text": "quantity",
+    "meaning": "n.数量",
+    "group": 5
+  },
+  {
+    "id": 74,
+    "text": "settle",
+    "meaning": "v.解决；定居，稳定",
+    "group": 5
+  },
+  {
+    "id": 75,
+    "text": "sophisticate",
+    "meaning": "v.使复杂，使精致",
+    "group": 5
+  },
+  {
+    "id": 76,
+    "text": "specific",
+    "meaning": "adj.明确的；特殊的",
+    "group": 6
+  },
+  {
+    "id": 77,
+    "text": "survive",
+    "meaning": "v.存活，幸存",
+    "group": 6
+  },
+  {
+    "id": 78,
+    "text": "swift",
+    "meaning": "adj.迅速的，敏捷的，立刻的",
+    "group": 6
+  },
+  {
+    "id": 79,
+    "text": "unexpectedly",
+    "meaning": "adv.出乎意料地",
+    "group": 6
+  },
+  {
+    "id": 80,
+    "text": "surrounding",
+    "meaning": "n.环境",
+    "group": 6
+  },
+  {
+    "id": 81,
+    "text": "attempt",
+    "meaning": "v.试图，尝试",
+    "group": 6
+  },
+  {
+    "id": 82,
+    "text": "expertise",
+    "meaning": "n.专门技术",
+    "group": 6
+  },
+  {
+    "id": 83,
+    "text": "faculty",
+    "meaning": "n.能力，才能；全体教员",
+    "group": 6
+  },
+  {
+    "id": 84,
+    "text": "donate",
+    "meaning": "v.捐赠",
+    "group": 6
+  },
+  {
+    "id": 85,
+    "text": "dynamics",
+    "meaning": "n.动力学",
+    "group": 6
+  },
+  {
+    "id": 86,
+    "text": "incentive",
+    "meaning": "n.刺激，鼓励；动机",
+    "group": 6
+  },
+  {
+    "id": 87,
+    "text": "mortality",
+    "meaning": "n.死亡率",
+    "group": 6
+  },
+  {
+    "id": 88,
+    "text": "peripheral",
+    "meaning": "adj.外围的，次要的",
+    "group": 6
+  },
+  {
+    "id": 89,
+    "text": "vicinity",
+    "meaning": "n.邻近，附近",
+    "group": 6
+  },
+  {
+    "id": 90,
+    "text": "threaten",
+    "meaning": "v.威胁，危及",
+    "group": 6
+  },
+  {
+    "id": 91,
+    "text": "practice",
+    "meaning": "n.实行；练习，实践，惯例",
+    "group": 7
+  },
+  {
+    "id": 92,
+    "text": "bacteria",
+    "meaning": "n.细菌",
+    "group": 7
+  },
+  {
+    "id": 93,
+    "text": "be subject to",
+    "meaning": "受……支配",
+    "group": 7
+  },
+  {
+    "id": 94,
+    "text": "be liable to",
+    "meaning": "易于",
+    "group": 7
+  },
+  {
+    "id": 95,
+    "text": "innate",
+    "meaning": "adj.天生的；内在的，直觉的",
+    "group": 7
+  },
+  {
+    "id": 96,
+    "text": "pattern",
+    "meaning": "n.模式，图案",
+    "group": 7
+  },
+  {
+    "id": 97,
+    "text": "therapy",
+    "meaning": "n.治疗，理疗",
+    "group": 7
+  },
+  {
+    "id": 98,
+    "text": "original",
+    "meaning": "adj.原始的，最初的",
+    "group": 7
+  },
+  {
+    "id": 99,
+    "text": "confidential",
+    "meaning": "adj.机密的，秘密的",
+    "group": 7
+  },
+  {
+    "id": 100,
+    "text": "cognitive",
+    "meaning": "adj.认知的",
+    "group": 7
+  },
+  {
+    "id": 101,
+    "text": "comply with",
+    "meaning": "照做，遵守",
+    "group": 7
+  },
+  {
+    "id": 102,
+    "text": "consult",
+    "meaning": "v.查阅，商量，咨询",
+    "group": 7
+  },
+  {
+    "id": 103,
+    "text": "superior",
+    "meaning": "adj.上级的；优秀的",
+    "group": 7
+  },
+  {
+    "id": 104,
+    "text": "co-operation",
+    "meaning": "n.合作，协作",
+    "group": 7
+  },
+  {
+    "id": 105,
+    "text": "co-ordinate",
+    "meaning": "v.使……协调",
+    "group": 7
+  },
+  {
+    "id": 106,
+    "text": "differ",
+    "meaning": "v.使……相异；使……不同",
+    "group": 8
+  },
+  {
+    "id": 107,
+    "text": "cue",
+    "meaning": "n.线索",
+    "group": 8
+  },
+  {
+    "id": 108,
+    "text": "signal",
+    "meaning": "n.信号",
+    "group": 8
+  },
+  {
+    "id": 109,
+    "text": "abandon",
+    "meaning": "v.放弃，遗弃",
+    "group": 8
+  },
+  {
+    "id": 110,
+    "text": "halt",
+    "meaning": "v.停止",
+    "group": 8
+  },
+  {
+    "id": 111,
+    "text": "fragile",
+    "meaning": "adj.脆弱的",
+    "group": 8
+  },
+  {
+    "id": 112,
+    "text": "retain",
+    "meaning": "v.记住",
+    "group": 8
+  },
+  {
+    "id": 113,
+    "text": "vanish",
+    "meaning": "v.消失，绝迹",
+    "group": 8
+  },
+  {
+    "id": 114,
+    "text": "delivery",
+    "meaning": "v.递送",
+    "group": 8
+  },
+  {
+    "id": 115,
+    "text": "erode",
+    "meaning": "v.侵蚀",
+    "group": 8
+  },
+  {
+    "id": 116,
+    "text": "induce",
+    "meaning": "v.引起，引诱",
+    "group": 8
+  },
+  {
+    "id": 117,
+    "text": "stable",
+    "meaning": "adj.稳定的",
+    "group": 8
+  },
+  {
+    "id": 118,
+    "text": "integrate",
+    "meaning": "v.使……成整体",
+    "group": 8
+  },
+  {
+    "id": 119,
+    "text": "equal",
+    "meaning": "adj.平等的；相等的；胜任的",
+    "group": 8
+  },
+  {
+    "id": 120,
+    "text": "grant",
+    "meaning": "v.拨款；授予",
+    "group": 8
+  },
+  {
+    "id": 121,
+    "text": "accumulate",
+    "meaning": "v.累积，积聚",
+    "group": 9
+  },
+  {
+    "id": 122,
+    "text": "addictive",
+    "meaning": "adj.上瘾的",
+    "group": 9
+  },
+  {
+    "id": 123,
+    "text": "adversity",
+    "meaning": "n.逆境，不幸",
+    "group": 9
+  },
+  {
+    "id": 124,
+    "text": "aggression",
+    "meaning": "n.侵犯，侵害",
+    "group": 9
+  },
+  {
+    "id": 125,
+    "text": "agreeable",
+    "meaning": "adj.令人愉快的；适合的；和蔼可亲的",
+    "group": 9
+  },
+  {
+    "id": 126,
+    "text": "aid",
+    "meaning": "n.援助，帮助",
+    "group": 9
+  },
+  {
+    "id": 127,
+    "text": "allergic",
+    "meaning": "adj.过敏的；对……极讨厌的",
+    "group": 9
+  },
+  {
+    "id": 128,
+    "text": "altitude",
+    "meaning": "n.高度；海拔",
+    "group": 9
+  },
+  {
+    "id": 129,
+    "text": "application",
+    "meaning": "n.应用，申请",
+    "group": 9
+  },
+  {
+    "id": 130,
+    "text": "approve",
+    "meaning": "v.批准",
+    "group": 9
+  },
+  {
+    "id": 131,
+    "text": "array",
+    "meaning": "n.排列；大批",
+    "group": 9
+  },
+  {
+    "id": 132,
+    "text": "assign",
+    "meaning": "v.分配；指派",
+    "group": 9
+  },
+  {
+    "id": 133,
+    "text": "association",
+    "meaning": "n.协会，联盟；联系",
+    "group": 9
+  },
+  {
+    "id": 134,
+    "text": "attitude",
+    "meaning": "n.看法，态度",
+    "group": 9
+  },
+  {
+    "id": 135,
+    "text": "authority",
+    "meaning": "n.当局，权威",
+    "group": 9
+  },
+  {
+    "id": 136,
+    "text": "be consistent with",
+    "meaning": "与……一致",
+    "group": 10
+  },
+  {
+    "id": 137,
+    "text": "bear",
+    "meaning": "v.承担；忍受",
+    "group": 10
+  },
+  {
+    "id": 138,
+    "text": "blight",
+    "meaning": "v.损害；枯萎",
+    "group": 10
+  },
+  {
+    "id": 139,
+    "text": "boundary",
+    "meaning": "n.边界；底线",
+    "group": 10
+  },
+  {
+    "id": 140,
+    "text": "bungle",
+    "meaning": "v.搞糟，拙劣地工作",
+    "group": 10
+  },
+  {
+    "id": 141,
+    "text": "burden",
+    "meaning": "n.负担",
+    "group": 10
+  },
+  {
+    "id": 142,
+    "text": "calamity",
+    "meaning": "n.灾难",
+    "group": 10
+  },
+  {
+    "id": 143,
+    "text": "capacity",
+    "meaning": "n.容量",
+    "group": 10
+  },
+  {
+    "id": 144,
+    "text": "catastrophic",
+    "meaning": "adj.灾难的",
+    "group": 10
+  },
+  {
+    "id": 145,
+    "text": "cater",
+    "meaning": "v.迎合；满足需要",
+    "group": 10
+  },
+  {
+    "id": 146,
+    "text": "certify",
+    "meaning": "v.证明，保证",
+    "group": 10
+  },
+  {
+    "id": 147,
+    "text": "civic",
+    "meaning": "adj.市民的，城市的",
+    "group": 10
+  },
+  {
+    "id": 148,
+    "text": "comment",
+    "meaning": "v./n.评论；意见",
+    "group": 10
+  },
+  {
+    "id": 149,
+    "text": "commitment",
+    "meaning": "n.承诺，许诺，义务",
+    "group": 10
+  },
+  {
+    "id": 150,
+    "text": "communal",
+    "meaning": "adj.公共的，公社的",
+    "group": 10
+  },
+  {
+    "id": 151,
+    "text": "commute",
+    "meaning": "v.通勤；用……交换",
+    "group": 11
+  },
+  {
+    "id": 152,
+    "text": "compare",
+    "meaning": "v.与……相比较",
+    "group": 11
+  },
+  {
+    "id": 153,
+    "text": "conceal",
+    "meaning": "v.隐藏；隐瞒",
+    "group": 11
+  },
+  {
+    "id": 154,
+    "text": "concentrate",
+    "meaning": "v.专心于；集中",
+    "group": 11
+  },
+  {
+    "id": 155,
+    "text": "concur",
+    "meaning": "v.同意",
+    "group": 11
+  },
+  {
+    "id": 156,
+    "text": "confer",
+    "meaning": "v.授予，给予",
+    "group": 11
+  },
+  {
+    "id": 157,
+    "text": "conflict",
+    "meaning": "n.冲突，矛盾",
+    "group": 11
+  },
+  {
+    "id": 158,
+    "text": "confuse",
+    "meaning": "v.使混乱，使迷惑",
+    "group": 11
+  },
+  {
+    "id": 159,
+    "text": "conservative",
+    "meaning": "adj.保守的",
+    "group": 11
+  },
+  {
+    "id": 160,
+    "text": "considerable",
+    "meaning": "adj.相当大的，重要的",
+    "group": 11
+  },
+  {
+    "id": 161,
+    "text": "contingent",
+    "meaning": "adj.因情况而异的 n.代表团",
+    "group": 11
+  },
+  {
+    "id": 162,
+    "text": "controversial",
+    "meaning": "adj.有争论的",
+    "group": 11
+  },
+  {
+    "id": 163,
+    "text": "correlation",
+    "meaning": "n.相关，关联",
+    "group": 11
+  },
+  {
+    "id": 164,
+    "text": "courtship",
+    "meaning": "n.求爱",
+    "group": 11
+  },
+  {
+    "id": 165,
+    "text": "crash",
+    "meaning": "v.碰撞",
+    "group": 11
+  },
+  {
+    "id": 166,
+    "text": "credibility",
+    "meaning": "n.可信性",
+    "group": 12
+  },
+  {
+    "id": 167,
+    "text": "criminal",
+    "meaning": "n.罪犯，犯人",
+    "group": 12
+  },
+  {
+    "id": 168,
+    "text": "crisis",
+    "meaning": "n.危机",
+    "group": 12
+  },
+  {
+    "id": 169,
+    "text": "criticism",
+    "meaning": "n.批评",
+    "group": 12
+  },
+  {
+    "id": 170,
+    "text": "curb",
+    "meaning": "v.限制，抑制",
+    "group": 12
+  },
+  {
+    "id": 171,
+    "text": "damp",
+    "meaning": "adj.潮湿的",
+    "group": 12
+  },
+  {
+    "id": 172,
+    "text": "dazzle",
+    "meaning": "v.使目眩；使眼花",
+    "group": 12
+  },
+  {
+    "id": 173,
+    "text": "deadline",
+    "meaning": "n.最后期限",
+    "group": 12
+  },
+  {
+    "id": 174,
+    "text": "delay",
+    "meaning": "n.延期，耽搁",
+    "group": 12
+  },
+  {
+    "id": 175,
+    "text": "democratic",
+    "meaning": "adj.民主的",
+    "group": 12
+  },
+  {
+    "id": 176,
+    "text": "demographic",
+    "meaning": "adj.人口统计学的；人口学的",
+    "group": 12
+  },
+  {
+    "id": 177,
+    "text": "dental",
+    "meaning": "adj.牙科的，牙齿的",
+    "group": 12
+  },
+  {
+    "id": 178,
+    "text": "depression",
+    "meaning": "n.抑郁，沮丧",
+    "group": 12
+  },
+  {
+    "id": 179,
+    "text": "designate",
+    "meaning": "v.指定，指派，标出",
+    "group": 12
+  },
+  {
+    "id": 180,
+    "text": "detain",
+    "meaning": "v.留住",
+    "group": 12
+  },
+  {
+    "id": 181,
+    "text": "devastate",
+    "meaning": "v.毁坏，毁灭",
+    "group": 13
+  },
+  {
+    "id": 182,
+    "text": "disclose",
+    "meaning": "v.公开；揭露",
+    "group": 13
+  },
+  {
+    "id": 183,
+    "text": "disparate",
+    "meaning": "adj.不同的",
+    "group": 13
+  },
+  {
+    "id": 184,
+    "text": "display",
+    "meaning": "n.显示",
+    "group": 13
+  },
+  {
+    "id": 185,
+    "text": "disrupt",
+    "meaning": "v.破坏",
+    "group": 13
+  },
+  {
+    "id": 186,
+    "text": "distract",
+    "meaning": "v.转移，分心",
+    "group": 13
+  },
+  {
+    "id": 187,
+    "text": "distribute",
+    "meaning": "v.分配，分发",
+    "group": 13
+  },
+  {
+    "id": 188,
+    "text": "documentation",
+    "meaning": "n.文件；文献",
+    "group": 13
+  },
+  {
+    "id": 189,
+    "text": "domain",
+    "meaning": "n.领域",
+    "group": 13
+  },
+  {
+    "id": 190,
+    "text": "dominant",
+    "meaning": "adj.占优势的，占支配地位的",
+    "group": 13
+  },
+  {
+    "id": 191,
+    "text": "dramatic",
+    "meaning": "adj.戏剧化的；引人注意的",
+    "group": 13
+  },
+  {
+    "id": 192,
+    "text": "drought",
+    "meaning": "n.干旱",
+    "group": 13
+  },
+  {
+    "id": 193,
+    "text": "durable",
+    "meaning": "adj.持久的",
+    "group": 13
+  },
+  {
+    "id": 194,
+    "text": "eco-friendly",
+    "meaning": "adj.生态友好的，环保的",
+    "group": 13
+  },
+  {
+    "id": 195,
+    "text": "elaborate",
+    "meaning": "v.详细阐述",
+    "group": 13
+  },
+  {
+    "id": 196,
+    "text": "elderly",
+    "meaning": "adj.高龄的",
+    "group": 14
+  },
+  {
+    "id": 197,
+    "text": "eliminate",
+    "meaning": "v.消除，排除",
+    "group": 14
+  },
+  {
+    "id": 198,
+    "text": "elusive",
+    "meaning": "adj.难懂的，行踪隐秘的",
+    "group": 14
+  },
+  {
+    "id": 199,
+    "text": "encyclopaedia",
+    "meaning": "n.百科全书",
+    "group": 14
+  },
+  {
+    "id": 200,
+    "text": "entrepreneur",
+    "meaning": "n.企业家",
+    "group": 14
+  },
+  {
+    "id": 201,
+    "text": "equator",
+    "meaning": "n.赤道",
+    "group": 14
+  },
+  {
+    "id": 202,
+    "text": "erratically",
+    "meaning": "adv.不定地，无规律地",
+    "group": 14
+  },
+  {
+    "id": 203,
+    "text": "established",
+    "meaning": "adj.确定的；已建立的",
+    "group": 14
+  },
+  {
+    "id": 204,
+    "text": "estate",
+    "meaning": "n.房地产",
+    "group": 14
+  },
+  {
+    "id": 205,
+    "text": "ethical",
+    "meaning": "adj.道德的",
+    "group": 14
+  },
+  {
+    "id": 206,
+    "text": "eventually",
+    "meaning": "adv.最后，最终",
+    "group": 14
+  },
+  {
+    "id": 207,
+    "text": "evidence",
+    "meaning": "n.迹象；证据",
+    "group": 14
+  },
+  {
+    "id": 208,
+    "text": "evolve",
+    "meaning": "v.进化，发展；逐渐形成",
+    "group": 14
+  },
+  {
+    "id": 209,
+    "text": "exceptional",
+    "meaning": "adj.异常的，特别出色的",
+    "group": 14
+  },
+  {
+    "id": 210,
+    "text": "exhausted",
+    "meaning": "adj.疲惫的，耗尽的",
+    "group": 14
+  },
+  {
+    "id": 211,
+    "text": "experiment",
+    "meaning": "n.实验，试验",
+    "group": 15
+  },
+  {
+    "id": 212,
+    "text": "explicit",
+    "meaning": "adj.明确的",
+    "group": 15
+  },
+  {
+    "id": 213,
+    "text": "exploit",
+    "meaning": "v.开发，利用",
+    "group": 15
+  },
+  {
+    "id": 214,
+    "text": "extend",
+    "meaning": "v.扩展，延伸，推广",
+    "group": 15
+  },
+  {
+    "id": 215,
+    "text": "extract",
+    "meaning": "n.摘录 v.提取",
+    "group": 15
+  },
+  {
+    "id": 216,
+    "text": "famine",
+    "meaning": "n.饥荒",
+    "group": 15
+  },
+  {
+    "id": 217,
+    "text": "finite",
+    "meaning": "adj.有限的",
+    "group": 15
+  },
+  {
+    "id": 218,
+    "text": "fitness",
+    "meaning": "n.健康",
+    "group": 15
+  },
+  {
+    "id": 219,
+    "text": "foe",
+    "meaning": "n.敌人，危害物",
+    "group": 15
+  },
+  {
+    "id": 220,
+    "text": "format",
+    "meaning": "n.格式",
+    "group": 15
+  },
+  {
+    "id": 221,
+    "text": "fragment",
+    "meaning": "n.碎片",
+    "group": 15
+  },
+  {
+    "id": 222,
+    "text": "freeze",
+    "meaning": "n.冰冻，冻结",
+    "group": 15
+  },
+  {
+    "id": 223,
+    "text": "fulfill",
+    "meaning": "v.满足，实现",
+    "group": 15
+  },
+  {
+    "id": 224,
+    "text": "gene",
+    "meaning": "n.基因",
+    "group": 15
+  },
+  {
+    "id": 225,
+    "text": "gifted",
+    "meaning": "adj.有天赋的，有才华的",
+    "group": 15
+  },
+  {
+    "id": 226,
+    "text": "graphic",
+    "meaning": "adj.形象的；图解的",
+    "group": 16
+  },
+  {
+    "id": 227,
+    "text": "habitat",
+    "meaning": "n.栖息地，住处",
+    "group": 16
+  },
+  {
+    "id": 228,
+    "text": "harbour",
+    "meaning": "v.怀有；海港",
+    "group": 16
+  },
+  {
+    "id": 229,
+    "text": "hardship",
+    "meaning": "n.困苦；苦难",
+    "group": 16
+  },
+  {
+    "id": 230,
+    "text": "harsh",
+    "meaning": "adj.艰难的；严酷的",
+    "group": 16
+  },
+  {
+    "id": 231,
+    "text": "hypothesis",
+    "meaning": "n.假设",
+    "group": 16
+  },
+  {
+    "id": 232,
+    "text": "impact",
+    "meaning": "n.影响",
+    "group": 16
+  },
+  {
+    "id": 233,
+    "text": "impressive",
+    "meaning": "adj.感人的；给人深刻印象的",
+    "group": 16
+  },
+  {
+    "id": 234,
+    "text": "in accordance with",
+    "meaning": "依照；与……一致",
+    "group": 16
+  },
+  {
+    "id": 235,
+    "text": "inaccurate",
+    "meaning": "adj.错误的",
+    "group": 16
+  },
+  {
+    "id": 236,
+    "text": "inactive",
+    "meaning": "adj.不活跃的",
+    "group": 16
+  },
+  {
+    "id": 237,
+    "text": "inappropriate",
+    "meaning": "adj.不适当的",
+    "group": 16
+  },
+  {
+    "id": 238,
+    "text": "indulge",
+    "meaning": "v.沉溺（于）",
+    "group": 16
+  },
+  {
+    "id": 239,
+    "text": "infest",
+    "meaning": "v.侵害；寄生于",
+    "group": 16
+  },
+  {
+    "id": 240,
+    "text": "installment",
+    "meaning": "n.安装；分期付款",
+    "group": 16
+  },
+  {
+    "id": 241,
+    "text": "intelligence",
+    "meaning": "n.智力",
+    "group": 17
+  },
+  {
+    "id": 242,
+    "text": "intense",
+    "meaning": "adj.强烈的；紧张的",
+    "group": 17
+  },
+  {
+    "id": 243,
+    "text": "interaction",
+    "meaning": "n.相互作用，交流互动",
+    "group": 17
+  },
+  {
+    "id": 244,
+    "text": "interference",
+    "meaning": "n.干涉",
+    "group": 17
+  },
+  {
+    "id": 245,
+    "text": "interior",
+    "meaning": "n.内部 adj.内部的",
+    "group": 17
+  },
+  {
+    "id": 246,
+    "text": "interrupt",
+    "meaning": "v.中断",
+    "group": 17
+  },
+  {
+    "id": 247,
+    "text": "introverted",
+    "meaning": "adj.内向的",
+    "group": 17
+  },
+  {
+    "id": 248,
+    "text": "involve",
+    "meaning": "v.包含，牵涉",
+    "group": 17
+  },
+  {
+    "id": 249,
+    "text": "keen",
+    "meaning": "adj.热切的；急迫的",
+    "group": 17
+  },
+  {
+    "id": 250,
+    "text": "label",
+    "meaning": "v.打上标签",
+    "group": 17
+  },
+  {
+    "id": 251,
+    "text": "lack",
+    "meaning": "v.缺乏；不足",
+    "group": 17
+  },
+  {
+    "id": 252,
+    "text": "landscape",
+    "meaning": "n.风景",
+    "group": 17
+  },
+  {
+    "id": 253,
+    "text": "likelihood",
+    "meaning": "n.可能性",
+    "group": 17
+  },
+  {
+    "id": 254,
+    "text": "limb",
+    "meaning": "n.四肢",
+    "group": 17
+  },
+  {
+    "id": 255,
+    "text": "linguistic",
+    "meaning": "adj.语言（学）的",
+    "group": 17
+  },
+  {
+    "id": 256,
+    "text": "log",
+    "meaning": "v.记录",
+    "group": 18
+  },
+  {
+    "id": 257,
+    "text": "look-in",
+    "meaning": "n.成功的机会",
+    "group": 18
+  },
+  {
+    "id": 258,
+    "text": "lopsided",
+    "meaning": "adj.不平衡的",
+    "group": 18
+  },
+  {
+    "id": 259,
+    "text": "mainly",
+    "meaning": "adv.主要地，大体上",
+    "group": 18
+  },
+  {
+    "id": 260,
+    "text": "malfunction",
+    "meaning": "v.发生故障",
+    "group": 18
+  },
+  {
+    "id": 261,
+    "text": "mammal",
+    "meaning": "n.哺乳动物",
+    "group": 18
+  },
+  {
+    "id": 262,
+    "text": "manage to do",
+    "meaning": "设法完成某事",
+    "group": 18
+  },
+  {
+    "id": 263,
+    "text": "manifest",
+    "meaning": "v.出现，表现",
+    "group": 18
+  },
+  {
+    "id": 264,
+    "text": "manufacture",
+    "meaning": "v.生产",
+    "group": 18
+  },
+  {
+    "id": 265,
+    "text": "marine",
+    "meaning": "adj.海产的；航海的",
+    "group": 18
+  },
+  {
+    "id": 266,
+    "text": "mate",
+    "meaning": "n.配偶",
+    "group": 18
+  },
+  {
+    "id": 267,
+    "text": "mechanism",
+    "meaning": "n.机制，原理",
+    "group": 18
+  },
+  {
+    "id": 268,
+    "text": "mental",
+    "meaning": "adj.精神的，心理的",
+    "group": 18
+  },
+  {
+    "id": 269,
+    "text": "mercury",
+    "meaning": "n.汞，水银",
+    "group": 18
+  },
+  {
+    "id": 270,
+    "text": "meteorological",
+    "meaning": "adj.气象学的",
+    "group": 18
+  },
+  {
+    "id": 271,
+    "text": "migrate",
+    "meaning": "v.转移，迁移",
+    "group": 19
+  },
+  {
+    "id": 272,
+    "text": "moisture",
+    "meaning": "n.水分，湿度",
+    "group": 19
+  },
+  {
+    "id": 273,
+    "text": "monitor",
+    "meaning": "v.监控",
+    "group": 19
+  },
+  {
+    "id": 274,
+    "text": "motif",
+    "meaning": "n.主题；图形",
+    "group": 19
+  },
+  {
+    "id": 275,
+    "text": "mould",
+    "meaning": "v.模压，塑造；造成",
+    "group": 19
+  },
+  {
+    "id": 276,
+    "text": "native",
+    "meaning": "adj.本国的；土著的；天然的；天赋的",
+    "group": 19
+  },
+  {
+    "id": 277,
+    "text": "nocturnal",
+    "meaning": "adj.夜间的",
+    "group": 19
+  },
+  {
+    "id": 278,
+    "text": "norm",
+    "meaning": "n.规范",
+    "group": 19
+  },
+  {
+    "id": 279,
+    "text": "notoriety",
+    "meaning": "n.名声",
+    "group": 19
+  },
+  {
+    "id": 280,
+    "text": "objective",
+    "meaning": "n.目标，目的 adj.客观的",
+    "group": 19
+  },
+  {
+    "id": 281,
+    "text": "obligation",
+    "meaning": "n.义务",
+    "group": 19
+  },
+  {
+    "id": 282,
+    "text": "obscure",
+    "meaning": "v.掩盖，使模糊不清",
+    "group": 19
+  },
+  {
+    "id": 283,
+    "text": "obtain",
+    "meaning": "v.获得",
+    "group": 19
+  },
+  {
+    "id": 284,
+    "text": "odd",
+    "meaning": "adj.古怪的",
+    "group": 19
+  },
+  {
+    "id": 285,
+    "text": "odour",
+    "meaning": "n.气味",
+    "group": 19
+  },
+  {
+    "id": 286,
+    "text": "offensive",
+    "meaning": "adj.冒犯的，无礼的",
+    "group": 20
+  },
+  {
+    "id": 287,
+    "text": "official",
+    "meaning": "n.官员 adj.官方的",
+    "group": 20
+  },
+  {
+    "id": 288,
+    "text": "optimum",
+    "meaning": "n.最佳效果 adj.最适宜的",
+    "group": 20
+  },
+  {
+    "id": 289,
+    "text": "ordinary",
+    "meaning": "adj.普通的；平凡的",
+    "group": 20
+  },
+  {
+    "id": 290,
+    "text": "organ",
+    "meaning": "n.器官；机构",
+    "group": 20
+  },
+  {
+    "id": 291,
+    "text": "out of the question",
+    "meaning": "不可能",
+    "group": 20
+  },
+  {
+    "id": 292,
+    "text": "overcome",
+    "meaning": "v.克服",
+    "group": 20
+  },
+  {
+    "id": 293,
+    "text": "overtake",
+    "meaning": "v.赶上",
+    "group": 20
+  },
+  {
+    "id": 294,
+    "text": "paralyse",
+    "meaning": "v.使麻痹；使瘫痪",
+    "group": 20
+  },
+  {
+    "id": 295,
+    "text": "paramount",
+    "meaning": "adj.最重要的，主要的",
+    "group": 20
+  },
+  {
+    "id": 296,
+    "text": "participate",
+    "meaning": "v.参加",
+    "group": 20
+  },
+  {
+    "id": 297,
+    "text": "patient",
+    "meaning": "adj.有耐性的，能容忍的",
+    "group": 20
+  },
+  {
+    "id": 298,
+    "text": "peak",
+    "meaning": "n.最高峰，顶点 v.达到顶峰",
+    "group": 20
+  },
+  {
+    "id": 299,
+    "text": "permit",
+    "meaning": "n.许可证，执照 v.许可",
+    "group": 20
+  },
+  {
+    "id": 300,
+    "text": "persuade",
+    "meaning": "v.说服，劝说",
+    "group": 20
+  },
+  {
+    "id": 301,
+    "text": "pessimistic",
+    "meaning": "adj.悲观的",
+    "group": 21
+  },
+  {
+    "id": 302,
+    "text": "phase",
+    "meaning": "n.阶段",
+    "group": 21
+  },
+  {
+    "id": 303,
+    "text": "physical",
+    "meaning": "adj.身体上的；物质的",
+    "group": 21
+  },
+  {
+    "id": 304,
+    "text": "plagiarise",
+    "meaning": "v.抄袭",
+    "group": 21
+  },
+  {
+    "id": 305,
+    "text": "plenty of",
+    "meaning": "大量的",
+    "group": 21
+  },
+  {
+    "id": 306,
+    "text": "plot",
+    "meaning": "n.密谋",
+    "group": 21
+  },
+  {
+    "id": 307,
+    "text": "pose",
+    "meaning": "v.提出，造成，形成",
+    "group": 21
+  },
+  {
+    "id": 308,
+    "text": "portable",
+    "meaning": "adj.便携的",
+    "group": 21
+  },
+  {
+    "id": 309,
+    "text": "poverty",
+    "meaning": "n.贫穷",
+    "group": 21
+  },
+  {
+    "id": 310,
+    "text": "praise",
+    "meaning": "n.赞扬",
+    "group": 21
+  },
+  {
+    "id": 311,
+    "text": "predict",
+    "meaning": "v.预测，预知",
+    "group": 21
+  },
+  {
+    "id": 312,
+    "text": "pressing",
+    "meaning": "adj.迫切的",
+    "group": 21
+  },
+  {
+    "id": 313,
+    "text": "private",
+    "meaning": "adj.私人的；私有的；私下的",
+    "group": 21
+  },
+  {
+    "id": 314,
+    "text": "prohibit",
+    "meaning": "v.禁止",
+    "group": 21
+  },
+  {
+    "id": 315,
+    "text": "prolong",
+    "meaning": "v.拉长，延长",
+    "group": 21
+  },
+  {
+    "id": 316,
+    "text": "promote",
+    "meaning": "v.促进，推销",
+    "group": 22
+  },
+  {
+    "id": 317,
+    "text": "prosper",
+    "meaning": "v.使成功，使繁荣",
+    "group": 22
+  },
+  {
+    "id": 318,
+    "text": "purify",
+    "meaning": "v.净化",
+    "group": 22
+  },
+  {
+    "id": 319,
+    "text": "qualify",
+    "meaning": "v.取得资格",
+    "group": 22
+  },
+  {
+    "id": 320,
+    "text": "radical",
+    "meaning": "adj.彻底的，根本的",
+    "group": 22
+  },
+  {
+    "id": 321,
+    "text": "range",
+    "meaning": "n.范围；幅度",
+    "group": 22
+  },
+  {
+    "id": 322,
+    "text": "rare",
+    "meaning": "adj.稀有的",
+    "group": 22
+  },
+  {
+    "id": 323,
+    "text": "rate",
+    "meaning": "n.等级 v.评估",
+    "group": 22
+  },
+  {
+    "id": 324,
+    "text": "react",
+    "meaning": "v.反应",
+    "group": 22
+  },
+  {
+    "id": 325,
+    "text": "recreation",
+    "meaning": "n.娱乐，消遣",
+    "group": 22
+  },
+  {
+    "id": 326,
+    "text": "reduction",
+    "meaning": "n.下降，减少",
+    "group": 22
+  },
+  {
+    "id": 327,
+    "text": "refer to",
+    "meaning": "指（的是），涉及，提及",
+    "group": 22
+  },
+  {
+    "id": 328,
+    "text": "rehearsal",
+    "meaning": "n.排演；预演；练习",
+    "group": 22
+  },
+  {
+    "id": 329,
+    "text": "reject",
+    "meaning": "v.拒绝，排斥，丢弃",
+    "group": 22
+  },
+  {
+    "id": 330,
+    "text": "relevant",
+    "meaning": "adj.相关的",
+    "group": 22
+  },
+  {
+    "id": 331,
+    "text": "religious",
+    "meaning": "adj.宗教的；虔诚的",
+    "group": 23
+  },
+  {
+    "id": 332,
+    "text": "reluctant",
+    "meaning": "adj.不情愿的",
+    "group": 23
+  },
+  {
+    "id": 333,
+    "text": "reproduce",
+    "meaning": "v.繁殖",
+    "group": 23
+  },
+  {
+    "id": 334,
+    "text": "responsible",
+    "meaning": "adj.负责的，可靠的，有责任的",
+    "group": 23
+  },
+  {
+    "id": 335,
+    "text": "revision",
+    "meaning": "n.修正",
+    "group": 23
+  },
+  {
+    "id": 336,
+    "text": "revive",
+    "meaning": "v.使复苏，恢复",
+    "group": 23
+  },
+  {
+    "id": 337,
+    "text": "ruin",
+    "meaning": "v.毁灭",
+    "group": 23
+  },
+  {
+    "id": 338,
+    "text": "scenic",
+    "meaning": "adj.风景优美的",
+    "group": 23
+  },
+  {
+    "id": 339,
+    "text": "shade",
+    "meaning": "n.遮阳；阴影",
+    "group": 23
+  },
+  {
+    "id": 340,
+    "text": "skepticism",
+    "meaning": "v.怀疑",
+    "group": 23
+  },
+  {
+    "id": 341,
+    "text": "soar",
+    "meaning": "v.激增",
+    "group": 23
+  },
+  {
+    "id": 342,
+    "text": "solely",
+    "meaning": "adv.唯一的",
+    "group": 23
+  },
+  {
+    "id": 343,
+    "text": "solicitor",
+    "meaning": "n.律师",
+    "group": 23
+  },
+  {
+    "id": 344,
+    "text": "steer",
+    "meaning": "v.控制，引导",
+    "group": 23
+  },
+  {
+    "id": 345,
+    "text": "stimulate",
+    "meaning": "v.刺激，激励",
+    "group": 23
+  },
+  {
+    "id": 346,
+    "text": "stride",
+    "meaning": "n.进展",
+    "group": 24
+  },
+  {
+    "id": 347,
+    "text": "succumb",
+    "meaning": "vi.屈服",
+    "group": 24
+  },
+  {
+    "id": 348,
+    "text": "subdivide",
+    "meaning": "v.把……细分",
+    "group": 24
+  },
+  {
+    "id": 349,
+    "text": "subtle",
+    "meaning": "adj.微妙的",
+    "group": 24
+  },
+  {
+    "id": 350,
+    "text": "substance",
+    "meaning": "n.物质；实质",
+    "group": 24
+  },
+  {
+    "id": 351,
+    "text": "sufficiency",
+    "meaning": "n.充足",
+    "group": 24
+  },
+  {
+    "id": 352,
+    "text": "supersede",
+    "meaning": "v.取代，代替",
+    "group": 24
+  },
+  {
+    "id": 353,
+    "text": "suppress",
+    "meaning": "v.抑制；隐瞒",
+    "group": 24
+  },
+  {
+    "id": 354,
+    "text": "supremacy",
+    "meaning": "n.至高无上，很高的地位",
+    "group": 24
+  },
+  {
+    "id": 355,
+    "text": "suspicious",
+    "meaning": "adj.可疑的",
+    "group": 24
+  },
+  {
+    "id": 356,
+    "text": "sustainable",
+    "meaning": "adj.可持续的",
+    "group": 24
+  },
+  {
+    "id": 357,
+    "text": "symptom",
+    "meaning": "n.症状，征兆",
+    "group": 24
+  },
+  {
+    "id": 358,
+    "text": "tension",
+    "meaning": "n.紧张，不安",
+    "group": 24
+  },
+  {
+    "id": 359,
+    "text": "term",
+    "meaning": "n.术语",
+    "group": 24
+  },
+  {
+    "id": 360,
+    "text": "throughout",
+    "meaning": "adv.自始至终，到处 prep.贯穿，遍及",
+    "group": 24
+  },
+  {
+    "id": 361,
+    "text": "toll",
+    "meaning": "n.通行费 v.征收",
+    "group": 25
+  },
+  {
+    "id": 362,
+    "text": "trace",
+    "meaning": "v.追溯；痕迹",
+    "group": 25
+  },
+  {
+    "id": 363,
+    "text": "transcend",
+    "meaning": "v.胜过，超越",
+    "group": 25
+  },
+  {
+    "id": 364,
+    "text": "transit",
+    "meaning": "n.运输；经过 v.运送",
+    "group": 25
+  },
+  {
+    "id": 365,
+    "text": "tremendous",
+    "meaning": "adj.巨大的，惊人的",
+    "group": 25
+  },
+  {
+    "id": 366,
+    "text": "trigger",
+    "meaning": "n.触发，引发，引起",
+    "group": 25
+  },
+  {
+    "id": 367,
+    "text": "tropical",
+    "meaning": "adj.热带的",
+    "group": 25
+  },
+  {
+    "id": 368,
+    "text": "unbiased",
+    "meaning": "adj.公正的，无偏见的",
+    "group": 25
+  },
+  {
+    "id": 369,
+    "text": "uniform",
+    "meaning": "adj.始终如一的",
+    "group": 25
+  },
+  {
+    "id": 370,
+    "text": "valuable",
+    "meaning": "adj.宝贵的，有价值的",
+    "group": 25
+  },
+  {
+    "id": 371,
+    "text": "versatile",
+    "meaning": "adj.多功能的",
+    "group": 25
+  },
+  {
+    "id": 372,
+    "text": "view",
+    "meaning": "v.看",
+    "group": 25
+  },
+  {
+    "id": 373,
+    "text": "violent",
+    "meaning": "adj.暴力的；猛烈的",
+    "group": 25
+  },
+  {
+    "id": 374,
+    "text": "visible",
+    "meaning": "adj.明显的，看得见的",
+    "group": 25
+  },
+  {
+    "id": 375,
+    "text": "visual",
+    "meaning": "adj.视觉的",
+    "group": 25
+  },
+  {
+    "id": 376,
+    "text": "well-being",
+    "meaning": "n.健康",
+    "group": 25
+  }
+]
