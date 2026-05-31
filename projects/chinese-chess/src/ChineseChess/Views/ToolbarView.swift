@@ -28,12 +28,13 @@ struct ToolbarView: View {
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
             )) {
+                Text("新手").tag(AIDifficulty.beginner)
                 Text("初级").tag(AIDifficulty.easy)
                 Text("中级").tag(AIDifficulty.medium)
                 Text("高级").tag(AIDifficulty.hard)
+                Text("大师").tag(AIDifficulty.master)
             }
             .pickerStyle(.segmented)
-            .frame(width: 240)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

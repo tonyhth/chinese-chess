@@ -107,6 +107,25 @@ class Board {
         return move
     }
 
+    // MARK: - FEN 支持
+
+    /// 从 FEN 初始化。解析失败时 fallback 到标准开局。
+    convenience init(fen: String) {
+        // FENParser.parse 返回解析结果，init 内部直接构建 self
+        let parsed = FENParser.parse(fen: fen)
+        if let parsed = parsed {
+            self.init(pieces: parsed.pieces)
+            self.currentTurn = parsed.currentTurn
+        } else {
+            self.init()
+        }
+    }
+
+    /// 设置当前行走方（FEN 解析内部使用，不应外部调用）
+    func setCurrentTurn(_ side: Side) {
+        currentTurn = side
+    }
+
     // MARK: - 深拷贝（AI 搜索用）
 
     func snapshot() -> Board {

@@ -15,12 +15,16 @@ struct AIEngine: AIEngineProtocol {
         // R1: 入口处统一做深拷贝，确保不修改调用者的 board
         let workBoard = board.snapshot()
         switch difficulty {
-        case .easy:
+        case .beginner:
             return randomMove(for: workBoard)
+        case .easy:
+            return randomMove(for: workBoard)  // Phase 1: 暂用随机，Phase 2a 实现 depth=2
         case .medium:
             return heuristicSearch(for: workBoard, depth: 2)
         case .hard:
             return iterativeDeepeningSearch(for: workBoard)
+        case .master:
+            return iterativeDeepeningSearch(for: workBoard)  // Phase 1: 暂用高级算法，Phase 2b 实现大师级
         }
     }
 

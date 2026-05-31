@@ -1,6 +1,6 @@
 import Foundation
 
-struct Position: Equatable, Hashable {
+struct Position: Equatable, Hashable, Codable {
     let row: Int   // 0..9, 0 = 黑方底线, 9 = 红方底线
     let col: Int   // 0..8, 0 = 最左列
 

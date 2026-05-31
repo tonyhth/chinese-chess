@@ -1,6 +1,6 @@
 import Foundation
 
-struct Piece: Equatable, Identifiable {
+struct Piece: Equatable, Identifiable, Codable {
     let id: UUID
     let kind: PieceKind
     let side: Side
