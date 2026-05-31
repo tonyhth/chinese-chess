@@ -75,7 +75,7 @@ struct FENParserTests {
         #expect(board != nil)
 
         let b = board!
-        #expect(b.pieces.count == 4)  // 黑将、黑士x1(4a4里只有一个士？) + 红车 + 红帅
+        #expect(b.pieces.count == 4)  // 黑将 + 黑士 + 红车 + 红帅 = 4 子
         #expect(b.currentTurn == .red)
     }
 
