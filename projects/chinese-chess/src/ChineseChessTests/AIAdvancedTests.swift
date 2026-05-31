@@ -12,6 +12,7 @@ struct AIAdvancedTests {
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, blackChariot])
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
@@ -26,6 +27,7 @@ struct AIAdvancedTests {
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, blackChariot])
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .medium)
         #expect(move != nil)
@@ -40,6 +42,7 @@ struct AIAdvancedTests {
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, blackChariot])
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
@@ -59,6 +62,7 @@ struct AIAdvancedTests {
         let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1))
         let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0))  // 炮架
         let board = Board(pieces: [rg, bg, blackChariot, redCannon, redSoldier])
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
 
         // 多次运行取多数结果，避免随机性
@@ -89,9 +93,10 @@ struct AIAdvancedTests {
 
     // MARK: - AI 走法是黑方棋子
 
-    @Test("AI 只返回黑方走法")
-    func aiReturnsBlackMove() {
+    @Test("AI 返回当前行走方的走法")
+    func aiReturnsCurrentSideMove() {
         let board = Board()
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         for _ in 0..<10 {
             let move = engine.bestMove(for: board, difficulty: .easy)
@@ -106,6 +111,7 @@ struct AIAdvancedTests {
     @Test("AI 不修改传入的棋盘")
     func aiDoesNotModifyOriginalBoard() {
         let board = Board()
+        board.setCurrentTurn(.black)
         let originalPieceCount = board.pieces.count
         let originalTurn = board.currentTurn
         let engine = AIEngine()

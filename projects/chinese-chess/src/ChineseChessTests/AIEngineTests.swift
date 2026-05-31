@@ -7,6 +7,7 @@ struct AIEngineTests {
     @Test("初级难度返回合法走法")
     func easyReturnsLegalMove() {
         let board = Board()
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
@@ -16,6 +17,7 @@ struct AIEngineTests {
     @Test("中级难度返回合法走法")
     func mediumReturnsLegalMove() {
         let board = Board()
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .medium)
         #expect(move != nil)
@@ -28,6 +30,7 @@ struct AIEngineTests {
     @Test("高级难度返回合法走法")
     func hardReturnsLegalMove() {
         let board = Board()
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
@@ -39,6 +42,7 @@ struct AIEngineTests {
     @Test("评估函数初始局面接近 0")
     func evaluateInitialBoard() {
         let board = Board()
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         // 初始局面双方对称，评估应接近 0
         // 使用 snapshot 以避免修改原棋盘
@@ -55,10 +59,9 @@ struct AIEngineTests {
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 3))
         let blackChariot2 = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 5))
-        // 红帅被围死（需要特殊构造）
+        // 黑方有合法走法，让黑方走
         let board = Board(pieces: [redGeneral, blackGeneral, blackChariot, blackChariot2])
-        // 黑方有合法走法，红方可能被将死
-        // 测试黑方 AI 能走
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
