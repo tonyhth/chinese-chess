@@ -22,11 +22,10 @@ struct CheckmateSearch {
         return nil
     }
 
-    /// 内部递归：只扩展将军走法（基础版）
+    /// 内部递归：只扩展将军走法
     /// 逻辑：对 side 的每个将军走法，执行后检查对方是否被将死。
     /// 如果对方无合法走法 → 将死，返回成功。
-    /// 如果对方有合法走法 → 对每个应将走法，递归继续搜 side 的将军走法。
-    /// 基础版中只要找到"存在一条将军链导致将死"即返回，不验证所有应将分支。
+    /// 如果对方有合法走法 → 必须所有应将走法后我方都能赢，才算强制将杀。
     private static func dfs(
         board: Board, side: Side, depth: Int, maxDepth: Int,
         path: inout [Move], startTime: Date, timeLimitMs: Int?
@@ -63,21 +62,20 @@ struct CheckmateSearch {
                 return true
             }
 
-            // 对方有应将走法：尝试所有应将，找到任意一条我方成功的路径
-            // 基础版：只找存在一条成功线，不要求所有应将都成功
-            var foundWin = false
+            // 对方有应将走法：必须验证所有应将后我方都能赢，才是强制将杀
+            var allResponsesWin = true
             for response in opponentMoves {
                 board.execute(response)
-                if dfs(board: board, side: side, depth: depth + 2, maxDepth: maxDepth,
-                       path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
-                    foundWin = true
+                if !dfs(board: board, side: side, depth: depth + 2, maxDepth: maxDepth,
+                         path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
+                    allResponsesWin = false
                     _ = board.undoLastMove()
                     break
                 }
                 _ = board.undoLastMove()
             }
 
-            if foundWin {
+            if allResponsesWin {
                 _ = board.undoLastMove()
                 return true
             }

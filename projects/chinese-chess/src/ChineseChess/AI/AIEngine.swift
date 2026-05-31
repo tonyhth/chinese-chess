@@ -77,7 +77,7 @@ struct AIEngine: AIEngineProtocol {
     /// Negamax + Alpha-Beta 根节点搜索。
     /// 评估函数始终返回当前行走方视角的分数（正值有利）。
     private func rootSearch(for board: Board, depth: Int, useTT: Bool, useMoveOrder: Bool,
-                            startTime: Date? = nil, timeLimitMs: Int? = nil) -> Move? {
+                            timeManager: TimeManager? = nil) -> Move? {
         let side = board.currentTurn
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
         guard !moves.isEmpty else { return nil }
@@ -100,11 +100,8 @@ struct AIEngine: AIEngineProtocol {
         let beta = 100_000_000
 
         for move in orderedMoves {
-            // 超时检查
-            if let startTime = startTime, let limit = timeLimitMs {
-                let elapsed = Int(Date().timeIntervalSince(startTime) * 1000)
-                if elapsed > limit { break }
-            }
+            // 超时检查（通过 TimeManager）
+            if let tm = timeManager, tm.shouldStop { break }
 
             board.execute(move)
             // Negamax：对手视角取负
@@ -152,8 +149,9 @@ struct AIEngine: AIEngineProtocol {
             return killMoves.first
         }
 
-        // 迭代加深
-        return iterativeDeepeningSearch(for: board, maxDepth: 4, timeLimitMs: 3000)
+        // 迭代加深（接入 TimeManager）
+        let tm = TimeManager.forDifficulty(.hard)!
+        return iterativeDeepeningSearch(for: board, maxDepth: 4, timeManager: tm)
     }
 
     // MARK: - 大师：深层 IDS + 杀法搜索 + 残局估值 + 时间管理
@@ -174,20 +172,20 @@ struct AIEngine: AIEngineProtocol {
             baseDepth = 6
         }
 
-        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeLimitMs: 5000)
+        // 迭代加深（接入 TimeManager）
+        let tm = TimeManager.forDifficulty(.master)!
+        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm)
     }
 
     // MARK: - 迭代加深 Negamax
 
-    private func iterativeDeepeningSearch(for board: Board, maxDepth: Int, timeLimitMs: Int = 3000) -> Move? {
+    private func iterativeDeepeningSearch(for board: Board, maxDepth: Int, timeManager: TimeManager) -> Move? {
         var bestMoveSoFar: Move?
-        let startTime = Date()
 
         for depth in 2...maxDepth {
-            let elapsed = Date().timeIntervalSince(startTime) * 1000
-            if elapsed > Double(timeLimitMs) { break }
+            if timeManager.shouldStop { break }
             if let move = rootSearch(for: board, depth: depth, useTT: true, useMoveOrder: true,
-                                      startTime: startTime, timeLimitMs: timeLimitMs) {
+                                      timeManager: timeManager) {
                 bestMoveSoFar = move
             }
         }
@@ -303,8 +301,11 @@ struct AIEngine: AIEngineProtocol {
             }
         }
 
-        // 棋型识别加分
-        let patternBonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        // 棋型识别加分：两方都识别，取差值（黑方加分 - 红方加分）
+        // sign 会将差值翻转到当前行走方视角
+        let blackPatternBonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let redPatternBonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let patternBonus = blackPatternBonus - redPatternBonus
 
         return sign * (materialScore + positionScore + patternBonus)
     }
