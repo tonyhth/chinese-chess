@@ -19,14 +19,14 @@ struct AIEngine: AIEngineProtocol {
     func bestMove(for board: Board, difficulty: AIDifficulty) -> Move? {
         // 入口处统一做深拷贝，确保不修改调用者的 board
         let workBoard = board.snapshot()
-        // 每次搜索清空置换表（避免跨局面污染）
-        Self.transpositionTable.clear()
+        // 不在每次 bestMove 清空 TT，保留 IDS 跨深度缓存。
+        // TT 内部用 hash 做完整性校验，不同局面不会误命中。
 
         switch difficulty {
         case .beginner:
             return safeRandomMove(for: workBoard)
         case .easy:
-            return heuristicSearch(for: workBoard, depth: 2, useTT: false, useMoveOrder: false)
+            return rootSearch(for: workBoard, depth: 2, useTT: false, useMoveOrder: false)
         case .medium:
             return mediumSearch(for: workBoard)
         case .hard:
@@ -39,7 +39,8 @@ struct AIEngine: AIEngineProtocol {
     // MARK: - 新手：随机走法 + 安全过滤
 
     /// 新手级 AI：随机合法走法，过滤掉"送大子"的走法。
-    /// 送大子判定：走后己方价值 ≥ 400（车/炮/马）的子被对方无条件吃掉。
+    /// 送大子判定：走后己方价值 ≥ 400（车/炮/马）的子被对方直接攻击。
+    /// 优化：用 isInCheck 式的攻击检测替代全量走法生成。
     private func safeRandomMove(for board: Board) -> Move? {
         let side = board.currentTurn
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
@@ -47,21 +48,21 @@ struct AIEngine: AIEngineProtocol {
 
         let opponentSide: Side = (side == .red) ? .black : .red
 
-        // 过滤送大子
+        // 过滤送大子：检查走后该子是否被对方直接攻击
         let safeMoves = moves.filter { move in
             // 不涉及移动大子且不吃子，保留
             if move.piece.baseValue < 400 && move.captured == nil { return true }
 
-            // 执行走法，检查对方能否吃掉该子
+            // 执行走法，检查目标位置是否被对方攻击
             board.execute(move)
             let targetPos = move.to
-            let canRetake = MoveValidator.allLegalMoves(for: opponentSide, on: board).contains { opMove in
-                opMove.captured?.id == move.piece.id && opMove.to == targetPos
+            let threatened = board.pieces(for: opponentSide).contains { op in
+                MoveValidator.canAttack(piece: op, target: targetPos, on: board)
             }
             _ = board.undoLastMove()
 
-            // 如果走的是大子（≥400）且对方能无条件吃回，过滤掉
-            if move.piece.baseValue >= 400 && canRetake && move.captured == nil {
+            // 如果走的是大子（≥400）且被威胁且没吃子，过滤掉
+            if move.piece.baseValue >= 400 && threatened && move.captured == nil {
                 return false
             }
             return true
@@ -71,43 +72,59 @@ struct AIEngine: AIEngineProtocol {
         return (safeMoves.isEmpty ? moves : safeMoves).randomElement()
     }
 
-    // MARK: - 初级：depth=2 + Alpha-Beta + MVV-LVA
+    // MARK: - Negamax 根搜索（统一接口）
 
-    private func heuristicSearch(for board: Board, depth: Int, useTT: Bool, useMoveOrder: Bool) -> Move? {
+    /// Negamax + Alpha-Beta 根节点搜索。
+    /// 评估函数始终返回当前行走方视角的分数（正值有利）。
+    private func rootSearch(for board: Board, depth: Int, useTT: Bool, useMoveOrder: Bool,
+                            startTime: Date? = nil, timeLimitMs: Int? = nil) -> Move? {
         let side = board.currentTurn
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
         guard !moves.isEmpty else { return nil }
 
-        // 初级只用 MVV-LVA，不用 MoveOrderer 的将军检测
-        let orderedMoves = orderMovesSimple(moves)
+        // 走法排序
+        let orderedMoves: [Move]
+        if useMoveOrder {
+            let hash = ZobristHash.hash(board: board)
+            let ttBest = useTT ? Self.transpositionTable.probeBestMove(hash: hash) : nil
+            orderedMoves = MoveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
+        } else {
+            orderedMoves = orderMovesSimple(moves)
+        }
 
-        var bestMove: Move?
-        var bestScore = Int.min
-        var alpha = Int.min
-        let beta = Int.max
-        let isMaximizing = (side == .black)
+        let hash = ZobristHash.hash(board: board)
+        let origAlpha = -100_000_000
+        var bestMove: Move? = nil
+        var bestScore = origAlpha
+        var alpha = origAlpha
+        let beta = 100_000_000
 
         for move in orderedMoves {
+            // 超时检查
+            if let startTime = startTime, let limit = timeLimitMs {
+                let elapsed = Int(Date().timeIntervalSince(startTime) * 1000)
+                if elapsed > limit { break }
+            }
+
             board.execute(move)
-            let score = minimax(board: board, depth: depth - 1, alpha: alpha, beta: beta,
-                                isMaximizing: !isMaximizing, useTT: useTT, useMoveOrder: useMoveOrder)
+            // Negamax：对手视角取负
+            let score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                                 useTT: useTT, useMoveOrder: useMoveOrder)
             _ = board.undoLastMove()
 
-            if isMaximizing {
-                if score > bestScore {
-                    bestScore = score
-                    bestMove = move
-                }
-                alpha = max(alpha, bestScore)
-            } else {
-                // 红方视角取最小值，所以翻转
-                let adjustedScore = -score
-                if adjustedScore > bestScore {
-                    bestScore = adjustedScore
-                    bestMove = move
-                }
+            if score > bestScore {
+                bestScore = score
+                bestMove = move
             }
+            alpha = max(alpha, bestScore)
         }
+
+        // 存入置换表（使用搜索开始时的原始 alpha 值判定 flag）
+        if useTT {
+            let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
+            Self.transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
+        }
+
         return bestMove
     }
 
@@ -121,11 +138,11 @@ struct AIEngine: AIEngineProtocol {
             return move
         }
 
-        // 未命中开局库，走 minimax depth=4
-        return heuristicSearch(for: board, depth: 4, useTT: true, useMoveOrder: true)
+        // 未命中开局库，走 negamax depth=4
+        return rootSearch(for: board, depth: 4, useTT: true, useMoveOrder: true)
     }
 
-    // MARK: - 高级/大师：迭代加深 Alpha-Beta
+    // MARK: - 高级/大师：迭代加深 Negamax
 
     private func iterativeDeepeningSearch(for board: Board, maxDepth: Int) -> Move? {
         var bestMoveSoFar: Move?
@@ -135,65 +152,25 @@ struct AIEngine: AIEngineProtocol {
         for depth in 2...maxDepth {
             let elapsed = Date().timeIntervalSince(startTime) * 1000
             if elapsed > Double(timeLimitMs) { break }
-            if let move = searchAtDepth(board: board, depth: depth, startTime: startTime, timeLimitMs: timeLimitMs) {
+            if let move = rootSearch(for: board, depth: depth, useTT: true, useMoveOrder: true,
+                                      startTime: startTime, timeLimitMs: timeLimitMs) {
                 bestMoveSoFar = move
             }
         }
         return bestMoveSoFar
     }
 
-    private func searchAtDepth(board: Board, depth: Int, startTime: Date, timeLimitMs: Int) -> Move? {
+    // MARK: - Negamax + Alpha-Beta 核心
+
+    /// Negamax 搜索：评估函数始终返回当前行走方视角的分数。
+    /// 递归时传递 -beta, -alpha 实现对手视角的窗口翻转。
+    private func negamax(board: Board, depth: Int, alpha: Int, beta: Int,
+                         useTT: Bool, useMoveOrder: Bool) -> Int {
         let side = board.currentTurn
-        let moves = MoveValidator.allLegalMoves(for: side, on: board)
         let hash = ZobristHash.hash(board: board)
-        let ttBestMove = Self.transpositionTable.probeBestMove(hash: hash)
-        let orderedMoves = MoveOrderer.order(moves, on: board, ttBestMove: ttBestMove, checkLegal: depth >= 3)
-        guard !orderedMoves.isEmpty else { return nil }
 
-        var bestMove: Move?
-        var bestScore = Int.min
-        var alpha = Int.min
-        let beta = Int.max
-        let isMaximizing = (side == .black)
-
-        for move in orderedMoves {
-            let elapsed = Int(Date().timeIntervalSince(startTime) * 1000)
-            if elapsed > timeLimitMs { break }
-
-            board.execute(move)
-            let score = minimax(board: board, depth: depth - 1, alpha: alpha, beta: beta,
-                                isMaximizing: !isMaximizing, useTT: true, useMoveOrder: true)
-            _ = board.undoLastMove()
-
-            if isMaximizing {
-                if score > bestScore {
-                    bestScore = score
-                    bestMove = move
-                }
-                alpha = max(alpha, bestScore)
-            } else {
-                let adjustedScore = -score
-                if adjustedScore > bestScore {
-                    bestScore = adjustedScore
-                    bestMove = move
-                }
-            }
-        }
-
-        // 存入置换表
-        let flag: TranspositionTable.TTFlag = (bestScore <= alpha) ? .upper : (bestScore >= beta) ? .lower : .exact
-        Self.transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
-
-        return bestMove
-    }
-
-    // MARK: - Minimax + Alpha-Beta 核心
-
-    private func minimax(board: Board, depth: Int, alpha: Int, beta: Int,
-                         isMaximizing: Bool, useTT: Bool, useMoveOrder: Bool) -> Int {
         // 置换表查找
         if useTT {
-            let hash = ZobristHash.hash(board: board)
             if let result = Self.transpositionTable.lookup(hash: hash, depth: depth, alpha: alpha, beta: beta) {
                 return result.score
             }
@@ -204,61 +181,51 @@ struct AIEngine: AIEngineProtocol {
             return evaluate(board)
         }
 
-        let side: Side = isMaximizing ? .black : .red
         var moves = MoveValidator.allLegalMoves(for: side, on: board)
 
         if moves.isEmpty {
-            return MoveValidator.isInCheck(side, on: board) ? (isMaximizing ? -100000 : +100000) : 0
+            // 被将军 = 输，未被判和
+            let score = MoveValidator.isInCheck(side, on: board) ? (-100000 - depth) : 0
+            if useTT {
+                Self.transpositionTable.store(hash: hash, depth: depth, score: score, flag: .exact, bestMove: nil)
+            }
+            return score
         }
 
         // 走法排序
         if useMoveOrder {
-            let hash = ZobristHash.hash(board: board)
             let ttBest = useTT ? Self.transpositionTable.probeBestMove(hash: hash) : nil
             moves = MoveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
         } else if depth >= 2 {
             moves = orderMovesSimple(moves)
         }
 
-        if isMaximizing {
-            var maxEval = Int.min
-            var a = alpha
-            for move in moves {
-                board.execute(move)
-                let evalScore = minimax(board: board, depth: depth - 1, alpha: a, beta: beta,
-                                        isMaximizing: false, useTT: useTT, useMoveOrder: useMoveOrder)
-                _ = board.undoLastMove()
-                maxEval = max(maxEval, evalScore)
-                a = max(a, evalScore)
-                if beta <= a { break }
+        let origAlpha = alpha
+        var bestScore = -100_000_000
+        var bestMove: Move? = nil
+        var a = alpha
+
+        for move in moves {
+            board.execute(move)
+            let score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -a,
+                                 useTT: useTT, useMoveOrder: useMoveOrder)
+            _ = board.undoLastMove()
+
+            if score > bestScore {
+                bestScore = score
+                bestMove = move
             }
-            // 存入置换表
-            if useTT {
-                let hash = ZobristHash.hash(board: board)
-                let flag: TranspositionTable.TTFlag = (maxEval <= alpha) ? .upper : (maxEval >= beta) ? .lower : .exact
-                Self.transpositionTable.store(hash: hash, depth: depth, score: maxEval, flag: flag, bestMove: nil)
-            }
-            return maxEval
-        } else {
-            var minEval = Int.max
-            var b = beta
-            for move in moves {
-                board.execute(move)
-                let evalScore = minimax(board: board, depth: depth - 1, alpha: alpha, beta: b,
-                                        isMaximizing: true, useTT: useTT, useMoveOrder: useMoveOrder)
-                _ = board.undoLastMove()
-                minEval = min(minEval, evalScore)
-                b = min(b, evalScore)
-                if b <= alpha { break }
-            }
-            // 存入置换表
-            if useTT {
-                let hash = ZobristHash.hash(board: board)
-                let flag: TranspositionTable.TTFlag = (minEval <= alpha) ? .upper : (minEval >= beta) ? .lower : .exact
-                Self.transpositionTable.store(hash: hash, depth: depth, score: minEval, flag: flag, bestMove: nil)
-            }
-            return minEval
+            a = max(a, bestScore)
+            if a >= beta { break }  // beta cutoff
         }
+
+        // 存入置换表（使用搜索开始时的 origAlpha 判定 flag）
+        if useTT {
+            let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
+            Self.transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
+        }
+
+        return bestScore
     }
 
     // MARK: - 终止判定
@@ -269,9 +236,18 @@ struct AIEngine: AIEngineProtocol {
         return false
     }
 
-    // MARK: - 评估函数（黑方视角，正值有利于黑方）
+    // MARK: - 评估函数（当前行走方视角，正值有利于当前行）
 
+    /// 返回当前行走方视角的评估分数（正值 = 当前行有利）。
+    ///
+    /// 在 negamax 框架中，evaluate 在 depth=0 时被调用，此时 `board.currentTurn`
+    /// 是最后一步走棋后的对手方。外层 negamax 会对此值取负，正确切换视角。
+    /// 例如：黑方走棋后 currentTurn 变为红方，evaluate 返回红方视角的负值（黑优），
+    /// 外层取负后变为正值（黑优），语义正确。
     private func evaluate(_ board: Board) -> Int {
+        let side = board.currentTurn
+        let sign: Int = (side == .black) ? 1 : -1
+
         var materialScore = 0
         var positionScore = 0
 
@@ -287,7 +263,7 @@ struct AIEngine: AIEngineProtocol {
             }
         }
 
-        return materialScore + positionScore
+        return sign * (materialScore + positionScore)
     }
 
     // MARK: - 位置权重表

@@ -276,7 +276,7 @@ struct MoveValidator {
         return count
     }
 
-    private static func canAttack(piece: Piece, target: Position, on board: Board) -> Bool {
+    static func canAttack(piece: Piece, target: Position, on board: Board) -> Bool {
         let from = piece.position
         switch piece.kind {
         case .general:

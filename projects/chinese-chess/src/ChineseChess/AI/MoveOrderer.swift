@@ -44,12 +44,14 @@ struct MoveOrderer {
 
     // MARK: - 将军检测
 
-    /// 判断走法是否会导致将军
+    /// 判断走法是否会导致将军。
+    /// 在原 board 上 execute/undo，避免 snapshot 深拷贝开销。
     private static func givesCheck(_ move: Move, on board: Board) -> Bool {
-        let snapshot = board.snapshot()
-        snapshot.execute(move)
+        board.execute(move)
         let opponentSide: Side = (move.piece.side == .red) ? .black : .red
-        return MoveValidator.isInCheck(opponentSide, on: snapshot)
+        let inCheck = MoveValidator.isInCheck(opponentSide, on: board)
+        _ = board.undoLastMove()
+        return inCheck
     }
 
     // MARK: - 威胁子力加分

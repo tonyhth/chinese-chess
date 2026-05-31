@@ -48,6 +48,10 @@ struct ZobristHash {
     // MARK: - 增量更新
 
     /// 走棋后增量更新哈希（无需重算整个棋盘）
+    ///
+    /// 注意：当前接口不支持棋子升变（兵变车等）。如果未来加入升变机制，
+    /// 需要改为用旧棋子类型 XOR 出 + 新棋子类型 XOR 入，而非直接移动。
+    /// 象棋标准规则无升变，当前接口满足需求。
     static func update(hash: UInt64, piece: Piece, from: Position, to: Position, captured: Piece?) -> UInt64 {
         var h = hash
         let pi = pieceIndex(piece)
