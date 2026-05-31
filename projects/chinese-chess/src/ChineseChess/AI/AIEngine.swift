@@ -30,9 +30,9 @@ struct AIEngine: AIEngineProtocol {
         case .medium:
             return mediumSearch(for: workBoard)
         case .hard:
-            return iterativeDeepeningSearch(for: workBoard, maxDepth: 4)
+            return hardSearch(for: workBoard)
         case .master:
-            return iterativeDeepeningSearch(for: workBoard, maxDepth: 6)
+            return masterSearch(for: workBoard)
         }
     }
 
@@ -142,12 +142,46 @@ struct AIEngine: AIEngineProtocol {
         return rootSearch(for: board, depth: 4, useTT: true, useMoveOrder: true)
     }
 
-    // MARK: - 高级/大师：迭代加深 Negamax
+    // MARK: - 高级：IDS + 杀法搜索 + 棋型识别
 
-    private func iterativeDeepeningSearch(for board: Board, maxDepth: Int) -> Move? {
+    private func hardSearch(for board: Board) -> Move? {
+        let side = board.currentTurn
+
+        // 杀法搜索（高优先级）
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 10, timeLimitMs: 500) {
+            return killMoves.first
+        }
+
+        // 迭代加深
+        return iterativeDeepeningSearch(for: board, maxDepth: 4, timeLimitMs: 3000)
+    }
+
+    // MARK: - 大师：深层 IDS + 杀法搜索 + 残局估值 + 时间管理
+
+    private func masterSearch(for board: Board) -> Move? {
+        let side = board.currentTurn
+
+        // 杀法搜索（深度更深）
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: 800) {
+            return killMoves.first
+        }
+
+        // 残局阶段搜索深度提升
+        let baseDepth: Int
+        if board.pieces.count <= 10 {
+            baseDepth = (board.pieces.count <= 6) ? 8 : 7
+        } else {
+            baseDepth = 6
+        }
+
+        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeLimitMs: 5000)
+    }
+
+    // MARK: - 迭代加深 Negamax
+
+    private func iterativeDeepeningSearch(for board: Board, maxDepth: Int, timeLimitMs: Int = 3000) -> Move? {
         var bestMoveSoFar: Move?
         let startTime = Date()
-        let timeLimitMs = (maxDepth >= 6) ? 5000 : 3000
 
         for depth in 2...maxDepth {
             let elapsed = Date().timeIntervalSince(startTime) * 1000
@@ -246,6 +280,12 @@ struct AIEngine: AIEngineProtocol {
     /// 外层取负后变为正值（黑优），语义正确。
     private func evaluate(_ board: Board) -> Int {
         let side = board.currentTurn
+
+        // 残局精确估值（≤6 子）
+        if let endgameScore = EndgameEvaluator.evaluate(board: board, for: side) {
+            return endgameScore
+        }
+
         let sign: Int = (side == .black) ? 1 : -1
 
         var materialScore = 0
@@ -263,7 +303,10 @@ struct AIEngine: AIEngineProtocol {
             }
         }
 
-        return sign * (materialScore + positionScore)
+        // 棋型识别加分
+        let patternBonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+
+        return sign * (materialScore + positionScore + patternBonus)
     }
 
     // MARK: - 位置权重表
