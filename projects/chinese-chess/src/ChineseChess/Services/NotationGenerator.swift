@@ -28,13 +28,8 @@ struct NotationGenerator {
         // 2. 棋子名
         let name = pieceName(piece)
 
-        // 3. 纵线编号（消歧义时不需要纵线号，因为有前/后）
-        let fileStr: String
-        if disambig.isEmpty {
-            fileStr = fileNumber(for: piece, at: from)
-        } else {
-            fileStr = ""
-        }
+        // 3. 纵线编号（消歧义前缀与纵线号并存：前車九进一）
+        let fileStr = fileNumber(for: piece, at: from)
 
         // 4. 动作 + 目标
         let actionTarget = actionAndTarget(piece: piece, from: from, to: to, isRed: isRed)

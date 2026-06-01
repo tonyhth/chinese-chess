@@ -21,5 +21,5 @@ struct GameMove: Identifiable, Codable {
     let notation: String       // 棋谱文本占位，Phase 3 NotationGenerator 实现后填充
     let timestamp: Date        // 走棋时间
     let isCheck: Bool          // 是否将军
-    let isCheckmate: Bool      // 是否将死
+    var isCheckmate: Bool     // 是否将死（走棋后延迟标记）
 }

@@ -179,15 +179,20 @@ struct NotationGeneratorTests {
         let board = Board(pieces: pieces)
 
         // row=5 的车在前（更靠近黑方），row=8 的车在后
+        // 标准：前車五平四（前 + 棋子名 + 纵线 + 动作 + 目标）
         let frontChariot = board.piece(at: Position(row: 5, col: 4))!
         let moveFront = Move(piece: frontChariot, from: Position(row: 5, col: 4), to: Position(row: 5, col: 3), captured: nil)
         let nFront = NotationGenerator.notation(for: moveFront, on: board)
         #expect(nFront.hasPrefix("前"))
+        #expect(nFront.contains("車"))
+        #expect(nFront.contains("平"))
 
         let backChariot = board.piece(at: Position(row: 8, col: 4))!
         let moveBack = Move(piece: backChariot, from: Position(row: 8, col: 4), to: Position(row: 7, col: 4), captured: nil)
         let nBack = NotationGenerator.notation(for: moveBack, on: board)
         #expect(nBack.hasPrefix("后"))
+        #expect(nBack.contains("車"))
+        #expect(nBack.contains("进"))
     }
 
     @Test("双炮同列消歧义 — 黑方")
@@ -205,11 +210,13 @@ struct NotationGeneratorTests {
         let moveFront = Move(piece: frontCannon, from: Position(row: 5, col: 4), to: Position(row: 6, col: 4), captured: nil)
         let nFront = NotationGenerator.notation(for: moveFront, on: board)
         #expect(nFront.hasPrefix("前"))
+        #expect(nFront.contains("砲"))
 
         let backCannon = board.piece(at: Position(row: 3, col: 4))!
         let moveBack = Move(piece: backCannon, from: Position(row: 3, col: 4), to: Position(row: 4, col: 4), captured: nil)
         let nBack = NotationGenerator.notation(for: moveBack, on: board)
         #expect(nBack.hasPrefix("后"))
+        #expect(nBack.contains("砲"))
     }
 
     // MARK: - 无消歧义时无前/后前缀

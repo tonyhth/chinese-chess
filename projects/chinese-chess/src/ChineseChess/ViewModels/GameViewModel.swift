@@ -87,13 +87,8 @@ class GameViewModel {
 
         // Phase 3: 记录 GameMove
         let turnNumber = (gameMoves.count / 2) + 1
-        let isCheck: Bool
         let opponent = (piece.side == .red) ? Side.black : Side.red
-        if board.currentTurn == opponent {
-            isCheck = MoveValidator.isInCheck(opponent, on: board)
-        } else {
-            isCheck = false
-        }
+        let isCheck = MoveValidator.isInCheck(opponent, on: board)
 
         let gameMove = GameMove(
             id: UUID(),
@@ -126,20 +121,8 @@ class GameViewModel {
         checkGameState()
 
         // 更新最后一步的 isCheckmate 标记
-        if gameState != .playing, var lastMove = gameMoves.last {
-            lastMove = GameMove(
-                id: lastMove.id,
-                piece: lastMove.piece,
-                from: lastMove.from,
-                to: lastMove.to,
-                captured: lastMove.captured,
-                turnNumber: lastMove.turnNumber,
-                notation: lastMove.notation,
-                timestamp: lastMove.timestamp,
-                isCheck: lastMove.isCheck,
-                isCheckmate: true
-            )
-            gameMoves[gameMoves.count - 1] = lastMove
+        if gameState != .playing {
+            gameMoves[gameMoves.count - 1].isCheckmate = true
         }
 
         // Phase 3: 记录统计
@@ -268,20 +251,8 @@ class GameViewModel {
                 self.checkGameState()
 
                 // 更新最后一步 isCheckmate
-                if self.gameState != .playing, var lastMove = self.gameMoves.last {
-                    lastMove = GameMove(
-                        id: lastMove.id,
-                        piece: lastMove.piece,
-                        from: lastMove.from,
-                        to: lastMove.to,
-                        captured: lastMove.captured,
-                        turnNumber: lastMove.turnNumber,
-                        notation: lastMove.notation,
-                        timestamp: lastMove.timestamp,
-                        isCheck: lastMove.isCheck,
-                        isCheckmate: true
-                    )
-                    self.gameMoves[self.gameMoves.count - 1] = lastMove
+                if self.gameState != .playing {
+                    self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
                 }
 
                 if self.gameState != .playing {
