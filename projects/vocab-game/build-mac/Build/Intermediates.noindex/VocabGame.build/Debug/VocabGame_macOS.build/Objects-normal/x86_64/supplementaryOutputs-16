@@ -1,0 +1,23 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/WordProgress.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordProgress.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordProgress.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordProgress.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordProgress.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordProgress.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Repositories/WordRepository.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRepository.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRepository.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRepository.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRepository.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRepository.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/GeneratedAssetSymbols.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/GeneratedAssetSymbols.swiftdeps"
+  }
+}

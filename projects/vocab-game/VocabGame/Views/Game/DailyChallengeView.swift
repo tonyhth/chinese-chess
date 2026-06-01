@@ -3,7 +3,9 @@ import SwiftUI
 struct DailyChallengeView: View {
     @EnvironmentObject var app: AppCoordinator
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) var scenePhase
     @StateObject private var viewModel: DailyChallengeViewModel
+    @State private var showExitConfirmation = false
 
     init(app: AppCoordinator) {
         _viewModel = StateObject(wrappedValue: DailyChallengeViewModel(
@@ -35,7 +37,34 @@ struct DailyChallengeView: View {
                 }
             }
         }
-        .onAppear { viewModel.start() }
+        .task {
+            if let active = app.progressRepo.activeSession, active.gameMode == .dailyChallenge {
+                if Calendar.current.isDateInToday(active.startTime) {
+                    viewModel.resume(active)
+                } else {
+                    app.progressRepo.clearActiveSession()
+                    viewModel.start()
+                }
+            } else {
+                viewModel.start()
+            }
+        }
+        .confirmationDialog("确定退出吗？", isPresented: $showExitConfirmation, titleVisibility: .visible) {
+            Button("继续游戏", role: .cancel) {}
+            Button("退出", role: .destructive) { dismiss() }
+        } message: {
+            Text("今日挑战进度将保存，下次可继续。")
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                viewModel.pauseTimer()
+            case .active:
+                viewModel.resumeTimer()
+            default:
+                break
+            }
+        }
     }
 
     private var alreadyCompletedView: some View {
@@ -82,7 +111,7 @@ struct DailyChallengeView: View {
         VStack(spacing: 0) {
             // Header with timer
             HStack {
-                Button(action: { dismiss() }) {
+                Button(action: { showExitConfirmation = true }) {
                     Image(systemName: "xmark")
                         .foregroundColor(VGColors.textSecondary)
                         .padding(8)

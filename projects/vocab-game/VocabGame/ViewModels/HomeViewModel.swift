@@ -6,6 +6,7 @@ class HomeViewModel: ObservableObject {
     @Published var streak: Int = 0
     @Published var totalStars: Int = 0
     @Published var totalWordsLearned: Int = 0
+    @Published var wordsReviewedToday: Int = 0
     @Published var hasActiveSession: Bool = false
 
     private let progressRepo: ProgressRepository
@@ -20,6 +21,7 @@ class HomeViewModel: ObservableObject {
         streak = profile.currentStreak
         totalStars = progressRepo.totalStars
         totalWordsLearned = progressRepo.totalWordsLearned
+        wordsReviewedToday = progressRepo.wordsReviewedToday
         hasActiveSession = progressRepo.activeSession != nil
     }
 

@@ -148,7 +148,7 @@ final class Phase2FixRegressionTests: XCTestCase {
 
     func testPurchase_accessory_addsToPetAccessories() {
         progressRepo.updateProfile { $0.coins = 100 }
-        let item = ShopItem(id: "hat_test", name: "测试帽", type: .accessory, price: 50, description: "测试")
+        let item = ShopItem(id: "hat_test", name: "测试帽", type: .accessory, category: .hat, price: 50, description: "测试")
 
         // 模拟 purchase accessory 分支
         progressRepo.updateProfile { $0.coins -= item.price }
@@ -160,7 +160,7 @@ final class Phase2FixRegressionTests: XCTestCase {
 
     func testPurchase_hint_consumable_noAccessory() {
         progressRepo.updateProfile { $0.coins = 100 }
-        let item = ShopItem(id: "hint_pack", name: "提示包", type: .hint, price: 30, description: "提示")
+        let item = ShopItem(id: "hint_pack", name: "提示包", type: .hint, category: .hat, price: 30, description: "提示")
 
         // hint 类型的购买只扣金币，不加装饰
         progressRepo.updateProfile { $0.coins -= item.price }
@@ -171,7 +171,7 @@ final class Phase2FixRegressionTests: XCTestCase {
 
     func testPurchase_extraTime_consumable_noAccessory() {
         progressRepo.updateProfile { $0.coins = 100 }
-        let item = ShopItem(id: "time_extra", name: "加时", type: .extraTime, price: 20, description: "加时间")
+        let item = ShopItem(id: "time_extra", name: "加时", type: .extraTime, category: .hat, price: 20, description: "加时间")
 
         progressRepo.updateProfile { $0.coins -= item.price }
 

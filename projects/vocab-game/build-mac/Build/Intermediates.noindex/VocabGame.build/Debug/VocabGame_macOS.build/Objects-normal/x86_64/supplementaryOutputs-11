@@ -1,0 +1,30 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/PetState.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetState.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetState.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetState.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetState.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetState.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/PlayerProfile.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PlayerProfile.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PlayerProfile.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PlayerProfile.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PlayerProfile.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PlayerProfile.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/PrimaryButtonStyle.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PrimaryButtonStyle.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PrimaryButtonStyle.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PrimaryButtonStyle.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PrimaryButtonStyle.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PrimaryButtonStyle.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Profile/ProfileView.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ProfileView.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ProfileView.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ProfileView.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ProfileView.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ProfileView.swiftdeps"
+  }
+}

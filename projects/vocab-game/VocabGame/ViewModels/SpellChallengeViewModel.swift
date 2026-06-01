@@ -15,10 +15,16 @@ class SpellChallengeViewModel: ObservableObject {
     @Published var hintUsed = false
     @Published var streakTitle = false // "拼写达人" for 5 consecutive correct
     @Published var errorMessage: String?
+    @Published var isDictationMode: Bool = false
+    @Published var usedDictationHint: Bool = false
+    @Published var replayCount: Int = 0
 
     private let wordRepo: WordRepository
     private let progressRepo: ProgressRepository
     private let petRepo: PetRepository
+    private weak var achievementRepo: AchievementRepository?
+    private weak var easterEgg: EasterEggManager?
+    private var advanceTask: Task<Void, Never>? = nil
     private let coinsPerHint = 10
 
     var currentWord: Word? {
@@ -40,10 +46,12 @@ class SpellChallengeViewModel: ObservableObject {
         return "(\(word.text.count)个字母)"
     }
 
-    init(wordRepo: WordRepository, progressRepo: ProgressRepository, petRepo: PetRepository) {
+    init(wordRepo: WordRepository, progressRepo: ProgressRepository, petRepo: PetRepository, achievementRepo: AchievementRepository? = nil, easterEgg: EasterEggManager? = nil) {
         self.wordRepo = wordRepo
         self.progressRepo = progressRepo
         self.petRepo = petRepo
+        self.achievementRepo = achievementRepo
+        self.easterEgg = easterEgg
     }
 
     func start() {
@@ -73,7 +81,7 @@ class SpellChallengeViewModel: ObservableObject {
             errorMessage = "暂无题目数据"
             return
         }
-        words.shuffle()
+        // words 已在上面 shuffled()，无需再次 shuffle
         currentIndex = 0
         score = 0
         combo = 0
@@ -84,18 +92,24 @@ class SpellChallengeViewModel: ObservableObject {
 
     func submit() {
         guard let word = currentWord else { return }
-        let normalized = spelledAnswer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let trimmed = spelledAnswer.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }  // 防空提交
+        let normalized = trimmed.lowercased()
         isCorrect = normalized == word.text.lowercased()
         showFeedback = true
 
         if isCorrect {
-            score += 100 + combo * 20
+            let baseScore = isDictationMode ? (usedDictationHint ? 100 : 150) : (100 + combo * 20)
+            score += baseScore
             combo += 1
             maxCombo = max(maxCombo, combo)
             AudioService.shared.play(.correct)
             if combo >= 5 && !streakTitle {
                 streakTitle = true
             }
+            // Phase 4: achievement + easter egg
+            achievementRepo?.record(.comboReached(count: combo))
+            easterEgg?.checkComboEasterEgg(combo: combo)
         } else {
             combo = 0
             AudioService.shared.play(.wrong)
@@ -106,9 +120,23 @@ class SpellChallengeViewModel: ObservableObject {
         wp = SpacedRepetitionService.updateProgress(wp, isCorrect: isCorrect)
         progressRepo.updateWordProgress(wp)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            self?.advance()
+        advanceTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5))
+            guard !Task.isCancelled else { return }
+            self.advance()
         }
+    }
+
+    // MARK: - C12: 从已保存的 session 恢复
+
+    func resume(_ savedSession: GameSession) {
+        let questions = savedSession.questions
+        words = questions.map { $0.word }
+        currentIndex = savedSession.currentIndex
+        score = savedSession.score
+        combo = savedSession.combo
+        maxCombo = savedSession.maxCombo
+        isCompleted = false
     }
 
     func useHint() -> Bool {
@@ -122,10 +150,42 @@ class SpellChallengeViewModel: ObservableObject {
         return true
     }
 
+    // MARK: - Dictation mode extras
+
+    /// "再听一次" — costs 5 coins
+    func replayAudio() -> Bool {
+        let profile = progressRepo.profile
+        guard profile.coins >= 5 else { return false }
+        progressRepo.updateProfile { p in
+            p.coins -= 5
+        }
+        replayCount += 1
+        return true
+    }
+
+    /// "首字母提示" — costs 10 coins
+    func useFirstLetterHint() -> Bool {
+        guard !usedDictationHint else { return false }
+        let profile = progressRepo.profile
+        guard profile.coins >= 10 else { return false }
+        progressRepo.updateProfile { p in
+            p.coins -= 10
+        }
+        usedDictationHint = true
+        return true
+    }
+
+    var firstLetterHint: String {
+        guard let word = currentWord, usedDictationHint else { return "" }
+        return String(word.text.prefix(1)).uppercased()
+    }
+
     private func advance() {
         showFeedback = false
         spelledAnswer = ""
         hintUsed = false
+        usedDictationHint = false
+        replayCount = 0
         currentIndex += 1
 
         if currentIndex >= words.count {
@@ -143,8 +203,14 @@ class SpellChallengeViewModel: ObservableObject {
             p.coins += coinsEarned
         }
         let expGained = score / 10 + maxCombo * 5 + (streakTitle ? 30 : 0)
-        _ = petRepo.addExp(expGained)
+        let didLevelUp = petRepo.addExp(expGained)
+        if didLevelUp {
+            achievementRepo?.record(.petLevelUp(level: petRepo.petState.level))
+        }
         progressRepo.recordPlay()
+        // Phase 4: word learned achievement
+        let totalLearned = progressRepo.totalWordsLearned
+        achievementRepo?.record(.wordLearned(totalCount: totalLearned))
     }
 
     private func saveSession() {

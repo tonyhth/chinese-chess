@@ -1,0 +1,30 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/Achievement.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Achievement.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Achievement.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Achievement.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Achievement.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Achievement.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/AchievementEvent.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementEvent.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementEvent.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementEvent.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementEvent.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementEvent.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/EggCharacter.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/EggCharacter.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/EggCharacter.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/EggCharacter.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/EggCharacter.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/EggCharacter.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/Food.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Food.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Food.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Food.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Food.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/Food.swiftdeps"
+  }
+}

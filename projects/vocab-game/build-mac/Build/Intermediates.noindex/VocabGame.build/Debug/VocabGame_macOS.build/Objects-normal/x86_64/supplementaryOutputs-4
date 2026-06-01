@@ -1,0 +1,30 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/AnimationComponents.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AnimationComponents.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AnimationComponents.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AnimationComponents.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AnimationComponents.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AnimationComponents.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Game/AchievementWallView.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementWallView.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementWallView.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementWallView.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementWallView.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/AchievementWallView.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Game/WordRunnerView.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerView.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerView.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerView.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerView.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerView.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/PetHouse/CharacterSelectView.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CharacterSelectView.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CharacterSelectView.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CharacterSelectView.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CharacterSelectView.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CharacterSelectView.swiftdeps"
+  }
+}

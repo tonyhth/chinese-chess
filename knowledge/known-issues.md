@@ -147,3 +147,110 @@
 **现象**：mistakeReview 模式在 onAppear 执行前，body 兜底分支短暂显示"暂未开放"。
 
 **状态**：预存在问题，非本轮引入，不阻塞发布。与 adventure 模式同类问题，后续可加 ProgressView 条件修复。
+
+## 2025-06-26 | SwiftUI sheet 预渲染捕获旧状态
+
+**现象**：首次点击关卡弹出空白（或闪关卡列表），第二次正常。
+
+**根因**：SwiftUI `.sheet(isPresented:content:)` 的 content 闭包在 `isPresented` 变为 true 之前被预渲染（求值）。此时中间变量 `adventureLevelId` 还是旧值（nil），导致 `GamePlayView` 收到 `levelId=nil`。
+
+**修复**：sheet content 不用 @State 中间变量，直接从数据源（`app.currentGameLevel`）读取。
+
+**教训**：
+1. SwiftUI sheet/fullScreenCover 的 content 闭包可能被预渲染，不能依赖 @State 中间变量的时序
+2. 直接读数据源比通过中间变量传递更可靠
+3. 调试 UI 时序问题必须加日志看实际值，不能靠代码推断
+
+## 2025-07-15 | verify_delivery.sh 门禁脚本 bug
+
+### Bug 1: `((PASS++))` 在 PASS=0 时触发 `set -e` 退出
+**现象**：脚本执行第一个 check_pass 就整体退出，没有任何错误输出。
+**根因**：bash `((expr))` 在表达式值为 0 时返回 exit code 1。PASS 初始为 0，`((PASS++))` 表达式值为 0，`set -e` 捕获 exit code 1 后终止脚本。
+**修复**：`((PASS++))` → `PASS=$((PASS+1))`（`PASS=$((PASS+1))` 在 PASS=0 时表达式值为 0 但赋值语句本身返回 0）。
+
+### Bug 2: binary 选择逻辑选了 dylib 而非主可执行文件
+**现象**：`find -perm +111 | head -1` 在 macOS app bundle 中可能选到 `VocabGame.debug.dylib` 而非主可执行文件 `VocabGame`，导致 `strings` 输出不同。
+**修复**：优先选非 dylib 的可执行文件：`find -perm +111 -not -name '*.dylib' | head -1`，无结果时 fallback 到原逻辑。
+
+### 经验教训
+1. bash 脚本中 `((var++))` 配合 `set -e` 有陷阱，推荐用 `var=$((var+1))`
+2. `find | head -1` 的文件顺序不可预测，需要显式过滤优先级
+3. 中文路径 + `set -euo pipefail` + 大 strings 输出的管道交互偶现不一致（手动 strings | grep 成功但脚本内失败），怀疑是 locale/编码相关，暂未定位根因
+
+## 2025-05-28 v1.16 V2 方案审计补齐
+
+### 返工 #1：编译产物未更新
+- **现象**：Cody 声称编译成功，但 binary mtime（May 27 23:26）比源码（May 28 06:28）旧 7 小时
+- **根因**：编译命令可能输出到了错误目录，或 build 实际失败但被误报为成功
+- **修复**：用精确路径重编译 + 验证 binary mtime
+- **教训**：编译完成后必须执行 `stat -f "%Sm" <binary>` 确认 mtime > 最新源码 mtime，不能只看 exit code
+
+### 返工 #2：提交清单失实
+- **现象**：Cody 声称改了 7 个文件 + 版本号，实际 git diff 涉及 57 个文件、+3455/-840 行
+- **根因**：清单手写，未与实际 git diff 核对
+- **修复**：Ruby 审查时发现并指出
+- **教训**：提交清单必须从 `git diff --stat` 生成，不允许手写
+
+## 2025-05-28 v1.17 角色系统
+
+### 返工 #1：pbxproj 重复破坏
+- **现象**：Cody 用 xcodeproj gem 重构 pbxproj 时，覆盖了 v1.16 修过的测试 target 配置（SDKROOT、TEST_HOST、Compile Sources）
+- **根因**：xcodeproj gem 的 save 操作会重写整个 pbxproj，丢失手动修复
+- **修复**：丹妮介入手动修复，关键发现是 macOS 的 TEST_HOST 路径与 iOS 不同（`.app/Contents/MacOS/Executable` vs `.app/Executable`）
+- **教训**：pbxproj 修改必须备份+lint 验证；xcodeproj gem 操作后要验证测试 target 配置未被覆盖
+
+### 返工 #2：levelUpTrigger 回归
+- **现象**：v1.17 PetDisplayView 重写后丢失了 v1.16 的 levelUpTrigger 连续升级触发修复
+- **根因**：文件重写时未对照 v1.16 修复清单逐项保留
+- **教训**：重写文件前，必须列出当前文件中所有已修复问题的补丁点，重写后逐项确认保留
+
+## 2025-06-09 | CogView-3-Flash 无法生成星眼
+
+**问题**：用 CogView-3-Flash 生成 excited（兴奋）状态角色时，4 轮不同 prompt 均无法生成星形眼睛（★）。无论 prompt 如何强调 "star-shaped eyes"、"five-pointed star"、"COMPLETELY REPLACED by stars"，AI 输出始终为普通圆眼。
+
+**已验证的 prompt 变体**（均失败）：
+1. "Eyes are replaced by golden/yellow five-pointed star shapes (★)"
+2. "The character's eyes are COMPLETELY REPLACED by two large bright golden five-pointed STAR shapes"
+3. "Where the eyes normally are, there are TWO LARGE BRIGHT YELLOW FIVE-POINTED STARS"
+4. "think of the cartoon trope where amazed characters have stars in their eyes"
+
+**妥协方案**：excited 状态改用超大圆眼 + 大 O 嘴 + 夸张闪光高光，不使用星眼。在 120pt 显示尺寸下与 happy（闭眼弯月）区分度足够。
+
+**影响**：v2 角色素材升级方案。如需真正的星眼效果，需换用 Stable Diffusion + ControlNet 或专业插画师。
+
+## 角色素材生成经验 (2025-06-09)
+
+### CogView-3-Flash 限制
+- 无法生成星眼（4 轮 prompt 均失败）
+- 无法稳定生成手臂（4 轮均失败）
+- 风格一致性不可控：6 色同 prompt 模板生成，体型/眼睛/质感/肢体数量全部不统一
+- 结论：不适合需要多角色统一画风的场景
+
+### GPT-4o 限制
+- 不支持透明背景生成
+- "pear shape" 等抽象描述会被按字面生成错误形状
+- 同样存在风格一致性问题
+
+### 验证脚本注意事项
+- 验证字符串不能用 xcassets 图片文件名（编译为 Assets.car，不进 binary）
+- 应使用源码中的实际引用（如 `egg_yellow`、`EggCharacter`）
+
+### 程序化生成（PIL）优劣势
+- 优势：100% 风格一致性，参数精确可控，批量生成零错误
+- 劣势：画风天花板受限于 Pillow 能力，偏扁平可爱风，无法达到 3D 渲染质感
+- 适用场景：需要多角色统一画风的项目，尤其卡通/Q 版风格
+
+### v3 P2 待下轮迭代
+- happy 腮红未放大
+- happy 舌头 120pt 下变像素
+- sad 泪滴 120pt 下偏小
+- excited 嘴巴偏小+缺舌头
+- Red 颜色偏珊瑚非正红
+
+## StatsManager 测试隔离缺陷（非阻塞）
+- **发现时间**: Phase 3 / Phase 4
+- **现象**: 单独 `swift test --filter Phase3Tests` 时 StatsManager 4 个测试失败（shared singleton + UserDefaults 状态未清理），全量跑通过
+- **影响**: 仅测试可靠性，不影响产品功能
+- **根因**: StatsManager 用 shared 单例 + UserDefaults，测试间状态残留
+- **修复建议**: 给 StatsManager 测试添加 setUp/tearDown 清理 UserDefaults，或注入 UserDefaults 实例
+- **优先级**: P2，后续修复

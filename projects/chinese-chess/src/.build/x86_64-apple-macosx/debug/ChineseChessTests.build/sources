@@ -6,5 +6,11 @@
 /Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameViewModelTests.swift
 /Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/IntegrationTests.swift
 /Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/MoveValidatorTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase1Tests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2aTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2bTests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase3Tests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase4Tests.swift
+/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase5Tests.swift
 /Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift
 /Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/UndoMoveTests.swift

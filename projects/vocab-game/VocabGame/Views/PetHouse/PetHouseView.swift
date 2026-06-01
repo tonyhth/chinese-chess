@@ -1,16 +1,22 @@
 import SwiftUI
 
 struct PetHouseWrapperView: View {
+    @StateObject private var viewModel: PetHouseViewModel
     @EnvironmentObject var app: AppCoordinator
     @State private var showingShop = false
 
+    init(petRepo: PetRepository, progressRepo: ProgressRepository) {
+        _viewModel = StateObject(wrappedValue: PetHouseViewModel(petRepo: petRepo, progressRepo: progressRepo))
+    }
+
     var body: some View {
         PetHouseContent(
-            viewModel: PetHouseViewModel(petRepo: app.petRepo, progressRepo: app.progressRepo),
-            showingShop: $showingShop
+            viewModel: viewModel,
+            showingShop: $showingShop,
+            easterEgg: app.easterEgg
         )
         .sheet(isPresented: $showingShop) {
-            ShopViewWrapper()
+            ShopViewWrapper(app: app)
                 .environmentObject(app)
         }
     }
@@ -19,14 +25,57 @@ struct PetHouseWrapperView: View {
 struct PetHouseContent: View {
     @ObservedObject var viewModel: PetHouseViewModel
     @Binding var showingShop: Bool
+    @ObservedObject var easterEgg: EasterEggManager
+
+    @State private var dialogueText: String = ""
+    @State private var showFeedSheet = false
+    @State private var showCharacterSelect = false
+    @State private var dialogueTask: Task<Void, Never>?
+
+    // v1.16: petting interaction states
+    @State private var isPetting = false
+    @State private var showHeartParticles = false
+    @State private var pettingScale: CGFloat = 1.0
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: VGSpacing.lg) {
+            VStack(spacing: VGSpacing.md) {
                 Spacer()
 
-                PetDisplayView(petState: viewModel.petState)
+                // Dialogue bubble
+                if !dialogueText.isEmpty {
+                    PetDialogueBubble(text: dialogueText)
+                        .transition(.opacity)
+                }
 
+                // Pet display (tappable for petting)
+                ZStack {
+                    // Heart particles for petting
+                    if showHeartParticles {
+                        PettingHeartParticles(size: 180)
+                    }
+
+                    PetDisplayView(
+                        petState: viewModel.petState,
+                        size: 180,
+                        showDizzy: easterEgg.showPetDizzy,
+                        specialOutfit: easterEgg.specialOutfit
+                    )
+                    .scaleEffect(pettingScale)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.5), value: pettingScale)
+                }
+                .onTapGesture {
+                    triggerPetting()
+                    easterEgg.onPetTapped()
+                    dialogueTask?.cancel()
+                    if viewModel.pet() {
+                        showDialogue("好舒服~", duration: 2.0)
+                    } else {
+                        showDialogue("别急，让蛋仔休息一下~", duration: 1.5)
+                    }
+                }
+
+                // Level & EXP
                 VStack(spacing: 8) {
                     Text("Lv.\(viewModel.petState.level)")
                         .font(.title2)
@@ -47,6 +96,23 @@ struct PetHouseContent: View {
                     }
                 }
 
+                // Satiety bar
+                VStack(spacing: 4) {
+                    HStack {
+                        Text("饱腹度")
+                            .font(.caption)
+                            .foregroundColor(VGColors.textSecondary)
+                        Spacer()
+                        Text("\(viewModel.petState.satiety)/100")
+                            .font(.caption)
+                            .foregroundColor(VGColors.textSecondary)
+                    }
+                    ProgressView(value: Double(viewModel.petState.satiety) / 100.0)
+                        .tint(viewModel.petState.satiety > 30 ? VGColors.accent : VGColors.error)
+                }
+                .padding(.horizontal, VGSpacing.xl)
+
+                // Mood message
                 Text(moodMessage)
                     .font(.subheadline)
                     .foregroundColor(VGColors.textPrimary)
@@ -56,38 +122,181 @@ struct PetHouseContent: View {
                     .cornerRadius(20)
                     .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
 
-                if let accessoryId = viewModel.petState.currentAccessory {
-                    HStack(spacing: 4) {
-                        Text(accessoryIcon(accessoryId))
-                            .font(.caption)
-                        Text(accessoryName(accessoryId))
-                            .font(.caption)
-                            .foregroundColor(VGColors.textSecondary)
+                // Interaction buttons
+                HStack(spacing: VGSpacing.md) {
+                    // Character select
+                    Button {
+                        showCharacterSelect = true
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: "person.crop.circle")
+                                .font(.title3)
+                            Text("角色")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.white)
+                        .frame(width: 70, height: 60)
+                        .background(VGColors.accent)
+                        .cornerRadius(16)
                     }
-                }
 
-                Button {
-                    showingShop = true
-                } label: {
-                    HStack {
-                        Image(systemName: "bag.fill")
-                        Text("装饰商店")
+                    // Feed
+                    Button {
+                        showFeedSheet = true
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: "fork.knife")
+                                .font(.title3)
+                            Text("喂食")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.white)
+                        .frame(width: 70, height: 60)
+                        .background(VGColors.peach)
+                        .cornerRadius(16)
                     }
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, VGSpacing.lg)
-                    .padding(.vertical, VGSpacing.sm)
-                    .background(VGColors.primary)
-                    .cornerRadius(20)
+
+                    // Play
+                    Button {
+                        if viewModel.play() {
+                            showDialogue("好开心！", duration: 2.0)
+                        } else {
+                            showDialogue("蛋仔还累着呢，稍后再玩~", duration: 1.5)
+                        }
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: "figure.play")
+                                .font(.title3)
+                            Text("玩耍")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.white)
+                        .frame(width: 70, height: 60)
+                        .background(VGColors.purple)
+                        .cornerRadius(16)
+                    }
+
+                    // Shop
+                    Button {
+                        showingShop = true
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: "bag.fill")
+                                .font(.title3)
+                            Text("商店")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.white)
+                        .frame(width: 70, height: 60)
+                        .background(VGColors.primary)
+                        .cornerRadius(16)
+                    }
                 }
 
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(VGGradients.petHouse.ignoresSafeArea())
+            .background(themeBackground.ignoresSafeArea())
             .navigationTitle("蛋仔之家")
+            .sheet(isPresented: $showFeedSheet) {
+                feedSheet
+            }
+            .sheet(isPresented: $showCharacterSelect) {
+                CharacterSelectView(viewModel: viewModel)
+            }
+            .onAppear {
+                viewModel.load()
+                showDialogue(viewModel.getDialogue(scene: .greeting), duration: 3.0)
+            }
+            .onDisappear {
+                dialogueTask?.cancel()
+            }
         }
-        .onAppear { viewModel.load() }
+    }
+
+    // MARK: - Feed Sheet
+
+    private var feedSheet: some View {
+        VStack(spacing: VGSpacing.md) {
+            Text("选择食物")
+                .font(.headline)
+                .padding(.top)
+
+            if viewModel.petState.ownedFoods.isEmpty {
+                Text("没有食物了，去商店买一些吧！")
+                    .foregroundColor(VGColors.textSecondary)
+                    .padding()
+            } else {
+                // Count owned foods
+                let foodCounts = Dictionary(grouping: viewModel.petState.ownedFoods, by: { $0 })
+                    .mapValues { $0.count }
+
+                ScrollView {
+                    LazyVStack(spacing: VGSpacing.sm) {
+                        ForEach(Array(foodCounts.keys.sorted()), id: \.self) { foodId in
+                            if let food = Food.food(by: foodId) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(food.name)
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                        Text("饱腹度+\(food.satiety)")
+                                            .font(.caption)
+                                            .foregroundColor(VGColors.textSecondary)
+                                    }
+                                    Spacer()
+                                    Text("×\(foodCounts[foodId] ?? 0)")
+                                        .font(.caption)
+                                        .foregroundColor(VGColors.textSecondary)
+                                    Button("喂食") {
+                                        if viewModel.feed(foodId: foodId) {
+                                            showFeedSheet = false
+                                            showDialogue("好好吃！", duration: 2.0)
+                                        }
+                                    }
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(VGColors.accent)
+                                    .cornerRadius(10)
+                                }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(12)
+                                .shadow(color: Color.black.opacity(0.04), radius: 4, y: 2)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+
+            Button("关闭") { showFeedSheet = false }
+                .font(.subheadline)
+                .foregroundColor(VGColors.textSecondary)
+                .padding(.bottom)
+        }
+        .presentationDetents([.medium])
+    }
+
+    // MARK: - Helpers
+
+    private var currentTheme: ThemeSkin {
+        switch viewModel.petState.currentScene {
+        case "scene_beach": return .beach
+        case "scene_starry": return .starry
+        case "scene_candy": return .candy
+        case "scene_castle": return .party
+        case "scene_party": return .party
+        case "scene_garden": return .garden
+        default: return .garden
+        }
+    }
+
+    private var themeBackground: LinearGradient {
+        let colors = currentTheme.backgroundGradient
+        return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
     }
 
     private var moodMessage: String {
@@ -99,16 +308,75 @@ struct PetHouseContent: View {
         }
     }
 
-    private func accessoryIcon(_ id: String) -> String {
-        if id.contains("hat") { return "🎩" }
-        if id.contains("glasses") { return "👓" }
-        if id.contains("scarf") { return "🧣" }
-        if id.contains("bow") { return "🎀" }
-        if id.contains("cape") { return "🦸" }
-        return "✨"
+    // MARK: - Petting Interaction
+
+    private func showDialogue(_ text: String, duration: Double) {
+        dialogueTask?.cancel()
+        dialogueText = text
+        dialogueTask = Task {
+            try? await Task.sleep(for: .seconds(duration))
+            guard !Task.isCancelled else { return }
+            dialogueText = ""
+        }
     }
 
-    private func accessoryName(_ id: String) -> String {
-        ShopViewModel.catalog.first(where: { $0.id == id })?.name ?? id
+    private func triggerPetting() {
+        // Squish + heart particles
+        pettingScale = 0.9
+        showHeartParticles = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            pettingScale = 1.05
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            pettingScale = 1.0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            showHeartParticles = false
+        }
+    }
+}
+
+// MARK: - Heart Particles for Petting
+
+private struct PettingHeartParticles: View {
+    let size: CGFloat
+    @State private var hearts: [HeartParticle] = []
+    @State private var triggered = false
+
+    struct HeartParticle: Identifiable {
+        let id = UUID()
+        let xOffset: CGFloat
+        let yOffset: CGFloat
+        let delay: Double
+        let scale: CGFloat
+    }
+
+    var body: some View {
+        ZStack {
+            ForEach(hearts) { h in
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 12 * h.scale))
+                    .foregroundColor(VGColors.primary.opacity(0.8))
+                    .offset(
+                        x: h.xOffset,
+                        y: triggered ? h.yOffset - 60 : h.yOffset
+                    )
+                    .opacity(triggered ? 0 : 0.9)
+                    .scaleEffect(h.scale)
+                    .animation(.easeOut(duration: 1.0).delay(h.delay), value: triggered)
+            }
+        }
+        .frame(width: size, height: size)
+        .onAppear {
+            hearts = (0..<6).map { _ in
+                HeartParticle(
+                    xOffset: CGFloat.random(in: -40...40),
+                    yOffset: CGFloat.random(in: -30...10),
+                    delay: Double.random(in: 0...0.3),
+                    scale: CGFloat.random(in: 0.6...1.2)
+                )
+            }
+            triggered = true
+        }
     }
 }

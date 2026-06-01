@@ -1,0 +1,2 @@
+Target dependency graph (1 target)
+Target 'VocabGame_macOS' in project 'VocabGame' (no dependencies)

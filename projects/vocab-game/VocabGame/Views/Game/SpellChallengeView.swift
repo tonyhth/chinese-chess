@@ -4,12 +4,16 @@ struct SpellChallengeView: View {
     @EnvironmentObject var app: AppCoordinator
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel: SpellChallengeViewModel
+    @State private var showExitConfirmation = false
+    @State private var dictationAutoPlayTask: Task<Void, Never>?
 
     init(app: AppCoordinator) {
         _viewModel = StateObject(wrappedValue: SpellChallengeViewModel(
             wordRepo: app.wordRepo,
             progressRepo: app.progressRepo,
-            petRepo: app.petRepo
+            petRepo: app.petRepo,
+            achievementRepo: app.achievementRepo,
+            easterEgg: app.easterEgg
         ))
     }
 
@@ -23,12 +27,11 @@ struct SpellChallengeView: View {
                 spellPlayView(word: word)
             } else {
                 VStack(spacing: VGSpacing.lg) {
-                    Text("还没有学过的单词")
-                        .font(.title3)
+                    ProgressView()
+                        .scaleEffect(1.2)
+                    Text("加载中...")
+                        .font(.subheadline)
                         .foregroundColor(VGColors.textSecondary)
-                    Button("返回") { dismiss() }
-                        .buttonStyle(PrimaryButtonStyle())
-                        .frame(width: 200)
                 }
             }
         }
@@ -40,20 +43,34 @@ struct SpellChallengeView: View {
         }, message: {
             Text(viewModel.errorMessage ?? "")
         })
-        .onAppear { viewModel.start() }
+        .task {
+            viewModel.isDictationMode = app.isDictationMode
+            app.isDictationMode = false
+            if let active = app.progressRepo.activeSession, active.gameMode == .spellChallenge {
+                viewModel.resume(active)
+            } else {
+                viewModel.start()
+            }
+        }
+        .confirmationDialog("确定退出吗？", isPresented: $showExitConfirmation, titleVisibility: .visible) {
+            Button("继续游戏", role: .cancel) {}
+            Button("退出", role: .destructive) { dismiss() }
+        } message: {
+            Text("当前拼写进度将保存，下次可继续。")
+        }
     }
 
     private func spellPlayView(word: Word) -> some View {
         VStack(spacing: VGSpacing.xl) {
             // Header
             HStack {
-                Button(action: { dismiss() }) {
+                Button(action: { showExitConfirmation = true }) {
                     Image(systemName: "xmark")
                         .foregroundColor(VGColors.textSecondary)
                         .padding(8)
                 }
                 Spacer()
-                Text("拼写挑战")
+                Text(viewModel.isDictationMode ? "听写挑战" : "拼写挑战")
                     .font(.headline)
                 Spacer()
                 Text("⭐ \(viewModel.score)")
@@ -70,24 +87,28 @@ struct SpellChallengeView: View {
 
             Spacer()
 
-            // Word meaning prompt
-            VStack(spacing: VGSpacing.md) {
-                Text("拼写出这个单词")
-                    .font(.caption)
-                    .foregroundColor(VGColors.textSecondary)
+            if viewModel.isDictationMode {
+                // Dictation mode: no meaning, audio controls
+                dictationPromptView(word: word)
+            } else {
+                // Normal spell mode: show meaning
+                VStack(spacing: VGSpacing.md) {
+                    Text("拼写出这个单词")
+                        .font(.caption)
+                        .foregroundColor(VGColors.textSecondary)
 
-                Text(word.meaning)
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .foregroundColor(VGColors.textPrimary)
-                    .multilineTextAlignment(.center)
+                    Text(word.meaning)
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .foregroundColor(VGColors.textPrimary)
+                        .multilineTextAlignment(.center)
 
-                // Hint
-                Text(viewModel.hintDisplay)
-                    .font(.subheadline)
-                    .foregroundColor(VGColors.primary)
+                    Text(viewModel.hintDisplay)
+                        .font(.subheadline)
+                        .foregroundColor(VGColors.primary)
+                }
+                .padding(.horizontal, VGSpacing.lg)
             }
-            .padding(.horizontal, VGSpacing.lg)
 
             // Input
             VStack(spacing: VGSpacing.md) {
@@ -99,18 +120,40 @@ struct SpellChallengeView: View {
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     #endif
+                    .onSubmit {
+                        viewModel.submit()
+                    }
 
-                // Hint button
-                if !viewModel.hintUsed {
-                    Button(action: {
-                        _ = viewModel.useHint()
-                    }) {
-                        HStack {
-                            Image(systemName: "lightbulb.fill")
-                            Text("使用提示 (10金币)")
+                HStack(spacing: VGSpacing.md) {
+                    // Hint / First letter hint
+                    if viewModel.isDictationMode {
+                        if !viewModel.usedDictationHint {
+                            Button(action: {
+                                _ = viewModel.useFirstLetterHint()
+                            }) {
+                                HStack {
+                                    Image(systemName: "textformat.first")
+                                    Text("首字母 (10币)")
+                                }
+                                .font(.caption)
+                                .foregroundColor(VGColors.secondary)
+                            }
+                        } else {
+                            Text("首字母: \(viewModel.firstLetterHint)")
+                                .font(.caption)
+                                .foregroundColor(VGColors.primary)
                         }
-                        .font(.subheadline)
-                        .foregroundColor(VGColors.secondary)
+                    } else if !viewModel.hintUsed {
+                        Button(action: {
+                            _ = viewModel.useHint()
+                        }) {
+                            HStack {
+                                Image(systemName: "lightbulb.fill")
+                                Text("使用提示 (10金币)")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(VGColors.secondary)
+                        }
                     }
                 }
 
@@ -136,6 +179,65 @@ struct SpellChallengeView: View {
             .padding(.horizontal, VGSpacing.md)
 
             Spacer()
+        }
+    }
+
+    // MARK: - Dictation Prompt
+
+    private func dictationPromptView(word: Word) -> some View {
+        VStack(spacing: VGSpacing.md) {
+            Text("听发音，拼写出单词")
+                .font(.caption)
+                .foregroundColor(VGColors.textSecondary)
+
+            // Play audio button
+            Button(action: {
+                TTSService.shared.speak(word.text)
+            }) {
+                VStack(spacing: 8) {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(VGColors.primary)
+                    Text("播放发音")
+                        .font(.caption)
+                        .foregroundColor(VGColors.textSecondary)
+                }
+                .frame(width: 100, height: 100)
+                .background(VGColors.primary.opacity(0.1))
+                .cornerRadius(20)
+            }
+
+            // Replay (costs 5 coins)
+            if viewModel.replayCount == 0 {
+                Text("已自动播放 2 遍")
+                    .font(.caption2)
+                    .foregroundColor(VGColors.textSecondary)
+            }
+
+            Button(action: {
+                if viewModel.replayAudio() {
+                    TTSService.shared.speak(word.text)
+                }
+            }) {
+                HStack {
+                    Image(systemName: "arrow.clockwise")
+                    Text("再听一次 (5币)")
+                }
+                .font(.caption)
+                .foregroundColor(VGColors.accent)
+            }
+        }
+        .padding(.horizontal, VGSpacing.lg)
+        .onAppear {
+            TTSService.shared.speak(word.text)
+            dictationAutoPlayTask = Task {
+                try? await Task.sleep(for: .seconds(1.5))
+                guard !Task.isCancelled else { return }
+                TTSService.shared.speak(word.text)
+            }
+        }
+        .onDisappear {
+            dictationAutoPlayTask?.cancel()
         }
     }
 

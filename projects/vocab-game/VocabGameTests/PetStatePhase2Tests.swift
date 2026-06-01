@@ -3,23 +3,30 @@ import XCTest
 
 final class PetStatePhase2Tests: XCTestCase {
 
+    /// 创建无经验加成的 PetState
+    private func noBonusPet() -> PetState {
+        var pet = PetState()
+        pet.satiety = 50
+        return pet
+    }
+
     // MARK: - addExp 返回 Bool
 
     func testAddExp_noLevelUp_returnsFalse() {
-        var pet = PetState()
+        var pet = noBonusPet()
         let didLevelUp = pet.addExp(50)
         XCTAssertFalse(didLevelUp)
     }
 
     func testAddExp_levelUp_returnsTrue() {
-        var pet = PetState()
+        var pet = noBonusPet()
         let didLevelUp = pet.addExp(100)
         XCTAssertTrue(didLevelUp)
     }
 
     func testAddExp_multipleLevelUps_returnsTrue() {
-        var pet = PetState()
-        let didLevelUp = pet.addExp(350) // 100+250 → level 3
+        var pet = noBonusPet()
+        let didLevelUp = pet.addExp(350)
         XCTAssertTrue(didLevelUp)
         XCTAssertEqual(pet.level, 3)
     }
@@ -33,9 +40,9 @@ final class PetStatePhase2Tests: XCTestCase {
     }
 
     func testAddExp_exactlyAtThreshold_returnsTrue() {
-        var pet = PetState()
+        var pet = noBonusPet()
         pet.level = 2
-        let didLevelUp = pet.addExp(250) // exact threshold for 2→3
+        let didLevelUp = pet.addExp(250)
         XCTAssertTrue(didLevelUp)
         XCTAssertEqual(pet.level, 3)
         XCTAssertEqual(pet.exp, 0)
@@ -69,8 +76,8 @@ final class PetStatePhase2Tests: XCTestCase {
     // MARK: - Codable with accessories
 
     func testCodable_withAccessories() throws {
-        var pet = PetState()
-        pet.addExp(200)
+        var pet = noBonusPet()
+        pet.addExp(200) // 200 with satiety≤50 → 200 exactly → L1→2(100), L2→3 needs 250, so L2 with 100 exp
         pet.accessories = ["hat_party", "glasses_round"]
         pet.currentAccessory = "hat_party"
 
@@ -79,6 +86,7 @@ final class PetStatePhase2Tests: XCTestCase {
 
         XCTAssertEqual(decoded.accessories, ["hat_party", "glasses_round"])
         XCTAssertEqual(decoded.currentAccessory, "hat_party")
-        XCTAssertEqual(decoded.level, 3) // 200 > 100 → level 2, leftover 100 → level 3
+        XCTAssertEqual(decoded.level, 2, "200 exp → L1→2(100) → L2 exp=100")
+        XCTAssertEqual(decoded.exp, 100)
     }
 }

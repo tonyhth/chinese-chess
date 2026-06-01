@@ -17,7 +17,7 @@ class ProgressRepository {
 
     // MARK: - Storage model
     struct ProgressData: Codable {
-        var version: Int = 1
+        var version: Int = 17
         var wordProgress: [String: WordProgress] = [:]   // keyed by wordId string
         var levelProgress: [String: LevelProgress] = [:]  // keyed by levelId string
         var activeSession: GameSession? = nil
@@ -75,6 +75,8 @@ class ProgressRepository {
                 data.levelProgress[key] = LevelProgress.initial(levelId: id)
             }
         }
+        // Phase 4: daily goal reset check on load
+        checkDailyGoalReset()
     }
 
     private func loadFromURL(_ url: URL) -> ProgressData? {
@@ -143,7 +145,12 @@ class ProgressRepository {
     }
 
     func updateWordProgress(_ wp: WordProgress) {
+        let oldMastery = data.wordProgress[String(wp.wordId)]?.mastery ?? .new
         data.wordProgress[String(wp.wordId)] = wp
+        // Phase 4: track daily goal (new → learning+)
+        if oldMastery == .new && wp.mastery.rawValue > oldMastery.rawValue {
+            incrementDailyGoalProgress()
+        }
         save()
     }
 
@@ -258,5 +265,56 @@ class ProgressRepository {
 
     var totalStars: Int {
         data.levelProgress.values.reduce(0) { $0 + $1.stars }
+    }
+
+    /// Number of words reviewed/learned today
+    var wordsReviewedToday: Int {
+        let today = Calendar.current.startOfDay(for: Date())
+        return data.wordProgress.values.filter { word in
+            word.lastReviewed >= today && word.mastery != .new
+        }.count
+    }
+
+    // MARK: - Daily Goal (Phase 4)
+
+    /// Check if daily goal needs reset (new day)
+    func checkDailyGoalReset() {
+        if let lastReset = data.profile.dailyGoalLastResetDate,
+           Calendar.current.isDateInToday(lastReset) {
+            return // Same day, no reset needed
+        }
+        // New day — reset daily goal
+        let wasCompleted = data.profile.dailyGoalCompletedCount >= data.profile.dailyGoalTarget
+        if wasCompleted {
+            data.profile.dailyGoalConsecutiveDays += 1
+        } else {
+            data.profile.dailyGoalConsecutiveDays = 0
+        }
+        data.profile.dailyGoalCompletedCount = 0
+        data.profile.dailyGoalBonusClaimed = false
+        data.profile.dailyGoalLastResetDate = Date()
+        save()
+    }
+
+    /// Increment daily goal count (called when mastery upgrades from .new)
+    func incrementDailyGoalProgress() {
+        checkDailyGoalReset()
+        data.profile.dailyGoalCompletedCount += 1
+        if !data.profile.dailyGoalBonusClaimed &&
+           data.profile.dailyGoalCompletedCount >= data.profile.dailyGoalTarget {
+            data.profile.dailyGoalBonusClaimed = true
+            data.profile.coins += 20 // daily goal bonus
+        }
+        save()
+    }
+
+    /// Daily goal info for display
+    var dailyGoalProgress: (completed: Int, target: Int, isDone: Bool, consecutiveDays: Int) {
+        return (
+            data.profile.dailyGoalCompletedCount,
+            data.profile.dailyGoalTarget,
+            data.profile.dailyGoalBonusClaimed,
+            data.profile.dailyGoalConsecutiveDays
+        )
     }
 }

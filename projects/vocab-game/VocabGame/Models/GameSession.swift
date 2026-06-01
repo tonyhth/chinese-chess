@@ -11,6 +11,7 @@ struct GameSession: Codable {
     var combo: Int
     var maxCombo: Int
     var isCompleted: Bool
+    var remainingSeconds: Int? = nil   // 仅 dailyChallenge 使用，保存计时器状态
 
     static func create(mode: GameMode, levelId: Int? = nil, questions: [Question]) -> GameSession {
         GameSession(
@@ -41,7 +42,9 @@ struct GameSession: Codable {
 enum GameMode: String, Codable, CaseIterable {
     case adventure
     case spellChallenge
+    case dictation
     case matchPairs
+    case wordRunner
     case dailyChallenge
     case mistakeReview
 }
@@ -56,41 +59,37 @@ struct Question: Codable {
         let options: [String]
         switch type {
         case .selectMeaning:
-            var distractors = allWords
-                .filter { $0.id != word.id }
-                .shuffled()
-                .prefix(3)
-                .map { $0.meaning }
-            // Pad if not enough distractors
-            while distractors.count < 3 {
-                distractors.append("(无选项)")
+            let correctAnswer = word.meaning
+            var distractors = Array(Set(
+                allWords
+                    .filter { $0.id != word.id && $0.meaning != correctAnswer }
+                    .map { $0.meaning }
+            ))
+            distractors.shuffle()
+            let selected = Array(distractors.prefix(3))
+            var padded = selected
+            while padded.count < 3 {
+                padded.append("(无选项)")
             }
-            distractors.append(word.meaning)
-            options = distractors.shuffled()
-        case .selectWord:
-            var distractors = allWords
-                .filter { $0.id != word.id }
-                .shuffled()
-                .prefix(3)
-                .map { $0.text }
-            while distractors.count < 3 {
-                distractors.append("(无选项)")
+            padded.append(correctAnswer)
+            options = padded.shuffled()
+        case .selectWord, .listenAndSelect:
+            let correctAnswer = word.text
+            var distractors = Array(Set(
+                allWords
+                    .filter { $0.id != word.id && $0.text != correctAnswer }
+                    .map { $0.text }
+            ))
+            distractors.shuffle()
+            let selected = Array(distractors.prefix(3))
+            var padded = selected
+            while padded.count < 3 {
+                padded.append("(无选项)")
             }
-            distractors.append(word.text)
-            options = distractors.shuffled()
+            padded.append(correctAnswer)
+            options = padded.shuffled()
         case .spellWord:
             options = []
-        case .listenAndSelect:
-            var distractors = allWords
-                .filter { $0.id != word.id }
-                .shuffled()
-                .prefix(3)
-                .map { $0.text }
-            while distractors.count < 3 {
-                distractors.append("(无选项)")
-            }
-            distractors.append(word.text)
-            options = distractors.shuffled()
         }
         return Question(word: word, type: type, options: options)
     }

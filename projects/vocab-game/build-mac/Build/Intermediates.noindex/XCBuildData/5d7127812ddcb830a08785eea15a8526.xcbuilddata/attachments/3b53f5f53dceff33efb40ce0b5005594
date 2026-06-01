@@ -1,0 +1,206 @@
+{
+  "" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.dia",
+    "emit-module-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary-emit-module.dia",
+    "pch" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/AdventureIntegrationTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AdventureIntegrationTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AdventureIntegrationTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AdventureIntegrationTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/AnimationComponentsTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AnimationComponentsTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AnimationComponentsTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AnimationComponentsTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/AudioServiceTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AudioServiceTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AudioServiceTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/AudioServiceTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/DailyChallengeViewModelTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/DailyChallengeViewModelTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/DailyChallengeViewModelTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/DailyChallengeViewModelTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/GamePlayViewModelTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/GamePlayViewModelTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/GamePlayViewModelTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/GamePlayViewModelTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/GameSessionTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/GameSessionTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/GameSessionTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/GameSessionTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/LevelTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/LevelTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/LevelTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/LevelTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/MatchGameTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/MatchGameTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/MatchGameTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/MatchGameTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/MatchGameViewModelTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/MatchGameViewModelTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/MatchGameViewModelTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/MatchGameViewModelTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/OnboardingTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/OnboardingTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/OnboardingTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/OnboardingTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/P0FixTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/P0FixTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/P0FixTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/P0FixTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/PetRepositoryPhase2Tests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetRepositoryPhase2Tests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetRepositoryPhase2Tests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetRepositoryPhase2Tests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/PetRepositoryTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetRepositoryTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetRepositoryTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetRepositoryTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/PetStatePhase2Tests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetStatePhase2Tests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetStatePhase2Tests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetStatePhase2Tests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/PetStateTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetStateTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetStateTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PetStateTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase1VisualTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase1VisualTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase1VisualTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase1VisualTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase2FeatureTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase2FeatureTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase2FeatureTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase2FeatureTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase2FixRegressionTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase2FixRegressionTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase2FixRegressionTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase2FixRegressionTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase3FeedbackTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3FeedbackTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3FeedbackTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3FeedbackTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase3P3FixTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3P3FixTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3P3FixTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3P3FixTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase3P5P6Tests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3P5P6Tests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3P5P6Tests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3P5P6Tests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase3ReviewFixTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3ReviewFixTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3ReviewFixTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase3ReviewFixTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase4AchievementTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4AchievementTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4AchievementTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4AchievementTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase4DailyGoalTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4DailyGoalTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4DailyGoalTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4DailyGoalTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase4EasterEggTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4EasterEggTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4EasterEggTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4EasterEggTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase4PetVisualTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4PetVisualTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4PetVisualTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4PetVisualTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase4ThemeSkinTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4ThemeSkinTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4ThemeSkinTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase4ThemeSkinTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/Phase5CrossPhaseIntegrationTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase5CrossPhaseIntegrationTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase5CrossPhaseIntegrationTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/Phase5CrossPhaseIntegrationTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/PlayerProfileTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PlayerProfileTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PlayerProfileTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/PlayerProfileTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/ProgressRepositoryTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/ProgressRepositoryTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/ProgressRepositoryTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/ProgressRepositoryTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/QuestionTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/QuestionTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/QuestionTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/QuestionTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/SeededRandomGeneratorTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SeededRandomGeneratorTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SeededRandomGeneratorTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SeededRandomGeneratorTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/ShopTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/ShopTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/ShopTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/ShopTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/SpacedRepetitionServiceTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SpacedRepetitionServiceTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SpacedRepetitionServiceTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SpacedRepetitionServiceTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/SpellChallengeViewModelTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SpellChallengeViewModelTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SpellChallengeViewModelTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/SpellChallengeViewModelTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/StarRatingTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/StarRatingTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/StarRatingTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/StarRatingTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/V116V2AuditTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/V116V2AuditTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/V116V2AuditTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/V116V2AuditTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/V117CharacterTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/V117CharacterTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/V117CharacterTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/V117CharacterTests.o"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/WordProgressTests.swift" : {
+    "index-unit-output-path" : "/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/WordProgressTests.o",
+    "llvm-bc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/WordProgressTests.bc",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/WordProgressTests.o"
+  }
+}

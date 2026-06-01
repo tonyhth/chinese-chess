@@ -52,6 +52,18 @@
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.dia"
   },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase1Tests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2aTests.swift": {
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests.dia"
+  },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift": {
     "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests.swift.o",
     "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests~partial.swiftmodule",

@@ -15,6 +15,9 @@ class PetRepository {
         } else {
             self.petState = PetState()
         }
+        // V2: decay satiety on load
+        petState.decaySatiety()
+        save()
     }
 
     func save() {
@@ -38,6 +41,65 @@ class PetRepository {
     func updateMood(_ mood: PetMood) {
         petState.mood = mood
         save()
+    }
+
+    // MARK: - V2 Interactions
+
+    /// 抚摸蛋仔，经验+5，30s 冷却
+    @discardableResult
+    func pet() -> Bool {
+        guard petState.canPet else { return false }
+        updatePetState { state in
+            state.lastPetTime = Date()
+            state.interactionCount += 1
+        }
+        addExp(5)
+        return true
+    }
+
+    /// 喂食，消耗 ownedFoods 中的食物
+    func feed(foodId: String) -> Bool {
+        guard let food = Food.food(by: foodId) else { return false }
+        guard let idx = petState.ownedFoods.firstIndex(of: foodId) else { return false }
+
+        updatePetState { state in
+            state.ownedFoods.remove(at: idx)
+            state.satiety = min(100, state.satiety + food.satiety)
+            state.lastFedTime = Date()
+
+            switch food.effect {
+            case .happyMood:
+                state.mood = .happy
+            case .doubleExp:
+                state.currentEffect = "double_exp"
+            default:
+                break
+            }
+        }
+        if food.effect == .expBoost20 {
+            addExp(20)
+        }
+        return true
+    }
+
+    /// 玩耍，心情变 happy，4h 冷却
+    @discardableResult
+    func play() -> Bool {
+        guard petState.canPlay else { return false }
+        updatePetState { state in
+            state.mood = .happy
+            state.lastPlayTime = Date()
+            state.interactionCount += 1
+        }
+        return true
+    }
+
+    /// 获取蛋仔对话
+    func getDialogue(scene: PetDialogueScene) -> String {
+        if scene == .hungry && petState.satiety < 30 {
+            return PetDialogue.randomDialogue(for: .hungry)
+        }
+        return PetDialogue.randomDialogue(for: scene)
     }
 
     /// Calculate mood based on play state

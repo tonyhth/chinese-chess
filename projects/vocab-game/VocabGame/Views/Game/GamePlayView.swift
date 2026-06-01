@@ -18,6 +18,21 @@ struct GamePlayView: View {
     // 当有 levelId 时直接进入游戏（不显示关卡选择器），避免 sheet 弹出时闪一下关卡列表
     private var shouldShowLevelPicker: Bool { mode == .adventure && levelId == nil }
     @State private var showAlert = false
+    @State private var isProcessingAnswer = false
+    @State private var answerTask: Task<Void, Never>? = nil
+    @State private var showExitConfirmation = false
+
+    // Animation states
+    @State private var correctOptionScale: CGFloat = 1.0
+    @State private var wrongOptionShake: CGFloat = 0
+    @State private var correctOptionFlash = 0
+    @State private var comboTextItem: (text: String, color: Color)? = nil
+    @State private var scoreFloatPoints: Int? = nil
+    @State private var showMiniPet = false
+    @State private var miniPetHappy = true
+    @State private var showGoldParticles = false
+    @State private var showLegendary = false
+    @State private var screenShakeAmount: CGFloat = 0
 
     var body: some View {
         ZStack {
@@ -61,7 +76,7 @@ struct GamePlayView: View {
         }, message: {
             Text(errorMessage ?? "")
         })
-        .onAppear {
+        .task {
             if mode == .adventure, let lid = levelId {
                 startLevel(lid)
             } else if mode == .mistakeReview {
@@ -69,6 +84,12 @@ struct GamePlayView: View {
             } else if let active = app.progressRepo.activeSession {
                 resumeSession(active)
             }
+        }
+        .confirmationDialog("确定退出吗？", isPresented: $showExitConfirmation, titleVisibility: .visible) {
+            Button("继续游戏", role: .cancel) {}
+            Button("退出", role: .destructive) { dismiss() }
+        } message: {
+            Text("当前进度将保存，下次可继续。")
         }
     }
 
@@ -91,7 +112,7 @@ struct GamePlayView: View {
 
             ScrollView {
                 LazyVStack(spacing: VGSpacing.sm) {
-                    ForEach(1...25, id: \.self) { lid in
+                    ForEach(1...LevelDefinition.allLevels.count, id: \.self) { lid in
                         let isUnlocked = app.progressRepo.isLevelUnlocked(lid)
                         let progress = app.progressRepo.levelProgress(for: lid)
                         let def = LevelDefinition.allLevels[lid - 1]
@@ -143,6 +164,17 @@ struct GamePlayView: View {
 
     private func gamePlayContent(session: GameSession) -> some View {
         VStack(spacing: 0) {
+            // 退出按钮
+            HStack {
+                Button(action: { showExitConfirmation = true }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(VGColors.textSecondary)
+                        .padding(8)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, VGSpacing.md)
+
             GameHeaderView(
                 progress: session.progress,
                 current: session.currentIndex + 1,
@@ -161,6 +193,42 @@ struct GamePlayView: View {
 
             Spacer()
         }
+        .overlay(alignment: .topTrailing) {
+            // Mini pet reaction (corner)
+            if showMiniPet {
+                MiniPetReaction(isHappy: miniPetHappy)
+                    .padding(.trailing, 16)
+                    .padding(.top, 50)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .overlay {
+            // Combo text floating
+            if let combo = comboTextItem {
+                ComboText(text: combo.text, color: combo.color)
+                    .transition(.opacity)
+            }
+        }
+        .overlay(alignment: .center) {
+            // Score float (+100)
+            if let pts = scoreFloatPoints {
+                ScoreFloatView(points: pts)
+                    .transition(.opacity)
+            }
+        }
+        .overlay {
+            // Gold particles (8x+ combo)
+            if showGoldParticles {
+                GoldParticleBurst()
+            }
+        }
+        .overlay {
+            // Legendary celebration (10x)
+            if showLegendary {
+                LegendaryCelebration()
+            }
+        }
+        .modifier(ScreenShake(animatableData: screenShakeAmount))
     }
 
     @ViewBuilder
@@ -214,6 +282,9 @@ struct GamePlayView: View {
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     #endif
+                    .onSubmit {
+                        submitSpelling()
+                    }
 
                 if showAnswerFeedback {
                     Text(isAnswerCorrect ? "✓ 正确!" : "✗ 正确答案: \(question.word.text)")
@@ -235,18 +306,34 @@ struct GamePlayView: View {
                             guard selectedAnswer == nil else { return }
                             selectAnswer(option, question: question)
                         } label: {
-                            Text(option)
-                                .font(.subheadline)
-                                .foregroundColor(VGColors.textPrimary)
-                                .multilineTextAlignment(.center)
-                                .padding()
-                                .frame(maxWidth: .infinity, minHeight: 50)
-                                .background(optionBackground(option, question: question))
-                                .cornerRadius(VGRadius.option)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: VGRadius.option)
-                                        .stroke(optionBorder(option, question: question), lineWidth: selectedAnswer == option ? 2 : 1)
-                                )
+                            HStack(spacing: 4) {
+                                Text(option)
+                                    .font(.subheadline)
+                                    .foregroundColor(VGColors.textPrimary)
+                                    .multilineTextAlignment(.center)
+
+                                // Checkmark for correct answer after feedback
+                                if showAnswerFeedback, option == correctAnswer(for: question) {
+                                    Image(systemName: "checkmark")
+                                        .font(.caption.bold())
+                                        .foregroundColor(VGColors.success)
+                                }
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(optionBackground(option, question: question))
+                            .cornerRadius(VGRadius.option)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: VGRadius.option)
+                                    .stroke(optionBorder(option, question: question), lineWidth: selectedAnswer == option ? 2 : 1)
+                            )
+                            // Correct answer bounce
+                            .scaleEffect(
+                                showAnswerFeedback && option == correctAnswer(for: question) ? correctOptionScale : 1.0,
+                                anchor: .center
+                            )
+                            // Wrong answer shake
+                            .modifier(ShakeEffect(animatableData: wrongOptionShake))
                         }
                         .disabled(selectedAnswer != nil)
                     }
@@ -295,9 +382,11 @@ struct GamePlayView: View {
         let mistakes = app.progressRepo.mistakeWords()
         let allWords = app.wordRepo.allWords
         var questions: [Question] = []
-        for wp in mistakes.prefix(10) {
+        let types: [QuestionType] = [.selectMeaning, .selectWord, .spellWord]
+        for (i, wp) in mistakes.prefix(10).enumerated() {
             guard let word = allWords.first(where: { $0.id == wp.wordId }) else { continue }
-            questions.append(Question.create(word: word, type: .selectMeaning, allWords: allWords))
+            let type = types[i % types.count]
+            questions.append(Question.create(word: word, type: type, allWords: allWords))
         }
         if !questions.isEmpty {
             session = GameSession.create(mode: .mistakeReview, questions: questions)
@@ -308,7 +397,8 @@ struct GamePlayView: View {
     }
 
     private func selectAnswer(_ answer: String, question: Question) {
-        guard var s = session else { return }
+        guard var s = session, !isProcessingAnswer else { return }
+        isProcessingAnswer = true
         selectedAnswer = answer
 
         switch question.type {
@@ -317,6 +407,7 @@ struct GamePlayView: View {
         case .selectWord, .listenAndSelect:
             isAnswerCorrect = answer == question.word.text
         case .spellWord:
+            isProcessingAnswer = false
             return
         }
 
@@ -329,24 +420,89 @@ struct GamePlayView: View {
             s.maxCombo = max(s.maxCombo, s.combo)
             AudioService.shared.play(.correct)
             if s.combo >= 3 { AudioService.shared.play(.combo) }
+
+            // Correct answer bounce animation
+            correctOptionScale = 1.0
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.4)) {
+                correctOptionScale = 1.08
+            }
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.2))
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.6)) {
+                    correctOptionScale = 1.0
+                }
+            }
+
+            // Mini pet happy reaction
+            showMiniPet = true
+            miniPetHappy = true
+
+            // Score float
+            let earned = 100 + (s.combo - 1) * 20
+            scoreFloatPoints = earned
+
+            // Combo milestones
+            if s.combo == 3 {
+                comboTextItem = ("Nice!", Color(hex: "FFD700"))
+            } else if s.combo == 5 {
+                comboTextItem = ("Amazing!", Color(hex: "FF6B35"))
+                // Screen shake
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    screenShakeAmount = 3
+                }
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.3))
+                    screenShakeAmount = 0
+                }
+            } else if s.combo == 8 {
+                comboTextItem = ("Perfect!", Color(hex: "FF1493"))
+                showGoldParticles = true
+            } else if s.combo >= 10 && s.combo % 10 == 0 {
+                comboTextItem = ("Legendary!", Color(hex: "FF0000"))
+                showLegendary = true
+            }
+            // Phase 4: easter egg + achievement
+            app.easterEgg.checkComboEasterEgg(combo: s.combo)
+            app.achievementRepo.record(.comboReached(count: s.combo))
         } else {
             s.combo = 0
             AudioService.shared.play(.wrong)
+
+            // Wrong answer shake
+            withAnimation(.easeInOut(duration: 0.4)) {
+                wrongOptionShake = 2
+            }
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.4))
+                wrongOptionShake = 0
+            }
+
+            // Mini pet sad reaction
+            showMiniPet = true
+            miniPetHappy = false
         }
 
         session = s
         app.progressRepo.saveActiveSession(s)
         updateWordProgress(wordId: question.word.id, isCorrect: isAnswerCorrect)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { advanceToNext() }
+        answerTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.0))
+            guard !Task.isCancelled else { return }
+            advanceToNext()
+            isProcessingAnswer = false
+        }
     }
 
     private func submitSpelling() {
-        guard var s = session, let question = s.currentQuestion else { return }
-        let normalized = spelledAnswer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard var s = session, let question = s.currentQuestion, !isProcessingAnswer else { return }
+        let trimmed = spelledAnswer.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }  // 防空提交
+        let normalized = trimmed.lowercased()
         isAnswerCorrect = normalized == question.word.text.lowercased()
         showAnswerFeedback = true
         s.questions[s.currentIndex].isCorrect = isAnswerCorrect
+        isProcessingAnswer = true
 
         if isAnswerCorrect {
             s.score += 100 + s.combo * 20
@@ -362,7 +518,12 @@ struct GamePlayView: View {
         app.progressRepo.saveActiveSession(s)
         updateWordProgress(wordId: question.word.id, isCorrect: isAnswerCorrect)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advanceToNext() }
+        answerTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5))
+            guard !Task.isCancelled else { return }
+            advanceToNext()
+            isProcessingAnswer = false
+        }
     }
 
     private func advanceToNext() {
@@ -370,6 +531,16 @@ struct GamePlayView: View {
         selectedAnswer = nil
         spelledAnswer = ""
         showAnswerFeedback = false
+
+        // Reset animation states
+        correctOptionScale = 1.0
+        wrongOptionShake = 0
+        comboTextItem = nil
+        scoreFloatPoints = nil
+        showMiniPet = false
+        showGoldParticles = false
+        showLegendary = false
+        screenShakeAmount = 0
 
         s.currentIndex += 1
         if s.currentIndex >= s.questions.count {
@@ -384,7 +555,8 @@ struct GamePlayView: View {
 
     private func saveResult(_ s: GameSession) {
         if let levelId = s.levelId {
-            let stars = StarRating.stars(forScore: s.score)
+            let correctCount = s.questions.filter { $0.isCorrect == true }.count
+            let stars = StarRating.stars(correctCount: correctCount, totalCount: s.questions.count)
             var lp = app.progressRepo.levelProgress(for: levelId)
             lp.isCompleted = true
             lp.stars = max(lp.stars, stars)

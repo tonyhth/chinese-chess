@@ -200,6 +200,14 @@ struct PuzzlePlayView: View {
                     .onTapGesture { viewModel.dismissHint() }
             }
 
+            // 解法实时提示
+            if let hint = viewModel.solutionHint {
+                Text(hint)
+                    .font(.system(size: 13))
+                    .foregroundColor(.orange)
+                    .padding(.horizontal, 16)
+            }
+
             // 棋谱
             if !viewModel.gameMoves.isEmpty {
                 RecordPanelView(gameMoves: viewModel.gameMoves)

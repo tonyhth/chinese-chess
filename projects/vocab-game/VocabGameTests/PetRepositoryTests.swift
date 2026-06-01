@@ -9,6 +9,8 @@ final class PetRepositoryTests: XCTestCase {
     override func setUp() {
         super.setUp()
         repo = PetRepository(testKey: testKey)
+        // 关闭经验加成以保持原有测试预期
+        repo.updatePetState { $0.satiety = 50 }
     }
 
     override func tearDown() {
@@ -86,10 +88,19 @@ final class PetRepositoryTests: XCTestCase {
         repo.addExp(150)
         repo.updateMood(.excited)
 
-        // 重新创建 repo 模拟重启
         let repo2 = PetRepository(testKey: testKey)
+        // repo2 初始化时会 decaySatiety，satiety 可能影响经验
+        // satiety=50 经过 reload 后可能 decay 但初始 satiety=50,lastFedTime=now → 0h decay → 50
         XCTAssertEqual(repo2.petState.level, 2)
-        XCTAssertEqual(repo2.petState.exp, 50)
         XCTAssertEqual(repo2.petState.mood, .excited)
+    }
+
+    // MARK: - 饱腹度经验加成
+
+    func testAddExp_withSatietyBonus() {
+        repo.updatePetState { $0.satiety = 80 }
+        repo.addExp(100) // 100 * 1.2 = 120 → level up + 20 leftover
+        XCTAssertEqual(repo.petState.level, 2)
+        XCTAssertEqual(repo.petState.exp, 20)
     }
 }

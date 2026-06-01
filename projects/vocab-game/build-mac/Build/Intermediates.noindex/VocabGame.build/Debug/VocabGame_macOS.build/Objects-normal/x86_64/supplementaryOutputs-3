@@ -1,0 +1,30 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/ViewModels/WordRunnerViewModel.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerViewModel.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerViewModel.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerViewModel.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerViewModel.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/WordRunnerViewModel.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/ComboText.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ComboText.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ComboText.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ComboText.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ComboText.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/ComboText.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/CustomTabBar.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CustomTabBar.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CustomTabBar.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CustomTabBar.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CustomTabBar.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/CustomTabBar.swiftdeps"
+  },
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Views/Components/PetDialogueBubble.swift" : {
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetDialogueBubble.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetDialogueBubble.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetDialogueBubble.dia",
+    "object" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetDialogueBubble.o",
+    "swift-dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Debug/VocabGame_macOS.build/Objects-normal/x86_64/PetDialogueBubble.swiftdeps"
+  }
+}

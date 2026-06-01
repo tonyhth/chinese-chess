@@ -1,0 +1,12 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGame/Models/Achievement.swift" : {
+    "abi-baseline-json" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame.abi.json",
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame_macOS-primary.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame_macOS-primary.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame_macOS-primary.dia",
+    "objc-header" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame-Swift.h",
+    "swiftdoc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame.swiftdoc",
+    "swiftmodule" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame.swiftmodule",
+    "swiftsourceinfo" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath/VocabGame.build/Release/VocabGame_macOS.build/Objects-normal/x86_64/VocabGame.swiftsourceinfo"
+  }
+}

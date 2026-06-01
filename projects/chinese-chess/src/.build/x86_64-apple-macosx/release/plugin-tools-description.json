@@ -48,6 +48,20 @@
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess_ChineseChess.bundle/move.wav"
         }
       ]
+    },
+    "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess_ChineseChess.bundle/openings.json" : {
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Resources/OpeningBook/openings.json"
+        }
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess_ChineseChess.bundle/openings.json"
+        }
+      ]
     }
   },
   "explicitTargetDependencyImportCheckingMode" : {
@@ -73,7 +87,31 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/MoveOrderer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/OpeningBook.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/TranspositionTable.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/ZobristHash.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Helpers/PlatformExtensions.swift"
         },
         {
           "kind" : "file",
@@ -82,6 +120,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Enums.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameMove.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameRecord.swift"
         },
         {
           "kind" : "file",
@@ -98,6 +144,10 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Position.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/FENParser.swift"
         },
         {
           "kind" : "file",
@@ -149,13 +199,22 @@
       "moduleOutputPath" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/Modules/ChineseChess.swiftmodule",
       "objects" : [
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/AIEngine.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveOrderer.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/OpeningBook.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/TranspositionTable.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ZobristHash.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ChineseChessApp.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ChineseChessiOSApp.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/PlatformExtensions.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Board.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Enums.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameMove.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameRecord.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Move.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveValidator.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Piece.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Position.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/FENParser.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/SoundEngine.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameViewModel.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/BoardView.swift.o",
@@ -173,6 +232,7 @@
         "16",
         "-serialize-diagnostics",
         "-O",
+        "-enable-testing",
         "-j16",
         "-DSWIFT_PACKAGE",
         "-DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE",
@@ -225,7 +285,31 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveOrderer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/OpeningBook.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/TranspositionTable.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ZobristHash.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ChineseChessApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ChineseChessiOSApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/PlatformExtensions.swift.o"
         },
         {
           "kind" : "file",
@@ -234,6 +318,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Enums.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameMove.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameRecord.swift.o"
         },
         {
           "kind" : "file",
@@ -250,6 +342,10 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Position.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/FENParser.swift.o"
         },
         {
           "kind" : "file",
@@ -291,13 +387,22 @@
       "prepareForIndexing" : false,
       "sources" : [
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/AIEngine.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/MoveOrderer.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/OpeningBook.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/TranspositionTable.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/ZobristHash.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Helpers/PlatformExtensions.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Board.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Enums.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameMove.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameRecord.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Move.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/MoveValidator.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Piece.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Position.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/FENParser.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/SoundEngine.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardView.swift",
@@ -448,6 +553,14 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase1Tests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2aTests.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift"
         },
         {
@@ -479,6 +592,8 @@
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/GameViewModelTests.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/IntegrationTests.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests.swift.o",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests.swift.o",
         "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/UndoMoveTests.swift.o"
       ],
@@ -572,6 +687,14 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/ThreadSafetyTests.swift.o"
         },
         {
@@ -593,6 +716,8 @@
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameViewModelTests.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/IntegrationTests.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/MoveValidatorTests.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase1Tests.swift",
+        "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2aTests.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift",
         "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/UndoMoveTests.swift"
       ],
@@ -612,13 +737,22 @@
       "src",
       "-c",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/AIEngine.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/MoveOrderer.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/OpeningBook.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/TranspositionTable.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/ZobristHash.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Helpers/PlatformExtensions.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Board.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Enums.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameMove.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameRecord.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Move.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/MoveValidator.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Piece.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Position.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/FENParser.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/SoundEngine.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardView.swift",
@@ -636,6 +770,7 @@
       "16",
       "-serialize-diagnostics",
       "-O",
+      "-enable-testing",
       "-j16",
       "-DSWIFT_PACKAGE",
       "-DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE",
@@ -761,6 +896,8 @@
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/GameViewModelTests.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/IntegrationTests.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/MoveValidatorTests.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase1Tests.swift",
+      "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2aTests.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/ThreadSafetyTests.swift",
       "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/UndoMoveTests.swift",
       "-I",
@@ -868,7 +1005,31 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/MoveOrderer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/OpeningBook.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/TranspositionTable.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/ZobristHash.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Helpers/PlatformExtensions.swift"
         },
         {
           "kind" : "file",
@@ -877,6 +1038,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Enums.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameMove.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameRecord.swift"
         },
         {
           "kind" : "file",
@@ -893,6 +1062,10 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Position.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/FENParser.swift"
         },
         {
           "kind" : "file",
@@ -954,11 +1127,27 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ChineseChessiOSApp.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Enums.swift.o"
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/FENParser.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameMove.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameOverOverlay.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameRecord.swift.o"
         },
         {
           "kind" : "file",
@@ -970,7 +1159,15 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveOrderer.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveValidator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/OpeningBook.swift.o"
         },
         {
           "kind" : "file",
@@ -979,6 +1176,10 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/PieceView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/PlatformExtensions.swift.o"
         },
         {
           "kind" : "file",
@@ -995,6 +1196,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ToolbarView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/TranspositionTable.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ZobristHash.swift.o"
         },
         {
           "kind" : "file",
@@ -1042,11 +1251,27 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ChineseChessiOSApp.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/Enums.swift.o"
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/FENParser.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameMove.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameOverOverlay.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/GameRecord.swift.o"
         },
         {
           "kind" : "file",
@@ -1058,7 +1283,15 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveOrderer.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/MoveValidator.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/OpeningBook.swift.o"
         },
         {
           "kind" : "file",
@@ -1067,6 +1300,10 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/PieceView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/PlatformExtensions.swift.o"
         },
         {
           "kind" : "file",
@@ -1083,6 +1320,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ToolbarView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/TranspositionTable.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChess.build/ZobristHash.swift.o"
         },
         {
           "kind" : "file",
@@ -1123,6 +1368,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/MoveValidatorTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase1Tests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/release/ChineseChessTests.build/Phase2aTests.swift.o"
         },
         {
           "kind" : "file",
@@ -1173,6 +1426,14 @@
         {
           "kind" : "file",
           "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/MoveValidatorTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase1Tests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChessTests/Phase2aTests.swift"
         },
         {
           "kind" : "file",

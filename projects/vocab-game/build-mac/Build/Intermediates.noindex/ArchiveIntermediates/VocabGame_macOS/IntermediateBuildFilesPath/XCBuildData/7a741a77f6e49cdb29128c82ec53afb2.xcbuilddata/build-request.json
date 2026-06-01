@@ -1,0 +1,82 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "ffed2f72e5aa873c096b7703a63acbcc8d6b88cf536a26434f2454fda3301282"
+    }
+  ],
+  "containerPath" : "/Users/hth/DevTeam/projects/vocab-game/VocabGame.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "install",
+    "activeArchitecture" : "undefined_arch",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : true,
+      "platform" : "macosx",
+      "sdk" : "macosx26.2",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64",
+        "arm64e",
+        "x86_64",
+        "x86_64h"
+      ],
+      "targetArchitecture" : "undefined_arch"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Products",
+      "derivedDataPath" : "/Users/hth/DevTeam/projects/vocab-game/build-mac",
+      "indexDataStoreFolderPath" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Release",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "CODE_SIGN_IDENTITY" : "-",
+          "CODE_SIGNING_REQUIRED" : "NO"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ACTION" : "install",
+          "ASSET_PACK_FOLDER_PATH" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/InstallationBuildProductsLocation/OnDemandResources",
+          "ASSETCATALOG_COMPILER_FLATTENED_APP_ICON_PATH" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath/ProductIcon.png",
+          "DEPLOYMENT_LOCATION" : "YES",
+          "DEPLOYMENT_POSTPROCESSING" : "YES",
+          "DSTROOT" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/InstallationBuildProductsLocation",
+          "EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE" : "NO",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_SIGNATURE_AGGREGATION" : "YES",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "INDEX_ENABLE_DATA_STORE" : "NO",
+          "MESSAGES_APPLICATION_EXTENSION_SUPPORT_FOLDER_PATH" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath/MessagesApplicationExtensionSupport",
+          "MESSAGES_APPLICATION_SUPPORT_FOLDER_PATH" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath/MessagesApplicationSupport",
+          "OBJROOT" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/IntermediateBuildFilesPath",
+          "ONLY_ACTIVE_ARCH" : "YES",
+          "SHARED_PRECOMPS_DIR" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/PrecompiledHeaders",
+          "SIGNATURE_METADATA_FOLDER_PATH" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath/Signatures",
+          "SWIFT_STDLIB_TOOL_UNSIGNED_DESTINATION_DIR" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath/SwiftSupport",
+          "SYMROOT" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath",
+          "WATCHKIT_2_SUPPORT_FOLDER_PATH" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/ArchiveIntermediates/VocabGame_macOS/BuildProductsPath/WatchKitSupport2"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "archive",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : false,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

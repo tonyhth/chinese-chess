@@ -63,7 +63,7 @@ final class Phase3P3FixTests: XCTestCase {
 
     func testPurchase_isOwnedGuard_preventsDuplicate() {
         // ShopViewModel.purchase 的 guard: canAfford(item) && !isOwned(item)
-        let item = ShopItem(id: "hat_test", name: "测试", type: .accessory, price: 50, description: "")
+        let item = ShopItem(id: "hat_test", name: "测试", type: .accessory, category: .hat, price: 50, description: "")
         var ownedItemIds: Set<String> = ["hat_test"]
         let coins = 100
 
@@ -73,7 +73,7 @@ final class Phase3P3FixTests: XCTestCase {
     }
 
     func testPurchase_notOwned_canBuy() {
-        let item = ShopItem(id: "hat_new", name: "新帽", type: .accessory, price: 50, description: "")
+        let item = ShopItem(id: "hat_new", name: "新帽", type: .accessory, category: .hat, price: 50, description: "")
         var ownedItemIds: Set<String> = []
         let coins = 100
 

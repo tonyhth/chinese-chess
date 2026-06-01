@@ -1,10 +1,16 @@
 import SwiftUI
 
 struct ProfileWrapperView: View {
+    @StateObject private var viewModel: ProfileViewModel
     @EnvironmentObject var app: AppCoordinator
 
+    init(progressRepo: ProgressRepository) {
+        _viewModel = StateObject(wrappedValue: ProfileViewModel(progressRepo: progressRepo))
+    }
+
     var body: some View {
-        ProfileContent(viewModel: ProfileViewModel(progressRepo: app.progressRepo), coordinator: app)
+        ProfileContent(viewModel: viewModel, coordinator: app)
+            .onAppear { viewModel.load() }
     }
 }
 

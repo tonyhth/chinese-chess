@@ -9,12 +9,82 @@
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/AIEngine.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/AIEngine.dia"
   },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/CheckmateSearch.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/CheckmateSearch.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/CheckmateSearch.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/CheckmateSearch~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/CheckmateSearch.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/CheckmateSearch.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/EndgameEvaluator.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/EndgameEvaluator.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/EndgameEvaluator.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/EndgameEvaluator~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/EndgameEvaluator.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/EndgameEvaluator.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/MoveOrderer.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/MoveOrderer.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/MoveOrderer.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/MoveOrderer~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/MoveOrderer.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/MoveOrderer.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/OpeningBook.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/OpeningBook.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/OpeningBook.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/OpeningBook~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/OpeningBook.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/OpeningBook.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/PatternRecognizer.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PatternRecognizer.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PatternRecognizer.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PatternRecognizer~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PatternRecognizer.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PatternRecognizer.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/TimeManager.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TimeManager.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TimeManager.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TimeManager~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TimeManager.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TimeManager.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/TranspositionTable.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TranspositionTable.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TranspositionTable.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TranspositionTable~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TranspositionTable.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/TranspositionTable.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/AI/ZobristHash.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ZobristHash.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ZobristHash.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ZobristHash~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ZobristHash.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ZobristHash.dia"
+  },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessApp.d",
     "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessApp.swift.o",
     "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessApp~partial.swiftmodule",
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessApp.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessApp.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessiOSApp.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessiOSApp.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessiOSApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessiOSApp.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChineseChessiOSApp.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Helpers/PlatformExtensions.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PlatformExtensions.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PlatformExtensions.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PlatformExtensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PlatformExtensions.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PlatformExtensions.dia"
   },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Board.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Board.d",
@@ -29,6 +99,20 @@
     "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Enums~partial.swiftmodule",
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Enums.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Enums.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameMove.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameMove.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameMove.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameMove~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameMove.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameMove.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/GameRecord.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameRecord.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameRecord.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameRecord.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameRecord.dia"
   },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Move.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Move.d",
@@ -58,12 +142,54 @@
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Position.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Position.dia"
   },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Models/Puzzle.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Puzzle.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Puzzle.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Puzzle~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Puzzle.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/Puzzle.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/BoardTheme.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardTheme.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardTheme.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardTheme~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardTheme.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardTheme.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/FENParser.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/FENParser.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/FENParser.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/FENParser~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/FENParser.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/FENParser.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/NotationGenerator.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/NotationGenerator.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/NotationGenerator.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/NotationGenerator~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/NotationGenerator.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/NotationGenerator.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/PuzzleStore.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleStore.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleStore.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleStore.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleStore.dia"
+  },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/SoundEngine.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/SoundEngine.d",
     "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/SoundEngine.swift.o",
     "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/SoundEngine~partial.swiftmodule",
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/SoundEngine.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/SoundEngine.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Services/StatsManager.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsManager.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsManager.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsManager~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsManager.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsManager.dia"
   },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameViewModel.d",
@@ -72,12 +198,40 @@
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameViewModel.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameViewModel.dia"
   },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/PuzzleViewModel.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleViewModel.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleViewModel.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleViewModel.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleViewModel.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/ReplayViewModel.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayViewModel.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayViewModel.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayViewModel.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayViewModel.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/StatsViewModel.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsViewModel.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsViewModel.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsViewModel.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsViewModel.dia"
+  },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardView.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardView.d",
     "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardView.swift.o",
     "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardView~partial.swiftmodule",
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardView.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/BoardView.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardCanvas.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChessBoardCanvas.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChessBoardCanvas.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChessBoardCanvas~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChessBoardCanvas.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ChessBoardCanvas.dia"
   },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/GameOverOverlay.d",
@@ -93,12 +247,54 @@
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PieceView.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PieceView.dia"
   },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleSelectView.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleSelectView.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleSelectView~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleSelectView.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/PuzzleSelectView.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/RecordPanelView.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/RecordPanelView.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/RecordPanelView.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/RecordPanelView~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/RecordPanelView.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/RecordPanelView.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayControlView.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayControlView.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayControlView.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayControlView~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayControlView.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayControlView.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayView.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayView.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayView~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayView.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ReplayView.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatsPanelView.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsPanelView.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsPanelView.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsPanelView~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsPanelView.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatsPanelView.dia"
+  },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatusBarView.d",
     "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatusBarView.swift.o",
     "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatusBarView~partial.swiftmodule",
     "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatusBarView.swiftdeps",
     "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/StatusBarView.dia"
+  },
+  "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ThemePickerView.swift": {
+    "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ThemePickerView.d",
+    "object": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ThemePickerView.swift.o",
+    "swiftmodule": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ThemePickerView~partial.swiftmodule",
+    "swift-dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ThemePickerView.swiftdeps",
+    "diagnostics": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ThemePickerView.dia"
   },
   "/Users/hth/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ToolbarView.swift": {
     "dependencies": "/Users/hth/DevTeam/projects/chinese-chess/src/.build/x86_64-apple-macosx/debug/ChineseChess.build/ToolbarView.d",

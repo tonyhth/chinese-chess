@@ -20,10 +20,22 @@ NC='\033[0m'
 PASS=0
 FAIL=0
 
-check_pass() { echo -e "${GREEN}✅ $1${NC}"; ((PASS++)); }
-check_fail() { echo -e "${RED}❌ FAIL: $1${NC}"; ((FAIL++)); }
+check_pass() { echo -e "${GREEN}✅ $1${NC}"; PASS=$((PASS+1)); }
+check_fail() { echo -e "${RED}❌ FAIL: $1${NC}"; FAIL=$((FAIL+1)); }
 
-BINARY=$(find "$APP_PATH/Contents/MacOS" -type f -perm +111 | head -1)
+# Prefer main executable, but fallback to debug dylib if main is too small (code in separate dylib)
+BINARY=$(find "$APP_PATH/Contents/MacOS" -type f -perm +111 -not -name '*.dylib' -not -name '__*' | head -1)
+if [ -n "$BINARY" ]; then
+    BINSIZE=$(stat -f "%z" "$BINARY" 2>/dev/null || echo 0)
+    if [ "$BINSIZE" -lt 102400 ]; then
+        # Main binary < 100KB, code is in debug dylib
+        DYLIB=$(find "$APP_PATH/Contents/MacOS" -name '*.debug.dylib' -type f | head -1)
+        [ -n "$DYLIB" ] && BINARY="$DYLIB"
+    fi
+fi
+if [ -z "$BINARY" ]; then
+    BINARY=$(find "$APP_PATH/Contents/MacOS" -type f -perm +111 | head -1)
+fi
 if [ -z "$BINARY" ]; then
     check_fail "找不到 binary: $APP_PATH"
     exit 1
@@ -44,7 +56,7 @@ while IFS= read -r src; do
     if [ "$SRC_MTIME" -gt "$BIN_MTIME" ]; then
         SRC_REL="${src#$SOURCE_DIR/}"
         check_fail "$SRC_REL (源码 $(stat -f "%Sm" "$src")) 晚于 binary ( $(stat -f "%Sm" "$BINARY"))"
-        ((VIOLATIONS++))
+        VIOLATIONS=$((VIOLATIONS+1))
     fi
 done < <(find "$SOURCE_DIR" -name "*.swift" -type f)
 
@@ -58,13 +70,16 @@ echo ""
 # ---- 2. 验证声称的修复是否在 binary 中 ----
 if [ ${#VERIFY_STRINGS[@]} -gt 0 ]; then
     echo "【检查2】修复内容验证"
+    STRINGS_CACHE=$(mktemp)
+    strings "$BINARY" > "$STRINGS_CACHE" 2>/dev/null || true
     for str in "${VERIFY_STRINGS[@]}"; do
-        if strings "$BINARY" | grep -q "$str"; then
+        if grep -q "$str" "$STRINGS_CACHE" 2>/dev/null; then
             check_pass "'$str' 在 binary 中找到"
         else
             check_fail "'$str' 在 binary 中未找到 — 修复可能未编译进 binary"
         fi
     done
+    rm -f "$STRINGS_CACHE"
     echo ""
 fi
 

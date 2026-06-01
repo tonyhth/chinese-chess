@@ -7,6 +7,7 @@ class LevelSelectViewModel: ObservableObject {
     private let progressRepo: ProgressRepository
 
     var totalStars: Int { progressRepo.totalStars }
+    var completedCount: Int { levels.filter { $0.progress.isCompleted }.count }
 
     init(progressRepo: ProgressRepository) {
         self.progressRepo = progressRepo

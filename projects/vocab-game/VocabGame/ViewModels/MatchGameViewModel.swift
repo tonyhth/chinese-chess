@@ -4,7 +4,7 @@ import SwiftUI
 struct MatchCard: Identifiable {
     let id: Int
     let text: String
-    let pairId: Int       // links word card to meaning card
+    let pairId: Int       // links word card to meaning card（同 pairId 的 word 卡和 meaning 卡配对）
     let isWord: Bool      // true = word side, false = meaning side
     var isFlipped = false
     var isMatched = false
@@ -24,15 +24,17 @@ class MatchGameViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var sameTypeFlip = false
 
-    nonisolated(unsafe) private var timer: Timer?
+    private var timerTask: Task<Void, Never>? = nil
     private let wordRepo: WordRepository
     private let progressRepo: ProgressRepository
     private let petRepo: PetRepository
+    private weak var achievementRepo: AchievementRepository?
 
-    init(wordRepo: WordRepository, progressRepo: ProgressRepository, petRepo: PetRepository) {
+    init(wordRepo: WordRepository, progressRepo: ProgressRepository, petRepo: PetRepository, achievementRepo: AchievementRepository? = nil) {
         self.wordRepo = wordRepo
         self.progressRepo = progressRepo
         self.petRepo = petRepo
+        self.achievementRepo = achievementRepo
     }
 
     func start(forLevel levelId: Int? = nil) {
@@ -98,15 +100,16 @@ class MatchGameViewModel: ObservableObject {
     }
 
     private func startTimer() {
-        timer?.invalidate()
-        remainingSeconds = 60
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
+        timerTask?.cancel()
+        // remainingSeconds 由调用方设置（setupCards 中已设为 60），此处不重置
+        timerTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
                 self.remainingSeconds -= 1
                 if self.remainingSeconds <= 0 {
-                    self.timer?.invalidate()
                     self.endGame()
+                    return
                 }
             }
         }
@@ -129,8 +132,9 @@ class MatchGameViewModel: ObservableObject {
             // 同类型检查：两张都是英文或两张都是中文，直接翻回，不计步数
             if card1.isWord == card2.isWord {
                 sameTypeFlip = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                    guard let self else { return }
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.5))
+                    guard !Task.isCancelled else { return }
                     self.cards[indices[0]].isFlipped = false
                     self.cards[indices[1]].isFlipped = false
                     self.flippedIndices = []
@@ -150,9 +154,10 @@ class MatchGameViewModel: ObservableObject {
         let card2 = cards[indices[1]]
 
         if card1.pairId == card2.pairId {
-            // Match!
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                guard let self else { return }
+            // Match! — pairId 设计：同 pairId 的 word 卡和 meaning 卡配对
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(0.5))
+                guard !Task.isCancelled else { return }
                 self.cards[indices[0]].isMatched = true
                 self.cards[indices[1]].isMatched = true
                 self.matchedPairs += 1
@@ -171,14 +176,15 @@ class MatchGameViewModel: ObservableObject {
                 }
 
                 if self.matchedPairs >= self.totalPairs {
-                    self.timer?.invalidate()
+                    self.timerTask?.cancel()
                     self.endGame()
                 }
             }
         } else {
             // No match
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self else { return }
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(1.0))
+                guard !Task.isCancelled else { return }
                 self.cards[indices[0]].isFlipped = false
                 self.cards[indices[1]].isFlipped = false
                 self.moves += 1
@@ -204,6 +210,9 @@ class MatchGameViewModel: ObservableObject {
         isCompleted = true
         // Time bonus
         score += remainingSeconds * 5
+        progressRepo.clearActiveSession()  // 配对游戏完成时清除 session
+        // Phase 4: achievement event
+        achievementRepo?.record(.matchCompleted(remainingSeconds: remainingSeconds))
         saveResult()
     }
 
@@ -213,16 +222,32 @@ class MatchGameViewModel: ObservableObject {
             p.coins += coinsEarned
         }
         let expGained = score / 10
-        _ = petRepo.addExp(expGained)
+        let didLevelUp = petRepo.addExp(expGained)
+        if didLevelUp {
+            achievementRepo?.record(.petLevelUp(level: petRepo.petState.level))
+        }
         progressRepo.recordPlay()
+        // Phase 4: word learned achievement
+        let totalLearned = progressRepo.totalWordsLearned
+        achievementRepo?.record(.wordLearned(totalCount: totalLearned))
+    }
+
+    func pauseTimer() {
+        timerTask?.cancel()
+        timerTask = nil
+    }
+
+    func resumeTimer() {
+        guard !isCompleted, remainingSeconds > 0 else { return }
+        startTimer()
     }
 
     func stop() {
-        timer?.invalidate()
-        timer = nil
+        timerTask?.cancel()
+        timerTask = nil
     }
 
     deinit {
-        timer?.invalidate()
+        timerTask?.cancel()
     }
 }

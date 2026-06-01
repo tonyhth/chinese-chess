@@ -27,8 +27,8 @@ final class ShopTests: XCTestCase {
 
     // MARK: - 目录完整性
 
-    func testCatalog_countIs8() {
-        XCTAssertEqual(ShopViewModel.catalog.count, 8)
+    func testCatalog_countIs19() {
+        XCTAssertEqual(ShopViewModel.catalog.count, 22)
     }
 
     func testCatalog_allHaveUniqueIds() {
@@ -54,17 +54,17 @@ final class ShopTests: XCTestCase {
         // 初始金币为 0，给 100 币
         progressRepo.updateProfile { $0.coins = 100 }
 
-        let item = ShopViewModel.catalog[0] // 派对帽 50
+        let item = ShopViewModel.catalog[0] // 蛋小粉 80
         XCTAssertTrue(progressRepo.profile.coins >= item.price)
 
         progressRepo.updateProfile { $0.coins -= item.price }
-        XCTAssertEqual(progressRepo.profile.coins, 50)
+        XCTAssertEqual(progressRepo.profile.coins, 20)
     }
 
     func testPurchase_insufficientCoins_noChange() {
         progressRepo.updateProfile { $0.coins = 10 }
 
-        let item = ShopViewModel.catalog[1] // 皇冠 100
+        let item = ShopViewModel.catalog[1] // 蛋小蓝 80
         XCTAssertFalse(progressRepo.profile.coins >= item.price)
         XCTAssertEqual(progressRepo.profile.coins, 10) // 未扣款
     }
@@ -139,9 +139,9 @@ final class ShopTests: XCTestCase {
     func testMultiplePurchases_balanceIsCorrect() {
         progressRepo.updateProfile { $0.coins = 200 }
 
-        // 买派对帽 50 + 毛线帽 30 + 圆眼镜 40 = 120
-        let total = ShopViewModel.catalog[0].price + ShopViewModel.catalog[2].price + ShopViewModel.catalog[3].price
+        // 买皇冠 100 + 毛线帽 30 + 圆眼镜 40 = 170
+        let total = ShopViewModel.catalog[4].price + ShopViewModel.catalog[5].price + ShopViewModel.catalog[6].price
         progressRepo.updateProfile { $0.coins -= total }
-        XCTAssertEqual(progressRepo.profile.coins, 80)
+        XCTAssertEqual(progressRepo.profile.coins, 30)
     }
 }

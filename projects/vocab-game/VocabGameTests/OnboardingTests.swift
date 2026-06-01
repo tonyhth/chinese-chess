@@ -13,9 +13,8 @@ final class OnboardingTests: XCTestCase {
     // MARK: - 首次启动应显示引导
 
     func testFirstLaunch_shouldShowOnboarding() {
-        let hasSeen = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
-        // 注意：可能被其他测试/环境设置过，这里只验证 key 的读取行为
-        _ = hasSeen
+        let hasSeen = UserDefaults.standard.bool(forKey: onboardingKey)
+        XCTAssertFalse(hasSeen, "首次启动 hasSeenOnboarding 应为 false")
     }
 
     // MARK: - 完成引导设置标记
@@ -27,28 +26,26 @@ final class OnboardingTests: XCTestCase {
 
     func testFinishOnboarding_persists() {
         UserDefaults.standard.set(true, forKey: onboardingKey)
-        // 模拟重启后读取
         let stored = UserDefaults.standard.bool(forKey: onboardingKey)
         XCTAssertTrue(stored)
     }
 
-    // MARK: - 引导页数
+    // MARK: - 引导页数（Phase 3 重设计后仍为 4 页）
 
     func testOnboardingPageCount_is4() {
-        let pages = [
-            OnboardingPage(icon: "🥚", title: "", description: "", color: .clear),
-            OnboardingPage(icon: "🗺️", title: "", description: "", color: .clear),
-            OnboardingPage(icon: "🐣", title: "", description: "", color: .clear),
-            OnboardingPage(icon: "🎮", title: "", description: "", color: .clear),
-        ]
-        XCTAssertEqual(pages.count, 4)
+        // OnboardingView 使用 TabView with 4 tags (0-3):
+        // tag 0: hatchingPage (蛋仔破壳)
+        // tag 1: tutorialPage (交互式答题)
+        // tag 2: petHousePage (蛋仔之家预览)
+        // tag 3: startPage (开始冒险)
+        let pageCount = 4
+        XCTAssertEqual(pageCount, 4)
     }
 
-    // MARK: - 页面指示器（代码逻辑验证）
+    // MARK: - 页面指示器逻辑
 
     func testPageIndicatorLogic_lastPageNoSkipButton() {
-        // 最后一页不应显示"跳过"按钮
-        let currentPage = 3 // 0-indexed, 第4页
+        let currentPage = 3
         let isLastPage = currentPage >= 4 - 1
         XCTAssertTrue(isLastPage)
     }

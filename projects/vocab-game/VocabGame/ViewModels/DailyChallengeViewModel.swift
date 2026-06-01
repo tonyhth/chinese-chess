@@ -16,10 +16,11 @@ class DailyChallengeViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
 
-    nonisolated(unsafe) private var timer: Timer?
+    private var timerTask: Task<Void, Never>? = nil
     private let wordRepo: WordRepository
     private let progressRepo: ProgressRepository
     private let petRepo: PetRepository
+    private var answerTask: Task<Void, Never>? = nil
 
     init(wordRepo: WordRepository, progressRepo: ProgressRepository, petRepo: PetRepository) {
         self.wordRepo = wordRepo
@@ -88,22 +89,25 @@ class DailyChallengeViewModel: ObservableObject {
             questions.append(Question.create(word: word, type: type, allWords: allWords))
         }
 
-        session = GameSession.create(mode: .dailyChallenge, questions: questions)
+        var newSession = GameSession.create(mode: .dailyChallenge, questions: questions)
         remainingSeconds = 180
+        newSession.remainingSeconds = remainingSeconds  // SP-1
+        session = newSession
         isLoading = false
         progressRepo.saveActiveSession(session)
         startTimer()
     }
 
     private func startTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
+        timerTask?.cancel()
+        timerTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
                 self.remainingSeconds -= 1
                 if self.remainingSeconds <= 0 {
-                    self.timer?.invalidate()
                     self.forceEnd()
+                    return
                 }
             }
         }
@@ -122,17 +126,27 @@ class DailyChallengeViewModel: ObservableObject {
         showAnswerFeedback = true
         s.questions[s.currentIndex].isCorrect = isAnswerCorrect
         applyScore(isCorrect: isAnswerCorrect, session: &s, wordId: question.word.id)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in self?.advance() }
+        answerTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.0))
+            guard !Task.isCancelled else { return }
+            self.advance()
+        }
     }
 
     func submitSpelling() {
         guard var s = session, let question = s.currentQuestion else { return }
-        let normalized = spelledAnswer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let trimmed = spelledAnswer.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }  // 防空提交
+        let normalized = trimmed.lowercased()
         isAnswerCorrect = normalized == question.word.text.lowercased()
         showAnswerFeedback = true
         s.questions[s.currentIndex].isCorrect = isAnswerCorrect
         applyScore(isCorrect: isAnswerCorrect, session: &s, wordId: question.word.id)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.advance() }
+        answerTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.5))
+            guard !Task.isCancelled else { return }
+            self.advance()
+        }
     }
 
     private func applyScore(isCorrect: Bool, session: inout GameSession, wordId: Int) {
@@ -163,10 +177,11 @@ class DailyChallengeViewModel: ObservableObject {
         if s.currentIndex >= s.questions.count {
             s.isCompleted = true
             isShowingResult = true
-            timer?.invalidate()
+            timerTask?.cancel()
             progressRepo.clearActiveSession()
             saveResult(s)
         } else {
+            s.remainingSeconds = remainingSeconds  // SP-2
             progressRepo.saveActiveSession(s)
         }
         session = s
@@ -197,6 +212,32 @@ class DailyChallengeViewModel: ObservableObject {
         progressRepo.recordPlay()
     }
 
+    // MARK: - V2: 后台暂停/恢复计时器
+
+    func pauseTimer() {
+        timerTask?.cancel()
+        timerTask = nil
+    }
+
+    func resumeTimer() {
+        guard session != nil, !isShowingResult, remainingSeconds > 0 else { return }
+        startTimer()
+    }
+
+    // MARK: - C12: 从已保存的 session 恢复
+
+    func resume(_ savedSession: GameSession) {
+        // Vera P1: 检查 todayCompleted 一致性
+        if progressRepo.isDailyCompleted {
+            todayCompleted = true
+            todayBestScore = progressRepo.dailyBestScore
+            return
+        }
+        session = savedSession
+        remainingSeconds = savedSession.remainingSeconds ?? 180
+        startTimer()
+    }
+
     func correctAnswer(for question: Question) -> String {
         switch question.type {
         case .selectMeaning: return question.word.meaning
@@ -206,6 +247,6 @@ class DailyChallengeViewModel: ObservableObject {
     }
 
     deinit {
-        timer?.invalidate()
+        timerTask?.cancel()
     }
 }

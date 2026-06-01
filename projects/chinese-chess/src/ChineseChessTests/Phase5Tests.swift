@@ -45,21 +45,29 @@ struct ThemeManagerTests {
 
     @Test("默认主题是经典木纹")
     func testDefaultTheme() {
-        let manager = ThemeManager.shared
-        #expect(manager.currentTheme == .classicWood)
+        // 不依赖 shared 的当前状态，只验证 classicWood 的 displayName
+        #expect(BoardTheme.classicWood.displayName == "经典木纹")
+        #expect(BoardTheme.classicWood.rawValue == "classicWood")
     }
 
-    @Test("切换主题后 colors 更新")
+    @Test("切换主题后 colors 属性更新")
     func testThemeSwitch() {
         let manager = ThemeManager.shared
-        let original = manager.currentTheme
+        let saved = manager.currentTheme
 
         manager.currentTheme = .inkStone
+        // colors 属性必须和 ThemeColors.forTheme 一致
         let inkColors = ThemeColors.forTheme(.inkStone)
-        #expect(manager.colors == inkColors)
+        #expect(manager.colors.redPieceText == inkColors.redPieceText)
+        #expect(manager.colors.appBackground == inkColors.appBackground)
+
+        manager.currentTheme = .classicWood
+        let classicColors = ThemeColors.forTheme(.classicWood)
+        #expect(manager.colors.redPieceText == classicColors.redPieceText)
+        #expect(manager.colors.appBackground == classicColors.appBackground)
 
         // 恢复
-        manager.currentTheme = original
+        manager.currentTheme = saved
     }
 
     @Test("主题序列化 roundtrip")
@@ -101,13 +109,15 @@ struct SoundEngineV2Tests {
         #expect(true)
     }
 
-    @Test("静音状态")
+    @Test("静音状态切换")
     func testMuteState() {
         let engine = SoundEngine.shared
+        let saved = engine.isMuted
         engine.isMuted = true
         #expect(engine.isMuted)
         engine.isMuted = false
         #expect(!engine.isMuted)
+        engine.isMuted = saved
     }
 }
 
@@ -140,5 +150,75 @@ struct ThemeIntegrationTests {
             #expect(blackPiece != nil)
             #expect(colors.redPieceText != colors.blackPieceText)
         }
+    }
+}
+
+// MARK: - isRecommendedMove 测试
+
+@Suite("isRecommendedMove Tests")
+struct IsRecommendedMoveTests {
+
+    /// 构造一个有 solution 的残局 Puzzle，手动走棋验证
+    @Test("匹配推荐走法时返回 true")
+    func testRecommendedMoveMatch() {
+        // puzzle_001: 红车在 row7,col4 (ICCS e2), solution[0] = "e1e2" 不对...
+        // 用简单 FEN：红车在 row8,col4 (ICCS e1), 走到 row7,col4 (ICCS e2)
+        let puzzle = Puzzle(
+            id: "test_recommended",
+            name: "测试",
+            category: "test",
+            difficulty: 1,
+            stars: 1,
+            description: "",
+            playerSide: "red",
+            initialFEN: "4k4/9/9/9/9/9/9/9/4R4/4K4 w - - 0 1",
+            solution: ["e1e2"],  // e1=col4,row8, e2=col4,row7
+            hints: nil,
+            maxMoves: 10
+        )
+        let vm = PuzzleViewModel(puzzle: puzzle)
+
+        // R 在 Board(row:8, col:4), 走到 (row:7, col:4)
+        let from = Position(row: 8, col: 4)
+        let to = Position(row: 7, col: 4)
+
+        let legalMoves = vm.selectPiece(at: from)
+        #expect(legalMoves.contains(to))
+
+        vm.movePiece(from: from, to: to)
+
+        // 玩家第一步匹配 solution[0]
+        #expect(vm.isRecommendedMove(at: 0))
+    }
+
+    @Test("不匹配推荐走法时返回 false")
+    func testRecommendedMoveNoMatch() {
+        // 同一残局，红车在 row8,col4，走 row6,col4（不是推荐的 e1e2）
+        let puzzle = Puzzle(
+            id: "test_not_recommended",
+            name: "测试",
+            category: "test",
+            difficulty: 1,
+            stars: 1,
+            description: "",
+            playerSide: "red",
+            initialFEN: "4k4/9/9/9/9/9/9/9/4R4/4K4 w - - 0 1",
+            solution: ["e1e2"],
+            hints: nil,
+            maxMoves: 10
+        )
+        let vm = PuzzleViewModel(puzzle: puzzle)
+
+        // 走 e1→e3（ICCS）= Board(row:8,col:4)→(row:6,col:4)，不是推荐的 e1e2
+        let from = Position(row: 8, col: 4)
+        let to = Position(row: 6, col: 4)
+
+        let legalMoves = vm.selectPiece(at: from)
+        #expect(legalMoves.contains(to))
+
+        vm.movePiece(from: from, to: to)
+
+        // 不匹配 solution[0]
+        #expect(!vm.isRecommendedMove(at: 0))
     }
 }

@@ -72,7 +72,7 @@ final class GamePlayViewModelTests: XCTestCase {
     func testCoinsEarned_adventureMode() {
         // coins = max(score / 100, 1) + (maxCombo >= 5 ? 5 : 0)
         let coins850combo3 = max(850 / 100, 1) + 0 // combo < 5
-        XCTAssertEqual(coins850combo3, 9)
+        XCTAssertEqual(coins850combo3, 8)
 
         let coins900combo6 = max(900 / 100, 1) + 5 // combo >= 5
         XCTAssertEqual(coins900combo6, 14)

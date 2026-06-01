@@ -111,19 +111,19 @@ final class Phase3ReviewFixTests: XCTestCase {
 
     // MARK: - BGM 后台停止/前台恢复逻辑验证
 
-    func testScenePhase_backgroundStopsBGM() {
+    func testScenePhase_backgroundStopsBGM() async {
         // 逻辑验证：background → stopBGM
         // 代码在 MainTabView.swift onChange(of: scenePhase) 中
         // .background → AudioService.shared.stopBGM()
         // 验证 stopBGM 不崩溃
-        AudioService.shared.stopBGM()
+        await MainActor.run { AudioService.shared.stopBGM() }
     }
 
-    func testScenePhase_activeStartsBGM() {
+    func testScenePhase_activeStartsBGM() async {
         // .active → AudioService.shared.startBGM()
         // 验证 startBGM 不崩溃（无 BGM 文件时静默返回）
-        AudioService.shared.startBGM()
-        AudioService.shared.stopBGM() // cleanup
+        await MainActor.run { AudioService.shared.startBGM() }
+        await MainActor.run { AudioService.shared.stopBGM() } // cleanup
     }
 
     // MARK: - DailyChallenge coinsEarned 显示实际值

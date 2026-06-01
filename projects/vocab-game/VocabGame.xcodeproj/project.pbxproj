@@ -20,6 +20,7 @@
 		0CB5CAF74A98C8B823913AB4 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7BEF96BB541B551E6F0AFA /* Extensions.swift */; };
 		0DDAD0FBFE622BD74E5690A4 /* ProgressRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0FE50BFA3CC30917E8F345 /* ProgressRepositoryTests.swift */; };
 		0E7D8261B71C736C3B4F818D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BFC407152D062842877DD4 /* Constants.swift */; };
+		0FB71CAA1605452B89E665F2 /* Phase4ThemeSkinTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F6C543279D643ABBC8980BB /* Phase4ThemeSkinTests.swift */; };
 		10B93193F588E3E3F76EFAC3 /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2908D4660C9425DAD0D8034 /* TTSService.swift */; };
 		11ABD9C7F8FCF55BF4BBB974 /* DailyChallengeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C038A625E24709B52700B85 /* DailyChallengeViewModel.swift */; };
 		1258DF32836AA423EF866C5D /* PetHouseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43EB5D0BEE9E19777FDF77A /* PetHouseViewModel.swift */; };
@@ -27,22 +28,30 @@
 		13DD6130D12F29C92EF34060 /* GameSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845C43CE765B7741A3C0A5A8 /* GameSessionTests.swift */; };
 		1468C3196CFB9D8630B40672 /* PetState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5737DB8DA98074DDFABA8BF4 /* PetState.swift */; };
 		149B456AD12DB9022A83D5C0 /* WordProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F4BDB1343872E396CC66E1 /* WordProgress.swift */; };
+		159F7AE58E1E4FEFBD225182 /* AchievementEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10208D8BA9294491941EA9DE /* AchievementEvent.swift */; };
 		1B8523E9F3FBDCCC32CA6C2B /* PlayerProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3297AA614F860B1E9844087 /* PlayerProfile.swift */; };
 		1BF86181C07F1F1BBD8C3B66 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0960B828F77C0E2AA3A6B9 /* AudioService.swift */; };
+		20CD5EED49B046788244EB02 /* Phase3FeedbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C320A101D5642ADBB1B24FD /* Phase3FeedbackTests.swift */; };
 		23EB5E76723F582A60C31148 /* Phase2FixRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA190A3C638FE89DD27CC36 /* Phase2FixRegressionTests.swift */; };
+		2544EEA68A3A4DD88764EA8C /* PetDialogueBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0915CAD5A8514230B3733F9E /* PetDialogueBubble.swift */; };
 		2F3D004A47C4887686F117E3 /* MatchGameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52765D1A3F710246626EE4A /* MatchGameTests.swift */; };
 		2FE30C2DF5199B5B65E6D974 /* PetHouseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2862A719669BFD9DCFF5FE07 /* PetHouseView.swift */; };
 		30DE3DBB53C4244CDCA0ACEA /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414F91B10CBAF818BC368A98 /* OnboardingView.swift */; };
 		31294EB795BA96383664AD4F /* SpellChallengeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66D540B69905B06C757B38A1 /* SpellChallengeViewModelTests.swift */; };
+		339D908DAE1240A793317934 /* AchievementRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8876F73B5A8F41A59C235380 /* AchievementRepository.swift */; };
 		36C12928B72445D416C6787B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9068E65BE328A462BD84038 /* Assets.xcassets */; };
 		37DB2502FDDF8BDF3DFA8AE0 /* MatchGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA6EA091703381CCC285D8 /* MatchGameViewModel.swift */; };
 		383CF77F949D60288C87F1BE /* GameHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C130002F9B107C9AE0B1C21 /* GameHeaderView.swift */; };
 		39A6919D8A66D0FDCCCEA762 /* PetStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E1342E1A842D0F605B515F /* PetStateTests.swift */; };
+		3AAC0D795FFB42DDAE334373 /* PetDialogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE36AE789C4C4F0CA7E8707E /* PetDialogue.swift */; };
 		3B69476D1C272935E1437BEF /* MistakeReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7708F0E89C94AAA9357B627A /* MistakeReviewViewModel.swift */; };
 		3BA641795D5B393190D802D9 /* VocabGameApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1004C0B2D32D68883DF53C4 /* VocabGameApp.swift */; };
 		3D244AA5BF5C8B527C4186DA /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7DFA496E90F70EFADBC9065 /* HomeViewModel.swift */; };
+		3EDE5683C8164D859C3B2ED1 /* Phase1VisualTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924451141B6E483C9A27BFA2 /* Phase1VisualTests.swift */; };
+		4034C60E2D3447F594A6042E /* V116V2AuditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D56F79C36BD04813B3A142AD /* V116V2AuditTests.swift */; };
 		44CC0E903D421CCC3B699325 /* StarRatingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06C196620B84A80755471613 /* StarRatingTests.swift */; };
 		45A362816368146F69D2411D /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7DFA496E90F70EFADBC9065 /* HomeViewModel.swift */; };
+		45C0275CF15D4A5A95F0006B /* V117CharacterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A11C1D91C54BD39F1F5735 /* V117CharacterTests.swift */; };
 		45D0FEB947956909A3760AF9 /* GamePlayViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD1E5B91F38401572968CFD /* GamePlayViewModelTests.swift */; };
 		479DC56B0D7F82B474FE3BF8 /* PlayerProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC370A295ABF3F92FCC805E3 /* PlayerProfileTests.swift */; };
 		47D208886A5608A5D4AA4F53 /* SpellChallengeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73AC2FFE3F1A01EC01F0D25 /* SpellChallengeViewModel.swift */; };
@@ -50,19 +59,24 @@
 		494E557EE24653BDEFBB3E20 /* ShopTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C87652A4F37921D648FDE4 /* ShopTests.swift */; };
 		4AC675EE18601BA958E473A5 /* PrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292CD91905B924884E5745C8 /* PrimaryButtonStyle.swift */; };
 		4CA1C4422A4CC41C737092FA /* MatchGameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCA6EA091703381CCC285D8 /* MatchGameViewModel.swift */; };
+		4EE4D20685B144F78511BCB9 /* Phase4AchievementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BDD3A58210C4AFBA0DF5842 /* Phase4AchievementTests.swift */; };
 		4F234362BF7BE7C7F1497730 /* DailyChallengeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C134DE083B3A7C1415E2C24 /* DailyChallengeViewModelTests.swift */; };
 		4F6EE49A27AAF457959C8997 /* GameHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C130002F9B107C9AE0B1C21 /* GameHeaderView.swift */; };
+		502C9B4481C74A609122FBE3 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54150556CD054EBCAF7F6FE1 /* CustomTabBar.swift */; };
 		50F2722CECC6276C04452A1D /* StarRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167058B069BD96BE477D80FD /* StarRating.swift */; };
 		51C243009417BC94E2DFA60F /* wordlist.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C54E898F3EEF33C7BE88CA8 /* wordlist.json */; };
 		5220D7516E580FD09E5F9465 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCEBAEA93D07E19317018C2 /* ResultView.swift */; };
 		52A85358529010F7C1479BAD /* ProgressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7446BF4FE005647E0D26A7 /* ProgressRepository.swift */; };
+		536101CD22664CEA90432E87 /* Phase4PetVisualTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB2D579BE91405289354E4C /* Phase4PetVisualTests.swift */; };
 		5A7473CD5884E8E5A681A411 /* LevelSelectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF865056A77F212CCCFC3E0C /* LevelSelectViewModel.swift */; };
 		5AC6190A6477797BB42AA211 /* wordlist.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C54E898F3EEF33C7BE88CA8 /* wordlist.json */; };
 		5C2DA1B55934B5BAFD47B890 /* PetRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C985B86BC344E630FB2C864 /* PetRepository.swift */; };
+		5D53DB9AD98C4166AA955686 /* WordRunnerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76739CB10A54FD8B7C6930D /* WordRunnerViewModel.swift */; };
 		5DE3A5524F87E7755CFB6A19 /* StarRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167058B069BD96BE477D80FD /* StarRating.swift */; };
 		62AEB2E1DFAF9FF948A63E2F /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05007D42752AB7608DCEB61E /* Level.swift */; };
 		63ABDCD7189580A462DAC109 /* PrimaryButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 292CD91905B924884E5745C8 /* PrimaryButtonStyle.swift */; };
 		6454AB27698895F24DC5AD8E /* WordRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0137A37F9CDF703C05D9D27E /* WordRepository.swift */; };
+		690B259C402041B4993777C5 /* EasterEggManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 628574F2502E4C2789BAB845 /* EasterEggManager.swift */; };
 		6C5C25211AE233A10E800033 /* PetState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5737DB8DA98074DDFABA8BF4 /* PetState.swift */; };
 		6E840F575EE246E699FFBB29 /* QuestionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36C5CF3C139EFBF386DF8DD3 /* QuestionTests.swift */; };
 		6EFDA7FE2BDD3EEC030EA23E /* WordProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2017BDDE7502D7F2905643ED /* WordProgressTests.swift */; };
@@ -71,6 +85,7 @@
 		79929C4C0F2E8504E9683202 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34610AF7EE8D6BA9FA956F3 /* MainTabView.swift */; };
 		7AD60ACB1E86F5389BD82D1D /* SeededRandomGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F9282A61B010BB1C035827 /* SeededRandomGenerator.swift */; };
 		7D5F4DE23B281CF35772632D /* OnboardingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BACD4D956A7EBD3E7E014A /* OnboardingTests.swift */; };
+		7E0B32F9B20547C9AE8515E0 /* Phase4EasterEggTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD2E488215548A5B9B848ED /* Phase4EasterEggTests.swift */; };
 		7F69BDD94A72C85A80A1AF45 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADF27F7F87B6B0836273991A /* ProfileView.swift */; };
 		8210BFA4B41DF0C30C622E1D /* Phase3P3FixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C540956529E6C09EB60E1525 /* Phase3P3FixTests.swift */; };
 		82EBC00EDE89F0AAC322A2AC /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3033183F1F3C673F87AD2F52 /* ProfileViewModel.swift */; };
@@ -79,6 +94,7 @@
 		83A66047E85FB4184F90A37E /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2488A252BADFBB7C6D10111C /* GameSession.swift */; };
 		8636FF1193D5FC139FFEA713 /* SpellChallengeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF09913AC8E9BAD6AE5831E4 /* SpellChallengeView.swift */; };
 		87DA6123DDBBE63E528DF440 /* ShopViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C18F0255301B9A37C68C1DA9 /* ShopViewModel.swift */; };
+		898E4A2090624463A6047763 /* Phase4DailyGoalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27EF88E1435447E7B6F37B44 /* Phase4DailyGoalTests.swift */; };
 		8CE8CE98BAF5F455019AA2BF /* LevelMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB43128EC1F570355BB518B5 /* LevelMapView.swift */; };
 		8D9FCB6A5FB60F830051D3CD /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414F91B10CBAF818BC368A98 /* OnboardingView.swift */; };
 		8E30B821F7DDC707BFF130D6 /* SeededRandomGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F9282A61B010BB1C035827 /* SeededRandomGenerator.swift */; };
@@ -88,25 +104,38 @@
 		9A234E1DAEA2999A164EFACE /* MistakeReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7708F0E89C94AAA9357B627A /* MistakeReviewViewModel.swift */; };
 		9CA23720A743015F6E80AD39 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B235AD03122B1E07976E4B9B /* ShopView.swift */; };
 		9EE25C648D687E9D36FE2BD1 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B235AD03122B1E07976E4B9B /* ShopView.swift */; };
+		A0E5FD9DAE534B6C83F7FE0B /* ThemeSkin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5555C42E4C4B749FF52541 /* ThemeSkin.swift */; };
+		A281B9E5F50C4A6E9CB66B3E /* Food.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF24889C40194A2C9417BB64 /* Food.swift */; };
+		A4BD48AA6A044AAE9351C210 /* CharacterSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAA7F54892245EC86E048ED /* CharacterSelectView.swift */; };
 		A51CAB44848B7A1ABF332260 /* AdventureIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EAA5162F293FF18720EAB38 /* AdventureIntegrationTests.swift */; };
+		A525E8E2E016418B93F46319 /* Achievement.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F50F02EC5E4B1981134BF4 /* Achievement.swift */; };
 		AB6C9ADC1E3BE9748674381F /* SpacedRepetitionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B96FC41A28A214B67832D0 /* SpacedRepetitionServiceTests.swift */; };
+		AF5299C0D30E4E53ABA98C05 /* ComboText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4757C87F28A6472FA65A4935 /* ComboText.swift */; };
 		AF6745EBBC921275EB4B6D7D /* PetMiniView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A28411D970AD3F1447574F /* PetMiniView.swift */; };
 		B0F41154394ACE3ECCC30D33 /* LevelNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C9DE0DA928C3F0BBA5D574 /* LevelNodeView.swift */; };
 		B1347087CB2B41579CA89A57 /* PetHouseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2862A719669BFD9DCFF5FE07 /* PetHouseView.swift */; };
 		B140CAAED4EDA9D32121EC21 /* LevelNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C9DE0DA928C3F0BBA5D574 /* LevelNodeView.swift */; };
 		B1B5B959938DD5A94C368C12 /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05007D42752AB7608DCEB61E /* Level.swift */; };
+		B55FA53CB23C41329C0FCCE7 /* Phase3ReviewFixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1101D73B6F46F6A9F98009 /* Phase3ReviewFixTests.swift */; };
 		B5AA216B3B990C856D20882B /* DailyChallengeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BFCD208E295F566467CC22 /* DailyChallengeView.swift */; };
 		B8B2D97301AA70DF08B10929 /* AudioService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0960B828F77C0E2AA3A6B9 /* AudioService.swift */; };
+		BCC0577CC14648BEA9463C09 /* Phase5CrossPhaseIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBD8D344EFE48119A3DAABE /* Phase5CrossPhaseIntegrationTests.swift */; };
 		BFCB62AA07D597C466CDFE4B /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2488A252BADFBB7C6D10111C /* GameSession.swift */; };
 		C107C415EDE84F7AB323D647 /* GamePlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA89818DC3F620C5CB6392E8 /* GamePlayView.swift */; };
+		C805B19C145C4B0EB7CD48F5 /* EggCharacter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A133403703754A609DE0EC86 /* EggCharacter.swift */; };
 		CA6E4D8CDDC6F1B7CA280C11 /* PetRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C985B86BC344E630FB2C864 /* PetRepository.swift */; };
 		CFEC8B5405C30385C273645C /* DailyChallengeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C038A625E24709B52700B85 /* DailyChallengeViewModel.swift */; };
 		D3D14EC286BFFC37D33856DF /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7BEF96BB541B551E6F0AFA /* Extensions.swift */; };
 		D3DA5337041E043C63EB7738 /* SeededRandomGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22E14A5A28CE8E63856AD64 /* SeededRandomGeneratorTests.swift */; };
 		D63C1057350382F671428073 /* PetRepositoryPhase2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE43224633850BE69D3347BF /* PetRepositoryPhase2Tests.swift */; };
 		D64766A8CC83D01D35062143 /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCEBAEA93D07E19317018C2 /* ResultView.swift */; };
+		D84EA0CACF204919836BDC35 /* Phase3P5P6Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37800372B8B14534B142ED1B /* Phase3P5P6Tests.swift */; };
+		D89079FA5BC344B9AB0C9249 /* P0FixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78925CFFA33844928A2C5738 /* P0FixTests.swift */; };
 		D8918E8B0C617C0938B3AC30 /* DailyChallengeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BFCD208E295F566467CC22 /* DailyChallengeView.swift */; };
+		DC669F560C294435BB427A17 /* WordRunnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 686C8D13B41946659016C7B8 /* WordRunnerView.swift */; };
+		DEDD31260DC346E788D54FC4 /* AchievementWallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714BB5E0C5D4464EA0D9C346 /* AchievementWallView.swift */; };
 		E00910CD33559947EAD73ED1 /* ShopViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C18F0255301B9A37C68C1DA9 /* ShopViewModel.swift */; };
+		E099A1E355C147818325646F /* Phase2FeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF4CBE5D081478A91479FC0 /* Phase2FeatureTests.swift */; };
 		E2573C3B895E65C1EFB1C696 /* PetHouseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43EB5D0BEE9E19777FDF77A /* PetHouseViewModel.swift */; };
 		E45788CDEFDC993657CCBEC6 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2567308A4EFCC0C7D241AA /* Word.swift */; };
 		E693C5FE9224482D69C91778 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E2567308A4EFCC0C7D241AA /* Word.swift */; };
@@ -133,8 +162,8 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 43A972F4FF099A04F43BAFEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = C861018E8C3E3D7E48CD86F2;
-			remoteInfo = VocabGame_iOS;
+			remoteGlobalIDString = 36D6FB8367B568BDBBDEF931;
+			remoteInfo = VocabGame_macOS;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -143,16 +172,22 @@
 		01BFC407152D062842877DD4 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		05007D42752AB7608DCEB61E /* Level.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
 		06C196620B84A80755471613 /* StarRatingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRatingTests.swift; sourceTree = "<group>"; };
+		0915CAD5A8514230B3733F9E /* PetDialogueBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetDialogueBubble.swift; sourceTree = "<group>"; };
+		0C320A101D5642ADBB1B24FD /* Phase3FeedbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase3FeedbackTests.swift; sourceTree = "<group>"; };
 		0F0960B828F77C0E2AA3A6B9 /* AudioService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioService.swift; sourceTree = "<group>"; };
 		0F9B07A5D301B8BE941A01F9 /* LevelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelTests.swift; sourceTree = "<group>"; };
+		10208D8BA9294491941EA9DE /* AchievementEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementEvent.swift; sourceTree = "<group>"; };
+		14A11C1D91C54BD39F1F5735 /* V117CharacterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V117CharacterTests.swift; sourceTree = "<group>"; };
 		15802486A926E7B8F5A05C9B /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		167058B069BD96BE477D80FD /* StarRating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarRating.swift; sourceTree = "<group>"; };
 		16A28411D970AD3F1447574F /* PetMiniView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetMiniView.swift; sourceTree = "<group>"; };
 		178056664C7A624211096D9E /* PetRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetRepositoryTests.swift; sourceTree = "<group>"; };
+		1FBD8D344EFE48119A3DAABE /* Phase5CrossPhaseIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase5CrossPhaseIntegrationTests.swift; sourceTree = "<group>"; };
 		2017BDDE7502D7F2905643ED /* WordProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordProgressTests.swift; sourceTree = "<group>"; };
 		2488A252BADFBB7C6D10111C /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
 		25C87652A4F37921D648FDE4 /* ShopTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopTests.swift; sourceTree = "<group>"; };
 		261D1AA65EE10F7E67AEA95E /* PetStatePhase2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetStatePhase2Tests.swift; sourceTree = "<group>"; };
+		27EF88E1435447E7B6F37B44 /* Phase4DailyGoalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase4DailyGoalTests.swift; sourceTree = "<group>"; };
 		2862A719669BFD9DCFF5FE07 /* PetHouseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetHouseView.swift; sourceTree = "<group>"; };
 		292CD91905B924884E5745C8 /* PrimaryButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButtonStyle.swift; sourceTree = "<group>"; };
 		29BACD4D956A7EBD3E7E014A /* OnboardingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTests.swift; sourceTree = "<group>"; };
@@ -160,31 +195,46 @@
 		2C134DE083B3A7C1415E2C24 /* DailyChallengeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DailyChallengeViewModelTests.swift; path = VocabGameTests/DailyChallengeViewModelTests.swift; sourceTree = SOURCE_ROOT; };
 		2EA190A3C638FE89DD27CC36 /* Phase2FixRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase2FixRegressionTests.swift; sourceTree = "<group>"; };
 		2EAA5162F293FF18720EAB38 /* AdventureIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdventureIntegrationTests.swift; sourceTree = "<group>"; };
+		2F6C543279D643ABBC8980BB /* Phase4ThemeSkinTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase4ThemeSkinTests.swift; sourceTree = "<group>"; };
 		3033183F1F3C673F87AD2F52 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		36C5CF3C139EFBF386DF8DD3 /* QuestionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionTests.swift; sourceTree = "<group>"; };
+		37800372B8B14534B142ED1B /* Phase3P5P6Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase3P5P6Tests.swift; sourceTree = "<group>"; };
 		3C130002F9B107C9AE0B1C21 /* GameHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameHeaderView.swift; sourceTree = "<group>"; };
 		3C7446BF4FE005647E0D26A7 /* ProgressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRepository.swift; sourceTree = "<group>"; };
 		414F91B10CBAF818BC368A98 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		4757C87F28A6472FA65A4935 /* ComboText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboText.swift; sourceTree = "<group>"; };
 		52B96FC41A28A214B67832D0 /* SpacedRepetitionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacedRepetitionServiceTests.swift; sourceTree = "<group>"; };
+		54150556CD054EBCAF7F6FE1 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		54C9DE0DA928C3F0BBA5D574 /* LevelNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelNodeView.swift; sourceTree = "<group>"; };
 		5737DB8DA98074DDFABA8BF4 /* PetState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetState.swift; sourceTree = "<group>"; };
+		5D5555C42E4C4B749FF52541 /* ThemeSkin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSkin.swift; sourceTree = "<group>"; };
+		5EB2D579BE91405289354E4C /* Phase4PetVisualTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase4PetVisualTests.swift; sourceTree = "<group>"; };
+		628574F2502E4C2789BAB845 /* EasterEggManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EasterEggManager.swift; sourceTree = "<group>"; };
 		66D540B69905B06C757B38A1 /* SpellChallengeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SpellChallengeViewModelTests.swift; path = VocabGameTests/SpellChallengeViewModelTests.swift; sourceTree = SOURCE_ROOT; };
+		686C8D13B41946659016C7B8 /* WordRunnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordRunnerView.swift; sourceTree = "<group>"; };
 		6C54E898F3EEF33C7BE88CA8 /* wordlist.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = wordlist.json; sourceTree = "<group>"; };
 		6DCA6EA091703381CCC285D8 /* MatchGameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchGameViewModel.swift; sourceTree = "<group>"; };
+		714BB5E0C5D4464EA0D9C346 /* AchievementWallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementWallView.swift; sourceTree = "<group>"; };
 		7708F0E89C94AAA9357B627A /* MistakeReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeReviewViewModel.swift; sourceTree = "<group>"; };
+		78925CFFA33844928A2C5738 /* P0FixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P0FixTests.swift; sourceTree = "<group>"; };
 		79F9282A61B010BB1C035827 /* SeededRandomGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandomGenerator.swift; sourceTree = "<group>"; };
 		7DD1E5B91F38401572968CFD /* GamePlayViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePlayViewModelTests.swift; sourceTree = "<group>"; };
 		7E2567308A4EFCC0C7D241AA /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		7F6B3DB998A363E123F46BAF /* VocabGameTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VocabGameTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		82B7A542FAE521CFBC30FFBC /* SpacedRepetitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacedRepetitionService.swift; sourceTree = "<group>"; };
 		845C43CE765B7741A3C0A5A8 /* GameSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSessionTests.swift; sourceTree = "<group>"; };
+		8876F73B5A8F41A59C235380 /* AchievementRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementRepository.swift; sourceTree = "<group>"; };
+		8BDD3A58210C4AFBA0DF5842 /* Phase4AchievementTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase4AchievementTests.swift; sourceTree = "<group>"; };
 		8C038A625E24709B52700B85 /* DailyChallengeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyChallengeViewModel.swift; sourceTree = "<group>"; };
+		924451141B6E483C9A27BFA2 /* Phase1VisualTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase1VisualTests.swift; sourceTree = "<group>"; };
 		9A4CC7EFAF5D6AC98161D9B7 /* AudioServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioServiceTests.swift; sourceTree = "<group>"; };
 		9C985B86BC344E630FB2C864 /* PetRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetRepository.swift; sourceTree = "<group>"; };
+		A133403703754A609DE0EC86 /* EggCharacter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EggCharacter.swift; sourceTree = "<group>"; };
 		A43EB5D0BEE9E19777FDF77A /* PetHouseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetHouseViewModel.swift; sourceTree = "<group>"; };
 		A4EAA84D92EDDDB1557632AD /* VocabGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52765D1A3F710246626EE4A /* MatchGameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchGameTests.swift; sourceTree = "<group>"; };
 		A9068E65BE328A462BD84038 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		ABF4CBE5D081478A91479FC0 /* Phase2FeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase2FeatureTests.swift; sourceTree = "<group>"; };
 		ADCEBAEA93D07E19317018C2 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		ADF27F7F87B6B0836273991A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		AE654ED7CD177E1F82986049 /* MatchGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchGameView.swift; sourceTree = "<group>"; };
@@ -199,21 +249,29 @@
 		C2927D5D362905FBC60C2A1C /* QuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActions.swift; sourceTree = "<group>"; };
 		C540956529E6C09EB60E1525 /* Phase3P3FixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase3P3FixTests.swift; sourceTree = "<group>"; };
 		C73AC2FFE3F1A01EC01F0D25 /* SpellChallengeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellChallengeViewModel.swift; sourceTree = "<group>"; };
+		C76739CB10A54FD8B7C6930D /* WordRunnerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordRunnerViewModel.swift; sourceTree = "<group>"; };
 		CA89818DC3F620C5CB6392E8 /* GamePlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePlayView.swift; sourceTree = "<group>"; };
+		CB1101D73B6F46F6A9F98009 /* Phase3ReviewFixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase3ReviewFixTests.swift; sourceTree = "<group>"; };
 		CB43128EC1F570355BB518B5 /* LevelMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelMapView.swift; sourceTree = "<group>"; };
 		CE43224633850BE69D3347BF /* PetRepositoryPhase2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetRepositoryPhase2Tests.swift; sourceTree = "<group>"; };
 		CF30F55101964D338C5115E8 /* PetDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetDisplayView.swift; sourceTree = "<group>"; };
+		CFD2E488215548A5B9B848ED /* Phase4EasterEggTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase4EasterEggTests.swift; sourceTree = "<group>"; };
 		D1BFCD208E295F566467CC22 /* DailyChallengeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyChallengeView.swift; sourceTree = "<group>"; };
 		D34610AF7EE8D6BA9FA956F3 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		D36D1AB53D11970A0DF50B0B /* AnimationComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationComponents.swift; sourceTree = "<group>"; };
+		D56F79C36BD04813B3A142AD /* V116V2AuditTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V116V2AuditTests.swift; sourceTree = "<group>"; };
 		D6EE38212FF8DFD5BFB0E34A /* VocabGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VocabGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD7BEF96BB541B551E6F0AFA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		DE36AE789C4C4F0CA7E8707E /* PetDialogue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetDialogue.swift; sourceTree = "<group>"; };
 		DF0FE50BFA3CC30917E8F345 /* ProgressRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRepositoryTests.swift; sourceTree = "<group>"; };
 		E22E14A5A28CE8E63856AD64 /* SeededRandomGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededRandomGeneratorTests.swift; sourceTree = "<group>"; };
 		E3297AA614F860B1E9844087 /* PlayerProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfile.swift; sourceTree = "<group>"; };
 		EF09913AC8E9BAD6AE5831E4 /* SpellChallengeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellChallengeView.swift; sourceTree = "<group>"; };
+		EF24889C40194A2C9417BB64 /* Food.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Food.swift; sourceTree = "<group>"; };
 		EF865056A77F212CCCFC3E0C /* LevelSelectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelSelectViewModel.swift; sourceTree = "<group>"; };
 		F2908D4660C9425DAD0D8034 /* TTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
+		F7F50F02EC5E4B1981134BF4 /* Achievement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Achievement.swift; sourceTree = "<group>"; };
+		FFAA7F54892245EC86E048ED /* CharacterSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterSelectView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -230,6 +288,7 @@
 		256E66FB64BD2A5E048AA74F /* PetHouse */ = {
 			isa = PBXGroup;
 			children = (
+				FFAA7F54892245EC86E048ED /* CharacterSelectView.swift */,
 				CF30F55101964D338C5115E8 /* PetDisplayView.swift */,
 				2862A719669BFD9DCFF5FE07 /* PetHouseView.swift */,
 			);
@@ -247,6 +306,7 @@
 		3C113928E960E4ACBD88E2D0 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
+				8876F73B5A8F41A59C235380 /* AchievementRepository.swift */,
 				9C985B86BC344E630FB2C864 /* PetRepository.swift */,
 				3C7446BF4FE005647E0D26A7 /* ProgressRepository.swift */,
 				0137A37F9CDF703C05D9D27E /* WordRepository.swift */,
@@ -280,6 +340,7 @@
 		53632C146C801ED84E52AB0C /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				C76739CB10A54FD8B7C6930D /* WordRunnerViewModel.swift */,
 				8C038A625E24709B52700B85 /* DailyChallengeViewModel.swift */,
 				B7DFA496E90F70EFADBC9065 /* HomeViewModel.swift */,
 				EF865056A77F212CCCFC3E0C /* LevelSelectViewModel.swift */,
@@ -320,6 +381,7 @@
 		63A8AEB3AEE450AADB704A52 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				628574F2502E4C2789BAB845 /* EasterEggManager.swift */,
 				0F0960B828F77C0E2AA3A6B9 /* AudioService.swift */,
 				82B7A542FAE521CFBC30FFBC /* SpacedRepetitionService.swift */,
 				F2908D4660C9425DAD0D8034 /* TTSService.swift */,
@@ -330,6 +392,9 @@
 		6512F7A5F4FE644E3E532F1C /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				0915CAD5A8514230B3733F9E /* PetDialogueBubble.swift */,
+				54150556CD054EBCAF7F6FE1 /* CustomTabBar.swift */,
+				4757C87F28A6472FA65A4935 /* ComboText.swift */,
 				D36D1AB53D11970A0DF50B0B /* AnimationComponents.swift */,
 				292CD91905B924884E5745C8 /* PrimaryButtonStyle.swift */,
 			);
@@ -339,6 +404,20 @@
 		888E68C4103006BA942B3535 /* VocabGameTests */ = {
 			isa = PBXGroup;
 			children = (
+				1FBD8D344EFE48119A3DAABE /* Phase5CrossPhaseIntegrationTests.swift */,
+				2F6C543279D643ABBC8980BB /* Phase4ThemeSkinTests.swift */,
+				5EB2D579BE91405289354E4C /* Phase4PetVisualTests.swift */,
+				CFD2E488215548A5B9B848ED /* Phase4EasterEggTests.swift */,
+				27EF88E1435447E7B6F37B44 /* Phase4DailyGoalTests.swift */,
+				8BDD3A58210C4AFBA0DF5842 /* Phase4AchievementTests.swift */,
+				CB1101D73B6F46F6A9F98009 /* Phase3ReviewFixTests.swift */,
+				37800372B8B14534B142ED1B /* Phase3P5P6Tests.swift */,
+				0C320A101D5642ADBB1B24FD /* Phase3FeedbackTests.swift */,
+				ABF4CBE5D081478A91479FC0 /* Phase2FeatureTests.swift */,
+				924451141B6E483C9A27BFA2 /* Phase1VisualTests.swift */,
+				78925CFFA33844928A2C5738 /* P0FixTests.swift */,
+				14A11C1D91C54BD39F1F5735 /* V117CharacterTests.swift */,
+				D56F79C36BD04813B3A142AD /* V116V2AuditTests.swift */,
 				2EAA5162F293FF18720EAB38 /* AdventureIntegrationTests.swift */,
 				2B6157D3C8F80E5A30579DF5 /* AnimationComponentsTests.swift */,
 				9A4CC7EFAF5D6AC98161D9B7 /* AudioServiceTests.swift */,
@@ -388,6 +467,12 @@
 		9747F25469D8A97CFE03AB86 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				5D5555C42E4C4B749FF52541 /* ThemeSkin.swift */,
+				DE36AE789C4C4F0CA7E8707E /* PetDialogue.swift */,
+				EF24889C40194A2C9417BB64 /* Food.swift */,
+				A133403703754A609DE0EC86 /* EggCharacter.swift */,
+				10208D8BA9294491941EA9DE /* AchievementEvent.swift */,
+				F7F50F02EC5E4B1981134BF4 /* Achievement.swift */,
 				2488A252BADFBB7C6D10111C /* GameSession.swift */,
 				05007D42752AB7608DCEB61E /* Level.swift */,
 				5737DB8DA98074DDFABA8BF4 /* PetState.swift */,
@@ -428,6 +513,8 @@
 		F4A041C3FFF01F6B3EB4DB84 /* Game */ = {
 			isa = PBXGroup;
 			children = (
+				686C8D13B41946659016C7B8 /* WordRunnerView.swift */,
+				714BB5E0C5D4464EA0D9C346 /* AchievementWallView.swift */,
 				D1BFCD208E295F566467CC22 /* DailyChallengeView.swift */,
 				3C130002F9B107C9AE0B1C21 /* GameHeaderView.swift */,
 				CA89818DC3F620C5CB6392E8 /* GamePlayView.swift */,
@@ -482,8 +569,6 @@
 			dependencies = (
 			);
 			name = VocabGame_macOS;
-			packageProductDependencies = (
-			);
 			productName = VocabGame_macOS;
 			productReference = A4EAA84D92EDDDB1557632AD /* VocabGame.app */;
 			productType = "com.apple.product-type.application";
@@ -500,8 +585,6 @@
 				D57A456923990D1A13842F4C /* PBXTargetDependency */,
 			);
 			name = VocabGameTests;
-			packageProductDependencies = (
-			);
 			productName = VocabGameTests;
 			productReference = 7F6B3DB998A363E123F46BAF /* VocabGameTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -519,8 +602,6 @@
 			dependencies = (
 			);
 			name = VocabGame_iOS;
-			packageProductDependencies = (
-			);
 			productName = VocabGame_iOS;
 			productReference = D6EE38212FF8DFD5BFB0E34A /* VocabGame.app */;
 			productType = "com.apple.product-type.application";
@@ -536,7 +617,7 @@
 				TargetAttributes = {
 				};
 			};
-			buildConfigurationList = A48BB9833C3B3E2BACB71B29 /* Build configuration list for PBXProject "VocabGameTests" */;
+			buildConfigurationList = A48BB9833C3B3E2BACB71B29 /* Build configuration list for PBXProject "VocabGame" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -626,6 +707,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A525E8E2E016418B93F46319 /* Achievement.swift in Sources */,
+				159F7AE58E1E4FEFBD225182 /* AchievementEvent.swift in Sources */,
+				C805B19C145C4B0EB7CD48F5 /* EggCharacter.swift in Sources */,
+				A281B9E5F50C4A6E9CB66B3E /* Food.swift in Sources */,
+				3AAC0D795FFB42DDAE334373 /* PetDialogue.swift in Sources */,
+				A0E5FD9DAE534B6C83F7FE0B /* ThemeSkin.swift in Sources */,
+				339D908DAE1240A793317934 /* AchievementRepository.swift in Sources */,
+				690B259C402041B4993777C5 /* EasterEggManager.swift in Sources */,
+				5D53DB9AD98C4166AA955686 /* WordRunnerViewModel.swift in Sources */,
+				AF5299C0D30E4E53ABA98C05 /* ComboText.swift in Sources */,
+				502C9B4481C74A609122FBE3 /* CustomTabBar.swift in Sources */,
+				2544EEA68A3A4DD88764EA8C /* PetDialogueBubble.swift in Sources */,
+				DEDD31260DC346E788D54FC4 /* AchievementWallView.swift in Sources */,
+				DC669F560C294435BB427A17 /* WordRunnerView.swift in Sources */,
+				A4BD48AA6A044AAE9351C210 /* CharacterSelectView.swift in Sources */,
 				E9036078EC8A44CB853E9944 /* AnimationComponents.swift in Sources */,
 				B8B2D97301AA70DF08B10929 /* AudioService.swift in Sources */,
 				0E7D8261B71C736C3B4F818D /* Constants.swift in Sources */,
@@ -678,6 +774,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4034C60E2D3447F594A6042E /* V116V2AuditTests.swift in Sources */,
+				45C0275CF15D4A5A95F0006B /* V117CharacterTests.swift in Sources */,
+				D89079FA5BC344B9AB0C9249 /* P0FixTests.swift in Sources */,
+				3EDE5683C8164D859C3B2ED1 /* Phase1VisualTests.swift in Sources */,
+				E099A1E355C147818325646F /* Phase2FeatureTests.swift in Sources */,
+				20CD5EED49B046788244EB02 /* Phase3FeedbackTests.swift in Sources */,
+				D84EA0CACF204919836BDC35 /* Phase3P5P6Tests.swift in Sources */,
+				B55FA53CB23C41329C0FCCE7 /* Phase3ReviewFixTests.swift in Sources */,
+				4EE4D20685B144F78511BCB9 /* Phase4AchievementTests.swift in Sources */,
+				898E4A2090624463A6047763 /* Phase4DailyGoalTests.swift in Sources */,
+				7E0B32F9B20547C9AE8515E0 /* Phase4EasterEggTests.swift in Sources */,
+				536101CD22664CEA90432E87 /* Phase4PetVisualTests.swift in Sources */,
+				0FB71CAA1605452B89E665F2 /* Phase4ThemeSkinTests.swift in Sources */,
+				BCC0577CC14648BEA9463C09 /* Phase5CrossPhaseIntegrationTests.swift in Sources */,
 				A51CAB44848B7A1ABF332260 /* AdventureIntegrationTests.swift in Sources */,
 				83064968174B497FA0B3C418 /* AnimationComponentsTests.swift in Sources */,
 				939DAB1C53F0BBEF192877E4 /* AudioServiceTests.swift in Sources */,
@@ -763,7 +873,7 @@
 /* Begin PBXTargetDependency section */
 		D57A456923990D1A13842F4C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C861018E8C3E3D7E48CD86F2 /* VocabGame_iOS */;
+			target = 36D6FB8367B568BDBBDEF931 /* VocabGame_macOS */;
 			targetProxy = 0FABBF419449D9EF14379292 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -773,7 +883,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_KEY_CFBundleDisplayName = "背单词";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -784,7 +895,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devteam.vocabgame;
 				PRODUCT_NAME = VocabGame;
 				SDKROOT = iphoneos;
@@ -798,7 +909,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_KEY_CFBundleDisplayName = "背单词";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -809,7 +921,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devteam.vocabgame;
 				PRODUCT_NAME = VocabGame;
 				SDKROOT = iphoneos;
@@ -830,11 +942,10 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.devteam.vocabgame.tests;
-				SDKROOT = iphoneos;
+				SDKROOT = macosx;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabGame.app/VocabGame";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabGame.app/Contents/MacOS/VocabGame";
 			};
 			name = Debug;
 		};
@@ -844,6 +955,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "背单词";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -854,7 +966,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devteam.vocabgame;
 				PRODUCT_NAME = VocabGame;
 				SDKROOT = macosx;
@@ -874,11 +986,10 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.devteam.vocabgame.tests;
-				SDKROOT = iphoneos;
+				SDKROOT = macosx;
 				SWIFT_STRICT_CONCURRENCY = minimal;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabGame.app/VocabGame";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabGame.app/Contents/MacOS/VocabGame";
 			};
 			name = Release;
 		};
@@ -888,6 +999,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "背单词";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -898,7 +1010,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.17.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.devteam.vocabgame;
 				PRODUCT_NAME = VocabGame;
 				SDKROOT = macosx;
@@ -1047,7 +1159,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		A48BB9833C3B3E2BACB71B29 /* Build configuration list for PBXProject "VocabGameTests" */ = {
+		A48BB9833C3B3E2BACB71B29 /* Build configuration list for PBXProject "VocabGame" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F393AEE9D5537929C98A16EF /* Debug */,

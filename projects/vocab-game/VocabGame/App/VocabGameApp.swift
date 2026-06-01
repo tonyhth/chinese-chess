@@ -26,13 +26,20 @@ class AppCoordinator: ObservableObject {
     let wordRepo = WordRepository()
     let progressRepo = ProgressRepository()
     let petRepo = PetRepository()
+    let achievementRepo: AchievementRepository
+    let easterEgg = EasterEggManager()
 
     @Published var currentGameLevel: Int? = nil
     @Published var currentGameMode: GameMode? = nil
+    @Published var isDictationMode: Bool = false
+    @Published var showingAchievements: Bool = false
 
     init() {
         try? wordRepo.loadWords()
         progressRepo.load()
+        achievementRepo = AchievementRepository(progressRepo: progressRepo)
+        achievementRepo.load()
+        easterEgg.specialOutfit = EasterEggManager.specialOutfitForToday()
         AudioService.shared.preload()
     }
 

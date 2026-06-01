@@ -160,16 +160,11 @@ final class Phase3P5P6Tests: XCTestCase {
     func testWordRepository_bundleUrl_noSubdirectory() {
         // 验证 Bundle.main.url 调用不含 subdirectory 参数
         // 代码: guard let url = Bundle.main.url(forResource: "wordlist", withExtension: "json")
-        // 这里的关键是 subdirectory 参数被移除（Xcode 打包展平到 bundle 根目录）
-        // 在测试环境中，我们无法直接测试 Bundle.main 的资源加载，
-        // 但可以验证 WordRepository.loadWords() 在找不到文件时正确抛出错误
+        // 当 test host 指向主 app 时，Bundle.main 包含 wordlist.json
+        // 验证加载成功且数据有效
         let repo = WordRepository()
-        // Bundle.main 中没有 wordlist.json（测试环境）
-        XCTAssertThrowsError(try repo.loadWords()) { error in
-            if let appError = error as? AppError {
-                XCTAssertEqual(appError, .fileNotFound)
-            }
-        }
+        XCTAssertNoThrow(try repo.loadWords())
+        XCTAssertFalse(repo.allWords.isEmpty, "wordlist.json should be loaded from main bundle")
     }
 
     func testWordRepository_convenienceInit_works() {

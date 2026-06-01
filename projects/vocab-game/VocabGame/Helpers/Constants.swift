@@ -9,6 +9,15 @@ enum VGColors {
     static let card = Color.white
     static let textPrimary = Color(hex: "2D2D2D")
     static let textSecondary = Color(hex: "888888")
+
+    // V2 新增配色
+    static let accent = Color(hex: "4ECDC4")        // 薄荷青
+    static let purple = Color(hex: "A78BFA")        // 梦幻紫
+    static let peach = Color(hex: "FFB5A7")         // 蜜桃色
+    static let lavender = Color(hex: "E8DAEF")      // 薰衣草
+
+    // Card shadow
+    static let cardShadow = Color.black.opacity(0.06)
 }
 
 enum VGSpacing {
@@ -80,5 +89,19 @@ enum VGGradients {
     static let game = LinearGradient(
         colors: [Color(hex: "FFF5F9"), Color(hex: "FFE0EC")],
         startPoint: .top, endPoint: .bottom
+    )
+
+    // V2 新增渐变
+    static let sunset = LinearGradient(
+        colors: [Color(hex: "FF6B9D"), Color(hex: "FFD93D")],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+    static let ocean = LinearGradient(
+        colors: [Color(hex: "4ECDC4"), Color(hex: "556270" )],
+        startPoint: .top, endPoint: .bottom
+    )
+    static let candy = LinearGradient(
+        colors: [Color(hex: "FF9DC4"), Color(hex: "A78BFA")],
+        startPoint: .topLeading, endPoint: .bottomTrailing
     )
 }

@@ -269,8 +269,7 @@ class GameViewModel {
         let currentSide = board.currentTurn
         if MoveValidator.isCheckmate(currentSide, on: board) {
             gameState = (currentSide == .red) ? .blackWon : .redWon
-            SoundEngine.shared.playCheckmate()
-            // 胜败音效
+            // 将死时只播放胜负音效，不叠加 checkmate
             if gameState == .redWon {
                 SoundEngine.shared.playVictory()
             } else {

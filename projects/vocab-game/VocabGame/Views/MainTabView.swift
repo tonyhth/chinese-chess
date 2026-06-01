@@ -11,6 +11,7 @@ struct MainTabView: View {
     @State private var isShowingMatch = false
     @State private var isShowingDaily = false
     @State private var isShowingMistakeReview = false
+    @State private var isShowingWordRunner = false
     @State private var adventureLevelId: Int? = nil
     @State private var matchLevelId: Int? = nil
     @State private var adventureSheetId = UUID()
@@ -18,38 +19,42 @@ struct MainTabView: View {
     @State private var matchSheetId = UUID()
     @State private var dailySheetId = UUID()
     @State private var mistakeSheetId = UUID()
+    @State private var wordRunnerSheetId = UUID()
+    @FocusState private var isTabBarFocused: Bool
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            HomeWrapperView()
-                .tabItem { Label("首页", systemImage: "house.fill") }
-                .tag(0)
+        ZStack(alignment: .bottom) {
+            // Content
+            TabView(selection: $selectedTab) {
+                HomeWrapperView(progressRepo: app.progressRepo)
+                    .tag(0)
 
-            LevelMapWrapperView()
-                .tabItem { Label("关卡", systemImage: "map.fill") }
-                .tag(1)
+                LevelMapWrapperView(progressRepo: app.progressRepo)
+                    .tag(1)
 
-            PetHouseWrapperView()
-                .tabItem { Label("蛋仔", systemImage: "egg.fill") }
-                .tag(2)
+                PetHouseWrapperView(petRepo: app.petRepo, progressRepo: app.progressRepo)
+                    .tag(2)
 
-            ProfileWrapperView()
-                .tabItem { Label("我的", systemImage: "person.fill") }
-                .tag(3)
+                ProfileWrapperView(progressRepo: app.progressRepo)
+                    .tag(3)
+            }
+            .tint(VGColors.primary)
+
+            // Custom Tab Bar
+            CustomTabBar(selectedTab: $selectedTab)
         }
-        .tint(VGColors.primary)
         // Game mode sheets
         #if os(iOS)
         .fullScreenCover(isPresented: $isShowingAdventure, onDismiss: {
             adventureLevelId = nil
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：自然完成时 ViewModel 内部已 clear；中途退出保留 session
             adventureSheetId = UUID()
         }) {
-            GamePlayView(mode: .adventure, levelId: adventureLevelId)
+            GamePlayView(mode: .adventure, levelId: app.currentGameLevel)
                 .id(adventureSheetId)
         }
         .fullScreenCover(isPresented: $isShowingSpell, onDismiss: {
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：保留 session 供恢复
             spellSheetId = UUID()
         }) {
             SpellChallengeView(app: app)
@@ -57,38 +62,44 @@ struct MainTabView: View {
         }
         .fullScreenCover(isPresented: $isShowingMatch, onDismiss: {
             matchLevelId = nil
-            app.progressRepo.clearActiveSession()
+            app.progressRepo.clearActiveSession()  // 配对游戏始终清除
             matchSheetId = UUID()
         }) {
-            MatchGameView(app: app, levelId: matchLevelId)
+            MatchGameView(app: app, levelId: app.currentGameLevel)
                 .id(matchSheetId)
         }
         .fullScreenCover(isPresented: $isShowingDaily, onDismiss: {
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：保留 session 供恢复
             dailySheetId = UUID()
         }) {
             DailyChallengeView(app: app)
                 .id(dailySheetId)
         }
         .fullScreenCover(isPresented: $isShowingMistakeReview, onDismiss: {
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：保留 session 供恢复
             mistakeSheetId = UUID()
         }) {
             GamePlayView(mode: .mistakeReview, levelId: nil)
                 .id(mistakeSheetId)
         }
+        .fullScreenCover(isPresented: $isShowingWordRunner, onDismiss: {
+            wordRunnerSheetId = UUID()
+        }) {
+            WordRunnerView(app: app)
+                .id(wordRunnerSheetId)
+        }
         #else
         .sheet(isPresented: $isShowingAdventure, onDismiss: {
             adventureLevelId = nil
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：自然完成时 ViewModel 内部已 clear；中途退出保留 session
             adventureSheetId = UUID()
         }) {
-            GamePlayView(mode: .adventure, levelId: adventureLevelId)
+            GamePlayView(mode: .adventure, levelId: app.currentGameLevel)
                 .id(adventureSheetId)
                 .frame(minWidth: 600, minHeight: 500)
         }
         .sheet(isPresented: $isShowingSpell, onDismiss: {
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：保留 session 供恢复
             spellSheetId = UUID()
         }) {
             SpellChallengeView(app: app)
@@ -97,15 +108,15 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $isShowingMatch, onDismiss: {
             matchLevelId = nil
-            app.progressRepo.clearActiveSession()
+            app.progressRepo.clearActiveSession()  // 配对游戏始终清除
             matchSheetId = UUID()
         }) {
-            MatchGameView(app: app, levelId: matchLevelId)
+            MatchGameView(app: app, levelId: app.currentGameLevel)
                 .id(matchSheetId)
                 .frame(minWidth: 600, minHeight: 500)
         }
         .sheet(isPresented: $isShowingDaily, onDismiss: {
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：保留 session 供恢复
             dailySheetId = UUID()
         }) {
             DailyChallengeView(app: app)
@@ -113,11 +124,18 @@ struct MainTabView: View {
                 .frame(minWidth: 600, minHeight: 500)
         }
         .sheet(isPresented: $isShowingMistakeReview, onDismiss: {
-            app.progressRepo.clearActiveSession()
+            // 不 clearActiveSession：保留 session 供恢复
             mistakeSheetId = UUID()
         }) {
             GamePlayView(mode: .mistakeReview, levelId: nil)
                 .id(mistakeSheetId)
+                .frame(minWidth: 600, minHeight: 500)
+        }
+        .sheet(isPresented: $isShowingWordRunner, onDismiss: {
+            wordRunnerSheetId = UUID()
+        }) {
+            WordRunnerView(app: app)
+                .id(wordRunnerSheetId)
                 .frame(minWidth: 600, minHeight: 500)
         }
         #endif
@@ -129,6 +147,9 @@ struct MainTabView: View {
                     isShowingAdventure = true
                 case .spellChallenge:
                     isShowingSpell = true
+                case .dictation:
+                    app.isDictationMode = true
+                    isShowingSpell = true
                 case .matchPairs:
                     matchLevelId = app.currentGameLevel
                     isShowingMatch = true
@@ -136,8 +157,11 @@ struct MainTabView: View {
                     isShowingDaily = true
                 case .mistakeReview:
                     isShowingMistakeReview = true
+                case .wordRunner:
+                    isShowingWordRunner = true
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(100))
                     app.currentGameMode = nil
                 }
             }

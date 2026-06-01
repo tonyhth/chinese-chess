@@ -1,0 +1,12 @@
+{
+  "/Users/hth/DevTeam/projects/vocab-game/VocabGameTests/V116V2AuditTests.swift" : {
+    "abi-baseline-json" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests.abi.json",
+    "const-values" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.swiftconstvalues",
+    "dependencies" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.d",
+    "diagnostics" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-primary.dia",
+    "objc-header" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests-Swift.h",
+    "swiftdoc" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests.swiftdoc",
+    "swiftmodule" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests.swiftmodule",
+    "swiftsourceinfo" : "/Users/hth/DevTeam/projects/vocab-game/build-mac/Build/Intermediates.noindex/VocabGame.build/Release/VocabGameTests.build/Objects-normal/x86_64/VocabGameTests.swiftsourceinfo"
+  }
+}

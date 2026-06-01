@@ -3,7 +3,9 @@ import SwiftUI
 struct MatchGameView: View {
     @EnvironmentObject var app: AppCoordinator
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) var scenePhase
     @StateObject private var viewModel: MatchGameViewModel
+    @State private var showExitConfirmation = false
     let levelId: Int?
 
     init(app: AppCoordinator, levelId: Int? = nil) {
@@ -11,7 +13,8 @@ struct MatchGameView: View {
         _viewModel = StateObject(wrappedValue: MatchGameViewModel(
             wordRepo: app.wordRepo,
             progressRepo: app.progressRepo,
-            petRepo: app.petRepo
+            petRepo: app.petRepo,
+            achievementRepo: app.achievementRepo
         ))
     }
 
@@ -38,15 +41,34 @@ struct MatchGameView: View {
         }, message: {
             Text(viewModel.errorMessage ?? "")
         })
-        .onAppear { viewModel.start(forLevel: levelId) }
+        .task { viewModel.start(forLevel: levelId) }
         .onDisappear { viewModel.stop() }
+        .confirmationDialog("确定退出吗？", isPresented: $showExitConfirmation, titleVisibility: .visible) {
+            Button("继续游戏", role: .cancel) {}
+            Button("退出", role: .destructive) {
+                app.progressRepo.clearActiveSession()  // 配对游戏退出时清除
+                dismiss()
+            }
+        } message: {
+            Text("退出后配对进度将不会保存。")
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                viewModel.pauseTimer()
+            case .active:
+                viewModel.resumeTimer()
+            default:
+                break
+            }
+        }
     }
 
     private var matchPlayView: some View {
         VStack(spacing: VGSpacing.md) {
             // Header
             HStack {
-                Button(action: { dismiss() }) {
+                Button(action: { showExitConfirmation = true }) {
                     Image(systemName: "xmark")
                         .foregroundColor(VGColors.textSecondary)
                         .padding(8)

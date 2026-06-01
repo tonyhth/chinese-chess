@@ -11,7 +11,8 @@ class PuzzleViewModel {
     var hintIndex: Int = 0
     var currentHint: String?
     var isThinking: Bool = false
-    var completionRating: Int = 0  // 通关星级（对比 solution）
+    var completionRating: Int = 0
+    var solutionHint: String?  // 实时提示：有更优走法时显示
 
     private let aiEngine = AIEngine()
 
@@ -84,6 +85,14 @@ class PuzzleViewModel {
             SoundEngine.shared.playCapture()
         } else {
             SoundEngine.shared.playMove()
+        }
+
+        // 实时解法提示：检查是否走了推荐走法
+        let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
+        if !isRecommendedMove(at: playerMoveIndex) {
+            solutionHint = "💡 有更优走法"
+        } else {
+            solutionHint = nil
         }
 
         // 检查是否将死对方
@@ -214,15 +223,23 @@ class PuzzleViewModel {
         }
     }
 
+    /// ICCS 坐标：列 a-i (col 0-8)，行 0-9（0=红方底线 row=9）
+    private static func iccsString(from: Position, to: Position) -> String {
+        let files = "abcdefghi"
+        let fromStr = "\(files[files.index(files.startIndex, offsetBy: from.col)])\(9 - from.row)"
+        let toStr = "\(files[files.index(files.startIndex, offsetBy: to.col)])\(9 - to.row)"
+        return "\(fromStr)\(toStr)"
+    }
+
     /// 验证指定步是否匹配 solution 推荐走法
     func isRecommendedMove(at moveIndex: Int) -> Bool {
-        guard moveIndex < puzzle.solution.count else { return false }
-        guard moveIndex < gameMoves.count else { return false }
-        let move = gameMoves[moveIndex]
-        let fromStr = "\(move.from.col)\(move.from.row)"
-        let toStr = "\(move.to.col)\(move.to.row)"
-        let moveStr = "\(fromStr)-\(toStr)"
-        return puzzle.solution[moveIndex] == moveStr
+        guard moveIndex < puzzle.solution.count else { return true }  // 超出 solution 长度，不再约束
+        // 只筛选玩家走法
+        let playerMoves = gameMoves.filter { $0.piece.side == playerSide }
+        guard moveIndex < playerMoves.count else { return false }
+        let move = playerMoves[moveIndex]
+        let iccs = Self.iccsString(from: move.from, to: move.to)
+        return puzzle.solution[moveIndex] == iccs
     }
 
     // MARK: - 进度记录
