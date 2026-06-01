@@ -252,7 +252,7 @@ class GameViewModel {
                 self.checkGameState()
 
                 // 更新最后一步 isCheckmate
-                if self.gameState != .playing {
+                if self.gameState != .playing && !self.gameMoves.isEmpty {
                     self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
                 }
 

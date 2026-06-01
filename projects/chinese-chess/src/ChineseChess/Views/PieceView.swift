@@ -46,18 +46,19 @@ struct PieceView: View {
                 .foregroundColor(textColor)
         }
         .scaleEffect(isSelected ? 1.05 : 1.0)
-        .overlay(
-            Circle()
-                .stroke(Color.yellow, lineWidth: 2)
-                .frame(width: pieceDiameter + 4, height: pieceDiameter + 4)
-                .opacity(isSelected ? 1 : 0)
-                .scaleEffect(isSelected ? 1.05 : 1.0)
-                .animation(
-                    .easeInOut(duration: 0.8)
-                    .repeatForever(autoreverses: true),
-                    value: isSelected
-                )
-        )
+        .overlay {
+            if isSelected {
+                Circle()
+                    .stroke(Color.yellow, lineWidth: 2)
+                    .frame(width: pieceDiameter + 4, height: pieceDiameter + 4)
+                    .scaleEffect(1.05)
+                    .animation(
+                        .easeInOut(duration: 0.8)
+                        .repeatForever(autoreverses: true),
+                        value: isSelected
+                    )
+            }
+        }
         .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? 6 : 0)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
     }
