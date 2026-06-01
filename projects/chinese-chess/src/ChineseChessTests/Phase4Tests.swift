@@ -268,6 +268,8 @@ struct PuzzleFENIntegrationTests {
                 let toCol = Int(chars[2].asciiValue! - Character("a").asciiValue!)
                 let toRow = 9 - Int(String(chars[3]))!
                 
+                #expect(fromRow != toRow || fromCol != toCol,
+                    "Puzzle \(puzzle.id) move[\(idx)] \(move): from == to (原地不动)")
                 let fromKey = "\(fromRow),\(fromCol)"
                 guard let piece = positions[fromKey] else {
                     #expect(Bool(false), "Puzzle \(puzzle.id) move[\(idx)] \(move): no piece at (\(fromRow),\(fromCol))")

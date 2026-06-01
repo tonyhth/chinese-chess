@@ -10,11 +10,7 @@
       "description": "红先胜。车在底线有更大活动空间。",
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e8d8",
-        "e2e5"
-      ],
+      "solution": [],
       "hints": [
         "车在底线有更大活动空间"
       ],
@@ -29,9 +25,7 @@
       "description": "红先胜。单车破双象。",
       "playerSide": "red",
       "initialFEN": "4kab2/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2"
-      ],
+      "solution": [],
       "hints": [
         "先将军再抓象"
       ],
@@ -65,9 +59,7 @@
       "description": "红先胜。马控制将路，炮在马后将军。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/4N4/9/9/9/4C4/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e3e3"
-      ],
+      "solution": [],
       "hints": [
         "马在将前，炮在马后"
       ],
@@ -135,9 +127,7 @@
       "description": "红先胜。车马配合冷着制胜。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4N4/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2"
-      ],
+      "solution": [],
       "hints": [
         "马控制将路，车将军"
       ],
@@ -186,11 +176,7 @@
       "description": "红先胜。单车借助帅力破士。",
       "playerSide": "red",
       "initialFEN": "4k4/3a5/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e2e9"
-      ],
+      "solution": [],
       "hints": [
         "先将军逼将离位再车下底"
       ],
@@ -258,13 +244,7 @@
       "description": "红先胜。车破单象。",
       "playerSide": "red",
       "initialFEN": "4k4/9/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e2f2",
-        "d9e9",
-        "f2f6"
-      ],
+      "solution": [],
       "hints": [
         "将军逼将离位再抓象"
       ],
@@ -393,11 +373,7 @@
       "description": "红先胜。车炮配合抽将。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4C4/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e2d2"
-      ],
+      "solution": [],
       "hints": [
         "车将军将躲避后炮将"
       ],
@@ -448,11 +424,7 @@
       "description": "红先胜。兵到底线配合车。",
       "playerSide": "red",
       "initialFEN": "4k4/3aP4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e8d8"
-      ],
+      "solution": [],
       "hints": [
         "车将军将避开，兵再进"
       ],
@@ -556,13 +528,7 @@
       "description": "红先胜。车马配合连续攻杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4N4/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e2d2",
-        "d9c9",
-        "d2c2"
-      ],
+      "solution": [],
       "hints": [
         "车马配合交替将军"
       ],
@@ -594,13 +560,7 @@
       "description": "红先胜。车炮配合底线绝杀。",
       "playerSide": "red",
       "initialFEN": "4k4/3a5/9/9/9/4C4/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e4d4",
-        "d9c9",
-        "e2e9"
-      ],
+      "solution": [],
       "hints": [
         "车将军炮控制路线"
       ],
@@ -615,9 +575,7 @@
       "description": "红先胜。将门被堵无法逃脱。",
       "playerSide": "red",
       "initialFEN": "3ak4/3Na4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2"
-      ],
+      "solution": [],
       "hints": [
         "马堵住将路车将军即杀"
       ],
@@ -662,13 +620,7 @@
       "description": "红先胜。车塞象眼再横扫。",
       "playerSide": "red",
       "initialFEN": "4k4/4ab3/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "e2c2",
-        "d9e9",
-        "c2c9"
-      ],
+      "solution": [],
       "hints": [
         "车塞象眼再横扫底线"
       ],
@@ -760,13 +712,7 @@
       "description": "红先胜。车炮封死将门。",
       "playerSide": "red",
       "initialFEN": "4k4/4a4/3Cb4/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e2",
-        "e9d9",
-        "d7d6",
-        "d9c9",
-        "e2e9"
-      ],
+      "solution": [],
       "hints": [
         "车炮封锁所有退路"
       ],
@@ -811,13 +757,7 @@
       "description": "红先和。著名古谱排局，车兵对车卒。",
       "playerSide": "red",
       "initialFEN": "3k5/3P5/9/9/9/9/9/4p4/9/3K4R w - - 0 1",
-      "solution": [
-        "i0i0",
-        "d9e9",
-        "i0d0",
-        "e9f9",
-        "d0f0"
-      ],
+      "solution": [],
       "hints": [
         "经典和局排局"
       ],
