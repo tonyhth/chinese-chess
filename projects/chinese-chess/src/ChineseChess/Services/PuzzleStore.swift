@@ -16,7 +16,7 @@ final class PuzzleStore {
     // MARK: - 加载残局数据
 
     private func loadPuzzles() {
-        guard let url = Bundle.module.url(forResource: "puzzles", withExtension: "json") else {
+        guard let url = ResourceBundle.url(forResource: "puzzles", withExtension: "json") else {
             print("[INFO] PuzzleStore: puzzles.json not found, using empty list")
             return
         }

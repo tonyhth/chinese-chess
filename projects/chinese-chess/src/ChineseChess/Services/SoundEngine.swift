@@ -81,7 +81,7 @@ class SoundEngine {
     }
 
     private func loadSound(name: String, ext: String) -> AVAudioPlayer? {
-        guard let url = Bundle.module.url(forResource: name, withExtension: ext) else {
+        guard let url = ResourceBundle.url(forResource: name, withExtension: ext) else {
             return nil
         }
         return try? AVAudioPlayer(contentsOf: url)

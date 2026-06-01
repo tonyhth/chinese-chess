@@ -17,9 +17,9 @@ struct OpeningBook {
     // MARK: - 初始化
 
     init() {
-        // 尝试从 Bundle.module 加载 openings.json
+        // 尝试加载 openings.json
         let loadedEntries: [OpeningEntry]
-        if let url = Bundle.module.url(forResource: "openings", withExtension: "json", subdirectory: "OpeningBook"),
+        if let url = ResourceBundle.url(forResource: "openings", withExtension: "json", subdirectory: "OpeningBook"),
            let data = try? Data(contentsOf: url),
            let decoded = try? JSONDecoder().decode([OpeningEntry].self, from: data) {
             loadedEntries = decoded
