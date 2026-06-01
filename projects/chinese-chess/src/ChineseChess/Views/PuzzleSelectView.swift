@@ -219,40 +219,36 @@ struct PuzzlePlayView: View {
     @ViewBuilder
     private var puzzleBoardView: some View {
         GeometryReader { geo in
-            let boardSize = min(geo.size.width, geo.size.height) - 16
-            let cellSize = boardSize / 9
+            let boardSize = min(geo.size.width, geo.size.height * 9 / 10) - 16
+            let boardHeight = boardSize * 10 / 9
+            let cellW = boardSize / 8
+            let cellH = boardHeight / 9
 
-            ZStack {
-                ChessBoardCanvas(
-                    board: viewModel.board,
-                    boardSize: boardSize,
-                    selectedPosition: selectedPosition,
-                    legalMoves: legalMovesForSelected,
-                    lastMove: nil
-                )
-
-                // 点击手势
-                Color.clear
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onEnded { value in
-                                handleTap(at: value.location, cellSize: cellSize)
-                            }
-                    )
-            }
+            ChessBoardCanvas(
+                board: viewModel.board,
+                boardSize: boardSize,
+                selectedPosition: selectedPosition,
+                legalMoves: legalMovesForSelected,
+                lastMove: nil
+            )
+            .frame(width: boardSize, height: boardHeight)
+            .position(x: geo.size.width / 2, y: geo.size.height / 2)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onEnded { value in
+                        let loc = value.startLocation
+                        let col = Int(round(loc.x / cellW))
+                        let row = Int(round(loc.y / cellH))
+                        handleTap(row: row, col: col)
+                    }
+            )
         }
         .frame(maxWidth: 400, maxHeight: 480)
         .aspectRatio(9/10, contentMode: .fit)
     }
 
-    private func handleTap(at point: CGPoint, cellSize: CGFloat) {
-        // 棋盘列间距 boardSize/8，行间距 boardHeight/9
-        let boardHeight = cellSize * 10
-        let cellW = (cellSize * 9) / 8   // boardSize / 8
-        let cellH = boardHeight / 9
-        let col = Int(point.x / cellW + 0.5)
-        let row = Int(point.y / cellH + 0.5)
+    private func handleTap(row: Int, col: Int) {
         guard row >= 0, row <= 9, col >= 0, col <= 8 else { return }
         let pos = Position(row: row, col: col)
 
