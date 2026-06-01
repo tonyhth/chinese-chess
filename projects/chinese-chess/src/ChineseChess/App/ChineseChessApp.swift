@@ -6,6 +6,8 @@ struct ChineseChessApp: App {
     @State private var showStats = false
     @State private var showRecord = false
     @State private var showPuzzles = false
+    @State private var showReplay = false
+    @State private var replayRecord: GameRecord?
 
     var body: some Scene {
         WindowGroup {
@@ -41,6 +43,18 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+
+                        Button(action: {
+                            if let record = viewModel.buildGameRecord() {
+                                replayRecord = record
+                                showReplay = true
+                            }
+                        }) {
+                            Label("回放", systemImage: "play.circle")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .disabled(viewModel.gameMoves.isEmpty)
 
                         Spacer()
                     }
@@ -82,6 +96,12 @@ struct ChineseChessApp: App {
             .sheet(isPresented: $showPuzzles) {
                 PuzzleSelectView()
                     .frame(minWidth: 400, minHeight: 500)
+            }
+            .sheet(isPresented: $showReplay) {
+                if let record = replayRecord {
+                    ReplayView(record: record)
+                        .frame(minWidth: 600, minHeight: 720)
+                }
             }
         }
         .windowStyle(.titleBar)

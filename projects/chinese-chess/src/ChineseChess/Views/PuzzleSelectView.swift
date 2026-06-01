@@ -219,29 +219,13 @@ struct PuzzlePlayView: View {
             let cellSize = boardSize / 9
 
             ZStack {
-                // 棋盘背景
-                boardBackground
-
-                // 棋子
-                ForEach(viewModel.board.pieces) { piece in
-                    PieceView(piece: piece, isSelected: selectedPosition == piece.position, boardSize: CGSize(width: boardSize, height: boardSize * 10 / 9))
-                        .position(
-                            x: CGFloat(piece.position.col) * cellSize + cellSize / 2 + 8,
-                            y: CGFloat(piece.position.row) * cellSize + cellSize / 2 + 8
-                        )
-                        .frame(width: cellSize * 0.9, height: cellSize * 0.9)
-                }
-
-                // 合法走法提示
-                ForEach(legalMovesForSelected, id: \.self) { pos in
-                    Circle()
-                        .fill(viewModel.board.piece(at: pos) != nil ? Color.red.opacity(0.4) : Color.green.opacity(0.4))
-                        .frame(width: cellSize * 0.4, height: cellSize * 0.4)
-                        .position(
-                            x: CGFloat(pos.col) * cellSize + cellSize / 2 + 8,
-                            y: CGFloat(pos.row) * cellSize + cellSize / 2 + 8
-                        )
-                }
+                ChessBoardCanvas(
+                    board: viewModel.board,
+                    boardSize: boardSize,
+                    selectedPosition: selectedPosition,
+                    legalMoves: legalMovesForSelected,
+                    lastMove: nil
+                )
 
                 // 点击手势
                 Color.clear
@@ -253,60 +237,14 @@ struct PuzzlePlayView: View {
                             }
                     )
             }
-            .frame(width: boardSize + 16, height: boardSize * 10 / 9 + 16)
         }
         .frame(maxWidth: 400, maxHeight: 480)
         .aspectRatio(9/10, contentMode: .fit)
     }
 
-    @ViewBuilder
-    private var boardBackground: some View {
-        Rectangle()
-            .fill(Color(red: 222/255, green: 184/255, blue: 135/255))
-            .overlay(
-                Canvas { context, size in
-                    let w = size.width - 16
-                    let h = size.height - 16
-                    let cellW = w / 8
-                    let cellH = h / 9
-
-                    var path = Path()
-                    // 横线
-                    for row in 0...9 {
-                        let y = CGFloat(row) * cellH + 8
-                        path.move(to: CGPoint(x: 8, y: y))
-                        path.addLine(to: CGPoint(x: w + 8, y: y))
-                    }
-                    // 竖线
-                    for col in 0...8 {
-                        let x = CGFloat(col) * cellW + 8
-                        path.move(to: CGPoint(x: x, y: 8))
-                        if col == 0 || col == 8 {
-                            path.addLine(to: CGPoint(x: x, y: h + 8))
-                        } else {
-                            path.addLine(to: CGPoint(x: x, y: 4 * cellH + 8))
-                            path.move(to: CGPoint(x: x, y: 5 * cellH + 8))
-                            path.addLine(to: CGPoint(x: x, y: h + 8))
-                        }
-                    }
-                    // 九宫对角线
-                    let palaceLines: [(Int, Int, Int, Int)] = [
-                        (3, 0, 5, 2), (5, 0, 3, 2),
-                        (3, 7, 5, 9), (5, 7, 3, 9)
-                    ]
-                    for (c1, r1, c2, r2) in palaceLines {
-                        path.move(to: CGPoint(x: CGFloat(c1) * cellW + 8, y: CGFloat(r1) * cellH + 8))
-                        path.addLine(to: CGPoint(x: CGFloat(c2) * cellW + 8, y: CGFloat(r2) * cellH + 8))
-                    }
-
-                    context.stroke(path, with: .color(.black), lineWidth: 1)
-                }
-            )
-    }
-
     private func handleTap(at point: CGPoint, cellSize: CGFloat) {
-        let col = Int((point.x - 8) / cellSize + 0.5)
-        let row = Int((point.y - 8) / cellSize + 0.5)
+        let col = Int(point.x / cellSize + 0.5)
+        let row = Int(point.y / cellSize + 0.5)
         guard row >= 0, row <= 9, col >= 0, col <= 8 else { return }
         let pos = Position(row: row, col: col)
 

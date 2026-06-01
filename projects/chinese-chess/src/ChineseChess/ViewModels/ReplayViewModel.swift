@@ -9,7 +9,11 @@ class ReplayViewModel {
     var canGoBack: Bool { currentIndex > 0 }
     var canGoForward: Bool { currentIndex < record.moves.count }
     var isAutoPlaying: Bool = false
-    var autoPlaySpeed: Double = 1.0  // 秒/步
+    var autoPlaySpeed: Double = 1.0  // 速度倍率（2.0 = 两倍速）
+
+    private var stepInterval: Double {
+        1.0 / autoPlaySpeed  // 基础 1 秒/步，倍率越高越快
+    }
 
     private var snapshots: [Int: Board] = [:]
     private let snapshotInterval = 20
@@ -74,7 +78,7 @@ class ReplayViewModel {
         autoPlayTask = Task { @MainActor in
             while canGoForward && !Task.isCancelled {
                 goForward()
-                try? await Task.sleep(for: .seconds(autoPlaySpeed))
+                try? await Task.sleep(for: .seconds(stepInterval))
             }
             isAutoPlaying = false
         }

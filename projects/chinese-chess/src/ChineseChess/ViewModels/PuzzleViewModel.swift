@@ -11,6 +11,7 @@ class PuzzleViewModel {
     var hintIndex: Int = 0
     var currentHint: String?
     var isThinking: Bool = false
+    var completionRating: Int = 0  // 通关星级（对比 solution）
 
     private let aiEngine = AIEngine()
 
@@ -90,6 +91,7 @@ class PuzzleViewModel {
         if MoveValidator.isCheckmate(defenderSide, on: board) {
             gameState = .success
             gameMoves[gameMoves.count - 1].isCheckmate = true
+            completionRating = calculateRating()
             recordCompletion()
             return
         }
@@ -193,6 +195,34 @@ class PuzzleViewModel {
     func dismissHint() {
         currentHint = nil
         gameState = .playing
+    }
+
+    // MARK: - 解法验证 & 星级评分
+
+    /// 对比玩家步数与 solution 长度，给出 1-3 星
+    private func calculateRating() -> Int {
+        guard !puzzle.solution.isEmpty else { return 3 }
+        let playerMoveCount = gameMoves.filter { $0.piece.side == playerSide }.count
+        let solutionMoveCount = puzzle.solution.count
+        // 与最优解法对比
+        if playerMoveCount <= solutionMoveCount {
+            return 3  // 完美
+        } else if playerMoveCount <= solutionMoveCount + 2 {
+            return 2  // 不错
+        } else {
+            return 1  // 过关
+        }
+    }
+
+    /// 验证指定步是否匹配 solution 推荐走法
+    func isRecommendedMove(at moveIndex: Int) -> Bool {
+        guard moveIndex < puzzle.solution.count else { return false }
+        guard moveIndex < gameMoves.count else { return false }
+        let move = gameMoves[moveIndex]
+        let fromStr = "\(move.from.col)\(move.from.row)"
+        let toStr = "\(move.to.col)\(move.to.row)"
+        let moveStr = "\(fromStr)-\(toStr)"
+        return puzzle.solution[moveIndex] == moveStr
     }
 
     // MARK: - 进度记录

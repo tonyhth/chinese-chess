@@ -293,4 +293,34 @@ class GameViewModel {
             StatsManager.shared.recordPVPGame(draw: isDraw)
         }
     }
+
+    // MARK: - 对局回放
+
+    /// 生成当前对局的回放记录
+    func buildGameRecord() -> GameRecord? {
+        guard !gameMoves.isEmpty else { return nil }
+        return GameRecord(
+            id: UUID(),
+            title: "\(gameMode == .singlePlayer ? "人机对局" : "人人对局") \(formatShortDate())",
+            date: Date(),
+            redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
+            blackPlayer: PlayerInfo(
+                name: gameMode == .singlePlayer ? "AI-\(difficulty.rawValue)" : "黑方",
+                isAI: gameMode == .singlePlayer,
+                difficulty: gameMode == .singlePlayer ? difficulty : nil
+            ),
+            difficulty: gameMode == .singlePlayer ? difficulty : nil,
+            gameMode: gameMode,
+            result: gameState,
+            totalMoves: gameMoves.count,
+            moves: gameMoves,
+            initialFEN: nil
+        )
+    }
+
+    private func formatShortDate() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "MM-dd HH:mm"
+        return f.string(from: Date())
+    }
 }
