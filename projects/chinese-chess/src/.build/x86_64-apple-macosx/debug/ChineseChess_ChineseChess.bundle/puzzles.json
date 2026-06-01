@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "puzzles": [
     {
       "id": "puzzle_001",
@@ -10,8 +10,14 @@
       "description": "红先胜。车在底线有更大活动空间。",
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": ["e1e2", "e8d8", "e2e5"],
-      "hints": ["车在底线有更大活动空间"],
+      "solution": [
+        "e1e2",
+        "e8d8",
+        "e2e5"
+      ],
+      "hints": [
+        "车在底线有更大活动空间"
+      ],
       "maxMoves": 10
     },
     {
@@ -23,8 +29,12 @@
       "description": "红先胜。单车破双象。",
       "playerSide": "red",
       "initialFEN": "4kab2/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": ["e1e2"],
-      "hints": ["先将军再抓象"],
+      "solution": [
+        "e1e2"
+      ],
+      "hints": [
+        "先将军再抓象"
+      ],
       "maxMoves": 15
     },
     {
@@ -36,8 +46,14 @@
       "description": "红先胜。双车交错将军。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/9/4R4/4R4/4K4 w - - 0 1",
-      "solution": ["e1e2", "e8d8", "e2d2"],
-      "hints": ["双车交替将军"],
+      "solution": [
+        "e1e2",
+        "e8d8",
+        "e2d2"
+      ],
+      "hints": [
+        "双车交替将军"
+      ],
       "maxMoves": 8
     },
     {
@@ -49,8 +65,12 @@
       "description": "红先胜。马控制将路，炮在马后将军。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/4N4/9/9/9/4C4/9/9/4K4 w - - 0 1",
-      "solution": ["c1e3"],
-      "hints": ["马在将前，炮在马后"],
+      "solution": [
+        "c1e3"
+      ],
+      "hints": [
+        "马在将前，炮在马后"
+      ],
       "maxMoves": 5
     },
     {
@@ -62,8 +82,12 @@
       "description": "红先胜。双炮叠将。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/4C4/9/4C4/9/9/4K4 w - - 0 1",
-      "solution": ["c2c5"],
-      "hints": ["前炮将军，后炮架炮"],
+      "solution": [
+        "c2c5"
+      ],
+      "hints": [
+        "前炮将军，后炮架炮"
+      ],
       "maxMoves": 3
     },
     {
@@ -75,8 +99,12 @@
       "description": "红先胜。车在将正前方无阻挡。",
       "playerSide": "red",
       "initialFEN": "4k4/9/9/9/4R4/9/9/9/9/4K4 w - - 0 1",
-      "solution": ["e5e1"],
-      "hints": ["车在正前方直接将军"],
+      "solution": [
+        "e5e1"
+      ],
+      "hints": [
+        "车在正前方直接将军"
+      ],
       "maxMoves": 3
     },
     {
@@ -88,8 +116,14 @@
       "description": "红先胜。双马配合将杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/8N/4N4/9/4K4 w - - 0 1",
-      "solution": ["e2d4", "e8d8", "d4f3"],
-      "hints": ["双马配合控制九宫"],
+      "solution": [
+        "e2d4",
+        "e8d8",
+        "d4f3"
+      ],
+      "hints": [
+        "双马配合控制九宫"
+      ],
       "maxMoves": 10
     },
     {
@@ -101,8 +135,12 @@
       "description": "红先胜。车马配合冷着制胜。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4N4/4R4/9/4K4 w - - 0 1",
-      "solution": ["e1e2"],
-      "hints": ["马控制将路，车将军"],
+      "solution": [
+        "e1e2"
+      ],
+      "hints": [
+        "马控制将路，车将军"
+      ],
       "maxMoves": 10
     },
     {
@@ -114,8 +152,12 @@
       "description": "红先胜。兵配合其他子力攻杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/4P4/9/4R4/9/9/4K4 w - - 0 1",
-      "solution": ["e1e2"],
-      "hints": ["兵在中心配合车"],
+      "solution": [
+        "e1e2"
+      ],
+      "hints": [
+        "兵在中心配合车"
+      ],
       "maxMoves": 10
     },
     {
@@ -127,9 +169,799 @@
       "description": "红先胜。车在底线将军。",
       "playerSide": "red",
       "initialFEN": "3k5/4a4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": ["e1e0"],
-      "hints": ["车下底将军"],
+      "solution": [
+        "e1e0"
+      ],
+      "hints": [
+        "车下底将军"
+      ],
       "maxMoves": 10
+    },
+    {
+      "id": "puzzle_011",
+      "name": "单车破士",
+      "category": "单车类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。单车借助帅力破士。",
+      "playerSide": "red",
+      "initialFEN": "4k4/3a5/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "e2e9"
+      ],
+      "hints": [
+        "先将军逼将离位再车下底"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_012",
+      "name": "单车巡河",
+      "category": "单车类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。车直入九宫。",
+      "playerSide": "red",
+      "initialFEN": "4k4/9/9/9/9/4R4/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e4e9"
+      ],
+      "hints": [
+        "车直入九宫"
+      ],
+      "maxMoves": 5
+    },
+    {
+      "id": "puzzle_013",
+      "name": "单车逼将",
+      "category": "单车类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。红车配合帅控制中路。",
+      "playerSide": "red",
+      "initialFEN": "3ka4/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e9"
+      ],
+      "hints": [
+        "车直入底线将军"
+      ],
+      "maxMoves": 5
+    },
+    {
+      "id": "puzzle_014",
+      "name": "单车横扫",
+      "category": "单车类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。车横移将军。",
+      "playerSide": "red",
+      "initialFEN": "3k5/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1d1"
+      ],
+      "hints": [
+        "车横移将军"
+      ],
+      "maxMoves": 5
+    },
+    {
+      "id": "puzzle_015",
+      "name": "单车破单象",
+      "category": "单车类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。车破单象。",
+      "playerSide": "red",
+      "initialFEN": "4k4/9/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "e2f2",
+        "d9e9",
+        "f2f6"
+      ],
+      "hints": [
+        "将军逼将离位再抓象"
+      ],
+      "maxMoves": 12
+    },
+    {
+      "id": "puzzle_016",
+      "name": "双车胁士",
+      "category": "双车类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。双车配合破士入局。",
+      "playerSide": "red",
+      "initialFEN": "4k4/3a5/9/9/9/9/9/4R4/4R4/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9f9",
+        "e2e9",
+        "f9g9",
+        "d1d9"
+      ],
+      "hints": [
+        "双车交替将军破士"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_017",
+      "name": "钓鱼马",
+      "category": "马类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。马跳钓鱼位控制九宫。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/4N4/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e3f1",
+        "e9d9",
+        "f1d2"
+      ],
+      "hints": [
+        "马跳钓鱼位控制九宫"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_018",
+      "name": "闷宫炮",
+      "category": "炮类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。炮用士做炮架闷杀。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/4C4/9/9/9/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "c6c9"
+      ],
+      "hints": [
+        "炮用对方士做炮架将军"
+      ],
+      "maxMoves": 5
+    },
+    {
+      "id": "puzzle_019",
+      "name": "马炮争辉",
+      "category": "马炮类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。马炮联合攻杀。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/4C4/4N4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1f3",
+        "e9d9",
+        "c2d2"
+      ],
+      "hints": [
+        "马跳控制将路，炮架炮"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_020",
+      "name": "小兵过河",
+      "category": "兵类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。兵过河逼近九宫。",
+      "playerSide": "red",
+      "initialFEN": "4k4/9/9/9/4P4/9/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e4e3",
+        "e9f9",
+        "e3e2",
+        "f9e9",
+        "e2e1"
+      ],
+      "hints": [
+        "兵逼近九宫"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_021",
+      "name": "车兵联攻",
+      "category": "兵类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。车兵配合攻杀。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/9/4P4/9/4R4/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "e4d4",
+        "d9c9",
+        "e2e9"
+      ],
+      "hints": [
+        "车将军逼将偏，兵控制中路"
+      ],
+      "maxMoves": 12
+    },
+    {
+      "id": "puzzle_022",
+      "name": "车炮抽将",
+      "category": "车炮类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。车炮配合抽将。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/4C4/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "c2d2"
+      ],
+      "hints": [
+        "车将军将躲避后炮将"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_023",
+      "name": "马踏连营",
+      "category": "马类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。马跳控制位将军。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/4N4/9/9/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e5f7",
+        "e9f9",
+        "f7d8"
+      ],
+      "hints": [
+        "马跳到控制位再将军"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_024",
+      "name": "双炮齐轰",
+      "category": "炮类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。双炮配合将杀。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/4C4/9/9/4C4/9/9/4K4 w - - 0 1",
+      "solution": [
+        "c2c5",
+        "e9d9",
+        "c5c9"
+      ],
+      "hints": [
+        "前炮将后炮再叠"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_025",
+      "name": "车底兵",
+      "category": "兵类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。兵到底线配合车。",
+      "playerSide": "red",
+      "initialFEN": "4k4/3aP4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "d7d8"
+      ],
+      "hints": [
+        "车将军将避开，兵再进"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_026",
+      "name": "三进兵",
+      "category": "兵类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。兵连进配合帅。",
+      "playerSide": "red",
+      "initialFEN": "4k4/9/9/9/4P4/9/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e4e3",
+        "e9f9",
+        "e3e2",
+        "f9e9",
+        "e2e1"
+      ],
+      "hints": [
+        "兵一步步逼近"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_027",
+      "name": "卧槽马",
+      "category": "马类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。马跳卧槽位将军。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/9/9/9/9/4N4/9/4K4 w - - 0 1",
+      "solution": [
+        "f1h2",
+        "e9f9",
+        "h2f3"
+      ],
+      "hints": [
+        "马跳卧槽位再回跳"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_028",
+      "name": "挂角马",
+      "category": "马类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。马挂角控制九宫。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/9/9/9/9/4N4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1d3",
+        "e9d9",
+        "d3f2"
+      ],
+      "hints": [
+        "马挂角再跳控制"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_029",
+      "name": "双车横扫",
+      "category": "双车类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。双车横扫底线。",
+      "playerSide": "red",
+      "initialFEN": "4k4/3a5/9/9/9/9/9/4R4/3R5/4K4 w - - 0 1",
+      "solution": [
+        "d1d9",
+        "e9f9",
+        "e1e9"
+      ],
+      "hints": [
+        "一车将军另一车将"
+      ],
+      "maxMoves": 6
+    },
+    {
+      "id": "puzzle_030",
+      "name": "炮打隔山",
+      "category": "炮类",
+      "difficulty": 1,
+      "stars": 1,
+      "description": "红先胜。炮隔子将军。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/9/9/4C4/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "c4c9"
+      ],
+      "hints": [
+        "炮隔士将军"
+      ],
+      "maxMoves": 3
+    },
+    {
+      "id": "puzzle_031",
+      "name": "车马双将",
+      "category": "车马类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。车马配合连续攻杀。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/4N4/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "e2d2",
+        "d9c9",
+        "d2c2"
+      ],
+      "hints": [
+        "车马配合交替将军"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_032",
+      "name": "马后炮绝杀",
+      "category": "马炮类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。马堵将路炮在马后绝杀。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/3aN4/9/9/9/9/4C4/9/9/4K4 w - - 0 1",
+      "solution": [
+        "c2c9"
+      ],
+      "hints": [
+        "炮利用马做炮架直接将杀"
+      ],
+      "maxMoves": 3
+    },
+    {
+      "id": "puzzle_033",
+      "name": "车炮联攻",
+      "category": "车炮类",
+      "difficulty": 2,
+      "stars": 2,
+      "description": "红先胜。车炮配合底线绝杀。",
+      "playerSide": "red",
+      "initialFEN": "4k4/3a5/9/9/9/4C4/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "c4d4",
+        "d9c9",
+        "e2e9"
+      ],
+      "hints": [
+        "车将军炮控制路线"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_034",
+      "name": "闷杀",
+      "category": "闷宫类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。将门被堵无法逃脱。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/3Na4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2"
+      ],
+      "hints": [
+        "马堵住将路车将军即杀"
+      ],
+      "maxMoves": 3
+    },
+    {
+      "id": "puzzle_035",
+      "name": "双马盘宫",
+      "category": "马类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。双马盘绕九宫将杀。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/3N5/5N3/9/9/4K4 w - - 0 1",
+      "solution": [
+        "d3f2",
+        "e9d9",
+        "f2e4",
+        "d9e9",
+        "e4d6"
+      ],
+      "hints": [
+        "双马交替跳控制九宫"
+      ],
+      "maxMoves": 12
+    },
+    {
+      "id": "puzzle_036",
+      "name": "侧面虎",
+      "category": "车马类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。车马配合侧面攻杀。",
+      "playerSide": "red",
+      "initialFEN": "4k4/3Na4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "d7b6"
+      ],
+      "hints": [
+        "车将军马跳侧面"
+      ],
+      "maxMoves": 8
+    },
+    {
+      "id": "puzzle_037",
+      "name": "车塞象眼",
+      "category": "车类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。车塞象眼再横扫。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4ab3/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "e2c2",
+        "d9e9",
+        "c2c9"
+      ],
+      "hints": [
+        "车塞象眼再横扫底线"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_038",
+      "name": "八角马",
+      "category": "马类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。马跳八角位控制将。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/9/3N5/9/4K4 w - - 0 1",
+      "solution": [
+        "d1b2",
+        "e9d9",
+        "b2c4",
+        "d9e9",
+        "c4d6"
+      ],
+      "hints": [
+        "马跳八角控制将路"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_039",
+      "name": "炮镇中",
+      "category": "炮类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。炮镇中路配合帅。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/9/9/9/4C4/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "c4c9",
+        "e9d9",
+        "c9d9"
+      ],
+      "hints": [
+        "炮镇中路将军"
+      ],
+      "maxMoves": 5
+    },
+    {
+      "id": "puzzle_040",
+      "name": "铁滑车",
+      "category": "车类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。车长驱直入。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/9/9/4R4/4K4 w - - 0 1",
+      "solution": [
+        "e1e9"
+      ],
+      "hints": [
+        "车长驱直入将军"
+      ],
+      "maxMoves": 3
+    },
+    {
+      "id": "puzzle_041",
+      "name": "车马冰壶",
+      "category": "车马类",
+      "difficulty": 4,
+      "stars": 4,
+      "description": "红先胜。车马精妙配合将杀。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/3Na4/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "d7f6",
+        "d9e9",
+        "e2d2",
+        "e9f9",
+        "f6d7"
+      ],
+      "hints": [
+        "车马配合步步紧逼"
+      ],
+      "maxMoves": 14
+    },
+    {
+      "id": "puzzle_042",
+      "name": "炮碾丹沙",
+      "category": "炮类",
+      "difficulty": 4,
+      "stars": 4,
+      "description": "红先胜。双炮碾压入局。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/3Ca4/4b4/9/9/4C4/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e4e9",
+        "d9e9",
+        "c7e7",
+        "e9d9",
+        "e7d7"
+      ],
+      "hints": [
+        "双炮配合步步紧逼"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_043",
+      "name": "车炮死门",
+      "category": "车炮类",
+      "difficulty": 4,
+      "stars": 4,
+      "description": "红先胜。车炮封死将门。",
+      "playerSide": "red",
+      "initialFEN": "4k4/4a4/3Cb4/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "c6d6",
+        "d9c9",
+        "e2e9"
+      ],
+      "hints": [
+        "车炮封锁所有退路"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_044",
+      "name": "大刀剜心",
+      "category": "车类",
+      "difficulty": 3,
+      "stars": 3,
+      "description": "红先胜。车从正面强攻破防。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/3Pa4/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
+      "solution": [
+        "e1e2",
+        "e9d9",
+        "d7d8",
+        "d9c9",
+        "e2e9"
+      ],
+      "hints": [
+        "兵破士车将军入局"
+      ],
+      "maxMoves": 10
+    },
+    {
+      "id": "puzzle_045",
+      "name": "天地炮",
+      "category": "炮类",
+      "difficulty": 4,
+      "stars": 4,
+      "description": "红先胜。双炮一上一下夹击。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/4C4/9/4C4/9/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e4e9",
+        "d9e9",
+        "c5c9"
+      ],
+      "hints": [
+        "双炮天地呼应将杀"
+      ],
+      "maxMoves": 6
+    },
+    {
+      "id": "puzzle_046",
+      "name": "七星聚会",
+      "category": "经典排局",
+      "difficulty": 5,
+      "stars": 5,
+      "description": "红先和。著名古谱排局，车兵对车卒。",
+      "playerSide": "red",
+      "initialFEN": "3k5/3P5/9/9/9/9/9/4p4/9/3K4R w - - 0 1",
+      "solution": [
+        "i1i0",
+        "d9e9",
+        "i0d0",
+        "e9f9",
+        "d0f0"
+      ],
+      "hints": [
+        "经典和局排局"
+      ],
+      "maxMoves": 20
+    },
+    {
+      "id": "puzzle_047",
+      "name": "蚯蚓降龙",
+      "category": "经典排局",
+      "difficulty": 5,
+      "stars": 5,
+      "description": "红先和。卒双兵对单车。",
+      "playerSide": "red",
+      "initialFEN": "4k4/9/9/9/9/9/9/9/4p4/3K1R3 w - - 0 1",
+      "solution": [
+        "f1f0",
+        "e2e1",
+        "f0f1",
+        "e1e2"
+      ],
+      "hints": [
+        "车兵对卒的精妙和局"
+      ],
+      "maxMoves": 20
+    },
+    {
+      "id": "puzzle_048",
+      "name": "野马操田",
+      "category": "经典排局",
+      "difficulty": 5,
+      "stars": 5,
+      "description": "红先胜。马连跳八步。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/9/9/3N5/9/4K4 w - - 0 1",
+      "solution": [
+        "d1b2",
+        "e9d9",
+        "b2c4",
+        "d9e9",
+        "c4d6",
+        "e9d9",
+        "d6f7",
+        "d9e9"
+      ],
+      "hints": [
+        "马连跳控制九宫"
+      ],
+      "maxMoves": 16
+    },
+    {
+      "id": "puzzle_049",
+      "name": "千里独行",
+      "category": "经典排局",
+      "difficulty": 5,
+      "stars": 5,
+      "description": "红先胜。车长驱千里入局。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/4b4/9/9/9/9/9/4R4/4K4 w - - 0 1",
+      "solution": [
+        "e1e9",
+        "d9e9",
+        "e9f9"
+      ],
+      "hints": [
+        "车千里奔袭将军"
+      ],
+      "maxMoves": 6
+    },
+    {
+      "id": "puzzle_050",
+      "name": "鸿雁双飞",
+      "category": "经典排局",
+      "difficulty": 5,
+      "stars": 5,
+      "description": "红先胜。双马配合精妙入局。",
+      "playerSide": "red",
+      "initialFEN": "3ak4/4a4/9/9/9/4N4/4N4/9/9/4K4 w - - 0 1",
+      "solution": [
+        "e4d6",
+        "e9d9",
+        "d6f7",
+        "d9e9",
+        "e3d5",
+        "e9d9",
+        "f7d8"
+      ],
+      "hints": [
+        "双马如鸿雁翩飞"
+      ],
+      "maxMoves": 14
     }
   ]
 }

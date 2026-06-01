@@ -30,10 +30,17 @@ struct GameStats: Codable, Equatable {
 final class StatsManager {
     static let shared = StatsManager()
 
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
     private let statsKey = "chinesechess.stats"
 
-    private init() {}
+    private init() {
+        self.defaults = .standard
+    }
+
+    /// 测试用初始化器，允许注入隔离的 UserDefaults
+    init(defaults: UserDefaults) {
+        self.defaults = defaults
+    }
 
     // MARK: - 读取
 
@@ -52,21 +59,27 @@ final class StatsManager {
     func recordWin(for difficulty: AIDifficulty) {
         var s = stats
         let key = difficulty.rawValue
-        s.vsAI[key, default: WinLossDraw()].wins += 1
+        var record = s.vsAI[key, default: WinLossDraw()]
+        record.wins += 1
+        s.vsAI[key] = record
         save(s)
     }
 
     func recordLoss(for difficulty: AIDifficulty) {
         var s = stats
         let key = difficulty.rawValue
-        s.vsAI[key, default: WinLossDraw()].losses += 1
+        var record = s.vsAI[key, default: WinLossDraw()]
+        record.losses += 1
+        s.vsAI[key] = record
         save(s)
     }
 
     func recordDraw(for difficulty: AIDifficulty) {
         var s = stats
         let key = difficulty.rawValue
-        s.vsAI[key, default: WinLossDraw()].draws += 1
+        var record = s.vsAI[key, default: WinLossDraw()]
+        record.draws += 1
+        s.vsAI[key] = record
         save(s)
     }
 

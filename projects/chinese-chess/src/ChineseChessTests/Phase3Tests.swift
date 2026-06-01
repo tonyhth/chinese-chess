@@ -270,10 +270,16 @@ struct NotationGeneratorTests {
 @Suite("StatsManager Tests")
 struct StatsManagerTests {
 
+    /// 每个测试用独立的 UserDefaults，避免并行测试竞争
+    private func makeManager() -> StatsManager {
+        let suiteName = "test.stats.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        return StatsManager(defaults: defaults)
+    }
+
     @Test("初始统计为零")
     func testInitialStats() {
-        let manager = StatsManager.shared
-        manager.reset()
+        let manager = makeManager()
         let stats = manager.stats
         #expect(stats.vsAI.isEmpty)
         #expect(stats.pvp.totalGames == 0)
@@ -281,31 +287,25 @@ struct StatsManagerTests {
 
     @Test("记录人机胜利")
     func testRecordAIWin() {
-        let manager = StatsManager.shared
-        manager.reset()
+        let manager = makeManager()
 
         manager.recordWin(for: .medium)
         let stats = manager.stats
         let medium = stats.vsAI["medium", default: WinLossDraw()]
         #expect(medium.wins == 1)
         #expect(medium.losses == 0)
-
-        // 清理
-        manager.reset()
     }
 
     @Test("记录多局人机")
     func testMultipleAIGames() {
-        let manager = StatsManager.shared
-        manager.reset()
+        let manager = makeManager()
 
-        // 验证重置后为空
+        // 验证初始为空
         let stats0 = manager.stats
         #expect(stats0.vsAI.isEmpty)
 
         manager.recordWin(for: .hard)
 
-        // 重新读取（每次 stats 属性重新从 UserDefaults 读取）
         let stats1 = manager.stats
         let hard1 = stats1.vsAI["hard", default: WinLossDraw()]
         #expect(hard1.wins == 1)
@@ -317,14 +317,11 @@ struct StatsManagerTests {
         let hard2 = stats2.vsAI["hard", default: WinLossDraw()]
         #expect(hard2.wins == 2)
         #expect(hard2.losses == 1)
-
-        manager.reset()
     }
 
     @Test("记录人人对战")
     func testPVPStats() {
-        let manager = StatsManager.shared
-        manager.reset()
+        let manager = makeManager()
 
         manager.recordPVPGame(draw: false)
         manager.recordPVPGame(draw: true)
@@ -332,13 +329,11 @@ struct StatsManagerTests {
         let stats = manager.stats
         #expect(stats.pvp.totalGames == 2)
         #expect(stats.pvp.draws == 1)
-
-        manager.reset()
     }
 
     @Test("重置清空统计")
     func testReset() {
-        let manager = StatsManager.shared
+        let manager = makeManager()
         manager.recordWin(for: .beginner)
         manager.reset()
         let stats = manager.stats

@@ -20,7 +20,7 @@ struct PuzzleStoreTests {
             #expect(!puzzle.id.isEmpty)
             #expect(!puzzle.name.isEmpty)
             #expect(!puzzle.initialFEN.isEmpty)
-            #expect(puzzle.difficulty >= 1 && puzzle.difficulty <= 4)
+            #expect(puzzle.difficulty >= 1 && puzzle.difficulty <= 5)
             #expect(puzzle.maxMoves > 0)
             #expect(puzzle.playerSide == "red" || puzzle.playerSide == "black")
         }
