@@ -10,6 +10,11 @@ struct ChessBoardCanvas: View {
     let lastMove: (from: Position, to: Position)?
     var theme: ThemeColors = ThemeManager.shared.colors
 
+    // 列间距：8 个间隔放 9 条竖线
+    private var cellWidth: CGFloat { boardSize / 8 }
+    // 行间距：9 个间隔放 10 条横线
+    private var cellHeight: CGFloat { (boardSize * 10 / 9) / 9 }
+    // 兼容旧名（棋子大小等）
     private var cellSize: CGFloat { boardSize / 9 }
 
     var body: some View {
@@ -116,8 +121,8 @@ struct ChessBoardCanvas: View {
 
     private func posToCGPoint(_ pos: Position) -> CGPoint {
         CGPoint(
-            x: CGFloat(pos.col) * cellSize + cellSize / 2,
-            y: CGFloat(pos.row) * cellSize + cellSize / 2
+            x: CGFloat(pos.col) * cellWidth,
+            y: CGFloat(pos.row) * cellHeight
         )
     }
 }

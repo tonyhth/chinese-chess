@@ -3,7 +3,6 @@ import SwiftUI
 struct PuzzleSelectView: View {
     @State private var selectedCategory: String?
     @State private var selectedPuzzle: Puzzle?
-    @State private var showPuzzle = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -32,7 +31,6 @@ struct PuzzleSelectView: View {
                     ForEach(list) { puzzle in
                         PuzzleRow(puzzle: puzzle, progress: PuzzleStore.shared.progress(for: puzzle.id)) {
                             selectedPuzzle = puzzle
-                            showPuzzle = true
                         }
                     }
                 }
@@ -41,10 +39,8 @@ struct PuzzleSelectView: View {
         .padding(12)
         .background(Color(red: 40/255, green: 22/255, blue: 14/255))
         .cornerRadius(8)
-        .sheet(isPresented: $showPuzzle) {
-            if let puzzle = selectedPuzzle {
-                PuzzlePlayView(puzzle: puzzle)
-            }
+        .sheet(item: $selectedPuzzle) { puzzle in
+            PuzzlePlayView(puzzle: puzzle)
         }
     }
 
@@ -251,8 +247,12 @@ struct PuzzlePlayView: View {
     }
 
     private func handleTap(at point: CGPoint, cellSize: CGFloat) {
-        let col = Int(point.x / cellSize + 0.5)
-        let row = Int(point.y / cellSize + 0.5)
+        // 棋盘列间距 boardSize/8，行间距 boardHeight/9
+        let boardHeight = cellSize * 10
+        let cellW = (cellSize * 9) / 8   // boardSize / 8
+        let cellH = boardHeight / 9
+        let col = Int(point.x / cellW + 0.5)
+        let row = Int(point.y / cellH + 0.5)
         guard row >= 0, row <= 9, col >= 0, col <= 8 else { return }
         let pos = Position(row: row, col: col)
 
