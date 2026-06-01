@@ -5,6 +5,7 @@ struct ChineseChessApp: App {
     @State private var viewModel = GameViewModel()
     @State private var showStats = false
     @State private var showRecord = false
+    @State private var showPuzzles = false
 
     var body: some Scene {
         WindowGroup {
@@ -31,6 +32,12 @@ struct ChineseChessApp: App {
 
                         Button(action: { showStats.toggle() }) {
                             Label("统计", systemImage: "chart.bar")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+
+                        Button(action: { showPuzzles.toggle() }) {
+                            Label("残局", systemImage: "puzzlepiece")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
@@ -72,6 +79,10 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 600, minHeight: 720)
             .preferredColorScheme(.dark)
+            .sheet(isPresented: $showPuzzles) {
+                PuzzleSelectView()
+                    .frame(minWidth: 400, minHeight: 500)
+            }
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
