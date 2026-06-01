@@ -3,6 +3,8 @@ import SwiftUI
 @main
 struct ChineseChessApp: App {
     @State private var viewModel = GameViewModel()
+    @State private var showStats = false
+    @State private var showRecord = false
 
     var body: some Scene {
         WindowGroup {
@@ -18,6 +20,25 @@ struct ChineseChessApp: App {
                         .padding()
 
                     StatusBarView(viewModel: viewModel)
+
+                    // 底部操作栏
+                    HStack(spacing: 12) {
+                        Button(action: { showRecord.toggle() }) {
+                            Label("棋谱", systemImage: "doc.text")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+
+                        Button(action: { showStats.toggle() }) {
+                            Label("统计", systemImage: "chart.bar")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
                 }
 
                 // 游戏结束弹窗
@@ -25,6 +46,28 @@ struct ChineseChessApp: App {
                     GameOverOverlay(gameState: viewModel.gameState) {
                         viewModel.newGame()
                     }
+                }
+
+                // 棋谱面板
+                if showRecord {
+                    VStack {
+                        Spacer()
+                        RecordPanelView(gameMoves: viewModel.gameMoves)
+                            .frame(maxWidth: 300, maxHeight: 300)
+                            .padding()
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+
+                // 统计面板
+                if showStats {
+                    VStack {
+                        Spacer()
+                        StatsPanelView()
+                            .frame(maxWidth: 300)
+                            .padding()
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .frame(minWidth: 600, minHeight: 720)

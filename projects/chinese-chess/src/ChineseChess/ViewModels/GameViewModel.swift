@@ -9,12 +9,16 @@ class GameViewModel {
     var gameState: GameState = .playing
     var isThinking: Bool = false
     var difficulty: AIDifficulty = .medium
+    var gameMode: GameMode = .singlePlayer
     var moveHistory: [Move] {
         board.moveHistory
     }
     var currentTurn: Side {
         board.currentTurn
     }
+
+    // Phase 3: 走法记录（含棋谱）
+    var gameMoves: [GameMove] = []
 
     private let aiEngine = AIEngine()
 
@@ -26,14 +30,30 @@ class GameViewModel {
 
     func selectPiece(at pos: Position) {
         guard !isThinking, gameState == .playing else { return }
-        guard board.currentTurn == .red else { return }
+
+        // 人机模式只允许红方操作
+        if gameMode == .singlePlayer && board.currentTurn != .red { return }
 
         if let selected = selectedPosition, legalMovesForSelected.contains(pos) {
             movePiece(from: selected, to: pos)
             return
         }
 
-        guard let piece = board.piece(at: pos), piece.side == .red else {
+        // 人机模式只能选红方棋子
+        guard let piece = board.piece(at: pos) else {
+            selectedPosition = nil
+            legalMovesForSelected = []
+            return
+        }
+
+        if gameMode == .singlePlayer && piece.side != .red {
+            selectedPosition = nil
+            legalMovesForSelected = []
+            return
+        }
+
+        // 人人对战模式可以选双方棋子
+        if gameMode == .localPVP && piece.side != board.currentTurn {
             selectedPosition = nil
             legalMovesForSelected = []
             return
@@ -46,17 +66,55 @@ class GameViewModel {
 
     func movePiece(from: Position, to: Position) {
         guard !isThinking, gameState == .playing else { return }
-        guard let piece = board.piece(at: from), piece.side == .red else { return }
+
+        let piece: Piece? = board.piece(at: from)
+        guard let piece = piece else { return }
+
+        // 人机模式只允许红方走棋
+        if gameMode == .singlePlayer && piece.side != .red { return }
+        // 人人对战只允许当前方走棋
+        if gameMode == .localPVP && piece.side != board.currentTurn { return }
 
         let captured = board.piece(at: to)
         let move = Move(piece: piece, from: from, to: to, captured: captured)
 
         guard MoveValidator.isLegal(move, on: board) else { return }
 
+        // Phase 3: 生成棋谱（在 execute 之前，需要走前的 board 状态）
+        let notation = NotationGenerator.notation(for: move, on: board)
+
         board.execute(move)
 
+        // Phase 3: 记录 GameMove
+        let turnNumber = (gameMoves.count / 2) + 1
+        let isCheck: Bool
+        let opponent = (piece.side == .red) ? Side.black : Side.red
+        if board.currentTurn == opponent {
+            isCheck = MoveValidator.isInCheck(opponent, on: board)
+        } else {
+            isCheck = false
+        }
+
+        let gameMove = GameMove(
+            id: UUID(),
+            piece: piece,
+            from: from,
+            to: to,
+            captured: captured,
+            turnNumber: turnNumber,
+            notation: notation,
+            timestamp: Date(),
+            isCheck: isCheck,
+            isCheckmate: false   // 将在 checkGameState 后更新
+        )
+        gameMoves.append(gameMove)
+
         if let captured = captured {
-            capturedPieces.red.append(captured)
+            if piece.side == .red {
+                capturedPieces.red.append(captured)
+            } else {
+                capturedPieces.black.append(captured)
+            }
             SoundEngine.shared.playCapture()
         } else {
             SoundEngine.shared.playMove()
@@ -67,7 +125,29 @@ class GameViewModel {
 
         checkGameState()
 
-        if gameState == .playing {
+        // 更新最后一步的 isCheckmate 标记
+        if gameState != .playing, var lastMove = gameMoves.last {
+            lastMove = GameMove(
+                id: lastMove.id,
+                piece: lastMove.piece,
+                from: lastMove.from,
+                to: lastMove.to,
+                captured: lastMove.captured,
+                turnNumber: lastMove.turnNumber,
+                notation: lastMove.notation,
+                timestamp: lastMove.timestamp,
+                isCheck: lastMove.isCheck,
+                isCheckmate: true
+            )
+            gameMoves[gameMoves.count - 1] = lastMove
+        }
+
+        // Phase 3: 记录统计
+        if gameState != .playing {
+            recordGameResult()
+        }
+
+        if gameState == .playing && gameMode == .singlePlayer {
             triggerAIMove()
         }
     }
@@ -75,15 +155,25 @@ class GameViewModel {
     // R2: undoMove 用 board.moveHistory 的 captured 精确匹配
     func undoMove() {
         guard !isThinking, gameState == .playing else { return }
-        guard board.moveHistory.count >= 2 else { return }
 
-        // 撤销 AI 的走法（黑方）
-        if let aiMove = board.undoLastMove() {
-            removeCapturedRecord(for: aiMove)
-        }
-        // 撤销玩家的走法（红方）
-        if let playerMove = board.undoLastMove() {
-            removeCapturedRecord(for: playerMove)
+        if gameMode == .singlePlayer {
+            // 人机模式：撤销一对（玩家+AI）
+            guard board.moveHistory.count >= 2 else { return }
+            if let aiMove = board.undoLastMove() {
+                removeCapturedRecord(for: aiMove)
+                if !gameMoves.isEmpty { gameMoves.removeLast() }
+            }
+            if let playerMove = board.undoLastMove() {
+                removeCapturedRecord(for: playerMove)
+                if !gameMoves.isEmpty { gameMoves.removeLast() }
+            }
+        } else {
+            // 人人对战：只撤销一步
+            guard board.moveHistory.count >= 1 else { return }
+            if let move = board.undoLastMove() {
+                removeCapturedRecord(for: move)
+                if !gameMoves.isEmpty { gameMoves.removeLast() }
+            }
         }
 
         selectedPosition = nil
@@ -112,10 +202,17 @@ class GameViewModel {
         legalMovesForSelected = []
         capturedPieces = (red: [], black: [])
         gameState = .playing
+        gameMoves = []
     }
 
     func setDifficulty(_ diff: AIDifficulty) {
         difficulty = diff
+    }
+
+    func setGameMode(_ mode: GameMode) {
+        guard !isThinking else { return }
+        gameMode = mode
+        newGame()
     }
 
     // MARK: - AI
@@ -125,7 +222,7 @@ class GameViewModel {
         let snapshot = board.snapshot()
         let currentDifficulty = difficulty
 
-        let engine = self.aiEngine  // 捕获成员变量（struct 值拷贝）
+        let engine = self.aiEngine
         Task.detached {
             let move = engine.bestMove(for: snapshot, difficulty: currentDifficulty)
             await MainActor.run { [weak self] in
@@ -134,8 +231,30 @@ class GameViewModel {
                     let mainPiece = self.board.pieces.first { $0.id == move.piece.id }
                     if let mainPiece = mainPiece {
                         let captured = self.board.piece(at: move.to)
-                        let mainMove = Move(piece: mainPiece, from: mainPiece.position, to: move.to, captured: captured)
-                        self.board.execute(mainMove)
+
+                        // 生成棋谱（execute 之前）
+                        let aiMove = Move(piece: mainPiece, from: mainPiece.position, to: move.to, captured: captured)
+                        let notation = NotationGenerator.notation(for: aiMove, on: self.board)
+
+                        self.board.execute(aiMove)
+
+                        // 记录 AI 的 GameMove
+                        let turnNumber = (self.gameMoves.count / 2) + 1
+                        let isCheck = MoveValidator.isInCheck(.red, on: self.board)
+
+                        let gameMove = GameMove(
+                            id: UUID(),
+                            piece: mainPiece,
+                            from: aiMove.from,
+                            to: aiMove.to,
+                            captured: captured,
+                            turnNumber: turnNumber,
+                            notation: notation,
+                            timestamp: Date(),
+                            isCheck: isCheck,
+                            isCheckmate: false
+                        )
+                        self.gameMoves.append(gameMove)
 
                         if let captured = captured {
                             self.capturedPieces.black.append(captured)
@@ -147,6 +266,27 @@ class GameViewModel {
                 }
                 self.isThinking = false
                 self.checkGameState()
+
+                // 更新最后一步 isCheckmate
+                if self.gameState != .playing, var lastMove = self.gameMoves.last {
+                    lastMove = GameMove(
+                        id: lastMove.id,
+                        piece: lastMove.piece,
+                        from: lastMove.from,
+                        to: lastMove.to,
+                        captured: lastMove.captured,
+                        turnNumber: lastMove.turnNumber,
+                        notation: lastMove.notation,
+                        timestamp: lastMove.timestamp,
+                        isCheck: lastMove.isCheck,
+                        isCheckmate: true
+                    )
+                    self.gameMoves[self.gameMoves.count - 1] = lastMove
+                }
+
+                if self.gameState != .playing {
+                    self.recordGameResult()
+                }
             }
         }
     }
@@ -159,6 +299,27 @@ class GameViewModel {
             gameState = (currentSide == .red) ? .blackWon : .redWon
         } else if MoveValidator.isStalemate(currentSide, on: board) {
             gameState = .draw
+        }
+    }
+
+    // MARK: - 统计记录
+
+    private func recordGameResult() {
+        switch gameMode {
+        case .singlePlayer:
+            switch gameState {
+            case .redWon:
+                StatsManager.shared.recordWin(for: difficulty)
+            case .blackWon:
+                StatsManager.shared.recordLoss(for: difficulty)
+            case .draw:
+                StatsManager.shared.recordDraw(for: difficulty)
+            case .playing:
+                break
+            }
+        case .localPVP:
+            let isDraw = (gameState == .draw)
+            StatsManager.shared.recordPVPGame(draw: isDraw)
         }
     }
 }
