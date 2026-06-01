@@ -11,7 +11,7 @@
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e8d8",
         "e2e5"
       ],
@@ -30,7 +30,7 @@
       "playerSide": "red",
       "initialFEN": "4kab2/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2"
+        "e2e2"
       ],
       "hints": [
         "先将军再抓象"
@@ -66,7 +66,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/4N4/9/9/9/4C4/9/9/4K4 w - - 0 1",
       "solution": [
-        "c1e3"
+        "e3e3"
       ],
       "hints": [
         "马在将前，炮在马后"
@@ -83,7 +83,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/4C4/9/4C4/9/9/4K4 w - - 0 1",
       "solution": [
-        "c2c5"
+        "e5c5"
       ],
       "hints": [
         "前炮将军，后炮架炮"
@@ -136,7 +136,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4N4/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2"
+        "e2e2"
       ],
       "hints": [
         "马控制将路，车将军"
@@ -153,7 +153,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/4P4/9/4R4/9/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2"
+        "e3e2"
       ],
       "hints": [
         "兵在中心配合车"
@@ -170,7 +170,7 @@
       "playerSide": "red",
       "initialFEN": "3k5/4a4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e0"
+        "e2e0"
       ],
       "hints": [
         "车下底将军"
@@ -187,7 +187,7 @@
       "playerSide": "red",
       "initialFEN": "4k4/3a5/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
         "e2e9"
       ],
@@ -223,7 +223,7 @@
       "playerSide": "red",
       "initialFEN": "3ka4/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e9"
+        "e2e9"
       ],
       "hints": [
         "车直入底线将军"
@@ -240,7 +240,9 @@
       "playerSide": "red",
       "initialFEN": "3k5/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1d1"
+        "e2d2",
+        "d9c9",
+        "d2d9"
       ],
       "hints": [
         "车横移将军"
@@ -257,7 +259,7 @@
       "playerSide": "red",
       "initialFEN": "4k4/9/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
         "e2f2",
         "d9e9",
@@ -282,7 +284,7 @@
         "e9f9",
         "e2e9",
         "f9g9",
-        "d1d9"
+        "e9d9"
       ],
       "hints": [
         "双车交替将军破士"
@@ -317,9 +319,7 @@
       "description": "红先胜。炮用士做炮架闷杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/4C4/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c6c9"
-      ],
+      "solution": [],
       "hints": [
         "炮用对方士做炮架将军"
       ],
@@ -334,11 +334,7 @@
       "description": "红先胜。马炮联合攻杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4C4/4N4/9/4K4 w - - 0 1",
-      "solution": [
-        "e1f3",
-        "e9d9",
-        "c2d2"
-      ],
+      "solution": [],
       "hints": [
         "马跳控制将路，炮架炮"
       ],
@@ -354,11 +350,13 @@
       "playerSide": "red",
       "initialFEN": "4k4/9/9/9/4P4/9/9/9/9/4K4 w - - 0 1",
       "solution": [
+        "e5e4",
+        "e9d9",
         "e4e3",
-        "e9f9",
+        "d9e9",
         "e3e2",
-        "f9e9",
-        "e2e1"
+        "e9d9",
+        "e2d2"
       ],
       "hints": [
         "兵逼近九宫"
@@ -375,11 +373,11 @@
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/4P4/9/4R4/9/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e3d3",
         "e9d9",
-        "e4d4",
+        "e5d5",
         "d9c9",
-        "e2e9"
+        "d3d9"
       ],
       "hints": [
         "车将军逼将偏，兵控制中路"
@@ -396,9 +394,9 @@
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4C4/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
-        "c2d2"
+        "e2d2"
       ],
       "hints": [
         "车将军将躲避后炮将"
@@ -415,9 +413,9 @@
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/4N4/9/9/9/9/9/4K4 w - - 0 1",
       "solution": [
-        "e5f7",
-        "e9f9",
-        "f7d8"
+        "e6d8",
+        "e9d9",
+        "d8f9"
       ],
       "hints": [
         "马跳到控制位再将军"
@@ -434,9 +432,7 @@
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/4C4/9/9/4C4/9/9/4K4 w - - 0 1",
       "solution": [
-        "c2c5",
-        "e9d9",
-        "c5c9"
+        "e6e9"
       ],
       "hints": [
         "前炮将后炮再叠"
@@ -453,9 +449,9 @@
       "playerSide": "red",
       "initialFEN": "4k4/3aP4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
-        "d7d8"
+        "e8d8"
       ],
       "hints": [
         "车将军将避开，兵再进"
@@ -472,11 +468,13 @@
       "playerSide": "red",
       "initialFEN": "4k4/9/9/9/4P4/9/9/9/9/4K4 w - - 0 1",
       "solution": [
-        "e4e3",
+        "e5e4",
         "e9f9",
-        "e3e2",
+        "e4e3",
         "f9e9",
-        "e2e1"
+        "e3e2",
+        "e9d9",
+        "e2d2"
       ],
       "hints": [
         "兵一步步逼近"
@@ -492,11 +490,7 @@
       "description": "红先胜。马跳卧槽位将军。",
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/9/9/4N4/9/4K4 w - - 0 1",
-      "solution": [
-        "f1h2",
-        "e9f9",
-        "h2f3"
-      ],
+      "solution": [],
       "hints": [
         "马跳卧槽位再回跳"
       ],
@@ -511,11 +505,7 @@
       "description": "红先胜。马挂角控制九宫。",
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/9/9/4N4/9/4K4 w - - 0 1",
-      "solution": [
-        "e1d3",
-        "e9d9",
-        "d3f2"
-      ],
+      "solution": [],
       "hints": [
         "马挂角再跳控制"
       ],
@@ -533,7 +523,7 @@
       "solution": [
         "d1d9",
         "e9f9",
-        "e1e9"
+        "e2e9"
       ],
       "hints": [
         "一车将军另一车将"
@@ -550,7 +540,7 @@
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/4C4/9/9/9/4K4 w - - 0 1",
       "solution": [
-        "c4c9"
+        "e4e9"
       ],
       "hints": [
         "炮隔士将军"
@@ -567,7 +557,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/4N4/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
         "e2d2",
         "d9c9",
@@ -588,7 +578,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/3aN4/9/9/9/9/4C4/9/9/4K4 w - - 0 1",
       "solution": [
-        "c2c9"
+        "e8c9"
       ],
       "hints": [
         "炮利用马做炮架直接将杀"
@@ -605,9 +595,9 @@
       "playerSide": "red",
       "initialFEN": "4k4/3a5/9/9/9/4C4/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
-        "c4d4",
+        "e4d4",
         "d9c9",
         "e2e9"
       ],
@@ -626,7 +616,7 @@
       "playerSide": "red",
       "initialFEN": "3ak4/3Na4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2"
+        "e2e2"
       ],
       "hints": [
         "马堵住将路车将军即杀"
@@ -642,13 +632,7 @@
       "description": "红先胜。双马盘绕九宫将杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/3N5/5N3/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d3f2",
-        "e9d9",
-        "f2e4",
-        "d9e9",
-        "e4d6"
-      ],
+      "solution": [],
       "hints": [
         "双马交替跳控制九宫"
       ],
@@ -663,11 +647,7 @@
       "description": "红先胜。车马配合侧面攻杀。",
       "playerSide": "red",
       "initialFEN": "4k4/3Na4/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e1e2",
-        "e9d9",
-        "d7b6"
-      ],
+      "solution": [],
       "hints": [
         "车将军马跳侧面"
       ],
@@ -683,7 +663,7 @@
       "playerSide": "red",
       "initialFEN": "4k4/4ab3/9/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
         "e2c2",
         "d9e9",
@@ -703,13 +683,7 @@
       "description": "红先胜。马跳八角位控制将。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/9/3N5/9/4K4 w - - 0 1",
-      "solution": [
-        "d1b2",
-        "e9d9",
-        "b2c4",
-        "d9e9",
-        "c4d6"
-      ],
+      "solution": [],
       "hints": [
         "马跳八角控制将路"
       ],
@@ -724,11 +698,7 @@
       "description": "红先胜。炮镇中路配合帅。",
       "playerSide": "red",
       "initialFEN": "4k4/4a4/9/9/9/4C4/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c4c9",
-        "e9d9",
-        "c9d9"
-      ],
+      "solution": [],
       "hints": [
         "炮镇中路将军"
       ],
@@ -760,15 +730,7 @@
       "description": "红先胜。车马精妙配合将杀。",
       "playerSide": "red",
       "initialFEN": "3ak4/3Na4/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e1e2",
-        "e9d9",
-        "d7f6",
-        "d9e9",
-        "e2d2",
-        "e9f9",
-        "f6d7"
-      ],
+      "solution": [],
       "hints": [
         "车马配合步步紧逼"
       ],
@@ -783,13 +745,7 @@
       "description": "红先胜。双炮碾压入局。",
       "playerSide": "red",
       "initialFEN": "3ak4/3Ca4/4b4/9/9/4C4/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e4e9",
-        "d9e9",
-        "c7e7",
-        "e9d9",
-        "e7d7"
-      ],
+      "solution": [],
       "hints": [
         "双炮配合步步紧逼"
       ],
@@ -805,9 +761,9 @@
       "playerSide": "red",
       "initialFEN": "4k4/4a4/3Cb4/9/9/9/9/4R4/9/4K4 w - - 0 1",
       "solution": [
-        "e1e2",
+        "e2e2",
         "e9d9",
-        "c6d6",
+        "d7d6",
         "d9c9",
         "e2e9"
       ],
@@ -825,13 +781,7 @@
       "description": "红先胜。车从正面强攻破防。",
       "playerSide": "red",
       "initialFEN": "3ak4/3Pa4/4b4/9/9/9/9/4R4/9/4K4 w - - 0 1",
-      "solution": [
-        "e1e2",
-        "e9d9",
-        "d7d8",
-        "d9c9",
-        "e2e9"
-      ],
+      "solution": [],
       "hints": [
         "兵破士车将军入局"
       ],
@@ -846,11 +796,7 @@
       "description": "红先胜。双炮一上一下夹击。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/4C4/9/4C4/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e4e9",
-        "d9e9",
-        "c5c9"
-      ],
+      "solution": [],
       "hints": [
         "双炮天地呼应将杀"
       ],
@@ -866,7 +812,7 @@
       "playerSide": "red",
       "initialFEN": "3k5/3P5/9/9/9/9/9/4p4/9/3K4R w - - 0 1",
       "solution": [
-        "i1i0",
+        "i0i0",
         "d9e9",
         "i0d0",
         "e9f9",
@@ -886,12 +832,7 @@
       "description": "红先和。卒双兵对单车。",
       "playerSide": "red",
       "initialFEN": "4k4/9/9/9/9/9/9/9/4p4/3K1R3 w - - 0 1",
-      "solution": [
-        "f1f0",
-        "e2e1",
-        "f0f1",
-        "e1e2"
-      ],
+      "solution": [],
       "hints": [
         "车兵对卒的精妙和局"
       ],
@@ -906,16 +847,7 @@
       "description": "红先胜。马连跳八步。",
       "playerSide": "red",
       "initialFEN": "3ak4/4a4/9/9/9/9/9/3N5/9/4K4 w - - 0 1",
-      "solution": [
-        "d1b2",
-        "e9d9",
-        "b2c4",
-        "d9e9",
-        "c4d6",
-        "e9d9",
-        "d6f7",
-        "d9e9"
-      ],
+      "solution": [],
       "hints": [
         "马连跳控制九宫"
       ],

@@ -241,6 +241,47 @@ struct PuzzleFENIntegrationTests {
         }
     }
 
+    @Test("每个残局 solution ICCS 坐标匹配 FEN 棋子位置")
+    func testSolutionMatchesFEN() {
+        let store = PuzzleStore.shared
+        for puzzle in store.puzzles {
+            guard !puzzle.solution.isEmpty else { continue }  // 空solution跳过
+            guard let board = FENParser.parse(fen: puzzle.initialFEN) else {
+                #expect(Bool(false), "Puzzle \(puzzle.id): FEN parse failed")
+                continue
+            }
+            
+            // Build piece position map
+            var positions: [String: Piece] = [:]
+            for piece in board.pieces {
+                positions["\(piece.position.row),\(piece.position.col)"] = piece
+            }
+            
+            for (idx, move) in puzzle.solution.enumerated() {
+                guard move.count == 4 else {
+                    #expect(Bool(false), "Puzzle \(puzzle.id) move[\(idx)] invalid format: \(move)")
+                    break
+                }
+                let chars = Array(move)
+                let fromCol = Int(chars[0].asciiValue! - Character("a").asciiValue!)
+                let fromRow = 9 - Int(String(chars[1]))!
+                let toCol = Int(chars[2].asciiValue! - Character("a").asciiValue!)
+                let toRow = 9 - Int(String(chars[3]))!
+                
+                let fromKey = "\(fromRow),\(fromCol)"
+                guard let piece = positions[fromKey] else {
+                    #expect(Bool(false), "Puzzle \(puzzle.id) move[\(idx)] \(move): no piece at (\(fromRow),\(fromCol))")
+                    break
+                }
+                // Update position tracking
+                positions.removeValue(forKey: fromKey)
+                let toKey = "\(toRow),\(toCol)"
+                positions.removeValue(forKey: toKey)  // captured
+                positions[toKey] = piece
+            }
+        }
+    }
+
     @Test("FEN roundtrip：解析→序列化→再解析")
     func testFENRoundtrip() {
         let store = PuzzleStore.shared
