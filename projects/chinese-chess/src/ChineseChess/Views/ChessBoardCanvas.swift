@@ -1,13 +1,14 @@
 import SwiftUI
 
 /// 共享棋盘渲染组件——画线 + 棋子 + 选中/合法走法高亮
-/// BoardView 和 PuzzlePlayView 共用，避免重复维护
+/// BoardView、PuzzlePlayView、ReplayView 共用
 struct ChessBoardCanvas: View {
     let board: Board
     let boardSize: CGFloat
     let selectedPosition: Position?
     let legalMoves: [Position]
     let lastMove: (from: Position, to: Position)?
+    var theme: ThemeColors = ThemeManager.shared.colors
 
     private var cellSize: CGFloat { boardSize / 9 }
 
@@ -34,7 +35,8 @@ struct ChessBoardCanvas: View {
                 PieceView(
                     piece: piece,
                     isSelected: selectedPosition == piece.position,
-                    boardSize: CGSize(width: boardSize, height: boardSize * 10 / 9)
+                    boardSize: CGSize(width: boardSize, height: boardSize * 10 / 9),
+                    theme: theme
                 )
                 .frame(width: cellSize * 0.9, height: cellSize * 0.9)
                 .position(posToCGPoint(piece.position))
@@ -48,7 +50,13 @@ struct ChessBoardCanvas: View {
     @ViewBuilder
     private var boardGrid: some View {
         Rectangle()
-            .fill(Color(red: 222/255, green: 184/255, blue: 135/255))
+            .fill(
+                LinearGradient(
+                    colors: theme.boardBackground,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .overlay(
                 Canvas { context, size in
                     let w = size.width
@@ -85,7 +93,7 @@ struct ChessBoardCanvas: View {
                         path.addLine(to: CGPoint(x: CGFloat(c2) * cellW, y: CGFloat(r2) * cellH))
                     }
 
-                    context.stroke(path, with: .color(.black), lineWidth: 1)
+                    context.stroke(path, with: .color(theme.lineColor), lineWidth: 1)
                 }
             )
     }

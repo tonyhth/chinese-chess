@@ -138,6 +138,7 @@ class GameViewModel {
     // R2: undoMove 用 board.moveHistory 的 captured 精确匹配
     func undoMove() {
         guard !isThinking, gameState == .playing else { return }
+        SoundEngine.shared.playUndo()
 
         if gameMode == .singlePlayer {
             // 人机模式：撤销一对（玩家+AI）
@@ -268,8 +269,17 @@ class GameViewModel {
         let currentSide = board.currentTurn
         if MoveValidator.isCheckmate(currentSide, on: board) {
             gameState = (currentSide == .red) ? .blackWon : .redWon
+            SoundEngine.shared.playCheckmate()
+            // 胜败音效
+            if gameState == .redWon {
+                SoundEngine.shared.playVictory()
+            } else {
+                SoundEngine.shared.playDefeat()
+            }
         } else if MoveValidator.isStalemate(currentSide, on: board) {
             gameState = .draw
+        } else if MoveValidator.isInCheck(currentSide, on: board) {
+            SoundEngine.shared.playCheck()
         }
     }
 

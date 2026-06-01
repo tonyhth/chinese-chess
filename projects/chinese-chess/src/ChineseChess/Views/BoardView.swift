@@ -2,6 +2,7 @@ import SwiftUI
 
 struct BoardView: View {
     let viewModel: GameViewModel
+    var theme: ThemeColors = ThemeManager.shared.colors
 
     private let gridCols = 8
     private let gridRows = 9
@@ -15,15 +16,11 @@ struct BoardView: View {
             let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
 
             ZStack {
-                // 棋盘背景（纯视觉）
+                // 棋盘背景
                 Rectangle()
                     .fill(
                         LinearGradient(
-                            colors: [
-                                Color(red: 222/255, green: 184/255, blue: 135/255),
-                                Color(red: 210/255, green: 170/255, blue: 120/255),
-                                Color(red: 222/255, green: 184/255, blue: 135/255)
-                            ],
+                            colors: theme.boardBackground,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -53,22 +50,22 @@ struct BoardView: View {
                             .position(x: x, y: y)
                     }
 
-                    // 棋子（纯渲染，不接收点击）
+                    // 棋子
                     ForEach(viewModel.board.pieces) { piece in
                         let x = padding + CGFloat(piece.position.col) * cellSize
                         let y = padding + CGFloat(piece.position.row) * cellSize
                         let isSelected = viewModel.selectedPosition == piece.position
 
-                        PieceView(piece: piece, isSelected: isSelected, boardSize: CGSize(width: boardWidth, height: boardHeight))
+                        PieceView(piece: piece, isSelected: isSelected, boardSize: CGSize(width: boardWidth, height: boardHeight), theme: theme)
                             .position(x: x, y: y)
                             .allowsHitTesting(false)
-                            .animation(.easeInOut(duration: 0.25), value: piece.position)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
                     }
                 }
                 .frame(width: boardWidth, height: boardHeight)
                 .allowsHitTesting(false)
 
-                // 交互层：透明 overlay，DragGesture(minimumDistance: 0) 捕获所有点击
+                // 交互层
                 Color.clear
                     .frame(width: boardWidth, height: boardHeight)
                     .contentShape(Rectangle())
@@ -92,7 +89,6 @@ struct BoardView: View {
 
     private func drawBoardLines(context: inout GraphicsContext, size: CGSize, cellSize: CGFloat) {
         var path = Path()
-        let lineColor = Color(red: 74/255, green: 55/255, blue: 40/255)
 
         for row in 0...gridRows {
             let y = padding + CGFloat(row) * cellSize
@@ -118,8 +114,8 @@ struct BoardView: View {
         drawPalaceDiagonals(path: &path, startRow: 0, startCol: 3, cellSize: cellSize)
         drawPalaceDiagonals(path: &path, startRow: 7, startCol: 3, cellSize: cellSize)
 
-        context.stroke(path, with: .color(lineColor), lineWidth: 1.2)
-        drawStarMarks(context: &context, cellSize: cellSize, color: lineColor)
+        context.stroke(path, with: .color(theme.lineColor), lineWidth: 1.2)
+        drawStarMarks(context: &context, cellSize: cellSize)
     }
 
     private func drawPalaceDiagonals(path: inout Path, startRow: Int, startCol: Int, cellSize: CGFloat) {
@@ -133,7 +129,7 @@ struct BoardView: View {
         path.addLine(to: CGPoint(x: x1, y: y2))
     }
 
-    private func drawStarMarks(context: inout GraphicsContext, cellSize: CGFloat, color: Color) {
+    private func drawStarMarks(context: inout GraphicsContext, cellSize: CGFloat) {
         let markSize: CGFloat = 5
         let markGap: CGFloat = 3
 
@@ -163,7 +159,7 @@ struct BoardView: View {
                 markPath.addLine(to: CGPoint(x: cx + markGap + markSize, y: cy + markGap))
             }
 
-            context.stroke(markPath, with: .color(color), lineWidth: 1)
+            context.stroke(markPath, with: .color(theme.lineColor), lineWidth: 1)
         }
     }
 
@@ -178,7 +174,7 @@ struct BoardView: View {
             Text("汉  界")
                 .font(.custom("STKaiti", size: cellSize * 0.45))
         }
-        .foregroundColor(Color(red: 74/255, green: 55/255, blue: 40/255))
+        .foregroundColor(theme.riverTextColor)
         .position(x: width / 2, y: y)
     }
 }

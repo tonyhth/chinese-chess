@@ -4,6 +4,7 @@ struct PieceView: View {
     let piece: Piece
     let isSelected: Bool
     let boardSize: CGSize
+    var theme: ThemeColors = ThemeManager.shared.colors
 
     private var pieceDiameter: CGFloat {
         boardSize.width / 10 * 0.85
@@ -14,10 +15,10 @@ struct PieceView: View {
     }
 
     private var textColor: Color {
-        piece.side == .red ? Color(red: 204/255, green: 0, blue: 0) : Color(red: 26/255, green: 26/255, blue: 26/255)
+        piece.side == .red ? theme.redPieceText : theme.blackPieceText
     }
 
-    private var borderColor: Color { textColor }
+    private var borderColor: Color { theme.pieceBorder }
 
     var body: some View {
         ZStack {
@@ -25,11 +26,7 @@ struct PieceView: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [
-                            Color(red: 255/255, green: 253/255, blue: 230/255),
-                            Color(red: 240/255, green: 230/255, blue: 200/255),
-                            Color(red: 220/255, green: 200/255, blue: 170/255)
-                        ],
+                        colors: theme.pieceFill,
                         center: .center,
                         startRadius: 0,
                         endRadius: pieceDiameter / 2
@@ -48,8 +45,21 @@ struct PieceView: View {
                 .font(.custom("STKaiti", size: fontSize))
                 .foregroundColor(textColor)
         }
-        .scaleEffect(isSelected ? 1.08 : 1.0)
+        .scaleEffect(isSelected ? 1.05 : 1.0)
+        .overlay(
+            Circle()
+                .stroke(Color.yellow, lineWidth: 2)
+                .frame(width: pieceDiameter + 4, height: pieceDiameter + 4)
+                .opacity(isSelected ? 1 : 0)
+                .scaleEffect(isSelected ? 1.05 : 1.0)
+                .animation(
+                    .easeInOut(duration: 0.8)
+                    .repeatForever(autoreverses: true),
+                    value: isSelected
+                )
+        )
         .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? 6 : 0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
     }
 }
 

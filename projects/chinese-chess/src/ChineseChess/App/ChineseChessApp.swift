@@ -8,6 +8,7 @@ struct ChineseChessApp: App {
     @State private var showPuzzles = false
     @State private var showReplay = false
     @State private var replayRecord: GameRecord?
+    @State private var showThemePicker = false
 
     var body: some Scene {
         WindowGroup {
@@ -57,6 +58,12 @@ struct ChineseChessApp: App {
                         .disabled(viewModel.gameMoves.isEmpty)
 
                         Spacer()
+
+                        Button(action: { showThemePicker.toggle() }) {
+                            Label("主题", systemImage: "paintpalette")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
@@ -102,6 +109,24 @@ struct ChineseChessApp: App {
                     ReplayView(record: record)
                         .frame(minWidth: 600, minHeight: 720)
                 }
+            }
+            .sheet(isPresented: $showThemePicker) {
+                VStack(spacing: 20) {
+                    Text("选择主题")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .padding(.top)
+
+                    ThemePickerView()
+
+                    Spacer()
+
+                    Button("关闭") { showThemePicker = false }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                }
+                .frame(width: 280, height: 200)
+                .background(Color(red: 44/255, green: 24/255, blue: 16/255))
             }
         }
         .windowStyle(.titleBar)
