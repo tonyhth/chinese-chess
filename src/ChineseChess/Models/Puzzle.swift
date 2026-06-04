@@ -1,0 +1,96 @@
+import Foundation
+
+// MARK: - 残局数据模型
+
+struct Puzzle: Identifiable, Codable {
+    let id: String
+    let name: String
+    let category: String
+    let difficulty: Int          // 1-4
+    let stars: Int               // 1-5
+    let description: String
+    let playerSide: String       // "red" / "black"
+    let initialFEN: String
+    let solution: [String]       // ICCS 坐标格式
+    let hints: [String]?
+    let maxMoves: Int
+    let source: String?          // 残局出处（橘中秘、梅花谱等），向后兼容
+
+    // Phase 3.5 新增字段（有默认值，向后兼容）
+    var solutionType: String     // "checkmate"(默认) | "sequence" | "hint"
+    var endDescription: String?  // 通关描述文字
+
+    init(id: String, name: String, category: String, difficulty: Int, stars: Int,
+         description: String, playerSide: String, initialFEN: String,
+         solution: [String], hints: [String]?, maxMoves: Int, source: String? = nil,
+         solutionType: String = "checkmate", endDescription: String? = nil) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.difficulty = difficulty
+        self.stars = stars
+        self.description = description
+        self.playerSide = playerSide
+        self.initialFEN = initialFEN
+        self.solution = solution
+        self.hints = hints
+        self.maxMoves = maxMoves
+        self.source = source
+        self.solutionType = solutionType
+        self.endDescription = endDescription
+    }
+
+    // 向后兼容：旧 JSON 无 solutionType 字段时 Codable 用默认值
+    enum CodingKeys: String, CodingKey {
+        case id, name, category, difficulty, stars, description
+        case playerSide, initialFEN, solution, hints, maxMoves, source
+        case solutionType, endDescription
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        category = try c.decode(String.self, forKey: .category)
+        difficulty = try c.decode(Int.self, forKey: .difficulty)
+        stars = try c.decode(Int.self, forKey: .stars)
+        description = try c.decode(String.self, forKey: .description)
+        playerSide = try c.decode(String.self, forKey: .playerSide)
+        initialFEN = try c.decode(String.self, forKey: .initialFEN)
+        solution = try c.decode([String].self, forKey: .solution)
+        hints = try c.decodeIfPresent([String].self, forKey: .hints)
+        maxMoves = try c.decode(Int.self, forKey: .maxMoves)
+        source = try c.decodeIfPresent(String.self, forKey: .source)
+        solutionType = (try? c.decode(String.self, forKey: .solutionType)) ?? "checkmate"
+        endDescription = try c.decodeIfPresent(String.self, forKey: .endDescription)
+    }
+
+    var side: Side {
+        playerSide == "red" ? .red : .black
+    }
+
+    /// solutionType 显示标签
+    var typeLabel: String {
+        switch solutionType {
+        case "checkmate": return "杀局"
+        case "sequence": return "妙手"
+        case "hint": return "挑战"
+        default: return ""
+        }
+    }
+}
+
+struct PuzzleData: Codable {
+    let version: Int
+    let puzzles: [Puzzle]
+}
+
+// MARK: - 闯关进度
+
+struct PuzzleProgress: Codable {
+    let puzzleId: String
+    var isCompleted: Bool
+    var bestMoves: Int?
+    var completedAt: Date?
+    var bestRating: Int?       // 最佳星级 1-3
+}

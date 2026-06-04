@@ -1,0 +1,43 @@
+# Build artifacts
+.build/
+*.build/
+*.app/
+*.icns
+*.iconset/
+build-mac/
+build/
+DerivedData/
+
+# IDE
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+.idea/
+
+# OS
+.DS_Store
+*.swp
+*~
+
+# Temp
+tmp/
+*.tmp
+*.temp
+
+# Design/Docs (not code)
+design/
+designs/
+docs/
+knowledge/
+plans/
+proposals/
+*.md
+!README.md
+
+# Scripts (not project code)
+scripts/
+*.py
+*.sh
+!run_tests.sh
+
+# Other projects (should not exist here)
+projects/
