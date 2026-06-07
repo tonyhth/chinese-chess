@@ -2713,17 +2713,39 @@
       "category": "古谱残局",
       "difficulty": 2,
       "stars": 2,
-      "description": "黑先。第107局 丹山起凤。",
-      "playerSide": "black",
-      "initialFEN": "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b - - 0 1",
-      "solution": [],
-      "hints": [
-        "关键在于弃马引离对方士象，兵从中路突破"
+      "description": "红先。第107局 丹山起凤。",
+      "playerSide": "red",
+      "initialFEN": "1R1c1ab2/5k3/3r1a3/3C5/6b1N/3R5/9/3AB4/2p1p4/3K1N1rc w - - 0 1",
+      "solution": [
+        "b9b8",
+        "d9d8",
+        "b8d8",
+        "d7d8",
+        "i5g6",
+        "f8e8",
+        "d4e4",
+        "g9e7",
+        "e4e7",
+        "g5e3",
+        "d6e6",
+        "e3g5",
+        "e6e1",
+        "g5e3",
+        "e2g0",
+        "e3g5",
+        "f0e2",
+        "g5e3",
+        "e2d4",
+        "e3g5",
+        "d4e6",
+        "g5e3",
+        "e6g7"
       ],
-      "maxMoves": 9,
+      "hints": [],
+      "maxMoves": 12,
       "source": "适情雅趣",
-      "solutionType": "hint",
-      "endDescription": null
+      "solutionType": "sequence",
+      "endDescription": "马借炮力绝杀"
     },
     {
       "id": "shq_043",
@@ -3309,14 +3331,26 @@
       "description": "红先。第269局 杨香跨虎。",
       "playerSide": "red",
       "initialFEN": "N2k1ab2/2R1a4/2R6/9/9/5r3/9/5n3/4r4/5K3 w - - 0 1",
-      "solution": [],
-      "hints": [
-        "双车连将在底线反复将军，红方抽将得子"
+      "solution": [
+        "c8c9",
+        "d9d8",
+        "c7c8",
+        "d8d7",
+        "c8d8",
+        "d7d8",
+        "a9b7",
+        "d8d7",
+        "c9c7",
+        "d7d8",
+        "c7c5",
+        "d8d7",
+        "b7c9"
       ],
+      "hints": [],
       "maxMoves": 12,
       "source": "适情雅趣",
-      "solutionType": "hint",
-      "endDescription": null
+      "solutionType": "sequence",
+      "endDescription": "双车马联攻绝杀"
     },
     {
       "id": "shq_066",
@@ -4043,12 +4077,12 @@
       "initialFEN": "4k4/9/9/9/9/9/8p/5K3/4pp3/3N5 w - - 0 1",
       "solution": [],
       "hints": [
-        "单马对三卒，关键在于用帅牵制，马从侧翼迂回吃卒"
+        "单马对三卒，关键在于用帅牵制，马从侧翼掩护，困帅走马，困马走帅"
       ],
       "maxMoves": 17,
       "source": "适情雅趣",
       "solutionType": "hint",
-      "endDescription": null
+      "endDescription": "单马巧和三卒"
     },
     {
       "id": "shq_091",

@@ -19,11 +19,11 @@ struct ChessBoardView: View {
     // 网格常量
     private let gridCols = 8  // 8个间距，9条竖线
     private let gridRows = 9  // 9个间距，10条横线
-    private let padding: CGFloat = 30
 
     var body: some View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
+            let padding = max(10, size * 0.04)
             let cellSize = (size - padding * 2) / CGFloat(max(gridCols, gridRows))
             let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
             let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
@@ -44,15 +44,15 @@ struct ChessBoardView: View {
 
                 // 棋盘线条
                 Canvas { context, canvasSize in
-                    drawBoardLines(context: &context, size: canvasSize, cellSize: cellSize)
+                    drawBoardLines(context: &context, size: canvasSize, cellSize: cellSize, padding: padding)
                 }
                 .frame(width: boardWidth, height: boardHeight)
 
                 // 楚河汉界
-                riverText(width: boardWidth, cellSize: cellSize)
+                riverText(width: boardWidth, cellSize: cellSize, padding: padding)
 
                 // 高亮 + 棋子 + 提示
-                renderOverlays(boardWidth: boardWidth, boardHeight: boardHeight, cellSize: cellSize)
+                renderOverlays(boardWidth: boardWidth, boardHeight: boardHeight, cellSize: cellSize, padding: padding)
 
                 // 交互层（仅 playGame 和 playPuzzle）
                 if !isReadOnly {
@@ -63,7 +63,7 @@ struct ChessBoardView: View {
                             DragGesture(minimumDistance: 0)
                                 .onEnded { value in
                                     let loc = value.startLocation
-                                    handleTap(at: loc, cellSize: cellSize)
+                                    handleTap(at: loc, cellSize: cellSize, padding: padding)
                                 }
                         )
                 }
@@ -117,17 +117,17 @@ struct ChessBoardView: View {
     // MARK: - Overlays
 
     @ViewBuilder
-    private func renderOverlays(boardWidth: CGFloat, boardHeight: CGFloat, cellSize: CGFloat) -> some View {
+    private func renderOverlays(boardWidth: CGFloat, boardHeight: CGFloat, cellSize: CGFloat, padding: CGFloat) -> some View {
         // 上一步高亮
         if let last = lastMove {
             Circle()
                 .fill(Color.yellow.opacity(0.3))
                 .frame(width: cellSize * 0.5, height: cellSize * 0.5)
-                .position(posToCGPoint(last.from, cellSize: cellSize))
+                .position(posToCGPoint(last.from, cellSize: cellSize, padding: padding))
             Circle()
                 .fill(Color.green.opacity(0.3))
                 .frame(width: cellSize * 0.5, height: cellSize * 0.5)
-                .position(posToCGPoint(last.to, cellSize: cellSize))
+                .position(posToCGPoint(last.to, cellSize: cellSize, padding: padding))
         }
 
         // 提示高亮（蓝色）
@@ -136,12 +136,12 @@ struct ChessBoardView: View {
             Circle()
                 .stroke(Color.blue, lineWidth: 3)
                 .frame(width: cellSize * 0.85, height: cellSize * 0.85)
-                .position(posToCGPoint(hint.from, cellSize: cellSize))
+                .position(posToCGPoint(hint.from, cellSize: cellSize, padding: padding))
             // 终点蓝色圆点
             Circle()
                 .fill(Color.blue.opacity(0.5))
                 .frame(width: cellSize * 0.35, height: cellSize * 0.35)
-                .position(posToCGPoint(hint.to, cellSize: cellSize))
+                .position(posToCGPoint(hint.to, cellSize: cellSize, padding: padding))
         }
 
         // 合法走法提示
@@ -149,14 +149,14 @@ struct ChessBoardView: View {
             Circle()
                 .fill(board.piece(at: pos) != nil ? Color.red.opacity(0.4) : Color.green.opacity(0.4))
                 .frame(width: cellSize * 0.3, height: cellSize * 0.3)
-                .position(posToCGPoint(pos, cellSize: cellSize))
+                .position(posToCGPoint(pos, cellSize: cellSize, padding: padding))
         }
 
         // 棋子
         ForEach(board.pieces) { piece in
             let isSelected = selectedPosition == piece.position
             PieceView(piece: piece, isSelected: isSelected, boardSize: CGSize(width: boardWidth, height: boardHeight), theme: theme)
-                .position(posToCGPoint(piece.position, cellSize: cellSize))
+                .position(posToCGPoint(piece.position, cellSize: cellSize, padding: padding))
                 .allowsHitTesting(false)
                 .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
         }
@@ -164,14 +164,14 @@ struct ChessBoardView: View {
 
     // MARK: - 坐标映射（统一）
 
-    private func posToCGPoint(_ pos: Position, cellSize: CGFloat) -> CGPoint {
+    private func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
         CGPoint(
             x: padding + CGFloat(pos.col) * cellSize,
             y: padding + CGFloat(pos.row) * cellSize
         )
     }
 
-    private func cgPointToPos(_ point: CGPoint, cellSize: CGFloat) -> Position? {
+    private func cgPointToPos(_ point: CGPoint, cellSize: CGFloat, padding: CGFloat) -> Position? {
         let col = Int(round((point.x - padding) / cellSize))
         let row = Int(round((point.y - padding) / cellSize))
         guard row >= 0, row <= 9, col >= 0, col <= 8 else { return nil }
@@ -180,8 +180,8 @@ struct ChessBoardView: View {
 
     // MARK: - 交互分发
 
-    private func handleTap(at point: CGPoint, cellSize: CGFloat) {
-        guard let pos = cgPointToPos(point, cellSize: cellSize) else { return }
+    private func handleTap(at point: CGPoint, cellSize: CGFloat, padding: CGFloat) {
+        guard let pos = cgPointToPos(point, cellSize: cellSize, padding: padding) else { return }
         switch mode {
         case .playGame(let vm):
             vm.selectPiece(at: pos)
@@ -194,7 +194,7 @@ struct ChessBoardView: View {
 
     // MARK: - 棋盘线条
 
-    private func drawBoardLines(context: inout GraphicsContext, size: CGSize, cellSize: CGFloat) {
+    private func drawBoardLines(context: inout GraphicsContext, size: CGSize, cellSize: CGFloat, padding: CGFloat) {
         var path = Path()
 
         // 横线
@@ -224,14 +224,14 @@ struct ChessBoardView: View {
         path.addLine(to: CGPoint(x: padding + 8 * cellSize, y: padding + 5 * cellSize))
 
         // 九宫对角线
-        drawPalaceDiagonals(path: &path, startRow: 0, startCol: 3, cellSize: cellSize)
-        drawPalaceDiagonals(path: &path, startRow: 7, startCol: 3, cellSize: cellSize)
+        drawPalaceDiagonals(path: &path, startRow: 0, startCol: 3, cellSize: cellSize, padding: padding)
+        drawPalaceDiagonals(path: &path, startRow: 7, startCol: 3, cellSize: cellSize, padding: padding)
 
         context.stroke(path, with: .color(theme.lineColor), lineWidth: 1.2)
-        drawStarMarks(context: &context, cellSize: cellSize)
+        drawStarMarks(context: &context, cellSize: cellSize, padding: padding)
     }
 
-    private func drawPalaceDiagonals(path: inout Path, startRow: Int, startCol: Int, cellSize: CGFloat) {
+    private func drawPalaceDiagonals(path: inout Path, startRow: Int, startCol: Int, cellSize: CGFloat, padding: CGFloat) {
         let x1 = padding + CGFloat(startCol) * cellSize
         let y1 = padding + CGFloat(startRow) * cellSize
         let x2 = padding + CGFloat(startCol + 2) * cellSize
@@ -242,7 +242,7 @@ struct ChessBoardView: View {
         path.addLine(to: CGPoint(x: x1, y: y2))
     }
 
-    private func drawStarMarks(context: inout GraphicsContext, cellSize: CGFloat) {
+    private func drawStarMarks(context: inout GraphicsContext, cellSize: CGFloat, padding: CGFloat) {
         let markSize: CGFloat = 5
         let markGap: CGFloat = 3
 
@@ -279,7 +279,7 @@ struct ChessBoardView: View {
     // MARK: - 楚河汉界
 
     @ViewBuilder
-    private func riverText(width: CGFloat, cellSize: CGFloat) -> some View {
+    private func riverText(width: CGFloat, cellSize: CGFloat, padding: CGFloat) -> some View {
         let y = padding + 4 * cellSize + cellSize / 2
         HStack(spacing: cellSize * 2) {
             Text("楚  河")

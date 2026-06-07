@@ -4,19 +4,26 @@ import Foundation
 
 protocol AIEngineProtocol {
     /// 计算最佳走法。内部会复制棋盘，不会修改传入的 board。
-    func bestMove(for board: Board, difficulty: AIDifficulty) -> Move?
+    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool) -> Move?
 }
 
 // MARK: - AI 引擎实现
 
-struct AIEngine: AIEngineProtocol {
+final class AIEngine: AIEngineProtocol {
 
-    /// 开局库（延迟初始化，所有 AIEngine 实例共享）
-    private static let openingBook = OpeningBook()
-    /// 置换表
-    private static let transpositionTable = TranspositionTable()
+    /// 开局库（实例级，避免多 ViewModel 并发访问）
+    private let openingBook = OpeningBook()
+    /// 置换表（实例级，避免多 ViewModel 并发访问）
+    private let transpositionTable = TranspositionTable()
+    /// 历史启发表（实例级，避免并发竞争）
+    private var moveOrderer = MoveOrderer()
 
-    func bestMove(for board: Board, difficulty: AIDifficulty) -> Move? {
+    /// 清空历史启发表（新对局时调用）
+    func clearHistory() {
+        moveOrderer.clearHistory()
+    }
+
+    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) -> Move? {
         // 入口处统一做深拷贝，确保不修改调用者的 board
         let workBoard = board.snapshot()
         // 不在每次 bestMove 清空 TT，保留 IDS 跨深度缓存。
@@ -31,9 +38,9 @@ struct AIEngine: AIEngineProtocol {
         case .medium:
             return mediumSearch(for: workBoard)
         case .hard:
-            return hardSearch(for: workBoard)
+            return hardSearch(for: workBoard, isIOS: isIOS)
         case .master:
-            return masterSearch(for: workBoard)
+            return masterSearch(for: workBoard, isIOS: isIOS)
         }
     }
 
@@ -99,8 +106,8 @@ struct AIEngine: AIEngineProtocol {
         let orderedMoves: [Move]
         if useMoveOrder {
             let hash = ZobristHash.hash(board: board)
-            let ttBest = useTT ? Self.transpositionTable.probeBestMove(hash: hash) : nil
-            orderedMoves = MoveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
+            let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
+            orderedMoves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
         } else {
             orderedMoves = orderMovesSimple(moves)
         }
@@ -132,7 +139,7 @@ struct AIEngine: AIEngineProtocol {
         // 存入置换表（使用搜索开始时的原始 alpha 值判定 flag）
         if useTT {
             let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
-            Self.transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
+            transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
         }
 
         return bestMove
@@ -143,8 +150,8 @@ struct AIEngine: AIEngineProtocol {
     private func mediumSearch(for board: Board) -> Move? {
         // 检查开局库
         let hash = ZobristHash.hash(board: board)
-        if let iccsMove = Self.openingBook.lookup(zobristHash: hash),
-           let move = Self.openingBook.parseICCSMove(iccsMove, on: board) {
+        if let iccsMove = openingBook.lookup(zobristHash: hash),
+           let move = openingBook.parseICCSMove(iccsMove, on: board) {
             return move
         }
 
@@ -155,11 +162,12 @@ struct AIEngine: AIEngineProtocol {
 
     // MARK: - 高级：IDS depth=6-7 + 杀法搜索 + 机动性评估
 
-    private func hardSearch(for board: Board) -> Move? {
+    private func hardSearch(for board: Board, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
-        // 杀法搜索（深度 12，时间 800ms）
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: 800) {
+        // 杀法搜索（深度 12，iOS 800ms / macOS 1200ms）
+        let killTimeLimit = isIOS ? 800 : 1200
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
             return killMoves.first
         }
 
@@ -173,17 +181,21 @@ struct AIEngine: AIEngineProtocol {
             baseDepth = 6
         }
 
-        let tm = TimeManager.forDifficulty(.hard)!
+        guard let tm = TimeManager.forDifficulty(.hard, isIOS: isIOS) else {
+            return rootSearch(for: board, depth: baseDepth, useTT: true, useMoveOrder: true,
+                              evalConfig: .advanced)
+        }
         return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm)
     }
 
     // MARK: - 大师：IDS depth=8-10 + 杀法搜索 + 残局估值 + 时间管理
 
-    private func masterSearch(for board: Board) -> Move? {
+    private func masterSearch(for board: Board, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
-        // 杀法搜索（深度 16，时间 1500ms）
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 16, timeLimitMs: 1500) {
+        // 杀法搜索（深度 16，iOS 1500ms / macOS 2500ms）
+        let killTimeLimit = isIOS ? 1500 : 2500
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 16, timeLimitMs: killTimeLimit) {
             return killMoves.first
         }
 
@@ -197,7 +209,10 @@ struct AIEngine: AIEngineProtocol {
             baseDepth = 7
         }
 
-        let tm = TimeManager.forDifficulty(.master)!
+        guard let tm = TimeManager.forDifficulty(.master, isIOS: isIOS) else {
+            return rootSearch(for: board, depth: baseDepth, useTT: true, useMoveOrder: true,
+                              evalConfig: .advanced)
+        }
         return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm)
     }
 
@@ -228,7 +243,7 @@ struct AIEngine: AIEngineProtocol {
 
         // 置换表查找
         if useTT {
-            if let result = Self.transpositionTable.lookup(hash: hash, depth: depth, alpha: alpha, beta: beta) {
+            if let result = transpositionTable.lookup(hash: hash, depth: depth, alpha: alpha, beta: beta) {
                 return result.score
             }
         }
@@ -256,15 +271,15 @@ struct AIEngine: AIEngineProtocol {
             // 被将军 = 输，未被判和
             let score = MoveValidator.isInCheck(side, on: board) ? (-100000 - depth) : 0
             if useTT {
-                Self.transpositionTable.store(hash: hash, depth: depth, score: score, flag: .exact, bestMove: nil)
+                transpositionTable.store(hash: hash, depth: depth, score: score, flag: .exact, bestMove: nil)
             }
             return score
         }
 
         // 走法排序
         if useMoveOrder {
-            let ttBest = useTT ? Self.transpositionTable.probeBestMove(hash: hash) : nil
-            moves = MoveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
+            let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
+            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
         } else if depth >= 2 {
             moves = orderMovesSimple(moves)
         }
@@ -286,7 +301,7 @@ struct AIEngine: AIEngineProtocol {
             }
             a = max(a, bestScore)
             if a >= beta {
-                MoveOrderer.recordCutoff(move: move, depth: depth)
+                moveOrderer.recordCutoff(move: move, depth: depth)
                 break  // beta cutoff
             }
         }
@@ -294,7 +309,7 @@ struct AIEngine: AIEngineProtocol {
         // 存入置换表（使用搜索开始时的 origAlpha 判定 flag）
         if useTT {
             let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
-            Self.transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
+            transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
         }
 
         return bestScore

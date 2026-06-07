@@ -8,16 +8,17 @@ struct MoveOrderer {
 
     /// 历史启发表：记录每种走法产生 cutoff 的次数
     /// Key: "fromRow,fromCol,toRow,toCol"，Value: 累计分数
-    private static var historyTable: [String: Int] = [:]
+    /// 实例级，避免多 AIEngine 并发竞争
+    private var historyTable: [String: Int] = [:]
 
     /// 记录一个产生 beta cutoff 的走法
-    static func recordCutoff(move: Move, depth: Int) {
+    mutating func recordCutoff(move: Move, depth: Int) {
         let key = historyKey(move: move)
         historyTable[key, default: 0] += depth * depth  // 深度加权
     }
 
     /// 清空历史表（新对局时调用）
-    static func clearHistory() {
+    mutating func clearHistory() {
         historyTable.removeAll()
     }
 
@@ -27,7 +28,7 @@ struct MoveOrderer {
     ///   - board: 当前棋盘
     ///   - ttBestMove: 置换表中的最佳走法（如有）
     ///   - checkLegal: 是否启用将军排序（depth >= 3 时启用，低深度开销大）
-    static func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false) -> [Move] {
+    func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false) -> [Move] {
         let ttMove = ttBestMove
 
         return moves.map { move in
@@ -64,7 +65,7 @@ struct MoveOrderer {
 
     /// 判断走法是否会导致将军。
     /// 在原 board 上 execute/undo，避免 snapshot 深拷贝开销。
-    private static func givesCheck(_ move: Move, on board: Board) -> Bool {
+    private func givesCheck(_ move: Move, on board: Board) -> Bool {
         board.execute(move)
         let opponentSide: Side = (move.piece.side == .red) ? .black : .red
         let inCheck = MoveValidator.isInCheck(opponentSide, on: board)
@@ -75,7 +76,7 @@ struct MoveOrderer {
     // MARK: - 威胁子力加分
 
     /// 走到目标位置后能威胁对方高价值棋子的加分
-    private static func threatBonus(for move: Move, on board: Board) -> Int {
+    private func threatBonus(for move: Move, on board: Board) -> Int {
         let opponentSide: Side = (move.piece.side == .red) ? .black : .red
         let opponentPieces = board.pieces.filter { $0.side == opponentSide && $0.kind != .general }
 
@@ -113,7 +114,7 @@ struct MoveOrderer {
 
     // MARK: - 历史启发辅助
 
-    private static func historyKey(move: Move) -> String {
+    private func historyKey(move: Move) -> String {
         "\(move.from.row),\(move.from.col),\(move.to.row),\(move.to.col)"
     }
 }

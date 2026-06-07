@@ -9,7 +9,9 @@ struct ToolbarView: View {
             Button(action: { viewModel.newGame() }) {
                 Label("新局", systemImage: "arrow.counterclockwise")
             }
+            #if os(macOS)
             .keyboardShortcut("n", modifiers: .command)
+            #endif
             .disabled(viewModel.isThinking)
             .buttonStyle(.bordered)
             .tint(.brown)
@@ -18,7 +20,9 @@ struct ToolbarView: View {
             Button(action: { viewModel.undoMove() }) {
                 Label("悔棋", systemImage: "arrow.uturn.backward")
             }
+            #if os(macOS)
             .keyboardShortcut("z", modifiers: .command)
+            #endif
             .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
             .buttonStyle(.bordered)
             .tint(.brown)
@@ -27,7 +31,9 @@ struct ToolbarView: View {
             Button(action: { viewModel.requestHint() }) {
                 Label("提示", systemImage: "lightbulb")
             }
+            #if os(macOS)
             .keyboardShortcut("h", modifiers: [.command, .shift])
+            #endif
             .disabled(viewModel.isThinking || viewModel.gameState != .playing)
             .buttonStyle(.bordered)
             .tint(.brown)

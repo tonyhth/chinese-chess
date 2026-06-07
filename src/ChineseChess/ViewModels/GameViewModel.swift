@@ -2,6 +2,15 @@ import Foundation
 
 @Observable
 class GameViewModel {
+    /// 编译时平台标记
+    private static let _isIOS: Bool = {
+        #if os(iOS)
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     var board: Board
     var selectedPosition: Position?
     var legalMovesForSelected: [Position] = []
@@ -166,7 +175,7 @@ class GameViewModel {
         gameState = .playing
         gameMoves = []
         hintMove = nil
-        MoveOrderer.clearHistory()  // 清理历史启发表，避免对局间污染
+        aiEngine.clearHistory()  // 清理历史启发表，避免对局间污染
     }
 
     func setDifficulty(_ diff: AIDifficulty) {
@@ -183,7 +192,7 @@ class GameViewModel {
         let diff = difficulty
         let currentVersion = gameVersion
         Task.detached {
-            let move = engine.bestMove(for: snapshot, difficulty: diff)
+            let move = engine.bestMove(for: snapshot, difficulty: diff, isIOS: Self._isIOS)
             await MainActor.run { [weak self] in
                 guard let self, self.gameVersion == currentVersion else {
                     self?.isThinking = false
@@ -207,7 +216,7 @@ class GameViewModel {
 
         let engine = self.aiEngine
         Task.detached {
-            let move = engine.bestMove(for: snapshot, difficulty: currentDifficulty)
+            let move = engine.bestMove(for: snapshot, difficulty: currentDifficulty, isIOS: Self._isIOS)
             await MainActor.run { [weak self] in
                 guard let self, self.gameVersion == currentVersion else {
                     self?.isThinking = false

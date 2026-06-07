@@ -95,14 +95,14 @@ final class TranspositionTable {
     /// 存储条目。替换策略：深度优先（新条目深度 >= 旧条目深度时替换，或旧槽位为空）
     func store(hash: UInt64, depth: Int, score: Int, flag: TTFlag, bestMove: Move?) {
         let idx = index(for: hash)
-        let existing = table[idx]
 
-        if existing == nil || !existing!.isValid || depth >= existing!.depth {
-            table[idx] = TTEntry(
-                hash: hash, depth: depth, score: score,
-                flag: flag, bestMove: bestMove, isValid: true
-            )
+        if let existing = table[idx] {
+            guard !existing.isValid || depth >= existing.depth else { return }
         }
+        table[idx] = TTEntry(
+            hash: hash, depth: depth, score: score,
+            flag: flag, bestMove: bestMove, isValid: true
+        )
     }
 
     // MARK: - 清理

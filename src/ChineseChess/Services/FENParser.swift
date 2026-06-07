@@ -45,6 +45,7 @@ struct FENParser {
             var col = 0
             for char in rowStr {
                 if let num = char.wholeNumberValue {
+                    guard num > 0 else { return nil }  // FEN 中 0 不合法，1-9 有效
                     col += num
                 } else if let piece = fenCharToPiece(char, row: rowIndex, col: col) {
                     pieces.append(piece)

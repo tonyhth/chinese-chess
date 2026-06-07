@@ -40,12 +40,12 @@ struct ICCSParser {
 
     // MARK: - Private
 
-    private static func colFromChar(_ c: Character) -> Int? {
+    static func colFromChar(_ c: Character) -> Int? {
         guard let ascii = c.asciiValue, ascii >= UInt8(ascii: "a"), ascii <= UInt8(ascii: "i") else { return nil }
         return Int(ascii - UInt8(ascii: "a"))
     }
 
-    private static func rowFromChar(_ c: Character) -> Int? {
+    static func rowFromChar(_ c: Character) -> Int? {
         guard let ascii = c.asciiValue, ascii >= UInt8(ascii: "0"), ascii <= UInt8(ascii: "9") else { return nil }
         return 9 - Int(ascii - UInt8(ascii: "0"))
     }

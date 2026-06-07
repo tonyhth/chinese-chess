@@ -30,19 +30,20 @@ final class PuzzleStore {
             return
         }
 
-        guard let puzzleData = try? JSONDecoder().decode(PuzzleData.self, from: data) else {
-            print("[WARN] PuzzleStore: failed to decode puzzles.json")
+        do {
+            let puzzleData = try JSONDecoder().decode(PuzzleData.self, from: data)
+            puzzles = puzzleData.puzzles
+
+            // 检查 version 变化，刷新缓存
+            let currentVersion = puzzleData.version
+            let savedVersion = UserDefaults.standard.integer(forKey: versionKey)
+            if currentVersion > savedVersion {
+                UserDefaults.standard.set(currentVersion, forKey: versionKey)
+                // version 变化时不自动清除进度（puzzleId 保持兼容）
+            }
+        } catch {
+            print("[WARN] PuzzleStore: failed to decode puzzles.json - \(error)")
             return
-        }
-
-        puzzles = puzzleData.puzzles
-
-        // 检查 version 变化，刷新缓存
-        let currentVersion = puzzleData.version
-        let savedVersion = UserDefaults.standard.integer(forKey: versionKey)
-        if currentVersion > savedVersion {
-            UserDefaults.standard.set(currentVersion, forKey: versionKey)
-            // version 变化时不自动清除进度（puzzleId 保持兼容）
         }
     }
 

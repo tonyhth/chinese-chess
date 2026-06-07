@@ -2,6 +2,15 @@ import Foundation
 
 @Observable
 class PuzzleViewModel {
+    /// 编译时平台标记
+    private static let _isIOS: Bool = {
+        #if os(iOS)
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     let puzzle: Puzzle
     let board: Board
     let playerSide: Side
@@ -163,7 +172,7 @@ class PuzzleViewModel {
 
         let engine = self.aiEngine
         Task.detached {
-            let move = engine.bestMove(for: snapshot, difficulty: difficulty)
+            let move = engine.bestMove(for: snapshot, difficulty: difficulty, isIOS: Self._isIOS)
             await MainActor.run { [weak self] in
                 guard let self, self.puzzleVersion == currentVersion else { return }
                 if let move = move {
@@ -324,37 +333,38 @@ class PuzzleViewModel {
         var board = Board(fen: puzzle.initialFEN)
         var result: [String] = []
         for iccs in puzzle.solution {
+            // 统一使用 ICCSParser 安全解析
+            if let move = ICCSParser.parse(iccs, on: board) {
+                if move.piece.side == playerSide {
+                    result.append(iccs)
+                }
+                board.execute(move)
+                continue
+            }
+
+            // Fallback: ICCSParser 失败时（如连续同方走法 turn 不匹配），手动安全解析
             guard iccs.count == 4 else { break }
             let chars = Array(iccs)
-            let fc = Int(chars[0].asciiValue! - Character("a").asciiValue!)
-            let fr = Int(String(chars[1]))!
-            let from = Position(row: 9 - fr, col: fc)
+            guard let fromCol = ICCSParser.colFromChar(chars[0]),
+                  let fromRowDigit = chars[1].wholeNumberValue, fromRowDigit >= 0, fromRowDigit <= 9,
+                  let toCol = ICCSParser.colFromChar(chars[2]),
+                  let toRowDigit = chars[3].wholeNumberValue, toRowDigit >= 0, toRowDigit <= 9
+            else { break }
 
-            // 通过棋子颜色判断 side，不依赖 board.currentTurn
+            let from = Position(row: 9 - fromRowDigit, col: fromCol)
+            let to = Position(row: 9 - toRowDigit, col: toCol)
+
             if let piece = board.piece(at: from) {
                 if piece.side == playerSide {
                     result.append(iccs)
                 }
-            }
-
-            // 在棋盘上执行以更新棋子位置
-            if let move = ICCSParser.parse(iccs, on: board) {
+                let captured = board.piece(at: to)
+                let move = Move(piece: piece, from: from, to: to, captured: captured)
                 board.execute(move)
+                // execute 多 toggle 了一次 turn，补偿回来
+                board.toggleTurn()
             } else {
-                // Fallback: ICCSParser 失败（如连续同方走法 turn 不匹配）
-                // 仍然移动棋子以更新位置，但补偿 execute 的 turn toggle
-                let tc = Int(chars[2].asciiValue! - Character("a").asciiValue!)
-                let tr = Int(String(chars[3]))!
-                let to = Position(row: 9 - tr, col: tc)
-                if let piece = board.piece(at: from) {
-                    let captured = board.piece(at: to)
-                    let move = Move(piece: piece, from: from, to: to, captured: captured)
-                    board.execute(move)
-                    // execute 多 toggle 了一次 turn，补偿回来
-                    board.toggleTurn()
-                } else {
-                    break
-                }
+                break
             }
         }
         _cachedPlayerSolutionMoves = result

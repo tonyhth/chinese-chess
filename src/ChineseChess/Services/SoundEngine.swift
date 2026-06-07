@@ -3,7 +3,12 @@ import AVFoundation
 
 class SoundEngine {
     static let shared = SoundEngine()
-    var isMuted: Bool = false
+
+    private var _isMuted: Bool = false
+    var isMuted: Bool {
+        get { queue.sync { _isMuted } }
+        set { queue.async { [weak self] in self?._isMuted = newValue } }
+    }
 
     private var players: [String: AVAudioPlayer] = [:]
     private let queue = DispatchQueue(label: "com.chinesechess.sound")
@@ -75,7 +80,7 @@ class SoundEngine {
     // MARK: - 内部
 
     private func play(_ name: String) {
-        guard !isMuted, let player = players[name] else { return }
+        guard !_isMuted, let player = players[name] else { return }
         player.currentTime = 0
         player.play()
     }

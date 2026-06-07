@@ -12,6 +12,8 @@ struct ChineseChessiOSApp: App {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
+    @State private var showStats = false
+    @State private var showThemePicker = false
 
     var body: some Scene {
         WindowGroup {
@@ -60,6 +62,12 @@ struct ChineseChessiOSApp: App {
 
                         Button(action: { showHistory = true }) {
                             Label("历史", systemImage: "clock.arrow.circlepath")
+                        }
+                        Button(action: { showStats = true }) {
+                            Label("统计", systemImage: "chart.bar")
+                        }
+                        Button(action: { showThemePicker = true }) {
+                            Label("主题", systemImage: "paintpalette")
                         }
                         Button(action: { showSettings = true }) {
                             Label("设置", systemImage: "gearshape")
@@ -111,6 +119,30 @@ struct ChineseChessiOSApp: App {
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("完成") { showHistory = false }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showStats) {
+                NavigationStack {
+                    StatsPanelView()
+                        .navigationTitle("战绩统计")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完成") { showStats = false }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showThemePicker) {
+                NavigationStack {
+                    ThemePickerView()
+                        .navigationTitle("主题选择")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完成") { showThemePicker = false }
                             }
                         }
                 }

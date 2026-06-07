@@ -173,7 +173,7 @@ struct Phase2aTests {
         board2.setCurrentTurn(.black)
 
         let moves = MoveValidator.allLegalMoves(for: .black, on: board2)
-        let ordered = MoveOrderer.order(moves, on: board2, ttBestMove: nil, checkLegal: false)
+        let ordered = MoveOrderer().order(moves, on: board2, ttBestMove: nil, checkLegal: false)
 
         // 吃子走法（车吃马）应该排在前面
         let captureMoves = ordered.filter { $0.captured != nil }
@@ -195,7 +195,7 @@ struct Phase2aTests {
         guard moves.count >= 2 else { return }
 
         let ttBest = moves.last!  // 取最后一个作为 TT 最佳走法
-        let ordered = MoveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: false)
+        let ordered = MoveOrderer().order(moves, on: board, ttBestMove: ttBest, checkLegal: false)
 
         // TT 最佳走法应该排在第一位
         let first = ordered.first!
