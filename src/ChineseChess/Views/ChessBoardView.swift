@@ -24,7 +24,10 @@ struct ChessBoardView: View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
             let padding = max(10, size * 0.04)
-            let cellSize = (size - padding * 2) / CGFloat(max(gridCols, gridRows))
+            // 横向8间距，纵向9间距，取较小cellSize确保都放得下
+            let cellSizeW = (size - padding * 2) / CGFloat(gridCols)
+            let cellSizeH = (size - padding * 2) / CGFloat(gridRows)
+            let cellSize = min(cellSizeW, cellSizeH)
             let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
             let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
 
@@ -155,7 +158,7 @@ struct ChessBoardView: View {
         // 棋子
         ForEach(board.pieces) { piece in
             let isSelected = selectedPosition == piece.position
-            PieceView(piece: piece, isSelected: isSelected, boardSize: CGSize(width: boardWidth, height: boardHeight), theme: theme)
+            PieceView(piece: piece, isSelected: isSelected, cellSize: cellSize, theme: theme)
                 .position(posToCGPoint(piece.position, cellSize: cellSize, padding: padding))
                 .allowsHitTesting(false)
                 .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)

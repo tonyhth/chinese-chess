@@ -3,11 +3,11 @@ import SwiftUI
 struct PieceView: View {
     let piece: Piece
     let isSelected: Bool
-    let boardSize: CGSize
+    let cellSize: CGFloat
     var theme: ThemeColors = ThemeManager.shared.colors
 
     private var pieceDiameter: CGFloat {
-        boardSize.width / 10 * 0.85
+        cellSize * 0.85
     }
 
     private var fontSize: CGFloat {
