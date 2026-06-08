@@ -60,7 +60,7 @@ struct StatusBarView: View {
                 .foregroundColor(.gray)
         } else {
             Text(pieces.map { $0.displayName }.joined())
-                .font(.custom("LXGW WenKai", size: 13))
+                .font(.custom(FontRegistry.fontName, size: 13))
                 .foregroundColor(color)
         }
     }

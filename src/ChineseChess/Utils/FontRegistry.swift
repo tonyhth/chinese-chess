@@ -10,7 +10,7 @@ import UIKit
 /// macOS: CTFontManagerRegisterFontsForURL
 /// iOS: UIFont registration via CoreText
 enum FontRegistry {
-    static let fontName = "LXGW WenKai"  // PostScript name for .font(.custom:)
+    static let fontName = "LXGWWenKai-Regular"
 
     /// Call once at app launch (App.init).
     static func registerFonts() {

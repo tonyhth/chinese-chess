@@ -42,7 +42,7 @@ struct PieceView: View {
 
             // 棋子文字
             Text(piece.displayName)
-                .font(.custom("LXGW WenKai", size: fontSize))
+                .font(.custom(FontRegistry.fontName, size: fontSize))
                 .foregroundColor(textColor)
         }
         .scaleEffect(isSelected ? 1.05 : 1.0)

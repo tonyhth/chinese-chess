@@ -283,9 +283,9 @@ struct ChessBoardView: View {
         let y = padding + 4 * cellSize + cellSize / 2
         HStack(spacing: cellSize * 2) {
             Text("楚  河")
-                .font(.custom("LXGW WenKai", size: cellSize * 0.45))
+                .font(.custom(FontRegistry.fontName, size: cellSize * 0.45))
             Text("汉  界")
-                .font(.custom("LXGW WenKai", size: cellSize * 0.45))
+                .font(.custom(FontRegistry.fontName, size: cellSize * 0.45))
         }
         .foregroundColor(theme.riverTextColor)
         .position(x: width / 2, y: y)

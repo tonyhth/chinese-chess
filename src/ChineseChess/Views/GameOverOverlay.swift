@@ -12,7 +12,7 @@ struct GameOverOverlay: View {
             VStack(spacing: 20) {
                 Text(gameState == .redWon ? "🎉 红方获胜！" :
                      gameState == .blackWon ? "🖤 黑方获胜！" : "🤝 和棋！")
-                    .font(.custom("LXGW WenKai", size: 36))
+                    .font(.custom(FontRegistry.fontName, size: 36))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
