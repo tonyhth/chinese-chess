@@ -3,6 +3,10 @@ import SwiftUI
 
 @main
 struct ChineseChessiOSApp: App {
+    init() {
+        FontRegistry.registerFonts()
+    }
+
     @State private var gameViewModel = GameViewModel()
     @State private var showRecord = false
     @State private var showPuzzles = false

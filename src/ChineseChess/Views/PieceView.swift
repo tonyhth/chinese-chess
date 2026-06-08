@@ -42,7 +42,7 @@ struct PieceView: View {
 
             // 棋子文字
             Text(piece.displayName)
-                .font(.custom("STKaiti", size: fontSize))
+                .font(.custom("LXGW WenKai", size: fontSize))
                 .foregroundColor(textColor)
         }
         .scaleEffect(isSelected ? 1.05 : 1.0)
@@ -58,4 +58,4 @@ struct PieceView: View {
     }
 }
 
-// Font fallback is handled automatically by the system when STKaiti is not available
+// Font fallback is handled automatically by the system when LXGW WenKai is not available

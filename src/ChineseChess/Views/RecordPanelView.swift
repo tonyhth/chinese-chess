@@ -50,7 +50,7 @@ struct RecordPanelView: View {
 
             // 棋谱
             Text(gm.notation)
-                .font(.custom("STKaiti", size: 13))
+                .font(.custom("LXGW WenKai", size: 13))
                 .foregroundColor(gm.piece.side == .red ? .red : .white)
 
             // 标记

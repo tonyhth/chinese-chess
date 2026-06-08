@@ -1,0 +1,57 @@
+import Foundation
+#if canImport(AppKit)
+import AppKit
+#endif
+#if canImport(UIKit)
+import UIKit
+#endif
+
+/// Registers bundled LXGW WenKai font at runtime.
+/// macOS: CTFontManagerRegisterFontsForURL
+/// iOS: UIFont registration via CoreText
+enum FontRegistry {
+    static let fontName = "LXGW WenKai"  // PostScript name for .font(.custom:)
+
+    /// Call once at app launch (App.init).
+    static func registerFonts() {
+        guard let fontURL = Bundle.main.url(forResource: "LXGWWenKai-Regular", withExtension: "ttf") else {
+            // Fallback: try module bundle for SPM
+            #if canImport(AppKit)
+            if let moduleURL = Bundle(url: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/"))?.url(forResource: "LXGWWenKai-Regular", withExtension: "ttf") {
+                registerFontAt(moduleURL)
+                return
+            }
+            #endif
+            print("[FontRegistry] Warning: LXGWWenKai-Regular.ttf not found in bundle")
+            return
+        }
+        registerFontAt(fontURL)
+    }
+
+    private static func registerFontAt(_ url: URL) {
+        #if os(macOS)
+        var error: Unmanaged<CFError>?
+        let success = CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
+        if !success {
+            if let err = error?.takeUnretainedValue() {
+                // Font already registered is not an error
+                let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
+                if desc.contains("already registered") {
+                    // OK — font was registered in a previous launch
+                } else {
+                    print("[FontRegistry] Registration failed: \(desc)")
+                }
+            }
+        }
+        #elseif os(iOS)
+        var error: Unmanaged<CFError>?
+        let success = CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
+        if !success, let err = error?.takeUnretainedValue() {
+            let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
+            if !desc.contains("already registered") {
+                print("[FontRegistry] Registration failed: \(desc)")
+            }
+        }
+        #endif
+    }
+}
