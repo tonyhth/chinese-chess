@@ -71,9 +71,9 @@ struct ChessBoardView: View {
                         )
                 }
             }
-            .frame(width: size, height: size)
+            .frame(width: boardWidth, height: boardHeight)
         }
-        .aspectRatio(1, contentMode: .fit)
+        .aspectRatio(CGFloat(gridCols) / CGFloat(gridRows), contentMode: .fit)
     }
 
     // MARK: - Mode helpers
