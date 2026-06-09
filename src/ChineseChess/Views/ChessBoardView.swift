@@ -141,6 +141,17 @@ struct ChessBoardView: View {
                 .position(posToCGPoint(last.to, cellSize: cellSize, padding: padding))
         }
 
+        // 被将军高亮：被将方的帅/将格子加红色闪烁圈
+        if !isReadOnly {
+            if MoveValidator.isInCheck(board.currentTurn, on: board), let kingPos = board.generalPosition(of: board.currentTurn) {
+                Circle()
+                    .stroke(Color.red, lineWidth: 3)
+                    .frame(width: cellSize * 0.9, height: cellSize * 0.9)
+                    .position(posToCGPoint(kingPos, cellSize: cellSize, padding: padding))
+                    .modifier(CheckPulseModifier())
+            }
+        }
+
         // 提示高亮（蓝色）
         if let hint = hintMove {
             Circle()
@@ -302,5 +313,18 @@ struct ChessBoardView: View {
         }
         .foregroundColor(theme.riverTextColor)
         .position(x: width / 2, y: y)
+    }
+}
+
+// MARK: - 将军闪烁动画
+
+struct CheckPulseModifier: ViewModifier {
+    @State private var isPulsing = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(isPulsing ? 0.3 : 1.0)
+            .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: isPulsing)
+            .onAppear { isPulsing = true }
     }
 }
