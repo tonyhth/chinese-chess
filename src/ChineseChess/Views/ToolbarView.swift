@@ -5,42 +5,47 @@ struct ToolbarView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // 新局
-            Button(action: { viewModel.newGame() }) {
-                Label("新局", systemImage: "arrow.counterclockwise")
-            }
-            #if os(macOS)
-            .keyboardShortcut("n", modifiers: .command)
-            #endif
-            .disabled(viewModel.isThinking)
-            .buttonStyle(.bordered)
-            .tint(.brown)
+            // 棋局控制组
+            HStack(spacing: 8) {
+                Button(action: { viewModel.newGame() }) {
+                    Label("新局", systemImage: "arrow.counterclockwise")
+                }
+                #if os(macOS)
+                .keyboardShortcut("n", modifiers: .command)
+                #endif
+                .disabled(viewModel.isThinking)
+                .buttonStyle(.bordered)
+                .tint(.brown)
 
-            // 悔棋
-            Button(action: { viewModel.undoMove() }) {
-                Label("悔棋", systemImage: "arrow.uturn.backward")
-            }
-            #if os(macOS)
-            .keyboardShortcut("z", modifiers: .command)
-            #endif
-            .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
-            .buttonStyle(.bordered)
-            .tint(.brown)
+                Button(action: { viewModel.undoMove() }) {
+                    Label("悔棋", systemImage: "arrow.uturn.backward")
+                }
+                #if os(macOS)
+                .keyboardShortcut("z", modifiers: .command)
+                #endif
+                .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
+                .buttonStyle(.bordered)
+                .tint(.brown)
 
-            // 提示
-            Button(action: { viewModel.requestHint() }) {
-                Label("提示", systemImage: "lightbulb")
+                Button(action: { viewModel.requestHint() }) {
+                    Label("提示", systemImage: "lightbulb")
+                }
+                #if os(macOS)
+                .keyboardShortcut("h", modifiers: [.command, .shift])
+                #endif
+                .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+                .buttonStyle(.bordered)
+                .tint(.brown)
             }
-            #if os(macOS)
-            .keyboardShortcut("h", modifiers: [.command, .shift])
-            #endif
-            .disabled(viewModel.isThinking || viewModel.gameState != .playing)
-            .buttonStyle(.bordered)
-            .tint(.brown)
 
+            #if os(macOS)
+            Divider()
+                .frame(height: 24)
+            #else
             Spacer()
+            #endif
 
-            // 难度选择
+            // 设置组
             Picker("难度", selection: Binding(
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
