@@ -7,8 +7,13 @@ struct ChineseChessiOSApp: App {
         FontRegistry.registerFonts()
     }
 
+    // 面板互斥管理
+    enum Panel: Equatable {
+        case none, record, stats
+    }
+    @State private var activePanel: Panel = .none
+
     @State private var gameViewModel = GameViewModel()
-    @State private var showRecord = false
     @State private var showPuzzles = false
     @State private var showReplay = false
     @State private var replayRecord: GameRecord?
@@ -16,7 +21,6 @@ struct ChineseChessiOSApp: App {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
-    @State private var showStats = false
     @State private var showThemePicker = false
 
     var body: some Scene {
@@ -46,7 +50,7 @@ struct ChineseChessiOSApp: App {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
-                        Button(action: { showRecord = true }) {
+                        Button(action: { activePanel = activePanel == .record ? .none : .record }) {
                             Label("棋谱", systemImage: "doc.text")
                         }
                         Button(action: { showPuzzles = true }) {
@@ -64,28 +68,47 @@ struct ChineseChessiOSApp: App {
 
                         Spacer()
 
-                        Button(action: { showHistory = true }) {
-                            Label("历史", systemImage: "clock.arrow.circlepath")
+                        // 难度快捷入口
+                        Menu {
+                            Button("新手") { gameViewModel.setDifficulty(.beginner) }
+                            Button("初级") { gameViewModel.setDifficulty(.easy) }
+                            Button("中级") { gameViewModel.setDifficulty(.medium) }
+                            Button("高级") { gameViewModel.setDifficulty(.hard) }
+                            Button("大师") { gameViewModel.setDifficulty(.master) }
+                        } label: {
+                            Label("难度", systemImage: "gauge.with.dots.needle.bottom.50percent")
                         }
-                        Button(action: { showStats = true }) {
-                            Label("统计", systemImage: "chart.bar")
-                        }
-                        Button(action: { showThemePicker = true }) {
-                            Label("主题", systemImage: "paintpalette")
-                        }
-                        Button(action: { showSettings = true }) {
-                            Label("设置", systemImage: "gearshape")
+
+                        // 更多菜单：低频操作
+                        Menu {
+                            Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
+                                Label("统计", systemImage: "chart.bar")
+                            }
+                            Button(action: { showHistory = true }) {
+                                Label("历史", systemImage: "clock.arrow.circlepath")
+                            }
+                            Button(action: { showThemePicker = true }) {
+                                Label("主题", systemImage: "paintpalette")
+                            }
+                            Button(action: { showSettings = true }) {
+                                Label("设置", systemImage: "gearshape")
+                            }
+                        } label: {
+                            Label("更多", systemImage: "ellipsis.circle")
                         }
                     }
                 }
-                .sheet(isPresented: $showRecord) {
+                .sheet(isPresented: Binding(
+                    get: { activePanel == .record },
+                    set: { if !$0 { activePanel = .none } }
+                )) {
                     NavigationStack {
                         RecordPanelView(gameMoves: gameViewModel.gameMoves)
                             .navigationTitle("棋谱")
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button("完成") { showRecord = false }
+                                    Button("完成") { activePanel = .none }
                                 }
                             }
                     }
@@ -127,14 +150,17 @@ struct ChineseChessiOSApp: App {
                         }
                 }
             }
-            .sheet(isPresented: $showStats) {
+            .sheet(isPresented: Binding(
+                get: { activePanel == .stats },
+                set: { if !$0 { activePanel = .none } }
+            )) {
                 NavigationStack {
                     StatsPanelView()
                         .navigationTitle("战绩统计")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showStats = false }
+                                Button("完成") { activePanel = .none }
                             }
                         }
                 }

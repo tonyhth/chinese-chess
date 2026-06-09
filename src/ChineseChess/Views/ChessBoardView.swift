@@ -20,14 +20,28 @@ struct ChessBoardView: View {
     private let gridCols = 8  // 8个间距，9条竖线
     private let gridRows = 9  // 9个间距，10条横线
 
+    // 最大 cellSize，防止窗口过大时棋盘无限放大
+    private let maxCellSize: CGFloat = 80
+
+    // iOS 大屏棋盘最大尺寸约束
+    #if os(iOS)
+    private let maxBoardWidth: CGFloat = 600
+    private let maxBoardHeight: CGFloat = 675
+    #endif
+
     var body: some View {
         GeometryReader { geo in
-            let size = min(geo.size.width, geo.size.height)
-            let padding = max(10, size * 0.04)
-            // 横向8间距，纵向9间距，取较小cellSize确保都放得下
-            let cellSizeW = (size - padding * 2) / CGFloat(gridCols)
-            let cellSizeH = (size - padding * 2) / CGFloat(gridRows)
-            let cellSize = min(cellSizeW, cellSizeH)
+            #if os(iOS)
+            let availableWidth = min(geo.size.width, maxBoardWidth)
+            let availableHeight = min(geo.size.height, maxBoardHeight)
+            #else
+            let availableWidth = geo.size.width
+            let availableHeight = geo.size.height
+            #endif
+            let padding = max(10, min(availableWidth, availableHeight) * 0.04)
+            let cellSizeW = (availableWidth - padding * 2) / CGFloat(gridCols)
+            let cellSizeH = (availableHeight - padding * 2) / CGFloat(gridRows)
+            let cellSize = min(cellSizeW, cellSizeH, maxCellSize)
             let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
             let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
 
@@ -41,7 +55,6 @@ struct ChessBoardView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: boardWidth, height: boardHeight)
                     .cornerRadius(4)
                     .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
 
@@ -49,26 +62,21 @@ struct ChessBoardView: View {
                 Canvas { context, canvasSize in
                     drawBoardLines(context: &context, size: canvasSize, cellSize: cellSize, padding: padding)
                 }
-                .frame(width: boardWidth, height: boardHeight)
 
                 // 楚河汉界
                 riverText(width: boardWidth, cellSize: cellSize, padding: padding)
 
                 // 高亮 + 棋子 + 提示
-                renderOverlays(boardWidth: boardWidth, boardHeight: boardHeight, cellSize: cellSize, padding: padding)
+                renderOverlays(cellSize: cellSize, padding: padding)
 
                 // 交互层（仅 playGame 和 playPuzzle）
                 if !isReadOnly {
                     Color.clear
                         .frame(width: boardWidth, height: boardHeight)
                         .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onEnded { value in
-                                    let loc = value.startLocation
-                                    handleTap(at: loc, cellSize: cellSize, padding: padding)
-                                }
-                        )
+                        .onTapGesture { location in
+                            handleTap(at: location, cellSize: cellSize, padding: padding)
+                        }
                 }
             }
             .frame(width: boardWidth, height: boardHeight)
@@ -120,7 +128,7 @@ struct ChessBoardView: View {
     // MARK: - Overlays
 
     @ViewBuilder
-    private func renderOverlays(boardWidth: CGFloat, boardHeight: CGFloat, cellSize: CGFloat, padding: CGFloat) -> some View {
+    private func renderOverlays(cellSize: CGFloat, padding: CGFloat) -> some View {
         // 上一步高亮
         if let last = lastMove {
             Circle()
@@ -135,12 +143,10 @@ struct ChessBoardView: View {
 
         // 提示高亮（蓝色）
         if let hint = hintMove {
-            // 起点蓝色边框
             Circle()
                 .stroke(Color.blue, lineWidth: 3)
                 .frame(width: cellSize * 0.85, height: cellSize * 0.85)
                 .position(posToCGPoint(hint.from, cellSize: cellSize, padding: padding))
-            // 终点蓝色圆点
             Circle()
                 .fill(Color.blue.opacity(0.5))
                 .frame(width: cellSize * 0.35, height: cellSize * 0.35)
@@ -165,8 +171,10 @@ struct ChessBoardView: View {
         }
     }
 
-    // MARK: - 坐标映射（统一）
+    // MARK: - 坐标映射
 
+    /// Position → CGPoint，用于 ZStack 内 .position() 定位
+    /// ZStack 内 .position() 坐标原点在 ZStack 左上角
     private func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
         CGPoint(
             x: padding + CGFloat(pos.col) * cellSize,
@@ -174,6 +182,8 @@ struct ChessBoardView: View {
         )
     }
 
+    /// CGPoint → Position，用于交互层点击坐标转换
+    /// onTapGesture 坐标相对于视图本地坐标系（左上角为原点）
     private func cgPointToPos(_ point: CGPoint, cellSize: CGFloat, padding: CGFloat) -> Position? {
         let col = Int(round((point.x - padding) / cellSize))
         let row = Int(round((point.y - padding) / cellSize))

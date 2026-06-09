@@ -7,9 +7,13 @@ struct ChineseChessApp: App {
         FontRegistry.registerFonts()
     }
 
+    // 面板状态：互斥管理
+    enum Panel: Equatable {
+        case none, record, stats
+    }
+    @State private var activePanel: Panel = .none
+
     @State private var viewModel = GameViewModel()
-    @State private var showStats = false
-    @State private var showRecord = false
     @State private var showPuzzles = false
     @State private var showReplay = false
     @State private var replayRecord: GameRecord?
@@ -29,29 +33,32 @@ struct ChineseChessApp: App {
                     ToolbarView(viewModel: viewModel)
 
                     BoardView(viewModel: viewModel)
-                        .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     StatusBarView(viewModel: viewModel)
 
                     // 底部操作栏
-                    HStack(spacing: 12) {
-                        Button(action: { showRecord.toggle() }) {
-                            Label("棋谱", systemImage: "doc.text")
+                    HStack(spacing: 8) {
+                        Button(action: { activePanel = activePanel == .record ? .none : .record }) {
+                            Image(systemName: "doc.text")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+                        .help("棋谱")
 
-                        Button(action: { showStats.toggle() }) {
-                            Label("统计", systemImage: "chart.bar")
+                        Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
+                            Image(systemName: "chart.bar")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+                        .help("统计")
 
                         Button(action: { showPuzzles.toggle() }) {
-                            Label("残局", systemImage: "puzzlepiece")
+                            Image(systemName: "puzzlepiece")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+                        .help("残局")
 
                         Button(action: {
                             if let record = viewModel.buildGameRecord() {
@@ -59,31 +66,35 @@ struct ChineseChessApp: App {
                                 showReplay = true
                             }
                         }) {
-                            Label("回放", systemImage: "play.circle")
+                            Image(systemName: "play.circle")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .disabled(viewModel.gameMoves.isEmpty)
+                        .help("回放")
 
                         Spacer()
 
                         Button(action: { showThemePicker.toggle() }) {
-                            Label("主题", systemImage: "paintpalette")
+                            Image(systemName: "paintpalette")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+                        .help("主题")
 
                         Button(action: { showHistory.toggle() }) {
-                            Label("历史", systemImage: "clock.arrow.circlepath")
+                            Image(systemName: "clock.arrow.circlepath")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+                        .help("历史")
 
                         Button(action: { showSettings.toggle() }) {
-                            Label("设置", systemImage: "gearshape")
+                            Image(systemName: "gearshape")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
+                        .help("设置")
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
@@ -96,33 +107,35 @@ struct ChineseChessApp: App {
                     }
                 }
 
-                // 棋谱面板
-                if showRecord {
-                    VStack {
-                        Spacer()
-                        RecordPanelView(gameMoves: viewModel.gameMoves)
-                            .frame(maxWidth: 300, maxHeight: 300)
-                            .padding()
-                    }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-
-                // 统计面板
-                if showStats {
-                    VStack {
-                        Spacer()
-                        StatsPanelView()
-                            .frame(maxWidth: 300)
-                            .padding()
-                    }
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
             }
             .frame(minWidth: 600, minHeight: 720)
             .preferredColorScheme(.dark)
+            // 棋谱/统计面板互斥 Sheet
+            .sheet(isPresented: Binding(
+                get: { activePanel == .record },
+                set: { if !$0 { activePanel = .none } }
+            )) {
+                RecordPanelView(gameMoves: viewModel.gameMoves)
+                    .frame(minWidth: 320, minHeight: 300, maxHeight: 400)
+            }
+            .sheet(isPresented: Binding(
+                get: { activePanel == .stats },
+                set: { if !$0 { activePanel = .none } }
+            )) {
+                StatsPanelView()
+                    .frame(minWidth: 320, minHeight: 200, maxHeight: 400)
+            }
             .sheet(isPresented: $showPuzzles) {
-                PuzzleSelectView()
-                    .frame(minWidth: 400, minHeight: 500)
+                NavigationStack {
+                    PuzzleSelectView()
+                        .navigationTitle("残局闯关")
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完成") { showPuzzles = false }
+                            }
+                        }
+                }
+                .frame(minWidth: 400, minHeight: 500)
             }
             .sheet(isPresented: $showReplay) {
                 if let record = replayRecord {
@@ -131,22 +144,19 @@ struct ChineseChessApp: App {
                 }
             }
             .sheet(isPresented: $showThemePicker) {
-                VStack(spacing: 20) {
-                    Text("选择主题")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .padding(.top)
-
-                    ThemePickerView()
-
-                    Spacer()
-
-                    Button("关闭") { showThemePicker = false }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
+                NavigationStack {
+                    VStack(spacing: 16) {
+                        ThemePickerView()
+                    }
+                    .padding()
+                    .navigationTitle("选择主题")
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("完成") { showThemePicker = false }
+                        }
+                    }
                 }
-                .frame(width: 280, height: 200)
-                .background(Color(red: 44/255, green: 24/255, blue: 16/255))
+                .frame(minWidth: 300, minHeight: 200)
             }
             .sheet(isPresented: $showHistory) {
                 NavigationStack {
@@ -160,12 +170,20 @@ struct ChineseChessApp: App {
                 .frame(minWidth: 500, minHeight: 500)
             }
             .sheet(isPresented: $showSettings) {
-                SettingsView(viewModel: viewModel)
+                NavigationStack {
+                    SettingsView(viewModel: viewModel)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完成") { showSettings = false }
+                            }
+                        }
+                }
+                .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
             }
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
-        .defaultSize(width: 660, height: 780)
+        .defaultSize(width: 660, height: 760)
         .commands {
             CommandGroup(replacing: .appSettings) {
                 Button("设置") {

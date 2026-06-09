@@ -226,8 +226,12 @@ struct PuzzlePlayView: View {
                     .padding(.bottom, 8)
             }
 
-            // 通关弹窗
+            // 通关弹窗（全屏遮罩 + 居中弹窗）
             if viewModel.gameState == .success {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .onTapGesture { /* 阻止穿透 */ }
+
                 VStack(spacing: 16) {
                     if viewModel.puzzle.solutionType == "sequence",
                        let desc = viewModel.puzzle.endDescription, !desc.isEmpty {

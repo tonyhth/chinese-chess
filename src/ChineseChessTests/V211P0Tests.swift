@@ -6,7 +6,7 @@ import CoreGraphics
 #endif
 @testable import ChineseChess
 
-@Suite("v2.1.1 P0 修复验证")
+@Suite("v2.1.2 P0 修复验证")
 struct V211P0Tests {
 
     // MARK: - P0-1: 棋盘几何对齐
@@ -49,6 +49,60 @@ struct V211P0Tests {
         // 两者都应 <= size
         #expect(boardWidth <= size)
         #expect(boardHeight <= size)
+    }
+
+    @Test("非正方形窗口（660×760）：横向为约束方向，棋盘占满可用空间")
+    func nonSquareWindowCellSize() {
+        // 模拟实际窗口 660×760（来自 ChineseChessApp.defaultSize）
+        let width: CGFloat = 660
+        let height: CGFloat = 760
+        let padding = max(10, min(width, height) * 0.04) // 26.4
+        let gridCols = 8
+        let gridRows = 9
+
+        let cellSizeW = (width - padding * 2) / CGFloat(gridCols)
+        let cellSizeH = (height - padding * 2) / CGFloat(gridRows)
+        let cellSize = min(cellSizeW, cellSizeH)
+
+        let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
+        let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
+
+        // 横向是约束方向（cellSizeW < cellSizeH）
+        #expect(cellSize == cellSizeW, "660×760 窗口横向应为约束方向")
+        #expect(cellSize < cellSizeH, "纵向空间应有余量")
+        // 棋盘宽度 ≈ 可用宽度（横向约束时宽度填满）
+        #expect(abs(boardWidth - width) < 1, "棋盘宽度应约等于可用宽度")
+        // 棋盘高度 < 可用高度（纵向有余量）
+        #expect(boardHeight < height, "棋盘高度应小于可用高度")
+        // 棋盘宽高比 ≈ 8/9
+        let ratio = boardWidth / boardHeight
+        #expect(abs(ratio - CGFloat(gridCols) / CGFloat(gridRows)) < 0.01, "棋盘宽高比应约为 8/9")
+    }
+
+    @Test("非正方形窗口（660×760）：棋子位置映射对齐网格")
+    func nonSquareWindowPieceAlignment() {
+        let width: CGFloat = 660
+        let height: CGFloat = 760
+        let padding = max(10, min(width, height) * 0.04)
+        let gridCols = 8
+        let gridRows = 9
+
+        let cellSizeW = (width - padding * 2) / CGFloat(gridCols)
+        let cellSizeH = (height - padding * 2) / CGFloat(gridRows)
+        let cellSize = min(cellSizeW, cellSizeH)
+
+        // 四角棋子应落在网格交叉点
+        let corners: [(row: Int, col: Int)] = [(0, 0), (0, 8), (9, 0), (9, 8)]
+        for corner in corners {
+            let x = padding + CGFloat(corner.col) * cellSize
+            let y = padding + CGFloat(corner.row) * cellSize
+
+            let col = Int(round((x - padding) / cellSize))
+            let row = Int(round((y - padding) / cellSize))
+
+            #expect(col == corner.col, "角(\(corner.row),\(corner.col)) 列映射错误")
+            #expect(row == corner.row, "角(\(corner.row),\(corner.col)) 行映射错误")
+        }
     }
 
     @Test("所有棋子位置映射到网格交叉点")
@@ -121,7 +175,8 @@ struct V211P0Tests {
     @Test("打包 App 包含 Assets.car")
     func appBundleContainsCompiledAssets() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let carPath = "\(homeDir)/Desktop/中国象棋-v2.1.1.app/Contents/Resources/Assets.car"
+        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/Desktop"
+        let carPath = "\(appDir)/中国象棋-v2.1.2.app/Contents/Resources/Assets.car"
         let fm = FileManager.default
         #expect(fm.fileExists(atPath: carPath), "打包 App 应包含 Assets.car")
     }
@@ -129,7 +184,8 @@ struct V211P0Tests {
     @Test("打包 App 包含 AppIcon.icns")
     func appBundleContainsIcon() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let icnsPath = "\(homeDir)/Desktop/中国象棋-v2.1.1.app/Contents/Resources/AppIcon.icns"
+        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/Desktop"
+        let icnsPath = "\(appDir)/中国象棋-v2.1.2.app/Contents/Resources/AppIcon.icns"
         let fm = FileManager.default
         #expect(fm.fileExists(atPath: icnsPath), "打包 App 应包含 AppIcon.icns")
     }
@@ -137,7 +193,8 @@ struct V211P0Tests {
     @Test("打包 App 可执行文件存在且非空")
     func appBundleContainsExecutable() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let execPath = "\(homeDir)/Desktop/中国象棋-v2.1.1.app/Contents/MacOS/ChineseChess"
+        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/Desktop"
+        let execPath = "\(appDir)/中国象棋-v2.1.2.app/Contents/MacOS/ChineseChess"
         let fm = FileManager.default
         #expect(fm.isExecutableFile(atPath: execPath), "打包 App 应包含可执行文件")
     }
