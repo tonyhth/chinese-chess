@@ -32,30 +32,43 @@ struct PuzzleSelectView: View {
 
             // 残局列表
             let list = filteredPuzzles
-            ZStack(alignment: .bottom) {
-                ScrollView {
-                    LazyVStack(spacing: 8) {
-                        ForEach(list) { puzzle in
-                            PuzzleRow(puzzle: puzzle, progress: PuzzleStore.shared.progress(for: puzzle.id)) {
-                                selectedPuzzle = puzzle
+            if list.isEmpty {
+                // 空状态提示
+                VStack(spacing: 8) {
+                    Image(systemName: "puzzlepiece")
+                        .font(.system(size: 32))
+                        .foregroundColor(.gray)
+                    Text("暂无残局")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity, minHeight: 120)
+            } else {
+                ZStack(alignment: .bottom) {
+                    ScrollView {
+                        LazyVStack(spacing: 8) {
+                            ForEach(list) { puzzle in
+                                PuzzleRow(puzzle: puzzle, progress: PuzzleStore.shared.progress(for: puzzle.id)) {
+                                    selectedPuzzle = puzzle
+                                }
                             }
                         }
+                        // 底部留白，与遮罩高度匹配
+                        Color.clear.frame(height: fadeHeight)
                     }
-                    // 底部留白，与遮罩高度匹配
-                    Color.clear.frame(height: fadeHeight)
-                }
 
-                // 底部渐变遮罩，暗示可滚动
-                LinearGradient(
-                    colors: [
-                        panelBackground.opacity(0),
-                        panelBackground
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: fadeHeight)
-                .allowsHitTesting(false)
+                    // 底部渐变遮罩，暗示可滚动
+                    LinearGradient(
+                        colors: [
+                            panelBackground.opacity(0),
+                            panelBackground
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: fadeHeight)
+                    .allowsHitTesting(false)
+                }
             }
         }
         .padding(12)
