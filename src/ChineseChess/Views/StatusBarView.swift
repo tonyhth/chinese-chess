@@ -20,6 +20,13 @@ struct StatusBarView: View {
                         .pulseAnimation()
                 }
 
+                if viewModel.isInCheck {
+                    Text("将军！")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.red)
+                        .pulseAnimation()
+                }
+
                 Spacer()
 
                 Text("第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合")

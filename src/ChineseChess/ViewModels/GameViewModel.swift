@@ -17,6 +17,12 @@ class GameViewModel {
     var capturedPieces: (red: [Piece], black: [Piece]) = (red: [], black: [])
     var gameState: GameState = .playing
     var isThinking: Bool = false
+
+    /// 当前走棋方是否被将军
+    var isInCheck: Bool {
+        guard gameState == .playing else { return false }
+        return MoveValidator.isInCheck(board.currentTurn, on: board)
+    }
     var difficulty: AIDifficulty = .medium
     var hintMove: (from: Position, to: Position)? = nil
     private var gameVersion: Int = 0
