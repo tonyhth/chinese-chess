@@ -236,14 +236,22 @@ struct PuzzlePlayView: View {
 
             // 提示显示
             if let hint = viewModel.currentHint {
-                Text(hint)
-                    .font(.system(size: 13))
-                    .foregroundColor(.yellow)
-                    .padding(8)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(6)
-                    .padding(.horizontal, 16)
-                    .onTapGesture { viewModel.dismissHint() }
+                HStack {
+                    Text(hint)
+                        .font(.system(size: 13))
+                        .foregroundColor(.yellow)
+                    Spacer()
+                    Button("继续") {
+                        viewModel.dismissHint()
+                    }
+                    .font(.system(size: 12, weight: .medium))
+                    .buttonStyle(.bordered)
+                    .tint(.brown)
+                }
+                .padding(8)
+                .background(Color.black.opacity(0.5))
+                .cornerRadius(6)
+                .padding(.horizontal, 16)
             }
 
             // 解法实时提示
