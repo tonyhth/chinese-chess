@@ -149,6 +149,7 @@ class GameViewModel {
         selectedPosition = nil
         legalMovesForSelected = []
         hintMove = nil
+        isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
     }
 
     /// 从 capturedPieces 中移除与 move.captured 匹配的记录（按 id 匹配而非 removeLast）
