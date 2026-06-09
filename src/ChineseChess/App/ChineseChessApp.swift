@@ -104,6 +104,11 @@ struct ChineseChessApp: App {
                 if viewModel.gameState != .playing {
                     GameOverOverlay(gameState: viewModel.gameState) {
                         viewModel.newGame()
+                    } onViewRecord: {
+                        if let record = viewModel.buildGameRecord() {
+                            replayRecord = record
+                            showReplay = true
+                        }
                     }
                 }
 

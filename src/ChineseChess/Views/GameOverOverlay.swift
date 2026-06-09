@@ -3,6 +3,7 @@ import SwiftUI
 struct GameOverOverlay: View {
     let gameState: GameState
     let onNewGame: () -> Void
+    var onViewRecord: (() -> Void)? = nil
 
     var body: some View {
         ZStack {
@@ -16,12 +17,23 @@ struct GameOverOverlay: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
-                Button("再来一局") {
-                    onNewGame()
+                HStack(spacing: 16) {
+                    Button("再来一局") {
+                        onNewGame()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.brown)
+                    .controlSize(.large)
+
+                    if let onViewRecord {
+                        Button("查看棋谱") {
+                            onViewRecord()
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .controlSize(.large)
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.brown)
-                .controlSize(.large)
             }
             .padding(40)
             .background(
