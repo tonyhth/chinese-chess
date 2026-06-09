@@ -17,12 +17,7 @@ class GameViewModel {
     var capturedPieces: (red: [Piece], black: [Piece]) = (red: [], black: [])
     var gameState: GameState = .playing
     var isThinking: Bool = false
-
-    /// 当前走棋方是否被将军
-    var isInCheck: Bool {
-        guard gameState == .playing else { return false }
-        return MoveValidator.isInCheck(board.currentTurn, on: board)
-    }
+    var isInCheck: Bool = false
     var difficulty: AIDifficulty = .medium
     var hintMove: (from: Position, to: Position)? = nil
     private var gameVersion: Int = 0
@@ -179,6 +174,7 @@ class GameViewModel {
         legalMovesForSelected = []
         capturedPieces = (red: [], black: [])
         gameState = .playing
+        isInCheck = false
         gameMoves = []
         hintMove = nil
         aiEngine.clearHistory()  // 清理历史启发表，避免对局间污染
@@ -286,6 +282,7 @@ class GameViewModel {
         let currentSide = board.currentTurn
         if MoveValidator.isCheckmate(currentSide, on: board) {
             gameState = (currentSide == .red) ? .blackWon : .redWon
+            isInCheck = false
             // 将死时只播放胜负音效，不叠加 checkmate
             if gameState == .redWon {
                 SoundEngine.shared.playVictory()
@@ -294,8 +291,12 @@ class GameViewModel {
             }
         } else if MoveValidator.isStalemate(currentSide, on: board) {
             gameState = .draw
+            isInCheck = false
         } else if MoveValidator.isInCheck(currentSide, on: board) {
+            isInCheck = true
             SoundEngine.shared.playCheck()
+        } else {
+            isInCheck = false
         }
     }
 
