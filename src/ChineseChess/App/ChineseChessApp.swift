@@ -191,6 +191,27 @@ struct ChineseChessApp: App {
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
+
+            CommandMenu("棋局") {
+                Button("新局") {
+                    viewModel.newGame()
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
+                Button("悔棋") {
+                    viewModel.undoMove()
+                }
+                .keyboardShortcut("z", modifiers: .command)
+                .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
+
+                Divider()
+
+                Button("提示") {
+                    viewModel.requestHint()
+                }
+                .keyboardShortcut("h", modifiers: [.command, .shift])
+                .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+            }
         }
     }
 }
