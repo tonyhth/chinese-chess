@@ -304,6 +304,37 @@ struct PuzzlePlayView: View {
                     }
                 }
             }
+
+            // 失败弹窗
+            if viewModel.gameState == .failed {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .onTapGesture { /* 阻止穿透 */ }
+
+                VStack(spacing: 16) {
+                    Text("挑战失败")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.red)
+                    Text("不要气馁，再试一次吧！")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                    HStack(spacing: 12) {
+                        Button("重试") {
+                            viewModel.resetPuzzle()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.brown)
+
+                        Button("返回") { dismiss() }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                    }
+                }
+                .padding(24)
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(12)
+                .padding()
+            }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
     }
