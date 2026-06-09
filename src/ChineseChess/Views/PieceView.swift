@@ -20,6 +20,18 @@ struct PieceView: View {
 
     private var borderColor: Color { theme.pieceBorder }
 
+    /// 小棋盘模式（compact），需增强选中效果
+    private var isCompact: Bool { cellSize < 40 }
+
+    /// 选中边框线宽
+    private var selectedBorderWidth: CGFloat { isCompact ? 3 : 2 }
+
+    /// 选中边框额外尺寸
+    private var selectedBorderExpansion: CGFloat { isCompact ? 8 : 4 }
+
+    /// 选中发光半径
+    private var selectedGlowRadius: CGFloat { isCompact ? 8 : 6 }
+
     var body: some View {
         ZStack {
             // 棋子底色 + 立体感
@@ -49,12 +61,12 @@ struct PieceView: View {
         .overlay {
             if isSelected {
                 Circle()
-                    .stroke(Color.yellow, lineWidth: isSelected && cellSize < 40 ? 3 : 2)
-                    .frame(width: pieceDiameter + (isSelected && cellSize < 40 ? 8 : 4),
-                           height: pieceDiameter + (isSelected && cellSize < 40 ? 8 : 4))
+                    .stroke(Color.yellow, lineWidth: selectedBorderWidth)
+                    .frame(width: pieceDiameter + selectedBorderExpansion,
+                           height: pieceDiameter + selectedBorderExpansion)
             }
         }
-        .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? (cellSize < 40 ? 8 : 6) : 0)
+        .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? selectedGlowRadius : 0)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
     }
 }
