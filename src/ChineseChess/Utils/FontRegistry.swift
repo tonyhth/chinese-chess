@@ -12,6 +12,21 @@ import UIKit
 enum FontRegistry {
     static let fontName = "LXGWWenKai-Regular"
 
+    /// System fallback font when LXGW WenKai is unavailable
+    static let fallbackFontName = "STKaiti"  // macOS/iOS built-in KaiTi
+
+    /// Returns the best available font name; falls back to system font if neither custom nor fallback is found
+    static var bestAvailableFontName: String {
+        #if canImport(AppKit)
+        if NSFont(name: fontName, size: 16) != nil { return fontName }
+        if NSFont(name: fallbackFontName, size: 16) != nil { return fallbackFontName }
+        #elseif canImport(UIKit)
+        if UIFont(name: fontName, size: 16) != nil { return fontName }
+        if UIFont(name: fallbackFontName, size: 16) != nil { return fallbackFontName }
+        #endif
+        return "System" // SwiftUI default
+    }
+
     /// Call once at app launch (App.init).
     static func registerFonts() {
         guard let fontURL = Bundle.main.url(forResource: "LXGWWenKai-Regular", withExtension: "ttf") else {
