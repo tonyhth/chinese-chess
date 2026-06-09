@@ -26,14 +26,30 @@ struct PuzzleSelectView: View {
 
             // 残局列表
             let list = filteredPuzzles
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    ForEach(list) { puzzle in
-                        PuzzleRow(puzzle: puzzle, progress: PuzzleStore.shared.progress(for: puzzle.id)) {
-                            selectedPuzzle = puzzle
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(list) { puzzle in
+                            PuzzleRow(puzzle: puzzle, progress: PuzzleStore.shared.progress(for: puzzle.id)) {
+                                selectedPuzzle = puzzle
+                            }
                         }
                     }
+                    // 底部留白，避免被遮罩盖住最后一项
+                    Color.clear.frame(height: 24)
                 }
+
+                // 底部渐变遮罩，暗示可滚动
+                LinearGradient(
+                    colors: [
+                        Color(red: 40/255, green: 22/255, blue: 14/255).opacity(0),
+                        Color(red: 40/255, green: 22/255, blue: 14/255)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 32)
+                .allowsHitTesting(false)
             }
         }
         .padding(12)
