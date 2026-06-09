@@ -16,7 +16,7 @@ struct RecordPanelView: View {
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 2) {
                             ForEach(gameMoves) { gm in
                                 moveRow(gm)
                                     .id(gm.id)
