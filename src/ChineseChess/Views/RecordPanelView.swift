@@ -50,7 +50,7 @@ struct RecordPanelView: View {
 
             // 棋谱
             Text(gm.notation)
-                .font(.custom(FontRegistry.fontName, size: 13))
+                .font(.custom(FontRegistry.bestAvailableFontName, size: 13))
                 .foregroundColor(gm.piece.side == .red ? .red : .white)
 
             // 标记

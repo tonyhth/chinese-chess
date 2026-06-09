@@ -42,7 +42,7 @@ struct PieceView: View {
 
             // 棋子文字
             Text(piece.displayName)
-                .font(.custom(FontRegistry.fontName, size: fontSize))
+                .font(.custom(FontRegistry.bestAvailableFontName, size: fontSize))
                 .foregroundColor(textColor)
         }
         .scaleEffect(isSelected ? 1.1 : 1.0)

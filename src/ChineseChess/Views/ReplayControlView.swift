@@ -64,7 +64,7 @@ struct ReplayControlView: View {
                     .foregroundColor(.gray)
                 if let move = viewModel.currentMove {
                     Text(move.notation)
-                        .font(.custom(FontRegistry.fontName, size: 14))
+                        .font(.custom(FontRegistry.bestAvailableFontName, size: 14))
                         .foregroundColor(move.piece.side == .red ? .red : .white)
                 }
                 Spacer()

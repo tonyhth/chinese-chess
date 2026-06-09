@@ -62,7 +62,7 @@ struct StatusBarView: View {
             HStack(spacing: 4) {
                 ForEach(pieces) { piece in
                     Text(piece.displayName)
-                        .font(.custom(FontRegistry.fontName, size: 13))
+                        .font(.custom(FontRegistry.bestAvailableFontName, size: 13))
                         .foregroundColor(color)
                 }
             }
