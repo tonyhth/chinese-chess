@@ -256,8 +256,8 @@ struct ChessBoardView: View {
     }
 
     private func drawStarMarks(context: inout GraphicsContext, cellSize: CGFloat, padding: CGFloat) {
-        let markSize: CGFloat = 5
-        let markGap: CGFloat = 3
+        let markSize: CGFloat = cellSize * 0.15
+        let markGap: CGFloat = cellSize * 0.09
 
         let cannonPositions: [(Int, Int)] = [(2, 1), (2, 7), (7, 1), (7, 7)]
         let soldierPositions: [(Int, Int)] = [(3, 0), (3, 2), (3, 4), (3, 6), (3, 8),
