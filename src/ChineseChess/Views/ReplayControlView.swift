@@ -5,10 +5,17 @@ struct ReplayControlView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // 进度条
-            ProgressView(value: Double(viewModel.currentIndex), total: Double(max(1, viewModel.record.moves.count)))
-                .tint(.brown)
-                .padding(.horizontal, 16)
+            // 进度条（可拖拽 Slider）
+            Slider(
+                value: Binding(
+                    get: { Double(viewModel.currentIndex) },
+                    set: { viewModel.jumpTo(index: Int($0)) }
+                ),
+                in: 0...Double(max(1, viewModel.record.moves.count)),
+                step: 1
+            )
+            .tint(.brown)
+            .padding(.horizontal, 16)
 
             // 控制按钮
             HStack(spacing: 20) {
