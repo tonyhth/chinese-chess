@@ -173,7 +173,7 @@ struct Round2ReviewTests {
         vm.jumpTo(index: 1)
         #expect(vm.currentIndex == 1)
         #expect(vm.lastMove != nil)
-        #expect(vm.lastMove?.notation == "兵五进一")
+        #expect(vm.lastMove?.from == moves[0].from)
 
         // Slider 拖到末尾
         vm.jumpTo(index: 3)

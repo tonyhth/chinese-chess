@@ -116,8 +116,11 @@ struct ChessBoardView: View {
     }
 
     private var hintMove: (from: Position, to: Position)? {
-        if case .playGame(let vm) = mode { return vm.hintMove }
-        return nil
+        switch mode {
+        case .playGame(let vm): return vm.hintMove
+        case .playPuzzle(let vm): return vm.hintMove
+        case .replay: return nil
+        }
     }
 
     private var lastMove: (from: Position, to: Position)? {

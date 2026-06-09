@@ -25,6 +25,9 @@ class PuzzleViewModel {
     var selectedPosition: Position?
     var legalMovesForSelected: [Position] = []
 
+    /// 提示高亮的起止位置（from, to），供 ChessBoardView 蓝色高亮显示
+    var hintMove: (from: Position, to: Position)?
+
     private let aiEngine = AIEngine()
     private var puzzleVersion: Int = 0
     private var cachedSolutionRecord: GameRecord?
@@ -268,19 +271,29 @@ class PuzzleViewModel {
         if hintIndex < puzzle.solution.count + (puzzle.hints?.count ?? 0) {
             let solIdx = hintIndex - (puzzle.hints?.count ?? 0)
             if solIdx >= 0 && solIdx < puzzle.solution.count {
-                currentHint = "提示：第 \(solIdx + 1) 步 → \(puzzle.solution[solIdx])"
+                let iccs = puzzle.solution[solIdx]
+                currentHint = "提示：第 \(solIdx + 1) 步 → \(iccs)"
+                // 设置提示高亮位置
+                if let move = ICCSParser.parse(iccs, on: board) {
+                    hintMove = (from: move.from, to: move.to)
+                } else {
+                    hintMove = nil
+                }
             } else {
                 currentHint = "暂无更多提示"
+                hintMove = nil
             }
             hintIndex += 1
         } else {
             currentHint = "暂无更多提示"
+            hintMove = nil
         }
         gameState = .showingHint
     }
 
     func dismissHint() {
         currentHint = nil
+        hintMove = nil
         gameState = .playing
     }
 
