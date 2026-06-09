@@ -4,6 +4,12 @@ struct PuzzleSelectView: View {
     @State private var selectedCategory: String?
     @State private var selectedPuzzle: Puzzle?
 
+    /// 面板背景色（统一常量，渐变遮罩也使用此色）
+    private let panelBackground = Color(red: 40/255, green: 22/255, blue: 14/255)
+
+    /// 底部渐变遮罩高度
+    private let fadeHeight: CGFloat = 24
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("残局闯关")
@@ -35,25 +41,25 @@ struct PuzzleSelectView: View {
                             }
                         }
                     }
-                    // 底部留白，避免被遮罩盖住最后一项
-                    Color.clear.frame(height: 24)
+                    // 底部留白，与遮罩高度匹配
+                    Color.clear.frame(height: fadeHeight)
                 }
 
                 // 底部渐变遮罩，暗示可滚动
                 LinearGradient(
                     colors: [
-                        Color(red: 40/255, green: 22/255, blue: 14/255).opacity(0),
-                        Color(red: 40/255, green: 22/255, blue: 14/255)
+                        panelBackground.opacity(0),
+                        panelBackground
                     ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 32)
+                .frame(height: fadeHeight)
                 .allowsHitTesting(false)
             }
         }
         .padding(12)
-        .background(Color(red: 40/255, green: 22/255, blue: 14/255))
+        .background(panelBackground)
         .cornerRadius(8)
         .sheet(item: $selectedPuzzle) { puzzle in
             PuzzlePlayView(puzzle: puzzle)
