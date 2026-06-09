@@ -175,7 +175,7 @@ struct V211P0Tests {
     @Test("打包 App 包含 Assets.car")
     func appBundleContainsCompiledAssets() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/Desktop"
+        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/DevTeam/projects/chinese-chess/src"
         let carPath = "\(appDir)/中国象棋-v2.1.2.app/Contents/Resources/Assets.car"
         let fm = FileManager.default
         #expect(fm.fileExists(atPath: carPath), "打包 App 应包含 Assets.car")
@@ -184,7 +184,7 @@ struct V211P0Tests {
     @Test("打包 App 包含 AppIcon.icns")
     func appBundleContainsIcon() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/Desktop"
+        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/DevTeam/projects/chinese-chess/src"
         let icnsPath = "\(appDir)/中国象棋-v2.1.2.app/Contents/Resources/AppIcon.icns"
         let fm = FileManager.default
         #expect(fm.fileExists(atPath: icnsPath), "打包 App 应包含 AppIcon.icns")
@@ -193,7 +193,7 @@ struct V211P0Tests {
     @Test("打包 App 可执行文件存在且非空")
     func appBundleContainsExecutable() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/Desktop"
+        let appDir = ProcessInfo.processInfo.environment["CHESS_APP_DIR"] ?? "\(homeDir)/DevTeam/projects/chinese-chess/src"
         let execPath = "\(appDir)/中国象棋-v2.1.2.app/Contents/MacOS/ChineseChess"
         let fm = FileManager.default
         #expect(fm.isExecutableFile(atPath: execPath), "打包 App 应包含可执行文件")
