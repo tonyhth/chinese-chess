@@ -45,15 +45,16 @@ struct PieceView: View {
                 .font(.custom(FontRegistry.fontName, size: fontSize))
                 .foregroundColor(textColor)
         }
-        .scaleEffect(isSelected ? 1.05 : 1.0)
+        .scaleEffect(isSelected ? 1.1 : 1.0)
         .overlay {
             if isSelected {
                 Circle()
-                    .stroke(Color.yellow, lineWidth: 2)
-                    .frame(width: pieceDiameter + 4, height: pieceDiameter + 4)
+                    .stroke(Color.yellow, lineWidth: isSelected && cellSize < 40 ? 3 : 2)
+                    .frame(width: pieceDiameter + (isSelected && cellSize < 40 ? 8 : 4),
+                           height: pieceDiameter + (isSelected && cellSize < 40 ? 8 : 4))
             }
         }
-        .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? 6 : 0)
+        .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? (cellSize < 40 ? 8 : 6) : 0)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
     }
 }
