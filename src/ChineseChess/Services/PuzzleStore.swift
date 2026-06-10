@@ -20,15 +20,12 @@ final class PuzzleStore {
     // MARK: - 加载残局数据
 
     private func loadPuzzles() {
-        // 1. 优先用 ResourceBundle（SPM bundle）
+        // 1. 优先用 ResourceBundle（SPM bundle 根目录）
         var url = ResourceBundle.url(forResource: "puzzles", withExtension: "json")
 
-        // 2. Fallback: Bundle.main 直接查找（打包 .app 时资源可能扁平化或在子目录）
+        // 2. Fallback: .app 打包时资源可能在 Puzzles/ 子目录
         if url == nil {
-            url = Bundle.main.url(forResource: "puzzles", withExtension: "json")
-        }
-        if url == nil {
-            url = Bundle.main.url(forResource: "puzzles", withExtension: "json", subdirectory: "Puzzles")
+            url = ResourceBundle.url(forResource: "puzzles", withExtension: "json", subdirectory: "Puzzles")
         }
 
         guard let puzzleURL = url else {

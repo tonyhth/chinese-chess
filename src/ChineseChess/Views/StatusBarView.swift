@@ -64,7 +64,7 @@ struct StatusBarView: View {
         if pieces.isEmpty {
             Text(String(localized: "none"))
                 .font(.system(size: 11))
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
         } else {
             HStack(spacing: 4) {
                 ForEach(pieces) { piece in

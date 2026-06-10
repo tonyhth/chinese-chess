@@ -45,7 +45,7 @@ struct RecordPanelView: View {
             // 回合号
             Text("\(gm.turnNumber).")
                 .font(.system(size: 11, design: .monospaced))
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
                 .frame(width: 24, alignment: .trailing)
 
             // 棋谱

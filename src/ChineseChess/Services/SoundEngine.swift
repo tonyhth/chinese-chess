@@ -90,9 +90,13 @@ class SoundEngine {
 
     private func loadSound(name: String, ext: String) -> AVAudioPlayer? {
         var url = ResourceBundle.url(forResource: name, withExtension: ext)
-        // Fallback: 打包 .app 时音频可能在 Sounds/ 子目录
+        // Fallback: .app 打包时音频可能在 Sounds/ 子目录
         if url == nil {
-            url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "Sounds")
+            url = ResourceBundle.url(forResource: name, withExtension: ext, subdirectory: "Sounds")
+        }
+        // Fallback: .app 打包时音频可能在根目录（扁平化打包）
+        if url == nil {
+            url = Bundle.main.url(forResource: name, withExtension: ext)
         }
         guard let soundURL = url else { return nil }
         return try? AVAudioPlayer(contentsOf: soundURL)

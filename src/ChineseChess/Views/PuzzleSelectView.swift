@@ -40,7 +40,7 @@ struct PuzzleSelectView: View {
                         .foregroundColor(.secondary)
                     Text(String(localized: "puzzle.empty"))
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
@@ -129,7 +129,7 @@ struct PuzzleRow: View {
                     HStack(spacing: 4) {
                         Text(puzzle.description)
                             .font(.system(size: 11))
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                             .lineLimit(1)
                         if !puzzle.typeLabel.isEmpty {
                             Text(puzzle.typeLabel)
@@ -325,7 +325,7 @@ struct PuzzlePlayView: View {
                         .foregroundColor(.red)
                     Text(String(localized: "puzzle.failed.hint"))
                         .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     HStack(spacing: 12) {
                         Button(String(localized: "puzzle.retry")) {
                             viewModel.resetPuzzle()
