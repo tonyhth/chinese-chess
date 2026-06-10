@@ -145,7 +145,7 @@ final class AIEngine: AIEngineProtocol {
         return bestMove
     }
 
-    // MARK: - 中级：depth=5 + Alpha-Beta + 开局库 + 将帅安全评估
+    // MARK: - 中级：IDS depth=5-6 + Alpha-Beta + 开局库 + 将帅安全评估
 
     private func mediumSearch(for board: Board) -> Move? {
         // 检查开局库
@@ -155,8 +155,17 @@ final class AIEngine: AIEngineProtocol {
             return move
         }
 
-        // depth=5 + TT + 走法排序 + 将帅安全（不启用机动性，开销不可接受）
-        return rootSearch(for: board, depth: 5, useTT: true, useMoveOrder: true,
+        // 残局阶段加深
+        let depth: Int
+        if board.pieces.count <= 6 {
+            depth = 6
+        } else if board.pieces.count <= 10 {
+            depth = 6
+        } else {
+            depth = 5
+        }
+
+        return rootSearch(for: board, depth: depth, useTT: true, useMoveOrder: true,
                           evalConfig: .basic)
     }
 
