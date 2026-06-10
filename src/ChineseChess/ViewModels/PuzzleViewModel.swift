@@ -12,7 +12,7 @@ class PuzzleViewModel {
     }()
 
     let puzzle: Puzzle
-    let board: Board
+    var board: Board
     let playerSide: Side
 
     var gameMoves: [GameMove] = []
@@ -22,6 +22,7 @@ class PuzzleViewModel {
     var isThinking: Bool = false
     var completionRating: Int = 0
     var solutionHint: String?  // 实时提示：有更优走法时显示
+    var isInCheck: Bool = false
     var selectedPosition: Position?
     var legalMovesForSelected: [Position] = []
 
@@ -119,6 +120,9 @@ class PuzzleViewModel {
         )
         gameMoves.append(gameMove)
 
+        // 更新将军状态
+        isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+
         if let captured = captured {
             SoundEngine.shared.playCapture()
         } else {
@@ -197,6 +201,9 @@ class PuzzleViewModel {
                         )
                         self.gameMoves.append(gameMove)
 
+                        // 更新将军状态
+                        self.isInCheck = MoveValidator.isInCheck(self.board.currentTurn, on: self.board)
+
                         if let captured = captured {
                             SoundEngine.shared.playCapture()
                         } else {
@@ -236,6 +243,9 @@ class PuzzleViewModel {
             if !gameMoves.isEmpty { gameMoves.removeLast() }
         }
         currentHint = nil
+        solutionHint = nil
+        hintMove = nil
+        isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
         gameState = .playing
     }
 
@@ -414,13 +424,9 @@ class PuzzleViewModel {
 
     func resetPuzzle() {
         puzzleVersion += 1
-        // 重建初始棋盘
-        let freshBoard = Board(fen: puzzle.initialFEN)
-        // board 是 let，无法重新赋值；通过 undo 回到初始状态
-        // 需要逐个撤回直到 moveHistory 为空
-        while board.moveHistory.count > 0 {
-            board.undoLastMove()
-        }
+        // 直接重建初始棋盘，避免 while-undo 状态累积风险和 O(n×pieces) 性能问题
+        board = Board(fen: puzzle.initialFEN)
+        isInCheck = false
         selectedPosition = nil
         legalMovesForSelected = []
         gameMoves = []
@@ -428,6 +434,7 @@ class PuzzleViewModel {
         hintIndex = 0
         currentHint = nil
         solutionHint = nil
+        hintMove = nil
         completionRating = 0
     }
 

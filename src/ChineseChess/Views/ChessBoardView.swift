@@ -123,6 +123,14 @@ struct ChessBoardView: View {
         }
     }
 
+    private var isInCheck: Bool {
+        switch mode {
+        case .playGame(let vm): return vm.isInCheck
+        case .playPuzzle(let vm): return vm.isInCheck
+        case .replay: return false
+        }
+    }
+
     private var lastMove: (from: Position, to: Position)? {
         if case .replay(let vm) = mode { return vm.lastMove }
         return nil
@@ -146,7 +154,7 @@ struct ChessBoardView: View {
 
         // 被将军高亮：被将方的帅/将格子加红色闪烁圈
         if !isReadOnly {
-            if MoveValidator.isInCheck(board.currentTurn, on: board), let kingPos = board.generalPosition(of: board.currentTurn) {
+            if isInCheck, let kingPos = board.generalPosition(of: board.currentTurn) {
                 Circle()
                     .stroke(Color.red, lineWidth: 3)
                     .frame(width: cellSize * 0.9, height: cellSize * 0.9)

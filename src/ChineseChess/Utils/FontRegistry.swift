@@ -16,7 +16,8 @@ enum FontRegistry {
     static let fallbackFontName = "STKaiti"  // macOS/iOS built-in KaiTi
 
     /// Returns the best available font name; falls back to system font if neither custom nor fallback is found
-    static var bestAvailableFontName: String {
+    /// Cached as static let — computed once at first access
+    static let bestAvailableFontName: String = {
         #if canImport(AppKit)
         if NSFont(name: fontName, size: 16) != nil { return fontName }
         if NSFont(name: fallbackFontName, size: 16) != nil { return fallbackFontName }
@@ -25,7 +26,7 @@ enum FontRegistry {
         if UIFont(name: fallbackFontName, size: 16) != nil { return fallbackFontName }
         #endif
         return "System" // SwiftUI default
-    }
+    }()
 
     /// Call once at app launch (App.init).
     static func registerFonts() {

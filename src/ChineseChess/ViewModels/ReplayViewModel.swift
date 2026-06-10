@@ -83,7 +83,12 @@ class ReplayViewModel {
         autoPlayTask = Task { @MainActor in
             while canGoForward && !Task.isCancelled {
                 goForward()
-                try? await Task.sleep(for: .seconds(stepInterval))
+                do {
+                    try await Task.sleep(for: .seconds(stepInterval))
+                } catch {
+                    // CancellationError: 退出循环
+                    break
+                }
             }
             isAutoPlaying = false
         }

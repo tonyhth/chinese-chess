@@ -81,8 +81,11 @@ class SoundEngine {
 
     private func play(_ name: String) {
         guard !_isMuted, let player = players[name] else { return }
-        player.currentTime = 0
-        player.play()
+        // AVAudioPlayer 不保证线程安全，调度回主线程执行
+        DispatchQueue.main.async {
+            player.currentTime = 0
+            player.play()
+        }
     }
 
     private func loadSound(name: String, ext: String) -> AVAudioPlayer? {
