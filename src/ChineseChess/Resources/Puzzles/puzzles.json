@@ -1,62 +1,8 @@
 {
-  "version": 4,
+  "version": 5,
   "puzzles": [
     {
       "id": "puzzle_001",
-      "name": "单车擒王",
-      "category": "单车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。单车擒王杀。",
-      "playerSide": "red",
-      "initialFEN": "9/3aa4/3aak3/9/9/9/9/R8/9/4K4 w - - 0 1",
-      "solution": [
-        "a2f2"
-      ],
-      "hints": [
-        "红先胜。单车擒王杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_002",
-      "name": "车肋将",
-      "category": "单车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车肋道将军。",
-      "playerSide": "red",
-      "initialFEN": "5a3/4a4/3aka3/9/4R4/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e5e7"
-      ],
-      "hints": [
-        "红先胜。车肋道将军。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_003",
-      "name": "横车将",
-      "category": "单车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。横车将军。",
-      "playerSide": "red",
-      "initialFEN": "4aa3/4a4/4ak3/9/9/9/4R4/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e3f3"
-      ],
-      "hints": [
-        "红先胜。横车将军。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_004",
       "name": "车控线",
       "category": "单车类",
       "difficulty": 2,
@@ -74,7 +20,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_005",
+      "id": "puzzle_002",
       "name": "车逼将",
       "category": "单车类",
       "difficulty": 2,
@@ -92,7 +38,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_006",
+      "id": "puzzle_003",
       "name": "车沉底",
       "category": "单车类",
       "difficulty": 2,
@@ -110,7 +56,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_007",
+      "id": "puzzle_004",
       "name": "车破士",
       "category": "单车类",
       "difficulty": 3,
@@ -128,7 +74,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_008",
+      "id": "puzzle_005",
       "name": "车捉将",
       "category": "单车类",
       "difficulty": 3,
@@ -146,25 +92,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_009",
-      "name": "大刀剜心",
-      "category": "车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。大刀剜心杀。",
-      "playerSide": "red",
-      "initialFEN": "9/4k3R/5a3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "i8e8"
-      ],
-      "hints": [
-        "红先胜。大刀剜心杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_010",
+      "id": "puzzle_006",
       "name": "车底线",
       "category": "单车类",
       "difficulty": 3,
@@ -182,25 +110,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_011",
-      "name": "车控肋",
-      "category": "车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车控肋杀。",
-      "playerSide": "red",
-      "initialFEN": "3k4R/3a5/9/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "i9d9"
-      ],
-      "hints": [
-        "红先胜。车控肋杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_012",
+      "id": "puzzle_007",
       "name": "车扫荡",
       "category": "单车类",
       "difficulty": 4,
@@ -218,7 +128,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_013",
+      "id": "puzzle_008",
       "name": "车横杀",
       "category": "单车类",
       "difficulty": 4,
@@ -236,7 +146,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_014",
+      "id": "puzzle_009",
       "name": "车肋杀",
       "category": "单车类",
       "difficulty": 4,
@@ -254,25 +164,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_015",
-      "name": "车破象",
-      "category": "车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车破象杀。",
-      "playerSide": "red",
-      "initialFEN": "4aa3/3k5/9/3R5/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d6d8"
-      ],
-      "hints": [
-        "红先胜。车破象杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_016",
+      "id": "puzzle_010",
       "name": "车直杀",
       "category": "单车类",
       "difficulty": 5,
@@ -290,43 +182,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_017",
-      "name": "双车错",
-      "category": "双车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。双车错杀。",
-      "playerSide": "red",
-      "initialFEN": "4aa3/4aa3/5k1R1/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "h7i7"
-      ],
-      "hints": [
-        "红先胜。双车错杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_018",
-      "name": "双车肋杀",
-      "category": "双车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。双车肋杀。",
-      "playerSide": "red",
-      "initialFEN": "3ka4/3aa4/4a4/9/9/9/2R6/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c3c9"
-      ],
-      "hints": [
-        "红先胜。双车肋杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_019",
+      "id": "puzzle_011",
       "name": "车塞象眼",
       "category": "车类",
       "difficulty": 2,
@@ -344,25 +200,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_020",
-      "name": "双车临门",
-      "category": "双车类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。双车临门。",
-      "playerSide": "red",
-      "initialFEN": "3aa4/4akR2/3a5/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "g8f8"
-      ],
-      "hints": [
-        "红先胜。双车临门。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_021",
+      "id": "puzzle_012",
       "name": "车捉士",
       "category": "车类",
       "difficulty": 2,
@@ -380,7 +218,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_022",
+      "id": "puzzle_013",
       "name": "双车破士",
       "category": "双车类",
       "difficulty": 2,
@@ -398,7 +236,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_023",
+      "id": "puzzle_014",
       "name": "双车横杀",
       "category": "双车类",
       "difficulty": 2,
@@ -416,7 +254,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_024",
+      "id": "puzzle_015",
       "name": "车兵联攻",
       "category": "车类",
       "difficulty": 2,
@@ -434,7 +272,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_025",
+      "id": "puzzle_016",
       "name": "车双杀",
       "category": "车类",
       "difficulty": 3,
@@ -452,7 +290,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_026",
+      "id": "puzzle_017",
       "name": "车破防",
       "category": "车类",
       "difficulty": 3,
@@ -470,7 +308,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_027",
+      "id": "puzzle_018",
       "name": "车横扫",
       "category": "车类",
       "difficulty": 3,
@@ -488,61 +326,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_028",
-      "name": "重炮将",
-      "category": "炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。重炮将军。",
-      "playerSide": "red",
-      "initialFEN": "9/3aa4/3ka4/9/9/3R5/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d4d3"
-      ],
-      "hints": [
-        "红先胜。重炮将军。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_029",
-      "name": "炮镇中路",
-      "category": "炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。炮镇中路杀。",
-      "playerSide": "red",
-      "initialFEN": "9/3aa4/3aak3/9/9/9/3R5/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d3f3"
-      ],
-      "hints": [
-        "红先胜。炮镇中路杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_030",
-      "name": "炮打隔山",
-      "category": "炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。炮隔山打将。",
-      "playerSide": "red",
-      "initialFEN": "5k3/3aaa3/3a5/9/6R2/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "g5g9"
-      ],
-      "hints": [
-        "红先胜。炮隔山打将。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_031",
+      "id": "puzzle_019",
       "name": "天地炮",
       "category": "炮类",
       "difficulty": 2,
@@ -560,7 +344,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_032",
+      "id": "puzzle_020",
       "name": "炮碾丹沙",
       "category": "炮类",
       "difficulty": 2,
@@ -578,7 +362,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_033",
+      "id": "puzzle_021",
       "name": "双炮齐轰",
       "category": "炮类",
       "difficulty": 2,
@@ -596,7 +380,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_034",
+      "id": "puzzle_022",
       "name": "炮借架",
       "category": "炮类",
       "difficulty": 3,
@@ -614,7 +398,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_035",
+      "id": "puzzle_023",
       "name": "炮将军",
       "category": "炮类",
       "difficulty": 3,
@@ -632,7 +416,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_036",
+      "id": "puzzle_024",
       "name": "炮打翻山",
       "category": "炮类",
       "difficulty": 3,
@@ -650,7 +434,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_037",
+      "id": "puzzle_025",
       "name": "炮沉底",
       "category": "炮类",
       "difficulty": 4,
@@ -668,7 +452,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_038",
+      "id": "puzzle_026",
       "name": "炮横杀",
       "category": "炮类",
       "difficulty": 4,
@@ -686,7 +470,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_039",
+      "id": "puzzle_027",
       "name": "炮碾将",
       "category": "炮类",
       "difficulty": 4,
@@ -704,7 +488,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_040",
+      "id": "puzzle_028",
       "name": "炮控路",
       "category": "炮类",
       "difficulty": 5,
@@ -722,7 +506,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_041",
+      "id": "puzzle_029",
       "name": "炮闷攻",
       "category": "炮类",
       "difficulty": 5,
@@ -740,7 +524,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_042",
+      "id": "puzzle_030",
       "name": "炮底杀",
       "category": "炮类",
       "difficulty": 5,
@@ -758,7 +542,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_043",
+      "id": "puzzle_031",
       "name": "炮翻山",
       "category": "炮类",
       "difficulty": 5,
@@ -776,61 +560,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_044",
-      "name": "兵冲杀",
-      "category": "兵类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。兵冲杀。",
-      "playerSide": "red",
-      "initialFEN": "4a4/4aa3/3k5/9/9/9/9/9/3R5/4K4 w - - 0 1",
-      "solution": [
-        "d1d7"
-      ],
-      "hints": [
-        "红先胜。兵冲杀。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_045",
-      "name": "兵临城下",
-      "category": "兵类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。兵临城下。",
-      "playerSide": "red",
-      "initialFEN": "3a5/4aa3/2R1ka3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c7e7"
-      ],
-      "hints": [
-        "红先胜。兵临城下。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_046",
-      "name": "双兵追将",
-      "category": "兵类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。双兵追杀。",
-      "playerSide": "red",
-      "initialFEN": "4a4/R3k4/3a5/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "a8e8"
-      ],
-      "hints": [
-        "红先胜。双兵追杀。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_047",
+      "id": "puzzle_032",
       "name": "兵将军",
       "category": "兵类",
       "difficulty": 2,
@@ -848,7 +578,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_048",
+      "id": "puzzle_033",
       "name": "兵过河",
       "category": "兵类",
       "difficulty": 2,
@@ -866,7 +596,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_049",
+      "id": "puzzle_034",
       "name": "兵捉将",
       "category": "兵类",
       "difficulty": 2,
@@ -884,7 +614,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_050",
+      "id": "puzzle_035",
       "name": "兵到底线",
       "category": "兵类",
       "difficulty": 3,
@@ -902,7 +632,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_051",
+      "id": "puzzle_036",
       "name": "老兵新传",
       "category": "兵类",
       "difficulty": 3,
@@ -920,7 +650,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_052",
+      "id": "puzzle_037",
       "name": "三兵胜",
       "category": "兵类",
       "difficulty": 3,
@@ -938,61 +668,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_053",
-      "name": "卧槽马",
-      "category": "马类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。卧槽马杀。",
-      "playerSide": "red",
-      "initialFEN": "3aa4/3k5/3aa4/9/9/9/9/1R7/9/4K4 w - - 0 1",
-      "solution": [
-        "b2b8"
-      ],
-      "hints": [
-        "红先胜。卧槽马杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_054",
-      "name": "钓鱼马",
-      "category": "马类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。钓鱼马杀。",
-      "playerSide": "red",
-      "initialFEN": "2Rk5/3a1a3/3a5/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c9d9"
-      ],
-      "hints": [
-        "红先胜。钓鱼马杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_055",
-      "name": "挂角马",
-      "category": "马类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。挂角马杀。",
-      "playerSide": "red",
-      "initialFEN": "3k1R3/5a3/3aaa3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "f9d9"
-      ],
-      "hints": [
-        "红先胜。挂角马杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_056",
+      "id": "puzzle_038",
       "name": "八角马",
       "category": "马类",
       "difficulty": 2,
@@ -1010,7 +686,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_057",
+      "id": "puzzle_039",
       "name": "白马出栏",
       "category": "马类",
       "difficulty": 2,
@@ -1028,7 +704,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_058",
+      "id": "puzzle_040",
       "name": "马踏连营",
       "category": "马类",
       "difficulty": 2,
@@ -1046,7 +722,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_059",
+      "id": "puzzle_041",
       "name": "回马枪",
       "category": "马类",
       "difficulty": 3,
@@ -1064,7 +740,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_060",
+      "id": "puzzle_042",
       "name": "跃马",
       "category": "马类",
       "difficulty": 3,
@@ -1082,7 +758,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_061",
+      "id": "puzzle_043",
       "name": "铁马金枪",
       "category": "马类",
       "difficulty": 3,
@@ -1100,7 +776,7 @@
       "source": "适情雅趣"
     },
     {
-      "id": "puzzle_062",
+      "id": "puzzle_044",
       "name": "双马配合",
       "category": "马类",
       "difficulty": 4,
@@ -1118,7 +794,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_063",
+      "id": "puzzle_045",
       "name": "马跳将",
       "category": "马类",
       "difficulty": 4,
@@ -1136,7 +812,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_064",
+      "id": "puzzle_046",
       "name": "马捉将",
       "category": "马类",
       "difficulty": 4,
@@ -1154,7 +830,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_065",
+      "id": "puzzle_047",
       "name": "双马饮泉",
       "category": "马类",
       "difficulty": 5,
@@ -1172,61 +848,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_066",
-      "name": "马后炮",
-      "category": "马炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。马后炮杀。",
-      "playerSide": "red",
-      "initialFEN": "4ak3/3a1R3/5a3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "f8f9"
-      ],
-      "hints": [
-        "红先胜。马后炮杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_067",
-      "name": "马炮配合",
-      "category": "马炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。马炮配合杀。",
-      "playerSide": "red",
-      "initialFEN": "5a3/3a1a3/4ka3/4R4/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e6e7"
-      ],
-      "hints": [
-        "红先胜。马炮配合杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_068",
-      "name": "马炮争辉",
-      "category": "马炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。马炮争辉。",
-      "playerSide": "red",
-      "initialFEN": "3kaa3/3aa4/9/R8/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "a6a9"
-      ],
-      "hints": [
-        "红先胜。马炮争辉。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_069",
+      "id": "puzzle_048",
       "name": "炮马连击",
       "category": "马炮类",
       "difficulty": 2,
@@ -1244,7 +866,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_070",
+      "id": "puzzle_049",
       "name": "铁门栓",
       "category": "马炮类",
       "difficulty": 2,
@@ -1262,115 +884,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_071",
-      "name": "车马冷着",
-      "category": "车马类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车马冷着杀。",
-      "playerSide": "red",
-      "initialFEN": "3k1aC2/9/3a5/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "g9d9"
-      ],
-      "hints": [
-        "红先胜。车马冷着杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_072",
-      "name": "闷宫",
-      "category": "闷宫类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。闷宫将杀。",
-      "playerSide": "red",
-      "initialFEN": "5a3/4aa3/3k1a2C/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "i7d7"
-      ],
-      "hints": [
-        "红先胜。闷宫将杀。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_073",
-      "name": "闷杀",
-      "category": "闷宫类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。炮闷杀。",
-      "playerSide": "red",
-      "initialFEN": "4a4/1C1aka3/5a3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "b8e8"
-      ],
-      "hints": [
-        "红先胜。炮闷杀。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_074",
-      "name": "侧面虎",
-      "category": "车马类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。侧面虎杀。",
-      "playerSide": "red",
-      "initialFEN": "4k4/9/4a4/9/9/4C4/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e4e9"
-      ],
-      "hints": [
-        "红先胜。侧面虎杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_075",
-      "name": "重炮闷宫",
-      "category": "闷宫类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。重炮闷宫杀。",
-      "playerSide": "red",
-      "initialFEN": "9/4ak3/4aa3/9/9/9/5C3/9/9/4K4 w - - 0 1",
-      "solution": [
-        "f3f8"
-      ],
-      "hints": [
-        "红先胜。重炮闷宫杀。"
-      ],
-      "maxMoves": 10,
-      "source": "适情雅趣"
-    },
-    {
-      "id": "puzzle_076",
-      "name": "车马双将",
-      "category": "车马类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车马双将杀。",
-      "playerSide": "red",
-      "initialFEN": "3ka1C2/5a3/3a5/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "g9d9"
-      ],
-      "hints": [
-        "红先胜。车马双将杀。"
-      ],
-      "maxMoves": 10,
-      "source": "梅花谱"
-    },
-    {
-      "id": "puzzle_077",
+      "id": "puzzle_050",
       "name": "车马抽杀",
       "category": "车马类",
       "difficulty": 2,
@@ -1388,7 +902,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_078",
+      "id": "puzzle_051",
       "name": "车马配合",
       "category": "车马类",
       "difficulty": 2,
@@ -1406,7 +920,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_079",
+      "id": "puzzle_052",
       "name": "车马交驰",
       "category": "车马类",
       "difficulty": 2,
@@ -1424,61 +938,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_080",
-      "name": "车炮抽将",
-      "category": "车炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车炮抽将杀。",
-      "playerSide": "red",
-      "initialFEN": "3a1a3/5a3/2Cak4/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c7e7"
-      ],
-      "hints": [
-        "红先胜。车炮抽将杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_081",
-      "name": "车炮联攻",
-      "category": "车炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车炮联攻杀。",
-      "playerSide": "red",
-      "initialFEN": "9/3a1a3/2Ca1k3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "c7f7"
-      ],
-      "hints": [
-        "红先胜。车炮联攻杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_082",
-      "name": "车炮杀局",
-      "category": "车炮类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车炮杀局。",
-      "playerSide": "red",
-      "initialFEN": "5a3/9/C2aka3/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "a7e7"
-      ],
-      "hints": [
-        "红先胜。车炮杀局。"
-      ],
-      "maxMoves": 10,
-      "source": "竹香斋"
-    },
-    {
-      "id": "puzzle_083",
+      "id": "puzzle_053",
       "name": "车炮双杀",
       "category": "车炮类",
       "difficulty": 2,
@@ -1496,7 +956,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_084",
+      "id": "puzzle_054",
       "name": "车炮破城",
       "category": "车炮类",
       "difficulty": 2,
@@ -1514,7 +974,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_085",
+      "id": "puzzle_055",
       "name": "车炮横杀",
       "category": "车炮类",
       "difficulty": 2,
@@ -1532,115 +992,7 @@
       "source": "橘中秘"
     },
     {
-      "id": "puzzle_086",
-      "name": "车马炮杀",
-      "category": "混合类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车马炮联合杀。",
-      "playerSide": "red",
-      "initialFEN": "3ak4/3a5/3aa4/9/9/9/9/4C4/9/4K4 w - - 0 1",
-      "solution": [
-        "e2e9"
-      ],
-      "hints": [
-        "红先胜。车马炮联合杀。"
-      ],
-      "maxMoves": 10,
-      "source": "竹香斋"
-    },
-    {
-      "id": "puzzle_087",
-      "name": "双炮马杀",
-      "category": "混合类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。双炮马杀。",
-      "playerSide": "red",
-      "initialFEN": "3ka4/4a4/3a5/9/3C5/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d5d9"
-      ],
-      "hints": [
-        "红先胜。双炮马杀。"
-      ],
-      "maxMoves": 10,
-      "source": "竹香斋"
-    },
-    {
-      "id": "puzzle_088",
-      "name": "车炮兵杀",
-      "category": "混合类",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车炮兵联合杀。",
-      "playerSide": "red",
-      "initialFEN": "3Cak3/5a3/3aa4/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d9f9"
-      ],
-      "hints": [
-        "红先胜。车炮兵联合杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_089",
-      "name": "将帅对面",
-      "category": "经典排局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。将帅对面杀。",
-      "playerSide": "red",
-      "initialFEN": "9/3k1a2C/9/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "i8d8"
-      ],
-      "hints": [
-        "红先胜。将帅对面杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_090",
-      "name": "三车闹士",
-      "category": "经典排局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。三车闹士杀。",
-      "playerSide": "red",
-      "initialFEN": "4k4/4aa3/5a3/9/9/4C4/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "e4e9"
-      ],
-      "hints": [
-        "红先胜。三车闹士杀。"
-      ],
-      "maxMoves": 10,
-      "source": "百局象棋谱"
-    },
-    {
-      "id": "puzzle_091",
-      "name": "车马临门",
-      "category": "经典排局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先胜。车马临门杀。",
-      "playerSide": "red",
-      "initialFEN": "3C1a3/3a1a3/3ka4/9/9/9/9/9/9/4K4 w - - 0 1",
-      "solution": [
-        "d9d7"
-      ],
-      "hints": [
-        "红先胜。车马临门杀。"
-      ],
-      "maxMoves": 10,
-      "source": "橘中秘"
-    },
-    {
-      "id": "puzzle_092",
+      "id": "puzzle_056",
       "name": "双马交驰",
       "category": "经典排局",
       "difficulty": 2,
@@ -1658,7 +1010,7 @@
       "source": "梅花谱"
     },
     {
-      "id": "puzzle_093",
+      "id": "puzzle_057",
       "name": "炮马纵横",
       "category": "经典排局",
       "difficulty": 2,
@@ -1676,7 +1028,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_094",
+      "id": "puzzle_058",
       "name": "车炮纵横",
       "category": "经典排局",
       "difficulty": 2,
@@ -1694,7 +1046,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_095",
+      "id": "puzzle_059",
       "name": "车马纵横",
       "category": "经典排局",
       "difficulty": 3,
@@ -1712,7 +1064,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_096",
+      "id": "puzzle_060",
       "name": "车炮兵纵横",
       "category": "经典排局",
       "difficulty": 3,
@@ -1730,7 +1082,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_097",
+      "id": "puzzle_061",
       "name": "马炮纵横",
       "category": "经典排局",
       "difficulty": 3,
@@ -1748,7 +1100,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_098",
+      "id": "puzzle_062",
       "name": "星罗棋布",
       "category": "经典排局",
       "difficulty": 4,
@@ -1766,7 +1118,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "puzzle_099",
+      "id": "puzzle_063",
       "name": "双车马",
       "category": "经典排局",
       "difficulty": 4,
@@ -1784,7 +1136,7 @@
       "source": "百局象棋谱"
     },
     {
-      "id": "puzzle_100",
+      "id": "puzzle_064",
       "name": "车马炮纵横",
       "category": "经典排局",
       "difficulty": 4,
@@ -1802,531 +1154,7 @@
       "source": "竹香斋"
     },
     {
-      "id": "shq_001",
-      "name": "第285局 野马诱虎",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第285局 野马诱虎。",
-      "playerSide": "red",
-      "initialFEN": "3k3r1/4a4/3a5/6N2/9/9/9/4C4/4p2c1/2BR1K3 w - - 0 1",
-      "solution": [
-        "g6f8",
-        "h9f9",
-        "d0d7"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "checkmate",
-      "endDescription": "将杀获胜"
-    },
-    {
-      "id": "shq_002",
-      "name": "第498局 努力固守（炮兵对双卒）",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第498局 努力固守（炮兵对双卒）。",
-      "playerSide": "red",
-      "initialFEN": "5k3/4P4/9/9/2b6/9/9/9/3p2p2/4KC3 w - - 0 1",
-      "solution": [
-        "e8d8",
-        "e0d0",
-        "d1e1"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_003",
-      "name": "第118局 多士莫及",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第118局 多士莫及。",
-      "playerSide": "red",
-      "initialFEN": "C4a3/3k4C/2R2a3/2p1pPN2/9/9/2P5P/1cn5B/2p1App2/4KAB2 w - - 0 1",
-      "solution": [
-        "c7c8",
-        "d8d9",
-        "a9f9"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_004",
-      "name": "第144局 清门缵戎",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第144局 清门缵戎。",
-      "playerSide": "red",
-      "initialFEN": "2b1ka3/4a4/4b3n/3R1N3/6R2/9/9/3C3C1/1nrpA4/1c2KA3 w - - 0 1",
-      "solution": [
-        "d6d9",
-        "e8d9",
-        "h2e2"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_005",
-      "name": "第316局 移星换斗",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第316局 移星换斗。",
-      "playerSide": "red",
-      "initialFEN": "4kab2/4a3C/3rb4/n1R4Cc/5R3/1r7/9/4B4/3pp4/2B2K3 w - - 0 1",
-      "solution": [
-        "h6e6",
-        "e9d9",
-        "e6e8"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_006",
-      "name": "第480局 三顾草庐（仕相全对三卒）",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第480局 三顾草庐（仕相全对三卒）。",
-      "playerSide": "red",
-      "initialFEN": "3k5/9/9/9/9/6B2/3p5/B8/2p1Ap3/3K1A3 w - - 0 1",
-      "solution": [
-        "g4e2"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_007",
-      "name": "第488局 全师保安",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第488局 全师保安。",
-      "playerSide": "red",
-      "initialFEN": "3k5/9/9/9/9/2R6/6P1r/4BA3/6r2/2R2K3 w - - 0 1",
-      "solution": [
-        "d9e9",
-        "c4e4"
-      ],
-      "hints": [],
-      "maxMoves": 3,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_008",
-      "name": "第235局 勒马停骖",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第235局 勒马停骖。",
-      "playerSide": "red",
-      "initialFEN": "3ak1b2/4a1P2/4b4/5N3/R3C1p2/9/9/5n3/4r4/3K5 w - - 0 1",
-      "solution": [
-        "f6d7",
-        "e9f9",
-        "e5e2",
-        "a5f5"
-      ],
-      "hints": [],
-      "maxMoves": 4,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_009",
-      "name": "第255局 车行同轨",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第255局 车行同轨。",
-      "playerSide": "red",
-      "initialFEN": "4k4/C8/3R5/9/9/9/9/3RB1n2/1r2r4/3K5 w - - 0 1",
-      "solution": [
-        "e9e8"
-      ],
-      "hints": [],
-      "maxMoves": 4,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_010",
-      "name": "第352局 徐母回车",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第352局 徐母回车。",
-      "playerSide": "red",
-      "initialFEN": "2ba5/3k3C1/2Pa3R1/2p6/8P/9/9/9/1p2r4/3K5 w - - 0 1",
-      "solution": [
-        "h7h1",
-        "e1h1"
-      ],
-      "hints": [],
-      "maxMoves": 4,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_011",
-      "name": "第380局 退无所归",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第380局 退无所归。",
-      "playerSide": "red",
-      "initialFEN": "6b2/9/3k5/4P1N2/2b6/9/9/9/3p2p2/4K4 w - - 0 1",
-      "solution": [
-        "e6d6",
-        "d7d8",
-        "g6f8",
-        "d1d0"
-      ],
-      "hints": [],
-      "maxMoves": 4,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_012",
-      "name": "第253局 毙马仆途",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第253局 毙马仆途。",
-      "playerSide": "red",
-      "initialFEN": "3a3nC/1R4c2/2C1k2r1/9/9/r6N1/9/9/4p4/3K5 w - - 0 1",
-      "solution": [
-        "h4g6",
-        "e7f7",
-        "b8f8",
-        "h9f8",
-        "i9f9"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_013",
-      "name": "第337局 大车无輗",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第337局 大车无輗。",
-      "playerSide": "red",
-      "initialFEN": "3a5/2N4N1/1r1k5/2P6/9/9/3r4P/4BA3/3pA4/2B1K4 w - - 0 1",
-      "solution": [
-        "h8f9",
-        "d9e8",
-        "c8e7",
-        "e8f9",
-        "e7f9"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_014",
-      "name": "第372局 兵势无常",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第372局 兵势无常。",
-      "playerSide": "red",
-      "initialFEN": "8r/5k3/r8/p8/9/4R4/P8/4C3B/9/4K1B2 w - - 0 1",
-      "solution": [
-        "e2f2",
-        "i9i7",
-        "e4f4",
-        "i7f7",
-        "e0f0"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_015",
-      "name": "第508局 驽马困厩（单车对车马双士）",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第508局 驽马困厩（单车对车马双士）。",
-      "playerSide": "red",
-      "initialFEN": "n2rka3/4a4/9/9/9/9/9/9/9/1R2K4 w - - 0 1",
-      "solution": [
-        "b0b8",
-        "d9c9",
-        "b8b6",
-        "a9c8",
-        "b6c6"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_016",
-      "name": "第145局 开门待战",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第145局 开门待战。",
-      "playerSide": "red",
-      "initialFEN": "CnC1k4/9/7P1/4p4/p5p2/6B1r/1R4Pr1/4BAN2/6p2/5K3 w - - 0 1",
-      "solution": [
-        "c9c4",
-        "b9c7",
-        "c4e4",
-        "e9d9",
-        "b3d3"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_017",
-      "name": "第178局 黾勉同心",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第178局 黾勉同心。",
-      "playerSide": "red",
-      "initialFEN": "4ka3/3RaP1n1/6R2/9/4P4/6C2/9/9/2rrp4/c4K3 w - - 0 1",
-      "solution": [
-        "d8e8",
-        "e9d9",
-        "g7d7",
-        "d1d7",
-        "e8e9"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_018",
-      "name": "第013局 目视横流",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第013局 目视横流。",
-      "playerSide": "red",
-      "initialFEN": "4k4/3P2P2/b2N2R2/7r1/2b6/9/9/3n5/4p3r/2R2K3 w - - 0 1",
-      "solution": [
-        "g7e7",
-        "c5e7",
-        "d8e8",
-        "e9e8",
-        "c0c8"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_019",
-      "name": "第042局 参辰卯酉",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第042局 参辰卯酉。",
-      "playerSide": "red",
-      "initialFEN": "3ak4/2n1aP3/2P6/6p2/9/6P2/2P6/C1N1BK3/6p2/R1B1r4 w - - 0 1",
-      "solution": [
-        "a2a9",
-        "c8a9",
-        "c0a2",
-        "e0a0",
-        "e2c0"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_020",
-      "name": "第066局 见危致命",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第066局 见危致命。",
-      "playerSide": "red",
-      "initialFEN": "1rbak3r/1N1Ra4/cR2b1N2/9/9/9/9/9/5p3/4K4 w - - 0 1",
-      "solution": [
-        "d8d9",
-        "e8d9",
-        "b7e7",
-        "c9e7",
-        "b8d7"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_021",
-      "name": "第189局 闭门扫轨",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第189局 闭门扫轨。",
-      "playerSide": "red",
-      "initialFEN": "3a1k3/4a1R2/4brN2/1N7/9/9/9/1C4p2/3p4p/4K3C w - - 0 1",
-      "solution": [
-        "b2f2",
-        "g2f2",
-        "i0f0",
-        "f2f1",
-        "g8e8"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_022",
-      "name": "第192局 两地关心",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第192局 两地关心。",
-      "playerSide": "red",
-      "initialFEN": "2bak3C/4aP2N/4b4/5C3/9/9/9/3p5/4p2r1/3K5 w - - 0 1",
-      "solution": [
-        "i8g9",
-        "h1h9",
-        "f8e8",
-        "d9e8",
-        "g9f7"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_023",
-      "name": "第260局 金创满身",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第260局 金创满身。",
-      "playerSide": "red",
-      "initialFEN": "9/9/R2ak1P2/2rN5/9/9/1C7/4rn3/3K5/9 w - - 0 1",
-      "solution": [
-        "a7d7",
-        "e7e8",
-        "d7e7",
-        "e8d8",
-        "b3d3"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_024",
-      "name": "第272局 舍命如归",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第272局 舍命如归。",
-      "playerSide": "red",
-      "initialFEN": "9/r2k5/1R1ab4/3N5/2b6/1C7/9/3n1p3/9/5K3 w - - 0 1",
-      "solution": [
-        "b7d7",
-        "d8e8",
-        "d7d8",
-        "e8d8",
-        "b4d4"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_025",
-      "name": "第278局 火炎昆岗",
-      "category": "古谱残局",
-      "difficulty": 1,
-      "stars": 1,
-      "description": "红先。第278局 火炎昆岗。",
-      "playerSide": "red",
-      "initialFEN": "3ak1b1r/4a2Pn/4b4/4C4/9/9/cR7/n8/4A1p2/3AKC3 w - - 0 1",
-      "solution": [
-        "f0f9",
-        "a2c1",
-        "e0f0",
-        "c1b3",
-        "f9i9"
-      ],
-      "hints": [],
-      "maxMoves": 5,
-      "source": "适情雅趣",
-      "solutionType": "sequence",
-      "endDescription": "掌握了基本的攻杀技巧"
-    },
-    {
-      "id": "shq_026",
+      "id": "puzzle_065",
       "name": "第103局 双鹭窥鱼",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2349,7 +1177,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_027",
+      "id": "puzzle_066",
       "name": "第292局 两虎共斗",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2372,7 +1200,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_028",
+      "id": "puzzle_067",
       "name": "第137局 匹马平胡",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2396,7 +1224,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_029",
+      "id": "puzzle_068",
       "name": "第084局 双蜓点水",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2420,7 +1248,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_030",
+      "id": "puzzle_069",
       "name": "第195局 盐车困骥",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2444,7 +1272,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_031",
+      "id": "puzzle_070",
       "name": "第265局 入穴取虎",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2468,7 +1296,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_032",
+      "id": "puzzle_071",
       "name": "第275局 路车乘马",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2492,7 +1320,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_033",
+      "id": "puzzle_072",
       "name": "第279局 将机就机",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2516,7 +1344,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_034",
+      "id": "puzzle_073",
       "name": "第333局 策马入城",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2540,7 +1368,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_035",
+      "id": "puzzle_074",
       "name": "第376局 伏兵要路",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2564,7 +1392,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_036",
+      "id": "puzzle_075",
       "name": "第405局 双鹊投林",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2588,7 +1416,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_037",
+      "id": "puzzle_076",
       "name": "第460局 赶虎出穴",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2612,7 +1440,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_038",
+      "id": "puzzle_077",
       "name": "第513局 攻围难克（双卒对双相）",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2636,7 +1464,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_039",
+      "id": "puzzle_078",
       "name": "第158局 暴虎凭河",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2660,7 +1488,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_040",
+      "id": "puzzle_079",
       "name": "第354局 一虎下山",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2683,7 +1511,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_041",
+      "id": "puzzle_080",
       "name": "第395局 引兵渡河",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2708,7 +1536,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_042",
+      "id": "puzzle_081",
       "name": "第107局 丹山起凤",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2748,7 +1576,7 @@
       "endDescription": "马借炮力绝杀"
     },
     {
-      "id": "shq_043",
+      "id": "puzzle_082",
       "name": "第124局 王俭坠车",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2771,7 +1599,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_044",
+      "id": "puzzle_083",
       "name": "第182局 投肉馁虎",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2797,7 +1625,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_045",
+      "id": "puzzle_084",
       "name": "第060局 虎兕出匣",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2823,7 +1651,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_046",
+      "id": "puzzle_085",
       "name": "第061局 群虎争餐",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2849,7 +1677,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_047",
+      "id": "puzzle_086",
       "name": "第191局 劳问将士",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2875,7 +1703,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_048",
+      "id": "puzzle_087",
       "name": "第229局 猛虎入山",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2901,7 +1729,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_049",
+      "id": "puzzle_088",
       "name": "第240局 凭马渡江",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2927,7 +1755,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_050",
+      "id": "puzzle_089",
       "name": "第288局 汗马功劳",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2953,7 +1781,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_051",
+      "id": "puzzle_090",
       "name": "第299局 陈桥兵变",
       "category": "古谱残局",
       "difficulty": 2,
@@ -2979,7 +1807,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_052",
+      "id": "puzzle_091",
       "name": "第305局 轻兵锐卒",
       "category": "古谱残局",
       "difficulty": 2,
@@ -3005,7 +1833,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_053",
+      "id": "puzzle_092",
       "name": "第342局 闭窟捉虎",
       "category": "古谱残局",
       "difficulty": 2,
@@ -3031,7 +1859,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_054",
+      "id": "puzzle_093",
       "name": "第375局 勒兵为备",
       "category": "古谱残局",
       "difficulty": 2,
@@ -3057,7 +1885,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_055",
+      "id": "puzzle_094",
       "name": "第406局 入穴取虎",
       "category": "古谱残局",
       "difficulty": 2,
@@ -3075,7 +1903,7 @@
       "endDescription": "学会了巧妙的战术组合"
     },
     {
-      "id": "shq_056",
+      "id": "puzzle_095",
       "name": "第135局 竹马迎拜",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3103,7 +1931,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_057",
+      "id": "puzzle_096",
       "name": "第015局 妙振兵铃",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3131,7 +1959,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_058",
+      "id": "puzzle_097",
       "name": "第051局 下车伏谒",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3159,7 +1987,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_059",
+      "id": "puzzle_098",
       "name": "第297局 虎帐谈兵",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3187,7 +2015,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_060",
+      "id": "puzzle_099",
       "name": "第396局 一兵取功",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3215,7 +2043,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_061",
+      "id": "puzzle_100",
       "name": "第400局 双马饮泉",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3238,7 +2066,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_062",
+      "id": "puzzle_101",
       "name": "第426局 马灵兵胜",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3266,7 +2094,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_063",
+      "id": "puzzle_102",
       "name": "第446局 锐兵健步",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3294,7 +2122,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_064",
+      "id": "puzzle_103",
       "name": "第031局 兵贵拙速",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3323,7 +2151,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_065",
+      "id": "puzzle_104",
       "name": "第269局 杨香跨虎",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3353,7 +2181,7 @@
       "endDescription": "双车马联攻绝杀"
     },
     {
-      "id": "shq_066",
+      "id": "puzzle_105",
       "name": "第382局 胡爽扣马",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3382,7 +2210,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_067",
+      "id": "puzzle_106",
       "name": "第141局 细柳屯兵",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3412,7 +2240,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_068",
+      "id": "puzzle_107",
       "name": "第157局 指鹿道马",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3442,7 +2270,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_069",
+      "id": "puzzle_108",
       "name": "第181局 海底诛龙",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3472,7 +2300,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_070",
+      "id": "puzzle_109",
       "name": "第184局 蛇龙混海",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3502,7 +2330,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_071",
+      "id": "puzzle_110",
       "name": "第033局 计定千里",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3532,7 +2360,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_072",
+      "id": "puzzle_111",
       "name": "第035局 龙翻潭底",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3562,7 +2390,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_073",
+      "id": "puzzle_112",
       "name": "第246局 伏虎降龙",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3592,7 +2420,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_074",
+      "id": "puzzle_113",
       "name": "第274局 打草惊蛇",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3622,7 +2450,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_075",
+      "id": "puzzle_114",
       "name": "第286局 夺马驱敌",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3652,7 +2480,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_076",
+      "id": "puzzle_115",
       "name": "第291局 丹山起凤",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3682,7 +2510,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_077",
+      "id": "puzzle_116",
       "name": "第321局 跨海东征",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3712,7 +2540,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_078",
+      "id": "puzzle_117",
       "name": "第353局 虎守三穴",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3742,7 +2570,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_079",
+      "id": "puzzle_118",
       "name": "第371局 兵入其腹",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3772,7 +2600,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_080",
+      "id": "puzzle_119",
       "name": "第481局 众寡不敌（车卒难胜单车）",
       "category": "古谱残局",
       "difficulty": 3,
@@ -3802,7 +2630,7 @@
       "endDescription": "展现了出色的中局计算能力"
     },
     {
-      "id": "shq_081",
+      "id": "puzzle_120",
       "name": "第163局 选将练兵",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3835,7 +2663,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_082",
+      "id": "puzzle_121",
       "name": "第030局 国庶兵强",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3854,7 +2682,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_083",
+      "id": "puzzle_122",
       "name": "第384局 投肉饲虎",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3873,7 +2701,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_084",
+      "id": "puzzle_123",
       "name": "第391局 驱虎离山",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3906,7 +2734,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_085",
+      "id": "puzzle_124",
       "name": "第505局 仕卒离心（马低卒对单缺相）",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3931,7 +2759,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_086",
+      "id": "puzzle_125",
       "name": "第140局 引龙出水",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3965,7 +2793,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_087",
+      "id": "puzzle_126",
       "name": "第397局 将帅不忠",
       "category": "古谱残局",
       "difficulty": 4,
@@ -3999,7 +2827,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_088",
+      "id": "puzzle_127",
       "name": "第425局 驱将擒胡",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4033,7 +2861,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_089",
+      "id": "puzzle_128",
       "name": "第456局 国士无双",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4067,7 +2895,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_090",
+      "id": "puzzle_129",
       "name": "第533局 一马化龙",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4085,7 +2913,7 @@
       "endDescription": "单马巧和三卒"
     },
     {
-      "id": "shq_091",
+      "id": "puzzle_130",
       "name": "第149局 腾蛟起凤",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4108,7 +2936,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_092",
+      "id": "puzzle_131",
       "name": "第054局 五虎靠山",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4138,7 +2966,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_093",
+      "id": "puzzle_132",
       "name": "第215局 猛虎出林",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4174,7 +3002,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_094",
+      "id": "puzzle_133",
       "name": "第221局 野马舞风",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4210,7 +3038,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_095",
+      "id": "puzzle_134",
       "name": "第379局 二马追风",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4236,7 +3064,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_096",
+      "id": "puzzle_135",
       "name": "第441局 国富兵强",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4272,7 +3100,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_097",
+      "id": "puzzle_136",
       "name": "第314局 三将夺关",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4292,7 +3120,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_098",
+      "id": "puzzle_137",
       "name": "第106局 兵马出塞",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4330,7 +3158,7 @@
       "endDescription": "将杀获胜"
     },
     {
-      "id": "shq_099",
+      "id": "puzzle_138",
       "name": "第208局 用兵最精",
       "category": "古谱残局",
       "difficulty": 4,
@@ -4368,7 +3196,7 @@
       "endDescription": "破解了高难度的残局妙手"
     },
     {
-      "id": "shq_100",
+      "id": "puzzle_139",
       "name": "第210局 士马如云",
       "category": "古谱残局",
       "difficulty": 4,
