@@ -11,18 +11,18 @@ struct StatusBarView: View {
                     .fill(viewModel.currentTurn == .red ? Color.red : Color.black)
                     .frame(width: 12, height: 12)
                 Text(viewModel.currentTurn == .red ? String(localized: "red.move") : String(localized: "black.move"))
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
 
                 if viewModel.isThinking {
                     Text(String(localized: "ai.thinking"))
-                        .font(.system(size: 12))
+                        .font(.caption)
                         .foregroundColor(.yellow)
                         .pulseAnimation()
                 }
 
                 if viewModel.isInCheck {
                     Text(String(localized: "check"))
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.system(.subheadline, weight: .bold))
                         .foregroundColor(.red)
                         .pulseAnimation()
                 }
@@ -30,7 +30,7 @@ struct StatusBarView: View {
                 Spacer()
 
                 Text(String(localized: "round", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
-                    .font(.system(size: 13))
+                    .font(.caption)
                     .foregroundColor(.gray)
             }
             .foregroundColor(.white)
@@ -39,7 +39,7 @@ struct StatusBarView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(localized: "red.loss"))
-                        .font(.system(size: 11))
+                        .font(.caption2)
                         .foregroundColor(.gray)
                     capturedPiecesText(viewModel.capturedPieces.red, color: .red)
                 }
@@ -48,7 +48,7 @@ struct StatusBarView: View {
 
                 VStack(alignment: .trailing, spacing: 4) {
                     Text(String(localized: "black.loss"))
-                        .font(.system(size: 11))
+                        .font(.caption2)
                         .foregroundColor(.gray)
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
                 }
@@ -63,7 +63,7 @@ struct StatusBarView: View {
     private func capturedPiecesText(_ pieces: [Piece], color: Color) -> some View {
         if pieces.isEmpty {
             Text(String(localized: "none"))
-                .font(.system(size: 11))
+                .font(.caption2)
                 .foregroundColor(.gray)
         } else {
             HStack(spacing: 4) {

@@ -13,7 +13,7 @@ struct PuzzleSelectView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(String(localized: "puzzle.challenge"))
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(.title3, weight: .bold))
                 .foregroundColor(.white)
 
             // 分类选择
@@ -39,7 +39,7 @@ struct PuzzleSelectView: View {
                         .font(.system(size: 32))
                         .foregroundColor(.gray)
                     Text(String(localized: "puzzle.empty"))
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
@@ -97,7 +97,7 @@ struct CategoryButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 13))
+                .font(.caption)
                 .foregroundColor(isSelected ? .white : .gray)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
@@ -124,16 +124,16 @@ struct PuzzleRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(puzzle.name)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(.subheadline, weight: .medium))
                         .foregroundColor(.white)
                     HStack(spacing: 4) {
                         Text(puzzle.description)
-                            .font(.system(size: 11))
+                            .font(.caption2)
                             .foregroundColor(.gray)
                             .lineLimit(1)
                         if !puzzle.typeLabel.isEmpty {
                             Text(puzzle.typeLabel)
-                                .font(.system(size: 10))
+                                .font(.caption2)
                                 .foregroundColor(.orange)
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
@@ -197,11 +197,11 @@ struct PuzzlePlayView: View {
                     .foregroundColor(.white)
                 Spacer()
                 Text(puzzle.name)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(.subheadline, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
                 Text(viewModel.gameState == .success ? String(localized: "puzzle.cleared.text") : "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
-                    .font(.system(size: 13))
+                    .font(.caption)
                     .foregroundColor(viewModel.gameState == .success ? .green : .gray)
             }
             .padding(.horizontal, 16)
@@ -238,13 +238,13 @@ struct PuzzlePlayView: View {
             if let hint = viewModel.currentHint {
                 HStack {
                     Text(hint)
-                        .font(.system(size: 13))
+                        .font(.caption)
                         .foregroundColor(.yellow)
                     Spacer()
                     Button(String(localized: "puzzle.continue")) {
                         viewModel.dismissHint()
                     }
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(.caption, weight: .medium))
                     .buttonStyle(.bordered)
                     .tint(.brown)
                 }
@@ -257,7 +257,7 @@ struct PuzzlePlayView: View {
             // 解法实时提示
             if let hint = viewModel.solutionHint {
                 Text(hint)
-                    .font(.system(size: 13))
+                    .font(.caption)
                     .foregroundColor(.orange)
                     .padding(.horizontal, 16)
             }
@@ -279,15 +279,15 @@ struct PuzzlePlayView: View {
                     if viewModel.puzzle.solutionType == "sequence",
                        let desc = viewModel.puzzle.endDescription, !desc.isEmpty {
                         Text(desc)
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(.title3, weight: .bold))
                             .foregroundColor(.yellow)
                     } else {
                         Text(String(localized: "puzzle.checkmate.win"))
-                            .font(.system(size: 24, weight: .bold))
+                            .font(.system(.title2, weight: .bold))
                             .foregroundColor(.yellow)
                     }
                     Text("星级: " + String(repeating: "★", count: viewModel.completionRating)) // TODO: localize — String.LocalizationValue 不支持 String concatenation
-                        .font(.system(size: 20))
+                        .font(.title3)
                         .foregroundColor(.yellow)
                     HStack(spacing: 12) {
                         Button(String(localized: "puzzle.close")) { dismiss() }
@@ -321,10 +321,10 @@ struct PuzzlePlayView: View {
 
                 VStack(spacing: 16) {
                     Text(String(localized: "puzzle.failed"))
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(.title2, weight: .bold))
                         .foregroundColor(.red)
                     Text(String(localized: "puzzle.failed.hint"))
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                     HStack(spacing: 12) {
                         Button(String(localized: "puzzle.retry")) {

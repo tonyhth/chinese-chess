@@ -11,15 +11,15 @@ struct SettingsView: View {
             Form {
                 // 难度设置
                 Section(String(localized: "ai.difficulty")) {
-                    Picker("难度", selection: Binding(
+                    Picker(String(localized: "ai.difficulty"), selection: Binding(
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
-                        Text("新手").tag(AIDifficulty.beginner)
-                        Text("初级").tag(AIDifficulty.easy)
-                        Text("中级").tag(AIDifficulty.medium)
-                        Text("高级").tag(AIDifficulty.hard)
-                        Text("大师").tag(AIDifficulty.master)
+                        Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
+                        Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
+                        Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
+                        Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
+                        Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -55,7 +55,7 @@ struct SettingsView: View {
 
                 // 棋谱格式
                 Section(String(localized: "notation.format")) {
-                    Picker("格式", selection: $notationFormat) {
+                    Picker(String(localized: "notation.format"), selection: $notationFormat) {
                         Text(String(localized: "chinese.notation")).tag("chinese")
                         Text(String(localized: "iccs.notation")).tag("iccs")
                     }

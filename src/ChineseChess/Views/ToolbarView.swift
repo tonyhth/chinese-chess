@@ -16,6 +16,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking)
                 .buttonStyle(.bordered)
                 .tint(.brown)
+                .accessibilityHint(String(localized: "new.game.hint"))
 
                 Button(action: { viewModel.undoMove() }) {
                     Label(String(localized: "undo"), systemImage: "arrow.uturn.backward")
@@ -26,6 +27,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
                 .buttonStyle(.bordered)
                 .tint(.brown)
+                .accessibilityHint(String(localized: "undo.hint"))
 
                 Button(action: { viewModel.requestHint() }) {
                     Label(String(localized: "hint"), systemImage: "lightbulb")
@@ -36,6 +38,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
                 .buttonStyle(.bordered)
                 .tint(.brown)
+                .accessibilityHint(String(localized: "hint.hint"))
             }
 
             #if os(macOS)

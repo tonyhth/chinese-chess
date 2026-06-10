@@ -68,7 +68,13 @@ struct PieceView: View {
         }
         .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? selectedGlowRadius : 0)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
+        .accessibilityLabel(pieceAccessibilityLabel)
+    }
+
+    private var pieceAccessibilityLabel: String {
+        let sideName = piece.side == .red ? String(localized: "side.red") : String(localized: "side.black")
+        let colLabel = "abcdefghi"
+        let colChar = String(colLabel[colLabel.index(colLabel.startIndex, offsetBy: piece.position.col)])
+        return "\(sideName)\(piece.displayName) \(colChar)\(piece.position.row)"
     }
 }
-
-// Font fallback is handled automatically by the system when LXGW WenKai is not available

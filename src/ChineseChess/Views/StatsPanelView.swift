@@ -8,31 +8,31 @@ struct StatsPanelView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(String(localized: "stats.title"))
-                .font(.system(size: 15, weight: .bold))
+                .font(.system(.subheadline, weight: .bold))
                 .foregroundColor(.white)
 
             // 人机统计
             VStack(alignment: .leading, spacing: 6) {
                 Text(String(localized: "stats.ai"))
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(.caption, weight: .semibold))
                     .foregroundColor(.orange)
 
                 ForEach(difficulties, id: \.self) { diff in
                     let s = statsVM.aiStats(for: diff)
                     HStack {
                         Text(diff.displayName)
-                            .font(.system(size: 12))
+                            .font(.caption)
                             .foregroundColor(.white)
                             .frame(width: 40, alignment: .leading)
 
                         Text(String(localized: "stats.format", defaultValue: "\(s.wins)胜 \(s.losses)负 \(s.draws)和"))
-                            .font(.system(size: 12))
+                            .font(.caption)
                             .foregroundColor(.gray)
 
                         Spacer()
 
                         Text(String(format: "%.0f%%", s.winRate * 100))
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(.caption, weight: .medium))
                             .foregroundColor(s.winRate >= 0.5 ? .green : .red)
                     }
                 }
@@ -46,7 +46,7 @@ struct StatsPanelView: View {
                 Button(String(localized: "stats.reset")) {
                     statsVM.resetAll()
                 }
-                .font(.system(size: 12))
+                .font(.caption)
                 .foregroundColor(.red)
                 .buttonStyle(.bordered)
                 .tint(.red.opacity(0.3))
