@@ -44,8 +44,8 @@ struct RecordPanelView: View {
         HStack(spacing: 4) {
             // 回合号
             Text("\(gm.turnNumber).")
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundColor(.gray)
                 .frame(width: 24, alignment: .trailing)
 
             // 棋谱

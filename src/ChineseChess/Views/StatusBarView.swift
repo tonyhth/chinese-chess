@@ -63,8 +63,8 @@ struct StatusBarView: View {
     private func capturedPiecesText(_ pieces: [Piece], color: Color) -> some View {
         if pieces.isEmpty {
             Text(String(localized: "none"))
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .font(.system(size: 11))
+                .foregroundColor(.gray)
         } else {
             HStack(spacing: 4) {
                 ForEach(pieces) { piece in
