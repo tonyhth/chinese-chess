@@ -94,10 +94,6 @@ class SoundEngine {
         if url == nil {
             url = ResourceBundle.url(forResource: name, withExtension: ext, subdirectory: "Sounds")
         }
-        // Fallback: .app 打包时音频可能在根目录（扁平化打包）
-        if url == nil {
-            url = Bundle.main.url(forResource: name, withExtension: ext)
-        }
         guard let soundURL = url else { return nil }
         return try? AVAudioPlayer(contentsOf: soundURL)
     }
