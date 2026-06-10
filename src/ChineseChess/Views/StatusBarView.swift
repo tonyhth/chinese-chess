@@ -11,18 +11,18 @@ struct StatusBarView: View {
                     .fill(viewModel.currentTurn == .red ? Color.red : Color.black)
                     .frame(width: 12, height: 12)
                 Text(viewModel.currentTurn == .red ? String(localized: "red.move") : String(localized: "black.move"))
-                    .font(.system(.subheadline, weight: .medium))
+                    .font(.system(size: 14, weight: .medium))
 
                 if viewModel.isThinking {
                     Text(String(localized: "ai.thinking"))
-                        .font(.caption)
+                        .font(.system(size: 12))
                         .foregroundColor(.yellow)
                         .pulseAnimation()
                 }
 
                 if viewModel.isInCheck {
                     Text(String(localized: "check"))
-                        .font(.system(.subheadline, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.red)
                         .pulseAnimation()
                 }
@@ -30,7 +30,7 @@ struct StatusBarView: View {
                 Spacer()
 
                 Text(String(localized: "round", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
-                    .font(.caption)
+                    .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
             .foregroundColor(.white)
@@ -39,7 +39,7 @@ struct StatusBarView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(localized: "red.loss"))
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.red, color: .red)
                 }
@@ -48,7 +48,7 @@ struct StatusBarView: View {
 
                 VStack(alignment: .trailing, spacing: 4) {
                     Text(String(localized: "black.loss"))
-                        .font(.caption2)
+                        .font(.system(size: 11))
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
                 }
