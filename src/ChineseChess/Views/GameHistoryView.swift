@@ -12,9 +12,9 @@ struct GameHistoryView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 40))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     Text(String(localized: "no.history"))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
@@ -132,14 +132,14 @@ struct GameHistoryRow: View {
                         .font(.subheadline)
 
                     Text("·")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
 
                     Text(String(localized: "move.count", defaultValue: "\(record.totalMoves) 步"))
                         .foregroundColor(.secondary)
                         .font(.subheadline)
 
                     Text("·")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
 
                     Text(record.difficulty.displayName)
                         .foregroundColor(.secondary)
@@ -155,7 +155,7 @@ struct GameHistoryRow: View {
             Spacer()
 
             Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
                 .font(.caption)
         }
         .padding(.vertical, 4)
@@ -173,10 +173,10 @@ struct GameHistoryRow: View {
                 .foregroundColor(.red)
         case .draw:
             return Image(systemName: "equal.circle.fill")
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
         case .playing:
             return Image(systemName: "questionmark.circle")
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
         }
     }
 

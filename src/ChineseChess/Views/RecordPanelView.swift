@@ -12,7 +12,7 @@ struct RecordPanelView: View {
             if gameMoves.isEmpty {
                 Text(String(localized: "record.empty"))
                     .font(.system(size: 12))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -45,7 +45,7 @@ struct RecordPanelView: View {
             // 回合号
             Text("\(gm.turnNumber).")
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
                 .frame(width: 24, alignment: .trailing)
 
             // 棋谱

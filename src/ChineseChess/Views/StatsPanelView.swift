@@ -27,7 +27,7 @@ struct StatsPanelView: View {
 
                         Text(String(localized: "stats.format", defaultValue: "\(s.wins)胜 \(s.losses)负 \(s.draws)和"))
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
 
                         Spacer()
 

@@ -31,7 +31,7 @@ struct StatusBarView: View {
 
                 Text(String(localized: "round", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
             }
             .foregroundColor(.white)
 
@@ -40,7 +40,7 @@ struct StatusBarView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(String(localized: "red.loss"))
                         .font(.caption2)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.red, color: .red)
                 }
 
@@ -49,7 +49,7 @@ struct StatusBarView: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text(String(localized: "black.loss"))
                         .font(.caption2)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
                 }
             }
@@ -64,7 +64,7 @@ struct StatusBarView: View {
         if pieces.isEmpty {
             Text(String(localized: "none"))
                 .font(.caption2)
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
         } else {
             HStack(spacing: 4) {
                 ForEach(pieces) { piece in

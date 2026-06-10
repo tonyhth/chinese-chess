@@ -44,17 +44,26 @@ enum FontRegistry {
         registerFontAt(fontURL)
     }
 
+    private static func isAlreadyRegisteredError(_ error: CFError) -> Bool {
+        // kCTFontManagerErrorAlreadyRegistered = 201
+        let code = CFErrorGetCode(error)
+        if code == 201 { return true }
+        // Fallback: check domain + code for iOS variant
+        let domain = CFErrorGetDomain(error) as String? ?? ""
+        if domain == "com.apple.CoreText.CTFontManager" && code == 201 { return true }
+        return false
+    }
+
     private static func registerFontAt(_ url: URL) {
         #if os(macOS)
         var error: Unmanaged<CFError>?
         let success = CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
         if !success {
             if let err = error?.takeUnretainedValue() {
-                // Font already registered is not an error
-                let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
-                if desc.contains("already registered") {
+                if isAlreadyRegisteredError(err) {
                     // OK — font was registered in a previous launch
                 } else {
+                    let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
                     print("[FontRegistry] Registration failed: \(desc)")
                 }
             }
@@ -63,8 +72,8 @@ enum FontRegistry {
         var error: Unmanaged<CFError>?
         let success = CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
         if !success, let err = error?.takeUnretainedValue() {
-            let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
-            if !desc.contains("already registered") {
+            if !isAlreadyRegisteredError(err) {
+                let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
                 print("[FontRegistry] Registration failed: \(desc)")
             }
         }

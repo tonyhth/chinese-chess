@@ -37,10 +37,10 @@ struct PuzzleSelectView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "puzzlepiece")
                         .font(.system(size: 32))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     Text(String(localized: "puzzle.empty"))
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {
@@ -98,7 +98,7 @@ struct CategoryButton: View {
         Button(action: action) {
             Text(title)
                 .font(.caption)
-                .foregroundColor(isSelected ? .white : .gray)
+                .foregroundColor(isSelected ? .white : .secondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(isSelected ? Color.brown : Color.clear)
@@ -129,7 +129,7 @@ struct PuzzleRow: View {
                     HStack(spacing: 4) {
                         Text(puzzle.description)
                             .font(.caption2)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                             .lineLimit(1)
                         if !puzzle.typeLabel.isEmpty {
                             Text(puzzle.typeLabel)
@@ -202,7 +202,7 @@ struct PuzzlePlayView: View {
                 Spacer()
                 Text(viewModel.gameState == .success ? String(localized: "puzzle.cleared.text") : "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
                     .font(.caption)
-                    .foregroundColor(viewModel.gameState == .success ? .green : .gray)
+                    .foregroundColor(viewModel.gameState == .success ? .green : .secondary)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -325,7 +325,7 @@ struct PuzzlePlayView: View {
                         .foregroundColor(.red)
                     Text(String(localized: "puzzle.failed.hint"))
                         .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     HStack(spacing: 12) {
                         Button(String(localized: "puzzle.retry")) {
                             viewModel.resetPuzzle()
