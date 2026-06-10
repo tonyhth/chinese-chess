@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct ChineseChessApp: App {
     init() {
+        UserDefaults.standard.set(["zh-Hans"], forKey: "AppleLanguages")
         FontRegistry.registerFonts()
     }
 
@@ -115,7 +116,7 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 600, minHeight: 720)
             .preferredColorScheme(.dark)
-            .environment(\.locale, Locale(identifier: "zh-Hans"))
+            // .environment(\.locale) 对 SPM 独立构建无效，已在 init 中设置 AppleLanguages
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },
