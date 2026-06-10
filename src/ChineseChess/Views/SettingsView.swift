@@ -61,6 +61,19 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.segmented)
                 }
+
+                // 关于
+                Section("关于") {
+                    NavigationLink {
+                        PrivacyPolicyView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "hand.raised")
+                                .foregroundColor(.brown)
+                            Text("隐私政策")
+                        }
+                    }
+                }
             }
         }
         .formStyle(.grouped)
