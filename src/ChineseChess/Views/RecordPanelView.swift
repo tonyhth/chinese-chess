@@ -5,12 +5,12 @@ struct RecordPanelView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(String(localized: "record.title"))
+            Text("棋谱记录")
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(.white)
 
             if gameMoves.isEmpty {
-                Text(String(localized: "record.empty"))
+                Text("暂无走法")
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
             } else {
@@ -64,6 +64,6 @@ struct RecordPanelView: View {
                     .foregroundColor(.yellow)
             }
         }
-        .accessibilityLabel(String(localized: "move.record", defaultValue: "第\(gm.turnNumber)步 \(gm.notation)"))
+        .accessibilityLabel(Text("第\(gm.turnNumber)步 \(gm.notation)"))
     }
 }

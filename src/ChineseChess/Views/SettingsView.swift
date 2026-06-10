@@ -10,22 +10,22 @@ struct SettingsView: View {
         ScrollView {
             Form {
                 // 难度设置
-                Section(String(localized: "ai.difficulty")) {
-                    Picker(String(localized: "ai.difficulty"), selection: Binding(
+                Section("AI 难度") {
+                    Picker("AI 难度", selection: Binding(
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
-                        Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
-                        Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
-                        Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
-                        Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
-                        Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
+                        Text("新手").tag(AIDifficulty.beginner)
+                        Text("初级").tag(AIDifficulty.easy)
+                        Text("中级").tag(AIDifficulty.medium)
+                        Text("高级").tag(AIDifficulty.hard)
+                        Text("大师").tag(AIDifficulty.master)
                     }
                     .pickerStyle(.segmented)
                 }
 
                 // 主题
-                Section(String(localized: "board.theme")) {
+                Section("棋盘主题") {
                     ForEach(BoardTheme.allCases, id: \.self) { theme in
                         HStack {
                             Image(systemName: theme.icon)
@@ -46,38 +46,38 @@ struct SettingsView: View {
                 }
 
                 // 音效
-                Section(String(localized: "sound")) {
-                    Toggle(String(localized: "sound.toggle"), isOn: Binding(
+                Section("音效") {
+                    Toggle("音效开关", isOn: Binding(
                         get: { !soundEngine.isMuted },
                         set: { soundEngine.isMuted = !$0 }
                     ))
                 }
 
                 // 棋谱格式
-                Section(String(localized: "notation.format")) {
-                    Picker(String(localized: "notation.format"), selection: $notationFormat) {
-                        Text(String(localized: "chinese.notation")).tag("chinese")
-                        Text(String(localized: "iccs.notation")).tag("iccs")
+                Section("棋谱格式") {
+                    Picker("棋谱格式", selection: $notationFormat) {
+                        Text("中文传统").tag("chinese")
+                        Text("ICCS 坐标").tag("iccs")
                     }
                     .pickerStyle(.segmented)
                 }
 
                 // 关于
-                Section(String(localized: "about")) {
+                Section("关于") {
                     NavigationLink {
                         PrivacyPolicyView()
                     } label: {
                         HStack {
                             Image(systemName: "hand.raised")
                                 .foregroundColor(.brown)
-                            Text(String(localized: "privacy.policy"))
+                            Text("隐私政策")
                         }
                     }
                 }
             }
         }
         .formStyle(.grouped)
-        .navigationTitle(String(localized: "settings"))
+        .navigationTitle("设置")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

@@ -4,7 +4,6 @@ import SwiftUI
 @main
 struct ChineseChessiOSApp: App {
     init() {
-        UserDefaults.standard.set(["zh-Hans"], forKey: "AppleLanguages")
         FontRegistry.registerFonts()
     }
 
@@ -189,7 +188,7 @@ struct ChineseChessiOSApp: App {
                 }
             }
             .preferredColorScheme(.dark)
-            // .environment(\.locale) 对 SPM 独立构建无效，已在 init 中设置 AppleLanguages
+            // 已改用硬编码中文字符串，不再依赖本地化系统
         }
     }
 }

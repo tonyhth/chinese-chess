@@ -72,7 +72,7 @@ struct PieceView: View {
     }
 
     private var pieceAccessibilityLabel: String {
-        let sideName = piece.side == .red ? String(localized: "side.red") : String(localized: "side.black")
+        let sideName = piece.side == .red ? "红方" : "黑方"
         let colLabel = "abcdefghi"
         let colChar = String(colLabel[colLabel.index(colLabel.startIndex, offsetBy: piece.position.col)])
         return "\(sideName)\(piece.displayName) \(colChar)\(piece.position.row)"

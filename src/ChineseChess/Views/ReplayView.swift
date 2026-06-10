@@ -15,7 +15,7 @@ struct ReplayView: View {
                 Button("关闭") { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
-                Text(String(localized: "replay"))
+                Text("回放")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -28,7 +28,7 @@ struct ReplayView: View {
 
             // 对局信息：独立区域
             HStack(spacing: 4) {
-                Text(String(localized: "red.player", defaultValue: "红 \(viewModel.record.redPlayer.name)"))
+                Text("红 \(viewModel.record.redPlayer.name)")
                     .foregroundColor(.red)
                 Text("vs")
                     .foregroundColor(.gray)

@@ -11,14 +11,14 @@ struct GameOverOverlay: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                Text(gameState == .redWon ? String(localized: "red.wins") :
-                     gameState == .blackWon ? String(localized: "black.wins") : String(localized: "draw"))
+                Text(gameState == .redWon ? "🎉 红方获胜！" :
+                     gameState == .blackWon ? "🖤 黑方获胜！" : "🤝 和棋！")
                     .font(.custom(FontRegistry.bestAvailableFontName, size: 36))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
                 HStack(spacing: 16) {
-                    Button(String(localized: "play.again")) {
+                    Button("再来一局") {
                         onNewGame()
                     }
                     .buttonStyle(.borderedProminent)
@@ -26,7 +26,7 @@ struct GameOverOverlay: View {
                     .controlSize(.large)
 
                     if let onViewRecord {
-                        Button(String(localized: "view.record")) {
+                        Button("查看棋谱") {
                             onViewRecord()
                         }
                         .buttonStyle(.bordered)

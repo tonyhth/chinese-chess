@@ -10,18 +10,18 @@ struct StatusBarView: View {
                 Circle()
                     .fill(viewModel.currentTurn == .red ? Color.red : Color.black)
                     .frame(width: 12, height: 12)
-                Text(viewModel.currentTurn == .red ? String(localized: "red.move") : String(localized: "black.move"))
+                Text(viewModel.currentTurn == .red ? "红方走棋" : "黑方走棋")
                     .font(.system(size: 14, weight: .medium))
 
                 if viewModel.isThinking {
-                    Text(String(localized: "ai.thinking"))
+                    Text("AI 思考中...")
                         .font(.system(size: 12))
                         .foregroundColor(.yellow)
                         .pulseAnimation()
                 }
 
                 if viewModel.isInCheck {
-                    Text(String(localized: "check"))
+                    Text("将军！")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.red)
                         .pulseAnimation()
@@ -29,7 +29,7 @@ struct StatusBarView: View {
 
                 Spacer()
 
-                Text(String(localized: "round", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
+                Text("第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合")
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
@@ -38,7 +38,7 @@ struct StatusBarView: View {
             // 被吃棋子
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "red.loss"))
+                    Text("红方损失:")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.red, color: .red)
@@ -47,7 +47,7 @@ struct StatusBarView: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text(String(localized: "black.loss"))
+                    Text("黑方损失:")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
@@ -62,7 +62,7 @@ struct StatusBarView: View {
     @ViewBuilder
     private func capturedPiecesText(_ pieces: [Piece], color: Color) -> some View {
         if pieces.isEmpty {
-            Text(String(localized: "none"))
+            Text("无")
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
         } else {

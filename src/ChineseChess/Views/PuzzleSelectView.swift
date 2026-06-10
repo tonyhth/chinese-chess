@@ -12,14 +12,14 @@ struct PuzzleSelectView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(String(localized: "puzzle.challenge"))
+            Text("残局闯关")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
 
             // 分类选择
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    CategoryButton(title: String(localized: "puzzle.all"), isSelected: selectedCategory == nil) {
+                    CategoryButton(title: "全部", isSelected: selectedCategory == nil) {
                         selectedCategory = nil
                     }
                     ForEach(PuzzleStore.shared.categories, id: \.self) { cat in
@@ -38,7 +38,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "puzzlepiece")
                         .font(.system(size: 32))
                         .foregroundColor(.secondary)
-                    Text(String(localized: "puzzle.empty"))
+                    Text("暂无残局")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                 }
@@ -193,14 +193,14 @@ struct PuzzlePlayView: View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
-                Button(String(localized: "puzzle.back")) { dismiss() }
+                Button("返回") { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
                 Text(puzzle.name)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
-                Text(viewModel.gameState == .success ? String(localized: "puzzle.cleared.text") : "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
+                Text(viewModel.gameState == .success ? "通关 ✅" : "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
                     .font(.system(size: 13))
                     .foregroundColor(viewModel.gameState == .success ? .green : .gray)
             }
@@ -217,14 +217,14 @@ struct PuzzlePlayView: View {
                 Button(action: {
                     viewModel.undoMove()
                 }) {
-                    Label(String(localized: "undo"), systemImage: "arrow.uturn.backward")
+                    Label("悔棋", systemImage: "arrow.uturn.backward")
                 }
                 .disabled(viewModel.isThinking)
                 .buttonStyle(.bordered)
                 .tint(.brown)
 
                 Button(action: { viewModel.showHint() }) {
-                    Label(String(localized: "hint"), systemImage: "lightbulb")
+                    Label("提示", systemImage: "lightbulb")
                 }
                 .buttonStyle(.bordered)
                 .tint(.brown)
@@ -241,7 +241,7 @@ struct PuzzlePlayView: View {
                         .font(.system(size: 13))
                         .foregroundColor(.yellow)
                     Spacer()
-                    Button(String(localized: "puzzle.continue")) {
+                    Button("继续") {
                         viewModel.dismissHint()
                     }
                     .font(.system(size: 12, weight: .medium))
@@ -282,7 +282,7 @@ struct PuzzlePlayView: View {
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.yellow)
                     } else {
-                        Text(String(localized: "puzzle.checkmate.win"))
+                        Text("🎉 将杀获胜")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.yellow)
                     }
@@ -290,11 +290,11 @@ struct PuzzlePlayView: View {
                         .font(.system(size: 20))
                         .foregroundColor(.yellow)
                     HStack(spacing: 12) {
-                        Button(String(localized: "puzzle.close")) { dismiss() }
+                        Button("关闭") { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                         if viewModel.buildSolutionRecord() != nil {
-                            Button(String(localized: "puzzle.view.perfect")) {
+                            Button("查看完美解法") {
                                 showSolutionReplay = true
                             }
                             .buttonStyle(.bordered)
@@ -320,20 +320,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { /* 阻止穿透 */ }
 
                 VStack(spacing: 16) {
-                    Text(String(localized: "puzzle.failed"))
+                    Text("挑战失败")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.red)
-                    Text(String(localized: "puzzle.failed.hint"))
+                    Text("不要气馁，再试一次吧！")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button(String(localized: "puzzle.retry")) {
+                        Button("重试") {
                             viewModel.resetPuzzle()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button(String(localized: "puzzle.back")) { dismiss() }
+                        Button("返回") { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }

@@ -282,7 +282,7 @@ class PuzzleViewModel {
             let solIdx = hintIndex - (puzzle.hints?.count ?? 0)
             if solIdx >= 0 && solIdx < puzzle.solution.count {
                 let iccs = puzzle.solution[solIdx]
-                currentHint = String(localized: "hint.step", defaultValue: "提示：第 \(solIdx + 1) 步 → \(iccs)")
+                currentHint = "提示：第 \(solIdx + 1) 步 → \(iccs)"
                 // 设置提示高亮位置
                 if let move = ICCSParser.parse(iccs, on: board) {
                     hintMove = (from: move.from, to: move.to)
@@ -468,7 +468,7 @@ class PuzzleViewModel {
         }
         let record = GameRecord(
             id: UUID(),
-            title: String(localized: "perfect.solution", defaultValue: "完美解法: \(puzzle.name)"),
+            title: "完美解法: \(puzzle.name)",
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
             blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: defenderDifficulty),

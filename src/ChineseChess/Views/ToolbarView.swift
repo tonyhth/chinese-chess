@@ -8,7 +8,7 @@ struct ToolbarView: View {
             // 棋局控制组
             HStack(spacing: 8) {
                 Button(action: { viewModel.newGame() }) {
-                    Label(String(localized: "new.game"), systemImage: "arrow.counterclockwise")
+                    Label("新局", systemImage: "arrow.counterclockwise")
                 }
                 #if os(macOS)
                 .keyboardShortcut("n", modifiers: .command)
@@ -16,10 +16,10 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint(String(localized: "new.game.hint"))
+                .accessibilityHint("双击开始新对局")
 
                 Button(action: { viewModel.undoMove() }) {
-                    Label(String(localized: "undo"), systemImage: "arrow.uturn.backward")
+                    Label("悔棋", systemImage: "arrow.uturn.backward")
                 }
                 #if os(macOS)
                 .keyboardShortcut("z", modifiers: .command)
@@ -27,10 +27,10 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint(String(localized: "undo.hint"))
+                .accessibilityHint("双击撤销上一步")
 
                 Button(action: { viewModel.requestHint() }) {
-                    Label(String(localized: "hint"), systemImage: "lightbulb")
+                    Label("提示", systemImage: "lightbulb")
                 }
                 #if os(macOS)
                 .keyboardShortcut("h", modifiers: [.command, .shift])
@@ -38,7 +38,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint(String(localized: "hint.hint"))
+                .accessibilityHint("双击获取走法提示")
             }
 
             #if os(macOS)
@@ -49,15 +49,15 @@ struct ToolbarView: View {
             #endif
 
             // 设置组
-            Picker(String(localized: "ai.difficulty"), selection: Binding(
+            Picker("AI 难度", selection: Binding(
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
             )) {
-                Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
-                Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
-                Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
-                Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
-                Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
+                Text("新手").tag(AIDifficulty.beginner)
+                Text("初级").tag(AIDifficulty.easy)
+                Text("中级").tag(AIDifficulty.medium)
+                Text("高级").tag(AIDifficulty.hard)
+                Text("大师").tag(AIDifficulty.master)
             }
             .pickerStyle(.segmented)
         }
