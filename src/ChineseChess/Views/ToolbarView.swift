@@ -50,11 +50,11 @@ struct ToolbarView: View {
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
             )) {
-                Text("新手").tag(AIDifficulty.beginner) // TODO: localize
-                Text("初级").tag(AIDifficulty.easy) // TODO: localize
-                Text("中级").tag(AIDifficulty.medium) // TODO: localize
-                Text("高级").tag(AIDifficulty.hard) // TODO: localize
-                Text("大师").tag(AIDifficulty.master) // TODO: localize
+                Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
+                Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
+                Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
+                Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
+                Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
             }
             .pickerStyle(.segmented)
         }

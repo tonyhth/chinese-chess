@@ -3,13 +3,7 @@ import SwiftUI
 struct StatsPanelView: View {
     @State private var statsVM = StatsViewModel()
 
-    private let difficulties: [(AIDifficulty, String)] = [
-        (.beginner, "新手"),
-        (.easy, "初级"),
-        (.medium, "中级"),
-        (.hard, "高级"),
-        (.master, "大师")
-    ]
+    private let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -23,15 +17,15 @@ struct StatsPanelView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.orange)
 
-                ForEach(difficulties, id: \.0) { diff, name in
+                ForEach(difficulties, id: \.self) { diff in
                     let s = statsVM.aiStats(for: diff)
                     HStack {
-                        Text(name)
+                        Text(diff.displayName)
                             .font(.system(size: 12))
                             .foregroundColor(.white)
                             .frame(width: 40, alignment: .leading)
 
-                        Text("\(s.wins)胜 \(s.losses)负 \(s.draws)和") // TODO: localize
+                        Text(String(localized: "stats.format", defaultValue: "\(s.wins)胜 \(s.losses)负 \(s.draws)和"))
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
 

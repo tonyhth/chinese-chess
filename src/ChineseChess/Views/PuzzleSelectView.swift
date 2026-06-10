@@ -286,7 +286,7 @@ struct PuzzlePlayView: View {
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.yellow)
                     }
-                    Text("星级: " + String(repeating: "★", count: viewModel.completionRating)) // TODO: localize
+                    Text("星级: " + String(repeating: "★", count: viewModel.completionRating)) // TODO: localize — String.LocalizationValue 不支持 String concatenation
                         .font(.system(size: 20))
                         .foregroundColor(.yellow)
                     HStack(spacing: 12) {

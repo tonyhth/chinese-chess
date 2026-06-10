@@ -29,7 +29,7 @@ struct StatusBarView: View {
 
                 Spacer()
 
-                Text("第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合") // TODO: localize
+                Text(String(localized: "round", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
                     .font(.system(size: 13))
                     .foregroundColor(.gray)
             }

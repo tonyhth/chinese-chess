@@ -134,7 +134,7 @@ struct GameHistoryRow: View {
                     Text("·")
                         .foregroundColor(.gray)
 
-                    Text("\(record.totalMoves) 步") // TODO: localize
+                    Text(String(localized: "move.count", defaultValue: "\(record.totalMoves) 步"))
                         .foregroundColor(.secondary)
                         .font(.subheadline)
 
@@ -200,7 +200,8 @@ struct GameHistoryRow: View {
 
     private func formatDate(_ date: Date) -> String {
         let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd HH:mm"
+        f.dateStyle = .short
+        f.timeStyle = .short
         return f.string(from: date)
     }
 }
@@ -208,13 +209,13 @@ struct GameHistoryRow: View {
 // MARK: - AIDifficulty 扩展
 
 extension AIDifficulty {
-    var displayName: String { // TODO: localize difficulty names
+    var displayName: String {
         switch self {
-        case .beginner: return "新手"
-        case .easy: return "初级"
-        case .medium: return "中级"
-        case .hard: return "高级"
-        case .master: return "大师"
+        case .beginner: return String(localized: "difficulty.beginner")
+        case .easy: return String(localized: "difficulty.easy")
+        case .medium: return String(localized: "difficulty.medium")
+        case .hard: return String(localized: "difficulty.hard")
+        case .master: return String(localized: "difficulty.master")
         }
     }
 }

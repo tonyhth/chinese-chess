@@ -1,6 +1,7 @@
 import Foundation
 
 // MARK: - ICCS 中文坐标法棋谱生成
+// TODO: localize — 中文传统棋谱格式与 locale 双维度，需根据 notationFormat + locale 决定输出
 
 struct NotationGenerator {
 

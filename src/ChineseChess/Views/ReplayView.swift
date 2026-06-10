@@ -28,7 +28,7 @@ struct ReplayView: View {
 
             // 对局信息：独立区域
             HStack(spacing: 4) {
-                Text("红 \(viewModel.record.redPlayer.name)") // TODO: localize
+                Text(String(localized: "red.player", defaultValue: "红 \(viewModel.record.redPlayer.name)"))
                     .foregroundColor(.red)
                 Text("vs")
                     .foregroundColor(.gray)

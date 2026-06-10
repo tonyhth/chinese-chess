@@ -8,6 +8,12 @@
             "state": "translated",
             "value": "AI 难度"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Difficulty"
+          }
         }
       }
     },
@@ -17,6 +23,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI 思考中..."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Thinking…"
           }
         }
       }
@@ -28,6 +40,12 @@
             "state": "translated",
             "value": "关于"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
         }
       }
     },
@@ -37,6 +55,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "黑方损失:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black Loss:"
           }
         }
       }
@@ -48,6 +72,12 @@
             "state": "translated",
             "value": "黑方走棋"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black's Turn"
+          }
         }
       }
     },
@@ -57,6 +87,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "🖤 黑方获胜！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🖤 Black Wins!"
           }
         }
       }
@@ -68,6 +104,12 @@
             "state": "translated",
             "value": "棋盘主题"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Board Theme"
+          }
         }
       }
     },
@@ -77,6 +119,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "删除"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         }
       }
@@ -88,6 +136,12 @@
             "state": "translated",
             "value": "🤝 和棋！"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🤝 Draw!"
+          }
         }
       }
     },
@@ -97,6 +151,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "历史对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game History"
           }
         }
       }
@@ -108,6 +168,12 @@
             "state": "translated",
             "value": "对局回放"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game Replay"
+          }
         }
       }
     },
@@ -117,6 +183,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "人机对局 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vs AI %@"
           }
         }
       }
@@ -128,6 +200,12 @@
             "state": "translated",
             "value": "提示"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hint"
+          }
         }
       }
     },
@@ -137,6 +215,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "提示：第 %@ 步 → %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hint: Step %@ → %@"
           }
         }
       }
@@ -148,6 +232,12 @@
             "state": "translated",
             "value": "ICCS 坐标"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ICCS Coordinates"
+          }
         }
       }
     },
@@ -157,6 +247,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ 步"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ moves"
           }
         }
       }
@@ -168,6 +264,12 @@
             "state": "translated",
             "value": "新局"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Game"
+          }
         }
       }
     },
@@ -177,6 +279,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "棋谱格式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notation Format"
           }
         }
       }
@@ -188,6 +296,12 @@
             "state": "translated",
             "value": "完美解法: %@"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfect Solution: %@"
+          }
         }
       }
     },
@@ -197,6 +311,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "再来一局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play Again"
           }
         }
       }
@@ -208,6 +328,12 @@
             "state": "translated",
             "value": "最后更新日期：2025年6月"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Updated: June 2025"
+          }
         }
       }
     },
@@ -217,6 +343,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "本应用不收集任何个人数据"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app does not collect any personal data."
           }
         }
       }
@@ -228,6 +360,12 @@
             "state": "translated",
             "value": "我们使用 UserDefaults 进行本地数据存储，不使用任何网络请求或第三方分析工具"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We use UserDefaults for local data storage. No network requests or third-party analytics tools are used."
+          }
         }
       }
     },
@@ -237,6 +375,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "所有数据（对局历史、残局进度、统计数据、主题偏好）仅存储在您的设备上"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All data (game history, puzzle progress, statistics, theme preferences) is stored only on your device."
           }
         }
       }
@@ -248,6 +392,12 @@
             "state": "translated",
             "value": "隐私政策"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
         }
       }
     },
@@ -257,6 +407,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "通关 ✅"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solved ✅"
           }
         }
       }
@@ -268,6 +424,12 @@
             "state": "translated",
             "value": "星级: %@"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stars: %@"
+          }
         }
       }
     },
@@ -277,6 +439,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "红方损失:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red Loss:"
           }
         }
       }
@@ -288,6 +456,12 @@
             "state": "translated",
             "value": "红方走棋"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red's Turn"
+          }
         }
       }
     },
@@ -297,6 +471,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "红 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red %@"
           }
         }
       }
@@ -308,6 +488,12 @@
             "state": "translated",
             "value": "🎉 红方获胜！"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎉 Red Wins!"
+          }
         }
       }
     },
@@ -317,6 +503,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "回放"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replay"
           }
         }
       }
@@ -328,6 +520,12 @@
             "state": "translated",
             "value": "第 %@ 回合"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Round %@"
+          }
         }
       }
     },
@@ -337,6 +535,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "设置"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
           }
         }
       }
@@ -348,6 +552,12 @@
             "state": "translated",
             "value": "音效"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sound"
+          }
         }
       }
     },
@@ -357,6 +567,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "音效开关"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sound Effects"
           }
         }
       }
@@ -368,6 +584,12 @@
             "state": "translated",
             "value": "%@胜 %@负 %@和"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@W %@L %@D"
+          }
         }
       }
     },
@@ -377,6 +599,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "悔棋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
           }
         }
       }
@@ -388,6 +616,12 @@
             "state": "translated",
             "value": "查看棋谱"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Record"
+          }
         }
       }
     },
@@ -397,6 +631,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "中文传统"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chinese Traditional"
           }
         }
       }
@@ -408,6 +648,12 @@
             "state": "translated",
             "value": "暂无历史对局"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Game History"
+          }
         }
       }
     },
@@ -417,6 +663,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "对局回放"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game Replay"
           }
         }
       }
@@ -428,6 +680,12 @@
             "state": "translated",
             "value": "清空历史"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear History"
+          }
         }
       }
     },
@@ -437,6 +695,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "取消"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         }
       }
@@ -448,6 +712,12 @@
             "state": "translated",
             "value": "清空"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
         }
       }
     },
@@ -457,6 +727,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "确定要清空所有历史对局吗？此操作不可恢复。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to clear all game history? This action cannot be undone."
           }
         }
       }
@@ -468,6 +744,12 @@
             "state": "translated",
             "value": "完成"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
         }
       }
     },
@@ -477,6 +759,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "红方胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red Won"
           }
         }
       }
@@ -488,6 +776,12 @@
             "state": "translated",
             "value": "黑方胜"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black Won"
+          }
         }
       }
     },
@@ -497,6 +791,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "和棋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw"
           }
         }
       }
@@ -508,6 +808,12 @@
             "state": "translated",
             "value": "进行中"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playing"
+          }
         }
       }
     },
@@ -517,6 +823,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "将军！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check!"
           }
         }
       }
@@ -528,6 +840,12 @@
             "state": "translated",
             "value": "无"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
         }
       }
     },
@@ -538,12 +856,24 @@
             "state": "translated",
             "value": "红 %@"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red %@"
+          }
         }
       }
     },
     "replay.vs": {
       "localizations": {
         "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vs"
+          }
+        },
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "vs"
@@ -558,6 +888,12 @@
             "state": "translated",
             "value": "通关 ✅"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solved ✅"
+          }
         }
       }
     },
@@ -567,6 +903,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "残局闯关"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzle Challenge"
           }
         }
       }
@@ -578,6 +920,12 @@
             "state": "translated",
             "value": "全部"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
         }
       }
     },
@@ -587,6 +935,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "暂无残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Puzzles"
           }
         }
       }
@@ -598,6 +952,12 @@
             "state": "translated",
             "value": "返回"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
         }
       }
     },
@@ -607,6 +967,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "通关 ✅"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solved ✅"
           }
         }
       }
@@ -618,6 +984,12 @@
             "state": "translated",
             "value": "🎉 将杀获胜"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎉 Checkmate!"
+          }
         }
       }
     },
@@ -627,6 +999,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "关闭"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
           }
         }
       }
@@ -638,6 +1016,12 @@
             "state": "translated",
             "value": "查看完美解法"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Perfect Solution"
+          }
         }
       }
     },
@@ -647,6 +1031,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "挑战失败"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Challenge Failed"
           }
         }
       }
@@ -658,6 +1048,12 @@
             "state": "translated",
             "value": "不要气馁，再试一次吧！"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't give up, try again!"
+          }
         }
       }
     },
@@ -667,6 +1063,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "重试"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
           }
         }
       }
@@ -678,6 +1080,12 @@
             "state": "translated",
             "value": "继续"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
         }
       }
     },
@@ -687,6 +1095,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "对局统计"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game Statistics"
           }
         }
       }
@@ -698,6 +1112,12 @@
             "state": "translated",
             "value": "人机对战"
           }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vs AI"
+          }
         }
       }
     },
@@ -707,6 +1127,92 @@
           "stringUnit": {
             "state": "translated",
             "value": "重置统计"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Statistics"
+          }
+        }
+      }
+    },
+    "difficulty.beginner": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新手"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginner"
+          }
+        }
+      }
+    },
+    "difficulty.easy": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初级"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elementary"
+          }
+        }
+      }
+    },
+    "difficulty.medium": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中级"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intermediate"
+          }
+        }
+      }
+    },
+    "difficulty.hard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高级"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced"
+          }
+        }
+      }
+    },
+    "difficulty.master": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大师"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master"
           }
         }
       }
