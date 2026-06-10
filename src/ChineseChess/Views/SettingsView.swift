@@ -10,7 +10,7 @@ struct SettingsView: View {
         ScrollView {
             Form {
                 // 难度设置
-                Section("AI 难度") {
+                Section(String(localized: "ai.difficulty")) {
                     Picker("难度", selection: Binding(
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
@@ -25,7 +25,7 @@ struct SettingsView: View {
                 }
 
                 // 主题
-                Section("棋盘主题") {
+                Section(String(localized: "board.theme")) {
                     ForEach(BoardTheme.allCases, id: \.self) { theme in
                         HStack {
                             Image(systemName: theme.icon)
@@ -46,38 +46,38 @@ struct SettingsView: View {
                 }
 
                 // 音效
-                Section("音效") {
-                    Toggle("音效开关", isOn: Binding(
+                Section(String(localized: "sound")) {
+                    Toggle(String(localized: "sound.toggle"), isOn: Binding(
                         get: { !soundEngine.isMuted },
                         set: { soundEngine.isMuted = !$0 }
                     ))
                 }
 
                 // 棋谱格式
-                Section("棋谱格式") {
+                Section(String(localized: "notation.format")) {
                     Picker("格式", selection: $notationFormat) {
-                        Text("中文传统").tag("chinese")
-                        Text("ICCS 坐标").tag("iccs")
+                        Text(String(localized: "chinese.notation")).tag("chinese")
+                        Text(String(localized: "iccs.notation")).tag("iccs")
                     }
                     .pickerStyle(.segmented)
                 }
 
                 // 关于
-                Section("关于") {
+                Section(String(localized: "about")) {
                     NavigationLink {
                         PrivacyPolicyView()
                     } label: {
                         HStack {
                             Image(systemName: "hand.raised")
                                 .foregroundColor(.brown)
-                            Text("隐私政策")
+                            Text(String(localized: "privacy.policy"))
                         }
                     }
                 }
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("设置")
+        .navigationTitle(String(localized: "settings"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

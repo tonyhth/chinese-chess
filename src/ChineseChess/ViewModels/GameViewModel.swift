@@ -328,7 +328,7 @@ class GameViewModel {
         guard !gameMoves.isEmpty else { return nil }
         return GameRecord(
             id: UUID(),
-            title: "人机对局 \(formatShortDate())",
+            title: "人机对局 \(formatShortDate())", // TODO: localize
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
             blackPlayer: PlayerInfo(

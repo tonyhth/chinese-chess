@@ -13,13 +13,13 @@ struct StatsPanelView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("对局统计")
+            Text(String(localized: "stats.title"))
                 .font(.system(size: 15, weight: .bold))
                 .foregroundColor(.white)
 
             // 人机统计
             VStack(alignment: .leading, spacing: 6) {
-                Text("人机对战")
+                Text(String(localized: "stats.ai"))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.orange)
 
@@ -31,7 +31,7 @@ struct StatsPanelView: View {
                             .foregroundColor(.white)
                             .frame(width: 40, alignment: .leading)
 
-                        Text("\(s.wins)胜 \(s.losses)负 \(s.draws)和")
+                        Text("\(s.wins)胜 \(s.losses)负 \(s.draws)和") // TODO: localize
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
 
@@ -49,7 +49,7 @@ struct StatsPanelView: View {
             // 重置
             HStack {
                 Spacer()
-                Button("重置统计") {
+                Button(String(localized: "stats.reset")) {
                     statsVM.resetAll()
                 }
                 .font(.system(size: 12))

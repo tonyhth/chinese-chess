@@ -8,7 +8,7 @@ struct ToolbarView: View {
             // 棋局控制组
             HStack(spacing: 8) {
                 Button(action: { viewModel.newGame() }) {
-                    Label("新局", systemImage: "arrow.counterclockwise")
+                    Label(String(localized: "new.game"), systemImage: "arrow.counterclockwise")
                 }
                 #if os(macOS)
                 .keyboardShortcut("n", modifiers: .command)
@@ -18,7 +18,7 @@ struct ToolbarView: View {
                 .tint(.brown)
 
                 Button(action: { viewModel.undoMove() }) {
-                    Label("悔棋", systemImage: "arrow.uturn.backward")
+                    Label(String(localized: "undo"), systemImage: "arrow.uturn.backward")
                 }
                 #if os(macOS)
                 .keyboardShortcut("z", modifiers: .command)
@@ -28,7 +28,7 @@ struct ToolbarView: View {
                 .tint(.brown)
 
                 Button(action: { viewModel.requestHint() }) {
-                    Label("提示", systemImage: "lightbulb")
+                    Label(String(localized: "hint"), systemImage: "lightbulb")
                 }
                 #if os(macOS)
                 .keyboardShortcut("h", modifiers: [.command, .shift])
@@ -46,15 +46,15 @@ struct ToolbarView: View {
             #endif
 
             // 设置组
-            Picker("难度", selection: Binding(
+            Picker(String(localized: "ai.difficulty"), selection: Binding(
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
             )) {
-                Text("新手").tag(AIDifficulty.beginner)
-                Text("初级").tag(AIDifficulty.easy)
-                Text("中级").tag(AIDifficulty.medium)
-                Text("高级").tag(AIDifficulty.hard)
-                Text("大师").tag(AIDifficulty.master)
+                Text("新手").tag(AIDifficulty.beginner) // TODO: localize
+                Text("初级").tag(AIDifficulty.easy) // TODO: localize
+                Text("中级").tag(AIDifficulty.medium) // TODO: localize
+                Text("高级").tag(AIDifficulty.hard) // TODO: localize
+                Text("大师").tag(AIDifficulty.master) // TODO: localize
             }
             .pickerStyle(.segmented)
         }
