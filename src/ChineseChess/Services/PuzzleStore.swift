@@ -20,12 +20,23 @@ final class PuzzleStore {
     // MARK: - 加载残局数据
 
     private func loadPuzzles() {
-        guard let url = ResourceBundle.url(forResource: "puzzles", withExtension: "json") else {
-            print("[INFO] PuzzleStore: puzzles.json not found, using empty list")
+        // 1. 优先用 ResourceBundle（SPM bundle）
+        var url = ResourceBundle.url(forResource: "puzzles", withExtension: "json")
+
+        // 2. Fallback: Bundle.main 直接查找（打包 .app 时资源可能扁平化或在子目录）
+        if url == nil {
+            url = Bundle.main.url(forResource: "puzzles", withExtension: "json")
+        }
+        if url == nil {
+            url = Bundle.main.url(forResource: "puzzles", withExtension: "json", subdirectory: "Puzzles")
+        }
+
+        guard let puzzleURL = url else {
+            print("[WARN] PuzzleStore: puzzles.json not found in any location")
             return
         }
 
-        guard let data = try? Data(contentsOf: url) else {
+        guard let data = try? Data(contentsOf: puzzleURL) else {
             print("[WARN] PuzzleStore: failed to read puzzles.json")
             return
         }
