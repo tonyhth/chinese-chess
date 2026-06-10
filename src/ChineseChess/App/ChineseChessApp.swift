@@ -115,6 +115,7 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 600, minHeight: 720)
             .preferredColorScheme(.dark)
+            .environment(\.locale, Locale(identifier: "zh-Hans"))
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },

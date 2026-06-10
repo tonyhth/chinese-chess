@@ -188,6 +188,7 @@ struct ChineseChessiOSApp: App {
                 }
             }
             .preferredColorScheme(.dark)
+            .environment(\.locale, Locale(identifier: "zh-Hans"))
         }
     }
 }
