@@ -34,6 +34,7 @@ struct ChineseChessApp: App {
 
                     BoardView(viewModel: viewModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(minHeight: 480)
 
                     StatusBarView(viewModel: viewModel)
 
@@ -113,7 +114,7 @@ struct ChineseChessApp: App {
                 }
 
             }
-            .frame(minWidth: 600, minHeight: 720)
+            .frame(minWidth: 700, minHeight: 820)
             .preferredColorScheme(.dark)
             // 已改用硬编码中文字符串，不再依赖本地化系统
             // 棋谱/统计面板互斥 Sheet
@@ -189,7 +190,7 @@ struct ChineseChessApp: App {
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
-        .defaultSize(width: 660, height: 760)
+        .defaultSize(width: 760, height: 860)
         .commands {
             CommandGroup(replacing: .appSettings) {
                 Button("设置") {
