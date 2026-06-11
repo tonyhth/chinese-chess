@@ -33,27 +33,39 @@ class PuzzleViewModel {
     private var puzzleVersion: Int = 0
     private var cachedSolutionRecord: GameRecord?
 
+    /// 和局检测：局面历史（用于长将检测）
+    private var positionHistory: [String] = []
+    /// 和局检测：无吃子/无兵移动回合数
+    private var halfmoveClock: Int = 0
+    /// 是否已显示超步警告
+    private var hasShownMaxMovesWarning: Bool = false
+
     enum PuzzleState: Equatable {
         case playing
         case success
         case failed
+        case draw
         case showingHint
+        case maxMovesWarning  // 超过建议步数警告（自由对弈模式）
     }
 
     init(puzzle: Puzzle) {
         self.puzzle = puzzle
         self.playerSide = puzzle.side
         self.board = Board(fen: puzzle.initialFEN)
+        self.positionHistory = [boardFingerprint()]
     }
 
     // MARK: - 防守方 AI 难度映射
 
     private var defenderDifficulty: AIDifficulty {
-        switch puzzle.difficulty {
-        case 1: return .beginner
-        case 2: return .easy
-        case 3: return .medium
-        case 4: return .hard
+        // 星级→AI搜索深度映射
+        switch puzzle.stars {
+        case 1: return .beginner  // depth 2
+        case 2: return .easy      // depth 3
+        case 3: return .medium    // depth 4
+        case 4: return .hard      // depth 5
+        case 5: return .master    // depth 6
         default: return .easy
         }
     }
@@ -129,6 +141,9 @@ class PuzzleViewModel {
             SoundEngine.shared.playMove()
         }
 
+        // 更新局面历史（和局检测）
+        updatePositionHistory(captured: captured, movedPiece: piece)
+
         // 实时解法提示：检查是否走了推荐走法
         let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
         if !isRecommendedMove(at: playerMoveIndex) {
@@ -161,7 +176,21 @@ class PuzzleViewModel {
 
         // 检查是否超过最大步数
         if gameMoves.count >= puzzle.maxMoves {
-            gameState = .failed
+            if puzzle.effectiveMode == .freePlay {
+                // 自由对弈模式：超步只警告，不失败
+                if !hasShownMaxMovesWarning {
+                    hasShownMaxMovesWarning = true
+                    gameState = .maxMovesWarning
+                }
+            } else {
+                gameState = .failed
+                return
+            }
+        }
+
+        // 和局检测（仅自由对弈模式）
+        if puzzle.effectiveMode == .freePlay && checkDraw() {
+            gameState = .draw
             return
         }
 
@@ -214,6 +243,16 @@ class PuzzleViewModel {
                         if MoveValidator.isCheckmate(self.playerSide, on: self.board) {
                             self.gameState = .failed
                             self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
+                            return
+                        }
+
+                        // 更新局面历史（和局检测）
+                        self.updatePositionHistory(captured: captured, movedPiece: mainPiece)
+
+                        // 和局检测（自由对弈模式）
+                        if self.puzzle.effectiveMode == .freePlay && self.checkDraw() {
+                            self.gameState = .draw
+                            return
                         }
                     }
                 }
@@ -221,10 +260,60 @@ class PuzzleViewModel {
 
                 // 再次检查步数
                 if self.gameState == .playing && self.gameMoves.count >= self.puzzle.maxMoves {
-                    self.gameState = .failed
+                    if self.puzzle.effectiveMode == .freePlay {
+                        if !self.hasShownMaxMovesWarning {
+                            self.hasShownMaxMovesWarning = true
+                            self.gameState = .maxMovesWarning
+                        }
+                    } else {
+                        self.gameState = .failed
+                    }
                 }
             }
         }
+    }
+
+    // MARK: - 和局检测辅助方法
+
+    /// 局面指纹（棋子位置+轮次），用于长将检测
+    private func boardFingerprint() -> String {
+        var fp = board.currentTurn == .red ? "w" : "b"
+        for row in 0..<10 {
+            for col in 0..<9 {
+                if let piece = board.piece(at: Position(row: row, col: col)) {
+                    fp += "\(row)\(col)\(piece.kind == .general ? "K" : piece.kind == .chariot ? "R" : "X")\(piece.side == .red ? "r" : "b")"
+                }
+            }
+        }
+        return fp
+    }
+
+    /// 检查是否和局
+    private func checkDraw() -> Bool {
+        let currentFp = boardFingerprint()
+        let count = positionHistory.filter { $0 == currentFp }.count
+        if count >= 3 { return true }
+        if halfmoveClock >= 100 { return true }
+        let offensiveKinds: Set<PieceKind> = [.chariot, .horse, .cannon, .soldier]
+        let hasOffensive = board.pieces.contains { offensiveKinds.contains($0.kind) }
+        if !hasOffensive { return true }
+        return false
+    }
+
+    /// 更新局面历史
+    private func updatePositionHistory(captured: Piece?, movedPiece: Piece) {
+        let isPawn = movedPiece.kind == .soldier
+        if captured != nil || isPawn {
+            halfmoveClock = 0
+            positionHistory = [boardFingerprint()]
+        } else {
+            halfmoveClock += 1
+            positionHistory.append(boardFingerprint())
+        }
+    }
+
+    func dismissMaxMovesWarning() {
+        gameState = .playing
     }
 
     // MARK: - 悔棋
@@ -436,6 +525,9 @@ class PuzzleViewModel {
         solutionHint = nil
         hintMove = nil
         completionRating = 0
+        positionHistory = [boardFingerprint()]
+        halfmoveClock = 0
+        hasShownMaxMovesWarning = false
     }
 
     // MARK: - 完美解法回放

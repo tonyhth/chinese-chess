@@ -1,5 +1,12 @@
 import Foundation
 
+// MARK: - 残局解法模式
+
+enum SolutionMode: String, Codable {
+    case guided    // 有解法引导
+    case freePlay  // 自由对弈 vs AI
+}
+
 // MARK: - 残局数据模型
 
 struct Puzzle: Identifiable, Codable {
@@ -20,10 +27,15 @@ struct Puzzle: Identifiable, Codable {
     var solutionType: String     // "checkmate"(默认) | "sequence" | "hint"
     var endDescription: String?  // 通关描述文字
 
+    // v2.2.6 新增字段
+    var solutionMode: SolutionMode  // 默认 .guided
+    var subcategory: String?        // 难度标签（"入门"/"简单"/"中等"/"困难"/"大师"）
+
     init(id: String, name: String, category: String, difficulty: Int, stars: Int,
          description: String, playerSide: String, initialFEN: String,
          solution: [String], hints: [String]?, maxMoves: Int, source: String? = nil,
-         solutionType: String = "checkmate", endDescription: String? = nil) {
+         solutionType: String = "checkmate", endDescription: String? = nil,
+         solutionMode: SolutionMode = .guided, subcategory: String? = nil) {
         self.id = id
         self.name = name
         self.category = category
@@ -38,6 +50,14 @@ struct Puzzle: Identifiable, Codable {
         self.source = source
         self.solutionType = solutionType
         self.endDescription = endDescription
+        self.solutionMode = solutionMode
+        self.subcategory = subcategory
+    }
+
+    /// 计算属性：solution 非空→guided，否则→freePlay
+    var effectiveMode: SolutionMode {
+        if !solution.isEmpty { return .guided }
+        return solutionMode
     }
 
     // 向后兼容：旧 JSON 无 solutionType 字段时 Codable 用默认值
@@ -45,6 +65,7 @@ struct Puzzle: Identifiable, Codable {
         case id, name, category, difficulty, stars, description
         case playerSide, initialFEN, solution, hints, maxMoves, source
         case solutionType, endDescription
+        case solutionMode, subcategory
     }
 
     init(from decoder: Decoder) throws {
@@ -63,6 +84,8 @@ struct Puzzle: Identifiable, Codable {
         source = try c.decodeIfPresent(String.self, forKey: .source)
         solutionType = (try? c.decode(String.self, forKey: .solutionType)) ?? "checkmate"
         endDescription = try c.decodeIfPresent(String.self, forKey: .endDescription)
+        solutionMode = (try? c.decode(SolutionMode.self, forKey: .solutionMode)) ?? .guided
+        subcategory = try c.decodeIfPresent(String.self, forKey: .subcategory)
     }
 
     var side: Side {

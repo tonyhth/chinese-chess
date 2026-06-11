@@ -69,6 +69,37 @@ final class PuzzleStore {
         Array(Set(puzzles.map { $0.category })).sorted()
     }
 
+    // MARK: - v2.2.6 新增查询
+
+    /// 按难度筛选
+    func puzzles(byDifficulty stars: Int) -> [Puzzle] {
+        puzzles.filter { $0.stars == stars }
+    }
+
+    /// 搜索（name + description + category，中文匹配）
+    func searchPuzzles(query: String) -> [Puzzle] {
+        guard !query.isEmpty else { return puzzles }
+        let q = query.lowercased()
+        return puzzles.filter { p in
+            p.name.lowercased().contains(q) ||
+            p.description.lowercased().contains(q) ||
+            p.category.lowercased().contains(q)
+        }
+    }
+
+    /// 适情雅趣专用查询
+    var shiqingyaquPuzzles: [Puzzle] {
+        puzzles.filter { $0.category == "适情雅趣" }
+    }
+
+    /// 统计
+    var totalPuzzles: Int { puzzles.count }
+
+    var completedCount: Int {
+        let prog = progress
+        return puzzles.filter { prog[$0.id]?.isCompleted == true }.count
+    }
+
     // MARK: - 进度持久化
 
     var progress: [String: PuzzleProgress] {
