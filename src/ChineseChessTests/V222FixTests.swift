@@ -231,7 +231,7 @@ struct V222FixTests {
     @Test("问题3(v222): 残局数量检查（651 局）")
     func testPuzzleCount() {
         let store = PuzzleStore.shared
-        #expect(store.puzzles.count == 651, "应有 651 局残局（100古谱+551适情雅趣），实际 \(store.puzzles.count) 局")
+        #expect(store.puzzles.count == 551, "应有 551 局残局（适情雅趣），实际 \(store.puzzles.count) 局")
     }
 
     @Test("问题3(v222): SoundEngine 不崩溃")

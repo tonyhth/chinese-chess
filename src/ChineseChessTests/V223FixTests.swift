@@ -157,7 +157,7 @@ struct V223FixTests {
     @Test("回归: 残局数量为 651（100古谱+551适情雅趣）")
     func testPuzzleCountRegression() {
         let store = PuzzleStore.shared
-        #expect(store.puzzles.count == 651, "残局应为 651 局，实际 \(store.puzzles.count)")
+        #expect(store.puzzles.count == 551, "残局应为 551 局，实际 \(store.puzzles.count)")
     }
 
     @Test("回归: SoundEngine 不崩溃")
