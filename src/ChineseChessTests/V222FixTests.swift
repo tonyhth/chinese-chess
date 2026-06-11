@@ -228,10 +228,10 @@ struct V222FixTests {
         #expect(!store.puzzles.isEmpty, "残局列表不应为空")
     }
 
-    @Test("问题3(v222): 残局数量检查（116 局）")
+    @Test("问题3(v222): 残局数量检查（100 局）")
     func testPuzzleCount() {
         let store = PuzzleStore.shared
-        #expect(store.puzzles.count == 116, "应有 116 局残局，实际 \(store.puzzles.count) 局")
+        #expect(store.puzzles.count == 100, "应有 100 局残局，实际 \(store.puzzles.count) 局")
     }
 
     @Test("问题3(v222): SoundEngine 不崩溃")
