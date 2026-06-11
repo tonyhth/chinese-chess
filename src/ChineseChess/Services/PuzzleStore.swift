@@ -126,6 +126,11 @@ final class PuzzleStore {
         progress[puzzleId]
     }
 
+    /// 全部进度（用于批量筛选/排序）
+    var progressMap: [String: PuzzleProgress] {
+        progress
+    }
+
     /// 清除进度缓存（测试用）
     func invalidateProgressCache() {
         _progressCache = nil

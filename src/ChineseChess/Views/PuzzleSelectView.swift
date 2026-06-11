@@ -3,6 +3,10 @@ import SwiftUI
 struct PuzzleSelectView: View {
     @State private var selectedCategory: String?
     @State private var selectedPuzzle: Puzzle?
+    @State private var selectedStars: Int? = nil
+    @State private var searchText = ""
+    @State private var isSearching = false
+    @State private var debouncedSearchText = ""
 
     /// 面板背景色（统一常量，渐变遮罩也使用此色）
     private let panelBackground = Color(red: 40/255, green: 22/255, blue: 14/255)
@@ -10,21 +14,99 @@ struct PuzzleSelectView: View {
     /// 底部渐变遮罩高度
     private let fadeHeight: CGFloat = 24
 
+    /// 搜索防抖 Timer
+    @State private var searchDebounceTask: Task<Void, Never>?
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("残局闯关")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
+            // 标题栏 + 搜索按钮
+            HStack {
+                Text("残局闯关")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isSearching.toggle()
+                        if !isSearching {
+                            searchText = ""
+                            debouncedSearchText = ""
+                        }
+                    }
+                }) {
+                    Image(systemName: isSearching ? "xmark.circle.fill" : "magnifyingglass")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // 搜索框
+            if isSearching {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                    TextField("搜索残局名称…", text: $searchText)
+                        .font(.system(size: 13))
+                        .textFieldStyle(.plain)
+                        .foregroundColor(.white)
+                        .onChange(of: searchText) { _, newValue in
+                            searchDebounceTask?.cancel()
+                            searchDebounceTask = Task {
+                                try? await Task.sleep(nanoseconds: 300_000_000)
+                                guard !Task.isCancelled else { return }
+                                debouncedSearchText = newValue
+                            }
+                        }
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = ""; debouncedSearchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(8)
+                .background(Color(red: 60/255, green: 40/255, blue: 30/255))
+                .cornerRadius(6)
+                .transition(.opacity)
+            }
 
             // 分类选择
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     CategoryButton(title: "全部", isSelected: selectedCategory == nil) {
                         selectedCategory = nil
+                        selectedStars = nil
                     }
                     ForEach(PuzzleStore.shared.categories, id: \.self) { cat in
                         CategoryButton(title: cat, isSelected: selectedCategory == cat) {
                             selectedCategory = cat
+                            selectedStars = nil
+                        }
+                    }
+                }
+            }
+
+            // 难度子筛选栏（仅适情雅趣分类下显示）
+            if selectedCategory == "适情雅趣" {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        DifficultyFilterButton(
+                            title: "全部",
+                            isSelected: selectedStars == nil
+                        ) {
+                            selectedStars = nil
+                        }
+                        ForEach(1...5, id: \.self) { stars in
+                            DifficultyFilterButton(
+                                title: String(repeating: "★", count: stars),
+                                isSelected: selectedStars == stars
+                            ) {
+                                selectedStars = stars
+                            }
                         }
                     }
                 }
@@ -38,7 +120,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "puzzlepiece")
                         .font(.system(size: 32))
                         .foregroundColor(.secondary)
-                    Text("暂无残局")
+                    Text(debouncedSearchText.isEmpty ? "暂无残局" : "未找到匹配的残局")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                 }
@@ -46,28 +128,71 @@ struct PuzzleSelectView: View {
             } else {
                 ZStack(alignment: .bottom) {
                     ScrollView {
-                        LazyVStack(spacing: 8) {
-                            ForEach(list) { puzzle in
-                                PuzzleRow(puzzle: puzzle, progress: PuzzleStore.shared.progress(for: puzzle.id)) {
-                                    selectedPuzzle = puzzle
+                        LazyVStack(alignment: .leading, spacing: 8) {
+                            // 按50局分组显示
+                            let groups = groupedPuzzles(from: list)
+                            ForEach(Array(groups.enumerated()), id: \.offset) { _, group in
+                                // 组标题（仅多组时显示）
+                                if groups.count > 1 {
+                                    HStack {
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(height: 0.5)
+                                        Text("第 \(group.rangeLabel) 局")
+                                            .font(.system(size: 10))
+                                            .foregroundColor(.secondary)
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(height: 0.5)
+                                    }
+                                    .padding(.top, 4)
+                                }
+
+                                ForEach(group.puzzles) { puzzle in
+                                    PuzzleRow(
+                                        puzzle: puzzle,
+                                        progress: PuzzleStore.shared.progress(for: puzzle.id)
+                                    ) {
+                                        selectedPuzzle = puzzle
+                                    }
                                 }
                             }
                         }
-                        // 底部留白，与遮罩高度匹配
-                        Color.clear.frame(height: fadeHeight)
+                        // 底部留白，与遮罩高度匹配 + 统计栏高度
+                        Color.clear.frame(height: fadeHeight + 28)
                     }
 
-                    // 底部渐变遮罩，暗示可滚动
-                    LinearGradient(
-                        colors: [
-                            panelBackground.opacity(0),
-                            panelBackground
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: fadeHeight)
-                    .allowsHitTesting(false)
+                    VStack(spacing: 0) {
+                        // 底部渐变遮罩，暗示可滚动
+                        LinearGradient(
+                            colors: [
+                                panelBackground.opacity(0),
+                                panelBackground
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: fadeHeight)
+                        .allowsHitTesting(false)
+
+                        // 底部统计
+                        HStack {
+                            let completed = list.filter { PuzzleStore.shared.progress(for: $0.id)?.isCompleted == true }.count
+                            Text("已完成 \(completed)/\(list.count)")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            if selectedCategory == "适情雅趣" && selectedStars == nil {
+                                let groups = groupedPuzzles(from: list)
+                                Text("共 \(groups.count) 组")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(panelBackground)
+                    }
                 }
             }
         }
@@ -79,11 +204,64 @@ struct PuzzleSelectView: View {
         }
     }
 
+    // MARK: - 筛选逻辑
+
+    /// 最终展示的残局列表（分类 + 难度 + 搜索三重过滤）
     private var filteredPuzzles: [Puzzle] {
-        guard let cat = selectedCategory else {
-            return PuzzleStore.shared.puzzles
+        var result = PuzzleStore.shared.puzzles
+
+        // 1. 分类筛选
+        if let cat = selectedCategory {
+            result = result.filter { $0.category == cat }
         }
-        return PuzzleStore.shared.puzzles.filter { $0.category == cat }
+
+        // 2. 难度筛选
+        if let stars = selectedStars {
+            result = result.filter { $0.stars == stars }
+        }
+
+        // 3. 搜索筛选
+        if !debouncedSearchText.isEmpty {
+            let q = debouncedSearchText.lowercased()
+            result = result.filter { p in
+                p.name.lowercased().contains(q) ||
+                p.description.lowercased().contains(q) ||
+                p.category.lowercased().contains(q)
+            }
+        }
+
+        // 4. 排序：未完成排前面
+        let progress = PuzzleStore.shared.progressMap
+        result.sort { a, b in
+            let aDone = progress[a.id]?.isCompleted == true
+            let bDone = progress[b.id]?.isCompleted == true
+            if aDone != bDone { return !aDone }
+            return a.name < b.name
+        }
+
+        return result
+    }
+
+    // MARK: - 分组
+
+    struct PuzzleGroup {
+        let rangeLabel: String
+        let puzzles: [Puzzle]
+    }
+
+    private func groupedPuzzles(from puzzles: [Puzzle]) -> [PuzzleGroup] {
+        let groupSize = 50
+        var groups: [PuzzleGroup] = []
+        let total = puzzles.count
+        var start = 0
+        while start < total {
+            let end = min(start + groupSize, total)
+            let batch = Array(puzzles[start..<end])
+            let label = "\(start + 1)-\(end)"
+            groups.append(PuzzleGroup(rangeLabel: label, puzzles: batch))
+            start = end
+        }
+        return groups
     }
 }
 
@@ -106,6 +284,31 @@ struct CategoryButton: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 难度筛选按钮
+
+struct DifficultyFilterButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 11))
+                .foregroundColor(isSelected ? .yellow : .gray)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(isSelected ? Color.brown.opacity(0.6) : Color.clear)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(isSelected ? Color.yellow.opacity(0.5) : Color.gray.opacity(0.3), lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
@@ -138,6 +341,16 @@ struct PuzzleRow: View {
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
                                 .background(Color.orange.opacity(0.15))
+                                .cornerRadius(3)
+                        }
+                        // 自由对弈标签
+                        if puzzle.effectiveMode == .freePlay {
+                            Text("自由对弈")
+                                .font(.system(size: 10))
+                                .foregroundColor(.cyan)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(Color.cyan.opacity(0.15))
                                 .cornerRadius(3)
                         }
                     }
@@ -184,6 +397,11 @@ struct PuzzlePlayView: View {
     @State private var showSolutionReplay = false
     @Environment(\.dismiss) private var dismiss
 
+    /// 是否为自由对弈模式
+    private var isFreePlay: Bool {
+        puzzle.effectiveMode == .freePlay
+    }
+
     init(puzzle: Puzzle) {
         self.puzzle = puzzle
         self._viewModel = State(initialValue: PuzzleViewModel(puzzle: puzzle))
@@ -200,9 +418,20 @@ struct PuzzlePlayView: View {
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
-                Text(viewModel.gameState == .success ? "通关 ✅" : "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
-                    .font(.system(size: 13))
-                    .foregroundColor(viewModel.gameState == .success ? .green : .gray)
+                // 步数显示
+                if viewModel.gameState == .success {
+                    Text("通关 ✅")
+                        .font(.system(size: 13))
+                        .foregroundColor(.green)
+                } else if isFreePlay {
+                    Text("步数: \(viewModel.gameMoves.count)")
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                } else {
+                    Text("\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
+                        .font(.system(size: 13))
+                        .foregroundColor(.gray)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -254,8 +483,8 @@ struct PuzzlePlayView: View {
                 .padding(.horizontal, 16)
             }
 
-            // 解法实时提示
-            if let hint = viewModel.solutionHint {
+            // 解法实时提示（仅 guided 模式）
+            if !isFreePlay, let hint = viewModel.solutionHint {
                 Text(hint)
                     .font(.system(size: 13))
                     .foregroundColor(.orange)
@@ -269,11 +498,11 @@ struct PuzzlePlayView: View {
                     .padding(.bottom, 8)
             }
 
-            // 通关弹窗（全屏遮罩 + 居中弹窗）
+            // 通关弹窗
             if viewModel.gameState == .success {
                 Color.black.opacity(0.5)
                     .ignoresSafeArea()
-                    .onTapGesture { /* 阻止穿透 */ }
+                    .onTapGesture { }
 
                 VStack(spacing: 16) {
                     if viewModel.puzzle.solutionType == "sequence",
@@ -282,18 +511,21 @@ struct PuzzlePlayView: View {
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.yellow)
                     } else {
-                        Text("🎉 将杀获胜")
+                        Text(isFreePlay ? "🎉 通关成功" : "🎉 将杀获胜")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.yellow)
                     }
-                    Text("星级: " + String(repeating: "★", count: viewModel.completionRating)) // TODO: localize — String.LocalizationValue 不支持 String concatenation
-                        .font(.system(size: 20))
-                        .foregroundColor(.yellow)
+                    if !isFreePlay {
+                        Text("星级: " + String(repeating: "★", count: viewModel.completionRating))
+                            .font(.system(size: 20))
+                            .foregroundColor(.yellow)
+                    }
                     HStack(spacing: 12) {
                         Button("关闭") { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
-                        if viewModel.buildSolutionRecord() != nil {
+                        // 解法回放仅 guided 模式且有解法时显示
+                        if !isFreePlay, viewModel.buildSolutionRecord() != nil {
                             Button("查看完美解法") {
                                 showSolutionReplay = true
                             }
@@ -317,13 +549,75 @@ struct PuzzlePlayView: View {
             if viewModel.gameState == .failed {
                 Color.black.opacity(0.5)
                     .ignoresSafeArea()
-                    .onTapGesture { /* 阻止穿透 */ }
+                    .onTapGesture { }
 
                 VStack(spacing: 16) {
                     Text("挑战失败")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.red)
                     Text("不要气馁，再试一次吧！")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    HStack(spacing: 12) {
+                        Button("重试") {
+                            viewModel.resetPuzzle()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.brown)
+
+                        Button("返回") { dismiss() }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                    }
+                }
+                .padding(24)
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(12)
+                .padding()
+            }
+
+            // 超步警告弹窗（仅 freePlay 模式）
+            if viewModel.gameState == .maxMovesWarning {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .onTapGesture { }
+
+                VStack(spacing: 16) {
+                    Text("已超过建议步数")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.yellow)
+                    Text("继续挑战？")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    HStack(spacing: 12) {
+                        Button("继续挑战") {
+                            viewModel.dismissMaxMovesWarning()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.brown)
+
+                        Button("返回") { dismiss() }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                    }
+                }
+                .padding(24)
+                .background(Color.black.opacity(0.8))
+                .cornerRadius(12)
+                .padding()
+            }
+
+            // 和局弹窗（仅 freePlay 模式）
+            if viewModel.gameState == .draw {
+                Color.black.opacity(0.5)
+                    .ignoresSafeArea()
+                    .onTapGesture { }
+
+                VStack(spacing: 16) {
+                    Text("🤝 握手言和")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.yellow)
+                    Text("双方势均力敌")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
