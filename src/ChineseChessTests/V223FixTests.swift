@@ -141,7 +141,7 @@ struct V223FixTests {
                "主窗口 minWidth: 500, minHeight: 600")
     }
 
-    @Test("问题2: 棋盘有 minHeight 480 保护")
+    @Test("问题2: 棋盘有 minHeight 280 保护")
     func testBoardMinHeight() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
