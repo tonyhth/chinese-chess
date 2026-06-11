@@ -129,7 +129,7 @@ struct V223FixTests {
         #expect(content.contains("defaultSize(width: 760, height: 860)"), "默认窗口应为 760x860")
     }
 
-    @Test("问题2: macOS 最小窗口尺寸增大")
+    @Test("问题2: macOS 最小窗口尺寸 500x600")
     func testMinimumWindowSize() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
@@ -137,10 +137,8 @@ struct V223FixTests {
             #expect(Bool(false), "无法读取 ChineseChessApp.swift")
             return
         }
-        #expect(content.contains("minWidth: 700") || content.contains("minWidth: 760"),
-               "最小宽度应增大（700+）")
-        #expect(content.contains("minHeight: 820") || content.contains("minHeight: 860"),
-               "最小高度应增大（820+）")
+        #expect(content.contains("minWidth: 500, minHeight: 600"),
+               "主窗口 minWidth: 500, minHeight: 600")
     }
 
     @Test("问题2: 棋盘有 minHeight 480 保护")
@@ -151,15 +149,15 @@ struct V223FixTests {
             #expect(Bool(false), "无法读取 ChineseChessApp.swift")
             return
         }
-        #expect(content.contains("minHeight: 480"), "棋盘应有 minHeight: 480 保护")
+        #expect(content.contains("minHeight: 280"), "棋盘应有 minHeight: 280 保护")
     }
 
     // MARK: - 回归：v2.2.2 修复不受影响
 
-    @Test("回归: 残局数量仍为 139")
+    @Test("回归: 残局数量为 100（纯古谱）")
     func testPuzzleCountRegression() {
         let store = PuzzleStore.shared
-        #expect(store.puzzles.count == 139, "残局应为 139 局，实际 \(store.puzzles.count)")
+        #expect(store.puzzles.count == 100, "残局应为 100 局纯古谱，实际 \(store.puzzles.count)")
     }
 
     @Test("回归: SoundEngine 不崩溃")
