@@ -154,10 +154,10 @@ struct V223FixTests {
 
     // MARK: - 回归：v2.2.2 修复不受影响
 
-    @Test("回归: 残局数量为 100（纯古谱）")
+    @Test("回归: 残局数量为 651（100古谱+551适情雅趣）")
     func testPuzzleCountRegression() {
         let store = PuzzleStore.shared
-        #expect(store.puzzles.count == 100, "残局应为 100 局纯古谱，实际 \(store.puzzles.count)")
+        #expect(store.puzzles.count == 651, "残局应为 651 局，实际 \(store.puzzles.count)")
     }
 
     @Test("回归: SoundEngine 不崩溃")
