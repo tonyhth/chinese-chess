@@ -75,7 +75,7 @@ struct V222FixTests {
 
     // MARK: - 问题2：棋盘太小 → 增大初始窗口
 
-    @Test("问题2: 初始窗口不小于 760x860")
+    @Test("问题2: 初始窗口 defaultSize 760x860")
     func testInitialWindowSize() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
@@ -87,6 +87,18 @@ struct V222FixTests {
                "defaultSize 应为 760x860")
     }
 
+    @Test("问题2: 窗口最小尺寸 500x600")
+    func testMinWindowSize() {
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
+        let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
+        guard let content = content else {
+            #expect(Bool(false), "无法读取 ChineseChessApp.swift")
+            return
+        }
+        #expect(content.contains("minWidth: 500, minHeight: 600"),
+               "主窗口 minWidth: 500, minHeight: 600")
+    }
+
     @Test("问题2: 棋盘有最小高度")
     func testBoardMinHeight() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
@@ -95,8 +107,8 @@ struct V222FixTests {
             #expect(Bool(false), "无法读取 ChineseChessApp.swift")
             return
         }
-        #expect(content.contains("minHeight: 480"),
-               "BoardView 应设置 minHeight: 480")
+        #expect(content.contains("minHeight: 280"),
+               "BoardView 应设置 minHeight: 280")
     }
 
     // MARK: - 问题3（v2.2.2）：残局列表 + 语义字体 + ResourceBundle fallback

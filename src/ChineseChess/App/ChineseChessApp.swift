@@ -34,7 +34,7 @@ struct ChineseChessApp: App {
 
                     BoardView(viewModel: viewModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .frame(minHeight: 480)
+                        .frame(minHeight: 280)
 
                     StatusBarView(viewModel: viewModel)
 
@@ -114,7 +114,7 @@ struct ChineseChessApp: App {
                 }
 
             }
-            .frame(minWidth: 700, minHeight: 820)
+            .frame(minWidth: 500, minHeight: 600)
             .preferredColorScheme(.dark)
             // 已改用硬编码中文字符串，不再依赖本地化系统
             // 棋谱/统计面板互斥 Sheet
@@ -123,14 +123,14 @@ struct ChineseChessApp: App {
                 set: { if !$0 { activePanel = .none } }
             )) {
                 RecordPanelView(gameMoves: viewModel.gameMoves)
-                    .frame(minWidth: 320, minHeight: 300, maxHeight: 400)
+                    .frame(minWidth: 280, minHeight: 250, maxHeight: 400)
             }
             .sheet(isPresented: Binding(
                 get: { activePanel == .stats },
                 set: { if !$0 { activePanel = .none } }
             )) {
                 StatsPanelView()
-                    .frame(minWidth: 320, minHeight: 200, maxHeight: 400)
+                    .frame(minWidth: 280, minHeight: 180, maxHeight: 400)
             }
             .sheet(isPresented: $showPuzzles) {
                 NavigationStack {
@@ -142,12 +142,12 @@ struct ChineseChessApp: App {
                             }
                         }
                 }
-                .frame(minWidth: 400, minHeight: 500)
+                .frame(minWidth: 350, minHeight: 400)
             }
             .sheet(isPresented: $showReplay) {
                 if let record = replayRecord {
                     ReplayView(record: record)
-                        .frame(minWidth: 600, minHeight: 720)
+                        .frame(minWidth: 400, minHeight: 500)
                 }
             }
             .sheet(isPresented: $showThemePicker) {
@@ -174,7 +174,7 @@ struct ChineseChessApp: App {
                             }
                         }
                 }
-                .frame(minWidth: 500, minHeight: 500)
+                .frame(minWidth: 350, minHeight: 400)
             }
             .sheet(isPresented: $showSettings) {
                 NavigationStack {
