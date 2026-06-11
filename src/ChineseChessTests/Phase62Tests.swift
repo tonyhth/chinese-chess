@@ -87,14 +87,14 @@ struct Phase62Tests {
             "hints": null,
             "maxMoves": 15,
             "solutionMode": "freePlay",
-            "subcategory": "中等"
+            "subcategory": "中级"
         }
         """
         let data = json.data(using: .utf8)!
         let puzzle = try JSONDecoder().decode(Puzzle.self, from: data)
         #expect(puzzle.solutionMode == .freePlay)
         #expect(puzzle.effectiveMode == .freePlay)
-        #expect(puzzle.subcategory == "中等")
+        #expect(puzzle.subcategory == "中级")
     }
 
     // MARK: - PuzzleState 新状态
@@ -127,9 +127,10 @@ struct Phase62Tests {
         #expect(results.count >= 1)
         #expect(results[0].name.contains("气吞关右"))
 
-        // 搜索分类
-        let sqyq = store.searchPuzzles(query: "适情雅趣")
-        #expect(sqyq.count == store.shiqingyaquPuzzles.count)
+        // 搜索分类（棋子类型）
+        let cheMa = store.searchPuzzles(query: "车马类")
+        #expect(cheMa.count > 0)
+        #expect(cheMa.allSatisfy { $0.category.contains("车马类") })
 
         // 空搜索返回全部
         let all = store.searchPuzzles(query: "")
@@ -141,14 +142,14 @@ struct Phase62Tests {
         let store = PuzzleStore.shared
         let sqyq = store.shiqingyaquPuzzles
         #expect(sqyq.count == 551)
-        #expect(sqyq.allSatisfy { $0.category == "适情雅趣" })
+        #expect(sqyq.allSatisfy { $0.source == "适情雅趣" })
         #expect(sqyq.allSatisfy { $0.id.hasPrefix("sqyq_") })
     }
 
     @Test("PuzzleStore: 统计数据")
     func testStoreStats() {
         let store = PuzzleStore.shared
-        #expect(store.totalPuzzles == 651)
+        #expect(store.totalPuzzles == 551)
         #expect(store.completedCount >= 0)
     }
 
@@ -158,9 +159,9 @@ struct Phase62Tests {
         let sqyq = store.shiqingyaquPuzzles
         let subs = Set(sqyq.compactMap { $0.subcategory })
         #expect(subs.contains("入门"))
-        #expect(subs.contains("简单"))
-        #expect(subs.contains("中等"))
-        #expect(subs.contains("困难"))
+        #expect(subs.contains("初级"))
+        #expect(subs.contains("中级"))
+        #expect(subs.contains("高级"))
         #expect(subs.contains("大师"))
     }
 
@@ -169,12 +170,12 @@ struct Phase62Tests {
     @Test("PuzzleViewModel: freePlay 模式初始化")
     func testFreePlayInit() {
         let puzzle = Puzzle(
-            id: "fp_001", name: "自由对弈", category: "适情雅趣",
+            id: "fp_001", name: "自由对弈", category: "车马炮类",
             difficulty: 3, stars: 3, description: "测试",
             playerSide: "red",
             initialFEN: "2bakab2/9/1cn4c1/p1p1p3p/9/2P6/P3P1PRP/2N1C1N2/9/R1BAKAB2 w - - 0 1",
             solution: [], hints: nil, maxMoves: 25,
-            solutionMode: .freePlay, subcategory: "中等"
+            solutionMode: .freePlay, subcategory: "中级"
         )
         let vm = PuzzleViewModel(puzzle: puzzle)
         #expect(vm.gameState == .playing)

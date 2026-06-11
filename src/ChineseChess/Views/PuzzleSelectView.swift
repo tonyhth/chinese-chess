@@ -90,27 +90,25 @@ struct PuzzleSelectView: View {
                 }
             }
 
-            // 难度子筛选栏（仅适情雅趣分类下显示）
-            if selectedCategory == "适情雅趣" {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
+            // 难度子筛选栏
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    DifficultyFilterButton(
+                        title: "全部",
+                        isSelected: selectedStars == nil
+                    ) {
+                        selectedStars = nil
+                    }
+                    ForEach(1...5, id: \.self) { stars in
                         DifficultyFilterButton(
-                            title: "全部",
-                            isSelected: selectedStars == nil
-                        ) {
-                            selectedStars = nil
-                        }
-                        ForEach(1...5, id: \.self) { stars in
-                            DifficultyFilterButton(
-                                title: String(repeating: "★", count: stars),
+                            title: String(repeating: "★", count: stars),
                                 isSelected: selectedStars == stars
-                            ) {
-                                selectedStars = stars
-                            }
-                        }
+                    ) {
+                        selectedStars = stars
                     }
                 }
             }
+        }
 
             // 残局列表
             let list = filteredPuzzles
@@ -182,12 +180,10 @@ struct PuzzleSelectView: View {
                                 .font(.system(size: 11))
                                 .foregroundColor(.secondary)
                             Spacer()
-                            if selectedCategory == "适情雅趣" && selectedStars == nil {
-                                let groups = groupedPuzzles(from: list)
-                                Text("共 \(groups.count) 组")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.secondary)
-                            }
+                            let groups = groupedPuzzles(from: list)
+                            Text("共 \(groups.count) 组")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

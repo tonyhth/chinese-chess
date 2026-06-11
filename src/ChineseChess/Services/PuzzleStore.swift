@@ -87,9 +87,9 @@ final class PuzzleStore {
         }
     }
 
-    /// 适情雅趣专用查询
+    /// 适情雅趣专用查询（全部残局都是适情雅趣来源）
     var shiqingyaquPuzzles: [Puzzle] {
-        puzzles.filter { $0.category == "适情雅趣" }
+        puzzles.filter { $0.source == "适情雅趣" }
     }
 
     /// 统计
