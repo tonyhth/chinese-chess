@@ -36,6 +36,9 @@ struct StatusBarView: View {
             .foregroundColor(.white)
 
             // 被吃棋子
+            #if os(iOS)
+            iOSCapturedPiecesSection()
+            #else
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("红方损失:")
@@ -53,11 +56,43 @@ struct StatusBarView: View {
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
                 }
             }
+            #endif
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(Color(red: 60/255, green: 36/255, blue: 21/255))
     }
+
+    // MARK: - iOS 被吃棋子精简布局
+
+    #if os(iOS)
+    private let capturedRowHeight: CGFloat = 24
+
+    @ViewBuilder
+    private func iOSCapturedPiecesSection() -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            HStack(spacing: 2) {
+                Text("红失:")
+                    .font(.system(size: 10))
+                    .foregroundColor(.red)
+                capturedPiecesText(viewModel.capturedPieces.red, color: .red)
+                    .frame(height: capturedRowHeight, alignment: .leading)
+                    .clipped()
+            }
+
+            Spacer()
+
+            HStack(spacing: 2) {
+                Text("黑失:")
+                    .font(.system(size: 10))
+                    .foregroundColor(.white)
+                capturedPiecesText(viewModel.capturedPieces.black, color: .white)
+                    .frame(height: capturedRowHeight, alignment: .leading)
+                    .clipped()
+            }
+        }
+    }
+    #endif
 
     @ViewBuilder
     private func capturedPiecesText(_ pieces: [Piece], color: Color) -> some View {
@@ -73,6 +108,8 @@ struct StatusBarView: View {
                         .foregroundColor(color)
                 }
             }
+            .lineLimit(1)
+            .truncationMode(.tail)
         }
     }
 }

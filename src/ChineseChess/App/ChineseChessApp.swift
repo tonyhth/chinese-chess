@@ -35,6 +35,7 @@ struct ChineseChessApp: App {
                     BoardView(viewModel: viewModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .frame(minHeight: 280)
+                        .layoutPriority(1)
 
                     StatusBarView(viewModel: viewModel)
 

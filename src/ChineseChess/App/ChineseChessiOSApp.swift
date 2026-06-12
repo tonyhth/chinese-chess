@@ -35,6 +35,7 @@ struct ChineseChessiOSApp: App {
                         ToolbarView(viewModel: gameViewModel)
 
                         BoardView(viewModel: gameViewModel)
+                            .layoutPriority(1)
 
                         StatusBarView(viewModel: gameViewModel)
                     }

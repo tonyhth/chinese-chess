@@ -4,6 +4,44 @@ struct ToolbarView: View {
     let viewModel: GameViewModel
 
     var body: some View {
+        #if os(iOS)
+        HStack(spacing: 0) {
+            Button(action: { viewModel.newGame() }) {
+                Image(systemName: "plus.circle")
+                    .font(.system(size: 20))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .disabled(viewModel.isThinking)
+            .tint(.brown)
+            .accessibilityLabel("新局")
+            .accessibilityHint("双击开始新对局")
+
+            Button(action: { viewModel.undoMove() }) {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 20))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
+            .tint(.brown)
+            .accessibilityLabel("悔棋")
+            .accessibilityHint("双击撤销上一步")
+
+            Button(action: { viewModel.requestHint() }) {
+                Image(systemName: "lightbulb")
+                    .font(.system(size: 20))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+            .tint(.brown)
+            .accessibilityLabel("提示")
+            .accessibilityHint("双击获取走法提示")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+        #else
         HStack(spacing: 12) {
             // 棋局控制组
             HStack(spacing: 8) {
@@ -63,5 +101,6 @@ struct ToolbarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        #endif
     }
 }

@@ -232,7 +232,7 @@ struct PuzzleSelectView: View {
             let aDone = progress[a.id]?.isCompleted == true
             let bDone = progress[b.id]?.isCompleted == true
             if aDone != bDone { return !aDone }
-            return a.name < b.name
+            return a.id < b.id
         }
 
         return result

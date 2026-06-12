@@ -63,8 +63,21 @@ struct CheckmateSearch {
             }
 
             // 对方有应将走法：必须验证所有应将后我方都能赢，才是强制将杀
+            // ⚠️ 剪枝：走法超过 8 个时，按 moveScore 排序后只验证前 8 个。
+            // 注意：此剪枝可能导致假阳性——声称找到将杀，但对方可能存在第 9+ 个走法
+            // 能逃脱。这是速度与正确性的权衡，标准象棋引擎的常见做法。
+            // moveScore 的评分维度（吃子、靠近将帅、阻挡攻击线）与"能否逃脱"无必然关联，
+            // 但实际对局中被将时超过 8 个应将走法极少见（残局排局等复杂场景除外）。
+            let maxResponses = 8
+            let opponentMovesToCheck: [Move]
+            if opponentMoves.count > maxResponses {
+                opponentMovesToCheck = Array(opponentMoves.sorted { moveScore($0, on: board) > moveScore($1, on: board) }.prefix(maxResponses))
+            } else {
+                opponentMovesToCheck = opponentMoves
+            }
+
             var allResponsesWin = true
-            for response in opponentMoves {
+            for response in opponentMovesToCheck {
                 board.execute(response)
                 if !dfs(board: board, side: side, depth: depth + 2, maxDepth: maxDepth,
                          path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
@@ -85,5 +98,82 @@ struct CheckmateSearch {
         }
 
         return false
+    }
+
+    /// 应将走法简单排序评分：吃子优先、走向己方九宫附近优先、阻挡攻击线加分。
+    ///
+    /// 注意：调用时 board 已执行进攻方将军走法，因此评估的是将军后局面中
+    /// 对手对己方将帅的攻击威胁，而非将军前的局面。进攻方棋子位置可能已变化。
+    private static func moveScore(_ move: Move, on board: Board) -> Int {
+        var score = 0
+        // 吃子加分
+        if let captured = move.captured {
+            score += captured.baseValue
+        }
+        // 走向己方将帅附近加分（保护倾向）
+        if let gp = board.generalPosition(of: move.piece.side) {
+            let dist = abs(move.to.row - gp.row) + abs(move.to.col - gp.col)
+            score += max(0, 6 - dist) * 20
+        }
+        // 阻挡对方攻击己方将帅的攻击线加分
+        let attackerSide: Side = (move.piece.side == .red) ? .black : .red
+        if let gp = board.generalPosition(of: move.piece.side) {
+            let attackerPieces = board.pieces(for: attackerSide)
+            for attacker in attackerPieces {
+                guard attacker.kind == .chariot || attacker.kind == .cannon else { continue }
+                let ap = attacker.position
+                // 必须与将帅在同一行或同一列
+                guard ap.row == gp.row || ap.col == gp.col else { continue }
+                // 走法目标必须在攻击者和将帅之间
+                guard isBetween(move.to, attacker: ap, general: gp) else { continue }
+                // 统计攻击者与将帅之间的棋子数
+                let betweenCount = countPiecesBetween(ap, gp, on: board)
+                if attacker.kind == .chariot && betweenCount == 0 {
+                    // 車直线攻击无阻挡，挡住加高分
+                    score += 60
+                } else if attacker.kind == .cannon && betweenCount == 1 {
+                    // 炮隔一子攻击，挡住加中分
+                    score += 30
+                }
+            }
+        }
+        return score
+    }
+
+    /// 检查 point 是否在 attacker 和 general 之间（同一行或同一列，不含两端）
+    private static func isBetween(_ point: Position, attacker: Position, general: Position) -> Bool {
+        if attacker.row == general.row {
+            let minCol = min(attacker.col, general.col)
+            let maxCol = max(attacker.col, general.col)
+            return point.row == attacker.row && point.col > minCol && point.col < maxCol
+        } else if attacker.col == general.col {
+            let minRow = min(attacker.row, general.row)
+            let maxRow = max(attacker.row, general.row)
+            return point.col == attacker.col && point.row > minRow && point.row < maxRow
+        }
+        return false
+    }
+
+    /// 计算两个位置之间（不含两端）的棋子数量（仅限同行或同列）
+    private static func countPiecesBetween(_ a: Position, _ b: Position, on board: Board) -> Int {
+        var count = 0
+        if a.row == b.row {
+            let minCol = min(a.col, b.col) + 1
+            let maxCol = max(a.col, b.col)
+            for c in minCol..<maxCol {
+                if board.piece(at: Position(row: a.row, col: c)) != nil {
+                    count += 1
+                }
+            }
+        } else if a.col == b.col {
+            let minRow = min(a.row, b.row) + 1
+            let maxRow = max(a.row, b.row)
+            for r in minRow..<maxRow {
+                if board.piece(at: Position(row: r, col: a.col)) != nil {
+                    count += 1
+                }
+            }
+        }
+        return count
     }
 }

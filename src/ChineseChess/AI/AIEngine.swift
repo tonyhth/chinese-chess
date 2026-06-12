@@ -31,7 +31,7 @@ final class AIEngine: AIEngineProtocol {
 
         switch difficulty {
         case .beginner:
-            return safeRandomMove(for: workBoard)
+            return beginnerMove(for: workBoard)
         case .easy:
             return rootSearch(for: workBoard, depth: 3, useTT: true, useMoveOrder: true,
                               evalConfig: EvalConfig(mobility: false, safety: true))
@@ -41,6 +41,24 @@ final class AIEngine: AIEngineProtocol {
             return hardSearch(for: workBoard, isIOS: isIOS)
         case .master:
             return masterSearch(for: workBoard, isIOS: isIOS)
+        }
+    }
+
+    // MARK: - 新手：平滑过渡
+
+    /// 新手级 depth=1 搜索概率（0-100）
+    private static let beginnerSearchProbability = 30
+
+    /// 新手级：70% 随机（safeRandomMove），30% depth=1 搜索
+    /// depth=1 只看一步，偶尔走出好棋，但整体仍然很弱
+    private func beginnerMove(for board: Board) -> Move? {
+        if Int.random(in: 0..<100) < Self.beginnerSearchProbability {
+            // 30% 概率：depth=1 搜索，只看一步
+            return rootSearch(for: board, depth: 1, useTT: false, useMoveOrder: false,
+                              evalConfig: EvalConfig(mobility: false, safety: false))
+        } else {
+            // 70% 概率：随机走法（过滤送大子）
+            return safeRandomMove(for: board)
         }
     }
 
@@ -148,9 +166,9 @@ final class AIEngine: AIEngineProtocol {
     // MARK: - 中级：IDS depth=5-6 + Alpha-Beta + 开局库 + 将帅安全评估
 
     private func mediumSearch(for board: Board) -> Move? {
-        // 检查开局库
+        // medium 开局库：用 weighted random 增加多样性，不限制步数（medium 对局体验 > 最优性）
         let hash = ZobristHash.hash(board: board)
-        if let iccsMove = openingBook.lookup(zobristHash: hash),
+        if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
            let move = openingBook.parseICCSMove(iccsMove, on: board) {
             return move
         }
@@ -173,6 +191,16 @@ final class AIEngine: AIEngineProtocol {
 
     private func hardSearch(for board: Board, isIOS: Bool) -> Move? {
         let side = board.currentTurn
+
+        // 开局库（前 6 步以内，优先于搜索——开局阶段信任开局库 > 搜索）
+        // 开局库（前 6 步以内，加权随机选——高权重走法概率更大，同时增加多样性）
+        if board.moveHistory.count < 6 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return move
+            }
+        }
 
         // 杀法搜索（深度 12，iOS 800ms / macOS 1200ms）
         let killTimeLimit = isIOS ? 800 : 1200
@@ -201,6 +229,15 @@ final class AIEngine: AIEngineProtocol {
 
     private func masterSearch(for board: Board, isIOS: Bool) -> Move? {
         let side = board.currentTurn
+
+        // 开局库（前 6 步以内，加权随机选——高权重走法概率更大，同时增加多样性）
+        if board.moveHistory.count < 6 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return move
+            }
+        }
 
         // 杀法搜索（深度 16，iOS 1500ms / macOS 2500ms）
         let killTimeLimit = isIOS ? 1500 : 2500
@@ -353,8 +390,10 @@ final class AIEngine: AIEngineProtocol {
         var materialScore = 0
         var positionScore = 0
 
+        let totalPieces = board.pieces.count
+
         for piece in board.pieces {
-            let value = piece.baseValue
+            let value = dynamicValue(for: piece, totalPieces: totalPieces)
             let posWeight = positionWeight(for: piece)
             if piece.side == .black {
                 materialScore += value
@@ -397,6 +436,36 @@ final class AIEngine: AIEngineProtocol {
             + safetyBonus * 4 / 5)
     }
 
+    // MARK: - 棋子动态价值
+
+    /// 根据局面阶段计算棋子动态价值
+    /// totalPieces: 场上总子力数（含将帅）
+    ///
+    /// 阈值依据：
+    /// - totalPieces <= 10（约 5 对子）：残局阶段，马开间优势显现（无車阻挡），
+    ///   炮缺架子价值下降。马 450 > 炮 400 是常见棋理共识。
+    /// - totalPieces <= 6（约 2-3 对子）：残末期，兵/卒过河威胁剧增（可逼近将帅），
+    ///   价值提升至 300。此阈值待自对弈校准。
+    /// 注：阈值来源于象棋棋理经验，具体数值待通过大规模自对弈校准调参。
+    private func dynamicValue(for piece: Piece, totalPieces: Int) -> Int {
+        switch piece.kind {
+        case .general:  return 10000
+        case .chariot:  return 900
+        case .horse:
+            if totalPieces <= 10 { return 450 }  // 残局：马 > 炮
+            return 400
+        case .cannon:
+            if totalPieces <= 10 { return 400 }  // 残局：炮 < 马
+            return 450
+        case .advisor:  return 200
+        case .elephant: return 200
+        case .soldier:
+            if totalPieces <= 6 { return 300 }  // 残末期
+            let hasCrossedRiver = (piece.side == .red) ? piece.position.row <= 4 : piece.position.row >= 5
+            return hasCrossedRiver ? 200 : 100
+        }
+    }
+
     // MARK: - 将帅安全评估
 
     /// 将帅安全：周围防护（士/象覆盖）加分，对方攻击线经过九宫减分
@@ -410,6 +479,12 @@ final class AIEngine: AIEngineProtocol {
         let elephants = board.pieces(for: side).filter { $0.kind == .elephant }
         score += advisors.count * 30 + elephants.count * 25
 
+        // 将帅暴露扣分（士象不完整时额外扣分）
+        if advisors.count < 2 || elephants.count < 2 {
+            let missingGuards = (2 - advisors.count) + (2 - elephants.count)
+            score -= missingGuards * 40
+        }
+
         // 对方车/炮攻击线经过九宫减分
         let opSide: Side = (side == .red) ? .black : .red
         for op in board.pieces(for: opSide) {
@@ -418,6 +493,11 @@ final class AIEngine: AIEngineProtocol {
                     score -= 200
                 }
             }
+        }
+
+        // 对方马对九宫的威胁
+        for op in board.pieces(for: opSide) where op.kind == .horse {
+            score -= horsePalaceThreat(op, kingPos: kingPos, on: board)
         }
 
         return score
@@ -469,10 +549,49 @@ final class AIEngine: AIEngineProtocol {
         return false
     }
 
-    // MARK: - 简化机动性评估
+    // MARK: - 马的跳目标（共享方法）
 
-    /// 只计算车/炮的攻击线覆盖，不生成完整走法，开销可接受
-    /// 注：车空格系数 5、炮目标系数 3 为经验值，需通过自对弈校准
+    /// 马从指定位置可跳的日字目标（含蹩脚检测和己方占位检查）
+    /// P2-a（机动性）和 P2-b（将帅安全）共用
+    private func horseJumpTargets(from pos: Position, for side: Side, on board: Board) -> [Position] {
+        let r = pos.row, c = pos.col
+        let targets = [(r+2,c+1),(r+2,c-1),(r-2,c+1),(r-2,c-1),
+                       (r+1,c+2),(r+1,c-2),(r-1,c+2),(r-1,c-2)]
+        let legs = [(r+1,c),(r+1,c),(r-1,c),(r-1,c),
+                   (r,c+1),(r,c-1),(r,c+1),(r,c-1)]
+        var result: [Position] = []
+        for (i, (tr, tc)) in targets.enumerated() {
+            guard tr >= 0, tr <= 9, tc >= 0, tc <= 8 else { continue }
+            let (lr, lc) = legs[i]
+            if board.piece(at: Position(row: lr, col: lc)) != nil { continue }
+            if let target = board.piece(at: Position(row: tr, col: tc)), target.side == side { continue }
+            result.append(Position(row: tr, col: tc))
+        }
+        return result
+    }
+
+    // MARK: - 对方马的九宫威胁
+
+    /// 评估对方马对己方九宫的威胁程度
+    private func horsePalaceThreat(_ horse: Piece, kingPos: Position, on board: Board) -> Int {
+        let jumps = horseJumpTargets(from: horse.position, for: horse.side, on: board)
+        for jump in jumps {
+            if jump.row == kingPos.row && jump.col == kingPos.col {
+                return 150  // 能直接攻击将帅，立即返回
+            }
+        }
+        // 马的实际跳点中有落在九宫范围内的，视为有间接威胁
+        // 九宫范围：将帅周围 3×3 区域（row: kingRow±1, col: kingCol±1）
+        for jump in jumps {
+            if abs(jump.row - kingPos.row) <= 1 && abs(jump.col - kingPos.col) <= 1 {
+                return 30
+            }
+        }
+        return 0
+    }
+
+    /// 机动性评估：车/炮攻击线覆盖 + 马的可达位置
+    /// 注：车空格系数 5、炮目标系数 3、马机动性系数 3 为经验值
     private func simplifiedMobilityScore(for side: Side, on board: Board) -> Int {
         var score = 0
         for piece in board.pieces(for: side) {
@@ -483,6 +602,8 @@ final class AIEngine: AIEngineProtocol {
             } else if piece.kind == .cannon {
                 let targets = countCannonTargets(piece, on: board)
                 score += targets * 3
+            } else if piece.kind == .horse {
+                score += horseJumpTargets(from: piece.position, for: side, on: board).count * 3
             }
         }
         return score

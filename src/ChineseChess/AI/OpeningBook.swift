@@ -3,35 +3,112 @@ import Foundation
 // MARK: - 开局库
 
 /// 管理经典开局变化，中级及以上难度使用。
-/// 初始化时从 JSON 加载，预计算 Zobrist hash，运行时 O(1) 查找。
+/// 优先加载 v2 格式（hash 直查），fallback 到 v1 格式（树状 JSON）。
 struct OpeningBook {
 
-    struct OpeningEntry: Codable {
+    // MARK: - v2 格式类型
+
+    private struct BookEntry: Codable {
+        let move: String   // ICCS 格式
+        let w: Int         // 权重
+    }
+
+    private struct BookFileV2: Codable {
+        let version: Int
+        let description: String?
+        let entries: [String: [BookEntry]]  // hash_hex → [entries]
+    }
+
+    // MARK: - v1 格式类型（兼容）
+
+    private struct OpeningEntryV1: Codable {
         let name: String
         let variations: [[String]]  // ICCS 格式走法序列
     }
 
-    private let positionIndex: [UInt64: String]  // zobristHash → ICCS move
-    private let entries: [OpeningEntry]
+    // MARK: - 运行时索引
+
+    /// zobristHash → [(move, weight)]，按权重降序
+    private let positionIndex: [UInt64: [(move: String, weight: Int)]]
 
     // MARK: - 初始化
 
     init() {
-        // 尝试加载 openings.json
-        let loadedEntries: [OpeningEntry]
-        if let url = ResourceBundle.url(forResource: "openings", withExtension: "json", subdirectory: "OpeningBook"),
+        var idx: [UInt64: [(move: String, weight: Int)]] = [:]
+
+        // 优先尝试加载 v2 格式
+        if let url = ResourceBundle.url(forResource: "opening_book_v2", withExtension: "json",
+                                         subdirectory: "OpeningBook"),
            let data = try? Data(contentsOf: url),
-           let decoded = try? JSONDecoder().decode([OpeningEntry].self, from: data) {
-            loadedEntries = decoded
-        } else {
+           let book = try? JSONDecoder().decode(BookFileV2.self, from: data),
+           book.version == 2 {
+            for (hashHex, entries) in book.entries {
+                guard let hash = UInt64(hashHex.replacingOccurrences(of: "0x", with: ""),
+                                         radix: 16) else { continue }
+                idx[hash] = entries.map { (move: $0.move, weight: $0.w) }
+                    .sorted { $0.weight > $1.weight }
+            }
             #if DEBUG
-            print("[INFO] OpeningBook: openings.json not found, using empty book")
+            print("[INFO] OpeningBook: loaded v2 format, \(idx.count) positions")
             #endif
-            loadedEntries = []
+        } else {
+            // fallback: 加载旧 v1 格式
+            if let url = ResourceBundle.url(forResource: "openings", withExtension: "json",
+                                             subdirectory: "OpeningBook"),
+               let data = try? Data(contentsOf: url),
+               let decoded = try? JSONDecoder().decode([OpeningEntryV1].self, from: data) {
+                idx = Self.buildV1Index(decoded)
+                #if DEBUG
+                print("[INFO] OpeningBook: loaded v1 format (fallback), \(idx.count) positions")
+                #endif
+            } else {
+                #if DEBUG
+                print("[INFO] OpeningBook: no opening book found, using empty book")
+                #endif
+            }
         }
-        // 预计算每个 variation 各步后的 Zobrist hash
-        var idx: [UInt64: String] = [:]
-        for entry in loadedEntries {
+
+        self.positionIndex = idx
+    }
+
+    // MARK: - 查找
+
+    /// 查找当前局面的推荐走法。返回权重最高的走法。
+    func lookup(zobristHash: UInt64) -> String? {
+        guard let entries = positionIndex[zobristHash], !entries.isEmpty else { return nil }
+        return entries[0].move  // 已按权重降序排列
+    }
+
+    /// 查找当前局面的所有候选走法（按权重降序）。
+    func lookupAll(zobristHash: UInt64) -> [(move: String, weight: Int)]? {
+        positionIndex[zobristHash]
+    }
+
+    /// 按权重随机选择走法（增加开局多样性）。
+    /// 用于中级难度；高级/大师仍用 lookup（选最优）。
+    func lookupWeightedRandom(zobristHash: UInt64) -> String? {
+        guard let entries = positionIndex[zobristHash], !entries.isEmpty else { return nil }
+        if entries.count == 1 { return entries[0].move }
+
+        let totalWeight = entries.reduce(0) { $0 + $1.weight }
+        var r = Int.random(in: 0..<totalWeight)
+        for entry in entries {
+            r -= entry.weight
+            if r < 0 { return entry.move }
+        }
+        return entries[0].move
+    }
+
+    /// 将 ICCS 格式走法解析为 Move（供 AIEngine 使用）
+    func parseICCSMove(_ iccs: String, on board: Board) -> Move? {
+        ICCSParser.parse(iccs, on: board)
+    }
+
+    // MARK: - v1 兼容索引构建
+
+    private static func buildV1Index(_ entries: [OpeningEntryV1]) -> [UInt64: [(move: String, weight: Int)]] {
+        var idx: [UInt64: [(move: String, weight: Int)]] = [:]
+        for entry in entries {
             for variation in entry.variations {
                 guard let board = FENParser.parse(fen: FENParser.standardInitial) else { continue }
 
@@ -50,24 +127,16 @@ struct OpeningBook {
                     if stepIndex + 1 < variation.count {
                         let nextMove = variation[stepIndex + 1]
                         let h = ZobristHash.hash(board: board)
-                        idx[h] = nextMove
+                        // v1 每个局面只有一个走法，权重设为 1
+                        if idx[h] != nil {
+                            idx[h]!.append((move: nextMove, weight: 1))
+                        } else {
+                            idx[h] = [(move: nextMove, weight: 1)]
+                        }
                     }
                 }
             }
         }
-        self.entries = loadedEntries
-        self.positionIndex = idx
-    }
-
-    // MARK: - 查找
-
-    /// 查找当前局面的推荐走法。传入当前局面的 Zobrist hash。
-    func lookup(zobristHash: UInt64) -> String? {
-        positionIndex[zobristHash]
-    }
-
-    /// 将 ICCS 格式走法解析为 Move（供 AIEngine 使用）
-    func parseICCSMove(_ iccs: String, on board: Board) -> Move? {
-        ICCSParser.parse(iccs, on: board)
+        return idx
     }
 }
