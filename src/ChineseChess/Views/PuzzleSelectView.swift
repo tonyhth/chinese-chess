@@ -21,7 +21,7 @@ struct PuzzleSelectView: View {
         VStack(alignment: .leading, spacing: 12) {
             // 标题栏 + 搜索按钮
             HStack {
-                Text("残局闯关")
+                Text(String(localized: "puzzle.title"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -348,7 +348,7 @@ struct PuzzleRow: View {
                         }
                         // 自由对弈标签
                         if puzzle.effectiveMode == .freePlay {
-                            Text("自由对弈")
+                            Text(String(localized: "puzzle.freePlay"))
                                 .font(.system(size: 10))
                                 .foregroundColor(.cyan)
                                 .padding(.horizontal, 4)
@@ -536,22 +536,22 @@ struct PuzzlePlayView: View {
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.yellow)
                     } else {
-                        Text(isFreePlay ? "🎉 通关成功" : "🎉 将杀获胜")
+                        Text(isFreePlay ? String(localized: "puzzle.winFreePlay") : String(localized: "puzzle.checkmateWin"))
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.yellow)
                     }
                     if !isFreePlay {
-                        Text("星级: " + String(repeating: "★", count: viewModel.completionRating))
+                        Text(String(localized: "puzzle.stars", defaultValue: "星级: \(String(repeating: "★", count: viewModel.completionRating))"))
                             .font(.system(size: 20))
                             .foregroundColor(.yellow)
                     }
                     HStack(spacing: 12) {
-                        Button("关闭") { dismiss() }
+                        Button(String(localized: "common.close")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                         // 解法回放仅 guided 模式且有解法时显示
                         if !isFreePlay, viewModel.buildSolutionRecord() != nil {
-                            Button("查看完美解法") {
+                            Button(String(localized: "puzzle.viewSolution")) {
                                 showSolutionReplay = true
                             }
                             .buttonStyle(.bordered)

@@ -148,8 +148,8 @@ struct Phase4P2Tests {
             #expect(Bool(false), "无法读取 ReplayView.swift")
             return
         }
-        // 标题栏应只有"关闭"按钮和"回放"标题
-        #expect(content.contains("Text(\"回放\")"), "标题栏应有'回放'文字")
+        // 标题栏应只有关闭按钮和 localized 回放标题
+        #expect(content.contains("replay.title"), "标题栏应使用 replay.title 键")
         // 玩家信息应在独立区域
         #expect(content.contains("对局信息：独立区域") || content.contains("redPlayer"),
                 "玩家信息应有独立区域")

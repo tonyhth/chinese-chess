@@ -33,13 +33,15 @@ struct V223FixTests {
         #expect(!content.contains(".environment(\\.locale"), "不应使用 .environment(\\.locale)")
     }
 
-    @Test("问题1: AIDifficulty.displayName 返回硬编码中文")
-    func testAIDifficultyDisplayName() {
-        #expect(AIDifficulty.beginner.displayName == "新手")
-        #expect(AIDifficulty.easy.displayName == "初级")
-        #expect(AIDifficulty.medium.displayName == "中级")
-        #expect(AIDifficulty.hard.displayName == "高级")
-        #expect(AIDifficulty.master.displayName == "大师")
+    @Test("问题1: AIDifficulty.displayName 使用 localized")
+    func testAIDifficultyDisplayNameLocalized() {
+        // displayName 现在返回 String(localized:) key，不再是硬编码中文
+        // 在 zh-Hans locale 下运行时应返回中文值
+        #expect(AIDifficulty.beginner.displayName == String(localized: "difficulty.beginner"))
+        #expect(AIDifficulty.easy.displayName == String(localized: "difficulty.easy"))
+        #expect(AIDifficulty.medium.displayName == String(localized: "difficulty.medium"))
+        #expect(AIDifficulty.hard.displayName == String(localized: "difficulty.hard"))
+        #expect(AIDifficulty.master.displayName == String(localized: "difficulty.master"))
     }
 
     @Test("问题1: 关键 View 文件使用 String(localized:) 国际化")
@@ -51,6 +53,9 @@ struct V223FixTests {
             "ChineseChess/Views/StatusBarView.swift",
             "ChineseChess/Views/ToolbarView.swift",
             "ChineseChess/Views/SettingsView.swift",
+            "ChineseChess/Views/GameHistoryView.swift",
+            "ChineseChess/Views/RecordPanelView.swift",
+            "ChineseChess/Views/PrivacyPolicyView.swift",
         ]
         for view in views {
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(view)"
@@ -59,8 +64,8 @@ struct V223FixTests {
         }
     }
 
-    @Test("问题1: 关键 ViewModel 不再使用 String(localized:)")
-    func testNoStringLocalizedInViewModels() {
+    @Test("问题1: 关键 ViewModel 使用 String(localized:) 国际化")
+    func testViewModelsUseStringLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let files = [
             "ChineseChess/ViewModels/GameViewModel.swift",
@@ -69,14 +74,7 @@ struct V223FixTests {
         for file in files {
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(file)"
             guard let content = try? String(contentsOfFile: path) else { continue }
-            let lines = content.components(separatedBy: "\n")
-            for (i, line) in lines.enumerated() {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                if trimmed.hasPrefix("//") { continue }
-                if trimmed.contains("String(localized:") {
-                    #expect(Bool(false), "\(file) 第 \(i+1) 行仍使用 String(localized:)")
-                }
-            }
+            #expect(content.contains("String(localized:"), "\(file) 应使用 String(localized:) 国际化")
         }
     }
 

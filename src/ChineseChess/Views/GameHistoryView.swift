@@ -13,7 +13,7 @@ struct GameHistoryView: View {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 40))
                         .foregroundColor(.secondary)
-                    Text("暂无历史对局")
+                    Text(String(localized: "history.empty"))
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -28,7 +28,7 @@ struct GameHistoryView: View {
                         }
                         #if os(macOS)
                         .contextMenu {
-                            Button("删除", role: .destructive) {
+                            Button(String(localized: "common.delete"), role: .destructive) {
                                 deleteRecord(record)
                             }
                         }
@@ -37,13 +37,13 @@ struct GameHistoryView: View {
                             Button(role: .destructive) {
                                 deleteRecord(record)
                             } label: {
-                                Label("删除", systemImage: "trash")
+                                Label(String(localized: "common.delete"), systemImage: "trash")
                             }
                         }
                 }
             }
         }
-        .navigationTitle("历史对局")
+        .navigationTitle(String(localized: "history.title"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -54,7 +54,7 @@ struct GameHistoryView: View {
             #if os(iOS)
             ToolbarItem(placement: .bottomBar) {
                 if !records.isEmpty {
-                    Button("清空历史", role: .destructive) {
+                    Button(String(localized: "history.clear"), role: .destructive) {
                         showClearAlert = true
                     }
                 }
@@ -62,32 +62,32 @@ struct GameHistoryView: View {
             #else
             ToolbarItemGroup(placement: .primaryAction) {
                 if !records.isEmpty {
-                    Button("清空历史", role: .destructive) {
+                    Button(String(localized: "history.clear"), role: .destructive) {
                         showClearAlert = true
                     }
                 }
             }
             #endif
         }
-        .alert("清空历史", isPresented: $showClearAlert) {
-            Button("取消", role: .cancel) {}
-            Button("清空", role: .destructive) {
+        .alert(String(localized: "history.clear"), isPresented: $showClearAlert) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "common.clear"), role: .destructive) {
                 GameHistoryStore.shared.clearAll()
                 reloadRecords()
             }
         } message: {
-            Text("确定要清空所有历史对局吗？此操作不可恢复。")
+            Text(String(localized: "history.clearConfirm"))
         }
         .sheet(isPresented: $showReplay) {
             if let record = replayRecord {
                 #if os(iOS)
                 NavigationStack {
                     ReplayView(record: record)
-                        .navigationTitle("对局回放")
+                        .navigationTitle(String(localized: "replay.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showReplay = false }
+                                Button(String(localized: "common.done")) { showReplay = false }
                             }
                         }
                 }
@@ -134,7 +134,7 @@ struct GameHistoryRow: View {
                     Text("·")
                         .foregroundColor(.secondary)
 
-                    Text("\(record.totalMoves) 步")
+                    Text(String(localized: "history.moveCount", defaultValue: "\(record.totalMoves) 步"))
                         .foregroundColor(.secondary)
                         .font(.subheadline)
 
@@ -182,10 +182,10 @@ struct GameHistoryRow: View {
 
     private var resultText: String {
         switch record.result {
-        case .redWon: return "红方胜"
-        case .blackWon: return "黑方胜"
-        case .draw: return "和棋"
-        case .playing: return "进行中"
+        case .redWon: return String(localized: "result.redWon")
+        case .blackWon: return String(localized: "result.blackWon")
+        case .draw: return String(localized: "result.draw")
+        case .playing: return String(localized: "result.playing")
         }
     }
 
@@ -199,10 +199,7 @@ struct GameHistoryRow: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateStyle = .short
-        f.timeStyle = .short
-        return f.string(from: date)
+        date.formatted(date: .abbreviated, time: .shortened)
     }
 }
 
@@ -211,11 +208,11 @@ struct GameHistoryRow: View {
 extension AIDifficulty {
     var displayName: String {
         switch self {
-        case .beginner: return "新手"
-        case .easy: return "初级"
-        case .medium: return "中级"
-        case .hard: return "高级"
-        case .master: return "大师"
+        case .beginner: return String(localized: "difficulty.beginner")
+        case .easy: return String(localized: "difficulty.easy")
+        case .medium: return String(localized: "difficulty.medium")
+        case .hard: return String(localized: "difficulty.hard")
+        case .master: return String(localized: "difficulty.master")
         }
     }
 }

@@ -328,11 +328,11 @@ class GameViewModel {
         guard !gameMoves.isEmpty else { return nil }
         return GameRecord(
             id: UUID(),
-            title: "人机对局 \(formatShortDate())",
+            title: String(format: String(localized: "game.vsAITitle"), formatShortDate()),
             date: Date(),
-            redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
+            redPlayer: PlayerInfo(name: String(localized: "player.red"), isAI: false, difficulty: nil),
             blackPlayer: PlayerInfo(
-                name: "AI-\(difficulty.rawValue)",
+                name: String(localized: "player.aiLabel", defaultValue: "AI-\(difficulty.displayName)"),
                 isAI: true,
                 difficulty: difficulty
             ),
@@ -345,8 +345,10 @@ class GameViewModel {
     }
 
     private func formatShortDate() -> String {
-        let f = DateFormatter()
-        f.dateFormat = "MM-dd HH:mm"
-        return f.string(from: Date())
+        // 跟随系统 Locale，R3-07 要求
+        Date.now.formatted(
+            .dateTime
+            .month(.defaultDigits).day().hour().minute()
+        )
     }
 }

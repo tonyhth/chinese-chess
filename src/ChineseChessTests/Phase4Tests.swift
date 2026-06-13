@@ -735,13 +735,13 @@ struct Phase35Tests {
         defaults.removePersistentDomain(forName: "test.history.clear")
     }
 
-    @Test("AIDifficulty displayName")
+    @Test("AIDifficulty displayName localized")
     func testAIDifficultyDisplayName() {
-        #expect(AIDifficulty.beginner.displayName == "新手")
-        #expect(AIDifficulty.easy.displayName == "初级")
-        #expect(AIDifficulty.medium.displayName == "中级")
-        #expect(AIDifficulty.hard.displayName == "高级")
-        #expect(AIDifficulty.master.displayName == "大师")
+        #expect(AIDifficulty.beginner.displayName == String(localized: "difficulty.beginner"))
+        #expect(AIDifficulty.easy.displayName == String(localized: "difficulty.easy"))
+        #expect(AIDifficulty.medium.displayName == String(localized: "difficulty.medium"))
+        #expect(AIDifficulty.hard.displayName == String(localized: "difficulty.hard"))
+        #expect(AIDifficulty.master.displayName == String(localized: "difficulty.master"))
     }
 
     @Test("GameHistoryStore 按时间倒序")

@@ -47,15 +47,15 @@ struct ChineseChessiOSApp: App {
                         }
                     }
                 }
-                .navigationTitle("中国象棋")
+                .navigationTitle(String(localized: "app.title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
                         Button(action: { activePanel = activePanel == .record ? .none : .record }) {
-                            Label("棋谱", systemImage: "doc.text")
+                            Label(String(localized: "toolbar.record"), systemImage: "doc.text")
                         }
                         Button(action: { showPuzzles = true }) {
-                            Label("残局", systemImage: "puzzlepiece")
+                            Label(String(localized: "toolbar.puzzle"), systemImage: "puzzlepiece")
                         }
                         Button(action: {
                             if let record = gameViewModel.buildGameRecord() {
@@ -63,7 +63,7 @@ struct ChineseChessiOSApp: App {
                                 showReplay = true
                             }
                         }) {
-                            Label("回放", systemImage: "play.circle")
+                            Label(String(localized: "toolbar.replay"), systemImage: "play.circle")
                         }
                         .disabled(gameViewModel.gameMoves.isEmpty)
 
@@ -71,31 +71,31 @@ struct ChineseChessiOSApp: App {
 
                         // 难度快捷入口
                         Menu {
-                            Button("新手") { gameViewModel.setDifficulty(.beginner) }
-                            Button("初级") { gameViewModel.setDifficulty(.easy) }
-                            Button("中级") { gameViewModel.setDifficulty(.medium) }
-                            Button("高级") { gameViewModel.setDifficulty(.hard) }
-                            Button("大师") { gameViewModel.setDifficulty(.master) }
+                            Button(String(localized: "difficulty.beginner")) { gameViewModel.setDifficulty(.beginner) }
+                            Button(String(localized: "difficulty.easy")) { gameViewModel.setDifficulty(.easy) }
+                            Button(String(localized: "difficulty.medium")) { gameViewModel.setDifficulty(.medium) }
+                            Button(String(localized: "difficulty.hard")) { gameViewModel.setDifficulty(.hard) }
+                            Button(String(localized: "difficulty.master")) { gameViewModel.setDifficulty(.master) }
                         } label: {
-                            Label("难度", systemImage: "gauge.with.dots.needle.bottom.50percent")
+                            Label(String(localized: "difficulty.label"), systemImage: "gauge.with.dots.needle.bottom.50percent")
                         }
 
                         // 更多菜单：低频操作
                         Menu {
                             Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
-                                Label("统计", systemImage: "chart.bar")
+                                Label(String(localized: "toolbar.stats"), systemImage: "chart.bar")
                             }
                             Button(action: { showHistory = true }) {
-                                Label("历史", systemImage: "clock.arrow.circlepath")
+                                Label(String(localized: "toolbar.history"), systemImage: "clock.arrow.circlepath")
                             }
                             Button(action: { showThemePicker = true }) {
-                                Label("主题", systemImage: "paintpalette")
+                                Label(String(localized: "toolbar.theme"), systemImage: "paintpalette")
                             }
                             Button(action: { showSettings = true }) {
-                                Label("设置", systemImage: "gearshape")
+                                Label(String(localized: "toolbar.settings"), systemImage: "gearshape")
                             }
                         } label: {
-                            Label("更多", systemImage: "ellipsis.circle")
+                            Label(String(localized: "toolbar.more"), systemImage: "ellipsis.circle")
                         }
                     }
                 }
@@ -105,11 +105,11 @@ struct ChineseChessiOSApp: App {
                 )) {
                     NavigationStack {
                         RecordPanelView(gameMoves: gameViewModel.gameMoves)
-                            .navigationTitle("棋谱")
+                            .navigationTitle(String(localized: "record.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button("完成") { activePanel = .none }
+                                    Button(String(localized: "common.done")) { activePanel = .none }
                                 }
                             }
                     }
@@ -117,11 +117,11 @@ struct ChineseChessiOSApp: App {
                 .sheet(isPresented: $showPuzzles) {
                     NavigationStack {
                         PuzzleSelectView()
-                            .navigationTitle("残局闯关")
+                            .navigationTitle(String(localized: "puzzle.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button("完成") { showPuzzles = false }
+                                    Button(String(localized: "common.done")) { showPuzzles = false }
                                 }
                             }
                     }
@@ -137,7 +137,7 @@ struct ChineseChessiOSApp: App {
                     GameHistoryView()
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showHistory = false }
+                                Button(String(localized: "common.done")) { showHistory = false }
                             }
                         }
                 }
@@ -148,11 +148,11 @@ struct ChineseChessiOSApp: App {
             )) {
                 NavigationStack {
                     StatsPanelView()
-                        .navigationTitle("战绩统计")
+                        .navigationTitle(String(localized: "stats.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { activePanel = .none }
+                                Button(String(localized: "common.done")) { activePanel = .none }
                             }
                         }
                 }
@@ -160,11 +160,11 @@ struct ChineseChessiOSApp: App {
             .sheet(isPresented: $showThemePicker) {
                 NavigationStack {
                     ThemePickerView()
-                        .navigationTitle("主题选择")
+                        .navigationTitle(String(localized: "theme.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showThemePicker = false }
+                                Button(String(localized: "common.done")) { showThemePicker = false }
                             }
                         }
                 }
@@ -174,13 +174,13 @@ struct ChineseChessiOSApp: App {
                     SettingsView(viewModel: gameViewModel)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showSettings = false }
+                                Button(String(localized: "common.done")) { showSettings = false }
                             }
                         }
                 }
             }
             .preferredColorScheme(.dark)
-            // 已改用硬编码中文字符串，不再依赖本地化系统
+            // 已使用 String(localized:) 国际化
         }
     }
 }

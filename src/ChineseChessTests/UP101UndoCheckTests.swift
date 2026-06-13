@@ -169,7 +169,7 @@ struct UP101UndoCheckTests {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
         guard let content = content else { return }
-        #expect(content.contains("CommandMenu(\"棋局\")"), "棋局菜单")
+        #expect(content.contains("game.menuLabel"), "棋局菜单 localized")
         #expect(content.contains("keyboardShortcut(\"n\""), "Cmd+N")
         #expect(content.contains("keyboardShortcut(\"z\""), "Cmd+Z")
         #expect(content.contains("keyboardShortcut(\"h\""), "Cmd+Shift+H")

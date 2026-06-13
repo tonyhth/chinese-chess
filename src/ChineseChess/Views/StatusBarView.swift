@@ -97,7 +97,7 @@ struct StatusBarView: View {
     @ViewBuilder
     private func capturedPiecesText(_ pieces: [Piece], color: Color) -> some View {
         if pieces.isEmpty {
-            Text("无")
+            Text(String(localized: "common.none"))
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
         } else {

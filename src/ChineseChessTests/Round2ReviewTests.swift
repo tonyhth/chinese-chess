@@ -115,7 +115,7 @@ struct Round2ReviewTests {
 
     // MARK: - P1-4: macOS "棋局"菜单栏
 
-    @Test("ChineseChessApp 包含 CommandMenu '棋局'")
+    @Test("ChineseChessApp 包含 CommandMenu localized")
     func testMacOSCommandMenu() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -123,10 +123,10 @@ struct Round2ReviewTests {
             #expect(Bool(false), "无法读取 ChineseChessApp.swift")
             return
         }
-        #expect(content.contains("CommandMenu(\"棋局\")"), "应有'棋局'菜单")
-        #expect(content.contains("新局"), "应有'新局'菜单项")
-        #expect(content.contains("悔棋"), "应有'悔棋'菜单项")
-        #expect(content.contains("提示"), "应有'提示'菜单项")
+        #expect(content.contains("game.menuLabel"), "应有 game.menuLabel 键")
+        #expect(content.contains("game.newGame"), "应有 game.newGame 键")
+        #expect(content.contains("game.undoMove"), "应有 game.undoMove 键")
+        #expect(content.contains("game.hint"), "应有 game.hint 键")
         // 快捷键
         #expect(content.contains("keyboardShortcut(\"n\""), "新局应有 Cmd+N 快捷键")
         #expect(content.contains("keyboardShortcut(\"z\""), "悔棋应有 Cmd+Z 快捷键")

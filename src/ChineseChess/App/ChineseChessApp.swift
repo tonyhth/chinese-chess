@@ -23,7 +23,7 @@ struct ChineseChessApp: App {
     @State private var historyReplayRecord: GameRecord?
 
     var body: some Scene {
-        WindowGroup("中国象棋") {
+        WindowGroup(String(localized: "app.title")) {
             ZStack {
                 // 窗口背景
                 Color(red: 44/255, green: 24/255, blue: 16/255)
@@ -46,21 +46,21 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help("棋谱")
+                        .help(String(localized: "toolbar.record"))
 
                         Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
                             Image(systemName: "chart.bar")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help("统计")
+                        .help(String(localized: "toolbar.stats"))
 
                         Button(action: { showPuzzles.toggle() }) {
                             Image(systemName: "puzzlepiece")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help("残局")
+                        .help(String(localized: "toolbar.puzzle"))
 
                         Button(action: {
                             if let record = viewModel.buildGameRecord() {
@@ -73,7 +73,7 @@ struct ChineseChessApp: App {
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .disabled(viewModel.gameMoves.isEmpty)
-                        .help("回放")
+                        .help(String(localized: "toolbar.replay"))
 
                         Spacer()
 
@@ -82,21 +82,21 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help("主题")
+                        .help(String(localized: "toolbar.theme"))
 
                         Button(action: { showHistory.toggle() }) {
                             Image(systemName: "clock.arrow.circlepath")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help("历史")
+                        .help(String(localized: "toolbar.history"))
 
                         Button(action: { showSettings.toggle() }) {
                             Image(systemName: "gearshape")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help("设置")
+                        .help(String(localized: "toolbar.settings"))
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
@@ -117,7 +117,7 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 500, minHeight: 600)
             .preferredColorScheme(.dark)
-            // 已改用硬编码中文字符串，不再依赖本地化系统
+            // 已使用 String(localized:) 国际化
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },
@@ -136,10 +136,10 @@ struct ChineseChessApp: App {
             .sheet(isPresented: $showPuzzles) {
                 NavigationStack {
                     PuzzleSelectView()
-                        .navigationTitle("残局闯关")
+                        .navigationTitle(String(localized: "puzzle.title"))
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showPuzzles = false }
+                                Button(String(localized: "common.done")) { showPuzzles = false }
                             }
                         }
                 }
@@ -157,10 +157,10 @@ struct ChineseChessApp: App {
                         ThemePickerView()
                     }
                     .padding()
-                    .navigationTitle("选择主题")
+                    .navigationTitle(String(localized: "theme.title"))
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("完成") { showThemePicker = false }
+                            Button(String(localized: "common.done")) { showThemePicker = false }
                         }
                     }
                 }
@@ -171,7 +171,7 @@ struct ChineseChessApp: App {
                     GameHistoryView()
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showHistory = false }
+                                Button(String(localized: "common.done")) { showHistory = false }
                             }
                         }
                 }
@@ -182,7 +182,7 @@ struct ChineseChessApp: App {
                     SettingsView(viewModel: viewModel)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showSettings = false }
+                                Button(String(localized: "common.done")) { showSettings = false }
                             }
                         }
                 }
@@ -194,19 +194,19 @@ struct ChineseChessApp: App {
         .defaultSize(width: 760, height: 860)
         .commands {
             CommandGroup(replacing: .appSettings) {
-                Button("设置") {
+                Button(String(localized: "game.settings")) {
                     showSettings = true
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
 
-            CommandMenu("棋局") {
-                Button("新局") {
+            CommandMenu(String(localized: "game.menuLabel")) {
+                Button(String(localized: "game.newGame")) {
                     viewModel.newGame()
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
-                Button("悔棋") {
+                Button(String(localized: "game.undoMove")) {
                     viewModel.undoMove()
                 }
                 .keyboardShortcut("z", modifiers: .command)
@@ -214,7 +214,7 @@ struct ChineseChessApp: App {
 
                 Divider()
 
-                Button("提示") {
+                Button(String(localized: "game.hint")) {
                     viewModel.requestHint()
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])

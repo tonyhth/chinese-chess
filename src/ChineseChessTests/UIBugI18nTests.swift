@@ -149,17 +149,20 @@ struct UIBugI18nTests {
 
     // MARK: - 4. 硬编码中文遗漏检查
 
-    @Test("i18n遗漏：GameOverOverlay '查看棋谱' 按钮仍为硬编码中文")
-    func gameOverOverlayHardcodedChinese() {
-        // GameOverOverlay.swift 第 35 行: Button("查看棋谱") 未提取
-        // 这是 P2 级遗漏，功能不影响但 i18n 不完整
-        Issue.record("P2 遗漏：GameOverOverlay '查看棋谱' 按钮仍为硬编码中文，未提取为 String(localized:)")
+    @Test("i18n：GameOverOverlay '查看棋谱' 已提取为 localized")
+    func gameOverOverlayLocalized() {
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
+        let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift")
+        guard let content = content else { return }
+        #expect(content.contains("gameover.viewRecord"), "GameOverOverlay '查看棋谱' 应使用 gameover.viewRecord 键")
     }
 
-    @Test("i18n遗漏：SettingsView Section 标题 '音效' 仍为硬编码中文")
-    func settingsViewHardcodedChinese() {
-        // SettingsView.swift: Section("音效") 未提取
-        Issue.record("P2 遗漏：SettingsView '音效' Section 标题仍为硬编码中文，未提取为 String(localized:)")
+    @Test("i18n：SettingsView Section 标题 '音效' 已提取为 localized")
+    func settingsViewLocalized() {
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
+        let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/SettingsView.swift")
+        guard let content = content else { return }
+        #expect(content.contains("settings.sound"), "SettingsView '音效' Section 应使用 settings.sound 键")
     }
 
     // MARK: - 5. 功能回归：AI 难度正常走棋

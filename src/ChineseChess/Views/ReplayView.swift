@@ -41,11 +41,20 @@ struct ReplayView: View {
             .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
 
             // 棋盘（优先占据空间）
-            ChessBoardView(mode: .replay(viewModel))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .frame(minHeight: 280)
-                .layoutPriority(1)
-                .padding()
+            ZStack {
+                ChessBoardView(mode: .replay(viewModel))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(minHeight: 280)
+                    .layoutPriority(1)
+                    .padding()
+
+                // 空步数提示
+                if viewModel.record.moves.isEmpty {
+                    Text(String(localized: "replay.empty"))
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                }
+            }
 
             // 回放控制条
             ReplayControlView(viewModel: viewModel)

@@ -147,7 +147,7 @@ class PuzzleViewModel {
         // 实时解法提示：检查是否走了推荐走法
         let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
         if !isRecommendedMove(at: playerMoveIndex) {
-            solutionHint = "💡 有更优走法"
+            solutionHint = String(localized: "puzzle.betterMoveAvailable")
         } else {
             solutionHint = nil
         }
@@ -347,7 +347,7 @@ class PuzzleViewModel {
                 currentHint = hints[min(hintIndex, hints.count - 1)]
                 hintIndex += 1
             } else {
-                currentHint = "暂无更多提示"
+                currentHint = String(localized: "puzzle.noMoreHints")
             }
             gameState = .showingHint
             return
@@ -363,7 +363,7 @@ class PuzzleViewModel {
 
         // hints 用完或不存在：显示 step-by-step solution
         if puzzle.solution.isEmpty {
-            currentHint = "暂无更多提示"
+            currentHint = String(localized: "puzzle.noMoreHints")
             gameState = .showingHint
             return
         }
@@ -371,7 +371,7 @@ class PuzzleViewModel {
             let solIdx = hintIndex - (puzzle.hints?.count ?? 0)
             if solIdx >= 0 && solIdx < puzzle.solution.count {
                 let iccs = puzzle.solution[solIdx]
-                currentHint = "提示：第 \(solIdx + 1) 步 → \(iccs)"
+                currentHint = String(localized: "puzzle.hintStep", defaultValue: "提示：第 \(solIdx + 1) 步 → \(iccs)")
                 // 设置提示高亮位置
                 if let move = ICCSParser.parse(iccs, on: board) {
                     hintMove = (from: move.from, to: move.to)
@@ -379,12 +379,12 @@ class PuzzleViewModel {
                     hintMove = nil
                 }
             } else {
-                currentHint = "暂无更多提示"
+                currentHint = String(localized: "puzzle.noMoreHints")
                 hintMove = nil
             }
             hintIndex += 1
         } else {
-            currentHint = "暂无更多提示"
+            currentHint = String(localized: "puzzle.noMoreHints")
             hintMove = nil
         }
         gameState = .showingHint
@@ -560,10 +560,10 @@ class PuzzleViewModel {
         }
         let record = GameRecord(
             id: UUID(),
-            title: "完美解法: \(puzzle.name)",
+            title: String(localized: "puzzle.solutionTitle", defaultValue: "完美解法: \(puzzle.name)"),
             date: Date(),
-            redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: defenderDifficulty),
+            redPlayer: PlayerInfo(name: String(localized: "player.red"), isAI: false, difficulty: nil),
+            blackPlayer: PlayerInfo(name: String(localized: "player.black"), isAI: true, difficulty: defenderDifficulty),
             difficulty: defenderDifficulty,
             result: .redWon,
             totalMoves: moves.count,

@@ -181,8 +181,8 @@ struct ChessBoardView: View {
                 .fill(board.piece(at: pos) != nil ? Color.red.opacity(0.4) : Color.green.opacity(0.4))
                 .frame(width: cellSize * 0.3, height: cellSize * 0.3)
                 .position(posToCGPoint(pos, cellSize: cellSize, padding: padding))
-                .accessibilityLabel("可走位置")
-                .accessibilityHint(Text("可走至 \(pos.col)\(pos.row)"))
+                .accessibilityLabel(String(localized: "board.legalMove"))
+                .accessibilityHint(String(localized: "board.legalMoveHint", defaultValue: "可走至 \(pos.col)\(pos.row)"))
         }
 
         // 棋子

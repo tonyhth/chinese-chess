@@ -51,7 +51,7 @@ struct ReplayControlView: View {
                 Spacer()
 
                 // 速度选择
-                Picker("速度", selection: Binding(
+                Picker(String(localized: "replay.speed"), selection: Binding(
                     get: { viewModel.autoPlaySpeed },
                     set: { viewModel.autoPlaySpeed = $0 }
                 )) {

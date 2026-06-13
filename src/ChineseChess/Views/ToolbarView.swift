@@ -15,7 +15,7 @@ struct ToolbarView: View {
             .disabled(viewModel.isThinking)
             .tint(.brown)
             .accessibilityLabel(String(localized: "game.newGame"))
-            .accessibilityHint("双击开始新对局")
+            .accessibilityHint(String(localized: "accessibility.newGameHint"))
 
             Button(action: { viewModel.undoMove() }) {
                 Image(systemName: "arrow.uturn.backward")
@@ -26,7 +26,7 @@ struct ToolbarView: View {
             .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
             .tint(.brown)
             .accessibilityLabel(String(localized: "game.undoMove"))
-            .accessibilityHint("双击撤销上一步")
+            .accessibilityHint(String(localized: "accessibility.undoHint"))
 
             Button(action: { viewModel.requestHint() }) {
                 Image(systemName: "lightbulb")
@@ -37,7 +37,7 @@ struct ToolbarView: View {
             .disabled(viewModel.isThinking || viewModel.gameState != .playing)
             .tint(.brown)
             .accessibilityLabel(String(localized: "game.hint"))
-            .accessibilityHint("双击获取走法提示")
+            .accessibilityHint(String(localized: "accessibility.hintActionHint"))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
@@ -54,7 +54,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint("双击开始新对局")
+                .accessibilityHint(String(localized: "accessibility.newGameHint"))
 
                 Button(action: { viewModel.undoMove() }) {
                     Label(String(localized: "game.undoMove"), systemImage: "arrow.uturn.backward")
@@ -65,7 +65,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint("双击撤销上一步")
+                .accessibilityHint(String(localized: "accessibility.undoHint"))
 
                 Button(action: { viewModel.requestHint() }) {
                     Label(String(localized: "game.hint"), systemImage: "lightbulb")
@@ -76,7 +76,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint("双击获取走法提示")
+                .accessibilityHint(String(localized: "accessibility.hintActionHint"))
             }
 
             #if os(macOS)

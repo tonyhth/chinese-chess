@@ -25,7 +25,7 @@ struct SettingsView: View {
                 }
 
                 // 主题
-                Section("棋盘主题") {
+                Section(String(localized: "settings.themeSection")) {
                     ForEach(BoardTheme.allCases, id: \.self) { theme in
                         HStack {
                             Image(systemName: theme.icon)
@@ -63,14 +63,14 @@ struct SettingsView: View {
                 }
 
                 // 关于
-                Section("关于") {
+                Section(String(localized: "settings.aboutSection")) {
                     NavigationLink {
                         PrivacyPolicyView()
                     } label: {
                         HStack {
                             Image(systemName: "hand.raised")
                                 .foregroundColor(.brown)
-                            Text("隐私政策")
+                            Text(String(localized: "settings.privacyPolicy"))
                         }
                     }
                 }

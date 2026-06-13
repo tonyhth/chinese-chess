@@ -61,7 +61,7 @@ struct V222FixTests {
         }
     }
 
-    @Test("问题1: App 入口直接使用中文标题")
+    @Test("问题1: App 入口使用 localized 标题")
     func testChineseTitles() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
@@ -69,8 +69,8 @@ struct V222FixTests {
             #expect(Bool(false), "无法读取 ChineseChessApp.swift")
             return
         }
-        #expect(content.contains("中国象棋"), "App 应使用中文标题")
-        #expect(content.contains("残局闯关"), "残局 sheet 标题应为中文")
+        #expect(content.contains("app.title"), "App 应使用 app.title localized 键")
+        #expect(content.contains("puzzle.title"), "残局 sheet 标题应使用 puzzle.title 键")
     }
 
     // MARK: - 问题2：棋盘太小 → 增大初始窗口
