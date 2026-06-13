@@ -579,7 +579,11 @@
                     "value": "九"
                   }
                 }
-              ]
+              ],
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld"
+              }
             }
           }
         },
@@ -704,7 +708,11 @@
                     "value": "一"
                   }
                 }
-              ]
+              ],
+              "stringUnit": {
+                "state": "translated",
+                "value": "%lld"
+              }
             }
           }
         },
