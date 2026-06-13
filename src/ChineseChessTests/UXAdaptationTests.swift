@@ -133,10 +133,10 @@ struct UXAdaptationTests {
             #expect(json["strings"] != nil)
         }
 
-        @Test("xcstrings 包含 138 个 key")
+        @Test("xcstrings 包含 139 个 key")
         func xcstringsKeyCount() {
             let keys = Self.loadXcstringsKeys()
-            #expect(keys.count == 138, "期望 138 key，实际 \(keys.count)")
+            #expect(keys.count == 139, "期望 139 key，实际 \(keys.count)")
         }
 
         @Test("en 翻译全覆盖：所有 key 都有英文字符串")
