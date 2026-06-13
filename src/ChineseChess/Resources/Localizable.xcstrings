@@ -349,7 +349,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New Game"
+            "value": "New"
           }
         }
       }
@@ -381,7 +381,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "vs AI %@"
+            "value": "vs AI"
           }
         }
       }
@@ -971,7 +971,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No more hints"
+            "value": "No hints"
           }
         }
       }
@@ -1101,7 +1101,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No moves yet"
+            "value": "No moves"
           }
         }
       }
@@ -1213,7 +1213,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No moves to replay"
+            "value": "No moves"
           }
         }
       }
@@ -1569,7 +1569,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thinking..."
+            "value": "AI..."
           }
         }
       }
@@ -1601,7 +1601,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Black's Turn"
+            "value": "Black"
           }
         }
       }
@@ -1681,7 +1681,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Red's Turn"
+            "value": "Red"
           }
         }
       }
@@ -1698,7 +1698,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Round %lld"
+            "value": "Rnd %lld"
           }
         }
       }
@@ -1746,7 +1746,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "🤝 Draw!"
+            "value": "Draw"
           }
         }
       }
@@ -1826,7 +1826,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "View Moves"
+            "value": "Moves"
           }
         }
       }
@@ -2034,7 +2034,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Double tap for hint"
+            "value": "Hint"
           }
         }
       }
@@ -2050,7 +2050,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Double tap for new game"
+            "value": "New game"
           }
         }
       }
@@ -2066,7 +2066,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Double tap to undo"
+            "value": "Undo"
           }
         }
       }
@@ -2180,7 +2180,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "AI-%@"
+            "value": "AI"
           }
         }
       }
@@ -2196,7 +2196,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This app does not collect any personal data"
+            "value": "No data collected"
           }
         }
       }
@@ -2212,7 +2212,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All data is stored locally on your device"
+            "value": "Local only"
           }
         }
       }
@@ -2228,7 +2228,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "We use UserDefaults for local storage. No network requests or third-party analytics"
+            "value": "No network"
           }
         }
       }
@@ -2260,7 +2260,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "💡 Better move available"
+            "value": "Better move"
           }
         }
       }
@@ -2340,7 +2340,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Follow System"
+            "value": "System"
           }
         }
       }

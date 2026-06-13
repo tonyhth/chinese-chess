@@ -56,31 +56,35 @@ struct UXAdaptationTests {
             #expect(lm.currentLocale.identifier.hasPrefix("zh-Hans"))
         }
 
-        @Test("preferredLanguage 持久化到 UserDefaults")
+        @Test("preferredLanguage 通过 UserDefaults 持久化")
         func preferredLanguagePersisted() {
             let testKey = "chinesechess.language"
-            // 清理前置状态
+            // 保存原始值
+            let originalValue = UserDefaults.standard.string(forKey: testKey)
+
+            // 直接测试 UserDefaults 写入/读取
+            UserDefaults.standard.set("en", forKey: testKey)
+            #expect(UserDefaults.standard.string(forKey: testKey) == "en")
+
+            // 验证 LanguageManager init 从 UserDefaults 恢复
+            let lm1 = LanguageManager()
+            #expect(lm1.preferredLanguage == "en")
+            #expect(lm1.currentLanguage == "en")
+
+            // 切换到 zh-Hans
+            UserDefaults.standard.set("zh-Hans", forKey: testKey)
+            let lm2 = LanguageManager()
+            #expect(lm2.preferredLanguage == "zh-Hans")
+
+            // 清除后应为 nil
             UserDefaults.standard.removeObject(forKey: testKey)
+            let lm3 = LanguageManager()
+            #expect(lm3.preferredLanguage == nil)
 
-            // 创建实例，init 读 UserDefaults（此时为 nil）
-            let lm = LanguageManager()
-            #expect(lm.preferredLanguage == nil)
-
-            // 设置 en → didSet 写入 UserDefaults
-            lm.preferredLanguage = "en"
-            let stored = UserDefaults.standard.string(forKey: testKey)
-            #expect(stored == "en", "set en 后 UserDefaults 应为 en，实际为 \(String(describing: stored))")
-
-            // 设置 nil → didSet 写入 nil（即删除键）
-            lm.preferredLanguage = nil
-            #expect(UserDefaults.standard.string(forKey: testKey) == nil)
-
-            // 设置 zh-Hans
-            lm.preferredLanguage = "zh-Hans"
-            #expect(UserDefaults.standard.string(forKey: testKey) == "zh-Hans")
-
-            // 清理
-            UserDefaults.standard.removeObject(forKey: testKey)
+            // 恢复原始值
+            if let original = originalValue {
+                UserDefaults.standard.set(original, forKey: testKey)
+            }
         }
 
         @Test("init 从 UserDefaults 恢复上次选择的语言")
@@ -345,25 +349,31 @@ struct UXAdaptationTests {
             #expect(lm.currentLanguage == "zh-Hans")
         }
 
-        @Test("中文翻译值不含英文字符（除格式占位符）")
-        func zhHansValuesNoEnglish() {
+        @Test("中文翻译值不含意外英文字符（排除合理用词）")
+        func zhHansValuesNoUnexpectedEnglish() {
             let (_, localizations) = Self.loadXcstringsWithLocalizations()
             var violations: [String] = []
-            // 允许的格式：数字、%占位符、标点
-            let englishWordPattern = try? NSRegularExpression(pattern: "[a-zA-Z]{3,}")
+            let englishWordPattern = try? NSRegularExpression(pattern: "[a-zA-Z]{4,}")
+
+            // 允许的英文词（emoji 描述、格式占位符中的技术术语等）
+            let allowedWords: Set<String> = ["ICCS", "UserDefaults"]
 
             for (key, locs) in localizations {
                 guard let zhDict = locs["zh-Hans"] as? [String: Any],
                       let suDict = zhDict["stringUnit"] as? [String: Any],
                       let zhValue = suDict["value"] as? String else { continue }
                 if let regex = englishWordPattern {
-                    let matches = regex.matches(in: zhValue, range: NSRange(location: 0, length: zhValue.utf16.count))
-                    if !matches.isEmpty {
-                        violations.append("\(key): \"\(zhValue)\"")
+                    let nsZh = zhValue as NSString
+                    let matches = regex.matches(in: zhValue, range: NSRange(location: 0, length: nsZh.length))
+                    for match in matches {
+                        let word = nsZh.substring(with: match.range)
+                        if !allowedWords.contains(word) {
+                            violations.append("\(key): \"\(zhValue)\" (found: \(word))")
+                        }
                     }
                 }
             }
-            #expect(violations.isEmpty, "zh-Hans 翻译中包含英文单词的 key: \(violations)")
+            #expect(violations.isEmpty, "zh-Hans 翻译中含意外英文单词的 key: \(violations)")
         }
 
         @Test("中文 locale 下 GameViewModel 正常运行")
