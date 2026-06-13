@@ -22,11 +22,7 @@ struct SettingsView: View {
                         Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
                         Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
                     }
-                    #if os(iOS)
                     .pickerStyle(.menu)
-                    #else
-                    .pickerStyle(.segmented)
-                    #endif
                 }
 
                 // 主题
@@ -64,11 +60,7 @@ struct SettingsView: View {
                         Text(String(localized: "settings.notationChinese")).tag("chinese")
                         Text(String(localized: "settings.notationICCS")).tag("iccs")
                     }
-                    #if os(iOS)
                     .pickerStyle(.menu)
-                    #else
-                    .pickerStyle(.segmented)
-                    #endif
                 }
 
                 // 语言
@@ -81,11 +73,7 @@ struct SettingsView: View {
                         Text("中文").tag("zh-Hans" as String?)
                         Text("English").tag("en" as String?)
                     }
-                    #if os(iOS)
                     .pickerStyle(.menu)
-                    #else
-                    .pickerStyle(.segmented)
-                    #endif
                 }
 
                 // 关于

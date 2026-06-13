@@ -68,13 +68,20 @@ struct PieceView: View {
         }
         .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? selectedGlowRadius : 0)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
-        .accessibilityLabel(pieceAccessibilityLabel)
+        .accessibilityLabel(pieceAccessibleLabel)
+        .accessibilityHint(String(localized: "accessibility.pieceHint",
+            defaultValue: "双击选中，再双击目标位置走棋"))
+        .accessibilityAddTraits(.isButton)
     }
 
-    private var pieceAccessibilityLabel: String {
-        let sideName = piece.side == .red ? String(localized: "accessibility.redSide") : String(localized: "accessibility.blackSide")
-        let colLabel = "abcdefghi"
-        let colChar = String(colLabel[colLabel.index(colLabel.startIndex, offsetBy: piece.position.col)])
-        return "\(sideName)\(piece.displayName) \(colChar)\(piece.position.row)"
+    private var pieceAccessibleLabel: String {
+        let sideName = piece.side == .red
+            ? String(localized: "accessibility.redSide")
+            : String(localized: "accessibility.blackSide")
+        let rowDesc = String(localized: "accessibility.rowN",
+            defaultValue: "第\(piece.position.row + 1)排")
+        let colDesc = String(localized: "accessibility.colN",
+            defaultValue: "第\(piece.position.col + 1)列")
+        return "\(sideName)\(piece.displayName) \(rowDesc)\(colDesc)"
     }
 }

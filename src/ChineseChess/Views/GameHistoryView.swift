@@ -11,7 +11,7 @@ struct GameHistoryView: View {
             if records.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(size: 40))
+                        .font(.largeTitle)
                         .foregroundColor(.secondary)
                     Text(String(localized: "history.empty"))
                         .foregroundColor(.secondary)
@@ -159,6 +159,7 @@ struct GameHistoryRow: View {
                 .font(.caption)
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - 结果显示

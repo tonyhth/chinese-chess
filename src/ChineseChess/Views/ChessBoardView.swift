@@ -114,6 +114,8 @@ struct ChessBoardView: View {
                 }
             }
             .frame(width: boardWidth, height: boardHeight)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(String(localized: "accessibility.board", defaultValue: "棋盘"))
         }
         .aspectRatio(CGFloat(gridCols) / CGFloat(gridRows), contentMode: .fit)
     }

@@ -16,7 +16,7 @@ struct ReplayView: View {
                     .foregroundColor(.white)
                 Spacer()
                 Text(String(localized: "replay.title"))
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.callout.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
                 // 占位保持居中
@@ -35,7 +35,7 @@ struct ReplayView: View {
                 Text(viewModel.record.blackPlayer.name)
                     .foregroundColor(.white)
             }
-            .font(.system(size: 13))
+            .font(.subheadline)
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity)
             .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
@@ -51,7 +51,7 @@ struct ReplayView: View {
                 // 空步数提示
                 if viewModel.record.moves.isEmpty {
                     Text(String(localized: "replay.empty"))
-                        .font(.system(size: 16))
+                        .font(.callout)
                         .foregroundColor(.secondary)
                 }
             }

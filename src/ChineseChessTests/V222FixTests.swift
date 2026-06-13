@@ -107,88 +107,53 @@ struct V222FixTests {
 
     // MARK: - 问题3（v2.2.2）：残局列表 + 语义字体 + ResourceBundle fallback
 
-    @Test("问题2(v222): PuzzleSelectView 不使用语义字体")
-    func testPuzzleSelectViewNoSemanticFonts() {
+    @Test("问题2(v222): PuzzleSelectView 使用语义字体（动态字体）")
+    func testPuzzleSelectViewUsesSemanticFonts() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift")
         guard let content = content else {
             #expect(Bool(false), "无法读取 PuzzleSelectView.swift")
             return
         }
-        let semanticFonts = [".caption)", ".subheadline)", ".title2)", ".title3)", ".caption2)"]
-        for sf in semanticFonts {
-            let lines = content.components(separatedBy: "\n")
-            for (i, line) in lines.enumerated() {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                if trimmed.hasPrefix("//") { continue }
-                if trimmed.contains(".font(.system(\(sf)") || trimmed.contains(".font(\(sf)") {
-                    #expect(Bool(false), "第 \(i+1) 行不应使用语义字体 \(sf)")
-                }
-            }
-        }
+        // R3-04 动态字体：语义字体替代 .system(size:)
+        #expect(content.contains(".title3") || content.contains(".subheadline") || content.contains(".footnote"),
+               "PuzzleSelectView 应使用语义字体")
     }
 
-    @Test("问题2(v222): StatusBarView 不使用语义字体")
-    func testStatusBarViewNoSemanticFonts() {
+    @Test("问题2(v222): StatusBarView 使用语义字体（动态字体）")
+    func testStatusBarViewUsesSemanticFonts() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift")
         guard let content = content else {
             #expect(Bool(false), "无法读取 StatusBarView.swift")
             return
         }
-        let semanticFonts = [".caption)", ".subheadline)", ".caption2)"]
-        let lines = content.components(separatedBy: "\n")
-        for (i, line) in lines.enumerated() {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("//") { continue }
-            for sf in semanticFonts {
-                if trimmed.contains(".font(.system(\(sf)") || trimmed.contains(".font(\(sf)") {
-                    #expect(Bool(false), "StatusBarView 第 \(i+1) 行不应使用语义字体 \(sf)")
-                }
-            }
-        }
+        #expect(content.contains(".subheadline") || content.contains(".footnote"),
+               "StatusBarView 应使用语义字体")
     }
 
-    @Test("问题2(v222): StatsPanelView 不使用语义字体")
-    func testStatsPanelViewNoSemanticFonts() {
+    @Test("问题2(v222): StatsPanelView 使用语义字体（动态字体）")
+    func testStatsPanelViewUsesSemanticFonts() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatsPanelView.swift")
         guard let content = content else {
             #expect(Bool(false), "无法读取 StatsPanelView.swift")
             return
         }
-        let semanticFonts = [".caption)", ".subheadline)", ".caption2)"]
-        let lines = content.components(separatedBy: "\n")
-        for (i, line) in lines.enumerated() {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("//") { continue }
-            for sf in semanticFonts {
-                if trimmed.contains(".font(.system(\(sf)") || trimmed.contains(".font(\(sf)") {
-                    #expect(Bool(false), "StatsPanelView 第 \(i+1) 行不应使用语义字体 \(sf)")
-                }
-            }
-        }
+        #expect(content.contains(".footnote") || content.contains(".subheadline"),
+               "StatsPanelView 应使用语义字体")
     }
 
-    @Test("问题2(v222): RecordPanelView 不使用语义字体")
-    func testRecordPanelViewNoSemanticFonts() {
+    @Test("问题2(v222): RecordPanelView 使用语义字体（动态字体）")
+    func testRecordPanelViewUsesSemanticFonts() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/RecordPanelView.swift")
         guard let content = content else {
             #expect(Bool(false), "无法读取 RecordPanelView.swift")
             return
         }
-        let semanticFonts = [".caption)", ".subheadline)", ".caption2)"]
-        let lines = content.components(separatedBy: "\n")
-        for (i, line) in lines.enumerated() {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.hasPrefix("//") { continue }
-            for sf in semanticFonts {
-                if trimmed.contains(".font(.system(\(sf)") || trimmed.contains(".font(\(sf)") {
-                    #expect(Bool(false), "RecordPanelView 第 \(i+1) 行不应使用语义字体 \(sf)")
-                }
-            }
-        }
+        #expect(content.contains(".footnote") || content.contains(".subheadline"),
+               "RecordPanelView 应使用语义字体")
     }
 
     @Test("问题3(v222): PuzzleStore 有 ResourceBundle fallback 逻辑")

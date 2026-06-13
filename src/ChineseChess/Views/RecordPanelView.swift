@@ -6,12 +6,12 @@ struct RecordPanelView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(String(localized: "record.panelTitle"))
-                .font(.system(size: 13, weight: .bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundColor(.white)
 
             if gameMoves.isEmpty {
                 Text(String(localized: "record.empty"))
-                    .font(.system(size: 12))
+                    .font(.footnote)
                     .foregroundColor(.secondary)
             } else {
                 ScrollViewReader { proxy in
@@ -44,7 +44,7 @@ struct RecordPanelView: View {
         HStack(spacing: 4) {
             // 回合号
             Text("\(gm.turnNumber).")
-                .font(.system(size: 11, design: .monospaced))
+                .font(.footnote.monospaced())
                 .foregroundColor(.secondary)
                 .frame(width: 24, alignment: .trailing)
 
@@ -56,11 +56,11 @@ struct RecordPanelView: View {
             // 标记
             if gm.isCheckmate {
                 Text("#")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundColor(.yellow)
             } else if gm.isCheck {
                 Text("+")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.footnote.weight(.bold))
                     .foregroundColor(.yellow)
             }
         }

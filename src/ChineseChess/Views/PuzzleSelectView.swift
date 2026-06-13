@@ -22,7 +22,7 @@ struct PuzzleSelectView: View {
             // 标题栏 + 搜索按钮
             HStack {
                 Text(String(localized: "puzzle.title"))
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.title3.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
                 Button(action: {
@@ -35,7 +35,7 @@ struct PuzzleSelectView: View {
                     }
                 }) {
                     Image(systemName: isSearching ? "xmark.circle.fill" : "magnifyingglass")
-                        .font(.system(size: 16))
+                        .font(.callout)
                         .foregroundColor(.gray)
                 }
                 .buttonStyle(.plain)
@@ -45,10 +45,10 @@ struct PuzzleSelectView: View {
             if isSearching {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .font(.system(size: 13))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                     TextField(String(localized: "puzzle.searchPlaceholder"), text: $searchText)
-                        .font(.system(size: 13))
+                        .font(.subheadline)
                         .textFieldStyle(.plain)
                         .foregroundColor(.white)
                         .onChange(of: searchText) { _, newValue in
@@ -62,7 +62,7 @@ struct PuzzleSelectView: View {
                     if !searchText.isEmpty {
                         Button(action: { searchText = ""; debouncedSearchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 12))
+                                .font(.footnote)
                                 .foregroundColor(.gray)
                         }
                         .buttonStyle(.plain)
@@ -116,10 +116,10 @@ struct PuzzleSelectView: View {
                 // 空状态提示
                 VStack(spacing: 8) {
                     Image(systemName: "puzzlepiece")
-                        .font(.system(size: 32))
+                        .font(.largeTitle)
                         .foregroundColor(.secondary)
                     Text(debouncedSearchText.isEmpty ? String(localized: "puzzle.empty") : String(localized: "puzzle.noMatch"))
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
@@ -137,7 +137,7 @@ struct PuzzleSelectView: View {
                                             .fill(Color.gray.opacity(0.3))
                                             .frame(height: 0.5)
                                         Text(String(localized: "puzzle.groupLabel", defaultValue: "第 \(group.rangeLabel) 局"))
-                                            .font(.system(size: 10))
+                                            .font(.caption2)
                                             .foregroundColor(.secondary)
                                         Rectangle()
                                             .fill(Color.gray.opacity(0.3))
@@ -177,12 +177,12 @@ struct PuzzleSelectView: View {
                         HStack {
                             let completed = list.filter { PuzzleStore.shared.progress(for: $0.id)?.isCompleted == true }.count
                             Text(String(localized: "stats.completedCount", defaultValue: "已完成 \(completed)/\(list.count)"))
-                                .font(.system(size: 11))
+                                .font(.footnote)
                                 .foregroundColor(.secondary)
                             Spacer()
                             let groups = groupedPuzzles(from: list)
                             Text(String(localized: "stats.totalGroups", defaultValue: "共 \(groups.count) 组"))
-                                .font(.system(size: 11))
+                                .font(.footnote)
                                 .foregroundColor(.secondary)
                         }
                         .padding(.horizontal, 8)
@@ -278,7 +278,7 @@ struct CategoryButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 13))
+                .font(.subheadline)
                 .foregroundColor(isSelected ? .white : .gray)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
@@ -303,7 +303,7 @@ struct DifficultyFilterButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 11))
+                .font(.footnote)
                 .foregroundColor(isSelected ? .yellow : .gray)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
@@ -330,16 +330,16 @@ struct PuzzleRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(puzzle.name)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.subheadline.weight(.medium))
                         .foregroundColor(.white)
                     HStack(spacing: 4) {
                         Text(puzzle.description)
-                            .font(.system(size: 11))
+                            .font(.footnote)
                             .foregroundColor(.secondary)
                             .lineLimit(1)
                         if !puzzle.typeLabel.isEmpty {
                             Text(puzzle.typeLabel)
-                                .font(.system(size: 10))
+                                .font(.caption2)
                                 .foregroundColor(.orange)
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
@@ -349,7 +349,7 @@ struct PuzzleRow: View {
                         // 自由对弈标签
                         if puzzle.effectiveMode == .freePlay {
                             Text(String(localized: "puzzle.freePlay"))
-                                .font(.system(size: 10))
+                                .font(.caption2)
                                 .foregroundColor(.cyan)
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
@@ -365,7 +365,7 @@ struct PuzzleRow: View {
                 HStack(spacing: 2) {
                     ForEach(1...puzzle.stars, id: \.self) { _ in
                         Image(systemName: "star.fill")
-                            .font(.system(size: 10))
+                            .font(.caption2)
                             .foregroundColor(.yellow)
                     }
                 }
@@ -375,10 +375,10 @@ struct PuzzleRow: View {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                            .font(.system(size: 16))
+                            .font(.callout)
                         if let rating = progress?.bestRating {
                             Text("\(rating)★")
-                                .font(.system(size: 11))
+                                .font(.footnote)
                                 .foregroundColor(.yellow)
                         }
                     }
@@ -432,21 +432,21 @@ struct PuzzlePlayView: View {
                     .foregroundColor(.white)
                 Spacer()
                 Text(puzzle.name)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.callout.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
                 // 步数显示
                 if viewModel.gameState == .success {
                     Text(String(localized: "puzzle.completed"))
-                        .font(.system(size: 13))
+                        .font(.subheadline)
                         .foregroundColor(.green)
                 } else if isFreePlay {
                     Text(String(localized: "puzzle.moveCount", defaultValue: "步数: \(viewModel.gameMoves.count)"))
-                        .font(.system(size: 13))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                 } else {
                     Text(String(localized: "puzzle.moveProgress", defaultValue: "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)"))
-                        .font(.system(size: 13))
+                        .font(.subheadline)
                         .foregroundColor(.gray)
                 }
             }
@@ -489,13 +489,13 @@ struct PuzzlePlayView: View {
                 if let hint = viewModel.currentHint {
                     HStack {
                         Text(hint)
-                            .font(.system(size: 13))
+                            .font(.subheadline)
                             .foregroundColor(.yellow)
                         Spacer()
                         Button(String(localized: "puzzle.continueLabel")) {
                             viewModel.dismissHint()
                         }
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.footnote.weight(.medium))
                         .buttonStyle(.bordered)
                         .tint(.brown)
                     }
@@ -508,7 +508,7 @@ struct PuzzlePlayView: View {
                 // 解法实时提示（仅 guided 模式）
                 if !isFreePlay, let hint = viewModel.solutionHint {
                     Text(hint)
-                        .font(.system(size: 13))
+                        .font(.subheadline)
                         .foregroundColor(.orange)
                         .padding(.horizontal, 16)
                 }
@@ -533,16 +533,16 @@ struct PuzzlePlayView: View {
                     if viewModel.puzzle.solutionType == "sequence",
                        let desc = viewModel.puzzle.endDescription, !desc.isEmpty {
                         Text(desc)
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.title2.weight(.bold))
                             .foregroundColor(.yellow)
                     } else {
                         Text(isFreePlay ? String(localized: "puzzle.winFreePlay") : String(localized: "puzzle.checkmateWin"))
-                            .font(.system(size: 24, weight: .bold))
+                            .font(.title.weight(.bold))
                             .foregroundColor(.yellow)
                     }
                     if !isFreePlay {
                         Text(String(localized: "puzzle.stars", defaultValue: "星级: \(String(repeating: "★", count: viewModel.completionRating))"))
-                            .font(.system(size: 20))
+                            .font(.title2)
                             .foregroundColor(.yellow)
                     }
                     HStack(spacing: 12) {
@@ -563,6 +563,8 @@ struct PuzzlePlayView: View {
                 .background(Color.black.opacity(0.8))
                 .cornerRadius(12)
                 .padding()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(String(localized: "accessibility.puzzleSuccess", defaultValue: "通关成功"))
                 .sheet(isPresented: $showSolutionReplay) {
                     if let record = viewModel.buildSolutionRecord() {
                         ReplayView(record: record)
@@ -578,10 +580,10 @@ struct PuzzlePlayView: View {
 
                 VStack(spacing: 16) {
                     Text(String(localized: "puzzle.failed"))
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.title.weight(.bold))
                         .foregroundColor(.red)
                     Text(String(localized: "puzzle.tryAgain"))
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
                         Button(String(localized: "common.retry")) {
@@ -599,6 +601,8 @@ struct PuzzlePlayView: View {
                 .background(Color.black.opacity(0.8))
                 .cornerRadius(12)
                 .padding()
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(String(localized: "accessibility.puzzleFailed", defaultValue: "挑战失败"))
             }
 
             // 超步警告弹窗（仅 freePlay 模式）
@@ -609,10 +613,10 @@ struct PuzzlePlayView: View {
 
                 VStack(spacing: 16) {
                     Text(String(localized: "puzzle.maxMovesWarning"))
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.title2.weight(.bold))
                         .foregroundColor(.yellow)
                     Text(String(localized: "puzzle.continueChallenge"))
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
                         Button(String(localized: "puzzle.continueChallengeButton")) {
@@ -630,6 +634,7 @@ struct PuzzlePlayView: View {
                 .background(Color.black.opacity(0.8))
                 .cornerRadius(12)
                 .padding()
+                .accessibilityElement(children: .combine)
             }
 
             // 和局弹窗（仅 freePlay 模式）
@@ -640,10 +645,10 @@ struct PuzzlePlayView: View {
 
                 VStack(spacing: 16) {
                     Text(String(localized: "gameover.drawTitle"))
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.title2.weight(.bold))
                         .foregroundColor(.yellow)
                     Text(String(localized: "gameover.drawDesc"))
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
                         Button(String(localized: "common.retry")) {
@@ -661,6 +666,7 @@ struct PuzzlePlayView: View {
                 .background(Color.black.opacity(0.8))
                 .cornerRadius(12)
                 .padding()
+                .accessibilityElement(children: .combine)
             }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))

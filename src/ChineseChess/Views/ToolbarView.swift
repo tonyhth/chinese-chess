@@ -8,7 +8,7 @@ struct ToolbarView: View {
         HStack(spacing: 0) {
             Button(action: { viewModel.newGame() }) {
                 Image(systemName: "plus.circle")
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }
@@ -19,7 +19,7 @@ struct ToolbarView: View {
 
             Button(action: { viewModel.undoMove() }) {
                 Image(systemName: "arrow.uturn.backward")
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }
@@ -30,7 +30,7 @@ struct ToolbarView: View {
 
             Button(action: { viewModel.requestHint() }) {
                 Image(systemName: "lightbulb")
-                    .font(.system(size: 20))
+                    .font(.title3)
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }
@@ -97,7 +97,7 @@ struct ToolbarView: View {
                 Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
                 Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(.menu)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

@@ -9,31 +9,31 @@ struct StatsPanelView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(String(localized: "stats.vsAI"))
-                .font(.system(size: 15, weight: .bold))
+                .font(.callout.weight(.bold))
                 .foregroundColor(.white)
 
             // 人机统计
             VStack(alignment: .leading, spacing: 6) {
                 Text(String(localized: "stats.vsAI"))
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(.orange)
 
                 ForEach(difficulties, id: \.self) { diff in
                     let s = statsVM.aiStats(for: diff)
                     HStack {
                         Text(diff.displayName)
-                            .font(.system(size: 12))
+                            .font(.footnote)
                             .foregroundColor(.white)
-                            .frame(width: 40, alignment: .leading)
+                            .frame(minWidth: 50, alignment: .leading)
 
                         Text(String(localized: "stats.recordFormat", defaultValue: "\(s.wins)胜 \(s.losses)负 \(s.draws)和"))
-                            .font(.system(size: 12))
+                            .font(.footnote)
                             .foregroundColor(.secondary)
 
                         Spacer()
 
                         Text(String(format: "%.0f%%", s.winRate * 100))
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.footnote.weight(.medium))
                             .foregroundColor(s.winRate >= 0.5 ? .green : .red)
                     }
                 }
@@ -47,7 +47,7 @@ struct StatsPanelView: View {
                 Button(String(localized: "stats.reset")) {
                     showResetAlert = true
                 }
-                .font(.system(size: 12))
+                .font(.footnote)
                 .foregroundColor(.red)
                 .buttonStyle(.bordered)
                 .tint(.red.opacity(0.3))
@@ -56,6 +56,7 @@ struct StatsPanelView: View {
         .padding(12)
         .background(Color(red: 40/255, green: 22/255, blue: 14/255))
         .cornerRadius(8)
+        .accessibilityElement(children: .combine)
         .alert(String(localized: "stats.reset"), isPresented: $showResetAlert) {
             Button(String(localized: "common.cancel"), role: .cancel) {}
             Button(String(localized: "common.clear"), role: .destructive) {

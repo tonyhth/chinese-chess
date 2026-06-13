@@ -21,32 +21,39 @@ struct ReplayControlView: View {
             HStack(spacing: 20) {
                 Button(action: { viewModel.goToStart() }) {
                     Image(systemName: "backward.end.fill")
-                        .font(.system(size: 18))
+                        .font(.title3)
                 }
                 .disabled(!viewModel.canGoBack)
+                .accessibilityLabel(String(localized: "replay.firstMove", defaultValue: "首步"))
 
                 Button(action: { viewModel.goBack() }) {
                     Image(systemName: "backward.fill")
-                        .font(.system(size: 18))
+                        .font(.title3)
                 }
                 .disabled(!viewModel.canGoBack)
+                .accessibilityLabel(String(localized: "replay.previous", defaultValue: "上一步"))
 
                 Button(action: { viewModel.toggleAutoPlay() }) {
                     Image(systemName: viewModel.isAutoPlaying ? "pause.fill" : "play.fill")
-                        .font(.system(size: 22))
+                        .font(.title2)
                 }
+                .accessibilityLabel(viewModel.isAutoPlaying
+                    ? String(localized: "replay.pause", defaultValue: "暂停")
+                    : String(localized: "replay.play", defaultValue: "播放"))
 
                 Button(action: { viewModel.goForward() }) {
                     Image(systemName: "forward.fill")
-                        .font(.system(size: 18))
+                        .font(.title3)
                 }
                 .disabled(!viewModel.canGoForward)
+                .accessibilityLabel(String(localized: "replay.next", defaultValue: "下一步"))
 
                 Button(action: { viewModel.goToEnd() }) {
                     Image(systemName: "forward.end.fill")
-                        .font(.system(size: 18))
+                        .font(.title3)
                 }
                 .disabled(!viewModel.canGoForward)
+                .accessibilityLabel(String(localized: "replay.lastMove", defaultValue: "末步"))
 
                 Spacer()
 
@@ -67,7 +74,7 @@ struct ReplayControlView: View {
             // 当前步信息
             HStack {
                 Text(viewModel.progressText)
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.footnote.monospaced())
                     .foregroundColor(.gray)
                 if let move = viewModel.currentMove {
                     Text(move.notation)

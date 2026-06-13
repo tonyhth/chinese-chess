@@ -54,7 +54,7 @@ struct ThemePickerView: View {
                 }
 
                 Text(theme.displayName)
-                    .font(.system(size: 11))
+                    .font(.footnote)
                     .foregroundColor(isSelected ? .yellow : .gray)
             }
         }

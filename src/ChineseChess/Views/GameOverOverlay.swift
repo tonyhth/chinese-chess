@@ -42,6 +42,7 @@ struct GameOverOverlay: View {
                     .fill(Color(red: 44/255, green: 24/255, blue: 16/255))
                     .shadow(radius: 20)
             )
+            .accessibilityElement(children: .combine)
         }
     }
 }
