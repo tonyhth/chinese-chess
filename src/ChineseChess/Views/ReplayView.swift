@@ -40,8 +40,9 @@ struct ReplayView: View {
             .frame(maxWidth: .infinity)
             .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
 
-            // 棋盘
+            // 棋盘（优先占据空间）
             ChessBoardView(mode: .replay(viewModel))
+                .layoutPriority(1)
                 .padding()
 
             // 回放控制条

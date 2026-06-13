@@ -195,9 +195,16 @@ struct PuzzleSelectView: View {
         .padding(12)
         .background(panelBackground)
         .cornerRadius(8)
-        .sheet(item: $selectedPuzzle) { puzzle in
+        #if os(iOS)
+        .fullScreenCover(item: $selectedPuzzle) { puzzle in
             PuzzlePlayView(puzzle: puzzle)
         }
+        #else
+        .sheet(item: $selectedPuzzle) { puzzle in
+            PuzzlePlayView(puzzle: puzzle)
+                .frame(minWidth: 520, minHeight: 680)
+        }
+        #endif
     }
 
     // MARK: - 筛选逻辑
@@ -398,6 +405,20 @@ struct PuzzlePlayView: View {
         puzzle.effectiveMode == .freePlay
     }
 
+    /// 底部区域最大高度（动态计算，防止挤压棋盘）
+    private var bottomAreaMaxHeight: CGFloat {
+        #if os(iOS)
+        let screenHeight = UIScreen.main.bounds.height
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return screenHeight * 0.15  // iPad 占 15%
+        } else {
+            return screenHeight <= 667 ? screenHeight * 0.25 : screenHeight * 0.20
+        }
+        #else
+        return 180  // macOS 固定值，窗口可调
+        #endif
+    }
+
     init(puzzle: Puzzle) {
         self.puzzle = puzzle
         self._viewModel = State(initialValue: PuzzleViewModel(puzzle: puzzle))
@@ -433,66 +454,72 @@ struct PuzzlePlayView: View {
             .padding(.vertical, 8)
             .background(Color(red: 50/255, green: 30/255, blue: 20/255))
 
-            // 棋盘
+            // 棋盘（优先占据空间，不被底部条件内容挤压）
             ChessBoardView(mode: .playPuzzle(viewModel))
+                .layoutPriority(1)
                 .padding()
 
-            // 操作栏
-            HStack(spacing: 16) {
-                Button(action: {
-                    viewModel.undoMove()
-                }) {
-                    Label("悔棋", systemImage: "arrow.uturn.backward")
-                }
-                .disabled(viewModel.isThinking)
-                .buttonStyle(.bordered)
-                .tint(.brown)
-
-                Button(action: { viewModel.showHint() }) {
-                    Label("提示", systemImage: "lightbulb")
-                }
-                .buttonStyle(.bordered)
-                .tint(.brown)
-
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-
-            // 提示显示
-            if let hint = viewModel.currentHint {
-                HStack {
-                    Text(hint)
-                        .font(.system(size: 13))
-                        .foregroundColor(.yellow)
-                    Spacer()
-                    Button("继续") {
-                        viewModel.dismissHint()
+            // 底部固定区域：高度有上限，避免挤压棋盘
+            VStack(spacing: 4) {
+                // 操作栏
+                HStack(spacing: 16) {
+                    Button(action: {
+                        viewModel.undoMove()
+                    }) {
+                        Label("悔棋", systemImage: "arrow.uturn.backward")
                     }
-                    .font(.system(size: 12, weight: .medium))
+                    .disabled(viewModel.isThinking)
                     .buttonStyle(.bordered)
                     .tint(.brown)
+
+                    Button(action: { viewModel.showHint() }) {
+                        Label("提示", systemImage: "lightbulb")
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.brown)
+
+                    Spacer()
                 }
-                .padding(8)
-                .background(Color.black.opacity(0.5))
-                .cornerRadius(6)
                 .padding(.horizontal, 16)
-            }
+                .padding(.vertical, 8)
 
-            // 解法实时提示（仅 guided 模式）
-            if !isFreePlay, let hint = viewModel.solutionHint {
-                Text(hint)
-                    .font(.system(size: 13))
-                    .foregroundColor(.orange)
+                // 提示显示
+                if let hint = viewModel.currentHint {
+                    HStack {
+                        Text(hint)
+                            .font(.system(size: 13))
+                            .foregroundColor(.yellow)
+                        Spacer()
+                        Button("继续") {
+                            viewModel.dismissHint()
+                        }
+                        .font(.system(size: 12, weight: .medium))
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                    }
+                    .padding(8)
+                    .background(Color.black.opacity(0.5))
+                    .cornerRadius(6)
                     .padding(.horizontal, 16)
-            }
+                }
 
-            // 棋谱
-            if !viewModel.gameMoves.isEmpty {
-                RecordPanelView(gameMoves: viewModel.gameMoves)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 8)
+                // 解法实时提示（仅 guided 模式）
+                if !isFreePlay, let hint = viewModel.solutionHint {
+                    Text(hint)
+                        .font(.system(size: 13))
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 16)
+                }
+
+                // 棋谱（内部自带 ScrollView，外层不套 ScrollView 避免嵌套冲突）
+                if !viewModel.gameMoves.isEmpty {
+                    RecordPanelView(gameMoves: viewModel.gameMoves)
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 8)
+                }
             }
+            .frame(maxHeight: bottomAreaMaxHeight)
+            .layoutPriority(0)
 
             // 通关弹窗
             if viewModel.gameState == .success {

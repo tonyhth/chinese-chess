@@ -126,18 +126,9 @@ struct ChineseChessiOSApp: App {
                             }
                     }
                 }
-                .sheet(isPresented: $showReplay) {
+                .fullScreenCover(isPresented: $showReplay) {
                     if let record = replayRecord {
-                        NavigationStack {
-                            ReplayView(record: record)
-                                .navigationTitle("对局回放")
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    ToolbarItem(placement: .confirmationAction) {
-                                        Button("完成") { showReplay = false }
-                                    }
-                                }
-                        }
+                        ReplayView(record: record)
                     }
                 }
             }

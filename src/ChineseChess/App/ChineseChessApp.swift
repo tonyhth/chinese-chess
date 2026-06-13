@@ -148,7 +148,7 @@ struct ChineseChessApp: App {
             .sheet(isPresented: $showReplay) {
                 if let record = replayRecord {
                     ReplayView(record: record)
-                        .frame(minWidth: 400, minHeight: 500)
+                        .frame(minWidth: 520, minHeight: 680)
                 }
             }
             .sheet(isPresented: $showThemePicker) {
