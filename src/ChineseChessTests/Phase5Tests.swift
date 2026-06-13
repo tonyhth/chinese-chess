@@ -45,9 +45,11 @@ struct ThemeManagerTests {
 
     @Test("默认主题是经典木纹")
     func testDefaultTheme() {
-        // 不依赖 shared 的当前状态，只验证 classicWood 的 displayName
-        #expect(BoardTheme.classicWood.displayName == "经典木纹")
+        // displayName 现在使用 String(localized:)，验证 key 和 rawValue
         #expect(BoardTheme.classicWood.rawValue == "classicWood")
+        #expect(!BoardTheme.classicWood.displayName.isEmpty)
+        // 在 zh-Hans locale 下 displayName 应包含中文
+        #expect(BoardTheme.classicWood.displayName == String(localized: "theme.classicWood"))
     }
 
     @Test("切换主题后 colors 属性更新")

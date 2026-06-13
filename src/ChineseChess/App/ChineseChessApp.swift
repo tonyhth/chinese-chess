@@ -21,6 +21,7 @@ struct ChineseChessApp: App {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
+    @State private var languageManager = LanguageManager()
 
     var body: some Scene {
         WindowGroup(String(localized: "app.title")) {
@@ -117,6 +118,8 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 500, minHeight: 600)
             .preferredColorScheme(.dark)
+            .environmentObject(languageManager)
+            .environment(\.locale, languageManager.currentLocale)
             // 已使用 String(localized:) 国际化
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(

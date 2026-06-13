@@ -8,8 +8,8 @@ enum BoardTheme: String, CaseIterable, Codable {
 
     var displayName: String {
         switch self {
-        case .classicWood: return "经典木纹"
-        case .inkStone: return "石材水墨"
+        case .classicWood: return String(localized: "theme.classicWood")
+        case .inkStone: return String(localized: "theme.inkStone")
         }
     }
 

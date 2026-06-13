@@ -9,8 +9,8 @@ struct V223FixTests {
 
     // MARK: - 问题1：英文界面 → 废弃本地化，硬编码中文
 
-    @Test("问题1: macOS App 不再设置 AppleLanguages")
-    func testMacOSNoAppleLanguages() {
+    @Test("问题1: macOS App 使用 .environment(\\.locale) 注入语言")
+    func testMacOSUseEnvironmentLocale() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
         guard let content = content else {
@@ -18,11 +18,11 @@ struct V223FixTests {
             return
         }
         #expect(!content.contains("AppleLanguages"), "不应再设置 AppleLanguages")
-        #expect(!content.contains(".environment(\\.locale"), "不应使用 .environment(\\.locale)")
+        #expect(content.contains(".environment(\\.locale"), "应使用 .environment(\\.locale) 注入语言")
     }
 
-    @Test("问题1: iOS App 不再设置 AppleLanguages")
-    func testiOSNoAppleLanguages() {
+    @Test("问题1: iOS App 使用 .environment(\\.locale) 注入语言")
+    func testiOSUseEnvironmentLocale() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift")
         guard let content = content else {
@@ -30,7 +30,7 @@ struct V223FixTests {
             return
         }
         #expect(!content.contains("AppleLanguages"), "不应再设置 AppleLanguages")
-        #expect(!content.contains(".environment(\\.locale"), "不应使用 .environment(\\.locale)")
+        #expect(content.contains(".environment(\\.locale"), "应使用 .environment(\\.locale) 注入语言")
     }
 
     @Test("问题1: AIDifficulty.displayName 使用 localized")

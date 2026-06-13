@@ -22,6 +22,7 @@ struct ChineseChessiOSApp: App {
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
     @State private var showThemePicker = false
+    @State private var languageManager = LanguageManager()
 
     var body: some Scene {
         WindowGroup {
@@ -180,6 +181,8 @@ struct ChineseChessiOSApp: App {
                 }
             }
             .preferredColorScheme(.dark)
+            .environmentObject(languageManager)
+            .environment(\.locale, languageManager.currentLocale)
             // 已使用 String(localized:) 国际化
         }
     }

@@ -9,32 +9,26 @@ struct V222FixTests {
 
     // MARK: - 问题1：英文界面 → 硬编码中文（废弃本地化系统）
 
-    @Test("问题1: 代码中不再使用 String(localized:)")
-    func testNoLocalizedString() {
+    @Test("问题1: 代码使用 String(localized:) 国际化")
+    func testUseLocalizedString() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let srcDir = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess"
-        let files = try? FileManager.default.contentsOfDirectory(atPath: srcDir)
-        guard let files = files else {
-            #expect(Bool(false), "无法列出源码目录")
-            return
-        }
-
-        let swiftFiles = files.filter { $0.hasSuffix(".swift") }
-        for file in swiftFiles {
-            let path = "\(srcDir)/\(file)"
-            let content = (try? String(contentsOfFile: path)) ?? ""
-            let lines = content.components(separatedBy: "\n")
-            for (i, line) in lines.enumerated() {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                if trimmed.hasPrefix("//") { continue }
-                #expect(!trimmed.contains("String(localized:"),
-                       "\(file) 第 \(i+1) 行不应使用 String(localized:)")
-            }
+        let views = [
+            "ChineseChess/Views/GameOverOverlay.swift",
+            "ChineseChess/Views/PuzzleSelectView.swift",
+            "ChineseChess/Views/StatusBarView.swift",
+            "ChineseChess/Views/ToolbarView.swift",
+            "ChineseChess/Views/SettingsView.swift",
+            "ChineseChess/Views/GameHistoryView.swift",
+        ]
+        for file in views {
+            let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(file)"
+            guard let content = try? String(contentsOfFile: path) else { continue }
+            #expect(content.contains("String(localized:"), "\(file) 应使用 String(localized:) 国际化")
         }
     }
 
-    @Test("问题1: 不使用 .environment(\\.locale)")
-    func testNoEnvironmentLocale() {
+    @Test("问题1: App 使用 .environment(\\.locale) 注入语言")
+    func testUseEnvironmentLocale() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let appFiles = [
             "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift",
@@ -42,8 +36,8 @@ struct V222FixTests {
         ]
         for path in appFiles {
             guard let content = try? String(contentsOfFile: path) else { continue }
-            #expect(!content.contains(".environment(\\.locale"),
-                   "\(path) 不应使用 .environment(\\.locale)")
+            #expect(content.contains(".environment(\\.locale"),
+                   "\(path) 应使用 .environment(\\.locale) 注入语言")
         }
     }
 

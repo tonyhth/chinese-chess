@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var themeManager = ThemeManager.shared
     @State private var soundEngine = SoundEngine.shared
     @AppStorage("chinesechess.notationFormat") private var notationFormat: String = "chinese"
+    @EnvironmentObject private var languageManager: LanguageManager
 
     var body: some View {
         ScrollView {
@@ -21,7 +22,11 @@ struct SettingsView: View {
                         Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
                         Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
                     }
+                    #if os(iOS)
+                    .pickerStyle(.menu)
+                    #else
                     .pickerStyle(.segmented)
+                    #endif
                 }
 
                 // 主题
@@ -59,7 +64,28 @@ struct SettingsView: View {
                         Text(String(localized: "settings.notationChinese")).tag("chinese")
                         Text(String(localized: "settings.notationICCS")).tag("iccs")
                     }
+                    #if os(iOS)
+                    .pickerStyle(.menu)
+                    #else
                     .pickerStyle(.segmented)
+                    #endif
+                }
+
+                // 语言
+                Section(String(localized: "settings.languageSection")) {
+                    Picker(String(localized: "settings.language"), selection: Binding(
+                        get: { languageManager.preferredLanguage },
+                        set: { languageManager.preferredLanguage = $0 }
+                    )) {
+                        Text(String(localized: "settings.languageSystem")).tag(nil as String?)
+                        Text("中文").tag("zh-Hans" as String?)
+                        Text("English").tag("en" as String?)
+                    }
+                    #if os(iOS)
+                    .pickerStyle(.menu)
+                    #else
+                    .pickerStyle(.segmented)
+                    #endif
                 }
 
                 // 关于
