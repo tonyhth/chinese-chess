@@ -109,12 +109,73 @@ final class AIEngine: AIEngineProtocol {
         static let advanced = EvalConfig(mobility: true, safety: true)     // 高级/大师
     }
 
+    // MARK: - 搜索配置
+
+    /// 搜索优化配置（运行时，非编译常量）
+    /// 集中管理所有搜索参数，支持热修复和难度差异化
+    struct SearchConfig {
+        var enableQuiescence: Bool = false
+        var enableKillerMove: Bool = false
+        var enableCheckExtension: Bool = false
+        var enableNullMoveFix: Bool = false
+        var enableLMR: Bool = false
+        var enableSmartTime: Bool = false
+
+        var evalConfig: EvalConfig = .advanced
+        var maxQSDepth: Int = 4
+        var maxCheckExtensions: Int = 8
+        var nullMoveMaterialThreshold: Int = 2000
+
+        /// 默认配置：所有优化关闭（中级及以下安全）
+        static let `default` = SearchConfig()
+
+        /// 完整优化配置（高级/大师）
+        static let fullOptimization = SearchConfig(
+            enableQuiescence: true,
+            enableKillerMove: true,
+            enableCheckExtension: true,
+            enableNullMoveFix: true,
+            enableLMR: true,
+            enableSmartTime: false,
+            evalConfig: .advanced,
+            maxQSDepth: 4,
+            maxCheckExtensions: 8
+        )
+
+        /// 高级配置
+        static let hard = SearchConfig(
+            enableQuiescence: true,
+            enableKillerMove: true,
+            enableCheckExtension: true,
+            enableNullMoveFix: true,
+            enableLMR: true,
+            enableSmartTime: false,
+            evalConfig: .advanced,
+            maxQSDepth: 4,
+            maxCheckExtensions: 6
+        )
+
+        /// 大师配置
+        static let master = SearchConfig(
+            enableQuiescence: true,
+            enableKillerMove: true,
+            enableCheckExtension: true,
+            enableNullMoveFix: true,
+            enableLMR: true,
+            enableSmartTime: true,
+            evalConfig: .advanced,
+            maxQSDepth: 6,
+            maxCheckExtensions: 8
+        )
+    }
+
     // MARK: - Negamax 根搜索（统一接口）
 
     /// Negamax + Alpha-Beta 根节点搜索。
     /// 评估函数始终返回当前行走方视角的分数（正值有利）。
     private func rootSearch(for board: Board, depth: Int, useTT: Bool, useMoveOrder: Bool,
                             evalConfig: EvalConfig = .basic,
+                            searchConfig: SearchConfig? = nil,
                             timeManager: TimeManager? = nil) -> Move? {
         let side = board.currentTurn
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
@@ -125,7 +186,7 @@ final class AIEngine: AIEngineProtocol {
         if useMoveOrder {
             let hash = ZobristHash.hash(board: board)
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
-            orderedMoves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
+            orderedMoves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth)
         } else {
             orderedMoves = orderMovesSimple(moves)
         }
@@ -143,8 +204,15 @@ final class AIEngine: AIEngineProtocol {
 
             board.execute(move)
             // Negamax：对手视角取负
-            let score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+            let score: Int
+            if let sc = searchConfig {
+                score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                                 useTT: useTT, useMoveOrder: useMoveOrder,
+                                 searchConfig: sc)
+            } else {
+                score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
                                  useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+            }
             _ = board.undoLastMove()
 
             if score > bestScore {
@@ -218,11 +286,11 @@ final class AIEngine: AIEngineProtocol {
             baseDepth = 6
         }
 
-        guard let tm = TimeManager.forDifficulty(.hard, isIOS: isIOS) else {
+        guard let tm = TimeManager.forDifficulty(.hard, isIOS: isIOS, board: board) else {
             return rootSearch(for: board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                              evalConfig: .advanced)
+                              searchConfig: .hard)
         }
-        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm)
+        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm, searchConfig: .hard)
     }
 
     // MARK: - 大师：IDS depth=8-10 + 杀法搜索 + 残局估值 + 时间管理
@@ -255,25 +323,35 @@ final class AIEngine: AIEngineProtocol {
             baseDepth = 7
         }
 
-        guard let tm = TimeManager.forDifficulty(.master, isIOS: isIOS) else {
+        guard let tm = TimeManager.forDifficulty(.master, isIOS: isIOS, board: board) else {
             return rootSearch(for: board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                              evalConfig: .advanced)
+                              searchConfig: .master)
         }
-        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm)
+        return iterativeDeepeningSearch(for: board, maxDepth: baseDepth, timeManager: tm, searchConfig: .master)
     }
 
     // MARK: - 迭代加深 Negamax
 
-    private func iterativeDeepeningSearch(for board: Board, maxDepth: Int, timeManager: TimeManager) -> Move? {
+    private func iterativeDeepeningSearch(for board: Board, maxDepth: Int,
+                                            timeManager: TimeManager,
+                                            searchConfig: SearchConfig) -> Move? {
         var bestMoveSoFar: Move?
+        var tm = timeManager  // 可变副本
 
         for depth in 2...maxDepth {
-            if timeManager.shouldStop { break }
+            // 智能时间控制：剩余时间是否足够搜下一层
+            if searchConfig.enableSmartTime {
+                if depth > 2 && !tm.shouldStartNextIteration { break }
+            }
+            if tm.shouldStop { break }
+
             if let move = rootSearch(for: board, depth: depth, useTT: true, useMoveOrder: true,
-                                      evalConfig: .advanced,
-                                      timeManager: timeManager) {
+                                      searchConfig: searchConfig,
+                                      timeManager: tm) {
                 bestMoveSoFar = move
             }
+
+            tm.recordIterationComplete()
         }
         return bestMoveSoFar
     }
@@ -282,10 +360,13 @@ final class AIEngine: AIEngineProtocol {
 
     /// Negamax 搜索：评估函数始终返回当前行走方视角的分数。
     /// 递归时传递 -beta, -alpha 实现对手视角的窗口翻转。
+    /// extensions: 当前路径累计延伸次数（参数传递，不回溯）
     private func negamax(board: Board, depth: Int, alpha: Int, beta: Int,
-                         useTT: Bool, useMoveOrder: Bool, evalConfig: EvalConfig = .basic) -> Int {
+                         useTT: Bool, useMoveOrder: Bool, evalConfig: EvalConfig = .basic,
+                         extensions: Int = 0, searchConfig: SearchConfig = .default) -> Int {
         let side = board.currentTurn
         let hash = ZobristHash.hash(board: board)
+        let evalCfg = searchConfig.evalConfig
 
         // 置换表查找
         if useTT {
@@ -294,27 +375,59 @@ final class AIEngine: AIEngineProtocol {
             }
         }
 
-        // 叶节点或终止
-        if depth == 0 || isTerminal(board) {
-            return evaluate(board, config: evalConfig)
+        // 终止局面
+        if isTerminal(board) {
+            return evaluate(board, config: evalCfg)
         }
 
-        // 空着裁剪（Null Move Pruning）：仅在高级评估模式启用
-        // 跳过己方走棋，如果对手连走两步仍无法突破 beta，则剪枝
-        if evalConfig.mobility && depth >= 3 && !MoveValidator.isInCheck(board.currentTurn, on: board) {
-            board.toggleTurn()
-            let nullScore = -negamax(board: board, depth: depth - 3, alpha: -beta, beta: -beta + 1,
-                                     useTT: false, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-            board.toggleTurn()
-            if nullScore >= beta {
-                return beta  // 空着裁剪
+        // 叶节点：进入 QS 或直接评估
+        if depth <= 0 {
+            if searchConfig.enableQuiescence {
+                return quiescenceSearch(board: board, alpha: alpha, beta: beta,
+                                         qDepth: searchConfig.maxQSDepth,
+                                         searchConfig: searchConfig)
+            } else {
+                return evaluate(board, config: evalCfg)
+            }
+        }
+
+        // 空着裁剪（Null Move Pruning）
+        let nullMoveEnabled = evalCfg.mobility && depth >= 3
+            && !MoveValidator.isInCheck(board.currentTurn, on: board)
+        if nullMoveEnabled {
+            let allowNullMove: Bool
+            if searchConfig.enableNullMoveFix {
+                allowNullMove = !shouldDisableNullMove(on: board, config: searchConfig)
+            } else {
+                allowNullMove = true
+            }
+
+            if allowNullMove {
+                let R: Int
+                if searchConfig.enableNullMoveFix {
+                    R = depth >= 6 ? 3 : 2  // 动态 R
+                } else {
+                    R = 3
+                }
+
+                board.toggleTurn()
+                // Null Move 分支独立计算 extension 预算（extensions: 0）
+                // 设计意图：null move 是试探性搜索，不应继承主搜索的延伸深度
+                let nullScore = -negamax(board: board, depth: depth - 1 - R,
+                                          alpha: -beta, beta: -beta + 1,
+                                          useTT: false, useMoveOrder: useMoveOrder,
+                                          evalConfig: evalCfg, extensions: 0,
+                                          searchConfig: searchConfig)
+                board.toggleTurn()
+                if nullScore >= beta {
+                    return beta
+                }
             }
         }
 
         var moves = MoveValidator.allLegalMoves(for: side, on: board)
 
         if moves.isEmpty {
-            // 被将军 = 输，未被判和
             let score = MoveValidator.isInCheck(side, on: board) ? (-100000 - depth) : 0
             if useTT {
                 transpositionTable.store(hash: hash, depth: depth, score: score, flag: .exact, bestMove: nil)
@@ -325,7 +438,7 @@ final class AIEngine: AIEngineProtocol {
         // 走法排序
         if useMoveOrder {
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
-            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3)
+            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth)
         } else if depth >= 2 {
             moves = orderMovesSimple(moves)
         }
@@ -335,10 +448,68 @@ final class AIEngine: AIEngineProtocol {
         var bestMove: Move? = nil
         var a = alpha
 
-        for move in moves {
+        // LMR：selfInCheck 在循环外计算（同 depth 内 execute 前不变）
+        let selfInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+
+        for (moveIndex, move) in moves.enumerated() {
+            // LMR：判断走法是否可削减
+            let isCapture = move.captured != nil
+            let isKiller = moveOrderer.isKillerMove(move, depth: depth)
+            let canReduce = searchConfig.enableLMR
+                && !isCapture
+                && !selfInCheck
+                && !isKiller
+                && moveIndex >= 3
+                && depth >= 4
+
             board.execute(move)
-            let score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -a,
-                                 useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+
+            // 将军延伸：走后对手被将军时，不消耗深度
+            let givesCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+            let ext: Int
+            if searchConfig.enableCheckExtension && givesCheck && extensions < searchConfig.maxCheckExtensions {
+                ext = 1
+            } else {
+                ext = 0
+            }
+            let newDepth = depth - 1 + ext
+            let newExtensions = extensions + ext
+
+            // 走后将军对手的走法不做 LMR 削减
+            let shouldReduce = canReduce && !givesCheck
+
+            let score: Int
+            if shouldReduce {
+                // 先以降低深度搜索（不写 TT，避免浅层结果污染）
+                let reduction = lmrReduction(depth: depth, moveIndex: moveIndex)
+                let reducedScore = -negamax(board: board, depth: newDepth - reduction,
+                                              alpha: -beta, beta: -alpha,
+                                              useTT: false,
+                                              useMoveOrder: useMoveOrder,
+                                              evalConfig: evalCfg,
+                                              extensions: newExtensions,
+                                              searchConfig: searchConfig)
+                if reducedScore > alpha {
+                    // 可能被低估，用全深度重新搜索（与正常路径一致的窗口）
+                    score = -negamax(board: board, depth: newDepth,
+                                      alpha: -beta, beta: -a,
+                                      useTT: useTT,
+                                      useMoveOrder: useMoveOrder,
+                                      evalConfig: evalCfg,
+                                      extensions: newExtensions,
+                                      searchConfig: searchConfig)
+                } else {
+                    score = reducedScore
+                }
+            } else {
+                // 正常全深度搜索
+                score = -negamax(board: board, depth: newDepth,
+                                  alpha: -beta, beta: -a,
+                                  useTT: useTT, useMoveOrder: useMoveOrder,
+                                  evalConfig: evalCfg,
+                                  extensions: newExtensions,
+                                  searchConfig: searchConfig)
+            }
             _ = board.undoLastMove()
 
             if score > bestScore {
@@ -348,6 +519,9 @@ final class AIEngine: AIEngineProtocol {
             a = max(a, bestScore)
             if a >= beta {
                 moveOrderer.recordCutoff(move: move, depth: depth)
+                if searchConfig.enableKillerMove {
+                    moveOrderer.recordKiller(move: move, depth: depth)
+                }
                 break  // beta cutoff
             }
         }
@@ -359,6 +533,110 @@ final class AIEngine: AIEngineProtocol {
         }
 
         return bestScore
+    }
+
+    // MARK: - 静态搜索（Quiescence Search）
+
+    /// 在主搜索 depth=0 时继续搜索吃子走法，消除地平线效应。
+    /// 不读写置换表，分支因子有限（仅吃子走法）。
+    private func quiescenceSearch(
+        board: Board,
+        alpha: Int, beta: Int,
+        qDepth: Int,
+        searchConfig: SearchConfig
+    ) -> Int {
+        // 站立评估（stand pat）：不走的分数
+        let standPat = evaluate(board, config: searchConfig.evalConfig)
+
+        if standPat >= beta {
+            return beta  // 已经足够好，剪枝
+        }
+        var alpha = alpha
+        if alpha < standPat {
+            alpha = standPat  // 提升下限
+        }
+
+        // 静态搜索深度耗尽
+        if qDepth <= 0 {
+            return standPat
+        }
+
+        let side = board.currentTurn
+
+        // 生成吃子走法
+        // TODO: Phase 3c — 扩展 MoveValidator 支持 captureLegalMoves 接口
+        let allMoves = MoveValidator.allLegalMoves(for: side, on: board)
+        let captureMoves = allMoves.filter { $0.captured != nil }
+
+        // 按 MVV-LVA 排序吃子走法
+        let orderedCaptures = orderCapturesMVV_LVA(captureMoves)
+
+        for move in orderedCaptures {
+            board.execute(move)
+            let score = -quiescenceSearch(
+                board: board,
+                alpha: -beta, beta: -alpha,
+                qDepth: qDepth - 1,
+                searchConfig: searchConfig
+            )
+            _ = board.undoLastMove()
+
+            if score >= beta {
+                return beta  // beta cutoff
+            }
+            if score > alpha {
+                alpha = score
+            }
+        }
+
+        return alpha
+    }
+
+    /// 吃子走法 MVV-LVA 排序
+    private func orderCapturesMVV_LVA(_ captures: [Move]) -> [Move] {
+        captures.sorted { a, b in
+            let scoreA = (a.captured?.baseValue ?? 0) * 10 - a.piece.baseValue
+            let scoreB = (b.captured?.baseValue ?? 0) * 10 - b.piece.baseValue
+            return scoreA > scoreB
+        }
+    }
+
+    // MARK: - LMR 辅助
+
+    /// 计算 LMR 削减层数
+    /// 固定 1-2 层，保守策略，通过 re-search 兜底
+    private func lmrReduction(depth: Int, moveIndex: Int) -> Int {
+        let reduction: Int
+        if moveIndex >= 6 && depth >= 5 {
+            reduction = 2
+        } else {
+            reduction = 1
+        }
+        // 独立防御：确保削减量不超过 depth-3 且不返回负值
+        return max(0, min(reduction, depth - 3))
+    }
+
+    // MARK: - Null Move 辅助
+
+    /// 是否应禁用 Null Move Pruning（残局 Zugzwang 风险高）
+    /// 使用子力动态价值而非棋子数量，更精确
+    /// 注：阈值 2000 基于 baseValue 校准（车900+炮450+马400=1750 < 2000）。
+    /// dynamicValue 在残局会调整马/炮/兵价值，可能导致残局误判。
+    /// 待自对弈校准后切换为 baseValue 或调整阈值。
+    private func shouldDisableNullMove(on board: Board, config: SearchConfig) -> Bool {
+        let side = board.currentTurn
+
+        // 条件 1：当前行子力总价值低于阈值
+        let materialValue = board.pieces(for: side).reduce(0) { sum, piece in
+            sum + dynamicValue(for: piece, totalPieces: board.pieces.count)
+        }
+        if materialValue > config.nullMoveMaterialThreshold { return false }
+
+        // 条件 2：当前行没有车（有车时 null move 通常安全）
+        let hasChariot = board.pieces(for: side).contains { $0.kind == .chariot }
+        if hasChariot { return false }
+
+        return true
     }
 
     // MARK: - 终止判定

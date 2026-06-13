@@ -11,15 +11,49 @@ struct MoveOrderer {
     /// 实例级，避免多 AIEngine 并发竞争
     private var historyTable: [String: Int] = [:]
 
+    // Killer Move 表：Key=depth, Value=最多 2 个 killer move
+    private var killerMoves: [Int: [Move?]] = [:]
+
+    /// 统一判等逻辑：piece.id + from + to
+    static func isSameMove(_ a: Move, _ b: Move) -> Bool {
+        return a.piece.id == b.piece.id && a.from == b.from && a.to == b.to
+    }
+
     /// 记录一个产生 beta cutoff 的走法
     mutating func recordCutoff(move: Move, depth: Int) {
         let key = historyKey(move: move)
         historyTable[key, default: 0] += depth * depth  // 深度加权
     }
 
-    /// 清空历史表（新对局时调用）
+    /// 记录一个产生 beta cutoff 的非吃子走法为 killer move
+    mutating func recordKiller(move: Move, depth: Int) {
+        guard move.captured == nil else { return }
+
+        if var killers = killerMoves[depth] {
+            if let k0 = killers[0], Self.isSameMove(k0, move) { return }
+            killers[1] = killers[0]
+            killers[0] = move
+            killerMoves[depth] = killers
+        } else {
+            killerMoves[depth] = [move, nil]
+        }
+    }
+
+    /// 检查走法是否为当前深度的 killer move
+    func isKillerMove(_ move: Move, depth: Int) -> Bool {
+        guard let killers = killerMoves[depth] else { return false }
+        for killer in killers {
+            if let k = killer, Self.isSameMove(k, move) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// 清空历史表和 killer 表（新对局时调用）
     mutating func clearHistory() {
         historyTable.removeAll()
+        killerMoves.removeAll()
     }
 
     /// 排序走法列表
@@ -28,14 +62,14 @@ struct MoveOrderer {
     ///   - board: 当前棋盘
     ///   - ttBestMove: 置换表中的最佳走法（如有）
     ///   - checkLegal: 是否启用将军排序（depth >= 3 时启用，低深度开销大）
-    func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false) -> [Move] {
+    func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil) -> [Move] {
         let ttMove = ttBestMove
 
         return moves.map { move in
             var score = 0
 
             // 0. 置换表最佳走法（最高优先级）
-            if let ttMove = ttMove, move.piece.id == ttMove.piece.id && move.from == ttMove.from && move.to == ttMove.to {
+            if let ttMove = ttMove, Self.isSameMove(move, ttMove) {
                 score += 100000
             }
 
@@ -49,10 +83,15 @@ struct MoveOrderer {
                 score += 10000 + captured.baseValue * 10 - move.piece.baseValue
             }
 
-            // 3. 威胁子力（走到目标位置后能威胁对方高价值棋子）
+            // 3. Killer Move（吃子之后、历史启发之前）
+            if let d = depth, isKillerMove(move, depth: d) {
+                score += 8000
+            }
+
+            // 4. 威胁子力（走到目标位置后能威胁对方高价值棋子）
             score += threatBonus(for: move, on: board)
 
-            // 4. 历史启发加分
+            // 5. 历史启发加分
             score += historyTable[historyKey(move: move), default: 0]
 
             return (move, score)
