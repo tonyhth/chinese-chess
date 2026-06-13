@@ -41,3 +41,11 @@ scripts/
 
 # Other projects (should not exist here)
 projects/
+
+# 项目特定
+ChineseChess-iOS/
+src/.swiftpm/
+data/
+tools/__pycache__/
+tools/pgn_data
+src/NewFile.swift
