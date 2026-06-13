@@ -75,7 +75,7 @@ struct SettingsView: View {
                 Section(String(localized: "settings.languageSection")) {
                     Picker(String(localized: "settings.language"), selection: Binding(
                         get: { languageManager.preferredLanguage },
-                        set: { languageManager.preferredLanguage = $0 }
+                        set: { languageManager.setPreferredLanguage($0) }
                     )) {
                         Text(String(localized: "settings.languageSystem")).tag(nil as String?)
                         Text("中文").tag("zh-Hans" as String?)

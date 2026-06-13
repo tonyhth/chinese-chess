@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatsPanelView: View {
     @State private var statsVM = StatsViewModel()
+    @State private var showResetAlert = false
 
     private let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
 
@@ -44,7 +45,7 @@ struct StatsPanelView: View {
             HStack {
                 Spacer()
                 Button(String(localized: "stats.reset")) {
-                    statsVM.resetAll()
+                    showResetAlert = true
                 }
                 .font(.system(size: 12))
                 .foregroundColor(.red)
@@ -55,6 +56,14 @@ struct StatsPanelView: View {
         .padding(12)
         .background(Color(red: 40/255, green: 22/255, blue: 14/255))
         .cornerRadius(8)
+        .alert(String(localized: "stats.reset"), isPresented: $showResetAlert) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "common.clear"), role: .destructive) {
+                statsVM.resetAll()
+            }
+        } message: {
+            Text(String(localized: "stats.resetConfirm"))
+        }
         .onAppear {
             statsVM.refresh()
         }

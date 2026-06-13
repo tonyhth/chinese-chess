@@ -5,11 +5,9 @@ import SwiftUI
 @Observable
 class LanguageManager: ObservableObject {
     /// 用户手动选择的语言，nil 表示跟随系统
-    var preferredLanguage: String? {
-        didSet {
-            UserDefaults.standard.set(preferredLanguage, forKey: languageKey)
-        }
-    }
+    /// 注意：@Observable 宏会重写存储属性导致 didSet 不触发，
+    /// 因此通过 setPreferredLanguage() 方法同步写 UserDefaults
+    var preferredLanguage: String?
 
     /// 当前生效的语言代码
     var currentLanguage: String {
@@ -25,5 +23,11 @@ class LanguageManager: ObservableObject {
 
     init() {
         self.preferredLanguage = UserDefaults.standard.string(forKey: languageKey)
+    }
+
+    /// 设置首选语言并同步写入 UserDefaults
+    func setPreferredLanguage(_ language: String?) {
+        preferredLanguage = language
+        UserDefaults.standard.set(language, forKey: languageKey)
     }
 }
