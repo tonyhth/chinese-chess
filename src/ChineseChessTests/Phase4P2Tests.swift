@@ -22,7 +22,7 @@ struct Phase4P2Tests {
         let markGap: CGFloat = cellSize * 0.09   // 5.4
 
         #expect(markSize == 9.0, "markSize 应为 cellSize * 0.15 = 9")
-        #expect(markGap == 5.4, "markGap 应为 cellSize * 0.09 = 5.4")
+        #expect(abs(markGap - 5.4) < 0.001, "markGap 应为 cellSize * 0.09 ≈ 5.4")
 
         // 确保标记不会超出单元格范围
         #expect(markSize < cellSize * 0.2, "标记尺寸不应过大")

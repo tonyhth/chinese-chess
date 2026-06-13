@@ -213,15 +213,14 @@ struct Round3Tests {
         let vm = PuzzleViewModel(puzzle: puzzle)
         #expect(!vm.isInCheck, "初始不应被将军")
 
-        // 走一步后检查 isInCheck 与 MoveValidator 一致
+        // 通过 ViewModel 方法走棋（会自动更新 isInCheck）
         let redPieces = vm.board.pieces.filter { $0.side == .red }
         guard let piece = redPieces.first else { return }
         let moves = MoveValidator.legalMoves(for: piece, on: vm.board)
         guard let move = moves.first else { return }
-        let m = Move(piece: piece, from: move.from, to: move.to,
-                     captured: vm.board.piece(at: move.to))
-        guard MoveValidator.isLegal(m, on: vm.board) else { return }
-        vm.board.execute(m)
+
+        vm.selectPiece(at: move.from)
+        vm.movePiece(from: move.from, to: move.to)
 
         let expected = MoveValidator.isInCheck(vm.board.currentTurn, on: vm.board)
         #expect(vm.isInCheck == expected, "走棋后 isInCheck 应与 MoveValidator 一致")

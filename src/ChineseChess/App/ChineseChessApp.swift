@@ -189,6 +189,7 @@ struct ChineseChessApp: App {
                             }
                         }
                 }
+                .environmentObject(languageManager)
                 .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
             }
         }
