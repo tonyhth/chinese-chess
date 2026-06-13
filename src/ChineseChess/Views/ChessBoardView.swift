@@ -29,6 +29,24 @@ struct ChessBoardView: View {
     private let maxBoardHeight: CGFloat = 675
     #endif
 
+    // MARK: - 拖拽状态
+
+    /// 正在拖拽的棋子
+    @State private var dragPiece: Piece? = nil
+    /// 拖拽偏移量
+    @State private var dragOffset: CGSize = .zero
+    /// 拖拽起始位置
+    @State private var dragStartPosition: Position? = nil
+    /// 是否已进入拖拽模式（移动距离 > 5pt）
+    @State private var isDragging: Bool = false
+
+    // MARK: - 非法走法提示状态
+
+    /// 非法目标位置
+    @State private var illegalTarget: Position? = nil
+    /// 非法提示自动消失任务
+    @State private var illegalFlashTask: Task<Void, Never>? = nil
+
     var body: some View {
         GeometryReader { geo in
             #if os(iOS)
@@ -74,9 +92,25 @@ struct ChessBoardView: View {
                     Color.clear
                         .frame(width: boardWidth, height: boardHeight)
                         .contentShape(Rectangle())
-                        .onTapGesture { location in
-                            handleTap(at: location, cellSize: cellSize, padding: padding)
-                        }
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    handleDragChanged(
+                                        startLocation: value.startLocation,
+                                        translation: value.translation,
+                                        cellSize: cellSize,
+                                        padding: padding
+                                    )
+                                }
+                                .onEnded { value in
+                                    handleDragEnded(
+                                        startLocation: value.startLocation,
+                                        translation: value.translation,
+                                        cellSize: cellSize,
+                                        padding: padding
+                                    )
+                                }
+                        )
                 }
             }
             .frame(width: boardWidth, height: boardHeight)
@@ -185,13 +219,64 @@ struct ChessBoardView: View {
                 .accessibilityHint(String(localized: "board.legalMoveHint", defaultValue: "可走至 \(pos.col)\(pos.row)"))
         }
 
+        // 拖拽时显示当前拖拽棋子的合法走法
+        if let startPos = dragStartPosition, isDragging {
+            let dragLegalMoves = legalMovesForPiece(at: startPos)
+            ForEach(dragLegalMoves, id: \.self) { pos in
+                Circle()
+                    .fill(board.piece(at: pos) != nil ? Color.red.opacity(0.4) : Color.green.opacity(0.4))
+                    .frame(width: cellSize * 0.3, height: cellSize * 0.3)
+                    .position(posToCGPoint(pos, cellSize: cellSize, padding: padding))
+            }
+        }
+
         // 棋子
         ForEach(board.pieces) { piece in
             let isSelected = selectedPosition == piece.position
-            PieceView(piece: piece, isSelected: isSelected, cellSize: cellSize, theme: theme)
-                .position(posToCGPoint(piece.position, cellSize: cellSize, padding: padding))
+            let isPieceDragging = dragPiece?.id == piece.id
+
+            if isPieceDragging {
+                // 原位置显示半透明幽灵
+                PieceView(piece: piece, isSelected: false, cellSize: cellSize, theme: theme)
+                    .opacity(0.3)
+                    .position(posToCGPoint(piece.position, cellSize: cellSize, padding: padding))
+                    .allowsHitTesting(false)
+            } else {
+                PieceView(piece: piece, isSelected: isSelected, cellSize: cellSize, theme: theme)
+                    .position(posToCGPoint(piece.position, cellSize: cellSize, padding: padding))
+                    .allowsHitTesting(false)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
+            }
+        }
+
+        // 拖拽中的棋子（跟随手指/鼠标）
+        if let dragPiece = dragPiece, let startPos = dragStartPosition, isDragging {
+            PieceView(piece: dragPiece, isSelected: true, cellSize: cellSize, theme: theme)
+                .shadow(color: .black.opacity(0.5), radius: 8, x: 2, y: 4)
+                .scaleEffect(1.15)
+                .position(
+                    CGPoint(
+                        x: posToCGPoint(startPos, cellSize: cellSize, padding: padding).x + dragOffset.width,
+                        y: posToCGPoint(startPos, cellSize: cellSize, padding: padding).y + dragOffset.height
+                    )
+                )
                 .allowsHitTesting(false)
-                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
+        }
+
+        // 非法走法提示：红色圆圈 + 叉号
+        if let illegal = illegalTarget {
+            ZStack {
+                Circle()
+                    .stroke(Color.red, lineWidth: 3)
+                    .frame(width: cellSize * 0.85, height: cellSize * 0.85)
+                Image(systemName: "xmark")
+                    .font(.system(size: cellSize * 0.3, weight: .bold))
+                    .foregroundColor(.red)
+            }
+            .position(posToCGPoint(illegal, cellSize: cellSize, padding: padding))
+            .opacity(0.8)
+            .transition(.opacity)
+            .animation(.easeOut(duration: 0.2), value: illegalTarget)
         }
     }
 
@@ -215,14 +300,161 @@ struct ChessBoardView: View {
         return Position(row: row, col: col)
     }
 
+    // MARK: - 拖拽手势处理
+
+    /// 判断位置上是否为玩家可操作的棋子
+    private func isPlayerPiece(at pos: Position) -> Bool {
+        guard let piece = board.piece(at: pos) else { return false }
+        switch mode {
+        case .playGame: return piece.side == .red
+        case .playPuzzle(let vm): return piece.side == vm.playerSide
+        case .replay: return false
+        }
+    }
+
+    /// 获取某个位置棋子的合法目标
+    private func legalMovesForPiece(at pos: Position) -> [Position] {
+        guard let piece = board.piece(at: pos) else { return [] }
+        return MoveValidator.legalMoves(for: piece, on: board).map { $0.to }
+    }
+
+    /// 判断当前是否可以交互（非思考中、对局进行中）
+    private var canInteract: Bool {
+        switch mode {
+        case .playGame(let vm): return !vm.isThinking && vm.gameState == .playing
+        case .playPuzzle(let vm): return !vm.isThinking && vm.gameState == .playing
+        case .replay: return false
+        }
+    }
+
+    private func handleDragChanged(startLocation: CGPoint, translation: CGSize,
+                                     cellSize: CGFloat, padding: CGFloat) {
+        guard canInteract else { return }
+
+        let dx = abs(translation.width)
+        let dy = abs(translation.height)
+
+        // 首次进入拖拽：检测起始位置是否是己方棋子
+        if dragPiece == nil {
+            guard let pos = cgPointToPos(startLocation, cellSize: cellSize, padding: padding),
+                  isPlayerPiece(at: pos) else { return }
+            dragPiece = board.piece(at: pos)
+            dragStartPosition = pos
+            dragOffset = .zero
+            isDragging = false
+        }
+
+        // 移动距离超过阈值才进入拖拽模式
+        if !isDragging && (dx > 5 || dy > 5) {
+            isDragging = true
+        }
+
+        if isDragging {
+            dragOffset = translation
+        }
+    }
+
+    private func handleDragEnded(startLocation: CGPoint, translation: CGSize,
+                                  cellSize: CGFloat, padding: CGFloat) {
+        guard canInteract else {
+            resetDragState()
+            return
+        }
+
+        let dx = abs(translation.width)
+        let dy = abs(translation.height)
+
+        // 移动距离 ≤ 5pt → 视为点击
+        if dx <= 5 && dy <= 5 {
+            resetDragState()
+            handleTap(at: startLocation, cellSize: cellSize, padding: padding)
+            return
+        }
+
+        // 拖拽结束
+        guard let from = dragStartPosition, dragPiece != nil else {
+            resetDragState()
+            return
+        }
+
+        let finalLocation = CGPoint(
+            x: startLocation.x + translation.width,
+            y: startLocation.y + translation.height
+        )
+
+        guard let to = cgPointToPos(finalLocation, cellSize: cellSize, padding: padding) else {
+            // 松手在棋盘外
+            resetDragState()
+            return
+        }
+
+        let legalTargets = legalMovesForPiece(at: from)
+        if legalTargets.contains(to) {
+            // 合法走子
+            switch mode {
+            case .playGame(let vm): vm.movePiece(from: from, to: to)
+            case .playPuzzle(let vm): vm.movePiece(from: from, to: to)
+            case .replay: break
+            }
+        } else {
+            // 非法目标
+            showIllegalHint(at: to)
+        }
+
+        resetDragState()
+    }
+
+    private func resetDragState() {
+        dragPiece = nil
+        dragOffset = .zero
+        dragStartPosition = nil
+        isDragging = false
+    }
+
+    // MARK: - 非法走法提示
+
+    private func showIllegalHint(at pos: Position) {
+        illegalFlashTask?.cancel()
+        illegalTarget = pos
+        triggerHapticFeedback()
+        illegalFlashTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 秒
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                illegalTarget = nil
+            }
+        }
+    }
+
+    private func triggerHapticFeedback() {
+        #if os(iOS)
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+        #endif
+    }
+
     // MARK: - 交互分发
 
     private func handleTap(at point: CGPoint, cellSize: CGFloat, padding: CGFloat) {
         guard let pos = cgPointToPos(point, cellSize: cellSize, padding: padding) else { return }
         switch mode {
         case .playGame(let vm):
+            // 已有选中棋子，且点击的不是合法目标 → 非法提示
+            if let _ = vm.selectedPosition, !vm.legalMovesForSelected.contains(pos) {
+                // 点击空位或对方不可吃棋子（不是己方棋子切换）
+                if !isPlayerPiece(at: pos) {
+                    showIllegalHint(at: pos)
+                    return  // 非法提示后保留选中，不执行 selectPiece
+                }
+            }
             vm.selectPiece(at: pos)
         case .playPuzzle(let vm):
+            if let _ = vm.selectedPosition, !vm.legalMovesForSelected.contains(pos) {
+                if !isPlayerPiece(at: pos) {
+                    showIllegalHint(at: pos)
+                    return  // 非法提示后保留选中，不执行 handleSquareTap
+                }
+            }
             vm.handleSquareTap(at: pos)
         case .replay:
             break

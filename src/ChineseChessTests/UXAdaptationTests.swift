@@ -56,58 +56,66 @@ struct UXAdaptationTests {
             #expect(lm.currentLocale.identifier.hasPrefix("zh-Hans"))
         }
 
-        @Test("preferredLanguage 通过 UserDefaults 持久化")
+        @Test("preferredLanguage 通过 setPreferredLanguage 持久化")
         func preferredLanguagePersisted() {
             let testKey = "chinesechess.language"
             // 保存原始值
             let originalValue = UserDefaults.standard.string(forKey: testKey)
 
-            // 直接测试 UserDefaults 写入/读取
-            UserDefaults.standard.set("en", forKey: testKey)
+            // 通过 LanguageManager API 设置语言
+            let lm = LanguageManager()
+            lm.setPreferredLanguage("en")
+            #expect(lm.preferredLanguage == "en")
+            #expect(lm.currentLanguage == "en")
             #expect(UserDefaults.standard.string(forKey: testKey) == "en")
 
-            // 验证 LanguageManager init 从 UserDefaults 恢复
-            let lm1 = LanguageManager()
-            #expect(lm1.preferredLanguage == "en")
-            #expect(lm1.currentLanguage == "en")
-
             // 切换到 zh-Hans
-            UserDefaults.standard.set("zh-Hans", forKey: testKey)
-            let lm2 = LanguageManager()
-            #expect(lm2.preferredLanguage == "zh-Hans")
+            lm.setPreferredLanguage("zh-Hans")
+            #expect(lm.preferredLanguage == "zh-Hans")
+            #expect(UserDefaults.standard.string(forKey: testKey) == "zh-Hans")
 
             // 清除后应为 nil
-            UserDefaults.standard.removeObject(forKey: testKey)
-            let lm3 = LanguageManager()
-            #expect(lm3.preferredLanguage == nil)
+            lm.setPreferredLanguage(nil)
+            #expect(lm.preferredLanguage == nil)
 
             // 恢复原始值
             if let original = originalValue {
                 UserDefaults.standard.set(original, forKey: testKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: testKey)
             }
         }
 
         @Test("init 从 UserDefaults 恢复上次选择的语言")
         func initRestoresFromUserDefaults() {
             let testKey = "chinesechess.language"
-            UserDefaults.standard.set("en", forKey: testKey)
+            let originalValue = UserDefaults.standard.string(forKey: testKey)
 
-            let lm = LanguageManager()
-            #expect(lm.preferredLanguage == "en")
-            #expect(lm.currentLanguage == "en")
+            // 先通过 API 设置
+            let lm1 = LanguageManager()
+            lm1.setPreferredLanguage("en")
+
+            // 新实例应从 UserDefaults 恢复
+            let lm2 = LanguageManager()
+            #expect(lm2.preferredLanguage == "en")
+            #expect(lm2.currentLanguage == "en")
 
             // 清理
-            UserDefaults.standard.removeObject(forKey: testKey)
+            if let original = originalValue {
+                UserDefaults.standard.set(original, forKey: testKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: testKey)
+            }
         }
 
         @Test("多次切换语言不丢失状态")
         func multipleSwitches() {
             let lm = LanguageManager()
-            let languages = ["en", "zh-Hans", nil, "en", "zh-Hans", nil]
+            let languages: [String?] = ["en", "zh-Hans", nil, "en", "zh-Hans", nil]
             let expected = ["en", "zh-Hans", Locale.current.language.languageCode?.identifier ?? "zh-Hans", "en", "zh-Hans", Locale.current.language.languageCode?.identifier ?? "zh-Hans"]
 
             for (i, lang) in languages.enumerated() {
-                lm.preferredLanguage = lang
+                lm.setPreferredLanguage(lang)
                 #expect(lm.currentLanguage == expected[i], "Switch \(i): expected \(expected[i]), got \(lm.currentLanguage)")
             }
         }
