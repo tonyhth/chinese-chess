@@ -477,7 +477,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Game History"
+            "value": "History"
           }
         }
       }
@@ -1181,7 +1181,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Progress"
+            "value": "Playing"
           }
         }
       }
@@ -1520,7 +1520,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Statistics"
+            "value": "Stats"
           }
         }
       }
@@ -1762,7 +1762,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Checkmate"
+            "value": "Mate"
           }
         }
       }
@@ -1778,7 +1778,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sequence"
+            "value": "Combo"
           }
         }
       }
@@ -1794,7 +1794,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Challenge"
+            "value": "Try"
           }
         }
       }
@@ -2341,6 +2341,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "System"
+          }
+        }
+      }
+    },
+    "stats.resetConfirm": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要重置所有统计数据吗？此操作不可撤销。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to reset all statistics? This cannot be undone."
           }
         }
       }
