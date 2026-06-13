@@ -14,7 +14,7 @@ struct ToolbarView: View {
             }
             .disabled(viewModel.isThinking)
             .tint(.brown)
-            .accessibilityLabel("新局")
+            .accessibilityLabel(String(localized: "game.newGame"))
             .accessibilityHint("双击开始新对局")
 
             Button(action: { viewModel.undoMove() }) {
@@ -25,7 +25,7 @@ struct ToolbarView: View {
             }
             .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
             .tint(.brown)
-            .accessibilityLabel("悔棋")
+            .accessibilityLabel(String(localized: "game.undoMove"))
             .accessibilityHint("双击撤销上一步")
 
             Button(action: { viewModel.requestHint() }) {
@@ -36,7 +36,7 @@ struct ToolbarView: View {
             }
             .disabled(viewModel.isThinking || viewModel.gameState != .playing)
             .tint(.brown)
-            .accessibilityLabel("提示")
+            .accessibilityLabel(String(localized: "game.hint"))
             .accessibilityHint("双击获取走法提示")
         }
         .padding(.horizontal, 12)
@@ -46,7 +46,7 @@ struct ToolbarView: View {
             // 棋局控制组
             HStack(spacing: 8) {
                 Button(action: { viewModel.newGame() }) {
-                    Label("新局", systemImage: "arrow.counterclockwise")
+                    Label(String(localized: "game.newGame"), systemImage: "arrow.counterclockwise")
                 }
                 #if os(macOS)
                 .keyboardShortcut("n", modifiers: .command)
@@ -57,7 +57,7 @@ struct ToolbarView: View {
                 .accessibilityHint("双击开始新对局")
 
                 Button(action: { viewModel.undoMove() }) {
-                    Label("悔棋", systemImage: "arrow.uturn.backward")
+                    Label(String(localized: "game.undoMove"), systemImage: "arrow.uturn.backward")
                 }
                 #if os(macOS)
                 .keyboardShortcut("z", modifiers: .command)
@@ -68,7 +68,7 @@ struct ToolbarView: View {
                 .accessibilityHint("双击撤销上一步")
 
                 Button(action: { viewModel.requestHint() }) {
-                    Label("提示", systemImage: "lightbulb")
+                    Label(String(localized: "game.hint"), systemImage: "lightbulb")
                 }
                 #if os(macOS)
                 .keyboardShortcut("h", modifiers: [.command, .shift])
@@ -87,15 +87,15 @@ struct ToolbarView: View {
             #endif
 
             // 设置组
-            Picker("AI 难度", selection: Binding(
+            Picker(String(localized: "difficulty.label"), selection: Binding(
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
             )) {
-                Text("新手").tag(AIDifficulty.beginner)
-                Text("初级").tag(AIDifficulty.easy)
-                Text("中级").tag(AIDifficulty.medium)
-                Text("高级").tag(AIDifficulty.hard)
-                Text("大师").tag(AIDifficulty.master)
+                Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
+                Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
+                Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
+                Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
+                Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
             }
             .pickerStyle(.segmented)
         }

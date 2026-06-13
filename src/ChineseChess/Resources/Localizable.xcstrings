@@ -1,0 +1,1161 @@
+{
+  "sourceLanguage" : "zh-Hans",
+  "strings" : {
+    "board.chuRiver" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "楚  河"
+          }
+        }
+      }
+    },
+    "board.hanBorder" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "汉  界"
+          }
+        }
+      }
+    },
+    "common.back" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返回"
+          }
+        }
+      }
+    },
+    "common.cancel" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "common.clear" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清空"
+          }
+        }
+      }
+    },
+    "common.close" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭"
+          }
+        }
+      }
+    },
+    "common.delete" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除"
+          }
+        }
+      }
+    },
+    "common.done" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完成"
+          }
+        }
+      }
+    },
+    "common.more" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多"
+          }
+        }
+      }
+    },
+    "common.retry" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "difficulty.beginner" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新手"
+          }
+        }
+      }
+    },
+    "difficulty.easy" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "初级"
+          }
+        }
+      }
+    },
+    "difficulty.hard" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级"
+          }
+        }
+      }
+    },
+    "difficulty.label" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 难度"
+          }
+        }
+      }
+    },
+    "difficulty.master" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "大师"
+          }
+        }
+      }
+    },
+    "difficulty.medium" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中级"
+          }
+        }
+      }
+    },
+    "game.hint" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提示"
+          }
+        }
+      }
+    },
+    "game.newGame" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新局"
+          }
+        }
+      }
+    },
+    "game.undoMove" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "悔棋"
+          }
+        }
+      }
+    },
+    "game.vsAITitle" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人机对局"
+          }
+        }
+      }
+    },
+    "history.clear" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清空历史"
+          }
+        }
+      }
+    },
+    "history.clearConfirm" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确定要清空所有历史对局吗？此操作不可恢复。"
+          }
+        }
+      }
+    },
+    "history.moveCount" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 步"
+          }
+        }
+      }
+    },
+    "history.replay" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对局回放"
+          }
+        }
+      }
+    },
+    "history.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "历史对局"
+          }
+        }
+      }
+    },
+    "notation.advance" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进"
+          }
+        }
+      }
+    },
+    "notation.back" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "后"
+          }
+        }
+      }
+    },
+    "notation.chineseNum.%lld" : {
+      "comment" : "中文数字 1-9，参数为数字",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          },
+          "substitutions" : {
+            "%lld" : {
+              "choices" : [
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "一"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "二"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "三"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "四"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "五"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "六"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "七"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "八"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "九"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "notation.front" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "前"
+          }
+        }
+      }
+    },
+    "notation.horizontal" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平"
+          }
+        }
+      }
+    },
+    "notation.retreat" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退"
+          }
+        }
+      }
+    },
+    "notation.redFile.%lld" : {
+      "comment" : "红方纵线编号 1-9，参数为列号(0-based)",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          },
+          "substitutions" : {
+            "%lld" : {
+              "choices" : [
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "九"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "八"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "七"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "六"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "五"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "四"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "三"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "二"
+                  }
+                },
+                {
+                  "stringUnit" : {
+                    "state" : "translated",
+                    "value" : "一"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "player.black" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑方"
+          }
+        }
+      }
+    },
+    "player.red" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红方"
+          }
+        }
+      }
+    },
+    "puzzle.all" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部"
+          }
+        }
+      }
+    },
+    "puzzle.betterMoveHint" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "💡 有更优走法"
+          }
+        }
+      }
+    },
+    "puzzle.checkmateWin" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🎉 将杀获胜"
+          }
+        }
+      }
+    },
+    "puzzle.completed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通关 ✅"
+          }
+        }
+      }
+    },
+    "puzzle.continueLabel" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续"
+          }
+        }
+      }
+    },
+    "puzzle.empty" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无残局"
+          }
+        }
+      }
+    },
+    "puzzle.failed" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "挑战失败"
+          }
+        }
+      }
+    },
+    "puzzle.groupLabel" : {
+      "comment" : "残局分组标题，如\"第 1-50 局\"",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %@ 局"
+          }
+        }
+      }
+    },
+    "puzzle.hintStep" : {
+      "comment" : "提示：第 N 步 → ICCS",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提示：第 %lld 步 → %@"
+          }
+        }
+      }
+    },
+    "puzzle.moveCount" : {
+      "comment" : "步数: N",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "步数: %lld"
+          }
+        }
+      }
+    },
+    "puzzle.moveProgress" : {
+      "comment" : "N/M 步数进度",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld"
+          }
+        }
+      }
+    },
+    "puzzle.noMatch" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未找到匹配的残局"
+          }
+        }
+      }
+    },
+    "puzzle.noMoreHints" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无更多提示"
+          }
+        }
+      }
+    },
+    "puzzle.searchPlaceholder" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索残局名称…"
+          }
+        }
+      }
+    },
+    "puzzle.solutionTitle" : {
+      "comment" : "完美解法: PuzzleName",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完美解法: %@"
+          }
+        }
+      }
+    },
+    "puzzle.stars" : {
+      "comment" : "星级: ★★★",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星级: %@"
+          }
+        }
+      }
+    },
+    "puzzle.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "残局闯关"
+          }
+        }
+      }
+    },
+    "puzzle.tryAgain" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不要气馁，再试一次吧！"
+          }
+        }
+      }
+    },
+    "puzzle.viewSolution" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看完美解法"
+          }
+        }
+      }
+    },
+    "puzzle.winFreePlay" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🎉 通关成功"
+          }
+        }
+      }
+    },
+    "record.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "棋谱"
+          }
+        }
+      }
+    },
+    "result.blackWon" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑方胜"
+          }
+        }
+      }
+    },
+    "result.draw" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和棋"
+          }
+        }
+      }
+    },
+    "result.playing" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进行中"
+          }
+        }
+      }
+    },
+    "result.redWon" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红方胜"
+          }
+        }
+      }
+    },
+    "replay.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "回放"
+          }
+        }
+      }
+    },
+    "replay.vsFormat" : {
+      "comment" : "红 PlayerName",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红 %@"
+          }
+        }
+      }
+    },
+    "settings.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置"
+          }
+        }
+      }
+    },
+    "speed.label" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "速度"
+          }
+        }
+      }
+    },
+    "stats.completedCount" : {
+      "comment" : "已完成 N/M",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已完成 %lld/%lld"
+          }
+        }
+      }
+    },
+    "stats.recordFormat" : {
+      "comment" : "N胜 N负 N和",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld胜 %lld负 %lld和"
+          }
+        }
+      }
+    },
+    "stats.reset" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置统计"
+          }
+        }
+      }
+    },
+    "stats.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "统计"
+          }
+        }
+      }
+    },
+    "stats.totalGroups" : {
+      "comment" : "共 N 组",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共 %lld 组"
+          }
+        }
+      }
+    },
+    "stats.vsAI" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人机对战"
+          }
+        }
+      }
+    },
+    "status.aiThinking" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 思考中..."
+          }
+        }
+      }
+    },
+    "status.blackLost" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑失:"
+          }
+        }
+      }
+    },
+    "status.blackTurn" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑方走棋"
+          }
+        }
+      }
+    },
+    "status.check" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将军！"
+          }
+        }
+      }
+    },
+    "status.redLost" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红失:"
+          }
+        }
+      }
+    },
+    "status.redLostFull" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红方损失:"
+          }
+        }
+      }
+    },
+    "status.blackLostFull" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑方损失:"
+          }
+        }
+      }
+    },
+    "status.redTurn" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红方走棋"
+          }
+        }
+      }
+    },
+    "status.roundN" : {
+      "comment" : "第 N 回合",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第 %lld 回合"
+          }
+        }
+      }
+    },
+    "gameover.redWon" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🎉 红方获胜！"
+          }
+        }
+      }
+    },
+    "gameover.blackWon" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🖤 黑方获胜！"
+          }
+        }
+      }
+    },
+    "gameover.draw" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🤝 和棋！"
+          }
+        }
+      }
+    },
+    "puzzle.type.checkmate" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "杀局"
+          }
+        }
+      }
+    },
+    "puzzle.type.sequence" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "妙手"
+          }
+        }
+      }
+    },
+    "puzzle.type.hint" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "挑战"
+          }
+        }
+      }
+    },
+    "puzzle.freePlay" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自由对弈"
+          }
+        }
+      }
+    },
+    "gameover.viewRecord" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看棋谱"
+          }
+        }
+      }
+    },
+    "gameover.newGame" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新的一局"
+          }
+        }
+      }
+    },
+    "puzzle.maxMovesWarning" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已超过建议步数"
+          }
+        }
+      }
+    },
+    "puzzle.continueChallenge" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续挑战？"
+          }
+        }
+      }
+    },
+    "puzzle.continueChallengeButton" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续挑战"
+          }
+        }
+      }
+    },
+    "gameover.drawTitle" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🤝 握手言和"
+          }
+        }
+      }
+    },
+    "gameover.drawDesc" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "双方势均力敌"
+          }
+        }
+      }
+    },
+    "settings.sound" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音效"
+          }
+        }
+      }
+    },
+    "settings.soundToggle" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音效开关"
+          }
+        }
+      }
+    },
+    "settings.notationFormat" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "棋谱格式"
+          }
+        }
+      }
+    },
+    "settings.notationChinese" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中文传统"
+          }
+        }
+      }
+    },
+    "settings.notationICCS" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ICCS 坐标"
+          }
+        }
+      }
+    },
+    "theme.title" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择主题"
+          }
+        }
+      }
+    },
+    "accessibility.redSide" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "红方"
+          }
+        }
+      }
+    },
+    "accessibility.blackSide" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "黑方"
+          }
+        }
+      }
+    },
+    "accessibility.canMoveTo" : {
+      "comment" : "可走至 position",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可走至 %@"
+          }
+        }
+      }
+    },
+    "accessibility.stepN" : {
+      "comment" : "第N步 notation",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "第%lld步 %@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

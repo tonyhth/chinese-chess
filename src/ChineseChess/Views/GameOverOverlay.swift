@@ -9,16 +9,17 @@ struct GameOverOverlay: View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
+                .allowsHitTesting(false)
 
             VStack(spacing: 20) {
-                Text(gameState == .redWon ? "🎉 红方获胜！" :
-                     gameState == .blackWon ? "🖤 黑方获胜！" : "🤝 和棋！")
+                Text(gameState == .redWon ? String(localized: "gameover.redWon") :
+                     gameState == .blackWon ? String(localized: "gameover.blackWon") : String(localized: "gameover.draw"))
                     .font(.custom(FontRegistry.bestAvailableFontName, size: 36))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
                 HStack(spacing: 16) {
-                    Button("再来一局") {
+                    Button(String(localized: "gameover.newGame")) {
                         onNewGame()
                     }
                     .buttonStyle(.borderedProminent)
@@ -26,7 +27,7 @@ struct GameOverOverlay: View {
                     .controlSize(.large)
 
                     if let onViewRecord {
-                        Button("查看棋谱") {
+                        Button(String(localized: "gameover.viewRecord")) {
                             onViewRecord()
                         }
                         .buttonStyle(.bordered)

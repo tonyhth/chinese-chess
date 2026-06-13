@@ -10,16 +10,16 @@ struct SettingsView: View {
         ScrollView {
             Form {
                 // 难度设置
-                Section("AI 难度") {
-                    Picker("AI 难度", selection: Binding(
+                Section(String(localized: "difficulty.label")) {
+                    Picker(String(localized: "difficulty.label"), selection: Binding(
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
-                        Text("新手").tag(AIDifficulty.beginner)
-                        Text("初级").tag(AIDifficulty.easy)
-                        Text("中级").tag(AIDifficulty.medium)
-                        Text("高级").tag(AIDifficulty.hard)
-                        Text("大师").tag(AIDifficulty.master)
+                        Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
+                        Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
+                        Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
+                        Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
+                        Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -46,18 +46,18 @@ struct SettingsView: View {
                 }
 
                 // 音效
-                Section("音效") {
-                    Toggle("音效开关", isOn: Binding(
+                Section(String(localized: "settings.sound")) {
+                    Toggle(String(localized: "settings.soundToggle"), isOn: Binding(
                         get: { !soundEngine.isMuted },
                         set: { soundEngine.isMuted = !$0 }
                     ))
                 }
 
                 // 棋谱格式
-                Section("棋谱格式") {
-                    Picker("棋谱格式", selection: $notationFormat) {
-                        Text("中文传统").tag("chinese")
-                        Text("ICCS 坐标").tag("iccs")
+                Section(String(localized: "settings.notationFormat")) {
+                    Picker(String(localized: "settings.notationFormat"), selection: $notationFormat) {
+                        Text(String(localized: "settings.notationChinese")).tag("chinese")
+                        Text(String(localized: "settings.notationICCS")).tag("iccs")
                     }
                     .pickerStyle(.segmented)
                 }
@@ -77,7 +77,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("设置")
+        .navigationTitle(String(localized: "settings.title"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

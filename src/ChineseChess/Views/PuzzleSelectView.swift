@@ -47,7 +47,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 13))
                         .foregroundColor(.gray)
-                    TextField("搜索残局名称…", text: $searchText)
+                    TextField(String(localized: "puzzle.searchPlaceholder"), text: $searchText)
                         .font(.system(size: 13))
                         .textFieldStyle(.plain)
                         .foregroundColor(.white)
@@ -77,7 +77,7 @@ struct PuzzleSelectView: View {
             // 分类选择
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    CategoryButton(title: "全部", isSelected: selectedCategory == nil) {
+                    CategoryButton(title: String(localized: "puzzle.all"), isSelected: selectedCategory == nil) {
                         selectedCategory = nil
                         selectedStars = nil
                     }
@@ -94,7 +94,7 @@ struct PuzzleSelectView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     DifficultyFilterButton(
-                        title: "全部",
+                        title: String(localized: "puzzle.all"),
                         isSelected: selectedStars == nil
                     ) {
                         selectedStars = nil
@@ -118,7 +118,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "puzzlepiece")
                         .font(.system(size: 32))
                         .foregroundColor(.secondary)
-                    Text(debouncedSearchText.isEmpty ? "暂无残局" : "未找到匹配的残局")
+                    Text(debouncedSearchText.isEmpty ? String(localized: "puzzle.empty") : String(localized: "puzzle.noMatch"))
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                 }
@@ -136,7 +136,7 @@ struct PuzzleSelectView: View {
                                         Rectangle()
                                             .fill(Color.gray.opacity(0.3))
                                             .frame(height: 0.5)
-                                        Text("第 \(group.rangeLabel) 局")
+                                        Text(String(localized: "puzzle.groupLabel", defaultValue: "第 \(group.rangeLabel) 局"))
                                             .font(.system(size: 10))
                                             .foregroundColor(.secondary)
                                         Rectangle()
@@ -176,12 +176,12 @@ struct PuzzleSelectView: View {
                         // 底部统计
                         HStack {
                             let completed = list.filter { PuzzleStore.shared.progress(for: $0.id)?.isCompleted == true }.count
-                            Text("已完成 \(completed)/\(list.count)")
+                            Text(String(localized: "stats.completedCount", defaultValue: "已完成 \(completed)/\(list.count)"))
                                 .font(.system(size: 11))
                                 .foregroundColor(.secondary)
                             Spacer()
                             let groups = groupedPuzzles(from: list)
-                            Text("共 \(groups.count) 组")
+                            Text(String(localized: "stats.totalGroups", defaultValue: "共 \(groups.count) 组"))
                                 .font(.system(size: 11))
                                 .foregroundColor(.secondary)
                         }
@@ -428,7 +428,7 @@ struct PuzzlePlayView: View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
-                Button("返回") { dismiss() }
+                Button(String(localized: "common.back")) { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
                 Text(puzzle.name)
@@ -437,15 +437,15 @@ struct PuzzlePlayView: View {
                 Spacer()
                 // 步数显示
                 if viewModel.gameState == .success {
-                    Text("通关 ✅")
+                    Text(String(localized: "puzzle.completed"))
                         .font(.system(size: 13))
                         .foregroundColor(.green)
                 } else if isFreePlay {
-                    Text("步数: \(viewModel.gameMoves.count)")
+                    Text(String(localized: "puzzle.moveCount", defaultValue: "步数: \(viewModel.gameMoves.count)"))
                         .font(.system(size: 13))
                         .foregroundColor(.gray)
                 } else {
-                    Text("\(viewModel.gameMoves.count)/\(puzzle.maxMoves)")
+                    Text(String(localized: "puzzle.moveProgress", defaultValue: "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)"))
                         .font(.system(size: 13))
                         .foregroundColor(.gray)
                 }
@@ -456,6 +456,8 @@ struct PuzzlePlayView: View {
 
             // 棋盘（优先占据空间，不被底部条件内容挤压）
             ChessBoardView(mode: .playPuzzle(viewModel))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(minHeight: 280)
                 .layoutPriority(1)
                 .padding()
 
@@ -466,14 +468,14 @@ struct PuzzlePlayView: View {
                     Button(action: {
                         viewModel.undoMove()
                     }) {
-                        Label("悔棋", systemImage: "arrow.uturn.backward")
+                        Label(String(localized: "game.undoMove"), systemImage: "arrow.uturn.backward")
                     }
                     .disabled(viewModel.isThinking)
                     .buttonStyle(.bordered)
                     .tint(.brown)
 
                     Button(action: { viewModel.showHint() }) {
-                        Label("提示", systemImage: "lightbulb")
+                        Label(String(localized: "game.hint"), systemImage: "lightbulb")
                     }
                     .buttonStyle(.bordered)
                     .tint(.brown)
@@ -490,7 +492,7 @@ struct PuzzlePlayView: View {
                             .font(.system(size: 13))
                             .foregroundColor(.yellow)
                         Spacer()
-                        Button("继续") {
+                        Button(String(localized: "puzzle.continueLabel")) {
                             viewModel.dismissHint()
                         }
                         .font(.system(size: 12, weight: .medium))
@@ -575,20 +577,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { }
 
                 VStack(spacing: 16) {
-                    Text("挑战失败")
+                    Text(String(localized: "puzzle.failed"))
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.red)
-                    Text("不要气馁，再试一次吧！")
+                    Text(String(localized: "puzzle.tryAgain"))
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button("重试") {
+                        Button(String(localized: "common.retry")) {
                             viewModel.resetPuzzle()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button("返回") { dismiss() }
+                        Button(String(localized: "common.back")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }
@@ -606,20 +608,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { }
 
                 VStack(spacing: 16) {
-                    Text("已超过建议步数")
+                    Text(String(localized: "puzzle.maxMovesWarning"))
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.yellow)
-                    Text("继续挑战？")
+                    Text(String(localized: "puzzle.continueChallenge"))
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button("继续挑战") {
+                        Button(String(localized: "puzzle.continueChallengeButton")) {
                             viewModel.dismissMaxMovesWarning()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button("返回") { dismiss() }
+                        Button(String(localized: "common.back")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }
@@ -637,20 +639,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { }
 
                 VStack(spacing: 16) {
-                    Text("🤝 握手言和")
+                    Text(String(localized: "gameover.drawTitle"))
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.yellow)
-                    Text("双方势均力敌")
+                    Text(String(localized: "gameover.drawDesc"))
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button("重试") {
+                        Button(String(localized: "common.retry")) {
                             viewModel.resetPuzzle()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button("返回") { dismiss() }
+                        Button(String(localized: "common.back")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }

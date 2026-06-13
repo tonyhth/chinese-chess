@@ -10,18 +10,18 @@ struct StatusBarView: View {
                 Circle()
                     .fill(viewModel.currentTurn == .red ? Color.red : Color.black)
                     .frame(width: 12, height: 12)
-                Text(viewModel.currentTurn == .red ? "红方走棋" : "黑方走棋")
+                Text(viewModel.currentTurn == .red ? String(localized: "status.redTurn") : String(localized: "status.blackTurn"))
                     .font(.system(size: 14, weight: .medium))
 
                 if viewModel.isThinking {
-                    Text("AI 思考中...")
+                    Text(String(localized: "status.aiThinking"))
                         .font(.system(size: 12))
                         .foregroundColor(.yellow)
                         .pulseAnimation()
                 }
 
                 if viewModel.isInCheck {
-                    Text("将军！")
+                    Text(String(localized: "status.check"))
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.red)
                         .pulseAnimation()
@@ -29,7 +29,7 @@ struct StatusBarView: View {
 
                 Spacer()
 
-                Text("第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合")
+                Text(String(localized: "status.roundN", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
@@ -41,7 +41,7 @@ struct StatusBarView: View {
             #else
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("红方损失:")
+                    Text(String(localized: "status.redLostFull"))
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.red, color: .red)
@@ -50,7 +50,7 @@ struct StatusBarView: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("黑方损失:")
+                    Text(String(localized: "status.blackLostFull"))
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
@@ -72,7 +72,7 @@ struct StatusBarView: View {
     private func iOSCapturedPiecesSection() -> some View {
         HStack(alignment: .center, spacing: 12) {
             HStack(spacing: 2) {
-                Text("红失:")
+                Text(String(localized: "status.redLost"))
                     .font(.system(size: 10))
                     .foregroundColor(.red)
                 capturedPiecesText(viewModel.capturedPieces.red, color: .red)
@@ -83,7 +83,7 @@ struct StatusBarView: View {
             Spacer()
 
             HStack(spacing: 2) {
-                Text("黑失:")
+                Text(String(localized: "status.blackLost"))
                     .font(.system(size: 10))
                     .foregroundColor(.white)
                 capturedPiecesText(viewModel.capturedPieces.black, color: .white)

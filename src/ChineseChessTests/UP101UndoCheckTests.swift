@@ -148,7 +148,7 @@ struct UP101UndoCheckTests {
         guard let content = content else { return }
         #expect(content.contains("if list.isEmpty"), "空列表判断")
         #expect(content.contains("puzzlepiece"), "图标")
-        #expect(content.contains("暂无残局"), "文字提示")
+        #expect(content.contains("puzzle.empty"), "文字提示键")
         #expect(content.contains("minHeight: 120"), "最小高度")
     }
 
@@ -158,10 +158,10 @@ struct UP101UndoCheckTests {
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift")
         guard let content = content else { return }
         #expect(content.contains(".failed"), "失败状态")
-        #expect(content.contains("挑战失败"), "标题")
-        #expect(content.contains("\"重试\""), "重试按钮")
+        #expect(content.contains("puzzle.failed"), "标题键")
+        #expect(content.contains("common.retry"), "重试按钮键")
         #expect(content.contains("resetPuzzle()"), "重试逻辑")
-        #expect(content.contains("\"返回\""), "返回按钮")
+        #expect(content.contains("common.back"), "返回按钮键")
     }
 
     @Test("U-P1-02: macOS 棋局菜单含快捷键")
@@ -200,7 +200,7 @@ struct UP101UndoCheckTests {
         let app = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
         guard let overlay = overlay, let app = app else { return }
         #expect(overlay.contains("onViewRecord"), "GameOverOverlay 有回调")
-        #expect(overlay.contains("查看棋谱"), "查看棋谱按钮")
+        #expect(overlay.contains("gameover.viewRecord"), "查看棋谱按钮键")
         #expect(app.contains("onViewRecord:"), "App 传递回调")
     }
 }

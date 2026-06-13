@@ -18,7 +18,7 @@ struct Round2ReviewTests {
             return
         }
         #expect(content.contains("if list.isEmpty"), "应有空列表判断")
-        #expect(content.contains("暂无残局"), "空状态应有'暂无残局'文字")
+        #expect(content.contains("puzzle.empty"), "空状态应有 puzzle.empty 键")
         #expect(content.contains("puzzlepiece"), "空状态应有拼图图标")
     }
 
@@ -29,7 +29,7 @@ struct Round2ReviewTests {
         guard let content = try? String(contentsOfFile: filePath) else { return }
         // 空状态有 Image + Text
         #expect(content.contains("Image(systemName: \"puzzlepiece\")"), "应有拼图图标")
-        #expect(content.contains("暂无残局"), "应有'暂无残局'提示")
+        #expect(content.contains("puzzle.empty"), "应有 puzzle.empty 键")
         #expect(content.contains("minHeight: 120"), "空状态应有最小高度")
     }
 
@@ -45,10 +45,10 @@ struct Round2ReviewTests {
         }
         // 失败弹窗
         #expect(content.contains(".failed"), "应有 .failed 状态判断")
-        #expect(content.contains("挑战失败"), "应有'挑战失败'标题")
-        #expect(content.contains("重试"), "应有'重试'按钮")
+        #expect(content.contains("puzzle.failed"), "应有 puzzle.failed 键")
+        #expect(content.contains("common.retry"), "应有 common.retry 键")
         #expect(content.contains("resetPuzzle"), "重试应调用 resetPuzzle()")
-        #expect(content.contains("返回"), "应有'返回'按钮")
+        #expect(content.contains("common.back"), "应有 common.back 键")
     }
 
     @Test("PuzzleViewModel.resetPuzzle 恢复初始状态")
@@ -96,7 +96,7 @@ struct Round2ReviewTests {
             return
         }
         #expect(content.contains("isInCheck"), "应检查 isInCheck 属性")
-        #expect(content.contains("将军！"), "应显示'将军！'文字")
+        #expect(content.contains("status.check"), "应有 status.check 键")
         #expect(content.contains("pulseAnimation"), "将军提示应有脉冲动画")
     }
 
@@ -197,7 +197,7 @@ struct Round2ReviewTests {
             return
         }
         #expect(content.contains("currentHint"), "应显示 currentHint")
-        #expect(content.contains("\"继续\""), "提示框应有'继续'按钮")
+        #expect(content.contains("puzzle.continueLabel"), "提示框应有 puzzle.continueLabel 键")
         #expect(content.contains("dismissHint"), "继续按钮应调用 dismissHint()")
     }
 
@@ -226,7 +226,7 @@ struct Round2ReviewTests {
             return
         }
         #expect(content.contains("onViewRecord"), "应有 onViewRecord 回调参数")
-        #expect(content.contains("查看棋谱"), "应有'查看棋谱'按钮文字")
+        #expect(content.contains("gameover.viewRecord"), "应有 gameover.viewRecord 键")
     }
 
     @Test("GameOverOverlay onViewRecord 为可选（不传时不显示按钮）")

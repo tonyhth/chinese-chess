@@ -12,10 +12,10 @@ struct ReplayView: View {
         VStack(spacing: 0) {
             // 标题栏：仅保留返回按钮和标题
             HStack {
-                Button("关闭") { dismiss() }
+                Button(String(localized: "common.close")) { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
-                Text("回放")
+                Text(String(localized: "replay.title"))
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -28,7 +28,7 @@ struct ReplayView: View {
 
             // 对局信息：独立区域
             HStack(spacing: 4) {
-                Text("红 \(viewModel.record.redPlayer.name)")
+                Text(String(localized: "replay.vsFormat", defaultValue: "红 \(viewModel.record.redPlayer.name)"))
                     .foregroundColor(.red)
                 Text("vs")
                     .foregroundColor(.gray)
@@ -42,6 +42,8 @@ struct ReplayView: View {
 
             // 棋盘（优先占据空间）
             ChessBoardView(mode: .replay(viewModel))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(minHeight: 280)
                 .layoutPriority(1)
                 .padding()
 

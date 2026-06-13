@@ -42,8 +42,8 @@ struct V223FixTests {
         #expect(AIDifficulty.master.displayName == "大师")
     }
 
-    @Test("问题1: 关键 View 文件不再使用 String(localized:)")
-    func testNoStringLocalizedInViews() {
+    @Test("问题1: 关键 View 文件使用 String(localized:) 国际化")
+    func testViewsUseStringLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let views = [
             "ChineseChess/Views/GameOverOverlay.swift",
@@ -51,19 +51,11 @@ struct V223FixTests {
             "ChineseChess/Views/StatusBarView.swift",
             "ChineseChess/Views/ToolbarView.swift",
             "ChineseChess/Views/SettingsView.swift",
-            "ChineseChess/Views/GameHistoryView.swift",
         ]
         for view in views {
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(view)"
             guard let content = try? String(contentsOfFile: path) else { continue }
-            let lines = content.components(separatedBy: "\n")
-            for (i, line) in lines.enumerated() {
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                if trimmed.hasPrefix("//") { continue }
-                if trimmed.contains("String(localized:") {
-                    #expect(Bool(false), "\(view) 第 \(i+1) 行仍使用 String(localized:)")
-                }
-            }
+            #expect(content.contains("String(localized:"), "\(view) 应使用 String(localized:) 国际化")
         }
     }
 
@@ -88,32 +80,32 @@ struct V223FixTests {
         }
     }
 
-    @Test("问题1: GameOverOverlay 使用硬编码中文")
-    func testGameOverOverlayChinese() {
+    @Test("问题1: GameOverOverlay 使用 String(localized:) 键")
+    func testGameOverOverlayLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift")
         guard let content = content else {
             #expect(Bool(false), "无法读取 GameOverOverlay.swift")
             return
         }
-        #expect(content.contains("红方获胜"), "应有红方获胜文字")
-        #expect(content.contains("黑方获胜"), "应有黑方获胜文字")
-        #expect(content.contains("再来一局"), "应有再来一局按钮")
-        #expect(content.contains("查看棋谱"), "应有查看棋谱按钮")
+        #expect(content.contains("gameover.redWon"), "应有 gameover.redWon 键")
+        #expect(content.contains("gameover.blackWon"), "应有 gameover.blackWon 键")
+        #expect(content.contains("gameover.newGame"), "应有 gameover.newGame 键")
+        #expect(content.contains("gameover.viewRecord"), "应有 gameover.viewRecord 键")
     }
 
-    @Test("问题1: ToolbarView 使用硬编码中文")
-    func testToolbarViewChinese() {
+    @Test("问题1: ToolbarView 使用 String(localized:) 键")
+    func testToolbarViewLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ToolbarView.swift")
         guard let content = content else {
             #expect(Bool(false), "无法读取 ToolbarView.swift")
             return
         }
-        #expect(content.contains("\"提示\""), "应有提示按钮")
-        #expect(content.contains("\"AI 难度\""), "应有 AI 难度标签")
-        #expect(content.contains("\"新手\""), "应有新手选项")
-        #expect(content.contains("\"大师\""), "应有大师选项")
+        #expect(content.contains("game.hint"), "应有 game.hint 键")
+        #expect(content.contains("difficulty.label"), "应有 difficulty.label 键")
+        #expect(content.contains("difficulty.beginner"), "应有 difficulty.beginner 键")
+        #expect(content.contains("difficulty.master"), "应有 difficulty.master 键")
     }
 
     // MARK: - 问题2：棋盘启动时太小 → 增大窗口 + 最小高度

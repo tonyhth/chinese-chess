@@ -21,7 +21,7 @@ struct Round2UsabilityTests {
         #expect(content.contains("if list.isEmpty"), "应有空列表条件判断")
         // 图标 + 文字
         #expect(content.contains("puzzlepiece"), "空状态应有拼图图标")
-        #expect(content.contains("暂无残局"), "空状态应有文字提示")
+        #expect(content.contains("puzzle.empty"), "空状态应有 puzzle.empty 键")
         // 最小高度避免视觉塌陷
         #expect(content.contains("minHeight: 120"), "空状态应有 minHeight 避免塌陷")
     }
@@ -38,12 +38,12 @@ struct Round2UsabilityTests {
         }
         // .failed 状态弹窗
         #expect(content.contains(".failed"), "应有 .failed 状态判断")
-        #expect(content.contains("挑战失败"), "应有'挑战失败'标题")
+        #expect(content.contains("puzzle.failed"), "应有 puzzle.failed 键")
         // 重试按钮调用 resetPuzzle
-        #expect(content.contains("\"重试\""), "应有'重试'按钮")
+        #expect(content.contains("common.retry"), "应有 common.retry 键")
         #expect(content.contains("resetPuzzle()"), "重试应调用 resetPuzzle()")
         // 返回按钮调用 dismiss
-        #expect(content.contains("\"返回\""), "应有'返回'按钮")
+        #expect(content.contains("common.back"), "应有 common.back 键")
         // 遮罩阻止穿透
         #expect(content.contains("onTapGesture"), "遮罩应阻止点击穿透")
     }
@@ -96,7 +96,7 @@ struct Round2UsabilityTests {
             return
         }
         #expect(content.contains("isInCheck"), "应检查 isInCheck")
-        #expect(content.contains("将军！"), "应显示'将军！'")
+        #expect(content.contains("status.check"), "应有 status.check 键")
         #expect(content.contains("foregroundColor(.red)"), "应红色文字")
         #expect(content.contains("pulseAnimation"), "应有脉冲动画")
     }
@@ -237,7 +237,7 @@ struct Round2UsabilityTests {
             return
         }
         #expect(overlay.contains("onViewRecord"), "应有 onViewRecord 回调")
-        #expect(overlay.contains("查看棋谱"), "应有'查看棋谱'按钮")
+        #expect(overlay.contains("gameover.viewRecord"), "应有 gameover.viewRecord 键")
         #expect(overlay.contains("if let onViewRecord"), "按钮应在 if let 内")
 
         // App
