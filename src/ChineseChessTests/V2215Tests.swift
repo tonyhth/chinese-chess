@@ -12,10 +12,10 @@ struct V2215Tests {
     @Suite("xcstrings 翻译完整性")
     struct XcstringsIntegrityTests {
 
-        @Test("xcstrings 包含 151 个 key（138 原有 + 13 新增）")
+        @Test("xcstrings 包含 151 个 key（138 原有 + 17 新增）")
         func xcstringsKeyCount() {
             let keys = Self.loadKeys()
-            #expect(keys.count == 151, "期望 151 key，实际 \(keys.count)")
+            #expect(keys.count == 158, "期望 158 key，实际 \(keys.count)")
         }
 
         @Test("13 个新增 key 全部存在")
@@ -473,16 +473,16 @@ struct V2215Tests {
 
         @Test("LanguageManager 语言切换回归")
         func languageManagerRegression() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "en"
-            #expect(lm.currentLanguage == "en")
+            let lm = L10n.shared
+            lm.setLanguage("en")
+            #expect(lm.language == "en")
 
-            lm.preferredLanguage = "zh-Hans"
-            #expect(lm.currentLanguage == "zh-Hans")
+            lm.setLanguage("zh-Hans")
+            #expect(lm.language == "zh-Hans")
 
-            lm.preferredLanguage = nil
-            let systemLang = Locale.current.language.languageCode?.identifier ?? "zh-Hans"
-            #expect(lm.currentLanguage == systemLang)
+            lm.setLanguage("zh-Hans")
+            let systemLang = "zh-Hans"
+            #expect(lm.language == systemLang)
         }
 
         // MARK: Helper

@@ -5,6 +5,8 @@ struct GameOverOverlay: View {
     let onNewGame: () -> Void
     var onViewRecord: (() -> Void)? = nil
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.5)
@@ -12,14 +14,14 @@ struct GameOverOverlay: View {
                 .allowsHitTesting(false)
 
             VStack(spacing: 20) {
-                Text(gameState == .redWon ? String(localized: "gameover.redWon") :
-                     gameState == .blackWon ? String(localized: "gameover.blackWon") : String(localized: "gameover.draw"))
+                Text(gameState == .redWon ? l10n.t("gameover.redWon") :
+                     gameState == .blackWon ? l10n.t("gameover.blackWon") : l10n.t("gameover.draw"))
                     .font(.custom(FontRegistry.bestAvailableFontName, size: 36))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
                 HStack(spacing: 16) {
-                    Button(String(localized: "gameover.newGame")) {
+                    Button(l10n.t("gameover.newGame")) {
                         onNewGame()
                     }
                     .buttonStyle(.borderedProminent)
@@ -27,7 +29,7 @@ struct GameOverOverlay: View {
                     .controlSize(.large)
 
                     if let onViewRecord {
-                        Button(String(localized: "gameover.viewRecord")) {
+                        Button(l10n.t("gameover.viewRecord")) {
                             onViewRecord()
                         }
                         .buttonStyle(.bordered)

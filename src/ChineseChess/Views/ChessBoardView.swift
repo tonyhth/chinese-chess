@@ -47,6 +47,8 @@ struct ChessBoardView: View {
     /// 非法提示自动消失任务
     @State private var illegalFlashTask: Task<Void, Never>? = nil
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         GeometryReader { geo in
             #if os(iOS)
@@ -115,7 +117,7 @@ struct ChessBoardView: View {
             }
             .frame(width: boardWidth, height: boardHeight)
             .accessibilityElement(children: .contain)
-            .accessibilityLabel(String(localized: "accessibility.board", defaultValue: "棋盘"))
+            .accessibilityLabel(l10n.t("accessibility.board"))
         }
         .aspectRatio(CGFloat(gridCols) / CGFloat(gridRows), contentMode: .fit)
     }
@@ -217,8 +219,8 @@ struct ChessBoardView: View {
                 .fill(board.piece(at: pos) != nil ? Color.red.opacity(0.4) : Color.green.opacity(0.4))
                 .frame(width: cellSize * 0.3, height: cellSize * 0.3)
                 .position(posToCGPoint(pos, cellSize: cellSize, padding: padding))
-                .accessibilityLabel(String(localized: "board.legalMove"))
-                .accessibilityHint(String(localized: "board.legalMoveHint", defaultValue: "可走至 \(pos.col)\(pos.row)"))
+                .accessibilityLabel(l10n.t("board.legalMove"))
+                .accessibilityHint(String(format: l10n.t("board.legalMoveHint"), pos.col, pos.row))
         }
 
         // 拖拽时显示当前拖拽棋子的合法走法

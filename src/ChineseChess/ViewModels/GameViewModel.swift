@@ -17,6 +17,7 @@ class GameViewModel {
     var capturedPieces: (red: [Piece], black: [Piece]) = (red: [], black: [])
     var gameState: GameState = .playing
     var isThinking: Bool = false
+    var isProcessingWrongMove: Bool = false
     var isInCheck: Bool = false
     var difficulty: AIDifficulty = .medium
     var hintMove: (from: Position, to: Position)? = nil
@@ -328,11 +329,11 @@ class GameViewModel {
         guard !gameMoves.isEmpty else { return nil }
         return GameRecord(
             id: UUID(),
-            title: String(format: String(localized: "game.vsAITitle"), formatShortDate()),
+            title: String(format: L10n.shared.t("game.vsAITitle"), formatShortDate()),
             date: Date(),
-            redPlayer: PlayerInfo(name: String(localized: "player.red"), isAI: false, difficulty: nil),
+            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: false, difficulty: nil),
             blackPlayer: PlayerInfo(
-                name: String(localized: "player.aiLabel", defaultValue: "AI-\(difficulty.displayName)"),
+                name: String(format: L10n.shared.t("player.aiLabel"), difficulty.displayName),
                 isAI: true,
                 difficulty: difficulty
             ),

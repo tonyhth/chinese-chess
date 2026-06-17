@@ -6,15 +6,17 @@ struct StatsPanelView: View {
 
     private let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(String(localized: "stats.vsAI"))
+            Text(l10n.t("stats.vsAI"))
                 .font(.callout.weight(.bold))
                 .foregroundColor(.white)
 
             // 人机统计
             VStack(alignment: .leading, spacing: 6) {
-                Text(String(localized: "stats.vsAI"))
+                Text(l10n.t("stats.vsAI"))
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.orange)
 
@@ -26,7 +28,7 @@ struct StatsPanelView: View {
                             .foregroundColor(.white)
                             .frame(minWidth: 50, alignment: .leading)
 
-                        Text(String(localized: "stats.recordFormat", defaultValue: "\(s.wins)胜 \(s.losses)负 \(s.draws)和"))
+                        Text(String(format: l10n.t("stats.recordFormat"), s.wins, s.losses, s.draws))
                             .font(.footnote)
                             .foregroundColor(.secondary)
 
@@ -44,7 +46,7 @@ struct StatsPanelView: View {
             // 重置
             HStack {
                 Spacer()
-                Button(String(localized: "stats.reset")) {
+                Button(l10n.t("stats.reset")) {
                     showResetAlert = true
                 }
                 .font(.footnote)
@@ -57,13 +59,13 @@ struct StatsPanelView: View {
         .background(Color(red: 40/255, green: 22/255, blue: 14/255))
         .cornerRadius(8)
         .accessibilityElement(children: .combine)
-        .alert(String(localized: "stats.reset"), isPresented: $showResetAlert) {
-            Button(String(localized: "common.cancel"), role: .cancel) {}
-            Button(String(localized: "common.clear"), role: .destructive) {
+        .alert(l10n.t("stats.reset"), isPresented: $showResetAlert) {
+            Button(l10n.t("common.cancel"), role: .cancel) {}
+            Button(l10n.t("common.clear"), role: .destructive) {
                 statsVM.resetAll()
             }
         } message: {
-            Text(String(localized: "stats.resetConfirm"))
+            Text(l10n.t("stats.resetConfirm"))
         }
         .onAppear {
             statsVM.refresh()

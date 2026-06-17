@@ -29,6 +29,13 @@ class PuzzleViewModel {
     /// 提示高亮的起止位置（from, to），供 ChessBoardView 蓝色高亮显示
     var hintMove: (from: Position, to: Position)?
 
+    /// solution 步序指针（独立于 gameMoves.count）
+    /// 每次走对 +1，undo -1
+    var solutionStepIndex: Int = 0
+
+    /// 走错回退锁（独立于 isThinking，避免 "AI 思考中" 文案混淆）
+    var isProcessingWrongMove: Bool = false
+
     private let aiEngine = AIEngine()
     private var puzzleVersion: Int = 0
     private var cachedSolutionRecord: GameRecord?
@@ -47,6 +54,7 @@ class PuzzleViewModel {
         case draw
         case showingHint
         case maxMovesWarning  // 超过建议步数警告（自由对弈模式）
+        case wrongMove       // guided 模式走错（短暂状态，0.8s 自动回退后回到 playing）
     }
 
     init(puzzle: Puzzle) {
@@ -70,10 +78,19 @@ class PuzzleViewModel {
         }
     }
 
+    // MARK: - 引导模式判定
+
+    /// solution 数据异常降级标记
+    private var solutionDegraded: Bool = false
+
+    private var isGuidedMode: Bool {
+        puzzle.effectiveMode == .guided && !puzzle.solution.isEmpty && !solutionDegraded
+    }
+
     // MARK: - 统一点击处理（由 ChessBoardView 调用）
 
     func handleSquareTap(at pos: Position) {
-        guard gameState == .playing, !isThinking else { return }
+        guard gameState == .playing, !isThinking, !isProcessingWrongMove else { return }
 
         if let selected = selectedPosition, legalMovesForSelected.contains(pos) {
             movePiece(from: selected, to: pos)
@@ -95,7 +112,7 @@ class PuzzleViewModel {
     // MARK: - 玩家走棋
 
     func selectPiece(at pos: Position) -> [Position] {
-        guard gameState == .playing, !isThinking else { return [] }
+        guard gameState == .playing, !isThinking, !isProcessingWrongMove else { return [] }
         guard board.currentTurn == playerSide else { return [] }
 
         guard let piece = board.piece(at: pos), piece.side == playerSide else {
@@ -144,10 +161,33 @@ class PuzzleViewModel {
         // 更新局面历史（和局检测）
         updatePositionHistory(captured: captured, movedPiece: piece)
 
+        // === guided 模式：走对/走错判定 ===
+        if isGuidedMode {
+            let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
+            let expectedICCS = currentPlayerSolutionMove(playerMoveIndex)
+
+            if let expected = expectedICCS, ICCSParser.iccsString(from: from, to: to) == expected {
+                // ✅ 走对了
+                solutionHint = nil
+                handleCorrectMove(playerMoveIndex)
+            } else if let expected = expectedICCS {
+                // ❌ 走错了
+                handleWrongMove(expectedICCS: expected)
+                return  // 不继续触发 AI
+            } else {
+                // 超出 solution 范围，按 freePlay 处理
+                triggerDefenderMove()
+                return
+            }
+            return
+        }
+
+        // === freePlay 模式：保持现有逻辑 ===
+
         // 实时解法提示：检查是否走了推荐走法
         let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
         if !isRecommendedMove(at: playerMoveIndex) {
-            solutionHint = String(localized: "puzzle.betterMoveAvailable")
+            solutionHint = L10n.shared.t("puzzle.betterMoveAvailable")
         } else {
             solutionHint = nil
         }
@@ -198,7 +238,150 @@ class PuzzleViewModel {
         triggerDefenderMove()
     }
 
-    // MARK: - 防守方 AI
+    // MARK: - Guided 模式：走对/走错处理
+
+    /// 获取当前玩家应走的 solution 步
+    private func currentPlayerSolutionMove(_ moveIndex: Int) -> String? {
+        guard moveIndex < playerSolutionMoves.count else { return nil }
+        return playerSolutionMoves[moveIndex]
+    }
+
+    /// 走对后的处理
+    private func handleCorrectMove(_ moveIndex: Int) {
+        // 推进 solution 指针（玩家步也推进）
+        solutionStepIndex += 1
+
+        // 检查是否将死对方（提前通关）
+        let defenderSide: Side = (playerSide == .red) ? .black : .red
+        if MoveValidator.isCheckmate(defenderSide, on: board) {
+            gameState = .success
+            gameMoves[gameMoves.count - 1].isCheckmate = true
+            completionRating = calculateRating()
+            recordCompletion()
+            return
+        }
+
+        // 检查是否走完 solution 中所有玩家方步数
+        let playerMoveCount = gameMoves.filter { $0.piece.side == playerSide }.count
+        let solutionPlayerMoveCount = playerSolutionMoves.count
+        if playerMoveCount >= solutionPlayerMoveCount {
+            gameState = .success
+            completionRating = calculateRating()
+            recordCompletion()
+            return
+        }
+
+        // AI 防守方按 solution 应对
+        triggerSolutionDefenderMove()
+    }
+
+    /// AI 防守方按 solution 走棋（guided 模式核心改造）
+    private func triggerSolutionDefenderMove() {
+        guard isGuidedMode else {
+            triggerDefenderMove()  // freePlay 模式：保持搜索引擎
+            return
+        }
+
+        isThinking = true
+        let currentVersion = puzzleVersion
+
+        // 用 solutionStepIndex 取 AI 步
+        guard solutionStepIndex < puzzle.solution.count else {
+            isThinking = false
+            return
+        }
+
+        let iccs = puzzle.solution[solutionStepIndex]
+
+        Task.detached {
+            try? await Task.sleep(nanoseconds: 300_000_000)  // 0.3s 模拟思考
+
+            await MainActor.run { [weak self] in
+                guard let self, self.puzzleVersion == currentVersion else { return }
+
+                guard let move = ICCSParser.parse(iccs, on: self.board) else {
+                    // solution 数据异常：降级为 freePlay 模式
+                    self.solutionDegraded = true
+                    self.solutionHint = L10n.shared.t("puzzle.solutionDegraded")
+                    self.isThinking = false
+                    self.triggerDefenderMove()
+                    return
+                }
+
+                let captured = self.board.piece(at: move.to)
+                let notation = NotationGenerator.notation(for: move, on: self.board)
+                self.board.execute(move)
+
+                let isCheck = MoveValidator.isInCheck(self.playerSide, on: self.board)
+                let turnNumber = (self.gameMoves.count / 2) + 1
+
+                let gameMove = GameMove(
+                    id: UUID(), piece: move.piece, from: move.from, to: move.to,
+                    captured: captured, turnNumber: turnNumber, notation: notation,
+                    timestamp: Date(), isCheck: isCheck, isCheckmate: false
+                )
+                self.gameMoves.append(gameMove)
+
+                // solution 步序指针 +1
+                self.solutionStepIndex += 1
+
+                self.isInCheck = MoveValidator.isInCheck(self.board.currentTurn, on: self.board)
+
+                if let captured = captured {
+                    SoundEngine.shared.playCapture()
+                } else {
+                    SoundEngine.shared.playMove()
+                }
+
+                if MoveValidator.isCheckmate(self.playerSide, on: self.board) {
+                    self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
+                    self.gameState = .failed
+                }
+
+                self.isThinking = false
+            }
+        }
+    }
+
+    /// 走错的处理：高亮正确走法 + 0.8s 自动回退
+    private func handleWrongMove(expectedICCS: String) {
+        // 高亮正确走法
+        if let move = ICCSParser.parse(expectedICCS, on: board) {
+            hintMove = (from: move.from, to: move.to)
+        }
+
+        // 文字反馈（1-based："第1步走法不对" 语义正确）
+        let stepIndex = gameMoves.filter { $0.piece.side == playerSide }.count
+        solutionHint = String(format: L10n.shared.t("puzzle.wrongMove"),
+                              stepIndex, expectedICCS)
+
+        // 播放错误音效（复用 undo 音效）
+        SoundEngine.shared.playUndo()
+
+        // 锁定棋盘（独立状态，不触发 "AI 思考中" 文案）
+        isProcessingWrongMove = true
+        gameState = .wrongMove
+
+        // 0.8s 后自动回退
+        let currentVersion = puzzleVersion
+        Task {
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            await MainActor.run { [weak self] in
+                guard let self, self.puzzleVersion == currentVersion else { return }
+                guard self.gameState == .wrongMove else { return }
+
+                self.board.undoLastMove()
+                if !self.gameMoves.isEmpty { self.gameMoves.removeLast() }
+                self.solutionHint = nil
+                self.hintMove = nil
+                self.isInCheck = MoveValidator.isInCheck(self.board.currentTurn, on: self.board)
+                self.isProcessingWrongMove = false
+                self.gameState = .playing
+            }
+        }
+    }
+
+    // MARK: - 防守方 AI (freePlay)
 
     private func triggerDefenderMove() {
         isThinking = true
@@ -243,6 +426,7 @@ class PuzzleViewModel {
                         if MoveValidator.isCheckmate(self.playerSide, on: self.board) {
                             self.gameState = .failed
                             self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
+                            self.isThinking = false
                             return
                         }
 
@@ -252,6 +436,7 @@ class PuzzleViewModel {
                         // 和局检测（自由对弈模式）
                         if self.puzzle.effectiveMode == .freePlay && self.checkDraw() {
                             self.gameState = .draw
+                            self.isThinking = false
                             return
                         }
                     }
@@ -319,18 +504,38 @@ class PuzzleViewModel {
     // MARK: - 悔棋
 
     func undoMove() {
+        guard !isProcessingWrongMove else { return }
         guard !isThinking, gameState == .playing || gameState == .showingHint else { return }
-        // 撤销一对（AI + 玩家）
-        if board.moveHistory.count >= 2 {
-            board.undoLastMove()
-            board.undoLastMove()
-            if gameMoves.count >= 2 {
-                gameMoves.removeLast(2)
+
+        if isGuidedMode {
+            // guided 模式：撤销一对步（玩家 + AI）
+            if board.moveHistory.count >= 2 {
+                board.undoLastMove()
+                board.undoLastMove()
+                if gameMoves.count >= 2 {
+                    gameMoves.removeLast(2)
+                }
+                // solution 指针回退 2（玩家步 + AI 步）
+                solutionStepIndex = max(0, solutionStepIndex - 2)
+            } else if board.moveHistory.count >= 1 {
+                board.undoLastMove()
+                if !gameMoves.isEmpty { gameMoves.removeLast() }
+                solutionStepIndex = max(0, solutionStepIndex - 1)
             }
-        } else if board.moveHistory.count >= 1 {
-            board.undoLastMove()
-            if !gameMoves.isEmpty { gameMoves.removeLast() }
+        } else {
+            // freePlay 模式：保持现有 undo 逻辑
+            if board.moveHistory.count >= 2 {
+                board.undoLastMove()
+                board.undoLastMove()
+                if gameMoves.count >= 2 {
+                    gameMoves.removeLast(2)
+                }
+            } else if board.moveHistory.count >= 1 {
+                board.undoLastMove()
+                if !gameMoves.isEmpty { gameMoves.removeLast() }
+            }
         }
+
         currentHint = nil
         solutionHint = nil
         hintMove = nil
@@ -347,7 +552,7 @@ class PuzzleViewModel {
                 currentHint = hints[min(hintIndex, hints.count - 1)]
                 hintIndex += 1
             } else {
-                currentHint = String(localized: "puzzle.noMoreHints")
+                currentHint = L10n.shared.t("puzzle.noMoreHints")
             }
             gameState = .showingHint
             return
@@ -363,7 +568,7 @@ class PuzzleViewModel {
 
         // hints 用完或不存在：显示 step-by-step solution
         if puzzle.solution.isEmpty {
-            currentHint = String(localized: "puzzle.noMoreHints")
+            currentHint = L10n.shared.t("puzzle.noMoreHints")
             gameState = .showingHint
             return
         }
@@ -371,7 +576,7 @@ class PuzzleViewModel {
             let solIdx = hintIndex - (puzzle.hints?.count ?? 0)
             if solIdx >= 0 && solIdx < puzzle.solution.count {
                 let iccs = puzzle.solution[solIdx]
-                currentHint = String(localized: "puzzle.hintStep", defaultValue: "提示：第 \(solIdx + 1) 步 → \(iccs)")
+                currentHint = String(format: L10n.shared.t("puzzle.hintStep"), solIdx + 1, iccs)
                 // 设置提示高亮位置
                 if let move = ICCSParser.parse(iccs, on: board) {
                     hintMove = (from: move.from, to: move.to)
@@ -379,12 +584,12 @@ class PuzzleViewModel {
                     hintMove = nil
                 }
             } else {
-                currentHint = String(localized: "puzzle.noMoreHints")
+                currentHint = L10n.shared.t("puzzle.noMoreHints")
                 hintMove = nil
             }
             hintIndex += 1
         } else {
-            currentHint = String(localized: "puzzle.noMoreHints")
+            currentHint = L10n.shared.t("puzzle.noMoreHints")
             hintMove = nil
         }
         gameState = .showingHint
@@ -513,6 +718,10 @@ class PuzzleViewModel {
 
     func resetPuzzle() {
         puzzleVersion += 1
+        isThinking = false
+        isProcessingWrongMove = false
+        solutionStepIndex = 0
+        solutionDegraded = false
         // 直接重建初始棋盘，避免 while-undo 状态累积风险和 O(n×pieces) 性能问题
         board = Board(fen: puzzle.initialFEN)
         isInCheck = false
@@ -528,6 +737,7 @@ class PuzzleViewModel {
         positionHistory = [boardFingerprint()]
         halfmoveClock = 0
         hasShownMaxMovesWarning = false
+        _cachedPlayerSolutionMoves = nil
     }
 
     // MARK: - 完美解法回放
@@ -560,10 +770,10 @@ class PuzzleViewModel {
         }
         let record = GameRecord(
             id: UUID(),
-            title: String(localized: "puzzle.solutionTitle", defaultValue: "完美解法: \(puzzle.name)"),
+            title: String(format: L10n.shared.t("puzzle.solutionTitle"), puzzle.name),
             date: Date(),
-            redPlayer: PlayerInfo(name: String(localized: "player.red"), isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: String(localized: "player.black"), isAI: true, difficulty: defenderDifficulty),
+            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: false, difficulty: nil),
+            blackPlayer: PlayerInfo(name: L10n.shared.t("player.black"), isAI: true, difficulty: defenderDifficulty),
             difficulty: defenderDifficulty,
             result: .redWon,
             totalMoves: moves.count,

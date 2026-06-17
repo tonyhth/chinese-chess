@@ -189,11 +189,12 @@ struct TimeManagerTests {
         #expect(tm.remainingMs > 4900)
     }
 
-    @Test("beginner/easy/medium 无时间管理")
+    @Test("beginner/easy 无时间管理；medium 有时间限制（v2.2.17 Bug4 修复）")
     func noTimeManagerForLowerDifficulty() {
         #expect(TimeManager.forDifficulty(.beginner) == nil)
         #expect(TimeManager.forDifficulty(.easy) == nil)
-        #expect(TimeManager.forDifficulty(.medium) == nil)
+        #expect(TimeManager.forDifficulty(.medium) != nil)
+        #expect(TimeManager.forDifficulty(.medium)!.timeLimitMs == 3000)
     }
 
     @Test("hard 有 5 秒限制")

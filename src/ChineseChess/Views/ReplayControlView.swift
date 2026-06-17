@@ -3,6 +3,8 @@ import SwiftUI
 struct ReplayControlView: View {
     let viewModel: ReplayViewModel
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         VStack(spacing: 8) {
             // 进度条（可拖拽 Slider）
@@ -24,41 +26,41 @@ struct ReplayControlView: View {
                         .font(.title3)
                 }
                 .disabled(!viewModel.canGoBack)
-                .accessibilityLabel(String(localized: "replay.firstMove", defaultValue: "首步"))
+                .accessibilityLabel(l10n.t("replay.firstMove"))
 
                 Button(action: { viewModel.goBack() }) {
                     Image(systemName: "backward.fill")
                         .font(.title3)
                 }
                 .disabled(!viewModel.canGoBack)
-                .accessibilityLabel(String(localized: "replay.previous", defaultValue: "上一步"))
+                .accessibilityLabel(l10n.t("replay.previous"))
 
                 Button(action: { viewModel.toggleAutoPlay() }) {
                     Image(systemName: viewModel.isAutoPlaying ? "pause.fill" : "play.fill")
                         .font(.title2)
                 }
                 .accessibilityLabel(viewModel.isAutoPlaying
-                    ? String(localized: "replay.pause", defaultValue: "暂停")
-                    : String(localized: "replay.play", defaultValue: "播放"))
+                    ? l10n.t("replay.pause")
+                    : l10n.t("replay.play"))
 
                 Button(action: { viewModel.goForward() }) {
                     Image(systemName: "forward.fill")
                         .font(.title3)
                 }
                 .disabled(!viewModel.canGoForward)
-                .accessibilityLabel(String(localized: "replay.next", defaultValue: "下一步"))
+                .accessibilityLabel(l10n.t("replay.next"))
 
                 Button(action: { viewModel.goToEnd() }) {
                     Image(systemName: "forward.end.fill")
                         .font(.title3)
                 }
                 .disabled(!viewModel.canGoForward)
-                .accessibilityLabel(String(localized: "replay.lastMove", defaultValue: "末步"))
+                .accessibilityLabel(l10n.t("replay.lastMove"))
 
                 Spacer()
 
                 // 速度选择
-                Picker(String(localized: "replay.speed"), selection: Binding(
+                Picker(l10n.t("replay.speed"), selection: Binding(
                     get: { viewModel.autoPlaySpeed },
                     set: { viewModel.autoPlaySpeed = $0 }
                 )) {

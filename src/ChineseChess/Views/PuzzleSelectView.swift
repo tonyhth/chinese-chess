@@ -17,11 +17,13 @@ struct PuzzleSelectView: View {
     /// 搜索防抖 Timer
     @State private var searchDebounceTask: Task<Void, Never>?
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // 标题栏 + 搜索按钮
             HStack {
-                Text(String(localized: "puzzle.title"))
+                Text(l10n.t("puzzle.title"))
                     .font(.title3.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -47,7 +49,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.subheadline)
                         .foregroundColor(.gray)
-                    TextField(String(localized: "puzzle.searchPlaceholder"), text: $searchText)
+                    TextField(l10n.t("puzzle.searchPlaceholder"), text: $searchText)
                         .font(.subheadline)
                         .textFieldStyle(.plain)
                         .foregroundColor(.white)
@@ -77,7 +79,7 @@ struct PuzzleSelectView: View {
             // 分类选择
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    CategoryButton(title: String(localized: "puzzle.all"), isSelected: selectedCategory == nil) {
+                    CategoryButton(title: l10n.t("puzzle.all"), isSelected: selectedCategory == nil) {
                         selectedCategory = nil
                         selectedStars = nil
                     }
@@ -94,7 +96,7 @@ struct PuzzleSelectView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     DifficultyFilterButton(
-                        title: String(localized: "puzzle.all"),
+                        title: l10n.t("puzzle.all"),
                         isSelected: selectedStars == nil
                     ) {
                         selectedStars = nil
@@ -118,7 +120,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "puzzlepiece")
                         .font(.largeTitle)
                         .foregroundColor(.secondary)
-                    Text(debouncedSearchText.isEmpty ? String(localized: "puzzle.empty") : String(localized: "puzzle.noMatch"))
+                    Text(debouncedSearchText.isEmpty ? l10n.t("puzzle.empty") : l10n.t("puzzle.noMatch"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -136,7 +138,7 @@ struct PuzzleSelectView: View {
                                         Rectangle()
                                             .fill(Color.gray.opacity(0.3))
                                             .frame(height: 0.5)
-                                        Text(String(localized: "puzzle.groupLabel", defaultValue: "第 \(group.rangeLabel) 局"))
+                                        Text(String(format: l10n.t("puzzle.groupLabel"), group.rangeLabel))
                                             .font(.caption2)
                                             .foregroundColor(.secondary)
                                         Rectangle()
@@ -176,12 +178,12 @@ struct PuzzleSelectView: View {
                         // 底部统计
                         HStack {
                             let completed = list.filter { PuzzleStore.shared.progress(for: $0.id)?.isCompleted == true }.count
-                            Text(String(localized: "stats.completedCount", defaultValue: "已完成 \(completed)/\(list.count)"))
+                            Text(String(format: l10n.t("stats.completedCount"), completed, list.count))
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                             Spacer()
                             let groups = groupedPuzzles(from: list)
-                            Text(String(localized: "stats.totalGroups", defaultValue: "共 \(groups.count) 组"))
+                            Text(String(format: l10n.t("stats.totalGroups"), groups.count))
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                         }
@@ -324,6 +326,7 @@ struct PuzzleRow: View {
     let puzzle: Puzzle
     let progress: PuzzleProgress?
     let onTap: () -> Void
+    @Environment(L10n.self) private var l10n
 
     var body: some View {
         Button(action: onTap) {
@@ -346,9 +349,19 @@ struct PuzzleRow: View {
                                 .background(Color.orange.opacity(0.15))
                                 .cornerRadius(3)
                         }
+                        // 引导模式标签
+                        if puzzle.effectiveMode == .guided {
+                            Text(l10n.t("puzzle.guided"))
+                                .font(.caption2)
+                                .foregroundColor(.green)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(Color.green.opacity(0.15))
+                                .cornerRadius(3)
+                        }
                         // 自由对弈标签
                         if puzzle.effectiveMode == .freePlay {
-                            Text(String(localized: "puzzle.freePlay"))
+                            Text(l10n.t("puzzle.freePlay"))
                                 .font(.caption2)
                                 .foregroundColor(.cyan)
                                 .padding(.horizontal, 4)
@@ -389,6 +402,11 @@ struct PuzzleRow: View {
             .cornerRadius(6)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(String(format: l10n.t("accessibility.puzzleRow"),
+            puzzle.name,
+            puzzle.stars,
+            (progress?.isCompleted == true) ? l10n.t("puzzle.completed") : l10n.t("puzzle.notCompleted"))))
     }
 }
 
@@ -399,6 +417,7 @@ struct PuzzlePlayView: View {
     @State private var viewModel: PuzzleViewModel
     @State private var showSolutionReplay = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(L10n.self) private var l10n
 
     /// 是否为自由对弈模式
     private var isFreePlay: Bool {
@@ -428,7 +447,7 @@ struct PuzzlePlayView: View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
-                Button(String(localized: "common.back")) { dismiss() }
+                Button(l10n.t("common.back")) { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
                 Text(puzzle.name)
@@ -437,15 +456,15 @@ struct PuzzlePlayView: View {
                 Spacer()
                 // 步数显示
                 if viewModel.gameState == .success {
-                    Text(String(localized: "puzzle.completed"))
+                    Text(l10n.t("puzzle.completed"))
                         .font(.subheadline)
                         .foregroundColor(.green)
                 } else if isFreePlay {
-                    Text(String(localized: "puzzle.moveCount", defaultValue: "步数: \(viewModel.gameMoves.count)"))
+                    Text(String(format: l10n.t("puzzle.moveCount"), viewModel.gameMoves.count))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 } else {
-                    Text(String(localized: "puzzle.moveProgress", defaultValue: "\(viewModel.gameMoves.count)/\(puzzle.maxMoves)"))
+                    Text(String(format: l10n.t("puzzle.moveProgress"), viewModel.gameMoves.count, puzzle.maxMoves))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -454,12 +473,10 @@ struct PuzzlePlayView: View {
             .padding(.vertical, 8)
             .background(Color(red: 50/255, green: 30/255, blue: 20/255))
 
-            // 棋盘（优先占据空间，不被底部条件内容挤压）
+            // 棋盘（与对弈页面保持一致布局）
             ChessBoardView(mode: .playPuzzle(viewModel))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .frame(minHeight: 280)
                 .layoutPriority(1)
-                .padding()
 
             // 底部固定区域：高度有上限，避免挤压棋盘
             VStack(spacing: 4) {
@@ -468,14 +485,14 @@ struct PuzzlePlayView: View {
                     Button(action: {
                         viewModel.undoMove()
                     }) {
-                        Label(String(localized: "game.undoMove"), systemImage: "arrow.uturn.backward")
+                        Label(l10n.t("game.undoMove"), systemImage: "arrow.uturn.backward")
                     }
-                    .disabled(viewModel.isThinking)
+                    .disabled(viewModel.isThinking || viewModel.gameMoves.isEmpty)
                     .buttonStyle(.bordered)
                     .tint(.brown)
 
                     Button(action: { viewModel.showHint() }) {
-                        Label(String(localized: "game.hint"), systemImage: "lightbulb")
+                        Label(l10n.t("game.hint"), systemImage: "lightbulb")
                     }
                     .buttonStyle(.bordered)
                     .tint(.brown)
@@ -492,7 +509,7 @@ struct PuzzlePlayView: View {
                             .font(.subheadline)
                             .foregroundColor(.yellow)
                         Spacer()
-                        Button(String(localized: "puzzle.continueLabel")) {
+                        Button(l10n.t("puzzle.continueLabel")) {
                             viewModel.dismissHint()
                         }
                         .font(.footnote.weight(.medium))
@@ -536,22 +553,22 @@ struct PuzzlePlayView: View {
                             .font(.title2.weight(.bold))
                             .foregroundColor(.yellow)
                     } else {
-                        Text(isFreePlay ? String(localized: "puzzle.winFreePlay") : String(localized: "puzzle.checkmateWin"))
+                        Text(isFreePlay ? l10n.t("puzzle.winFreePlay") : l10n.t("puzzle.checkmateWin"))
                             .font(.title.weight(.bold))
                             .foregroundColor(.yellow)
                     }
                     if !isFreePlay {
-                        Text(String(localized: "puzzle.stars", defaultValue: "星级: \(String(repeating: "★", count: viewModel.completionRating))"))
+                        Text(String(format: l10n.t("puzzle.stars"), String(repeating: "★", count: viewModel.completionRating)))
                             .font(.title2)
                             .foregroundColor(.yellow)
                     }
                     HStack(spacing: 12) {
-                        Button(String(localized: "common.close")) { dismiss() }
+                        Button(l10n.t("common.close")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                         // 解法回放仅 guided 模式且有解法时显示
                         if !isFreePlay, viewModel.buildSolutionRecord() != nil {
-                            Button(String(localized: "puzzle.viewSolution")) {
+                            Button(l10n.t("puzzle.viewSolution")) {
                                 showSolutionReplay = true
                             }
                             .buttonStyle(.bordered)
@@ -564,7 +581,7 @@ struct PuzzlePlayView: View {
                 .cornerRadius(12)
                 .padding()
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel(String(localized: "accessibility.puzzleSuccess", defaultValue: "通关成功"))
+                .accessibilityLabel(l10n.t("accessibility.puzzleSuccess"))
                 .sheet(isPresented: $showSolutionReplay) {
                     if let record = viewModel.buildSolutionRecord() {
                         ReplayView(record: record)
@@ -579,20 +596,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { }
 
                 VStack(spacing: 16) {
-                    Text(String(localized: "puzzle.failed"))
+                    Text(l10n.t("puzzle.failed"))
                         .font(.title.weight(.bold))
                         .foregroundColor(.red)
-                    Text(String(localized: "puzzle.tryAgain"))
+                    Text(l10n.t("puzzle.tryAgain"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button(String(localized: "common.retry")) {
+                        Button(l10n.t("common.retry")) {
                             viewModel.resetPuzzle()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button(String(localized: "common.back")) { dismiss() }
+                        Button(l10n.t("common.back")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }
@@ -602,7 +619,7 @@ struct PuzzlePlayView: View {
                 .cornerRadius(12)
                 .padding()
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel(String(localized: "accessibility.puzzleFailed", defaultValue: "挑战失败"))
+                .accessibilityLabel(l10n.t("accessibility.puzzleFailed"))
             }
 
             // 超步警告弹窗（仅 freePlay 模式）
@@ -612,20 +629,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { }
 
                 VStack(spacing: 16) {
-                    Text(String(localized: "puzzle.maxMovesWarning"))
+                    Text(l10n.t("puzzle.maxMovesWarning"))
                         .font(.title2.weight(.bold))
                         .foregroundColor(.yellow)
-                    Text(String(localized: "puzzle.continueChallenge"))
+                    Text(l10n.t("puzzle.continueChallenge"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button(String(localized: "puzzle.continueChallengeButton")) {
+                        Button(l10n.t("puzzle.continueChallengeButton")) {
                             viewModel.dismissMaxMovesWarning()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button(String(localized: "common.back")) { dismiss() }
+                        Button(l10n.t("common.back")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }
@@ -644,20 +661,20 @@ struct PuzzlePlayView: View {
                     .onTapGesture { }
 
                 VStack(spacing: 16) {
-                    Text(String(localized: "gameover.drawTitle"))
+                    Text(l10n.t("gameover.drawTitle"))
                         .font(.title2.weight(.bold))
                         .foregroundColor(.yellow)
-                    Text(String(localized: "gameover.drawDesc"))
+                    Text(l10n.t("gameover.drawDesc"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     HStack(spacing: 12) {
-                        Button(String(localized: "common.retry")) {
+                        Button(l10n.t("common.retry")) {
                             viewModel.resetPuzzle()
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
 
-                        Button(String(localized: "common.back")) { dismiss() }
+                        Button(l10n.t("common.back")) { dismiss() }
                             .buttonStyle(.bordered)
                             .tint(.brown)
                     }

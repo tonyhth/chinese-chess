@@ -2,9 +2,11 @@ import SwiftUI
 
 struct GameHistoryView: View {
     @State private var records: [GameRecord] = []
-    @State private var showReplay = false
-    @State private var replayRecord: GameRecord?
     @State private var showClearAlert = false
+
+    var onReplayRequest: ((GameRecord) -> Void)?
+
+    @Environment(L10n.self) private var l10n
 
     var body: some View {
         List {
@@ -13,7 +15,7 @@ struct GameHistoryView: View {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.largeTitle)
                         .foregroundColor(.secondary)
-                    Text(String(localized: "history.empty"))
+                    Text(l10n.t("history.empty"))
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -23,12 +25,11 @@ struct GameHistoryView: View {
                     GameHistoryRow(record: record)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            replayRecord = record
-                            showReplay = true
+                            onReplayRequest?(record)
                         }
                         #if os(macOS)
                         .contextMenu {
-                            Button(String(localized: "common.delete"), role: .destructive) {
+                            Button(l10n.t("common.delete"), role: .destructive) {
                                 deleteRecord(record)
                             }
                         }
@@ -37,13 +38,13 @@ struct GameHistoryView: View {
                             Button(role: .destructive) {
                                 deleteRecord(record)
                             } label: {
-                                Label(String(localized: "common.delete"), systemImage: "trash")
+                                Label(l10n.t("common.delete"), systemImage: "trash")
                             }
                         }
                 }
             }
         }
-        .navigationTitle(String(localized: "history.title"))
+        .navigationTitle(l10n.t("history.title"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -54,7 +55,7 @@ struct GameHistoryView: View {
             #if os(iOS)
             ToolbarItem(placement: .bottomBar) {
                 if !records.isEmpty {
-                    Button(String(localized: "history.clear"), role: .destructive) {
+                    Button(l10n.t("history.clear"), role: .destructive) {
                         showClearAlert = true
                     }
                 }
@@ -62,40 +63,21 @@ struct GameHistoryView: View {
             #else
             ToolbarItemGroup(placement: .primaryAction) {
                 if !records.isEmpty {
-                    Button(String(localized: "history.clear"), role: .destructive) {
+                    Button(l10n.t("history.clear"), role: .destructive) {
                         showClearAlert = true
                     }
                 }
             }
             #endif
         }
-        .alert(String(localized: "history.clear"), isPresented: $showClearAlert) {
-            Button(String(localized: "common.cancel"), role: .cancel) {}
-            Button(String(localized: "common.clear"), role: .destructive) {
+        .alert(l10n.t("history.clear"), isPresented: $showClearAlert) {
+            Button(l10n.t("common.cancel"), role: .cancel) {}
+            Button(l10n.t("common.clear"), role: .destructive) {
                 GameHistoryStore.shared.clearAll()
                 reloadRecords()
             }
         } message: {
-            Text(String(localized: "history.clearConfirm"))
-        }
-        .sheet(isPresented: $showReplay) {
-            if let record = replayRecord {
-                #if os(iOS)
-                NavigationStack {
-                    ReplayView(record: record)
-                        .navigationTitle(String(localized: "replay.title"))
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showReplay = false }
-                            }
-                        }
-                }
-                #else
-                ReplayView(record: record)
-                    .frame(minWidth: 600, minHeight: 720)
-                #endif
-            }
+            Text(l10n.t("history.clearConfirm"))
         }
     }
 
@@ -113,6 +95,7 @@ struct GameHistoryView: View {
 
 struct GameHistoryRow: View {
     let record: GameRecord
+    @Environment(L10n.self) private var l10n
 
     var body: some View {
         HStack(spacing: 12) {
@@ -134,7 +117,7 @@ struct GameHistoryRow: View {
                     Text("·")
                         .foregroundColor(.secondary)
 
-                    Text(String(localized: "history.moveCount", defaultValue: "\(record.totalMoves) 步"))
+                    Text(String(format: l10n.t("history.moveCount"), record.totalMoves))
                         .foregroundColor(.secondary)
                         .font(.subheadline)
 
@@ -183,10 +166,10 @@ struct GameHistoryRow: View {
 
     private var resultText: String {
         switch record.result {
-        case .redWon: return String(localized: "result.redWon")
-        case .blackWon: return String(localized: "result.blackWon")
-        case .draw: return String(localized: "result.draw")
-        case .playing: return String(localized: "result.playing")
+        case .redWon: return l10n.t("result.redWon")
+        case .blackWon: return l10n.t("result.blackWon")
+        case .draw: return l10n.t("result.draw")
+        case .playing: return l10n.t("result.playing")
         }
     }
 
@@ -209,11 +192,11 @@ struct GameHistoryRow: View {
 extension AIDifficulty {
     var displayName: String {
         switch self {
-        case .beginner: return String(localized: "difficulty.beginner")
-        case .easy: return String(localized: "difficulty.easy")
-        case .medium: return String(localized: "difficulty.medium")
-        case .hard: return String(localized: "difficulty.hard")
-        case .master: return String(localized: "difficulty.master")
+        case .beginner: return L10n.shared.t("difficulty.beginner")
+        case .easy: return L10n.shared.t("difficulty.easy")
+        case .medium: return L10n.shared.t("difficulty.medium")
+        case .hard: return L10n.shared.t("difficulty.hard")
+        case .master: return L10n.shared.t("difficulty.master")
         }
     }
 }

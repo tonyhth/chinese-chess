@@ -21,10 +21,10 @@ struct ChineseChessApp: App {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
-    @State private var languageManager = LanguageManager()
+    @State private var l10n = L10n.shared
 
     var body: some Scene {
-        WindowGroup(String(localized: "app.title")) {
+        WindowGroup(l10n.t("app.title")) {
             ZStack {
                 // 窗口背景
                 Color(red: 44/255, green: 24/255, blue: 16/255)
@@ -47,21 +47,21 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(String(localized: "toolbar.record"))
+                        .help(l10n.t("toolbar.record"))
 
                         Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
                             Image(systemName: "chart.bar")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(String(localized: "toolbar.stats"))
+                        .help(l10n.t("toolbar.stats"))
 
                         Button(action: { showPuzzles.toggle() }) {
                             Image(systemName: "puzzlepiece")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(String(localized: "toolbar.puzzle"))
+                        .help(l10n.t("toolbar.puzzle"))
 
                         Button(action: {
                             if let record = viewModel.buildGameRecord() {
@@ -74,7 +74,7 @@ struct ChineseChessApp: App {
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .disabled(viewModel.gameMoves.isEmpty)
-                        .help(String(localized: "toolbar.replay"))
+                        .help(l10n.t("toolbar.replay"))
 
                         Spacer()
 
@@ -83,21 +83,21 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(String(localized: "toolbar.theme"))
+                        .help(l10n.t("toolbar.theme"))
 
                         Button(action: { showHistory.toggle() }) {
                             Image(systemName: "clock.arrow.circlepath")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(String(localized: "toolbar.history"))
+                        .help(l10n.t("toolbar.history"))
 
                         Button(action: { showSettings.toggle() }) {
                             Image(systemName: "gearshape")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(String(localized: "toolbar.settings"))
+                        .help(l10n.t("toolbar.settings"))
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
@@ -118,15 +118,13 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 500, minHeight: 600)
             .preferredColorScheme(.dark)
-            .environmentObject(languageManager)
-            .environment(\.locale, languageManager.currentLocale)
-            // 已使用 String(localized:) 国际化
+            .environment(l10n)
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },
                 set: { if !$0 { activePanel = .none } }
             )) {
-                RecordPanelView(gameMoves: viewModel.gameMoves)
+                RecordPanelView(viewModel: viewModel)
                     .frame(minWidth: 280, minHeight: 250, maxHeight: 400)
             }
             .sheet(isPresented: Binding(
@@ -139,10 +137,10 @@ struct ChineseChessApp: App {
             .sheet(isPresented: $showPuzzles) {
                 NavigationStack {
                     PuzzleSelectView()
-                        .navigationTitle(String(localized: "puzzle.title"))
+                        .navigationTitle(l10n.t("puzzle.title"))
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showPuzzles = false }
+                                Button(l10n.t("common.done")) { showPuzzles = false }
                             }
                         }
                 }
@@ -160,10 +158,10 @@ struct ChineseChessApp: App {
                         ThemePickerView()
                     }
                     .padding()
-                    .navigationTitle(String(localized: "theme.title"))
+                    .navigationTitle(l10n.t("theme.title"))
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button(String(localized: "common.done")) { showThemePicker = false }
+                            Button(l10n.t("common.done")) { showThemePicker = false }
                         }
                     }
                 }
@@ -171,25 +169,31 @@ struct ChineseChessApp: App {
             }
             .sheet(isPresented: $showHistory) {
                 NavigationStack {
-                    GameHistoryView()
+                    GameHistoryView(onReplayRequest: { record in
+                        historyReplayRecord = record
+                    })
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showHistory = false }
+                                Button(l10n.t("common.done")) { showHistory = false }
                             }
                         }
                 }
                 .frame(minWidth: 350, minHeight: 400)
+            }
+            .sheet(item: $historyReplayRecord) { record in
+                ReplayView(record: record)
+                    .frame(minWidth: 520, minHeight: 680)
             }
             .sheet(isPresented: $showSettings) {
                 NavigationStack {
                     SettingsView(viewModel: viewModel)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showSettings = false }
+                                Button(l10n.t("common.done")) { showSettings = false }
                             }
                         }
                 }
-                .environmentObject(languageManager)
+                .environment(l10n)
                 .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
             }
         }
@@ -198,19 +202,19 @@ struct ChineseChessApp: App {
         .defaultSize(width: 760, height: 860)
         .commands {
             CommandGroup(replacing: .appSettings) {
-                Button(String(localized: "game.settings")) {
+                Button(l10n.t("game.settings")) {
                     showSettings = true
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
 
-            CommandMenu(String(localized: "game.menuLabel")) {
-                Button(String(localized: "game.newGame")) {
+            CommandMenu(l10n.t("game.menuLabel")) {
+                Button(l10n.t("game.newGame")) {
                     viewModel.newGame()
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
-                Button(String(localized: "game.undoMove")) {
+                Button(l10n.t("game.undoMove")) {
                     viewModel.undoMove()
                 }
                 .keyboardShortcut("z", modifiers: .command)
@@ -218,7 +222,7 @@ struct ChineseChessApp: App {
 
                 Divider()
 
-                Button(String(localized: "game.hint")) {
+                Button(l10n.t("game.hint")) {
                     viewModel.requestHint()
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])

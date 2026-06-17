@@ -3,6 +3,8 @@ import SwiftUI
 struct StatusBarView: View {
     let viewModel: GameViewModel
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         VStack(spacing: 8) {
             // 当前轮次 + AI 思考状态
@@ -10,18 +12,25 @@ struct StatusBarView: View {
                 Circle()
                     .fill(viewModel.currentTurn == .red ? Color.red : Color.black)
                     .frame(width: 12, height: 12)
-                Text(viewModel.currentTurn == .red ? String(localized: "status.redTurn") : String(localized: "status.blackTurn"))
+                Text(viewModel.currentTurn == .red ? l10n.t("status.redTurn") : l10n.t("status.blackTurn"))
                     .font(.subheadline.weight(.medium))
 
+                // TODO: guided 走错回退文案 — 待 PuzzlePlayView 集成 StatusBarView 后启用
+                // if viewModel.isProcessingWrongMove {
+                //     Text(l10n.t("puzzle.reverting"))
+                //         .font(.footnote)
+                //         .foregroundColor(.orange)
+                //         .pulseAnimation()
+                // } else if viewModel.isThinking {
                 if viewModel.isThinking {
-                    Text(String(localized: "status.aiThinking"))
+                    Text(l10n.t("status.aiThinking"))
                         .font(.footnote)
                         .foregroundColor(.yellow)
                         .pulseAnimation()
                 }
 
                 if viewModel.isInCheck {
-                    Text(String(localized: "status.check"))
+                    Text(l10n.t("status.check"))
                         .font(.subheadline.weight(.bold))
                         .foregroundColor(.red)
                         .pulseAnimation()
@@ -29,7 +38,18 @@ struct StatusBarView: View {
 
                 Spacer()
 
-                Text(String(localized: "status.roundN", defaultValue: "第 \(max(1, viewModel.moveHistory.count / 2 + 1)) 回合"))
+                // 当前难度标签
+                Text(viewModel.difficulty.displayName)
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.9))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.brown.opacity(0.3))
+                    .cornerRadius(4)
+
+                Text(String(format: l10n.t("status.roundN"), max(1, viewModel.moveHistory.count / 2 + 1)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -41,7 +61,7 @@ struct StatusBarView: View {
             #else
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "status.redLostFull"))
+                    Text(l10n.t("status.redLostFull"))
                         .font(.footnote)
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.red, color: .red)
@@ -50,7 +70,7 @@ struct StatusBarView: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text(String(localized: "status.blackLostFull"))
+                    Text(l10n.t("status.blackLostFull"))
                         .font(.footnote)
                         .foregroundColor(.secondary)
                     capturedPiecesText(viewModel.capturedPieces.black, color: .white)
@@ -73,7 +93,7 @@ struct StatusBarView: View {
     private func iOSCapturedPiecesSection() -> some View {
         HStack(alignment: .center, spacing: 12) {
             HStack(spacing: 2) {
-                Text(String(localized: "status.redLost"))
+                Text(l10n.t("status.redLost"))
                     .font(.caption2)
                     .foregroundColor(.red)
                 capturedPiecesText(viewModel.capturedPieces.red, color: .red)
@@ -84,7 +104,7 @@ struct StatusBarView: View {
             Spacer()
 
             HStack(spacing: 2) {
-                Text(String(localized: "status.blackLost"))
+                Text(l10n.t("status.blackLost"))
                     .font(.caption2)
                     .foregroundColor(.white)
                 capturedPiecesText(viewModel.capturedPieces.black, color: .white)
@@ -98,7 +118,7 @@ struct StatusBarView: View {
     @ViewBuilder
     private func capturedPiecesText(_ pieces: [Piece], color: Color) -> some View {
         if pieces.isEmpty {
-            Text(String(localized: "common.none"))
+            Text(l10n.t("common.none"))
                 .font(.footnote)
                 .foregroundColor(.secondary)
         } else {

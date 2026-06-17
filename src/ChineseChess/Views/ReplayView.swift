@@ -8,14 +8,16 @@ struct ReplayView: View {
         self._viewModel = State(initialValue: ReplayViewModel(record: record))
     }
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         VStack(spacing: 0) {
             // 标题栏：仅保留返回按钮和标题
             HStack {
-                Button(String(localized: "common.close")) { dismiss() }
+                Button(l10n.t("common.close")) { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
-                Text(String(localized: "replay.title"))
+                Text(l10n.t("replay.title"))
                     .font(.callout.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
@@ -28,7 +30,7 @@ struct ReplayView: View {
 
             // 对局信息：独立区域
             HStack(spacing: 4) {
-                Text(String(localized: "replay.vsFormat", defaultValue: "红 \(viewModel.record.redPlayer.name)"))
+                Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))
                     .foregroundColor(.red)
                 Text("vs")
                     .foregroundColor(.gray)
@@ -40,17 +42,15 @@ struct ReplayView: View {
             .frame(maxWidth: .infinity)
             .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
 
-            // 棋盘（优先占据空间）
+            // 棋盘（与对弈页面保持一致布局）
             ZStack {
                 ChessBoardView(mode: .replay(viewModel))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .frame(minHeight: 280)
                     .layoutPriority(1)
-                    .padding()
 
                 // 空步数提示
                 if viewModel.record.moves.isEmpty {
-                    Text(String(localized: "replay.empty"))
+                    Text(l10n.t("replay.empty"))
                         .font(.callout)
                         .foregroundColor(.secondary)
                 }

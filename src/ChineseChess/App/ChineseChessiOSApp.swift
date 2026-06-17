@@ -22,7 +22,7 @@ struct ChineseChessiOSApp: App {
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
     @State private var showThemePicker = false
-    @State private var languageManager = LanguageManager()
+    @State private var l10n = L10n.shared
 
     var body: some Scene {
         WindowGroup {
@@ -48,15 +48,15 @@ struct ChineseChessiOSApp: App {
                         }
                     }
                 }
-                .navigationTitle(String(localized: "app.title"))
+                .navigationTitle(l10n.t("app.title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
                         Button(action: { activePanel = activePanel == .record ? .none : .record }) {
-                            Label(String(localized: "toolbar.record"), systemImage: "doc.text")
+                            Label(l10n.t("toolbar.record"), systemImage: "doc.text")
                         }
                         Button(action: { showPuzzles = true }) {
-                            Label(String(localized: "toolbar.puzzle"), systemImage: "puzzlepiece")
+                            Label(l10n.t("toolbar.puzzle"), systemImage: "puzzlepiece")
                         }
                         Button(action: {
                             if let record = gameViewModel.buildGameRecord() {
@@ -64,7 +64,7 @@ struct ChineseChessiOSApp: App {
                                 showReplay = true
                             }
                         }) {
-                            Label(String(localized: "toolbar.replay"), systemImage: "play.circle")
+                            Label(l10n.t("toolbar.replay"), systemImage: "play.circle")
                         }
                         .disabled(gameViewModel.gameMoves.isEmpty)
 
@@ -72,31 +72,37 @@ struct ChineseChessiOSApp: App {
 
                         // 难度快捷入口
                         Menu {
-                            Button(String(localized: "difficulty.beginner")) { gameViewModel.setDifficulty(.beginner) }
-                            Button(String(localized: "difficulty.easy")) { gameViewModel.setDifficulty(.easy) }
-                            Button(String(localized: "difficulty.medium")) { gameViewModel.setDifficulty(.medium) }
-                            Button(String(localized: "difficulty.hard")) { gameViewModel.setDifficulty(.hard) }
-                            Button(String(localized: "difficulty.master")) { gameViewModel.setDifficulty(.master) }
+                            Button(l10n.t("difficulty.beginner")) { gameViewModel.setDifficulty(.beginner) }
+                            Button(l10n.t("difficulty.easy")) { gameViewModel.setDifficulty(.easy) }
+                            Button(l10n.t("difficulty.medium")) { gameViewModel.setDifficulty(.medium) }
+                            Button(l10n.t("difficulty.hard")) { gameViewModel.setDifficulty(.hard) }
+                            Button(l10n.t("difficulty.master")) { gameViewModel.setDifficulty(.master) }
                         } label: {
-                            Label(String(localized: "difficulty.label"), systemImage: "gauge.with.dots.needle.bottom.50percent")
+                            VStack(spacing: 2) {
+                                Image(systemName: "gauge.with.dots.needle.bottom.50percent")
+                                Text(gameViewModel.difficulty.displayName)
+                                    .font(.system(size: 9))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                            }
                         }
 
                         // 更多菜单：低频操作
                         Menu {
                             Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
-                                Label(String(localized: "toolbar.stats"), systemImage: "chart.bar")
+                                Label(l10n.t("toolbar.stats"), systemImage: "chart.bar")
                             }
                             Button(action: { showHistory = true }) {
-                                Label(String(localized: "toolbar.history"), systemImage: "clock.arrow.circlepath")
+                                Label(l10n.t("toolbar.history"), systemImage: "clock.arrow.circlepath")
                             }
                             Button(action: { showThemePicker = true }) {
-                                Label(String(localized: "toolbar.theme"), systemImage: "paintpalette")
+                                Label(l10n.t("toolbar.theme"), systemImage: "paintpalette")
                             }
                             Button(action: { showSettings = true }) {
-                                Label(String(localized: "toolbar.settings"), systemImage: "gearshape")
+                                Label(l10n.t("toolbar.settings"), systemImage: "gearshape")
                             }
                         } label: {
-                            Label(String(localized: "toolbar.more"), systemImage: "ellipsis.circle")
+                            Label(l10n.t("toolbar.more"), systemImage: "ellipsis.circle")
                         }
                     }
                 }
@@ -105,12 +111,12 @@ struct ChineseChessiOSApp: App {
                     set: { if !$0 { activePanel = .none } }
                 )) {
                     NavigationStack {
-                        RecordPanelView(gameMoves: gameViewModel.gameMoves)
-                            .navigationTitle(String(localized: "record.title"))
+                        RecordPanelView(viewModel: gameViewModel)
+                            .navigationTitle(l10n.t("record.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button(String(localized: "common.done")) { activePanel = .none }
+                                    Button(l10n.t("common.done")) { activePanel = .none }
                                 }
                             }
                     }
@@ -118,11 +124,11 @@ struct ChineseChessiOSApp: App {
                 .sheet(isPresented: $showPuzzles) {
                     NavigationStack {
                         PuzzleSelectView()
-                            .navigationTitle(String(localized: "puzzle.title"))
+                            .navigationTitle(l10n.t("puzzle.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button(String(localized: "common.done")) { showPuzzles = false }
+                                    Button(l10n.t("common.done")) { showPuzzles = false }
                                 }
                             }
                     }
@@ -135,13 +141,18 @@ struct ChineseChessiOSApp: App {
             }
             .sheet(isPresented: $showHistory) {
                 NavigationStack {
-                    GameHistoryView()
+                    GameHistoryView(onReplayRequest: { record in
+                        historyReplayRecord = record
+                    })
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showHistory = false }
+                                Button(l10n.t("common.done")) { showHistory = false }
                             }
                         }
                 }
+            }
+            .fullScreenCover(item: $historyReplayRecord) { record in
+                ReplayView(record: record)
             }
             .sheet(isPresented: Binding(
                 get: { activePanel == .stats },
@@ -149,11 +160,11 @@ struct ChineseChessiOSApp: App {
             )) {
                 NavigationStack {
                     StatsPanelView()
-                        .navigationTitle(String(localized: "stats.title"))
+                        .navigationTitle(l10n.t("stats.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { activePanel = .none }
+                                Button(l10n.t("common.done")) { activePanel = .none }
                             }
                         }
                 }
@@ -161,11 +172,11 @@ struct ChineseChessiOSApp: App {
             .sheet(isPresented: $showThemePicker) {
                 NavigationStack {
                     ThemePickerView()
-                        .navigationTitle(String(localized: "theme.title"))
+                        .navigationTitle(l10n.t("theme.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showThemePicker = false }
+                                Button(l10n.t("common.done")) { showThemePicker = false }
                             }
                         }
                 }
@@ -175,15 +186,13 @@ struct ChineseChessiOSApp: App {
                     SettingsView(viewModel: gameViewModel)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(String(localized: "common.done")) { showSettings = false }
+                                Button(l10n.t("common.done")) { showSettings = false }
                             }
                         }
                 }
             }
             .preferredColorScheme(.dark)
-            .environmentObject(languageManager)
-            .environment(\.locale, languageManager.currentLocale)
-            // 已使用 String(localized:) 国际化
+            .environment(l10n)
         }
     }
 }

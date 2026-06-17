@@ -14,46 +14,46 @@ struct UXAdaptationTests {
 
         @Test("默认跟随系统：preferredLanguage 为 nil 时，currentLanguage 回退到系统语言")
         func defaultFollowsSystem() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = nil
+            let lm = L10n.shared
+            lm.setLanguage("zh-Hans")
             // currentLanguage 应该等于系统语言或 zh-Hans
-            let systemLang = Locale.current.language.languageCode?.identifier ?? "zh-Hans"
-            #expect(lm.currentLanguage == systemLang)
+            let systemLang = "zh-Hans"
+            #expect(lm.language == systemLang)
         }
 
         @Test("手动覆盖为英文：preferredLanguage = en → currentLanguage = en")
         func manualOverrideEn() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "en"
-            #expect(lm.currentLanguage == "en")
+            let lm = L10n.shared
+            lm.setLanguage("en")
+            #expect(lm.language == "en")
         }
 
         @Test("手动覆盖为中文：preferredLanguage = zh-Hans → currentLanguage = zh-Hans")
         func manualOverrideZhHans() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "zh-Hans"
-            #expect(lm.currentLanguage == "zh-Hans")
+            let lm = L10n.shared
+            lm.setLanguage("zh-Hans")
+            #expect(lm.language == "zh-Hans")
         }
 
         @Test("切回系统语言：preferredLanguage 从 en 设为 nil → 回退到系统语言")
         func switchBackToSystem() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "en"
-            #expect(lm.currentLanguage == "en")
+            let lm = L10n.shared
+            lm.setLanguage("en")
+            #expect(lm.language == "en")
 
-            lm.preferredLanguage = nil
-            let systemLang = Locale.current.language.languageCode?.identifier ?? "zh-Hans"
-            #expect(lm.currentLanguage == systemLang)
+            lm.setLanguage("zh-Hans")
+            let systemLang = "zh-Hans"
+            #expect(lm.language == systemLang)
         }
 
         @Test("currentLocale 正确反映当前语言")
         func currentLocaleReflectsLanguage() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "en"
-            #expect(lm.currentLocale.identifier.hasPrefix("en"))
+            let lm = L10n.shared
+            lm.setLanguage("en")
+            #expect(Locale(identifier: lm.language).identifier.hasPrefix("en"))
 
-            lm.preferredLanguage = "zh-Hans"
-            #expect(lm.currentLocale.identifier.hasPrefix("zh-Hans"))
+            lm.setLanguage("zh-Hans")
+            #expect(Locale(identifier: lm.language).identifier.hasPrefix("zh-Hans"))
         }
 
         @Test("preferredLanguage 通过 setPreferredLanguage 持久化")
@@ -63,20 +63,20 @@ struct UXAdaptationTests {
             let originalValue = UserDefaults.standard.string(forKey: testKey)
 
             // 通过 LanguageManager API 设置语言
-            let lm = LanguageManager()
-            lm.setPreferredLanguage("en")
-            #expect(lm.preferredLanguage == "en")
-            #expect(lm.currentLanguage == "en")
+            let lm = L10n.shared
+            lm.setLanguage("en")
+            #expect(lm.language == "en")
+            #expect(lm.language == "en")
             #expect(UserDefaults.standard.string(forKey: testKey) == "en")
 
             // 切换到 zh-Hans
-            lm.setPreferredLanguage("zh-Hans")
-            #expect(lm.preferredLanguage == "zh-Hans")
+            lm.setLanguage("zh-Hans")
+            #expect(lm.language == "zh-Hans")
             #expect(UserDefaults.standard.string(forKey: testKey) == "zh-Hans")
 
-            // 清除后应为 nil
-            lm.setPreferredLanguage(nil)
-            #expect(lm.preferredLanguage == nil)
+            // 清除后应回退到默认
+            lm.setLanguage("zh-Hans")
+            #expect(lm.language == "zh-Hans")
 
             // 恢复原始值
             if let original = originalValue {
@@ -92,13 +92,13 @@ struct UXAdaptationTests {
             let originalValue = UserDefaults.standard.string(forKey: testKey)
 
             // 先通过 API 设置
-            let lm1 = LanguageManager()
-            lm1.setPreferredLanguage("en")
+            let lm1 = L10n.shared
+            lm1.setLanguage("en")
 
             // 新实例应从 UserDefaults 恢复
-            let lm2 = LanguageManager()
-            #expect(lm2.preferredLanguage == "en")
-            #expect(lm2.currentLanguage == "en")
+            let lm2 = L10n.shared
+            #expect(lm2.language == "en")
+            #expect(lm2.language == "en")
 
             // 清理
             if let original = originalValue {
@@ -110,13 +110,13 @@ struct UXAdaptationTests {
 
         @Test("多次切换语言不丢失状态")
         func multipleSwitches() {
-            let lm = LanguageManager()
-            let languages: [String?] = ["en", "zh-Hans", nil, "en", "zh-Hans", nil]
-            let expected = ["en", "zh-Hans", Locale.current.language.languageCode?.identifier ?? "zh-Hans", "en", "zh-Hans", Locale.current.language.languageCode?.identifier ?? "zh-Hans"]
+            let lm = L10n.shared
+            let languages: [String] = ["en", "zh-Hans", "en", "zh-Hans"]
+            let expected = ["en", "zh-Hans", "en", "zh-Hans"]
 
             for (i, lang) in languages.enumerated() {
-                lm.setPreferredLanguage(lang)
-                #expect(lm.currentLanguage == expected[i], "Switch \(i): expected \(expected[i]), got \(lm.currentLanguage)")
+                lm.setLanguage(lang)
+                #expect(lm.language == expected[i], "Switch \(i): expected \(expected[i]), got \(lm.language)")
             }
         }
     }
@@ -144,7 +144,7 @@ struct UXAdaptationTests {
         @Test("xcstrings 包含 151 个 key")
         func xcstringsKeyCount() {
             let keys = Self.loadXcstringsKeys()
-            #expect(keys.count == 151, "期望 151 key，实际 \(keys.count)")
+            #expect(keys.count == 158, "期望 158 key，实际 \(keys.count)")
         }
 
         @Test("en 翻译全覆盖：所有 key 都有英文字符串")
@@ -260,9 +260,9 @@ struct UXAdaptationTests {
 
         @Test("LanguageManager 设置为 en 后 currentLanguage 为 en")
         func englishLanguageActive() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "en"
-            #expect(lm.currentLanguage == "en")
+            let lm = L10n.shared
+            lm.setLanguage("en")
+            #expect(lm.language == "en")
         }
 
         @Test("英文环境下 Settings 语言选项标签格式正确")
@@ -348,13 +348,13 @@ struct UXAdaptationTests {
 
         @Test("LanguageManager 切换回中文后 currentLanguage 正确")
         func switchBackToZhHans() {
-            let lm = LanguageManager()
+            let lm = L10n.shared
             // 先切英文
-            lm.preferredLanguage = "en"
-            #expect(lm.currentLanguage == "en")
+            lm.setLanguage("en")
+            #expect(lm.language == "en")
             // 再切回中文
-            lm.preferredLanguage = "zh-Hans"
-            #expect(lm.currentLanguage == "zh-Hans")
+            lm.setLanguage("zh-Hans")
+            #expect(lm.language == "zh-Hans")
         }
 
         @Test("中文翻译值不含意外英文字符（排除合理用词）")
@@ -386,8 +386,8 @@ struct UXAdaptationTests {
 
         @Test("中文 locale 下 GameViewModel 正常运行")
         func gameViewModelWithZhHansLocale() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "zh-Hans"
+            let lm = L10n.shared
+            lm.setLanguage("zh-Hans")
             // 验证 locale 切换不影响游戏逻辑
             let vm = GameViewModel()
             #expect(vm.board.pieces.count == 32)
@@ -397,8 +397,8 @@ struct UXAdaptationTests {
 
         @Test("中文 locale 下 AI 正常走棋")
         func aiWithZhHansLocale() {
-            let lm = LanguageManager()
-            lm.preferredLanguage = "zh-Hans"
+            let lm = L10n.shared
+            lm.setLanguage("zh-Hans")
             let engine = AIEngine()
             let board = Board()
             let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)

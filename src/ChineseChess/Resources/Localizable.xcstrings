@@ -50,18 +50,17 @@
       }
     },
     "board.legalMoveHint": {
-      "comment": "可走至 position",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可走至 %lld%lld"
+            "value": "可走至 %d%d"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move to %lld%lld"
+            "value": "Can move to %d-%d"
           }
         }
       }
@@ -439,13 +438,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld 步"
+            "value": "%d 步"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld moves"
+            "value": "%d moves"
           }
         }
       }
@@ -836,6 +835,22 @@
         }
       }
     },
+    "puzzle.notCompleted": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未通关"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsolved"
+          }
+        }
+      }
+    },
     "puzzle.continueLabel": {
       "localizations": {
         "zh-Hans": {
@@ -885,7 +900,6 @@
       }
     },
     "puzzle.groupLabel": {
-      "comment": "残局分组标题，如\"第 1-50 局\"",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -896,58 +910,55 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Group %@"
+            "value": "Game %@"
           }
         }
       }
     },
     "puzzle.hintStep": {
-      "comment": "提示：第 N 步 → ICCS",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "提示：第 %lld 步 → %@"
+            "value": "提示：第 %d 步 → %@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hint: Move %lld → %@"
+            "value": "Hint: Step %d → %@"
           }
         }
       }
     },
     "puzzle.moveCount": {
-      "comment": "步数: N",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "步数: %lld"
+            "value": "步数: %d"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moves: %lld"
+            "value": "Moves: %d"
           }
         }
       }
     },
     "puzzle.moveProgress": {
-      "comment": "N/M 步数进度",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld/%lld"
+            "value": "%d/%d"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld/%lld"
+            "value": "%d/%d"
           }
         }
       }
@@ -1001,7 +1012,6 @@
       }
     },
     "puzzle.solutionTitle": {
-      "comment": "完美解法: PuzzleName",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1012,13 +1022,12 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solution: %@"
+            "value": "Perfect solution: %@"
           }
         }
       }
     },
     "puzzle.stars": {
-      "comment": "星级: ★★★",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1243,7 +1252,6 @@
       }
     },
     "replay.vsFormat": {
-      "comment": "红 PlayerName",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1468,35 +1476,33 @@
       }
     },
     "stats.completedCount": {
-      "comment": "已完成 N/M",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "已完成 %lld/%lld"
+            "value": "已完成 %d/%d"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done %lld/%lld"
+            "value": "Completed %d/%d"
           }
         }
       }
     },
     "stats.recordFormat": {
-      "comment": "N胜 N负 N和",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld胜 %lld负 %lld和"
+            "value": "%d胜 %d负 %d和"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lldW %lldL %lldD"
+            "value": "%dW %dL %dD"
           }
         }
       }
@@ -1534,18 +1540,17 @@
       }
     },
     "stats.totalGroups": {
-      "comment": "共 N 组",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "共 %lld 组"
+            "value": "共 %d 组"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld groups"
+            "value": "%d groups"
           }
         }
       }
@@ -1695,18 +1700,17 @@
       }
     },
     "status.roundN": {
-      "comment": "第 N 回合",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第 %lld 回合"
+            "value": "第 %d 回合"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rnd %lld"
+            "value": "Round %d"
           }
         }
       }
@@ -2128,19 +2132,34 @@
         }
       }
     },
-    "accessibility.stepN": {
-      "comment": "第N步 notation",
+    "accessibility.puzzleRow": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第%lld步 %@"
+            "value": "%@，难度%d星%@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Step %lld %@"
+            "value": "%@, difficulty %d stars%@"
+          }
+        }
+      }
+    },
+    "accessibility.stepN": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第%d步 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move #%d %@"
           }
         }
       }
@@ -2188,7 +2207,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "AI"
+            "value": "AI-%@"
           }
         }
       }
@@ -2396,7 +2415,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Double tap to select, then double tap destination"
+            "value": "Double-tap to select, then double-tap target to move"
           }
         }
       }
@@ -2406,13 +2425,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第%lld排"
+            "value": "第%d排"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Row %lld"
+            "value": "Row %d"
           }
         }
       }
@@ -2422,13 +2441,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第%lld列"
+            "value": "第%d列"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Col %lld"
+            "value": "Col %d"
           }
         }
       }
@@ -2444,7 +2463,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Puzzle Solved"
+            "value": "Puzzle solved"
           }
         }
       }
@@ -2460,7 +2479,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Puzzle Failed"
+            "value": "Puzzle failed"
           }
         }
       }
@@ -2476,7 +2495,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "First Move"
+            "value": "First"
           }
         }
       }
@@ -2556,7 +2575,87 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Last Move"
+            "value": "Last"
+          }
+        }
+      }
+    },
+    "puzzle.guided": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引导"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guided"
+          }
+        }
+      }
+    },
+    "puzzle.wrongMove": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第%d步走法不对，正确走法：%@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrong move at step %d. Correct: %@"
+          }
+        }
+      }
+    },
+    "puzzle.solutionMove": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推荐走法"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommended move"
+          }
+        }
+      }
+    },
+    "puzzle.reverting": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "走法不对，回退中…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrong move, reverting…"
+          }
+        }
+      }
+    },
+    "puzzle.solutionDegraded": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解法数据异常，已切换为自由对弈"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solution data error, switched to free play"
           }
         }
       }

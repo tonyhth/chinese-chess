@@ -36,7 +36,7 @@ final class AIEngine: AIEngineProtocol {
             return rootSearch(for: workBoard, depth: 3, useTT: true, useMoveOrder: true,
                               evalConfig: EvalConfig(mobility: false, safety: true))
         case .medium:
-            return mediumSearch(for: workBoard)
+            return mediumSearch(for: workBoard, isIOS: isIOS)
         case .hard:
             return hardSearch(for: workBoard, isIOS: isIOS)
         case .master:
@@ -142,6 +142,19 @@ final class AIEngine: AIEngineProtocol {
             maxCheckExtensions: 8
         )
 
+        /// 中级配置
+        static let medium = SearchConfig(
+            enableQuiescence: false,
+            enableKillerMove: true,
+            enableCheckExtension: false,
+            enableNullMoveFix: false,
+            enableLMR: false,
+            enableSmartTime: false,
+            evalConfig: .basic,
+            maxQSDepth: 4,
+            maxCheckExtensions: 8
+        )
+
         /// 高级配置
         static let hard = SearchConfig(
             enableQuiescence: true,
@@ -233,7 +246,7 @@ final class AIEngine: AIEngineProtocol {
 
     // MARK: - 中级：IDS depth=5-6 + Alpha-Beta + 开局库 + 将帅安全评估
 
-    private func mediumSearch(for board: Board) -> Move? {
+    private func mediumSearch(for board: Board, isIOS: Bool) -> Move? {
         // medium 开局库：用 weighted random 增加多样性，不限制步数（medium 对局体验 > 最优性）
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
@@ -241,18 +254,18 @@ final class AIEngine: AIEngineProtocol {
             return move
         }
 
-        // 残局阶段加深
-        let depth: Int
-        if board.pieces.count <= 6 {
-            depth = 6
-        } else if board.pieces.count <= 10 {
-            depth = 6
-        } else {
-            depth = 5
+        // IDS + 时间管理：通过 TimeManager.forDifficulty 统一获取时间配置
+        guard let tm = TimeManager.forDifficulty(.medium, isIOS: isIOS, board: board) else {
+            // fallback：理论上不会到达（.medium 已配置返回非 nil）
+            let maxDepth = board.pieces.count <= 10 ? 7 : 6
+            return rootSearch(for: board, depth: maxDepth, useTT: true, useMoveOrder: true,
+                              searchConfig: .medium)
         }
 
-        return rootSearch(for: board, depth: depth, useTT: true, useMoveOrder: true,
-                          evalConfig: .basic)
+        // 最大深度上限：残局 7，中局 6
+        let maxDepth = board.pieces.count <= 10 ? 7 : 6
+
+        return iterativeDeepeningSearch(for: board, maxDepth: maxDepth, timeManager: tm, searchConfig: .medium)
     }
 
     // MARK: - 高级：IDS depth=6-7 + 杀法搜索 + 机动性评估

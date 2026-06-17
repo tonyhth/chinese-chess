@@ -9,7 +9,7 @@ struct V222FixTests {
 
     // MARK: - 问题1：英文界面 → 硬编码中文（废弃本地化系统）
 
-    @Test("问题1: 代码使用 String(localized:) 国际化")
+    @Test("问题1: 代码使用 l10n.t() 国际化")
     func testUseLocalizedString() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let views = [
@@ -23,11 +23,11 @@ struct V222FixTests {
         for file in views {
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(file)"
             guard let content = try? String(contentsOfFile: path) else { continue }
-            #expect(content.contains("String(localized:"), "\(file) 应使用 String(localized:) 国际化")
+            #expect(content.contains("l10n.t("), "\(file) 应使用 l10n.t() 国际化")
         }
     }
 
-    @Test("问题1: App 使用 .environment(\\.locale) 注入语言")
+    @Test("问题1: App 使用 .environment(l10n) 注入语言")
     func testUseEnvironmentLocale() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let appFiles = [
@@ -36,8 +36,8 @@ struct V222FixTests {
         ]
         for path in appFiles {
             guard let content = try? String(contentsOfFile: path) else { continue }
-            #expect(content.contains(".environment(\\.locale"),
-                   "\(path) 应使用 .environment(\\.locale) 注入语言")
+            #expect(content.contains(".environment(l10n"),
+                   "\(path) 应使用 .environment(l10n) 注入语言")
         }
     }
 

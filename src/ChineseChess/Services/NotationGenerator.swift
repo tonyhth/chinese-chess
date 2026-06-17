@@ -1,7 +1,9 @@
 import Foundation
 
-// MARK: - ICCS 中文坐标法棋谱生成
-// TODO: localize — 中文传统棋谱格式与 locale 双维度，需根据 notationFormat + locale 决定输出
+// MARK: - 棋谱生成器
+// 根据 UserDefaults 中的 notationFormat 设置决定输出格式：
+// - "chinese"（默认）：中文坐标法（如「炮二平五」）
+// - "iccs"：ICCS 坐标格式（如「h2e2」）
 
 struct NotationGenerator {
 
@@ -13,11 +15,21 @@ struct NotationGenerator {
     // 中文数字 1-9
     private static let chineseNumbers = ["一", "二", "三", "四", "五", "六", "七", "八", "九"]
 
-    /// 生成一步棋的中文坐标法描述
+    /// 生成一步棋的棋谱描述，格式由 @AppStorage("chinesechess.notationFormat") 决定
     /// - Parameters:
     ///   - move: 走法
     ///   - board: 走之前的棋盘状态
     static func notation(for move: Move, on board: Board) -> String {
+        let format = UserDefaults.standard.string(forKey: "chinesechess.notationFormat") ?? "chinese"
+
+        if format == "iccs" {
+            return ICCSParser.iccsString(from: move.from, to: move.to)
+        }
+        return chineseNotation(for: move, on: board)
+    }
+
+    /// 生成一步棋的中文坐标法描述
+    private static func chineseNotation(for move: Move, on board: Board) -> String {
         let piece = move.piece
         let from = move.from
         let to = move.to

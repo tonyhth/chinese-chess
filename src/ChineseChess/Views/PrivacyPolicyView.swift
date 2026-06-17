@@ -1,27 +1,29 @@
 import SwiftUI
 
 struct PrivacyPolicyView: View {
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(String(localized: "settings.privacyPolicy"))
+                Text(l10n.t("settings.privacyPolicy"))
                     .font(.title.bold())
 
-                Text(String(localized: "privacy.lastUpdated"))
+                Text(l10n.t("privacy.lastUpdated"))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
                 Divider()
 
                 Group {
-                    policyRow(icon: "hand.raised.fill", text: String(localized: "privacy.noDataCollection"))
-                    policyRow(icon: "internaldrive.fill", text: String(localized: "privacy.localOnly"))
-                    policyRow(icon: "network.slash", text: String(localized: "privacy.noNetwork"))
+                    policyRow(icon: "hand.raised.fill", text: l10n.t("privacy.noDataCollection"))
+                    policyRow(icon: "internaldrive.fill", text: l10n.t("privacy.localOnly"))
+                    policyRow(icon: "network.slash", text: l10n.t("privacy.noNetwork"))
                 }
             }
             .padding()
         }
-        .navigationTitle(String(localized: "settings.privacyPolicy"))
+        .navigationTitle(l10n.t("settings.privacyPolicy"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

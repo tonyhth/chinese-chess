@@ -204,11 +204,12 @@ struct Phase3bLMRTimeManagementTests {
                "iOS 时间应 ≤ macOS: iOS=\(iosTm.timeLimitMs), macOS=\(macTm.timeLimitMs)")
     }
 
-    @Test("forDifficulty：beginner/easy/medium 返回 nil（无时间限制）")
+    @Test("forDifficulty：beginner/easy 返回 nil（无时间限制）；medium 有时间限制（v2.2.17 Bug4 修复）")
     func timeManagerNoTimeLimit() {
         #expect(TimeManager.forDifficulty(.beginner) == nil)
         #expect(TimeManager.forDifficulty(.easy) == nil)
-        #expect(TimeManager.forDifficulty(.medium) == nil)
+        #expect(TimeManager.forDifficulty(.medium) != nil)
+        #expect(TimeManager.forDifficulty(.medium)!.timeLimitMs == 3000)
     }
 
     // MARK: - SmartTime 仅 master 启用

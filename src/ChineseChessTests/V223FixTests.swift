@@ -9,7 +9,7 @@ struct V223FixTests {
 
     // MARK: - 问题1：英文界面 → 废弃本地化，硬编码中文
 
-    @Test("问题1: macOS App 使用 .environment(\\.locale) 注入语言")
+    @Test("问题1: macOS App 使用 .environment(l10n) 注入语言")
     func testMacOSUseEnvironmentLocale() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
@@ -18,10 +18,10 @@ struct V223FixTests {
             return
         }
         #expect(!content.contains("AppleLanguages"), "不应再设置 AppleLanguages")
-        #expect(content.contains(".environment(\\.locale"), "应使用 .environment(\\.locale) 注入语言")
+        #expect(content.contains(".environment(l10n"), "应使用 .environment(l10n) 注入语言")
     }
 
-    @Test("问题1: iOS App 使用 .environment(\\.locale) 注入语言")
+    @Test("问题1: iOS App 使用 .environment(l10n) 注入语言")
     func testiOSUseEnvironmentLocale() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift")
@@ -30,21 +30,21 @@ struct V223FixTests {
             return
         }
         #expect(!content.contains("AppleLanguages"), "不应再设置 AppleLanguages")
-        #expect(content.contains(".environment(\\.locale"), "应使用 .environment(\\.locale) 注入语言")
+        #expect(content.contains(".environment(l10n"), "应使用 .environment(l10n) 注入语言")
     }
 
     @Test("问题1: AIDifficulty.displayName 使用 localized")
     func testAIDifficultyDisplayNameLocalized() {
-        // displayName 现在返回 String(localized:) key，不再是硬编码中文
+        // displayName 现在返回 l10n.t() key，不再是硬编码中文
         // 在 zh-Hans locale 下运行时应返回中文值
-        #expect(AIDifficulty.beginner.displayName == String(localized: "difficulty.beginner"))
-        #expect(AIDifficulty.easy.displayName == String(localized: "difficulty.easy"))
-        #expect(AIDifficulty.medium.displayName == String(localized: "difficulty.medium"))
-        #expect(AIDifficulty.hard.displayName == String(localized: "difficulty.hard"))
-        #expect(AIDifficulty.master.displayName == String(localized: "difficulty.master"))
+        #expect(AIDifficulty.beginner.displayName == L10n.shared.t("difficulty.beginner"))
+        #expect(AIDifficulty.easy.displayName == L10n.shared.t("difficulty.easy"))
+        #expect(AIDifficulty.medium.displayName == L10n.shared.t("difficulty.medium"))
+        #expect(AIDifficulty.hard.displayName == L10n.shared.t("difficulty.hard"))
+        #expect(AIDifficulty.master.displayName == L10n.shared.t("difficulty.master"))
     }
 
-    @Test("问题1: 关键 View 文件使用 String(localized:) 国际化")
+    @Test("问题1: 关键 View 文件使用 l10n.t() 国际化")
     func testViewsUseStringLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let views = [
@@ -60,11 +60,11 @@ struct V223FixTests {
         for view in views {
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(view)"
             guard let content = try? String(contentsOfFile: path) else { continue }
-            #expect(content.contains("String(localized:"), "\(view) 应使用 String(localized:) 国际化")
+            #expect(content.contains("l10n.t("), "\(view) 应使用 l10n.t() 国际化")
         }
     }
 
-    @Test("问题1: 关键 ViewModel 使用 String(localized:) 国际化")
+    @Test("问题1: 关键 ViewModel 使用 l10n.t() 国际化")
     func testViewModelsUseStringLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let files = [
@@ -74,11 +74,11 @@ struct V223FixTests {
         for file in files {
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/\(file)"
             guard let content = try? String(contentsOfFile: path) else { continue }
-            #expect(content.contains("String(localized:"), "\(file) 应使用 String(localized:) 国际化")
+            #expect(content.contains("L10n.shared.t("), "\(file) 应使用 l10n.t() 国际化")
         }
     }
 
-    @Test("问题1: GameOverOverlay 使用 String(localized:) 键")
+    @Test("问题1: GameOverOverlay 使用 l10n.t() 键")
     func testGameOverOverlayLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift")
@@ -92,7 +92,7 @@ struct V223FixTests {
         #expect(content.contains("gameover.viewRecord"), "应有 gameover.viewRecord 键")
     }
 
-    @Test("问题1: ToolbarView 使用 String(localized:) 键")
+    @Test("问题1: ToolbarView 使用 l10n.t() 键")
     func testToolbarViewLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ToolbarView.swift")

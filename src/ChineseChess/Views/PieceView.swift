@@ -32,6 +32,8 @@ struct PieceView: View {
     /// 选中发光半径
     private var selectedGlowRadius: CGFloat { isCompact ? 8 : 6 }
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         ZStack {
             // 棋子底色 + 立体感
@@ -69,19 +71,16 @@ struct PieceView: View {
         .shadow(color: isSelected ? .yellow : .clear, radius: isSelected ? selectedGlowRadius : 0)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
         .accessibilityLabel(pieceAccessibleLabel)
-        .accessibilityHint(String(localized: "accessibility.pieceHint",
-            defaultValue: "双击选中，再双击目标位置走棋"))
+        .accessibilityHint(l10n.t("accessibility.pieceHint"))
         .accessibilityAddTraits(.isButton)
     }
 
     private var pieceAccessibleLabel: String {
         let sideName = piece.side == .red
-            ? String(localized: "accessibility.redSide")
-            : String(localized: "accessibility.blackSide")
-        let rowDesc = String(localized: "accessibility.rowN",
-            defaultValue: "第\(piece.position.row + 1)排")
-        let colDesc = String(localized: "accessibility.colN",
-            defaultValue: "第\(piece.position.col + 1)列")
+            ? l10n.t("accessibility.redSide")
+            : l10n.t("accessibility.blackSide")
+        let rowDesc = String(format: l10n.t("accessibility.rowN"), piece.position.row + 1)
+        let colDesc = String(format: l10n.t("accessibility.colN"), piece.position.col + 1)
         return "\(sideName)\(piece.displayName) \(rowDesc)\(colDesc)"
     }
 }

@@ -3,6 +3,8 @@ import SwiftUI
 struct ToolbarView: View {
     let viewModel: GameViewModel
 
+    @Environment(L10n.self) private var l10n
+
     var body: some View {
         #if os(iOS)
         HStack(spacing: 0) {
@@ -14,8 +16,8 @@ struct ToolbarView: View {
             }
             .disabled(viewModel.isThinking)
             .tint(.brown)
-            .accessibilityLabel(String(localized: "game.newGame"))
-            .accessibilityHint(String(localized: "accessibility.newGameHint"))
+            .accessibilityLabel(l10n.t("game.newGame"))
+            .accessibilityHint(l10n.t("accessibility.newGameHint"))
 
             Button(action: { viewModel.undoMove() }) {
                 Image(systemName: "arrow.uturn.backward")
@@ -25,8 +27,8 @@ struct ToolbarView: View {
             }
             .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
             .tint(.brown)
-            .accessibilityLabel(String(localized: "game.undoMove"))
-            .accessibilityHint(String(localized: "accessibility.undoHint"))
+            .accessibilityLabel(l10n.t("game.undoMove"))
+            .accessibilityHint(l10n.t("accessibility.undoHint"))
 
             Button(action: { viewModel.requestHint() }) {
                 Image(systemName: "lightbulb")
@@ -36,8 +38,8 @@ struct ToolbarView: View {
             }
             .disabled(viewModel.isThinking || viewModel.gameState != .playing)
             .tint(.brown)
-            .accessibilityLabel(String(localized: "game.hint"))
-            .accessibilityHint(String(localized: "accessibility.hintActionHint"))
+            .accessibilityLabel(l10n.t("game.hint"))
+            .accessibilityHint(l10n.t("accessibility.hintActionHint"))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
@@ -46,7 +48,7 @@ struct ToolbarView: View {
             // 棋局控制组
             HStack(spacing: 8) {
                 Button(action: { viewModel.newGame() }) {
-                    Label(String(localized: "game.newGame"), systemImage: "arrow.counterclockwise")
+                    Label(l10n.t("game.newGame"), systemImage: "arrow.counterclockwise")
                 }
                 #if os(macOS)
                 .keyboardShortcut("n", modifiers: .command)
@@ -54,10 +56,10 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint(String(localized: "accessibility.newGameHint"))
+                .accessibilityHint(l10n.t("accessibility.newGameHint"))
 
                 Button(action: { viewModel.undoMove() }) {
-                    Label(String(localized: "game.undoMove"), systemImage: "arrow.uturn.backward")
+                    Label(l10n.t("game.undoMove"), systemImage: "arrow.uturn.backward")
                 }
                 #if os(macOS)
                 .keyboardShortcut("z", modifiers: .command)
@@ -65,10 +67,10 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint(String(localized: "accessibility.undoHint"))
+                .accessibilityHint(l10n.t("accessibility.undoHint"))
 
                 Button(action: { viewModel.requestHint() }) {
-                    Label(String(localized: "game.hint"), systemImage: "lightbulb")
+                    Label(l10n.t("game.hint"), systemImage: "lightbulb")
                 }
                 #if os(macOS)
                 .keyboardShortcut("h", modifiers: [.command, .shift])
@@ -76,7 +78,7 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
                 .buttonStyle(.bordered)
                 .tint(.brown)
-                .accessibilityHint(String(localized: "accessibility.hintActionHint"))
+                .accessibilityHint(l10n.t("accessibility.hintActionHint"))
             }
 
             #if os(macOS)
@@ -87,15 +89,15 @@ struct ToolbarView: View {
             #endif
 
             // 设置组
-            Picker(String(localized: "difficulty.label"), selection: Binding(
+            Picker(l10n.t("difficulty.label"), selection: Binding(
                 get: { viewModel.difficulty },
                 set: { viewModel.setDifficulty($0) }
             )) {
-                Text(String(localized: "difficulty.beginner")).tag(AIDifficulty.beginner)
-                Text(String(localized: "difficulty.easy")).tag(AIDifficulty.easy)
-                Text(String(localized: "difficulty.medium")).tag(AIDifficulty.medium)
-                Text(String(localized: "difficulty.hard")).tag(AIDifficulty.hard)
-                Text(String(localized: "difficulty.master")).tag(AIDifficulty.master)
+                Text(l10n.t("difficulty.beginner")).tag(AIDifficulty.beginner)
+                Text(l10n.t("difficulty.easy")).tag(AIDifficulty.easy)
+                Text(l10n.t("difficulty.medium")).tag(AIDifficulty.medium)
+                Text(l10n.t("difficulty.hard")).tag(AIDifficulty.hard)
+                Text(l10n.t("difficulty.master")).tag(AIDifficulty.master)
             }
             .pickerStyle(.menu)
         }

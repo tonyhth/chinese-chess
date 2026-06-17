@@ -97,8 +97,10 @@ struct TimeManager {
                               board: Board? = nil) -> TimeManager? {
         let baseTimeMs: Int
         switch difficulty {
-        case .beginner, .easy, .medium:
+        case .beginner, .easy:
             return nil
+        case .medium:
+            baseTimeMs = isIOS ? 2000 : 3000
         case .hard:
             baseTimeMs = isIOS ? 3000 : 5000
         case .master:
