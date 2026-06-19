@@ -51,17 +51,14 @@ struct V2218ReplayBoardViewTests {
                "ChessBoardView 不应包含 .replay( 调用")
     }
 
-    @Test("ChessBoardView isReadOnly 返回 false（不再有 replay 只读模式）")
-    func chessBoardViewIsReadOnlyFalse() {
+    @Test("ChessBoardView 不再包含 isReadOnly 属性（replay 移除后已清理）")
+    func chessBoardViewNoIsReadOnly() {
         guard let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift") else {
             Issue.record("无法读取 ChessBoardView.swift"); return
         }
-        // isReadOnly 应不再检查 replay
-        guard let range = content.range(of: "var isReadOnly") else {
-            Issue.record("未找到 isReadOnly 属性"); return
-        }
-        let snippet = String(content[range.lowerBound..<content.index(range.upperBound, offsetBy: 100)])
-        #expect(!snippet.contains("replay"), "isReadOnly 不应再引用 replay")
+        // isReadOnly 属性已随 replay 移除而清理
+        #expect(!content.contains("var isReadOnly"), "isReadOnly 属性应已移除")
+        #expect(!content.contains("lastMove"), "lastMove 属性应已移除")
     }
 
     // MARK: - P0: ReplayBoardView.swift 新增文件
@@ -168,6 +165,15 @@ struct V2218ReplayBoardViewTests {
         let lines = after.split(separator: "\n", maxSplits: 6, omittingEmptySubsequences: false)
         let block = lines.prefix(5).joined(separator: "\n")
         #expect(!block.contains("minHeight"), "ReplayBoardView 不应有 minHeight 硬编码")
+    }
+
+    @Test("ReplayView 保留空步数提示")
+    func replayViewEmptyMovesHint() {
+        guard let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift") else {
+            Issue.record("无法读取 ReplayView.swift"); return
+        }
+        #expect(content.contains("viewModel.record.moves.isEmpty"), "应有空步数提示逻辑")
+        #expect(content.contains("replay.empty"), "应有 replay.empty 本地化键")
     }
 
     // MARK: - P0: ReplayControlView 使用 L10n.shared

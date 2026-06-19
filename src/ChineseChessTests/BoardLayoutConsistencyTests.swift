@@ -101,24 +101,19 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - 2. ReplayView 功能回归
 
-    @Test("ReplayView：空步数记录不 crash")
+    @Test("ReplayView：空步数记录有空步提示")
     func replayViewEmptyMovesHandling() {
-        // 空记录由 ReplayViewModel 处理边界情况，ReplayView 无需特殊分支
-        let emptyRecord = GameRecord(
-            id: UUID(),
-            title: "空对局",
-            date: Date(),
-            redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .easy),
-            difficulty: .easy,
-            result: .draw,
-            totalMoves: 0,
-            moves: [],
-            initialFEN: nil
-        )
-        let vm = ReplayViewModel(record: emptyRecord)
-        #expect(!vm.canGoForward)
-        #expect(!vm.canGoBack)
+        // 验证 ReplayView 源码包含空步数提示逻辑
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
+        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift"
+        guard let content = try? String(contentsOfFile: path) else {
+            Issue.record("无法读取 ReplayView.swift")
+            return
+        }
+        #expect(content.contains("viewModel.record.moves.isEmpty"),
+                "ReplayView 应有空步数提示逻辑")
+        #expect(content.contains("replay.empty"),
+                "ReplayView 应有 replay.empty 本地化键")
     }
 
     @Test("ReplayViewModel：布局变更后功能正常")

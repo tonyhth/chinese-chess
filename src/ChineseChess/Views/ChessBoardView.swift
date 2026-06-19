@@ -88,31 +88,29 @@ struct ChessBoardView: View {
                 // 高亮 + 棋子 + 提示
                 renderOverlays(cellSize: cellSize, padding: padding)
 
-                // 交互层（仅 playGame 和 playPuzzle）
-                if !isReadOnly {
-                    Color.clear
-                        .frame(width: boardWidth, height: boardHeight)
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged { value in
-                                    handleDragChanged(
-                                        startLocation: value.startLocation,
-                                        translation: value.translation,
-                                        cellSize: cellSize,
-                                        padding: padding
-                                    )
-                                }
-                                .onEnded { value in
-                                    handleDragEnded(
-                                        startLocation: value.startLocation,
-                                        translation: value.translation,
-                                        cellSize: cellSize,
-                                        padding: padding
-                                    )
-                                }
-                        )
-                }
+                // 交互层
+                Color.clear
+                    .frame(width: boardWidth, height: boardHeight)
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                handleDragChanged(
+                                    startLocation: value.startLocation,
+                                    translation: value.translation,
+                                    cellSize: cellSize,
+                                    padding: padding
+                                )
+                            }
+                            .onEnded { value in
+                                handleDragEnded(
+                                    startLocation: value.startLocation,
+                                    translation: value.translation,
+                                    cellSize: cellSize,
+                                    padding: padding
+                                )
+                            }
+                    )
             }
             .frame(width: boardWidth, height: boardHeight)
             .accessibilityElement(children: .contain)
@@ -122,10 +120,6 @@ struct ChessBoardView: View {
     }
 
     // MARK: - Mode helpers
-
-    private var isReadOnly: Bool {
-        false
-    }
 
     private var board: Board {
         switch mode {
@@ -162,35 +156,17 @@ struct ChessBoardView: View {
         }
     }
 
-    private var lastMove: (from: Position, to: Position)? {
-        nil
-    }
-
     // MARK: - Overlays
 
     @ViewBuilder
     private func renderOverlays(cellSize: CGFloat, padding: CGFloat) -> some View {
-        // 上一步高亮
-        if let last = lastMove {
-            Circle()
-                .fill(Color.yellow.opacity(0.3))
-                .frame(width: cellSize * 0.5, height: cellSize * 0.5)
-                .position(posToCGPoint(last.from, cellSize: cellSize, padding: padding))
-            Circle()
-                .fill(Color.green.opacity(0.3))
-                .frame(width: cellSize * 0.5, height: cellSize * 0.5)
-                .position(posToCGPoint(last.to, cellSize: cellSize, padding: padding))
-        }
-
         // 被将军高亮：被将方的帅/将格子加红色闪烁圈
-        if !isReadOnly {
-            if isInCheck, let kingPos = board.generalPosition(of: board.currentTurn) {
-                Circle()
-                    .stroke(Color.red, lineWidth: 3)
-                    .frame(width: cellSize * 0.9, height: cellSize * 0.9)
-                    .position(posToCGPoint(kingPos, cellSize: cellSize, padding: padding))
-                    .modifier(CheckPulseModifier())
-            }
+        if isInCheck, let kingPos = board.generalPosition(of: board.currentTurn) {
+            Circle()
+                .stroke(Color.red, lineWidth: 3)
+                .frame(width: cellSize * 0.9, height: cellSize * 0.9)
+                .position(posToCGPoint(kingPos, cellSize: cellSize, padding: padding))
+                .modifier(CheckPulseModifier())
         }
 
         // 提示高亮（蓝色）

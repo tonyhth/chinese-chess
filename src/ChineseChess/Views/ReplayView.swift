@@ -43,8 +43,16 @@ struct ReplayView: View {
             .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
 
             // 棋盘（与对弈页面保持一致布局）
-            ReplayBoardView(viewModel: viewModel)
-                .layoutPriority(1)
+            if viewModel.record.moves.isEmpty {
+                Spacer()
+                Text(l10n.t("replay.empty"))
+                    .foregroundColor(.gray)
+                    .font(.title3)
+                Spacer()
+            } else {
+                ReplayBoardView(viewModel: viewModel)
+                    .layoutPriority(1)
+            }
 
             // 回放控制条
             ReplayControlView(viewModel: viewModel)
