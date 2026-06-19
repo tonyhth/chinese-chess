@@ -569,8 +569,8 @@ struct PuzzlePlayView: View {
             .frame(maxHeight: bottomAreaMaxHeight)
             .layoutPriority(0)
 
-            // 通关弹窗
-            if viewModel.gameState == .success {
+            // 通关弹窗（回放 sheet 打开时隐藏 overlay，避免重叠）
+            if viewModel.gameState == .success && !showSolutionReplay {
                 Color.black.opacity(0.5)
                     .ignoresSafeArea()
                     .onTapGesture { }
@@ -611,11 +611,6 @@ struct PuzzlePlayView: View {
                 .padding()
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(l10n.t("accessibility.puzzleSuccess"))
-                .sheet(isPresented: $showSolutionReplay) {
-                    if let record = viewModel.buildSolutionRecord() {
-                        ReplayView(record: record)
-                    }
-                }
             }
 
             // 失败弹窗
@@ -716,5 +711,10 @@ struct PuzzlePlayView: View {
             }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
+        .sheet(isPresented: $showSolutionReplay) {
+            if let record = viewModel.buildSolutionRecord() {
+                ReplayView(record: record)
+            }
+        }
     }
 }
