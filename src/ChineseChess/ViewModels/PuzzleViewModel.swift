@@ -21,28 +21,31 @@ class PuzzleViewModel {
     var currentHint: String?
     var isThinking: Bool = false
     var completionRating: Int = 0
-    var solutionHint: String?  // 实时提示：有更优走法时显示
+    var solutionHint: String?  // 实时提示:有更优走法时显示
+
+    /// 当前提示会话内的偏移量(每次走棋/悔棋重置为 0)
+    private var hintOffsetInSession: Int = 0
     var isInCheck: Bool = false
     var selectedPosition: Position?
     var legalMovesForSelected: [Position] = []
 
-    /// 提示高亮的起止位置（from, to），供 ChessBoardView 蓝色高亮显示
+    /// 提示高亮的起止位置(from, to),供 ChessBoardView 蓝色高亮显示
     var hintMove: (from: Position, to: Position)?
 
-    /// solution 步序指针（独立于 gameMoves.count）
-    /// 每次走对 +1，undo -1
+    /// solution 步序指针(独立于 gameMoves.count)
+    /// 每次走对 +1,undo -1
     var solutionStepIndex: Int = 0
 
-    /// 走错回退锁（独立于 isThinking，避免 "AI 思考中" 文案混淆）
+    /// 走错回退锁(独立于 isThinking,避免 "AI 思考中" 文案混淆)
     var isProcessingWrongMove: Bool = false
 
     private let aiEngine = AIEngine()
     private var puzzleVersion: Int = 0
     private var cachedSolutionRecord: GameRecord?
 
-    /// 和局检测：局面历史（用于长将检测）
+    /// 和局检测:局面历史(用于长将检测)
     private var positionHistory: [String] = []
-    /// 和局检测：无吃子/无兵移动回合数
+    /// 和局检测:无吃子/无兵移动回合数
     private var halfmoveClock: Int = 0
     /// 是否已显示超步警告
     private var hasShownMaxMovesWarning: Bool = false
@@ -53,8 +56,8 @@ class PuzzleViewModel {
         case failed
         case draw
         case showingHint
-        case maxMovesWarning  // 超过建议步数警告（自由对弈模式）
-        case wrongMove       // guided 模式走错（短暂状态，0.8s 自动回退后回到 playing）
+        case maxMovesWarning  // 超过建议步数警告(自由对弈模式)
+        case wrongMove       // guided 模式走错(短暂状态,0.8s 自动回退后回到 playing)
     }
 
     init(puzzle: Puzzle) {
@@ -87,7 +90,7 @@ class PuzzleViewModel {
         puzzle.effectiveMode == .guided && !puzzle.solution.isEmpty && !solutionDegraded
     }
 
-    // MARK: - 统一点击处理（由 ChessBoardView 调用）
+    // MARK: - 统一点击处理(由 ChessBoardView 调用)
 
     func handleSquareTap(at pos: Position) {
         guard gameState == .playing, !isThinking, !isProcessingWrongMove else { return }
@@ -158,10 +161,10 @@ class PuzzleViewModel {
             SoundEngine.shared.playMove()
         }
 
-        // 更新局面历史（和局检测）
+        // 更新局面历史(和局检测)
         updatePositionHistory(captured: captured, movedPiece: piece)
 
-        // === guided 模式：走对/走错判定 ===
+        // === guided 模式:走对/走错判定 ===
         if isGuidedMode {
             let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
             let expectedICCS = currentPlayerSolutionMove(playerMoveIndex)
@@ -175,16 +178,18 @@ class PuzzleViewModel {
                 handleWrongMove(expectedICCS: expected)
                 return  // 不继续触发 AI
             } else {
-                // 超出 solution 范围，按 freePlay 处理
+                // 超出 solution 范围,按 freePlay 处理
                 triggerDefenderMove()
                 return
             }
             return
         }
 
-        // === freePlay 模式：保持现有逻辑 ===
+        // === freePlay 模式:保持现有逻辑 ===
 
-        // 实时解法提示：检查是否走了推荐走法
+        hintOffsetInSession = 0
+
+        // 实时解法提示:检查是否走了推荐走法
         let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
         if !isRecommendedMove(at: playerMoveIndex) {
             solutionHint = L10n.shared.t("puzzle.betterMoveAvailable")
@@ -217,7 +222,7 @@ class PuzzleViewModel {
         // 检查是否超过最大步数
         if gameMoves.count >= puzzle.maxMoves {
             if puzzle.effectiveMode == .freePlay {
-                // 自由对弈模式：超步只警告，不失败
+                // 自由对弈模式:超步只警告,不失败
                 if !hasShownMaxMovesWarning {
                     hasShownMaxMovesWarning = true
                     gameState = .maxMovesWarning
@@ -228,7 +233,7 @@ class PuzzleViewModel {
             }
         }
 
-        // 和局检测（仅自由对弈模式）
+        // 和局检测(仅自由对弈模式)
         if puzzle.effectiveMode == .freePlay && checkDraw() {
             gameState = .draw
             return
@@ -238,7 +243,7 @@ class PuzzleViewModel {
         triggerDefenderMove()
     }
 
-    // MARK: - Guided 模式：走对/走错处理
+    // MARK: - Guided 模式:走对/走错处理
 
     /// 获取当前玩家应走的 solution 步
     private func currentPlayerSolutionMove(_ moveIndex: Int) -> String? {
@@ -250,8 +255,9 @@ class PuzzleViewModel {
     private func handleCorrectMove(_ moveIndex: Int) {
         // 推进 solution 指针（玩家步也推进）
         solutionStepIndex += 1
+        hintOffsetInSession = 0
 
-        // 检查是否将死对方（提前通关）
+        // 检查是否将死对方(提前通关)
         let defenderSide: Side = (playerSide == .red) ? .black : .red
         if MoveValidator.isCheckmate(defenderSide, on: board) {
             gameState = .success
@@ -275,10 +281,10 @@ class PuzzleViewModel {
         triggerSolutionDefenderMove()
     }
 
-    /// AI 防守方按 solution 走棋（guided 模式核心改造）
+    /// AI 防守方按 solution 走棋(guided 模式核心改造)
     private func triggerSolutionDefenderMove() {
         guard isGuidedMode else {
-            triggerDefenderMove()  // freePlay 模式：保持搜索引擎
+            triggerDefenderMove()  // freePlay 模式:保持搜索引擎
             return
         }
 
@@ -300,7 +306,7 @@ class PuzzleViewModel {
                 guard let self, self.puzzleVersion == currentVersion else { return }
 
                 guard let move = ICCSParser.parse(iccs, on: self.board) else {
-                    // solution 数据异常：降级为 freePlay 模式
+                    // solution 数据异常:降级为 freePlay 模式
                     self.solutionDegraded = true
                     self.solutionHint = L10n.shared.t("puzzle.solutionDegraded")
                     self.isThinking = false
@@ -343,22 +349,28 @@ class PuzzleViewModel {
         }
     }
 
-    /// 走错的处理：高亮正确走法 + 0.8s 自动回退
+    /// 走错的处理:高亮正确走法 + 0.8s 自动回退
     private func handleWrongMove(expectedICCS: String) {
         // 高亮正确走法
         if let move = ICCSParser.parse(expectedICCS, on: board) {
             hintMove = (from: move.from, to: move.to)
         }
 
-        // 文字反馈（1-based："第1步走法不对" 语义正确）
+        // 文字反馈(1-based:"第1步走法不对" 语义正确)
         let stepIndex = gameMoves.filter { $0.piece.side == playerSide }.count
-        solutionHint = String(format: L10n.shared.t("puzzle.wrongMove"),
-                              stepIndex, expectedICCS)
+        // 用独立推演获取中文棋谱(不依赖走错后的 board 状态)
+        if let info = getSolutionInfo(at: solutionStepIndex) {
+            solutionHint = String(format: L10n.shared.t("puzzle.wrongMove"),
+                                  stepIndex, info.notation)
+        } else {
+            solutionHint = String(format: L10n.shared.t("puzzle.wrongMove"),
+                                  stepIndex, expectedICCS)
+        }
 
-        // 播放错误音效（复用 undo 音效）
+        // 播放错误音效(复用 undo 音效)
         SoundEngine.shared.playUndo()
 
-        // 锁定棋盘（独立状态，不触发 "AI 思考中" 文案）
+        // 锁定棋盘(独立状态,不触发 "AI 思考中" 文案)
         isProcessingWrongMove = true
         gameState = .wrongMove
 
@@ -430,10 +442,10 @@ class PuzzleViewModel {
                             return
                         }
 
-                        // 更新局面历史（和局检测）
+                        // 更新局面历史(和局检测)
                         self.updatePositionHistory(captured: captured, movedPiece: mainPiece)
 
-                        // 和局检测（自由对弈模式）
+                        // 和局检测(自由对弈模式)
                         if self.puzzle.effectiveMode == .freePlay && self.checkDraw() {
                             self.gameState = .draw
                             self.isThinking = false
@@ -460,7 +472,7 @@ class PuzzleViewModel {
 
     // MARK: - 和局检测辅助方法
 
-    /// 局面指纹（棋子位置+轮次），用于长将检测
+    /// 局面指纹(棋子位置+轮次),用于长将检测
     private func boardFingerprint() -> String {
         var fp = board.currentTurn == .red ? "w" : "b"
         for row in 0..<10 {
@@ -508,14 +520,14 @@ class PuzzleViewModel {
         guard !isThinking, gameState == .playing || gameState == .showingHint else { return }
 
         if isGuidedMode {
-            // guided 模式：撤销一对步（玩家 + AI）
+            // guided 模式:撤销一对步(玩家 + AI)
             if board.moveHistory.count >= 2 {
                 board.undoLastMove()
                 board.undoLastMove()
                 if gameMoves.count >= 2 {
                     gameMoves.removeLast(2)
                 }
-                // solution 指针回退 2（玩家步 + AI 步）
+                // solution 指针回退 2(玩家步 + AI 步)
                 solutionStepIndex = max(0, solutionStepIndex - 2)
             } else if board.moveHistory.count >= 1 {
                 board.undoLastMove()
@@ -523,7 +535,7 @@ class PuzzleViewModel {
                 solutionStepIndex = max(0, solutionStepIndex - 1)
             }
         } else {
-            // freePlay 模式：保持现有 undo 逻辑
+            // freePlay 模式:保持现有 undo 逻辑
             if board.moveHistory.count >= 2 {
                 board.undoLastMove()
                 board.undoLastMove()
@@ -539,6 +551,7 @@ class PuzzleViewModel {
         currentHint = nil
         solutionHint = nil
         hintMove = nil
+        hintOffsetInSession = 0
         isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
         gameState = .playing
     }
@@ -546,7 +559,7 @@ class PuzzleViewModel {
     // MARK: - 提示
 
     func showHint() {
-        // Phase 3.5: hint 类型显示文字提示（无 solution 的纯提示局）
+        // Phase 3.5: hint 类型显示文字提示(无 solution 的纯提示局)
         if puzzle.solutionType == "hint" {
             if let hints = puzzle.hints, !hints.isEmpty {
                 currentHint = hints[min(hintIndex, hints.count - 1)]
@@ -558,7 +571,7 @@ class PuzzleViewModel {
             return
         }
 
-        // checkmate/sequence：优先显示 hints 文字提示，用完后再显示 step-by-step
+        // checkmate/sequence:优先显示 hints 文字提示,用完后再显示 step-by-step
         if let hints = puzzle.hints, !hints.isEmpty, hintIndex < hints.count {
             currentHint = hints[hintIndex]
             hintIndex += 1
@@ -566,33 +579,62 @@ class PuzzleViewModel {
             return
         }
 
-        // hints 用完或不存在：显示 step-by-step solution
+        // hints 用完或不存在:显示 step-by-step solution
         if puzzle.solution.isEmpty {
             currentHint = L10n.shared.t("puzzle.noMoreHints")
             gameState = .showingHint
             return
         }
-        if hintIndex < puzzle.solution.count + (puzzle.hints?.count ?? 0) {
-            let solIdx = hintIndex - (puzzle.hints?.count ?? 0)
-            if solIdx >= 0 && solIdx < puzzle.solution.count {
-                let iccs = puzzle.solution[solIdx]
-                currentHint = String(format: L10n.shared.t("puzzle.hintStep"), solIdx + 1, iccs)
-                // 设置提示高亮位置
-                if let move = ICCSParser.parse(iccs, on: board) {
-                    hintMove = (from: move.from, to: move.to)
-                } else {
-                    hintMove = nil
-                }
+
+        // 计算当前应提示的 solution 步序号(基于实际游戏进度)
+        let baseStep = currentSolutionStep()
+        let solIdx = baseStep + hintOffsetInSession
+
+        if solIdx < puzzle.solution.count {
+            if let info = getSolutionInfo(at: solIdx) {
+                hintMove = (from: info.from, to: info.to)
+                currentHint = String(format: L10n.shared.t("puzzle.hintStep"), solIdx + 1, info.notation)
             } else {
-                currentHint = L10n.shared.t("puzzle.noMoreHints")
                 hintMove = nil
+                currentHint = L10n.shared.t("puzzle.noMoreHints")
             }
-            hintIndex += 1
+            hintOffsetInSession += 1
         } else {
             currentHint = L10n.shared.t("puzzle.noMoreHints")
             hintMove = nil
         }
         gameState = .showingHint
+    }
+
+    // MARK: - Solution 推演辅助
+
+    /// 当前游戏进度对应的 solution 步序号
+    private func currentSolutionStep() -> Int {
+        if isGuidedMode {
+            return solutionStepIndex
+        }
+        return min(gameMoves.count, puzzle.solution.count)
+    }
+
+    /// 从初始局面推演获取指定步的完整信息
+    /// 返回:棋子起止位置 + 中文棋谱
+    /// 不依赖当前 board 状态,避免 parse 失败
+    private func getSolutionInfo(at step: Int) -> (from: Position, to: Position, notation: String)? {
+        var tempBoard = Board(fen: puzzle.initialFEN)
+        for (i, iccs) in puzzle.solution.enumerated() {
+            guard let move = ICCSParser.parse(iccs, on: tempBoard) else {
+                #if DEBUG
+                print("[PuzzleViewModel] getSolutionInfo: parse failed at step \(i), iccs=\(iccs)")
+                #endif
+                return nil
+            }
+            if i == step {
+                let notation = NotationGenerator.notation(for: move, on: tempBoard)
+                return (move.from, move.to, notation)
+            }
+            tempBoard.execute(move)
+        }
+        return nil
     }
 
     func dismissHint() {
@@ -603,13 +645,13 @@ class PuzzleViewModel {
 
     // MARK: - 解法验证 & 星级评分
 
-    /// 对比玩家步数与 solution 长度，给出 1-3 星
+    /// 对比玩家步数与 solution 长度,给出 1-3 星
     private func calculateRating() -> Int {
         guard !puzzle.solution.isEmpty else { return 3 }
 
         if puzzle.solutionType == "sequence" {
-            // sequence 局：按是否每步都走了推荐走法评星
-            // playerSolutionMoves 已包含所有玩家方步（从 solution 中提取）
+            // sequence 局:按是否每步都走了推荐走法评星
+            // playerSolutionMoves 已包含所有玩家方步(从 solution 中提取)
             let playerMoves = gameMoves.filter { $0.piece.side == playerSide }
             var matchCount = 0
             let solutionPlayerMoveCount = playerSolutionMoves.count
@@ -623,7 +665,7 @@ class PuzzleViewModel {
             return 1                               // 过关
         }
 
-        // checkmate 局：保持现有逻辑（按步数评星）
+        // checkmate 局:保持现有逻辑(按步数评星)
         // checkmate 局的 solution 通常只有红方步
         let playerMoveCount = gameMoves.filter { $0.piece.side == playerSide }.count
         let solutionMoveCount = puzzle.solution.count
@@ -637,8 +679,8 @@ class PuzzleViewModel {
     }
 
     /// 从 solution 中提取玩家方走法序列
-    /// 通过查看棋子颜色判断 side，不依赖 board.currentTurn
-    /// 部分局有连续同方走法（如 RRB），所以不能用 turn 判断
+    /// 通过查看棋子颜色判断 side,不依赖 board.currentTurn
+    /// 部分局有连续同方走法(如 RRB),所以不能用 turn 判断
     private var _cachedPlayerSolutionMoves: [String]?
 
     private var playerSolutionMoves: [String] {
@@ -659,7 +701,7 @@ class PuzzleViewModel {
                 continue
             }
 
-            // Fallback: ICCSParser 失败时（如连续同方走法 turn 不匹配），手动安全解析
+            // Fallback: ICCSParser 失败时(如连续同方走法 turn 不匹配),手动安全解析
             guard iccs.count == 4 else { break }
             let chars = Array(iccs)
             guard let fromCol = ICCSParser.colFromChar(chars[0]),
@@ -678,7 +720,7 @@ class PuzzleViewModel {
                 let captured = board.piece(at: to)
                 let move = Move(piece: piece, from: from, to: to, captured: captured)
                 board.execute(move)
-                // execute 多 toggle 了一次 turn，补偿回来
+                // execute 多 toggle 了一次 turn,补偿回来
                 board.toggleTurn()
             } else {
                 break
@@ -689,9 +731,9 @@ class PuzzleViewModel {
     }
 
     /// 验证指定步是否匹配 solution 推荐走法
-    /// moveIndex: 玩家走法的序号（0-based，仅玩家方走法）
+    /// moveIndex: 玩家走法的序号(0-based,仅玩家方走法)
     func isRecommendedMove(at moveIndex: Int) -> Bool {
-        guard moveIndex < playerSolutionMoves.count else { return true }  // 超出 solution 长度，不再约束
+        guard moveIndex < playerSolutionMoves.count else { return true }  // 超出 solution 长度,不再约束
         // 只筛选玩家走法
         let playerMoves = gameMoves.filter { $0.piece.side == playerSide }
         guard moveIndex < playerMoves.count else { return false }
@@ -714,7 +756,7 @@ class PuzzleViewModel {
         PuzzleStore.shared.recordProgress(progress)
     }
 
-    // MARK: - 重置（puzzleVersion 防护）
+    // MARK: - 重置(puzzleVersion 防护)
 
     func resetPuzzle() {
         puzzleVersion += 1
@@ -722,7 +764,7 @@ class PuzzleViewModel {
         isProcessingWrongMove = false
         solutionStepIndex = 0
         solutionDegraded = false
-        // 直接重建初始棋盘，避免 while-undo 状态累积风险和 O(n×pieces) 性能问题
+        // 直接重建初始棋盘,避免 while-undo 状态累积风险和 O(n×pieces) 性能问题
         board = Board(fen: puzzle.initialFEN)
         isInCheck = false
         selectedPosition = nil
@@ -733,6 +775,7 @@ class PuzzleViewModel {
         currentHint = nil
         solutionHint = nil
         hintMove = nil
+        hintOffsetInSession = 0
         completionRating = 0
         positionHistory = [boardFingerprint()]
         halfmoveClock = 0
@@ -742,7 +785,7 @@ class PuzzleViewModel {
 
     // MARK: - 完美解法回放
 
-    /// 构建标准解法的 GameRecord，用于回放
+    /// 构建标准解法的 GameRecord,用于回放
     func buildSolutionRecord() -> GameRecord? {
         if let cached = cachedSolutionRecord { return cached }
         guard !puzzle.solution.isEmpty else { return nil }
