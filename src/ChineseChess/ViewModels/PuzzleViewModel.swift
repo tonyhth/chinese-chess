@@ -351,9 +351,9 @@ class PuzzleViewModel {
 
     /// 走错的处理:高亮正确走法 + 0.8s 自动回退
     private func handleWrongMove(expectedICCS: String) {
-        // 高亮正确走法
-        if let move = ICCSParser.parse(expectedICCS, on: board) {
-            hintMove = (from: move.from, to: move.to)
+        // 高亮正确走法（用独立推演，不依赖走错后的 board 状态）
+        if let info = getSolutionInfo(at: solutionStepIndex) {
+            hintMove = (from: info.from, to: info.to)
         }
 
         // 文字反馈(1-based:"第1步走法不对" 语义正确)
