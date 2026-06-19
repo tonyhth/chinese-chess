@@ -7,7 +7,35 @@ struct ToolbarView: View {
 
     var body: some View {
         #if os(iOS)
-        HStack(spacing: 0) {
+        HStack {
+            // 左侧：悔棋 + 提示（对局辅助操作）
+            HStack(spacing: 8) {
+                Button(action: { viewModel.undoMove() }) {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.title3)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
+                .tint(.brown)
+                .accessibilityLabel(l10n.t("game.undoMove"))
+                .accessibilityHint(l10n.t("accessibility.undoHint"))
+
+                Button(action: { viewModel.requestHint() }) {
+                    Image(systemName: "lightbulb")
+                        .font(.title3)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+                .tint(.brown)
+                .accessibilityLabel(l10n.t("game.hint"))
+                .accessibilityHint(l10n.t("accessibility.hintActionHint"))
+            }
+
+            Spacer()
+
+            // 右侧：新开一局（高风险操作，远离悔棋）
             Button(action: { viewModel.newGame() }) {
                 Image(systemName: "plus.circle")
                     .font(.title3)
@@ -18,30 +46,8 @@ struct ToolbarView: View {
             .tint(.brown)
             .accessibilityLabel(l10n.t("game.newGame"))
             .accessibilityHint(l10n.t("accessibility.newGameHint"))
-
-            Button(action: { viewModel.undoMove() }) {
-                Image(systemName: "arrow.uturn.backward")
-                    .font(.title3)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-            }
-            .disabled(viewModel.isThinking || viewModel.board.moveHistory.isEmpty)
-            .tint(.brown)
-            .accessibilityLabel(l10n.t("game.undoMove"))
-            .accessibilityHint(l10n.t("accessibility.undoHint"))
-
-            Button(action: { viewModel.requestHint() }) {
-                Image(systemName: "lightbulb")
-                    .font(.title3)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-            }
-            .disabled(viewModel.isThinking || viewModel.gameState != .playing)
-            .tint(.brown)
-            .accessibilityLabel(l10n.t("game.hint"))
-            .accessibilityHint(l10n.t("accessibility.hintActionHint"))
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 16)
         .padding(.vertical, 4)
         #else
         HStack(spacing: 12) {
