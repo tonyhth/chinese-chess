@@ -16,12 +16,7 @@ struct StatusBarView: View {
                     .font(.subheadline.weight(.medium))
 
                 // TODO: guided 走错回退文案 — 待 PuzzlePlayView 集成 StatusBarView 后启用
-                // if viewModel.isProcessingWrongMove {
-                //     Text(l10n.t("puzzle.reverting"))
-                //         .font(.footnote)
-                //         .foregroundColor(.orange)
-                //         .pulseAnimation()
-                // } else if viewModel.isThinking {
+
                 if viewModel.isThinking {
                     Text(l10n.t("status.aiThinking"))
                         .font(.footnote)
