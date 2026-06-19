@@ -4,12 +4,12 @@ import Testing
 
 // MARK: - v2.2.15 测试：macOS英文布局 + VoiceOver + 动态字体
 
-@Suite("v2.2.15: macOS英文布局 + VoiceOver + 动态字体")
+@Suite("v2.2.15: macOS英文布局 + VoiceOver + 动态字体", .serialized)
 struct V2215Tests {
 
     // MARK: - 1. xcstrings 翻译完整性（151 key）
 
-    @Suite("xcstrings 翻译完整性")
+    @Suite("xcstrings 翻译完整性", .serialized)
     struct XcstringsIntegrityTests {
 
         @Test("xcstrings 包含 151 个 key（138 原有 + 17 新增）")
@@ -146,7 +146,7 @@ struct V2215Tests {
 
     // MARK: - 2. 动态字体迁移验证
 
-    @Suite("动态字体迁移验证")
+    @Suite("动态字体迁移验证", .serialized)
     struct DynamicTypeMigrationTests {
 
         @Test("Views 中仅剩 1 处 .system(size:)（ChessBoardView cellSize 计算）")
@@ -217,7 +217,7 @@ struct V2215Tests {
 
     // MARK: - 3. VoiceOver accessibility 标签验证
 
-    @Suite("VoiceOver accessibility 验证")
+    @Suite("VoiceOver accessibility 验证", .serialized)
     struct VoiceOverAccessibilityTests {
 
         @Test("ChessBoardView 有 accessibility 容器和标签")
@@ -307,7 +307,7 @@ struct V2215Tests {
 
     // MARK: - 4. macOS 英文布局适配
 
-    @Suite("macOS 英文布局适配")
+    @Suite("macOS 英文布局适配", .serialized)
     struct MacOSLayoutTests {
 
         @Test("SettingsView Picker 统一为 .menu（移除 #if os(iOS) 条件）")
@@ -343,7 +343,7 @@ struct V2215Tests {
 
     // MARK: - 5. 硬编码中文遗漏检查（变更文件）
 
-    @Suite("变更文件硬编码中文检查")
+    @Suite("变更文件硬编码中文检查", .serialized)
     struct ChangedFilesHardcodedChineseTests {
 
         @Test("ReplayControlView 无硬编码中文（accessibilityLabel 使用 localized key）")
@@ -415,7 +415,7 @@ struct V2215Tests {
 
     // MARK: - 6. 全量回归
 
-    @Suite("全量回归")
+    @Suite("全量回归", .serialized)
     struct FullRegressionTests {
 
         @Test("新局 32 子，GameState = playing")

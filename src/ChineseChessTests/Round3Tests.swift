@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - Round 3 修复验证
 
-@Suite("Round 3 修复验证")
+@Suite("Round 3 修复验证", .serialized)
 struct Round3Tests {
 
     // MARK: - P0-01: PuzzleViewModel.board 改 var + resetPuzzle 直接重建

@@ -4,8 +4,59 @@ import Foundation
 
 // MARK: - NotationGenerator 测试
 
-@Suite("NotationGenerator Tests")
+@Suite("NotationGenerator Tests", .serialized)
 struct NotationGeneratorTests {
+
+    init() {
+        // 确保中文格式（防止其他 Suite 并发修改 UserDefaults）
+        UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat")
+    }
+
+    // MARK: - 格式切换测试（原 NotationFormatSwitchTests，合并避免跨 Suite UserDefaults 竞争）
+
+    private func clearFormat() {
+        UserDefaults.standard.removeObject(forKey: "chinesechess.notationFormat")
+    }
+
+    @Test("默认 notationFormat 为中文")
+    func defaultFormatIsChinese() {
+        clearFormat()
+        let board = Board()
+        let piece = board.piece(at: Position(row: 7, col: 7))!
+        let move = Move(piece: piece, from: Position(row: 7, col: 7), to: Position(row: 7, col: 4), captured: nil)
+        let notation = NotationGenerator.notation(for: move, on: board)
+        #expect(notation.contains("炮"), "默认格式应输出中文记谱，实际: \(notation)")
+        UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat")
+    }
+
+    @Test("notationFormat=iccs 输出 ICCS 坐标记谱")
+    func iccsFormat() {
+        UserDefaults.standard.set("iccs", forKey: "chinesechess.notationFormat")
+        defer { UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat") }
+
+        let board = Board()
+        let piece = board.piece(at: Position(row: 7, col: 7))!
+        let move = Move(piece: piece, from: Position(row: 7, col: 7), to: Position(row: 7, col: 4), captured: nil)
+        let notation = NotationGenerator.notation(for: move, on: board)
+        #expect(notation == "h2e2", "ICCS 格式应输出 h2e2，实际: \(notation)")
+    }
+
+    @Test("格式切换即时生效")
+    func formatSwitchTakesEffectImmediately() {
+        let board = Board()
+        let piece = board.piece(at: Position(row: 7, col: 7))!
+        let move = Move(piece: piece, from: Position(row: 7, col: 7), to: Position(row: 7, col: 4), captured: nil)
+
+        UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat")
+        let zhNotation = NotationGenerator.notation(for: move, on: board)
+        #expect(zhNotation.contains("炮"), "中文格式: \(zhNotation)")
+
+        UserDefaults.standard.set("iccs", forKey: "chinesechess.notationFormat")
+        let iccsNotation = NotationGenerator.notation(for: move, on: board)
+        #expect(iccsNotation == "h2e2", "ICCS 格式: \(iccsNotation)")
+
+        UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat")
+    }
 
     // MARK: - 红方基本走法
 
@@ -267,7 +318,7 @@ struct NotationGeneratorTests {
 
 // MARK: - StatsManager 测试
 
-@Suite("StatsManager Tests")
+@Suite("StatsManager Tests", .serialized)
 struct StatsManagerTests {
 
     /// 每个测试用独立的 UserDefaults，避免并行测试竞争
@@ -330,7 +381,7 @@ struct StatsManagerTests {
 
 // MARK: - GameViewModel Phase 3 Tests（人人对战功能已移除，仅保留通用测试）
 
-@Suite("GameViewModel Phase 3 Tests")
+@Suite("GameViewModel Phase 3 Tests", .serialized)
 struct GameViewModelPhase3Tests {
 
     @Test("人机模式悔棋撤一对")

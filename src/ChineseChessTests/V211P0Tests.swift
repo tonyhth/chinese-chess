@@ -6,7 +6,7 @@ import CoreGraphics
 #endif
 @testable import ChineseChess
 
-@Suite("v2.1.2 P0 修复验证")
+@Suite("v2.1.2 P0 修复验证", .serialized)
 struct V211P0Tests {
 
     // MARK: - P0-1: 棋盘几何对齐

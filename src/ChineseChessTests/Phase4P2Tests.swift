@@ -10,7 +10,7 @@ import UIKit
 
 // MARK: - Phase 4 P2 修复验证
 
-@Suite("Phase 4 P2 修复验证")
+@Suite("Phase 4 P2 修复验证", .serialized)
 struct Phase4P2Tests {
 
     // MARK: - L-P2-01: 星位标记尺寸

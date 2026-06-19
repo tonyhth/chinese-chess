@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - v2.2.18 Guided Puzzle 引导式残局测试（返工复测）
 
-@Suite("v2.2.18 返工复测")
+@Suite("v2.2.18 返工复测", .serialized)
 struct V2218RetestTests {
 
     // MARK: - 辅助方法
@@ -43,7 +43,7 @@ struct V2218RetestTests {
 
     // MARK: - ✅ P0 修复验证：ICCS 双格式支持
 
-    @Suite("✅ P0 修复：ICCSParser 双格式支持")
+    @Suite("✅ P0 修复：ICCSParser 双格式支持", .serialized)
     struct ICCSFormatFixTests {
 
         @Test("ICCSParser.parse 现在可以解析数字 ICCS '5450'")
@@ -133,7 +133,7 @@ struct V2218RetestTests {
 
     // MARK: - ✅ P1-1 修复验证：solutionDegraded 降级
 
-    @Suite("✅ P1-1 修复：solution 数据异常降级")
+    @Suite("✅ P1-1 修复：solution 数据异常降级", .serialized)
     struct SolutionDegradedTests {
 
         @Test("PuzzleViewModel 包含 solutionDegraded 属性")
@@ -170,7 +170,7 @@ struct V2218RetestTests {
 
     // MARK: - ✅ P1-2 修复验证：撤销按钮 disabled
 
-    @Suite("✅ P1-2 修复：撤销按钮 disabled")
+    @Suite("✅ P1-2 修复：撤销按钮 disabled", .serialized)
     struct UndoButtonDisabledTests {
 
         @Test("撤销按钮在 gameMoves.isEmpty 时 disabled")
@@ -190,7 +190,7 @@ struct V2218RetestTests {
 
     // MARK: - 1. 引导模式基本流程
 
-    @Suite("1. 引导模式基本流程")
+    @Suite("1. 引导模式基本流程", .serialized)
     struct GuidedFlowTests {
 
         @Test("sqyq_001 effectiveMode 为 .guided")
@@ -242,7 +242,7 @@ struct V2218RetestTests {
 
     // MARK: - 2. 走错回退
 
-    @Suite("2. 走错回退机制")
+    @Suite("2. 走错回退机制", .serialized)
     struct WrongMoveRollbackTests {
 
         @Test("handleWrongMove 设置 isProcessingWrongMove = true")
@@ -284,7 +284,7 @@ struct V2218RetestTests {
 
     // MARK: - 3. 撤销功能
 
-    @Suite("3. Guided 模式撤销")
+    @Suite("3. Guided 模式撤销", .serialized)
     struct GuidedUndoTests {
 
         @Test("guided 模式撤销回退一对步")
@@ -324,7 +324,7 @@ struct V2218RetestTests {
 
     // MARK: - 4. v2.2.17 累积修复
 
-    @Suite("4. v2.2.17 累积修复")
+    @Suite("4. v2.2.17 累积修复", .serialized)
     struct V2217RegressionTests {
 
         @Test("L10n 加载 .xcstrings 格式")
@@ -363,7 +363,7 @@ struct V2218RetestTests {
 
     // MARK: - 5. 引导角标 UI
 
-    @Suite("5. 引导角标 UI")
+    @Suite("5. 引导角标 UI", .serialized)
     struct GuidedBadgeUITests {
 
         @Test("PuzzleSelectView 对 guided 残局显示绿色角标")
@@ -377,7 +377,7 @@ struct V2218RetestTests {
 
     // MARK: - 6. 状态完整性
 
-    @Suite("6. 状态完整性")
+    @Suite("6. 状态完整性", .serialized)
     struct StateIntegrityTests {
 
         @Test("wrongMove 是短暂状态")

@@ -6,7 +6,7 @@ import CoreGraphics
 #endif
 @testable import ChineseChess
 
-@Suite("字体测试：霞鹜文楷嵌入与注册")
+@Suite("字体测试：霞鹜文楷嵌入与注册", .serialized)
 struct FontTests {
 
     @Test("字体文件存在于 Resources 目录")

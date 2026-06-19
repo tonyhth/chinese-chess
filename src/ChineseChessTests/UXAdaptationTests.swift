@@ -4,12 +4,12 @@ import Testing
 
 // MARK: - UX 适配测试：LanguageManager + i18n 完整性 + 英文 UI + 中文回归
 
-@Suite("UX 适配测试")
+@Suite("UX 适配测试", .serialized)
 struct UXAdaptationTests {
 
     // MARK: - 1. LanguageManager 核心功能
 
-    @Suite("LanguageManager 核心功能")
+    @Suite("LanguageManager 核心功能", .serialized)
     struct LanguageManagerTests {
 
         @Test("默认跟随系统：preferredLanguage 为 nil 时，currentLanguage 回退到系统语言")
@@ -123,7 +123,7 @@ struct UXAdaptationTests {
 
     // MARK: - 2. xcstrings 翻译完整性
 
-    @Suite("xcstrings 翻译完整性")
+    @Suite("xcstrings 翻译完整性", .serialized)
     struct XcstringsIntegrityTests {
 
         @Test("xcstrings 文件可正常解析为 JSON")
@@ -255,7 +255,7 @@ struct UXAdaptationTests {
 
     // MARK: - 3. 英文 UI 显示验证
 
-    @Suite("英文 UI 显示验证")
+    @Suite("英文 UI 显示验证", .serialized)
     struct EnglishUIDisplayTests {
 
         @Test("LanguageManager 设置为 en 后 currentLanguage 为 en")
@@ -343,7 +343,7 @@ struct UXAdaptationTests {
 
     // MARK: - 4. zh-Hans 回归测试
 
-    @Suite("zh-Hans 回归")
+    @Suite("zh-Hans 回归", .serialized)
     struct ZhHansRegressionTests {
 
         @Test("LanguageManager 切换回中文后 currentLanguage 正确")
@@ -425,7 +425,7 @@ struct UXAdaptationTests {
 
     // MARK: - 5. 全量回归
 
-    @Suite("全量回归")
+    @Suite("全量回归", .serialized)
     struct FullRegressionTests {
 
         @Test("新局 32 子，GameState = playing")
@@ -557,7 +557,7 @@ struct UXAdaptationTests {
 
     // MARK: - 6. 硬编码中文遗漏检查
 
-    @Suite("硬编码中文遗漏检查")
+    @Suite("硬编码中文遗漏检查", .serialized)
     struct HardcodedChineseCheckTests {
 
         @Test("SettingsView 中无硬编码中文字符串（已全部提取为 localized key）")

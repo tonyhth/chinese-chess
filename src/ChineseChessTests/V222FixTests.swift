@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - v2.2.3 遗留问题修复测试
 
-@Suite("v2.2.3 遗留问题修复")
+@Suite("v2.2.3 遗留问题修复", .serialized)
 struct V222FixTests {
 
     // MARK: - 问题1：英文界面 → 硬编码中文（废弃本地化系统）
