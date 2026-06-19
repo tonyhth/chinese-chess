@@ -144,7 +144,7 @@ struct UXAdaptationTests {
         @Test("xcstrings 包含 151 个 key")
         func xcstringsKeyCount() {
             let keys = Self.loadXcstringsKeys()
-            #expect(keys.count == 158, "期望 158 key，实际 \(keys.count)")
+            #expect(keys.count == 160, "期望 160 key，实际 \(keys.count)")
         }
 
         @Test("en 翻译全覆盖：所有 key 都有英文字符串")

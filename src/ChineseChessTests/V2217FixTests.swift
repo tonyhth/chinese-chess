@@ -401,7 +401,7 @@ struct V2217FixTests {
                    "StatusBarView 应显示难度标签")
         }
 
-        @Test("StatusBarView 难度标签使用白色（深色模式友好）")
+        @Test("StatusBarView 难度标签使用黄色高对比（v2.2.21 增强）")
         func statusBarViewDifficultyLabelColor() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift"
@@ -410,8 +410,11 @@ struct V2217FixTests {
                 return
             }
 
-            #expect(content.contains(".white.opacity(0.9)"),
-                   "难度标签应使用 .white.opacity(0.9) 保证深色模式可读性")
+            // v2.2.21: 难度标签增强为黄色 + 棕色背景 + 描边
+            #expect(content.contains(".yellow"),
+                   "难度标签应使用 .yellow 高对比色")
+            #expect(content.contains(".brown.opacity(0.6)"),
+                   "难度标签背景应使用 .brown.opacity(0.6)")
         }
 
         @Test("iOS App 难度 Menu label 显示当前难度名")

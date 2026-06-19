@@ -130,9 +130,9 @@ struct Phase4P2Tests {
             #expect(Bool(false), "无法读取 RecordPanelView.swift")
             return
         }
-        // 移动列表区域应使用 VStack（ScrollView 内避免跳跃）
-        #expect(content.contains("VStack(alignment: .leading, spacing: 2)"),
-                "走法列表应使用 VStack 避免滚动跳跃")
+        // 走法列表区域应使用 VStack（v2.2.21 后 spacing=3，红黑配行布局）
+        #expect(content.contains("VStack(alignment: .leading, spacing: 3)"),
+                "走法列表应使用 VStack spacing=3（v2.2.21 红黑配行）")
         // 不应在走法列表处使用 LazyVStack
         let lazyCount = content.components(separatedBy: "LazyVStack").count - 1
         #expect(lazyCount == 0, "RecordPanelView 不应在走法列表使用 LazyVStack")
@@ -140,8 +140,8 @@ struct Phase4P2Tests {
 
     // MARK: - L-P2-05: ReplayView 玩家信息独立区域
 
-    @Test("ReplayView 玩家信息在独立区域（不在标题栏）")
-    func testReplayViewPlayerInfoSeparateArea() {
+    @Test("ReplayView 玩家信息合并到标题栏（v2.2.21 空间优化）")
+    func testReplayViewPlayerInfoInTitleBar() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift"
         guard let content = try? String(contentsOfFile: filePath) else {
@@ -150,11 +150,12 @@ struct Phase4P2Tests {
         }
         // 标题栏应只有关闭按钮和 localized 回放标题
         #expect(content.contains("replay.title"), "标题栏应使用 replay.title 键")
-        // 玩家信息应在独立区域
-        #expect(content.contains("对局信息：独立区域") || content.contains("redPlayer"),
-                "玩家信息应有独立区域")
+        // v2.2.21: 玩家信息合并到标题栏
+        #expect(content.contains("redPlayer"), "标题栏应包含红方玩家信息")
         // vs 分隔
-        #expect(content.contains("Text(\"vs\")"), "玩家信息应有 vs 分隔")
+        #expect(content.contains(" vs"), "标题栏应有 vs 分隔")
+        // 不应有独立区域注释
+        #expect(!content.contains("对局信息：独立区域"), "v2.2.21 后不应有独立区域")
     }
 
     // MARK: - L-P2-06: PuzzleSelectView 遮罩
