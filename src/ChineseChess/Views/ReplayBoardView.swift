@@ -16,7 +16,7 @@ struct ReplayBoardView: View {
 
     #if os(iOS)
     private let maxBoardWidth: CGFloat = 600
-    private let maxBoardHeight: CGFloat = 675
+    private let maxBoardHeight: CGFloat = 850
     #endif
 
     var body: some View {

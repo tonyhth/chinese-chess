@@ -12,35 +12,35 @@ struct ReplayView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 标题栏：仅保留返回按钮和标题
+            // 标题栏 + 对局信息（合并为一行）
             HStack {
                 Button(l10n.t("common.close")) { dismiss() }
                     .foregroundColor(.white)
+                Spacer()
+                Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(.red)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(" vs")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+                Text(viewModel.record.blackPlayer.name)
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer()
                 Text(l10n.t("replay.title"))
                     .font(.callout.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
-                // 占位保持居中
+                // 占位保持对称
                 Color.clear.frame(width: 44)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.vertical, 6)
             .background(Color(red: 50/255, green: 30/255, blue: 20/255))
-
-            // 对局信息：独立区域
-            HStack(spacing: 4) {
-                Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))
-                    .foregroundColor(.red)
-                Text("vs")
-                    .foregroundColor(.gray)
-                Text(viewModel.record.blackPlayer.name)
-                    .foregroundColor(.white)
-            }
-            .font(.subheadline)
-            .padding(.vertical, 4)
-            .frame(maxWidth: .infinity)
-            .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
 
             // 棋盘（与对弈页面保持一致布局）
             if viewModel.record.moves.isEmpty {
