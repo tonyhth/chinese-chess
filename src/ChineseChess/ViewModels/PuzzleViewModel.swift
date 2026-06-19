@@ -388,6 +388,7 @@ class PuzzleViewModel {
                 self.hintMove = nil
                 self.isInCheck = MoveValidator.isInCheck(self.board.currentTurn, on: self.board)
                 self.isProcessingWrongMove = false
+                self.hintOffsetInSession = 0
                 self.gameState = .playing
             }
         }

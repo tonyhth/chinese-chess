@@ -120,7 +120,7 @@ struct RecordPanelView: View {
                 moveText(second)
             }
         }
-        .accessibilityLabel(Text(String(format: l10n.t("accessibility.stepN"), pair.roundNumber, pair.first.notation)))
+        .accessibilityLabel(Text(String(format: l10n.t("accessibility.stepN"), pair.roundNumber, pair.first.notation + (pair.second != nil ? " " + pair.second!.notation : ""))))
     }
 
     @ViewBuilder

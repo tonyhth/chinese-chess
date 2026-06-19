@@ -12,31 +12,33 @@ struct ReplayView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 标题栏 + 对局信息（合并为一行）
-            HStack {
-                Button(l10n.t("common.close")) { dismiss() }
-                    .foregroundColor(.white)
-                Spacer()
-                Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))
-                    .font(.caption.weight(.medium))
-                    .foregroundColor(.red)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                Text(" vs")
-                    .font(.caption2)
-                    .foregroundColor(.gray)
-                Text(viewModel.record.blackPlayer.name)
-                    .font(.caption.weight(.medium))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                Spacer()
+            // 标题栏 + 对局信息（ZStack 标题居中，信息左对齐）
+            ZStack {
+                // 居中标题
                 Text(l10n.t("replay.title"))
                     .font(.callout.weight(.bold))
                     .foregroundColor(.white)
-                Spacer()
-                // 占位保持对称
-                Color.clear.frame(width: 44)
+
+                // 左侧：关闭按钮 + 对局信息
+                HStack {
+                    Button(l10n.t("common.close")) { dismiss() }
+                        .foregroundColor(.white)
+                    Spacer().frame(width: 12)
+                    Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.red)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text(" vs")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                    Text(viewModel.record.blackPlayer.name)
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Spacer()
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 6)
