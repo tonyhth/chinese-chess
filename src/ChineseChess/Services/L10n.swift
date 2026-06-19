@@ -6,7 +6,7 @@ import Observation
 /// 直接从 Bundle.main 的 .lproj/Localizable.strings 加载翻译，
 /// bypass 系统本地化机制，实现即时语言切换。
 ///
-/// - View 层：通过 `@Environment(L10n.self) private var l10n` 访问，调用 `l10n.t("key")`
+/// - View 层：通过 `private let l10n = L10n.shared` 访问，调用 `l10n.t("key")`
 /// - 非 View 层：通过 `L10n.shared.t("key")` 访问
 @Observable
 final class L10n {

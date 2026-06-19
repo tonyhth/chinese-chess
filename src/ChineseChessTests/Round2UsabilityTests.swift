@@ -247,7 +247,7 @@ struct Round2UsabilityTests {
         }
         #expect(app.contains("onViewRecord:"), "App 应传递 onViewRecord 回调")
         #expect(app.contains("buildGameRecord"), "回调应构建对局记录")
-        #expect(app.contains("showReplay"), "回调应打开回放视图")
+        #expect(app.contains("toolbarReplayRecord"), "回调应打开回放视图")
     }
 
     @Test("U-P2-02: GameViewModel.buildGameRecord 生成有效记录")

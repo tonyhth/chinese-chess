@@ -36,8 +36,8 @@ struct V222FixTests {
         ]
         for path in appFiles {
             guard let content = try? String(contentsOfFile: path) else { continue }
-            #expect(content.contains(".environment(l10n"),
-                   "\(path) 应使用 .environment(l10n) 注入语言")
+            #expect(content.contains("L10n.shared"),
+                   "\(path) 应使用 L10n.shared 获取语言")
         }
     }
 

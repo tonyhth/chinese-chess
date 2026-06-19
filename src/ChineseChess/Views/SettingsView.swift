@@ -5,7 +5,7 @@ struct SettingsView: View {
     @State private var themeManager = ThemeManager.shared
     @State private var soundEngine = SoundEngine.shared
     @AppStorage("chinesechess.notationFormat") private var notationFormat: String = "chinese"
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         Form {

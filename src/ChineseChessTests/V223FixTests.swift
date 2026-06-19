@@ -18,7 +18,7 @@ struct V223FixTests {
             return
         }
         #expect(!content.contains("AppleLanguages"), "不应再设置 AppleLanguages")
-        #expect(content.contains(".environment(l10n"), "应使用 .environment(l10n) 注入语言")
+        #expect(content.contains("L10n.shared"), "应使用 L10n.shared 获取语言")
     }
 
     @Test("问题1: iOS App 使用 .environment(l10n) 注入语言")
@@ -30,7 +30,7 @@ struct V223FixTests {
             return
         }
         #expect(!content.contains("AppleLanguages"), "不应再设置 AppleLanguages")
-        #expect(content.contains(".environment(l10n"), "应使用 .environment(l10n) 注入语言")
+        #expect(content.contains("L10n.shared"), "应使用 L10n.shared 获取语言")
     }
 
     @Test("问题1: AIDifficulty.displayName 使用 localized")

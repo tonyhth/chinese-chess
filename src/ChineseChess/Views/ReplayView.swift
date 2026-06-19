@@ -8,7 +8,7 @@ struct ReplayView: View {
         self._viewModel = State(initialValue: ReplayViewModel(record: record))
     }
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,18 +43,8 @@ struct ReplayView: View {
             .background(Color(red: 50/255, green: 30/255, blue: 20/255).opacity(0.6))
 
             // 棋盘（与对弈页面保持一致布局）
-            ZStack {
-                ChessBoardView(mode: .replay(viewModel))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .layoutPriority(1)
-
-                // 空步数提示
-                if viewModel.record.moves.isEmpty {
-                    Text(l10n.t("replay.empty"))
-                        .font(.callout)
-                        .foregroundColor(.secondary)
-                }
-            }
+            ReplayBoardView(viewModel: viewModel)
+                .layoutPriority(1)
 
             // 回放控制条
             ReplayControlView(viewModel: viewModel)

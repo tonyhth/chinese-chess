@@ -248,7 +248,7 @@ struct Round2ReviewTests {
         // App 中 GameOverOverlay 应有 onViewRecord 参数
         #expect(content.contains("onViewRecord:"), "App 应传递 onViewRecord 回调")
         #expect(content.contains("buildGameRecord"), "回调应构建对局记录")
-        #expect(content.contains("showReplay"), "回调应打开回放视图")
+        #expect(content.contains("toolbarReplayRecord"), "回调应打开回放视图")
     }
 
     // MARK: - 综合验证：所有改动文件

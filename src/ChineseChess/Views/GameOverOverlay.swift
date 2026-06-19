@@ -5,7 +5,7 @@ struct GameOverOverlay: View {
     let onNewGame: () -> Void
     var onViewRecord: (() -> Void)? = nil
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         ZStack {

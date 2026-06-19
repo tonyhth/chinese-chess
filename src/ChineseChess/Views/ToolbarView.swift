@@ -3,7 +3,7 @@ import SwiftUI
 struct ToolbarView: View {
     let viewModel: GameViewModel
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         #if os(iOS)

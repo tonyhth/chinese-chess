@@ -15,14 +15,12 @@ struct ChineseChessiOSApp: App {
 
     @State private var gameViewModel = GameViewModel()
     @State private var showPuzzles = false
-    @State private var showReplay = false
-    @State private var replayRecord: GameRecord?
+    @State private var toolbarReplayRecord: GameRecord?
     @State private var themeManager = ThemeManager.shared
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
     @State private var showThemePicker = false
-    @State private var l10n = L10n.shared
 
     var body: some Scene {
         WindowGroup {
@@ -48,23 +46,20 @@ struct ChineseChessiOSApp: App {
                         }
                     }
                 }
-                .navigationTitle(l10n.t("app.title"))
+                .navigationTitle(L10n.shared.t("app.title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
                         Button(action: { activePanel = activePanel == .record ? .none : .record }) {
-                            Label(l10n.t("toolbar.record"), systemImage: "doc.text")
+                            Label(L10n.shared.t("toolbar.record"), systemImage: "doc.text")
                         }
                         Button(action: { showPuzzles = true }) {
-                            Label(l10n.t("toolbar.puzzle"), systemImage: "puzzlepiece")
+                            Label(L10n.shared.t("toolbar.puzzle"), systemImage: "puzzlepiece")
                         }
                         Button(action: {
-                            if let record = gameViewModel.buildGameRecord() {
-                                replayRecord = record
-                                showReplay = true
-                            }
+                            toolbarReplayRecord = gameViewModel.buildGameRecord()
                         }) {
-                            Label(l10n.t("toolbar.replay"), systemImage: "play.circle")
+                            Label(L10n.shared.t("toolbar.replay"), systemImage: "play.circle")
                         }
                         .disabled(gameViewModel.gameMoves.isEmpty)
 
@@ -72,11 +67,11 @@ struct ChineseChessiOSApp: App {
 
                         // 难度快捷入口
                         Menu {
-                            Button(l10n.t("difficulty.beginner")) { gameViewModel.setDifficulty(.beginner) }
-                            Button(l10n.t("difficulty.easy")) { gameViewModel.setDifficulty(.easy) }
-                            Button(l10n.t("difficulty.medium")) { gameViewModel.setDifficulty(.medium) }
-                            Button(l10n.t("difficulty.hard")) { gameViewModel.setDifficulty(.hard) }
-                            Button(l10n.t("difficulty.master")) { gameViewModel.setDifficulty(.master) }
+                            Button(L10n.shared.t("difficulty.beginner")) { gameViewModel.setDifficulty(.beginner) }
+                            Button(L10n.shared.t("difficulty.easy")) { gameViewModel.setDifficulty(.easy) }
+                            Button(L10n.shared.t("difficulty.medium")) { gameViewModel.setDifficulty(.medium) }
+                            Button(L10n.shared.t("difficulty.hard")) { gameViewModel.setDifficulty(.hard) }
+                            Button(L10n.shared.t("difficulty.master")) { gameViewModel.setDifficulty(.master) }
                         } label: {
                             VStack(spacing: 2) {
                                 Image(systemName: "gauge.with.dots.needle.bottom.50percent")
@@ -90,19 +85,19 @@ struct ChineseChessiOSApp: App {
                         // 更多菜单：低频操作
                         Menu {
                             Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
-                                Label(l10n.t("toolbar.stats"), systemImage: "chart.bar")
+                                Label(L10n.shared.t("toolbar.stats"), systemImage: "chart.bar")
                             }
                             Button(action: { showHistory = true }) {
-                                Label(l10n.t("toolbar.history"), systemImage: "clock.arrow.circlepath")
+                                Label(L10n.shared.t("toolbar.history"), systemImage: "clock.arrow.circlepath")
                             }
                             Button(action: { showThemePicker = true }) {
-                                Label(l10n.t("toolbar.theme"), systemImage: "paintpalette")
+                                Label(L10n.shared.t("toolbar.theme"), systemImage: "paintpalette")
                             }
                             Button(action: { showSettings = true }) {
-                                Label(l10n.t("toolbar.settings"), systemImage: "gearshape")
+                                Label(L10n.shared.t("toolbar.settings"), systemImage: "gearshape")
                             }
                         } label: {
-                            Label(l10n.t("toolbar.more"), systemImage: "ellipsis.circle")
+                            Label(L10n.shared.t("toolbar.more"), systemImage: "ellipsis.circle")
                         }
                     }
                 }
@@ -112,11 +107,11 @@ struct ChineseChessiOSApp: App {
                 )) {
                     NavigationStack {
                         RecordPanelView(viewModel: gameViewModel)
-                            .navigationTitle(l10n.t("record.title"))
+                            .navigationTitle(L10n.shared.t("record.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button(l10n.t("common.done")) { activePanel = .none }
+                                    Button(L10n.shared.t("common.done")) { activePanel = .none }
                                 }
                             }
                     }
@@ -124,29 +119,28 @@ struct ChineseChessiOSApp: App {
                 .sheet(isPresented: $showPuzzles) {
                     NavigationStack {
                         PuzzleSelectView()
-                            .navigationTitle(l10n.t("puzzle.title"))
+                            .navigationTitle(L10n.shared.t("puzzle.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
-                                    Button(l10n.t("common.done")) { showPuzzles = false }
+                                    Button(L10n.shared.t("common.done")) { showPuzzles = false }
                                 }
                             }
                     }
                 }
-                .fullScreenCover(isPresented: $showReplay) {
-                    if let record = replayRecord {
-                        ReplayView(record: record)
-                    }
+                .fullScreenCover(item: $toolbarReplayRecord) { record in
+                    ReplayView(record: record)
                 }
             }
             .sheet(isPresented: $showHistory) {
                 NavigationStack {
                     GameHistoryView(onReplayRequest: { record in
+                        showHistory = false
                         historyReplayRecord = record
                     })
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { showHistory = false }
+                                Button(L10n.shared.t("common.done")) { showHistory = false }
                             }
                         }
                 }
@@ -160,11 +154,11 @@ struct ChineseChessiOSApp: App {
             )) {
                 NavigationStack {
                     StatsPanelView()
-                        .navigationTitle(l10n.t("stats.title"))
+                        .navigationTitle(L10n.shared.t("stats.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { activePanel = .none }
+                                Button(L10n.shared.t("common.done")) { activePanel = .none }
                             }
                         }
                 }
@@ -172,11 +166,11 @@ struct ChineseChessiOSApp: App {
             .sheet(isPresented: $showThemePicker) {
                 NavigationStack {
                     ThemePickerView()
-                        .navigationTitle(l10n.t("theme.title"))
+                        .navigationTitle(L10n.shared.t("theme.title"))
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { showThemePicker = false }
+                                Button(L10n.shared.t("common.done")) { showThemePicker = false }
                             }
                         }
                 }
@@ -186,13 +180,12 @@ struct ChineseChessiOSApp: App {
                     SettingsView(viewModel: gameViewModel)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { showSettings = false }
+                                Button(L10n.shared.t("common.done")) { showSettings = false }
                             }
                         }
                 }
             }
             .preferredColorScheme(.dark)
-            .environment(l10n)
         }
     }
 }

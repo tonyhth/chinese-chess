@@ -15,16 +15,14 @@ struct ChineseChessApp: App {
 
     @State private var viewModel = GameViewModel()
     @State private var showPuzzles = false
-    @State private var showReplay = false
-    @State private var replayRecord: GameRecord?
+    @State private var toolbarReplayRecord: GameRecord?
     @State private var showThemePicker = false
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
-    @State private var l10n = L10n.shared
 
     var body: some Scene {
-        WindowGroup(l10n.t("app.title")) {
+        WindowGroup(L10n.shared.t("app.title")) {
             ZStack {
                 // 窗口背景
                 Color(red: 44/255, green: 24/255, blue: 16/255)
@@ -47,34 +45,31 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(l10n.t("toolbar.record"))
+                        .help(L10n.shared.t("toolbar.record"))
 
                         Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
                             Image(systemName: "chart.bar")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(l10n.t("toolbar.stats"))
+                        .help(L10n.shared.t("toolbar.stats"))
 
                         Button(action: { showPuzzles.toggle() }) {
                             Image(systemName: "puzzlepiece")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(l10n.t("toolbar.puzzle"))
+                        .help(L10n.shared.t("toolbar.puzzle"))
 
                         Button(action: {
-                            if let record = viewModel.buildGameRecord() {
-                                replayRecord = record
-                                showReplay = true
-                            }
+                            toolbarReplayRecord = viewModel.buildGameRecord()
                         }) {
                             Image(systemName: "play.circle")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .disabled(viewModel.gameMoves.isEmpty)
-                        .help(l10n.t("toolbar.replay"))
+                        .help(L10n.shared.t("toolbar.replay"))
 
                         Spacer()
 
@@ -83,21 +78,21 @@ struct ChineseChessApp: App {
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(l10n.t("toolbar.theme"))
+                        .help(L10n.shared.t("toolbar.theme"))
 
                         Button(action: { showHistory.toggle() }) {
                             Image(systemName: "clock.arrow.circlepath")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(l10n.t("toolbar.history"))
+                        .help(L10n.shared.t("toolbar.history"))
 
                         Button(action: { showSettings.toggle() }) {
                             Image(systemName: "gearshape")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(l10n.t("toolbar.settings"))
+                        .help(L10n.shared.t("toolbar.settings"))
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
@@ -108,17 +103,13 @@ struct ChineseChessApp: App {
                     GameOverOverlay(gameState: viewModel.gameState) {
                         viewModel.newGame()
                     } onViewRecord: {
-                        if let record = viewModel.buildGameRecord() {
-                            replayRecord = record
-                            showReplay = true
-                        }
+                        toolbarReplayRecord = viewModel.buildGameRecord()
                     }
                 }
 
             }
             .frame(minWidth: 500, minHeight: 600)
             .preferredColorScheme(.dark)
-            .environment(l10n)
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },
@@ -137,20 +128,18 @@ struct ChineseChessApp: App {
             .sheet(isPresented: $showPuzzles) {
                 NavigationStack {
                     PuzzleSelectView()
-                        .navigationTitle(l10n.t("puzzle.title"))
+                        .navigationTitle(L10n.shared.t("puzzle.title"))
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { showPuzzles = false }
+                                Button(L10n.shared.t("common.done")) { showPuzzles = false }
                             }
                         }
                 }
-                .frame(minWidth: 350, minHeight: 400)
+                .frame(minWidth: 600, minHeight: 700)
             }
-            .sheet(isPresented: $showReplay) {
-                if let record = replayRecord {
-                    ReplayView(record: record)
-                        .frame(minWidth: 520, minHeight: 680)
-                }
+            .sheet(item: $toolbarReplayRecord) { record in
+                ReplayView(record: record)
+                    .frame(minWidth: 600, minHeight: 750)
             }
             .sheet(isPresented: $showThemePicker) {
                 NavigationStack {
@@ -158,10 +147,10 @@ struct ChineseChessApp: App {
                         ThemePickerView()
                     }
                     .padding()
-                    .navigationTitle(l10n.t("theme.title"))
+                    .navigationTitle(L10n.shared.t("theme.title"))
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button(l10n.t("common.done")) { showThemePicker = false }
+                            Button(L10n.shared.t("common.done")) { showThemePicker = false }
                         }
                     }
                 }
@@ -170,11 +159,12 @@ struct ChineseChessApp: App {
             .sheet(isPresented: $showHistory) {
                 NavigationStack {
                     GameHistoryView(onReplayRequest: { record in
+                        showHistory = false
                         historyReplayRecord = record
                     })
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { showHistory = false }
+                                Button(L10n.shared.t("common.done")) { showHistory = false }
                             }
                         }
                 }
@@ -182,18 +172,17 @@ struct ChineseChessApp: App {
             }
             .sheet(item: $historyReplayRecord) { record in
                 ReplayView(record: record)
-                    .frame(minWidth: 520, minHeight: 680)
+                    .frame(minWidth: 600, minHeight: 750)
             }
             .sheet(isPresented: $showSettings) {
                 NavigationStack {
                     SettingsView(viewModel: viewModel)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button(l10n.t("common.done")) { showSettings = false }
+                                Button(L10n.shared.t("common.done")) { showSettings = false }
                             }
                         }
                 }
-                .environment(l10n)
                 .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
             }
         }
@@ -202,19 +191,19 @@ struct ChineseChessApp: App {
         .defaultSize(width: 760, height: 860)
         .commands {
             CommandGroup(replacing: .appSettings) {
-                Button(l10n.t("game.settings")) {
+                Button(L10n.shared.t("game.settings")) {
                     showSettings = true
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
 
-            CommandMenu(l10n.t("game.menuLabel")) {
-                Button(l10n.t("game.newGame")) {
+            CommandMenu(L10n.shared.t("game.menuLabel")) {
+                Button(L10n.shared.t("game.newGame")) {
                     viewModel.newGame()
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
-                Button(l10n.t("game.undoMove")) {
+                Button(L10n.shared.t("game.undoMove")) {
                     viewModel.undoMove()
                 }
                 .keyboardShortcut("z", modifiers: .command)
@@ -222,7 +211,7 @@ struct ChineseChessApp: App {
 
                 Divider()
 
-                Button(l10n.t("game.hint")) {
+                Button(L10n.shared.t("game.hint")) {
                     viewModel.requestHint()
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])

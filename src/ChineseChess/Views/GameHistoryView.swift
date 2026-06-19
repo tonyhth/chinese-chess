@@ -6,7 +6,7 @@ struct GameHistoryView: View {
 
     var onReplayRequest: ((GameRecord) -> Void)?
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         List {
@@ -95,7 +95,7 @@ struct GameHistoryView: View {
 
 struct GameHistoryRow: View {
     let record: GameRecord
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         HStack(spacing: 12) {

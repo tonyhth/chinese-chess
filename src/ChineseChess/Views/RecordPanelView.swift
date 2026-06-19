@@ -6,7 +6,7 @@ struct RecordPanelView: View {
     // 静态棋步（残局模式）：不在 sheet 中，无刷新问题
     private let _staticGameMoves: [GameMove]
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     /// 对弈模式：传入 viewModel，sheet 内自动追踪 gameMoves 变化
     init(viewModel: GameViewModel) {

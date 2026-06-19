@@ -6,7 +6,7 @@ struct StatsPanelView: View {
 
     private let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

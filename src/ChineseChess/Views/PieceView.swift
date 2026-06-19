@@ -32,7 +32,7 @@ struct PieceView: View {
     /// 选中发光半径
     private var selectedGlowRadius: CGFloat { isCompact ? 8 : 6 }
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         ZStack {

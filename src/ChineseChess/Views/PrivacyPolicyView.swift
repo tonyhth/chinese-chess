@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PrivacyPolicyView: View {
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         ScrollView {

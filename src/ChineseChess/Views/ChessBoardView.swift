@@ -5,7 +5,6 @@ import SwiftUI
 enum BoardMode {
     case playGame(GameViewModel)
     case playPuzzle(PuzzleViewModel)
-    case replay(ReplayViewModel)
 }
 
 // MARK: - 统一棋盘视图
@@ -47,7 +46,7 @@ struct ChessBoardView: View {
     /// 非法提示自动消失任务
     @State private var illegalFlashTask: Task<Void, Never>? = nil
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         GeometryReader { geo in
@@ -125,15 +124,13 @@ struct ChessBoardView: View {
     // MARK: - Mode helpers
 
     private var isReadOnly: Bool {
-        if case .replay = mode { return true }
-        return false
+        false
     }
 
     private var board: Board {
         switch mode {
         case .playGame(let vm): return vm.board
         case .playPuzzle(let vm): return vm.board
-        case .replay(let vm): return vm.board
         }
     }
 
@@ -141,7 +138,6 @@ struct ChessBoardView: View {
         switch mode {
         case .playGame(let vm): return vm.selectedPosition
         case .playPuzzle(let vm): return vm.selectedPosition
-        case .replay: return nil
         }
     }
 
@@ -149,7 +145,6 @@ struct ChessBoardView: View {
         switch mode {
         case .playGame(let vm): return vm.legalMovesForSelected
         case .playPuzzle(let vm): return vm.legalMovesForSelected
-        case .replay: return []
         }
     }
 
@@ -157,7 +152,6 @@ struct ChessBoardView: View {
         switch mode {
         case .playGame(let vm): return vm.hintMove
         case .playPuzzle(let vm): return vm.hintMove
-        case .replay: return nil
         }
     }
 
@@ -165,13 +159,11 @@ struct ChessBoardView: View {
         switch mode {
         case .playGame(let vm): return vm.isInCheck
         case .playPuzzle(let vm): return vm.isInCheck
-        case .replay: return false
         }
     }
 
     private var lastMove: (from: Position, to: Position)? {
-        if case .replay(let vm) = mode { return vm.lastMove }
-        return nil
+        nil
     }
 
     // MARK: - Overlays
@@ -312,7 +304,6 @@ struct ChessBoardView: View {
         switch mode {
         case .playGame: return piece.side == .red
         case .playPuzzle(let vm): return piece.side == vm.playerSide
-        case .replay: return false
         }
     }
 
@@ -327,7 +318,6 @@ struct ChessBoardView: View {
         switch mode {
         case .playGame(let vm): return !vm.isThinking && vm.gameState == .playing
         case .playPuzzle(let vm): return !vm.isThinking && vm.gameState == .playing
-        case .replay: return false
         }
     }
 
@@ -398,7 +388,6 @@ struct ChessBoardView: View {
             switch mode {
             case .playGame(let vm): vm.movePiece(from: from, to: to)
             case .playPuzzle(let vm): vm.movePiece(from: from, to: to)
-            case .replay: break
             }
         } else {
             // 非法目标
@@ -460,8 +449,6 @@ struct ChessBoardView: View {
                 }
             }
             vm.handleSquareTap(at: pos)
-        case .replay:
-            break
         }
     }
 

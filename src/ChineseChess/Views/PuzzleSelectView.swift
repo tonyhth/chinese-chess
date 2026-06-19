@@ -17,7 +17,7 @@ struct PuzzleSelectView: View {
     /// 搜索防抖 Timer
     @State private var searchDebounceTask: Task<Void, Never>?
 
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -326,7 +326,7 @@ struct PuzzleRow: View {
     let puzzle: Puzzle
     let progress: PuzzleProgress?
     let onTap: () -> Void
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     var body: some View {
         Button(action: onTap) {
@@ -417,7 +417,7 @@ struct PuzzlePlayView: View {
     @State private var viewModel: PuzzleViewModel
     @State private var showSolutionReplay = false
     @Environment(\.dismiss) private var dismiss
-    @Environment(L10n.self) private var l10n
+    private let l10n = L10n.shared
 
     /// 是否为自由对弈模式
     private var isFreePlay: Bool {

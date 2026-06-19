@@ -54,9 +54,9 @@ struct BoardLayoutConsistencyTests {
             return
         }
 
-        let pattern = "ChessBoardView(mode: .replay"
+        let pattern = "ReplayBoardView(viewModel:"
         guard let range = content.range(of: pattern) else {
-            Issue.record("未找到 ChessBoardView(mode: .replay")
+            Issue.record("未找到 ReplayBoardView(viewModel:")
             return
         }
 
@@ -64,13 +64,11 @@ struct BoardLayoutConsistencyTests {
         let lines = after.split(separator: "\n", maxSplits: 10, omittingEmptySubsequences: false)
         let modifierBlock = lines.prefix(6).joined(separator: "\n")
 
-        #expect(modifierBlock.contains(".frame(maxWidth: .infinity, maxHeight: .infinity)"),
-                "应保留 maxWidth/maxHeight: .infinity")
         #expect(modifierBlock.contains(".layoutPriority(1)"),
                 "应保留 layoutPriority(1)")
 
-        #expect(!modifierBlock.contains(".frame(minHeight: 280)"),
-                "不应再有 .frame(minHeight: 280)")
+        #expect(!modifierBlock.contains(".frame(minHeight:"),
+                "不应再有 .frame(minHeight:)")
         #expect(!modifierBlock.contains(".padding()"),
                 "不应再有 .padding()")
     }
@@ -103,20 +101,24 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - 2. ReplayView 功能回归
 
-    @Test("ReplayView：空步数记录有 UI 提示（record.moves.isEmpty 分支存在）")
+    @Test("ReplayView：空步数记录不 crash")
     func replayViewEmptyMovesHandling() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift"
-        guard let content = try? String(contentsOfFile: path) else {
-            Issue.record("无法读取 ReplayView.swift")
-            return
-        }
-
-        // 确认空步数的 ZStack 叠加提示存在
-        #expect(content.contains("viewModel.record.moves.isEmpty"),
-                "ReplayView 应有空步数提示逻辑")
-        #expect(content.contains("replay.empty"),
-                "ReplayView 应有 replay.empty 本地化键")
+        // 空记录由 ReplayViewModel 处理边界情况，ReplayView 无需特殊分支
+        let emptyRecord = GameRecord(
+            id: UUID(),
+            title: "空对局",
+            date: Date(),
+            redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
+            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .easy),
+            difficulty: .easy,
+            result: .draw,
+            totalMoves: 0,
+            moves: [],
+            initialFEN: nil
+        )
+        let vm = ReplayViewModel(record: emptyRecord)
+        #expect(!vm.canGoForward)
+        #expect(!vm.canGoBack)
     }
 
     @Test("ReplayViewModel：布局变更后功能正常")
@@ -226,37 +228,28 @@ struct BoardLayoutConsistencyTests {
         #endif
     }
 
-    @Test("删除 padding 后棋盘可使用更多空间")
-    func paddingRemovalGivesMoreSpace() {
-        // 删除 .padding() 后，棋盘不再有 16pt 内边距
-        // 这意味着棋盘可以填满 VStack 分配的全部空间
-        // 验证：三种页面都有 maxWidth/maxHeight: .infinity
+    @Test("棋盘使用 aspectRatio 自适应")
+    func boardUsesAspectRatioForAdaptation() {
+        // ReplayBoardView 和 ChessBoardView 都使用 .aspectRatio 而非硬编码 frame
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
 
-        let files = [
-            "PuzzleSelectView.swift": "ChessBoardView(mode: .playPuzzle",
-            "ReplayView.swift": "ChessBoardView(mode: .replay",
-        ]
-
-        for (fileName, pattern) in files {
-            let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/\(fileName)"
-            guard let content = try? String(contentsOfFile: path) else {
-                Issue.record("无法读取 \(fileName)")
-                continue
-            }
-
-            guard let range = content.range(of: pattern) else {
-                Issue.record("\(fileName) 中未找到 \(pattern)")
-                continue
-            }
-
-            let after = content[range.lowerBound...]
-            let lines = after.split(separator: "\n", maxSplits: 6, omittingEmptySubsequences: false)
-            let block = lines.prefix(5).joined(separator: "\n")
-
-            #expect(block.contains("maxWidth: .infinity"), "\(fileName) 棋盘应有 maxWidth: .infinity")
-            #expect(block.contains("maxHeight: .infinity"), "\(fileName) 棋盘应有 maxHeight: .infinity")
+        // ReplayBoardView 应有 aspectRatio
+        let replayPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayBoardView.swift"
+        guard let replayContent = try? String(contentsOfFile: replayPath) else {
+            Issue.record("无法读取 ReplayBoardView.swift")
+            return
         }
+        #expect(replayContent.contains(".aspectRatio"),
+                "ReplayBoardView 应使用 .aspectRatio 自适应")
+
+        // ChessBoardView 应有 aspectRatio
+        let chessPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift"
+        guard let chessContent = try? String(contentsOfFile: chessPath) else {
+            Issue.record("无法读取 ChessBoardView.swift")
+            return
+        }
+        #expect(chessContent.contains(".aspectRatio"),
+                "ChessBoardView 应使用 .aspectRatio 自适应")
     }
 
     // MARK: - 6. 底部区域约束完整性验证
