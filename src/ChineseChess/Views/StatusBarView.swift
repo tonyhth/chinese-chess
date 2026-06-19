@@ -39,15 +39,23 @@ struct StatusBarView: View {
                 Spacer()
 
                 // 当前难度标签
-                Text(viewModel.difficulty.displayName)
-                    .font(.caption2)
-                    .foregroundColor(.white.opacity(0.9))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.brown.opacity(0.3))
-                    .cornerRadius(4)
+                HStack(spacing: 3) {
+                    Image(systemName: "square.stack.3d.up.fill")
+                        .font(.caption2)
+                    Text(viewModel.difficulty.displayName)
+                        .font(.caption.weight(.semibold))
+                }
+                .foregroundColor(.yellow)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.brown.opacity(0.6))
+                .cornerRadius(6)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.yellow.opacity(0.3), lineWidth: 0.5)
+                )
 
                 Text(String(format: l10n.t("status.roundN"), max(1, viewModel.moveHistory.count / 2 + 1)))
                     .font(.subheadline)
