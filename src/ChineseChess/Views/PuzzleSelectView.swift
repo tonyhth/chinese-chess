@@ -570,7 +570,8 @@ struct PuzzlePlayView: View {
             .layoutPriority(0)
 
             // 通关弹窗（回放 sheet 打开时隐藏 overlay，避免重叠）
-            if viewModel.gameState == .success && !showSolutionReplay {
+            // 通关弹窗
+            if viewModel.gameState == .success {
                 Color.black.opacity(0.5)
                     .ignoresSafeArea()
                     .onTapGesture { }
@@ -714,6 +715,7 @@ struct PuzzlePlayView: View {
         .sheet(isPresented: $showSolutionReplay) {
             if let record = viewModel.buildSolutionRecord() {
                 ReplayView(record: record)
+                    .frame(minWidth: 700, minHeight: 850)
             }
         }
     }
