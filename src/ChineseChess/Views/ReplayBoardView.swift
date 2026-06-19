@@ -28,10 +28,14 @@ struct ReplayBoardView: View {
             let availableWidth = geo.size.width
             let availableHeight = geo.size.height
             #endif
-            let padding = max(10, min(availableWidth, availableHeight) * 0.04)
-            let cellSizeW = (availableWidth - padding * 2) / CGFloat(gridCols)
-            let cellSizeH = (availableHeight - padding * 2) / CGFloat(gridRows)
+            // 先算 cellSize（用临时 padding 估算），再反向算足够的 padding 防止棋子溢出
+            let minDim = min(availableWidth, availableHeight)
+            let tempPadding = max(10, minDim * 0.04)
+            let cellSizeW = (availableWidth - tempPadding * 2) / CGFloat(gridCols)
+            let cellSizeH = (availableHeight - tempPadding * 2) / CGFloat(gridRows)
             let cellSize = min(cellSizeW, cellSizeH, maxCellSize)
+            // padding 必须 >= 棋子半径（cellSize * 0.425），否则边缘棋子被裁
+            let padding = max(tempPadding, cellSize * 0.45)
             let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
             let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
 
