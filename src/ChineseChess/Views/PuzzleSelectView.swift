@@ -569,7 +569,6 @@ struct PuzzlePlayView: View {
             .frame(maxHeight: bottomAreaMaxHeight)
             .layoutPriority(0)
 
-            // 通关弹窗（回放 sheet 打开时隐藏 overlay，避免重叠）
             // 通关弹窗
             if viewModel.gameState == .success {
                 Color.black.opacity(0.5)
