@@ -7,6 +7,11 @@ struct PuzzleSelectView: View {
     @State private var searchText = ""
     @State private var isSearching = false
     @State private var debouncedSearchText = ""
+    @State private var completionFilter: CompletionFilter = .all
+
+    enum CompletionFilter: String, CaseIterable {
+        case all, completed, uncompleted
+    }
 
     /// 面板背景色（统一常量，渐变遮罩也使用此色）
     private let panelBackground = Color(red: 40/255, green: 22/255, blue: 14/255)
@@ -110,6 +115,14 @@ struct PuzzleSelectView: View {
                     }
                 }
             }
+
+            // 通关状态筛选
+            Picker("", selection: $completionFilter) {
+                Text(l10n.t("puzzle.all")).tag(CompletionFilter.all)
+                Text(l10n.t("puzzle.filterUncompleted")).tag(CompletionFilter.uncompleted)
+                Text(l10n.t("puzzle.filterCompleted")).tag(CompletionFilter.completed)
+            }
+            .pickerStyle(.segmented)
         }
 
             // 残局列表
@@ -211,7 +224,7 @@ struct PuzzleSelectView: View {
 
     // MARK: - 筛选逻辑
 
-    /// 最终展示的残局列表（分类 + 难度 + 搜索三重过滤）
+    /// 最终展示的残局列表（分类 + 难度 + 通关状态 + 搜索四重过滤）
     private var filteredPuzzles: [Puzzle] {
         var result = PuzzleStore.shared.puzzles
 
@@ -235,13 +248,29 @@ struct PuzzleSelectView: View {
             }
         }
 
-        // 4. 排序：未完成排前面
+        // 4. 通关状态筛选
         let progress = PuzzleStore.shared.progressMap
+        switch completionFilter {
+        case .all: break
+        case .completed: result = result.filter { progress[$0.id]?.isCompleted == true }
+        case .uncompleted: result = result.filter { progress[$0.id]?.isCompleted != true }
+        }
+
+        // 5. 筛选感知排序
         result.sort { a, b in
             let aDone = progress[a.id]?.isCompleted == true
             let bDone = progress[b.id]?.isCompleted == true
-            if aDone != bDone { return !aDone }
-            return a.id < b.id
+            switch completionFilter {
+            case .completed:
+                // 已通关列表：按完成时间降序（最近通关的排前面）
+                let aDate = progress[a.id]?.completedAt ?? .distantPast
+                let bDate = progress[b.id]?.completedAt ?? .distantPast
+                return aDate > bDate
+            case .uncompleted, .all:
+                // 未通关/全部：未完成排前面，再按 id 排序
+                if aDone != bDone { return !aDone }
+                return a.id < b.id
+            }
         }
 
         return result
