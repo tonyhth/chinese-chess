@@ -61,6 +61,7 @@ struct ReplayBoardView: View {
             }
             .frame(width: boardWidth, height: boardHeight)
             .aspectRatio(CGFloat(gridCols) / CGFloat(gridRows), contentMode: .fit)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

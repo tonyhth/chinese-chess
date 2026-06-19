@@ -204,7 +204,7 @@ struct PuzzleSelectView: View {
         #else
         .sheet(item: $selectedPuzzle) { puzzle in
             PuzzlePlayView(puzzle: puzzle)
-                .frame(minWidth: 520, minHeight: 680)
+                .frame(minWidth: 600, minHeight: 700)
         }
         #endif
     }

@@ -108,7 +108,7 @@ struct ChineseChessApp: App {
                 }
 
             }
-            .frame(minWidth: 500, minHeight: 600)
+            .frame(minWidth: 600, minHeight: 700)
             .preferredColorScheme(.dark)
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(

@@ -81,7 +81,7 @@ struct V222FixTests {
                "defaultSize 应为 760x860")
     }
 
-    @Test("问题2: 窗口最小尺寸 500x600")
+    @Test("问题2: 窗口最小尺寸 600x700")
     func testMinWindowSize() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
@@ -89,8 +89,8 @@ struct V222FixTests {
             #expect(Bool(false), "无法读取 ChineseChessApp.swift")
             return
         }
-        #expect(content.contains("minWidth: 500, minHeight: 600"),
-               "主窗口 minWidth: 500, minHeight: 600")
+        #expect(content.contains("minWidth: 600, minHeight: 700"),
+               "主窗口 minWidth: 600, minHeight: 700")
     }
 
     @Test("问题2: 棋盘有最小高度")
