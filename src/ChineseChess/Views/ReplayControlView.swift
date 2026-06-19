@@ -24,7 +24,7 @@ struct ReplayControlView: View {
 
                 Spacer()
 
-                // 速度选择
+                // 速度选择（iOS 小屏缩小宽度）
                 Picker(l10n.t("replay.speed"), selection: Binding(
                     get: { viewModel.autoPlaySpeed },
                     set: { viewModel.autoPlaySpeed = $0 }
@@ -34,7 +34,9 @@ struct ReplayControlView: View {
                     Text("2x").tag(2.0)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 120)
+                #if os(iOS)
+                .frame(width: UIDevice.current.userInterfaceIdiom == .phone ? 90 : 120)
+                #endif
             }
             .foregroundColor(.white)
             .padding(.horizontal, 16)

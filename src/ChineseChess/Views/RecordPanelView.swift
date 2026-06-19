@@ -125,11 +125,15 @@ struct RecordPanelView: View {
 
     @ViewBuilder
     private func moveText(_ gm: GameMove) -> some View {
-        Text(gm.notation)
-            .font(.custom(FontRegistry.bestAvailableFontName, size: 14))
-            .foregroundColor(gm.piece.side == .red ? .red : .white)
-            + Text(gm.isCheckmate ? " #" : (gm.isCheck ? " +" : ""))
-                .font(.footnote.weight(.bold))
-                .foregroundColor(.yellow)
+        HStack(spacing: 1) {
+            Text(gm.notation)
+                .font(.custom(FontRegistry.bestAvailableFontName, size: 14))
+                .foregroundColor(gm.piece.side == .red ? .red : .white)
+            if gm.isCheckmate || gm.isCheck {
+                Text(gm.isCheckmate ? "#" : "+")
+                    .font(.footnote.weight(.bold))
+                    .foregroundColor(.yellow)
+            }
+        }
     }
 }
