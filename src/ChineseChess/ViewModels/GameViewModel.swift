@@ -20,6 +20,10 @@ class GameViewModel {
     var isProcessingWrongMove: Bool = false
     var isInCheck: Bool = false
     var difficulty: AIDifficulty = .medium
+    var humanSide: Side = {
+        let saved = UserDefaults.standard.string(forKey: "chinesechess.humanSide") ?? "red"
+        return saved == "black" ? .black : .red
+    }()
     var hintMove: (from: Position, to: Position)? = nil
     private var gameVersion: Int = 0
     var moveHistory: [Move] {
@@ -43,15 +47,15 @@ class GameViewModel {
     func selectPiece(at pos: Position) {
         guard !isThinking, gameState == .playing else { return }
 
-        // 只允许红方操作
-        guard board.currentTurn == .red else { return }
+        // v3.0 Phase 5: 玩家执 humanSide
+        guard board.currentTurn == humanSide else { return }
 
         if let selected = selectedPosition, legalMovesForSelected.contains(pos) {
             movePiece(from: selected, to: pos)
             return
         }
 
-        guard let piece = board.piece(at: pos), piece.side == .red else {
+        guard let piece = board.piece(at: pos), piece.side == humanSide else {
             selectedPosition = nil
             legalMovesForSelected = []
             return
@@ -68,7 +72,7 @@ class GameViewModel {
         let piece: Piece? = board.piece(at: from)
         guard let piece = piece else { return }
 
-        guard piece.side == .red else { return }
+        guard piece.side == humanSide else { return }
 
         let captured = board.piece(at: to)
         let move = Move(piece: piece, from: from, to: to, captured: captured)
@@ -179,7 +183,24 @@ class GameViewModel {
         isInCheck = false
         gameMoves = []
         hintMove = nil
-        aiEngine.clearHistory()  // 清理历史启发表，避免对局间污染
+        aiEngine.clearHistory()
+
+        // v3.0 Phase 5: 玩家执黑时 AI（红方）先行
+        if humanSide == .black {
+            triggerAIMove()
+        }
+    }
+
+    // v3.0 Phase 5: 设置执边
+    func setHumanSide(_ side: Side) {
+        humanSide = side
+        UserDefaults.standard.set(side == .red ? "red" : "black", forKey: "chinesechess.humanSide")
+    }
+
+    // v3.0 Phase 5: 加载上次执边选择
+    private static func loadHumanSide() -> Side {
+        let saved = UserDefaults.standard.string(forKey: "chinesechess.humanSide") ?? "red"
+        return saved == "black" ? .black : .red
     }
 
     func setDifficulty(_ diff: AIDifficulty) {
@@ -239,7 +260,7 @@ class GameViewModel {
 
                         // 记录 AI 的 GameMove
                         let turnNumber = (self.gameMoves.count / 2) + 1
-                        let isCheck = MoveValidator.isInCheck(.red, on: self.board)
+                        let isCheck = MoveValidator.isInCheck(self.humanSide, on: self.board)
 
                         let gameMove = GameMove(
                             id: UUID(),
