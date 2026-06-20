@@ -178,8 +178,19 @@ struct PatternRecognizer {
         // 过河兵
         for s in myPieces where s.kind == .soldier {
             let crossed = (side == .black) ? s.position.row >= 5 : s.position.row <= 4
-            if crossed { bonus += 200 }
+            if crossed {
+                bonus += 200
+                // v3.0 Phase 3b: 接近将位递增
+                if let og = opGeneral {
+                    let dist = abs(s.position.row - og.row) + abs(s.position.col - og.col)
+                    // 距离越近加分越高（dist 1=+150, 2=+100, 3=+50）
+                    if dist <= 3 { bonus += (4 - dist) * 50 }
+                }
+            }
         }
+
+        // 兵阵结构：散乱减分，紧凑加分（v3.0 Phase 3b）
+        bonus += soldierStructureBonus(pieces: myPieces, side: side)
 
         // 兵线协同：多个兵在同一行
         bonus += soldierLineSyncBonus(pieces: myPieces, side: side)
@@ -237,10 +248,11 @@ struct PatternRecognizer {
         // 先手价值：简化版——子力推进加分（已在位置权重中体现，此处只加微调）
         // 这里不额外加分，避免重复计算
 
+        // v3.0 Phase 3b: 协同减分（马塞象眼）
+        bonus -= elephantEyeBlockedPenalty(pieces: myPieces, side: side)
+
         return bonus
     }
-
-    // MARK: - 原有棋型判定辅助（保持不变）
 
     private static func isHorseCannonPattern(horse: Piece, cannon: Piece,
                                               general: Position) -> Bool {
@@ -387,6 +399,31 @@ struct PatternRecognizer {
         return bonus
     }
 
+    /// 兵阵结构：散乱减分，紧凑加分（v3.0 Phase 3b）
+    /// 相邻兵（行列距离 ≤1）算紧凑，+80/组；孤立兵减分 -30/个
+    private static func soldierStructureBonus(pieces: [Piece], side: Side) -> Int {
+        let soldiers = pieces.filter { $0.kind == .soldier }
+        guard soldiers.count >= 2 else { return 0 }
+        var bonus = 0
+        var hasNeighbor = Array(repeating: false, count: soldiers.count)
+        for i in 0..<soldiers.count {
+            for j in (i+1)..<soldiers.count {
+                let dr = abs(soldiers[i].position.row - soldiers[j].position.row)
+                let dc = abs(soldiers[i].position.col - soldiers[j].position.col)
+                if dr <= 1 && dc <= 1 {
+                    bonus += 80  // 相邻兵协同
+                    hasNeighbor[i] = true
+                    hasNeighbor[j] = true
+                }
+            }
+        }
+        // 孤立兵减分
+        for i in 0..<soldiers.count where !hasNeighbor[i] {
+            bonus -= 30
+        }
+        return bonus
+    }
+
     /// 车炮配合：车和炮在同一行或列
     private static func chariotCannonCoordBonus(pieces: [Piece]) -> Int {
         let chariots = pieces.filter { $0.kind == .chariot }
@@ -416,5 +453,33 @@ struct PatternRecognizer {
             }
         }
         return bonus
+    }
+
+    // MARK: - v3.0 Phase 3b 新增
+
+    /// 协同减分：马塞象眼
+    /// 象眼位置（象的日字中心）如果有己方马，减机动性
+    private static func elephantEyeBlockedPenalty(pieces: [Piece], side: Side) -> Int {
+        let elephants = pieces.filter { $0.kind == .elephant }
+        let horses = pieces.filter { $0.kind == .horse }
+        guard !elephants.isEmpty && !horses.isEmpty else { return 0 }
+        var penalty = 0
+        // 象眼位置：象在（r,c），象眼在（r±2, c±2）的中点（r±1, c±1）
+        for el in elephants {
+            let localRow = (side == .black) ? el.position.row : (9 - el.position.row)
+            // 象的标准位置：(2,2), (2,6), (0,2), (0,6)
+            // 象眼：象位置和将位之间
+            let eyeOffsets = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+            for (dr, dc) in eyeOffsets {
+                let eyeRow = el.position.row + dr
+                let eyeCol = el.position.col + dc
+                if eyeRow >= 0 && eyeRow <= 9 && eyeCol >= 0 && eyeCol <= 8 {
+                    if horses.contains(where: { $0.position.row == eyeRow && $0.position.col == eyeCol }) {
+                        penalty += 60  // 马塞象眼
+                    }
+                }
+            }
+        }
+        return penalty
     }
 }

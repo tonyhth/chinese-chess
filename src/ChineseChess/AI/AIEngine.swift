@@ -921,19 +921,37 @@ final class AIEngine: AIEngineProtocol {
 
     /// 将帅安全：周围防护（士/象覆盖）加分，对方攻击线经过九宫减分
     /// 开销极小（约 8 次检查），所有难度启用
+    /// v3.0 Phase 3b: 将帅安全评估增强
+    /// 开局侧重防守子力完整性，残局侧重将的机动性
     private func kingSafetyScore(for side: Side, on board: Board) -> Int {
         guard let kingPos = board.generalPosition(of: side) else { return -50000 }
         var score = 0
+        let totalPieces = board.pieces.count
+        let isEndgame = totalPieces <= 16
 
-        // 士象覆盖加分
         let advisors = board.pieces(for: side).filter { $0.kind == .advisor }
         let elephants = board.pieces(for: side).filter { $0.kind == .elephant }
-        score += advisors.count * 30 + elephants.count * 25
 
-        // 将帅暴露扣分（士象不完整时额外扣分）
+        // 士象覆盖加分（开局权重更高）
+        let guardWeight = isEndgame ? 20 : 30
+        score += advisors.count * guardWeight + elephants.count * (guardWeight - 5)
+
+        // 将帅暴露扣分（开局更严重）
+        let exposurePenalty = isEndgame ? 25 : 40
         if advisors.count < 2 || elephants.count < 2 {
             let missingGuards = (2 - advisors.count) + (2 - elephants.count)
-            score -= missingGuards * 40
+            score -= missingGuards * exposurePenalty
+        }
+
+        // v3.0 Phase 3b: 防空检测 — 将正上方是否有防守子
+        let defenseRowOffset = (side == .black) ? -1 : 1
+        let airDefPos = Position(row: kingPos.row + defenseRowOffset, col: kingPos.col)
+        if airDefPos.row >= 0 && airDefPos.row <= 9 {
+            if let defender = board.piece(at: airDefPos), defender.side == side {
+                score += 40  // 将上方有子防空
+            } else if !isEndgame {
+                score -= 30  // 开局将上方空虚
+            }
         }
 
         // 对方车/炮攻击线经过九宫减分
@@ -941,7 +959,7 @@ final class AIEngine: AIEngineProtocol {
         for op in board.pieces(for: opSide) {
             if op.kind == .chariot || op.kind == .cannon {
                 if isAttackingPosition(op, target: kingPos, on: board) {
-                    score -= 200
+                    score -= isEndgame ? 250 : 200  // 残局威胁更致命
                 }
             }
         }
