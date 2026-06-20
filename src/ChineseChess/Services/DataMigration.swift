@@ -113,14 +113,13 @@ final class DataMigration {
         if totalWins > 0 {
             store.update { profile in
                 profile.totalWins = totalWins
-                // 反算段位
+                profile.puzzlesCompleted = stats.puzzlesCompleted
+                // 反算段位（需同时满足胜场+残局条件）
                 for rank in Rank.allCases {
-                    if totalWins >= rank.requiredWins {
+                    if totalWins >= rank.requiredWins && stats.puzzlesCompleted >= rank.requiredPuzzles {
                         profile.rank = rank
                     }
                 }
-                // 残局通关数
-                profile.puzzlesCompleted = stats.puzzlesCompleted
             }
         }
     }
