@@ -311,10 +311,10 @@ final class AIEngine: AIEngineProtocol {
     private func masterSearch(for board: Board, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
-        // 开局库（前 6 步以内，加权随机选——高权重走法概率更大，同时增加多样性）
+        // v3.0: 开局库（前 6 步以内，确定性最优——取权重最高走法）
         if board.moveHistory.count < 6 {
             let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+            if let iccsMove = openingBook.lookup(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
                 return move
             }
@@ -581,10 +581,40 @@ final class AIEngine: AIEngineProtocol {
         let allMoves = MoveValidator.allLegalMoves(for: side, on: board)
         let captureMoves = allMoves.filter { $0.captured != nil }
 
-        // 按 MVV-LVA 排序吃子走法
+        // v3.0: QS 增加将军走法搜索
+        // 将军走法可能迫使对手应将，暴露战术机会
+        let checkMoves = allMoves.filter { move in
+            move.captured == nil  // 避免与吃子走法重复
+        }.filter { move in
+            board.execute(move)
+            let givesCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+            _ = board.undoLastMove()
+            return givesCheck
+        }
+
+        // 按 MVV-LVA 排序吃子走法，将军走法放后面（优先级更低）
         let orderedCaptures = orderCapturesMVV_LVA(captureMoves)
 
         for move in orderedCaptures {
+            board.execute(move)
+            let score = -quiescenceSearch(
+                board: board,
+                alpha: -beta, beta: -alpha,
+                qDepth: qDepth - 1,
+                searchConfig: searchConfig
+            )
+            _ = board.undoLastMove()
+
+            if score >= beta {
+                return beta  // beta cutoff
+            }
+            if score > alpha {
+                alpha = score
+            }
+        }
+
+        // v3.0: 搜索将军走法（不吃子的将军，消耗额外 QS 深度）
+        for move in checkMoves {
             board.execute(move)
             let score = -quiescenceSearch(
                 board: board,
@@ -961,18 +991,18 @@ final class AIEngine: AIEngineProtocol {
         }
     }
 
-    // 兵/卒位置权重（黑卒视角）
+    // 兵/卒位置权重（黑卒视角）— v3.0 放大 15x + 零值清理
     private static let blackSoldierWeights: [[Int]] = [
-        [0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0],
-        [2,  0,  4,  0,  8,  0,  4,  0,  2],
-        [6, 12, 18, 18, 20, 18, 18, 12,  6],
-        [10, 20, 30, 34, 40, 34, 30, 20, 10],
-        [14, 26, 42, 60, 80, 60, 42, 26, 14],
-        [18, 36, 56, 80, 120, 80, 56, 36, 18],
-        [0,  3,  6,  6,  6,  6,  6,  3,  0],
-        [0,  0,  0,  0,  0,  0,  0,  0,  0]
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30],
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30],
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30],
+        [  60,  30,  90,  30, 150,  30,  90,  30,  60],
+        [ 120, 210, 300, 300, 360, 300, 300, 210, 120],
+        [ 210, 360, 540, 630, 720, 630, 540, 360, 210],
+        [ 300, 510, 810,1080,1440,1080, 810, 510, 300],
+        [ 360, 660,1020,1440,2160,1440,1020, 660, 360],
+        [  30,  90, 120, 120, 120, 120, 120,  90,  30],
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30]
     ]
 
     private func soldierPositionWeight(row: Int, col: Int, side: Side) -> Int {
@@ -980,17 +1010,18 @@ final class AIEngine: AIEngineProtocol {
         return Self.blackSoldierWeights[r][col]
     }
 
+    // 马位置权重 — v3.0 放大 15x + 零值清理
     private static let blackHorseWeights: [[Int]] = [
-        [0,  2,  4,  4,  0,  4,  4,  2,  0],
-        [2,  8, 12, 12, 12, 12, 12,  8,  2],
-        [4, 12, 16, 18, 18, 18, 16, 12,  4],
-        [6, 16, 22, 24, 26, 24, 22, 16,  6],
-        [8, 18, 26, 30, 32, 30, 26, 18,  8],
-        [8, 18, 26, 30, 32, 30, 26, 18,  8],
-        [6, 16, 22, 24, 26, 24, 22, 16,  6],
-        [4, 12, 16, 18, 18, 18, 16, 12,  4],
-        [2,  8, 12, 12, 12, 12, 12,  8,  2],
-        [0,  2,  4,  4,  0,  4,  4,  2,  0]
+        [ 30,  60,  90,  90,  30,  90,  90,  60,  30],
+        [ 60, 150, 210, 210, 210, 210, 210, 150,  60],
+        [ 90, 210, 270, 300, 300, 300, 270, 210,  90],
+        [120, 270, 360, 390, 420, 390, 360, 270, 120],
+        [150, 300, 420, 480, 510, 480, 420, 300, 150],
+        [150, 300, 420, 480, 510, 480, 420, 300, 150],
+        [120, 270, 360, 390, 420, 390, 360, 270, 120],
+        [ 90, 210, 270, 300, 300, 300, 270, 210,  90],
+        [ 60, 150, 210, 210, 210, 210, 210, 150,  60],
+        [ 30,  60,  90,  90,  30,  90,  90,  60,  30]
     ]
 
     private func horsePositionWeight(row: Int, col: Int, side: Side) -> Int {
@@ -998,25 +1029,27 @@ final class AIEngine: AIEngineProtocol {
         return Self.blackHorseWeights[r][col]
     }
 
-    private static let chariotEdgeRow: [Int] = [6, 8, 8, 12, 14, 12, 8, 8, 6]
-    private static let chariotMidRow: [Int]  = [6, 10, 12, 16, 18, 16, 12, 10, 6]
+    // 车位置权重 — v3.0 放大 15x
+    private static let chariotEdgeRow: [Int] = [90, 120, 120, 180, 210, 180, 120, 120, 90]
+    private static let chariotMidRow: [Int]  = [90, 150, 180, 240, 270, 240, 180, 150, 90]
 
     private func chariotPositionWeight(row: Int, col: Int, side: Side) -> Int {
         let r = (side == .black) ? row : (9 - row)
         return (r == 0 || r == 9) ? Self.chariotEdgeRow[col] : Self.chariotMidRow[col]
     }
 
+    // 炮位置权重 — v3.0 放大 15x + 零值清理
     private static let blackCannonWeights: [[Int]] = [
-        [0,  2,  4,  6,  8,  6,  4,  2,  0],
-        [2,  4,  8, 12, 14, 12,  8,  4,  2],
-        [4,  8, 12, 16, 18, 16, 12,  8,  4],
-        [4, 10, 16, 20, 22, 20, 16, 10,  4],
-        [6, 12, 18, 24, 26, 24, 18, 12,  6],
-        [6, 12, 18, 24, 26, 24, 18, 12,  6],
-        [4, 10, 16, 20, 22, 20, 16, 10,  4],
-        [4,  8, 12, 16, 18, 16, 12,  8,  4],
-        [2,  4,  8, 12, 14, 12,  8,  4,  2],
-        [0,  2,  4,  6,  8,  6,  4,  2,  0]
+        [ 30,  60,  90, 120, 150, 120,  90,  60,  30],
+        [ 60,  90, 150, 210, 240, 210, 150,  90,  60],
+        [ 90, 150, 210, 270, 300, 270, 210, 150,  90],
+        [ 90, 180, 270, 330, 360, 330, 270, 180,  90],
+        [120, 210, 300, 390, 420, 390, 300, 210, 120],
+        [120, 210, 300, 390, 420, 390, 300, 210, 120],
+        [ 90, 180, 270, 330, 360, 330, 270, 180,  90],
+        [ 90, 150, 210, 270, 300, 270, 210, 150,  90],
+        [ 60,  90, 150, 210, 240, 210, 150,  90,  60],
+        [ 30,  60,  90, 120, 150, 120,  90,  60,  30]
     ]
 
     private func cannonPositionWeight(row: Int, col: Int, side: Side) -> Int {
