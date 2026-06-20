@@ -110,6 +110,17 @@ class TutorialViewModel {
 
     static func markTutorialCompleted() {
         UserDefaults.standard.set(true, forKey: "chinesechess.tutorialCompleted")
+        // v3.0 Phase 6: 联动成就 + 段位
+        let store = PlayerProfileStore.shared
+        store.update { profile in
+            profile.completedTutorials = true
+            // 教程完成升至学童段位（如果还是初始状态）
+            if profile.rank == .student && profile.totalWins == 0 {
+                // 学童是起始段位，不需升级，但解锁成就
+            }
+        }
+        AchievementManager.shared.unlock("tutorial_done")
+        AchievementManager.shared.unlock("first_game")
     }
 
     static func resetTutorial() {
