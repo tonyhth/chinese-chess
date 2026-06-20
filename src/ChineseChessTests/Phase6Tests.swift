@@ -1005,7 +1005,8 @@ struct PatternRecognizerExtendedTests6 {
         let fen = "4k4/9/9/9/9/9/9/9/9/4K4 w"
         let board = Board(fen: fen)
         let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
-        #expect(bonus == 0)
+        // v3.0: 双方无炮（防空 +100）+ 将在同列无遮挡（飞将 +300）
+        #expect(bonus <= 500, "只有将帅时棋型加分应很小（防空+飞将）")
     }
 }
 

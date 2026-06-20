@@ -845,7 +845,7 @@ final class AIEngine: AIEngineProtocol {
 
         for piece in board.pieces {
             let value = dynamicValue(for: piece, totalPieces: totalPieces)
-            let posWeight = positionWeight(for: piece)
+            let posWeight = positionWeight(for: piece, totalPieces: totalPieces)
             if piece.side == .black {
                 materialScore += value
                 positionScore += posWeight
@@ -1041,20 +1041,60 @@ final class AIEngine: AIEngineProtocol {
         return 0
     }
 
-    /// 机动性评估：车/炮攻击线覆盖 + 马的可达位置
-    /// 注：车空格系数 5、炮目标系数 3、马机动性系数 3 为经验值
+    /// v3.0 Phase 3a: 机动性评估重写
+    /// 车：区分有价值方向 + 活跃度
+    /// 马：好马 vs 坏马（窝心马扣分）
+    /// 炮：炮架质量 + 控制线路
+    /// 兵：过河兵机动性 + 推进价值
     private func simplifiedMobilityScore(for side: Side, on board: Board) -> Int {
         var score = 0
+        let totalPieces = board.pieces.count
+        let isEndgame = totalPieces <= 16
+
         for piece in board.pieces(for: side) {
-            if piece.kind == .chariot {
+            switch piece.kind {
+            case .chariot:
                 let rowEmpty = countEmptyInRow(piece.position.row, on: board)
                 let colEmpty = countEmptyInCol(piece.position.col, on: board)
-                score += (rowEmpty + colEmpty) * 5
-            } else if piece.kind == .cannon {
+                let baseMobility = (rowEmpty + colEmpty) * 5
+                let positionalBonus: Int
+                if piece.position.col == 4 { positionalBonus = 30 }
+                else if piece.position.col == 3 || piece.position.col == 5 { positionalBonus = 20 }
+                else { positionalBonus = 0 }
+                let endgameMult = isEndgame ? 6 : 5
+                score += baseMobility * endgameMult / 5 + positionalBonus
+
+            case .cannon:
                 let targets = countCannonTargets(piece, on: board)
                 score += targets * 3
-            } else if piece.kind == .horse {
-                score += horseJumpTargets(from: piece.position, for: side, on: board).count * 3
+                if piece.position.col == 4 { score += 20 }
+                if isEndgame { score = score * 7 / 10 }
+
+            case .horse:
+                let jumpCount = horseJumpTargets(from: piece.position, for: side, on: board).count
+                score += jumpCount * 3
+                if isEndgame { score += jumpCount * 2 }
+                let localRow = (side == .black) ? piece.position.row : (9 - piece.position.row)
+                if localRow == 1 && piece.position.col == 4 { score -= 40 }
+
+            case .soldier:
+                let crossed = (side == .black) ? piece.position.row >= 5 : piece.position.row <= 4
+                if crossed {
+                    let forwardDir = (side == .black) ? 1 : -1
+                    let fr = piece.position.row + forwardDir
+                    if fr >= 0 && fr <= 9 && board.piece(at: Position(row: fr, col: piece.position.col)) == nil {
+                        score += 15
+                    }
+                    for dc in [-1, 1] {
+                        let nc = piece.position.col + dc
+                        if nc >= 0 && nc <= 8 && board.piece(at: Position(row: piece.position.row, col: nc)) == nil {
+                            score += 10
+                        }
+                    }
+                }
+
+            default:
+                break
             }
         }
         return score
@@ -1106,23 +1146,24 @@ final class AIEngine: AIEngineProtocol {
 
     // MARK: - 位置权重表
 
-    private func positionWeight(for piece: Piece) -> Int {
+    private func positionWeight(for piece: Piece, totalPieces: Int) -> Int {
         let row = piece.position.row
         let col = piece.position.col
+        let isEndgame = totalPieces <= 16  // v3.0 Phase 3a: 开局/残局差异化
 
         switch piece.kind {
         case .general:  return generalPositionWeight(row: row, col: col, side: piece.side)
         case .advisor:  return advisorPositionWeight(row: row, col: col, side: piece.side)
         case .elephant: return elephantPositionWeight(row: row, col: col, side: piece.side)
-        case .horse:    return horsePositionWeight(row: row, col: col, side: piece.side)
-        case .chariot:  return chariotPositionWeight(row: row, col: col, side: piece.side)
-        case .cannon:   return cannonPositionWeight(row: row, col: col, side: piece.side)
-        case .soldier:  return soldierPositionWeight(row: row, col: col, side: piece.side)
+        case .horse:    return horsePositionWeight(row: row, col: col, side: piece.side, isEndgame: isEndgame)
+        case .chariot:  return chariotPositionWeight(row: row, col: col, side: piece.side, isEndgame: isEndgame)
+        case .cannon:   return cannonPositionWeight(row: row, col: col, side: piece.side, isEndgame: isEndgame)
+        case .soldier:  return soldierPositionWeight(row: row, col: col, side: piece.side, isEndgame: isEndgame)
         }
     }
 
-    // 兵/卒位置权重（黑卒视角）— v3.0 放大 15x + 零值清理
-    private static let blackSoldierWeights: [[Int]] = [
+    // 兵/卒位置权重 — 开局（黑卒视角）
+    private static let blackSoldierWeightsOpening: [[Int]] = [
         [  30,  30,  30,  30,  30,  30,  30,  30,  30],
         [  30,  30,  30,  30,  30,  30,  30,  30,  30],
         [  30,  30,  30,  30,  30,  30,  30,  30,  30],
@@ -1135,9 +1176,23 @@ final class AIEngine: AIEngineProtocol {
         [  30,  30,  30,  30,  30,  30,  30,  30,  30]
     ]
 
-    private func soldierPositionWeight(row: Int, col: Int, side: Side) -> Int {
+    // 兵/卒位置权重 — 残局（更强调推进）
+    private static let blackSoldierWeightsEndgame: [[Int]] = [
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30],
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30],
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30],
+        [  90,  60, 120,  60, 210,  60, 120,  60,  90],
+        [ 180, 270, 360, 420, 480, 420, 360, 270, 180],
+        [ 300, 480, 690, 810, 960, 810, 690, 480, 300],
+        [ 420, 660,1080,1440,1920,1440,1080, 660, 420],
+        [ 540, 960,1500,2160,2880,2160,1500, 960, 540],
+        [ 120, 180, 210, 210, 210, 210, 210, 180, 120],
+        [  30,  30,  30,  30,  30,  30,  30,  30,  30]
+    ]
+
+    private func soldierPositionWeight(row: Int, col: Int, side: Side, isEndgame: Bool) -> Int {
         let r = (side == .black) ? row : (9 - row)
-        return Self.blackSoldierWeights[r][col]
+        return isEndgame ? Self.blackSoldierWeightsEndgame[r][col] : Self.blackSoldierWeightsOpening[r][col]
     }
 
     // 马位置权重 — v3.0 放大 15x + 零值清理
@@ -1154,7 +1209,7 @@ final class AIEngine: AIEngineProtocol {
         [ 30,  60,  90,  90,  30,  90,  90,  60,  30]
     ]
 
-    private func horsePositionWeight(row: Int, col: Int, side: Side) -> Int {
+    private func horsePositionWeight(row: Int, col: Int, side: Side, isEndgame: Bool) -> Int {
         let r = (side == .black) ? row : (9 - row)
         return Self.blackHorseWeights[r][col]
     }
@@ -1163,7 +1218,7 @@ final class AIEngine: AIEngineProtocol {
     private static let chariotEdgeRow: [Int] = [90, 120, 120, 180, 210, 180, 120, 120, 90]
     private static let chariotMidRow: [Int]  = [90, 150, 180, 240, 270, 240, 180, 150, 90]
 
-    private func chariotPositionWeight(row: Int, col: Int, side: Side) -> Int {
+    private func chariotPositionWeight(row: Int, col: Int, side: Side, isEndgame: Bool) -> Int {
         let r = (side == .black) ? row : (9 - row)
         return (r == 0 || r == 9) ? Self.chariotEdgeRow[col] : Self.chariotMidRow[col]
     }
@@ -1182,7 +1237,7 @@ final class AIEngine: AIEngineProtocol {
         [ 30,  60,  90, 120, 150, 120,  90,  60,  30]
     ]
 
-    private func cannonPositionWeight(row: Int, col: Int, side: Side) -> Int {
+    private func cannonPositionWeight(row: Int, col: Int, side: Side, isEndgame: Bool) -> Int {
         let r = (side == .black) ? row : (9 - row)
         return Self.blackCannonWeights[r][col]
     }
