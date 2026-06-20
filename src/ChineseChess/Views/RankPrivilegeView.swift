@@ -70,7 +70,7 @@ private struct RankPrivilegeRow: View {
             ForEach(privileges, id: \.self) { priv in
                 HStack(spacing: 4) {
                     Image(systemName: isUnlocked ? "circle.fill" : "circle")
-                        .font(.system(size: 6))
+                        .font(.caption2)
                         .foregroundColor(isUnlocked ? .green : .secondary)
                     Text(priv)
                         .font(.caption)

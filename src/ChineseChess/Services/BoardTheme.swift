@@ -208,11 +208,18 @@ class ThemeManager {
         UserDefaults.standard.set(currentTheme.rawValue, forKey: userDefaultsKey)
     }
 
-    // v3.0 Phase 8: 检查主题是否解锁（段位 OR 连续登录奖励）
+    // v3.0 Phase 8: 检查主题是否解锁（段位 OR 连续登录奖励 OR 成就）
     func isThemeUnlocked(_ theme: BoardTheme, profile: PlayerProfile) -> Bool {
         guard let required = theme.requiredRank else { return true }
         // 段位达标 OR 连续登录奖励解锁
-        return profile.rank >= required || profile.bonusUnlockedThemes.contains(theme.rawValue)
+        if profile.rank >= required || profile.bonusUnlockedThemes.contains(theme.rawValue) {
+            return true
+        }
+        // v3.0 gap fix: 钻石成就关联解锁
+        // 拥有 3+ 钻石成就 → 解锁全部主题
+        let diamondIds = Set(AchievementLibrary.diamond.map { $0.id })
+        let diamondCount = profile.unlockedAchievements.filter { diamondIds.contains($0) }.count
+        return diamondCount >= 3
     }
 
     // v3.0 Phase 8: 可用主题列表
