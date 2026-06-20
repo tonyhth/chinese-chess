@@ -9,6 +9,8 @@ struct DailyChallengeView: View {
     @State private var isCompleted = false
     @State private var streak = 0
     @State private var streakReward: DailyStreakReward? = nil
+    @State private var showPuzzle = false
+    @State private var dailyPuzzleId: String? = nil
 
     var body: some View {
         ScrollView {
@@ -44,6 +46,16 @@ struct DailyChallengeView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Spacer()
+                        // v3.0 gap fix: 残局模式可点击进入
+                        if todayMode == .endgamePuzzle || todayMode == .endgameStart || todayMode == .solveMate {
+                            if dailyPuzzleId != nil {
+                                Button("开始残局挑战") {
+                                    showPuzzle = true
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(.brown)
+                            }
+                        }
                     }
                 }
                 .padding()
@@ -134,6 +146,19 @@ struct DailyChallengeView: View {
             isCompleted = manager.isTodayCompleted
             streak = manager.checkDailyLogin()
             streakReward = manager.checkStreakReward()
+            dailyPuzzleId = manager.dailyPuzzleId()
+        }
+        .sheet(isPresented: $showPuzzle) {
+            if let puzzle = manager.dailyPuzzle() {
+                NavigationStack {
+                    PuzzlePlayView(puzzle: puzzle)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完成") { showPuzzle = false }
+                            }
+                        }
+                }
+            }
         }
     }
 }

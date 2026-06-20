@@ -124,6 +124,20 @@ final class DailyChallengeManager {
         return difficulties[hash % difficulties.count]
     }
 
+    /// v3.0 gap fix: 从残局库按日期哈希选取今日残局 ID
+    func dailyPuzzleId() -> String? {
+        let puzzles = PuzzleStore.shared.puzzles
+        guard !puzzles.isEmpty else { return nil }
+        let hash = Self.deterministicHash(todayString)
+        return puzzles[hash % puzzles.count].id
+    }
+
+    /// v3.0 gap fix: 获取今日残局数据
+    func dailyPuzzle() -> Puzzle? {
+        guard let id = dailyPuzzleId() else { return nil }
+        return PuzzleStore.shared.puzzles.first { $0.id == id }
+    }
+
     /// 确定性字符串哈希（djb2 算法），跨启动结果一致
     private static func deterministicHash(_ str: String) -> Int {
         var hash: UInt64 = 5381
@@ -140,10 +154,13 @@ final class DailyChallengeManager {
             return existing
         }
 
+        // v3.0 gap fix: 从残局库按日期哈希选取真实 puzzleId
+        let puzzleId = dailyPuzzleId()
+
         let challenge = DailyChallenge(
             date: todayString,
             mode: todayChallengeMode(),
-            puzzleId: nil,  // 后续接入残局库
+            puzzleId: puzzleId,
             targetDifficulty: todayDifficulty(),
             completed: false,
             score: 0
