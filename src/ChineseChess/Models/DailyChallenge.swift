@@ -111,16 +111,26 @@ final class DailyChallengeManager {
     // MARK: - 每日挑战生成
 
     /// 根据日期哈希生成今日挑战模式
+    /// v3.0 Phase 7 fix: 使用确定性哈希（djb2），避免 String.hashValue 跨启动不稳定
     func todayChallengeMode() -> DailyChallengeMode {
-        let hash = abs(todayString.hashValue)
+        let hash = Self.deterministicHash(todayString)
         return DailyChallengeMode.allCases[hash % DailyChallengeMode.allCases.count]
     }
 
     /// 今日挑战难度（3 天轮换：easy → medium → hard）
     func todayDifficulty() -> AIDifficulty {
-        let hash = abs(todayString.hashValue)
+        let hash = Self.deterministicHash(todayString)
         let difficulties: [AIDifficulty] = [.easy, .medium, .hard]
         return difficulties[hash % difficulties.count]
+    }
+
+    /// 确定性字符串哈希（djb2 算法），跨启动结果一致
+    private static func deterministicHash(_ str: String) -> Int {
+        var hash: UInt64 = 5381
+        for byte in str.utf8 {
+            hash = hash &* 33 &+ UInt64(byte)
+        }
+        return Int(hash % UInt64(Int.max))
     }
 
     /// 生成今日挑战

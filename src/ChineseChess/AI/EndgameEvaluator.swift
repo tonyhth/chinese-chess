@@ -139,13 +139,8 @@ struct EndgameEvaluator {
         .init(redPattern: [.horse, .cannon], blackPattern: [.advisor, .advisor], redScore: 2500),
         .init(redPattern: [.advisor, .advisor], blackPattern: [.horse, .cannon], redScore: -2500),
 
-        // v3.0: === 和棋判定 ===
-        // 单车和单马
-        .init(redPattern: [.chariot], blackPattern: [.horse], redScore: 0),
-        .init(redPattern: [.horse], blackPattern: [.chariot], redScore: 0),
-        // 单车和单炮
-        .init(redPattern: [.chariot], blackPattern: [.cannon], redScore: 0),
-        .init(redPattern: [.cannon], blackPattern: [.chariot], redScore: 0),
+        // v3.0: 和棋判定中的「车和马」「车和炮」被前面的车胜马(6000)/车胜炮(5000)覆盖
+        // 删除死代码，保留双炮和双象的和棋判定（不与前面的规则冲突）
     ]
 
     /// 残局精确评估。返回相对于 side 的分数（正值 = side 方优势）。
