@@ -223,19 +223,19 @@ struct BoardLayoutConsistencyTests {
         #endif
     }
 
-    @Test("棋盘使用 aspectRatio 自适应")
-    func boardUsesAspectRatioForAdaptation() {
-        // ReplayBoardView 和 ChessBoardView 都使用 .aspectRatio 而非硬编码 frame
+    @Test("棋盘布局策略一致性")
+    func boardLayoutStrategyConsistency() {
+        // ChessBoardView 使用 .aspectRatio，ReplayBoardView 使用 .position 居中
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
 
-        // ReplayBoardView 应有 aspectRatio
+        // ReplayBoardView 应使用 .position 居中
         let replayPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayBoardView.swift"
         guard let replayContent = try? String(contentsOfFile: replayPath) else {
             Issue.record("无法读取 ReplayBoardView.swift")
             return
         }
-        #expect(replayContent.contains(".aspectRatio"),
-                "ReplayBoardView 应使用 .aspectRatio 自适应")
+        #expect(replayContent.contains(".position"),
+                "ReplayBoardView 应使用 .position 居中")
 
         // ChessBoardView 应有 aspectRatio
         let chessPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift"
