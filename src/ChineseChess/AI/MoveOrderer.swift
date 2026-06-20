@@ -14,6 +14,10 @@ struct MoveOrderer {
     // Killer Move 表：Key=depth, Value=最多 2 个 killer move
     private var killerMoves: [Int: [Move?]] = [:]
 
+    // Countermove 表：Key=对手上一走法的 hash，Value=最佳回应走法
+    // v3.0 Phase 2a: Countermove Heuristic
+    private var countermoveTable: [String: Move] = [:]
+
     /// 统一判等逻辑：piece.id + from + to
     static func isSameMove(_ a: Move, _ b: Move) -> Bool {
         return a.piece.id == b.piece.id && a.from == b.from && a.to == b.to
@@ -23,6 +27,20 @@ struct MoveOrderer {
     mutating func recordCutoff(move: Move, depth: Int) {
         let key = historyKey(move: move)
         historyTable[key, default: 0] += depth * depth  // 深度加权
+    }
+
+    /// v3.0 Phase 2a: 记录 countermove
+    /// 对手上一走法导致的 beta cutoff 中，记录最佳回应
+    mutating func recordCountermove(move: Move, opponentMove: Move?) {
+        guard let opp = opponentMove else { return }
+        let key = countermoveKey(move: opp)
+        countermoveTable[key] = move
+    }
+
+    /// v3.0 Phase 2a: 查询 countermove
+    func getCountermove(for opponentMove: Move?) -> Move? {
+        guard let opp = opponentMove else { return nil }
+        return countermoveTable[countermoveKey(move: opp)]
     }
 
     /// 记录一个产生 beta cutoff 的非吃子走法为 killer move
@@ -50,10 +68,11 @@ struct MoveOrderer {
         return false
     }
 
-    /// 清空历史表和 killer 表（新对局时调用）
+    /// 清空历史表、killer 表和 countermove 表（新对局时调用）
     mutating func clearHistory() {
         historyTable.removeAll()
         killerMoves.removeAll()
+        countermoveTable.removeAll()
     }
 
     /// 排序走法列表
@@ -62,8 +81,10 @@ struct MoveOrderer {
     ///   - board: 当前棋盘
     ///   - ttBestMove: 置换表中的最佳走法（如有）
     ///   - checkLegal: 是否启用将军排序（depth >= 3 时启用，低深度开销大）
-    func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil) -> [Move] {
+    ///   - countermove: 对手上一走法的 countermove（如有）
+    func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermove: Move? = nil) -> [Move] {
         let ttMove = ttBestMove
+        let cmMove = countermove
 
         return moves.map { move in
             var score = 0
@@ -86,6 +107,11 @@ struct MoveOrderer {
             // 3. Killer Move（吃子之后、历史启发之前）
             if let d = depth, isKillerMove(move, depth: d) {
                 score += 8000
+            }
+
+            // 3.5 v3.0 Phase 2a: Countermove
+            if let cm = cmMove, Self.isSameMove(move, cm) {
+                score += 6000
             }
 
             // 4. 威胁子力（走到目标位置后能威胁对方高价值棋子）
@@ -154,6 +180,11 @@ struct MoveOrderer {
     // MARK: - 历史启发辅助
 
     private func historyKey(move: Move) -> String {
+        "\(move.from.row),\(move.from.col),\(move.to.row),\(move.to.col)"
+    }
+
+    /// v3.0 Phase 2a: Countermove 表的 key（基于对手走法的 from-to）
+    private func countermoveKey(move: Move) -> String {
         "\(move.from.row),\(move.from.col),\(move.to.row),\(move.to.col)"
     }
 }

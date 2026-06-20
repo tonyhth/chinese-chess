@@ -120,6 +120,8 @@ final class AIEngine: AIEngineProtocol {
         var enableNullMoveFix: Bool = false
         var enableLMR: Bool = false
         var enableSmartTime: Bool = false
+        var enablePVS: Bool = false
+        var enableCountermove: Bool = false
 
         var evalConfig: EvalConfig = .advanced
         var maxQSDepth: Int = 4
@@ -137,6 +139,8 @@ final class AIEngine: AIEngineProtocol {
             enableNullMoveFix: true,
             enableLMR: true,
             enableSmartTime: false,
+            enablePVS: true,
+            enableCountermove: true,
             evalConfig: .advanced,
             maxQSDepth: 4,
             maxCheckExtensions: 8
@@ -163,6 +167,8 @@ final class AIEngine: AIEngineProtocol {
             enableNullMoveFix: true,
             enableLMR: true,
             enableSmartTime: false,
+            enablePVS: true,
+            enableCountermove: true,
             evalConfig: .advanced,
             maxQSDepth: 4,
             maxCheckExtensions: 6
@@ -176,6 +182,8 @@ final class AIEngine: AIEngineProtocol {
             enableNullMoveFix: true,
             enableLMR: true,
             enableSmartTime: true,
+            enablePVS: true,
+            enableCountermove: true,
             evalConfig: .advanced,
             maxQSDepth: 6,
             maxCheckExtensions: 8
@@ -210,21 +218,50 @@ final class AIEngine: AIEngineProtocol {
         var bestScore = origAlpha
         var alpha = origAlpha
         let beta = 100_000_000
+        let usePVS = searchConfig?.enablePVS ?? false
 
-        for move in orderedMoves {
+        for (moveIndex, move) in orderedMoves.enumerated() {
             // 超时检查（通过 TimeManager）
             if let tm = timeManager, tm.shouldStop { break }
 
             board.execute(move)
-            // Negamax：对手视角取负
+
             let score: Int
-            if let sc = searchConfig {
-                score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
-                                 useTT: useTT, useMoveOrder: useMoveOrder,
-                                 searchConfig: sc)
+            if usePVS && moveIndex > 0 {
+                // PVS: 零窗口试探
+                let nullWindowScore: Int
+                if let sc = searchConfig {
+                    nullWindowScore = -negamax(board: board, depth: depth - 1, alpha: -alpha - 1, beta: -alpha,
+                                               useTT: useTT, useMoveOrder: useMoveOrder,
+                                               searchConfig: sc)
+                } else {
+                    nullWindowScore = -negamax(board: board, depth: depth - 1, alpha: -alpha - 1, beta: -alpha,
+                                               useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                }
+
+                if nullWindowScore > alpha && nullWindowScore < beta {
+                    // 零窗口失败，重新全窗口搜索
+                    if let sc = searchConfig {
+                        score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                                         useTT: useTT, useMoveOrder: useMoveOrder,
+                                         searchConfig: sc)
+                    } else {
+                        score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                                         useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                    }
+                } else {
+                    score = nullWindowScore
+                }
             } else {
-                score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
-                                 useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                // 第一个走法或未启用 PVS：正常全窗口搜索
+                if let sc = searchConfig {
+                    score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                                     useTT: useTT, useMoveOrder: useMoveOrder,
+                                     searchConfig: sc)
+                } else {
+                    score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                                     useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                }
             }
             _ = board.undoLastMove()
 
@@ -451,7 +488,8 @@ final class AIEngine: AIEngineProtocol {
         // 走法排序
         if useMoveOrder {
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
-            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth)
+            let cmMove: Move? = searchConfig.enableCountermove ? moveOrderer.getCountermove(for: board.moveHistory.last) : nil
+            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth, countermove: cmMove)
         } else if depth >= 2 {
             moves = orderMovesSimple(moves)
         }
@@ -503,7 +541,8 @@ final class AIEngine: AIEngineProtocol {
                                               extensions: newExtensions,
                                               searchConfig: searchConfig)
                 if reducedScore > alpha {
-                    // 可能被低估，用全深度重新搜索（与正常路径一致的窗口）
+                    // 可能被低估，用全深度重新搜索
+                    // v3.0 Phase 2a: PVS — re-search 用全窗口
                     score = -negamax(board: board, depth: newDepth,
                                       alpha: -beta, beta: -a,
                                       useTT: useTT,
@@ -513,6 +552,25 @@ final class AIEngine: AIEngineProtocol {
                                       searchConfig: searchConfig)
                 } else {
                     score = reducedScore
+                }
+            } else if searchConfig.enablePVS && moveIndex > 0 {
+                // v3.0 Phase 2a: PVS — 先用零窗口试探
+                let nullWindowScore = -negamax(board: board, depth: newDepth,
+                                                alpha: -a - 1, beta: -a,
+                                                useTT: useTT, useMoveOrder: useMoveOrder,
+                                                evalConfig: evalCfg,
+                                                extensions: newExtensions,
+                                                searchConfig: searchConfig)
+                if nullWindowScore > a && nullWindowScore < beta {
+                    // 零窗口失败，重新全窗口搜索
+                    score = -negamax(board: board, depth: newDepth,
+                                      alpha: -beta, beta: -a,
+                                      useTT: useTT, useMoveOrder: useMoveOrder,
+                                      evalConfig: evalCfg,
+                                      extensions: newExtensions,
+                                      searchConfig: searchConfig)
+                } else {
+                    score = nullWindowScore
                 }
             } else {
                 // 正常全深度搜索
@@ -534,6 +592,10 @@ final class AIEngine: AIEngineProtocol {
                 moveOrderer.recordCutoff(move: move, depth: depth)
                 if searchConfig.enableKillerMove {
                     moveOrderer.recordKiller(move: move, depth: depth)
+                }
+                // v3.0 Phase 2a: 记录 countermove
+                if searchConfig.enableCountermove {
+                    moveOrderer.recordCountermove(move: move, opponentMove: board.moveHistory.last)
                 }
                 break  // beta cutoff
             }

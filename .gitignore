@@ -49,3 +49,4 @@ data/
 tools/__pycache__/
 tools/pgn_data
 src/NewFile.swift
+selfplay-results/
