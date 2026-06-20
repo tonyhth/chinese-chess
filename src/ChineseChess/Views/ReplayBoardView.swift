@@ -15,15 +15,15 @@ struct ReplayBoardView: View {
     private let maxCellSize: CGFloat = 80
 
     #if os(iOS)
-    private let maxBoardWidth: CGFloat = 600
-    private let maxBoardHeight: CGFloat = 850
+    // iOS: 不设上限，自适应到容器大小（fullScreenCover 提供完整屏幕空间）
     #endif
 
     var body: some View {
         GeometryReader { geo in
             #if os(iOS)
-            let availableWidth = min(geo.size.width, maxBoardWidth)
-            let availableHeight = min(geo.size.height, maxBoardHeight)
+            // iOS: 自适应到容器大小，无上限
+            let availableWidth = geo.size.width
+            let availableHeight = geo.size.height
             #else
             let availableWidth = geo.size.width
             let availableHeight = geo.size.height
