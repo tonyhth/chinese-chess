@@ -13,10 +13,10 @@ struct EndgameEvaluator {
         let redScore: Int              // 红方优势分数（负值 = 黑方优势）
     }
 
-    /// 残局规则表：redScore 正值 = 红方胜势，负值 = 黑方胜势
-    /// 分数基于通用评估尺度（子力价值 + 位置权重）
+    /// 残局规则表：v3.0 Phase 7 扩展至 50 种
+    /// redScore 正值 = 红方胜势，负值 = 黑方胜势
     private static let endgameRules: [EndgameRule] = [
-        // 车类
+        // === 车类残局 ===
         .init(redPattern: [.chariot], blackPattern: [], redScore: 8000),
         .init(redPattern: [], blackPattern: [.chariot], redScore: -8000),
         .init(redPattern: [.chariot], blackPattern: [.horse], redScore: 6000),
@@ -29,28 +29,57 @@ struct EndgameEvaluator {
         .init(redPattern: [.advisor], blackPattern: [.chariot], redScore: -5000),
         .init(redPattern: [.chariot], blackPattern: [.elephant], redScore: 5000),
         .init(redPattern: [.elephant], blackPattern: [.chariot], redScore: -5000),
-        // 双车类
+        // v3.0: 车胜双士
+        .init(redPattern: [.chariot], blackPattern: [.advisor, .advisor], redScore: 4500),
+        .init(redPattern: [.advisor, .advisor], blackPattern: [.chariot], redScore: -4500),
+        // v3.0: 车胜双象
+        .init(redPattern: [.chariot], blackPattern: [.elephant, .elephant], redScore: 4500),
+        .init(redPattern: [.elephant, .elephant], blackPattern: [.chariot], redScore: -4500),
+
+        // === 双车类 ===
         .init(redPattern: [.chariot, .chariot], blackPattern: [.chariot], redScore: 5000),
         .init(redPattern: [.chariot], blackPattern: [.chariot, .chariot], redScore: -5000),
-        // 马炮类
+        // v3.0: 双车胜车马
+        .init(redPattern: [.chariot, .chariot], blackPattern: [.chariot, .horse], redScore: 4000),
+        .init(redPattern: [.chariot, .horse], blackPattern: [.chariot, .chariot], redScore: -4000),
+        // v3.0: 双车胜车炮
+        .init(redPattern: [.chariot, .chariot], blackPattern: [.chariot, .cannon], redScore: 4000),
+        .init(redPattern: [.chariot, .cannon], blackPattern: [.chariot, .chariot], redScore: -4000),
+
+        // === 马炮类 ===
         .init(redPattern: [.horse, .cannon], blackPattern: [.horse], redScore: 3000),
         .init(redPattern: [.horse], blackPattern: [.horse, .cannon], redScore: -3000),
         .init(redPattern: [.horse, .cannon], blackPattern: [.cannon], redScore: 2500),
         .init(redPattern: [.cannon], blackPattern: [.horse, .cannon], redScore: -2500),
         .init(redPattern: [.horse, .cannon], blackPattern: [.advisor, .elephant], redScore: 3500),
         .init(redPattern: [.advisor, .elephant], blackPattern: [.horse, .cannon], redScore: -3500),
-        // 双马/双炮
+
+        // === 双马/双炮 ===
         .init(redPattern: [.horse, .horse], blackPattern: [.cannon, .cannon], redScore: 500),
         .init(redPattern: [.cannon, .cannon], blackPattern: [.horse, .horse], redScore: -500),
-        // 单子残局
+        // v3.0: 双马胜双士
+        .init(redPattern: [.horse, .horse], blackPattern: [.advisor, .advisor], redScore: 1500),
+        .init(redPattern: [.advisor, .advisor], blackPattern: [.horse, .horse], redScore: -1500),
+        // v3.0: 双炮胜双士
+        .init(redPattern: [.cannon, .cannon], blackPattern: [.advisor, .advisor], redScore: 1200),
+        .init(redPattern: [.advisor, .advisor], blackPattern: [.cannon, .cannon], redScore: -1200),
+        // v3.0: 双炮和双象（和棋）
+        .init(redPattern: [.cannon, .cannon], blackPattern: [.elephant, .elephant], redScore: 0),
+        .init(redPattern: [.elephant, .elephant], blackPattern: [.cannon, .cannon], redScore: 0),
+
+        // === 单子残局 ===
         .init(redPattern: [.horse], blackPattern: [], redScore: 2000),
         .init(redPattern: [], blackPattern: [.horse], redScore: -2000),
         .init(redPattern: [.cannon], blackPattern: [], redScore: 2000),
         .init(redPattern: [], blackPattern: [.cannon], redScore: -2000),
-        // 炮+士 > 单马
+        // v3.0: 炮+士 > 单马
         .init(redPattern: [.cannon, .advisor], blackPattern: [.horse], redScore: 1500),
         .init(redPattern: [.horse], blackPattern: [.cannon, .advisor], redScore: -1500),
-        // 兵/卒相关残局
+        // v3.0: 炮+象 > 单马
+        .init(redPattern: [.cannon, .elephant], blackPattern: [.horse], redScore: 1300),
+        .init(redPattern: [.horse], blackPattern: [.cannon, .elephant], redScore: -1300),
+
+        // === 兵/卒残局 ===
         .init(redPattern: [.soldier], blackPattern: [], redScore: 800),
         .init(redPattern: [], blackPattern: [.soldier], redScore: -800),
         .init(redPattern: [.soldier, .soldier], blackPattern: [], redScore: 1500),
@@ -65,7 +94,9 @@ struct EndgameEvaluator {
         .init(redPattern: [.cannon], blackPattern: [.cannon, .soldier], redScore: -800),
         .init(redPattern: [.horse, .soldier], blackPattern: [.horse], redScore: 800),
         .init(redPattern: [.horse], blackPattern: [.horse, .soldier], redScore: -800),
-        // 双兵/卒胜单士/象
+
+        // v3.0: === 基础杀法 ===
+        // 双兵胜单士象
         .init(redPattern: [.soldier, .soldier], blackPattern: [.advisor], redScore: 1200),
         .init(redPattern: [.advisor], blackPattern: [.soldier, .soldier], redScore: -1200),
         .init(redPattern: [.soldier, .soldier], blackPattern: [.elephant], redScore: 1200),
@@ -73,6 +104,48 @@ struct EndgameEvaluator {
         // 三兵胜士象全
         .init(redPattern: [.soldier, .soldier, .soldier], blackPattern: [.advisor, .advisor, .elephant, .elephant], redScore: 2000),
         .init(redPattern: [.advisor, .advisor, .elephant, .elephant], blackPattern: [.soldier, .soldier, .soldier], redScore: -2000),
+        // v3.0: 车兵胜单车
+        .init(redPattern: [.chariot, .soldier], blackPattern: [.chariot], redScore: 2500),
+        .init(redPattern: [.chariot], blackPattern: [.chariot, .soldier], redScore: -2500),
+        // v3.0: 马兵胜单马
+        .init(redPattern: [.horse, .soldier], blackPattern: [.horse], redScore: 1000),
+        .init(redPattern: [.horse], blackPattern: [.horse, .soldier], redScore: -1000),
+        // v3.0: 炮兵胜单炮
+        .init(redPattern: [.cannon, .soldier], blackPattern: [.cannon], redScore: 1000),
+        .init(redPattern: [.cannon], blackPattern: [.cannon, .soldier], redScore: -1000),
+
+        // v3.0: === 复杂杀法 ===
+        // 双车错（双车无阻拦）
+        .init(redPattern: [.chariot, .chariot], blackPattern: [.advisor, .elephant], redScore: 6000),
+        .init(redPattern: [.advisor, .elephant], blackPattern: [.chariot, .chariot], redScore: -6000),
+        // 马后炮（马炮组合在对方将附近）
+        .init(redPattern: [.horse, .cannon], blackPattern: [.advisor], redScore: 4000),
+        .init(redPattern: [.advisor], blackPattern: [.horse, .cannon], redScore: -4000),
+        // 天地炮（上下炮夹击）
+        .init(redPattern: [.cannon, .cannon], blackPattern: [.advisor], redScore: 3500),
+        .init(redPattern: [.advisor], blackPattern: [.cannon, .cannon], redScore: -3500),
+        // 大刀剜心（车坐中心）
+        .init(redPattern: [.chariot], blackPattern: [.advisor, .advisor], redScore: 3500),
+        .init(redPattern: [.advisor, .advisor], blackPattern: [.chariot], redScore: -3500),
+
+        // v3.0: === 实用残局 ===
+        // 车炮胜车（有炮架）
+        .init(redPattern: [.chariot, .cannon], blackPattern: [.chariot], redScore: 3000),
+        .init(redPattern: [.chariot], blackPattern: [.chariot, .cannon], redScore: -3000),
+        // 车马胜车
+        .init(redPattern: [.chariot, .horse], blackPattern: [.chariot], redScore: 3500),
+        .init(redPattern: [.chariot], blackPattern: [.chariot, .horse], redScore: -3500),
+        // 马炮胜双士
+        .init(redPattern: [.horse, .cannon], blackPattern: [.advisor, .advisor], redScore: 2500),
+        .init(redPattern: [.advisor, .advisor], blackPattern: [.horse, .cannon], redScore: -2500),
+
+        // v3.0: === 和棋判定 ===
+        // 单车和单马
+        .init(redPattern: [.chariot], blackPattern: [.horse], redScore: 0),
+        .init(redPattern: [.horse], blackPattern: [.chariot], redScore: 0),
+        // 单车和单炮
+        .init(redPattern: [.chariot], blackPattern: [.cannon], redScore: 0),
+        .init(redPattern: [.cannon], blackPattern: [.chariot], redScore: 0),
     ]
 
     /// 残局精确评估。返回相对于 side 的分数（正值 = side 方优势）。
