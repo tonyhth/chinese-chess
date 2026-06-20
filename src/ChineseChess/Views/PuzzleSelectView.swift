@@ -721,7 +721,7 @@ struct PuzzlePlayView: View {
         .sheet(isPresented: $showSolutionReplay) {
             if let record = viewModel.buildSolutionRecord() {
                 ReplayView(record: record)
-                    .frame(minWidth: 700, minHeight: 850)
+                    .frame(minWidth: 800, minHeight: 950)
             }
         }
         #endif
