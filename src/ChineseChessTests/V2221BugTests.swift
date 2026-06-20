@@ -78,10 +78,11 @@ struct V2221BugTests {
         @Test("getSolutionInfo 不依赖当前 board 状态")
         func getSolutionInfoIndependentOfBoardState() {
             // 构造一个局面：走棋后 board 状态改变
+            // 红帅 e0→d0（横向移动，不飞将）
             let puzzle = V2221BugTests.makeTestPuzzle(
                 id: "test-independent-board",
                 initialFEN: "3ak4/9/9/9/9/9/9/9/9/4K4 w",
-                solution: ["a0a1", "a9a8", "a1a2"],
+                solution: ["e0d0", "a9a8", "d0e0"],
                 solutionType: "checkmate"
             )
             let vm = PuzzleViewModel(puzzle: puzzle)
