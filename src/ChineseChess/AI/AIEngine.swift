@@ -594,8 +594,12 @@ final class AIEngine: AIEngineProtocol {
                     moveOrderer.recordKiller(move: move, depth: depth)
                 }
                 // v3.0 Phase 2a: 记录 countermove
+                // board.execute(move) 后 moveHistory.last = move（我方），
+                // 对手走法是倒数第二个
                 if searchConfig.enableCountermove {
-                    moveOrderer.recordCountermove(move: move, opponentMove: board.moveHistory.last)
+                    let histCount = board.moveHistory.count
+                    let opponentMove = histCount >= 2 ? board.moveHistory[histCount - 2] : nil
+                    moveOrderer.recordCountermove(move: move, opponentMove: opponentMove)
                 }
                 break  // beta cutoff
             }
