@@ -3,9 +3,15 @@ import SwiftUI
 struct ReplayView: View {
     @State private var viewModel: ReplayViewModel
     @Environment(\.dismiss) private var dismiss
+    var onClose: (() -> Void)? = nil
 
-    init(record: GameRecord) {
+    init(record: GameRecord, onClose: (() -> Void)? = nil) {
         self._viewModel = State(initialValue: ReplayViewModel(record: record))
+        self.onClose = onClose
+    }
+
+    private func close() {
+        if let onClose { onClose() } else { dismiss() }
     }
 
     private let l10n = L10n.shared
@@ -21,7 +27,7 @@ struct ReplayView: View {
 
                 // 左侧：关闭按钮 + 对局信息
                 HStack {
-                    Button(l10n.t("common.close")) { dismiss() }
+                    Button(l10n.t("common.close")) { close() }
                         .foregroundColor(.white)
                     Spacer().frame(width: 12)
                     Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))

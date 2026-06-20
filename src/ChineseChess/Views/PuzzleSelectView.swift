@@ -473,6 +473,18 @@ struct PuzzlePlayView: View {
     }
 
     var body: some View {
+        Group {
+            if showSolutionReplay, let record = viewModel.buildSolutionRecord() {
+                // 解法回放：直接在当前容器内显示，不用嵌套 sheet
+                ReplayView(record: record, onClose: { showSolutionReplay = false })
+            } else {
+                gameContent
+            }
+        }
+        .background(Color(red: 44/255, green: 24/255, blue: 16/255))
+    }
+
+    private var gameContent: some View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
@@ -711,19 +723,5 @@ struct PuzzlePlayView: View {
             }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
-        #if os(iOS)
-        .fullScreenCover(isPresented: $showSolutionReplay) {
-            if let record = viewModel.buildSolutionRecord() {
-                ReplayView(record: record)
-            }
-        }
-        #else
-        .sheet(isPresented: $showSolutionReplay) {
-            if let record = viewModel.buildSolutionRecord() {
-                ReplayView(record: record)
-                    .frame(minWidth: 700, minHeight: 850)
-            }
-        }
-        #endif
     }
 }
