@@ -167,25 +167,25 @@ struct V2220FinalTests {
                "残局 sheet 应为 600×700")
     }
 
-    @Test("macOS: 回放 sheet frame 800×950")
+    @Test("macOS: 回放 sheet frame 600×750")
     func macReplaySheetFrame() {
         guard let content = try? String(contentsOfFile: "\(srcRoot)/App/ChineseChessApp.swift") else {
             Issue.record("无法读取 ChineseChessApp.swift"); return
         }
-        // 回放 sheet 应为 800×950
+        // 回放 sheet 应为 600×750
         guard let sheetRange = content.range(of: ".sheet(item: $toolbarReplayRecord)") else {
             Issue.record("未找到回放 sheet"); return
         }
         let snippet = String(content[sheetRange.lowerBound..<content.index(sheetRange.upperBound, offsetBy: 200)])
-        #expect(snippet.contains("minWidth: 800, minHeight: 950"),
-               "回放 sheet 应为 800×950")
+        #expect(snippet.contains("minWidth: 600, minHeight: 750"),
+               "回放 sheet 应为 600×750")
 
         guard let historyRange = content.range(of: ".sheet(item: $historyReplayRecord)") else {
             Issue.record("未找到历史回放 sheet"); return
         }
         let historySnippet = String(content[historyRange.lowerBound..<content.index(historyRange.upperBound, offsetBy: 200)])
-        #expect(historySnippet.contains("minWidth: 800, minHeight: 950"),
-               "历史回放 sheet 也应为 800×950")
+        #expect(historySnippet.contains("minWidth: 600, minHeight: 750"),
+               "历史回放 sheet 也应为 600×750")
     }
 
     // MARK: - P0: L10n.shared 单例可用

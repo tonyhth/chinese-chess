@@ -15,19 +15,6 @@ struct ChessBoardView: View {
     let mode: BoardMode
     var theme: ThemeColors = ThemeManager.shared.colors
 
-    // 网格常量
-    private let gridCols = 8  // 8个间距，9条竖线
-    private let gridRows = 9  // 9个间距，10条横线
-
-    // 最大 cellSize，防止窗口过大时棋盘无限放大
-    private let maxCellSize: CGFloat = 80
-
-    // iOS 大屏棋盘最大尺寸约束
-    #if os(iOS)
-    private let maxBoardWidth: CGFloat = 600
-    private let maxBoardHeight: CGFloat = 675
-    #endif
-
     // MARK: - 拖拽状态
 
     /// 正在拖拽的棋子
@@ -50,26 +37,11 @@ struct ChessBoardView: View {
 
     var body: some View {
         GeometryReader { geo in
-            #if os(iOS)
-            let availableWidth = min(geo.size.width, maxBoardWidth)
-            let availableHeight = min(geo.size.height, maxBoardHeight)
-            #else
-            let availableWidth = geo.size.width
-            let availableHeight = geo.size.height
-            #endif
-            // padding 和 cellSize 循环依赖：一步迭代收敛
-            let basePadding = min(availableWidth, availableHeight) * 0.04
-            let cellSizeEst = min((availableWidth - basePadding * 2) / CGFloat(gridCols),
-                                  (availableHeight - basePadding * 2) / CGFloat(gridRows),
-                                  maxCellSize)
-            // padding 至少等于棋子半径，防止边缘棋子被裁
-            let padding = max(basePadding, cellSizeEst * 0.45)
-            // 用最终 padding 重算 cellSize，补偿 padding 增加占用的空间
-            let cellSize = min((availableWidth - padding * 2) / CGFloat(gridCols),
-                               (availableHeight - padding * 2) / CGFloat(gridRows),
-                               maxCellSize)
-            let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
-            let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
+            let sizing = BoardSizing.calculate(width: geo.size.width, height: geo.size.height)
+            let cellSize = sizing.cellSize
+            let padding = sizing.padding
+            let boardWidth = sizing.boardWidth
+            let boardHeight = sizing.boardHeight
 
             ZStack {
                 // 棋盘背景
@@ -123,7 +95,7 @@ struct ChessBoardView: View {
             .accessibilityElement(children: .contain)
             .accessibilityLabel(l10n.t("accessibility.board"))
         }
-        .aspectRatio(CGFloat(gridCols) / CGFloat(gridRows), contentMode: .fit)
+        .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
     }
 
     // MARK: - Mode helpers
@@ -264,10 +236,7 @@ struct ChessBoardView: View {
     /// Position → CGPoint，用于 ZStack 内 .position() 定位
     /// ZStack 内 .position() 坐标原点在 ZStack 左上角
     private func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
-        CGPoint(
-            x: padding + CGFloat(pos.col) * cellSize,
-            y: padding + CGFloat(pos.row) * cellSize
-        )
+        BoardSizing.posToCGPoint(pos, cellSize: cellSize, padding: padding)
     }
 
     /// CGPoint → Position，用于交互层点击坐标转换
@@ -441,20 +410,20 @@ struct ChessBoardView: View {
         var path = Path()
 
         // 横线
-        for row in 0...gridRows {
+        for row in 0...BoardSizing.gridRows {
             let y = padding + CGFloat(row) * cellSize
             path.move(to: CGPoint(x: padding, y: y))
-            path.addLine(to: CGPoint(x: padding + CGFloat(gridCols) * cellSize, y: y))
+            path.addLine(to: CGPoint(x: padding + CGFloat(BoardSizing.gridCols) * cellSize, y: y))
         }
 
         // 竖线（上半）
-        for col in 0...gridCols {
+        for col in 0...BoardSizing.gridCols {
             let x = padding + CGFloat(col) * cellSize
             path.move(to: CGPoint(x: x, y: padding))
             path.addLine(to: CGPoint(x: x, y: padding + 4 * cellSize))
         }
         // 竖线（下半）
-        for col in 0...gridCols {
+        for col in 0...BoardSizing.gridCols {
             let x = padding + CGFloat(col) * cellSize
             path.move(to: CGPoint(x: x, y: padding + 5 * cellSize))
             path.addLine(to: CGPoint(x: x, y: padding + 9 * cellSize))

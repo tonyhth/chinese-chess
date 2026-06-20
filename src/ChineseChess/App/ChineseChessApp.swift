@@ -139,7 +139,7 @@ struct ChineseChessApp: App {
             }
             .sheet(item: $toolbarReplayRecord) { record in
                 ReplayView(record: record)
-                    .frame(minWidth: 800, minHeight: 950)
+                    .frame(minWidth: 600, minHeight: 750)
             }
             .sheet(isPresented: $showThemePicker) {
                 NavigationStack {
@@ -172,7 +172,7 @@ struct ChineseChessApp: App {
             }
             .sheet(item: $historyReplayRecord) { record in
                 ReplayView(record: record)
-                    .frame(minWidth: 800, minHeight: 950)
+                    .frame(minWidth: 600, minHeight: 750)
             }
             .sheet(isPresented: $showSettings) {
                 NavigationStack {

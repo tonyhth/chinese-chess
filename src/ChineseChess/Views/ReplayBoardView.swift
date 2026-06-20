@@ -10,37 +10,13 @@ struct ReplayBoardView: View {
     let viewModel: ReplayViewModel
     var theme: ThemeColors = ThemeManager.shared.colors
 
-    private let gridCols = 8
-    private let gridRows = 9
-    private let maxCellSize: CGFloat = 80
-
-    #if os(iOS)
-    // iOS: 不设上限，自适应到容器大小（fullScreenCover 提供完整屏幕空间）
-    #endif
-
     var body: some View {
         GeometryReader { geo in
-            #if os(iOS)
-            // iOS: 自适应到容器大小，无上限
-            let availableWidth = geo.size.width
-            let availableHeight = geo.size.height
-            #else
-            let availableWidth = geo.size.width
-            let availableHeight = geo.size.height
-            #endif
-            // padding 和 cellSize 循环依赖：一步迭代收敛
-            let basePadding = min(availableWidth, availableHeight) * 0.04
-            let cellSizeEst = min((availableWidth - basePadding * 2) / CGFloat(gridCols),
-                                  (availableHeight - basePadding * 2) / CGFloat(gridRows),
-                                  maxCellSize)
-            // padding 至少等于棋子半径，防止边缘棋子被裁
-            let padding = max(basePadding, cellSizeEst * 0.45)
-            // 用最终 padding 重算 cellSize，补偿 padding 增加占用的空间
-            let cellSize = min((availableWidth - padding * 2) / CGFloat(gridCols),
-                               (availableHeight - padding * 2) / CGFloat(gridRows),
-                               maxCellSize)
-            let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
-            let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
+            let sizing = BoardSizing.calculate(width: geo.size.width, height: geo.size.height)
+            let cellSize = sizing.cellSize
+            let padding = sizing.padding
+            let boardWidth = sizing.boardWidth
+            let boardHeight = sizing.boardHeight
 
             ZStack {
                 // 棋盘背景
@@ -67,8 +43,7 @@ struct ReplayBoardView: View {
                 renderOverlays(cellSize: cellSize, padding: padding)
             }
             .frame(width: boardWidth, height: boardHeight)
-            .aspectRatio(CGFloat(gridCols) / CGFloat(gridRows), contentMode: .fit)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
         }
     }
 
@@ -102,10 +77,7 @@ struct ReplayBoardView: View {
     // MARK: - 坐标映射
 
     private func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
-        CGPoint(
-            x: padding + CGFloat(pos.col) * cellSize,
-            y: padding + CGFloat(pos.row) * cellSize
-        )
+        BoardSizing.posToCGPoint(pos, cellSize: cellSize, padding: padding)
     }
 
     // MARK: - 棋盘线条
@@ -113,18 +85,18 @@ struct ReplayBoardView: View {
     private func drawBoardLines(context: inout GraphicsContext, size: CGSize, cellSize: CGFloat, padding: CGFloat) {
         var path = Path()
 
-        for row in 0...gridRows {
+        for row in 0...BoardSizing.gridRows {
             let y = padding + CGFloat(row) * cellSize
             path.move(to: CGPoint(x: padding, y: y))
-            path.addLine(to: CGPoint(x: padding + CGFloat(gridCols) * cellSize, y: y))
+            path.addLine(to: CGPoint(x: padding + CGFloat(BoardSizing.gridCols) * cellSize, y: y))
         }
 
-        for col in 0...gridCols {
+        for col in 0...BoardSizing.gridCols {
             let x = padding + CGFloat(col) * cellSize
             path.move(to: CGPoint(x: x, y: padding))
             path.addLine(to: CGPoint(x: x, y: padding + 4 * cellSize))
         }
-        for col in 0...gridCols {
+        for col in 0...BoardSizing.gridCols {
             let x = padding + CGFloat(col) * cellSize
             path.move(to: CGPoint(x: x, y: padding + 5 * cellSize))
             path.addLine(to: CGPoint(x: x, y: padding + 9 * cellSize))
