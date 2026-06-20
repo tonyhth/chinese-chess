@@ -122,6 +122,10 @@ final class AIEngine: AIEngineProtocol {
         var enableSmartTime: Bool = false
         var enablePVS: Bool = false
         var enableCountermove: Bool = false
+        // v3.0 Phase 2b
+        var enableFutility: Bool = false
+        var enableRazoring: Bool = false
+        var enableIID: Bool = false
 
         var evalConfig: EvalConfig = .advanced
         var maxQSDepth: Int = 4
@@ -141,6 +145,9 @@ final class AIEngine: AIEngineProtocol {
             enableSmartTime: false,
             enablePVS: true,
             enableCountermove: true,
+            enableFutility: true,
+            enableRazoring: true,
+            enableIID: true,
             evalConfig: .advanced,
             maxQSDepth: 4,
             maxCheckExtensions: 8
@@ -169,6 +176,9 @@ final class AIEngine: AIEngineProtocol {
             enableSmartTime: false,
             enablePVS: true,
             enableCountermove: true,
+            enableFutility: true,
+            enableRazoring: true,
+            enableIID: true,
             evalConfig: .advanced,
             maxQSDepth: 4,
             maxCheckExtensions: 6
@@ -184,6 +194,9 @@ final class AIEngine: AIEngineProtocol {
             enableSmartTime: true,
             enablePVS: true,
             enableCountermove: true,
+            enableFutility: true,
+            enableRazoring: true,
+            enableIID: true,
             evalConfig: .advanced,
             maxQSDepth: 6,
             maxCheckExtensions: 8
@@ -425,6 +438,26 @@ final class AIEngine: AIEngineProtocol {
             }
         }
 
+        // v3.0 Phase 2b: Razoring
+        // depth <= 2 且静态评估 + 边际值 ≤ alpha → 直接用 QS 搜索
+        if searchConfig.enableRazoring && depth <= 2 && !MoveValidator.isInCheck(side, on: board) {
+            let razorMargin = depth == 1 ? 300 : 500
+            let staticEval = evaluate(board, config: evalCfg)
+            if staticEval + razorMargin <= alpha {
+                let qsScore: Int
+                if searchConfig.enableQuiescence {
+                    qsScore = quiescenceSearch(board: board, alpha: alpha, beta: beta,
+                                                qDepth: searchConfig.maxQSDepth,
+                                                searchConfig: searchConfig)
+                } else {
+                    qsScore = staticEval
+                }
+                if qsScore <= alpha {
+                    return qsScore
+                }
+            }
+        }
+
         // 终止局面
         if isTerminal(board) {
             return evaluate(board, config: evalCfg)
@@ -485,6 +518,20 @@ final class AIEngine: AIEngineProtocol {
             return score
         }
 
+        // v3.0 Phase 2b: Internal Iterative Deepening (IID)
+        // TT 无最佳走法且 depth >= 4 时，先做 depth-2 浅搜以获取走法排序提示
+        if searchConfig.enableIID && useMoveOrder && depth >= 4 {
+            let ttBestProbe = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
+            if ttBestProbe == nil {
+                // 浅搜填充 TT 和走法排序
+                _ = negamax(board: board, depth: depth - 2,
+                            alpha: alpha, beta: beta,
+                            useTT: useTT, useMoveOrder: useMoveOrder,
+                            evalConfig: evalCfg, extensions: extensions,
+                            searchConfig: searchConfig)
+            }
+        }
+
         // 走法排序
         if useMoveOrder {
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
@@ -502,7 +549,24 @@ final class AIEngine: AIEngineProtocol {
         // LMR：selfInCheck 在循环外计算（同 depth 内 execute 前不变）
         let selfInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
 
+        // v3.0 Phase 2b: Futility Pruning 预计算
+        // 浅深度非 PV 节点，静态评估 + 边际值 ≤ alpha 时跳过非吃子走法
+        let futilityEnabled = searchConfig.enableFutility
+            && depth <= 3
+            && depth >= 1
+            && !selfInCheck
+        let futilityMargin = futilityEnabled ? (depth == 1 ? 300 : depth == 2 ? 500 : 900) : 0
+        let staticEvalForFutility: Int? = futilityEnabled ? evaluate(board, config: evalCfg) : nil
+
         for (moveIndex, move) in moves.enumerated() {
+            // v3.0 Phase 2b: Futility Pruning
+            if futilityEnabled
+                && move.captured == nil
+                && staticEvalForFutility! + futilityMargin <= alpha {
+                // 静态评估 + 边际值 ≤ alpha，跳过此非吃子走法
+                continue
+            }
+
             // LMR：判断走法是否可削减
             let isCapture = move.captured != nil
             let isKiller = moveOrderer.isKillerMove(move, depth: depth)

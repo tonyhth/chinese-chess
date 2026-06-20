@@ -21,6 +21,7 @@ final class TranspositionTable {
         let flag: TTFlag
         let bestMove: Move?
         let isValid: Bool      // false = 空槽位
+        let age: Int           // v3.0 Phase 2b: 用于多桶替换策略
     }
 
     struct TTLookupResult {
@@ -31,9 +32,13 @@ final class TranspositionTable {
 
     // MARK: - 属性
 
-    private var table: [TTEntry?]
-    private let capacity: Int
+    // v3.0 Phase 2b: 双桶策略（2 slots per index）
+    // 桶 0: depth-prefer（优先保留高深度条目）
+    // 桶 1: always-replace（总是替换，保持新鲜度）
+    private var table: [TTEntry?]  // 双桶：index * 2 = slot 0, index * 2 + 1 = slot 1
+    private let capacity: Int      // 桶数（每桶 2 slot）
     private let mask: UInt64
+    private var currentAge: Int = 0  // v3.0 Phase 2b: 每次 IDS 新根深度递增
 
     // MARK: - 初始化
 
@@ -42,72 +47,93 @@ final class TranspositionTable {
         precondition(capacity > 0 && (capacity & (capacity - 1)) == 0, "capacity must be power of 2")
         self.capacity = capacity
         self.mask = UInt64(capacity - 1)
-        self.table = Array(repeating: nil, count: capacity)
+        self.table = Array(repeating: nil, count: capacity * 2)  // 双桶
     }
     #else
     init(capacity: Int = 1 << 20) {
         precondition(capacity > 0 && (capacity & (capacity - 1)) == 0, "capacity must be power of 2")
         self.capacity = capacity
         self.mask = UInt64(capacity - 1)
-        self.table = Array(repeating: nil, count: capacity)
+        self.table = Array(repeating: nil, count: capacity * 2)  // 双桶
     }
     #endif
 
     // MARK: - 查找
 
-    private func index(for hash: UInt64) -> Int {
-        return Int(hash & mask)
-    }
-
     /// 查找置换表。如果找到有效条目且深度足够，返回查找结果。
     /// 调用方根据 flag 和 alpha/beta 判断是否可直接使用。
     func lookup(hash: UInt64, depth: Int, alpha: Int, beta: Int) -> TTLookupResult? {
-        let idx = index(for: hash)
-        guard let entry = table[idx], entry.isValid, entry.hash == hash else { return nil }
-        guard entry.depth >= depth else { return nil }
-
-        switch entry.flag {
-        case .exact:
-            return TTLookupResult(score: entry.score, flag: .exact, bestMove: entry.bestMove)
-        case .lower:
-            // 下界：实际值 >= entry.score
-            if entry.score >= beta {
-                return TTLookupResult(score: entry.score, flag: .lower, bestMove: entry.bestMove)
-            }
-        case .upper:
-            // 上界：实际值 <= entry.score
-            if entry.score <= alpha {
-                return TTLookupResult(score: entry.score, flag: .upper, bestMove: entry.bestMove)
+        let baseIdx = Int(hash & mask) * 2
+        // 检查两个桶
+        for slot in 0..<2 {
+            let idx = baseIdx + slot
+            guard let entry = table[idx], entry.isValid, entry.hash == hash else { continue }
+            guard entry.depth >= depth else { continue }
+            switch entry.flag {
+            case .exact:
+                return TTLookupResult(score: entry.score, flag: .exact, bestMove: entry.bestMove)
+            case .lower:
+                if entry.score >= beta {
+                    return TTLookupResult(score: entry.score, flag: .lower, bestMove: entry.bestMove)
+                }
+            case .upper:
+                if entry.score <= alpha {
+                    return TTLookupResult(score: entry.score, flag: .upper, bestMove: entry.bestMove)
+                }
             }
         }
-        return nil  // 深度够但 flag 不满足截断条件，只可用于走法排序提示
+        return nil
     }
 
     /// 获取条目的最佳走法（即使深度不够或 flag 不匹配），用于走法排序
     func probeBestMove(hash: UInt64) -> Move? {
-        let idx = index(for: hash)
-        guard let entry = table[idx], entry.isValid, entry.hash == hash else { return nil }
-        return entry.bestMove
+        let baseIdx = Int(hash & mask) * 2
+        for slot in 0..<2 {
+            let idx = baseIdx + slot
+            if let entry = table[idx], entry.isValid, entry.hash == hash {
+                return entry.bestMove
+            }
+        }
+        return nil
     }
 
     // MARK: - 存储
 
-    /// 存储条目。替换策略：深度优先（新条目深度 >= 旧条目深度时替换，或旧槽位为空）
+    /// v3.0 Phase 2b: 双桶存储策略
+    /// slot 0 (depth-prefer): 新条目深度 >= 旧条目深度时替换
+    /// slot 1 (always-replace): 总是替换
     func store(hash: UInt64, depth: Int, score: Int, flag: TTFlag, bestMove: Move?) {
-        let idx = index(for: hash)
+        let baseIdx = Int(hash & mask) * 2
 
-        if let existing = table[idx] {
-            guard !existing.isValid || depth >= existing.depth else { return }
+        // slot 0: depth-prefer
+        if let existing = table[baseIdx] {
+            if !existing.isValid || depth >= existing.depth {
+                table[baseIdx] = TTEntry(hash: hash, depth: depth, score: score,
+                                          flag: flag, bestMove: bestMove, isValid: true, age: currentAge)
+                return
+            }
+        } else {
+            table[baseIdx] = TTEntry(hash: hash, depth: depth, score: score,
+                                      flag: flag, bestMove: bestMove, isValid: true, age: currentAge)
+            return
         }
-        table[idx] = TTEntry(
-            hash: hash, depth: depth, score: score,
-            flag: flag, bestMove: bestMove, isValid: true
-        )
+
+        // slot 1: always-replace
+        table[baseIdx + 1] = TTEntry(hash: hash, depth: depth, score: score,
+                                      flag: flag, bestMove: bestMove, isValid: true, age: currentAge)
     }
 
     // MARK: - 清理
 
     func clear() {
-        table = Array(repeating: nil, count: capacity)
+        table = Array(repeating: nil, count: capacity * 2)
+        currentAge = 0
+    }
+
+    // MARK: - v3.0 Phase 2b: Age 管理
+
+    /// 递增 age（每次 IDS 新根深度时调用）
+    func incrementAge() {
+        currentAge += 1
     }
 }
