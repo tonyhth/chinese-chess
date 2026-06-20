@@ -43,7 +43,7 @@ struct ReplayBoardView: View {
                 renderOverlays(cellSize: cellSize, padding: padding)
             }
             .frame(width: boardWidth, height: boardHeight)
-            .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
+            .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
     }
 
