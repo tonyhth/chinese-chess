@@ -80,6 +80,12 @@ struct PlayerProfile: Codable, Equatable {
     var dailyStreak: Int = 0
     var lastPlayDate: String? = nil  // ISO 日期
 
+    // v3.0 gap fix: 连续登录奖励解锁字段
+    var bonusUnlockedThemes: [String] = []    // 通过连续登录解锁的主题 rawValue
+    var bonusPuzzlesUnlocked: Bool = false    // 额外残局解锁
+    var bonusPieceStyle: Bool = false         // 专属棋子样式
+    var bonusSpecialTheme: Bool = false       // 棋圣专属主题
+
     var totalGames: Int { totalWins + totalLosses + totalDraws }
     var winRate: Double { totalGames == 0 ? 0 : Double(totalWins) / Double(totalGames) }
 

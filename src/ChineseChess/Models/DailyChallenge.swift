@@ -79,6 +79,31 @@ enum DailyStreakReward: Int, CaseIterable {
         case .day100: return "百日庆典勋章"
         }
     }
+
+    // v3.0 gap fix: 实际解锁内容描述
+    var unlockDescription: String {
+        switch self {
+        case .day3: return "解锁额外残局 ×3"
+        case .day7: return "解锁翡翠绿主题（无需段位）"
+        case .day14: return "解锁专属棋子样式"
+        case .day30: return "解锁帝王金主题（无需段位）"
+        case .day45: return "解锁额外残局 ×5"
+        case .day60: return "解锁朱砂红主题（无需段位）"
+        case .day70: return "解锁全部残局"
+        case .day100: return "解锁棋圣专属主题"
+        }
+    }
+
+    // v3.0 gap fix: 奖励类型标识
+    var rewardType: String {
+        switch self {
+        case .day3, .day45: return "puzzle_unlock"
+        case .day7, .day30, .day60: return "theme_unlock"
+        case .day14: return "piece_style"
+        case .day70: return "puzzle_unlock_all"
+        case .day100: return "theme_special"
+        }
+    }
 }
 
 // MARK: - 每日挑战管理器
@@ -247,6 +272,85 @@ final class DailyChallengeManager {
             }
         }
         return nil
+    }
+
+    // v3.0 gap fix: 领取连续登录奖励（实际解锁逻辑）
+    private let claimedRewardsKey = "chinesechess.claimedStreakRewards"
+
+    /// 检查并领取所有已达到但未领取的连续登录奖励
+    /// 返回新领取的奖励列表
+    @discardableResult
+    func claimPendingRewards() -> [DailyStreakReward] {
+        let streak = currentStreak
+        var claimed = claimedRewards
+        var newlyClaimed: [DailyStreakReward] = []
+
+        for reward in DailyStreakReward.allCases {
+            if streak >= reward.rawValue && !claimed.contains(reward.rawValue) {
+                newlyClaimed.append(reward)
+                claimed.append(reward.rawValue)
+            }
+        }
+
+        if !newlyClaimed.isEmpty {
+            defaults.set(claimed, forKey: claimedRewardsKey)
+            applyRewards(newlyClaimed)
+        }
+
+        return newlyClaimed
+    }
+
+    /// 已领取的奖励 rawValue 列表
+    private var claimedRewards: [Int] {
+        defaults.array(forKey: claimedRewardsKey) as? [Int] ?? []
+    }
+
+    /// 实际应用奖励解锁
+    private func applyRewards(_ rewards: [DailyStreakReward]) {
+        let store = PlayerProfileStore.shared
+
+        for reward in rewards {
+            switch reward.rewardType {
+            case "theme_unlock":
+                // 连续登录解锁主题（绕过段位检查）
+                let theme: BoardTheme?
+                switch reward {
+                case .day7: theme = .jadeGreen
+                case .day30: theme = .imperialGold
+                case .day60: theme = .crimson
+                default: theme = nil
+                }
+                if let theme = theme {
+                    // 记录到 profile 的额外解锁列表
+                    store.update { profile in
+                        if !profile.bonusUnlockedThemes.contains(theme.rawValue) {
+                            profile.bonusUnlockedThemes.append(theme.rawValue)
+                        }
+                    }
+                }
+
+            case "puzzle_unlock", "puzzle_unlock_all":
+                // 解锁额外残局：标记到 profile
+                store.update { profile in
+                    profile.bonusPuzzlesUnlocked = true
+                }
+
+            case "piece_style":
+                // 解锁专属棋子样式
+                store.update { profile in
+                    profile.bonusPieceStyle = true
+                }
+
+            case "theme_special":
+                // 棋圣专属主题
+                store.update { profile in
+                    profile.bonusSpecialTheme = true
+                }
+
+            default:
+                break
+            }
+        }
     }
 
     // MARK: - 持久化

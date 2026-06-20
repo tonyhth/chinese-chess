@@ -95,6 +95,14 @@ struct DailyChallengeView: View {
                                 Text("\(reward.rawValue)")
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
+                                    // v3.0 gap fix: 显示解锁内容简述
+                                    if streak >= reward.rawValue {
+                                        Text(reward.unlockDescription)
+                                            .font(.caption2)
+                                            .foregroundColor(.accentColor)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.5)
+                                    }
                             }
                             .frame(maxWidth: .infinity)
                         }
@@ -147,6 +155,8 @@ struct DailyChallengeView: View {
             streak = manager.checkDailyLogin()
             streakReward = manager.checkStreakReward()
             dailyPuzzleId = manager.dailyPuzzleId()
+            // v3.0 gap fix: 自动领取待领取的连续登录奖励
+            _ = manager.claimPendingRewards()
         }
         .sheet(isPresented: $showPuzzle) {
             if let puzzle = manager.dailyPuzzle() {

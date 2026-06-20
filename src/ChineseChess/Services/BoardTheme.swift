@@ -208,10 +208,11 @@ class ThemeManager {
         UserDefaults.standard.set(currentTheme.rawValue, forKey: userDefaultsKey)
     }
 
-    // v3.0 Phase 8: 检查主题是否解锁
+    // v3.0 Phase 8: 检查主题是否解锁（段位 OR 连续登录奖励）
     func isThemeUnlocked(_ theme: BoardTheme, profile: PlayerProfile) -> Bool {
         guard let required = theme.requiredRank else { return true }
-        return profile.rank >= required
+        // 段位达标 OR 连续登录奖励解锁
+        return profile.rank >= required || profile.bonusUnlockedThemes.contains(theme.rawValue)
     }
 
     // v3.0 Phase 8: 可用主题列表
