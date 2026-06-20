@@ -4,6 +4,14 @@ import SwiftUI
 @main
 struct ChineseChessApp: App {
     init() {
+        // v3.0: 命令行自对弈模式
+        #if os(macOS)
+        let args = CommandLine.arguments
+        if args.count >= 2 && args[1] == "--selfplay" {
+            runSelfPlayFromCLI()
+            Foundation.exit(0)
+        }
+        #endif
         FontRegistry.registerFonts()
     }
 

@@ -69,6 +69,8 @@ final class SelfPlayRunner {
 
     private let engine = AIEngine()
 
+    init() {}
+
     // 统计
     private var redWins = 0
     private var blackWins = 0
@@ -234,6 +236,37 @@ final class SelfPlayRunner {
     }
 }
 
+// MARK: - 命令行报告生成
+
+extension SelfPlayRunner {
+    /// 运行自对弈并生成报告字符串
+    func runAndReport(config: SelfPlayConfig, label: String, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) -> String {
+        let result = run(config: config, progressCallback: progressCallback)
+
+        let eloDelta = BayesElo.estimateDelta(
+            wins: result.redWins,
+            losses: result.blackWins,
+            draws: result.draws
+        )
+
+        var report = result.summary + "\n\n"
+        report += "BayesElo 估值：\(eloDelta >= 0 ? "+" : "")\(eloDelta)\n"
+        report += "\n逐局结果：\n"
+        for game in result.games {
+            let winnerStr: String
+            switch game.result {
+            case .redWon: winnerStr = "红胜"
+            case .blackWon: winnerStr = "黑胜"
+            case .draw: winnerStr = "和棋"
+            default: winnerStr = "未知"
+            }
+            report += "  第\(game.gameIndex + 1)局：\(winnerStr)（\(game.totalMoves)步, \(game.reason.rawValue)）\n"
+        }
+
+        return report
+    }
+}
+
 // MARK: - BayesElo 估值
 
 /// 简化版 BayesElo 估值
@@ -259,3 +292,77 @@ enum BayesElo {
         return estimateDelta(winRate: winRate)
     }
 }
+
+// MARK: - 命令行入口
+
+#if os(macOS)
+/// 命令行自对弈入口（在 ChineseChessApp.swift 的 main 中通过 --selfplay 参数调用）
+func runSelfPlayFromCLI() {
+    let args = CommandLine.arguments
+
+    guard args.count >= 4 else {
+        print("""
+        用法: ChineseChess --selfplay <红方难度> <黑方难度> <局数> [标签]
+
+        难度: beginner | easy | medium | hard | master
+
+        示例:
+          ChineseChess --selfplay master hard 100 master-vs-hard
+          ChineseChess --selfplay master master 100 master-vs-master
+          ChineseChess --selfplay hard hard 100 hard-vs-hard
+        """)
+        return
+    }
+
+    guard let red = AIDifficulty(rawValue: args[2]) else {
+        print("❌ 无效的红方难度: \(args[2])")
+        return
+    }
+    guard let black = AIDifficulty(rawValue: args[3]) else {
+        print("❌ 无效的黑方难度: \(args[3])")
+        return
+    }
+    guard let games = Int(args[4]), games > 0 else {
+        print("❌ 无效的局数: \(args[4])")
+        return
+    }
+
+    let label = args.count > 5 ? args[5] : "\(red.rawValue)-vs-\(black.rawValue)"
+
+    print("═══════════════════════════════════════════")
+    print("  自对弈：\(red.rawValue) vs \(black.rawValue)（\(games) 局）")
+    print("═══════════════════════════════════════════")
+    print("")
+
+    let runner = SelfPlayRunner()
+    let config = SelfPlayConfig(red: red, black: black, games: games)
+
+    let startTime = Date()
+
+    let report = runner.runAndReport(config: config, label: label) { completed, gameResult in
+        let elapsed = Date().timeIntervalSince(startTime)
+        let winnerStr: String
+        switch gameResult.result {
+        case .redWon: winnerStr = "红胜"
+        case .blackWon: winnerStr = "黑胜"
+        case .draw: winnerStr = "和棋"
+        default: winnerStr = "未知"
+        }
+        print("  [\(completed)/\(games)] \(winnerStr) (\(gameResult.totalMoves)步, \(gameResult.reason.rawValue)) [\(String(format: "%.1f", elapsed))s]")
+    }
+
+    print("")
+    print(report)
+    print("")
+
+    let fm = FileManager.default
+    let outputDir = "selfplay-results"
+    try? fm.createDirectory(atPath: outputDir, withIntermediateDirectories: true)
+
+    let timestamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+    let outputPath = "\(outputDir)/\(label)_\(timestamp).txt"
+
+    try? report.write(toFile: outputPath, atomically: true, encoding: String.Encoding.utf8)
+    print("报告已保存：\(outputPath)")
+}
+#endif
