@@ -336,7 +336,7 @@ struct PuzzleModelExtendedTests6 {
 
 // MARK: - PuzzleStore Progress Cache Tests
 
-@Suite("Phase6: PuzzleStore Cache Tests")
+@Suite("Phase6: PuzzleStore Cache Tests", .serialized)
 struct PuzzleStoreCacheTests {
 
     @Test("进度缓存：多次查询不重复解码")

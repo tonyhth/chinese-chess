@@ -2691,6 +2691,22 @@
           }
         }
       }
+    },
+    "bonus.puzzleProgressBanner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Login Bonus Active: Puzzle Progress Boost"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续登录奖励已激活：残局进度加成"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
