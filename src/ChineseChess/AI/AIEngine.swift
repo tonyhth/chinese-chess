@@ -1308,3 +1308,39 @@ final class AIEngine: AIEngineProtocol {
         }.sorted { $0.1 > $1.1 }.map { $0.0 }
     }
 }
+
+// MARK: - ChessEngine 协议实现
+
+extension AIEngine: ChessEngine {
+    var displayName: String { "内置引擎" }
+    var engineType: EngineType { .native }
+    var isReady: Bool { true }  // 同步返回，满足 async get（编译器自动包装）
+
+    func bestMove(
+        fen: String,
+        moveHistory: [String],
+        difficulty: AIDifficulty,
+        timeLimitMs: Int
+    ) async -> String? {
+        // 1. FEN + UCI moves → Board（复用现有 FENParser）
+        guard let board = UCIMoveConverter.board(from: fen, moves: moveHistory) else {
+            return nil
+        }
+        // 2. 调用现有 bestMove（零改动）
+        let move = self.bestMove(for: board, difficulty: difficulty)
+        // 3. Move → UCI string
+        return move.map { UCIMoveConverter.uciString(from: $0) }
+    }
+
+    func stopSearch() {
+        // 自研引擎不支持中止，时间管理由内部处理
+    }
+
+    func newGame() {
+        clearHistory()
+    }
+
+    func shutdown() {
+        // 自研引擎无需 shutdown
+    }
+}
