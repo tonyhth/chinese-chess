@@ -115,11 +115,22 @@ final class PuzzleStore {
 
     func recordProgress(_ p: PuzzleProgress) {
         var all = progress
+        let wasCompleted = all[p.puzzleId]?.isCompleted == true
         all[p.puzzleId] = p
         if let data = try? JSONEncoder().encode(all) {
             UserDefaults.standard.set(data, forKey: progressKey)
         }
         _progressCache = all
+
+        // v3.0 gap fix P1-2: 残局完成时更新 PlayerProfile.puzzlesCompleted
+        // 首次完成才计数，避免重复
+        if p.isCompleted && !wasCompleted {
+            PlayerProfileStore.shared.update { profile in
+                // bonusPuzzlesUnlocked 激活时进度 ×2，让连续登录奖励有实际效果
+                let increment = profile.bonusPuzzlesUnlocked ? 2 : 1
+                profile.puzzlesCompleted += increment
+            }
+        }
     }
 
     func progress(for puzzleId: String) -> PuzzleProgress? {

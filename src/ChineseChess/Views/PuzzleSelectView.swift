@@ -131,7 +131,7 @@ struct PuzzleSelectView: View {
                     Image(systemName: "flame.fill")
                         .foregroundColor(.orange)
                         .font(.caption)
-                    Text("连续登录奖励已激活：额外残局已解锁")
+                    Text("连续登录奖励已激活：残局进度加成")
                         .font(.caption)
                         .foregroundColor(.orange)
                     Spacer()

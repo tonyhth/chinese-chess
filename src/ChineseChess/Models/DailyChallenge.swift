@@ -83,13 +83,13 @@ enum DailyStreakReward: Int, CaseIterable {
     // v3.0 gap fix: 实际解锁内容描述
     var unlockDescription: String {
         switch self {
-        case .day3: return "解锁额外残局 ×3"
+        case .day3: return "铜牌徽章 + 残局进度加成"
         case .day7: return "解锁翡翠绿主题（无需段位）"
         case .day14: return "解锁专属棋子样式"
         case .day30: return "解锁帝王金主题（无需段位）"
-        case .day45: return "解锁额外残局 ×5"
+        case .day45: return "钻石徽章 + 残局进度加成"
         case .day60: return "解锁朱砂红主题（无需段位）"
-        case .day70: return "解锁全部残局"
+        case .day70: return "百日勋章 + 残局大师称号"
         case .day100: return "解锁棋圣专属主题"
         }
     }
