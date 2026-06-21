@@ -54,20 +54,6 @@ enum UCIMoveConverter {
         return board
     }
 
-    // MARK: - Board → FEN + UCI moves
-
-    /// Board → FEN 字符串
-    static func fen(from board: Board) -> String {
-        return FENParser.generate(board: board)
-    }
-
-    /// Board 的走法历史 → UCI 格式数组
-    static func uciMoves(from board: Board) -> [String] {
-        // Board 没有暴露 moveHistory，需要在调用方处理
-        // 此处作为备用方法，接受 Move 数组
-        return []
-    }
-
     // MARK: - Private
 
     private static func colToChar(_ col: Int) -> Character {

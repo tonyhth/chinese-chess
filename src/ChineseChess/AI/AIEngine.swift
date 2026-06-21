@@ -1326,8 +1326,8 @@ extension AIEngine: ChessEngine {
         guard let board = UCIMoveConverter.board(from: fen, moves: moveHistory) else {
             return nil
         }
-        // 2. 调用现有 bestMove（零改动）
-        let move = self.bestMove(for: board, difficulty: difficulty)
+        // 2. 调用现有 bestMove（isIOS=false：ChessEngine 为 macOS 外部引擎设计，不走 iOS 分支）
+        let move = self.bestMove(for: board, difficulty: difficulty, isIOS: false)
         // 3. Move → UCI string
         return move.map { UCIMoveConverter.uciString(from: $0) }
     }
