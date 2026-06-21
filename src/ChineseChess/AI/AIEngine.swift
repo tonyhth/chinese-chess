@@ -18,6 +18,9 @@ final class AIEngine: AIEngineProtocol {
     /// 历史启发表（实例级，避免并发竞争）
     private var moveOrderer = MoveOrderer()
 
+    /// v3.1 权重配置（运行时可热重载）
+    private var evalWeights: EvalWeights { EvalConfigManager.shared.weights }
+
     /// 清空历史启发表（新对局时调用）
     func clearHistory() {
         moveOrderer.clearHistory()
@@ -836,6 +839,8 @@ final class AIEngine: AIEngineProtocol {
             return endgameScore
         }
 
+        let w = evalWeights
+
         let sign: Int = (side == .black) ? 1 : -1
 
         var materialScore = 0
@@ -878,13 +883,12 @@ final class AIEngine: AIEngineProtocol {
             mobilityBonus = 0
         }
 
-        // 权重：子力(1.0) + 位置(1.0) + 棋型(1.0) + 机动性(0.3) + 安全(0.8)
-        // 注：权重为经验值，需通过自对弈校准调参
-        return sign * (materialScore
-            + positionScore
-            + patternBonus
-            + mobilityBonus / 3
-            + safetyBonus * 4 / 5)
+        // 权重：由 EvalWeights 配置驱动
+        return sign * (Int(Double(materialScore) * w.materialWeight)
+            + Int(Double(positionScore) * w.positionWeight)
+            + Int(Double(patternBonus) * w.patternWeight)
+            + Int(Double(mobilityBonus) * w.mobilityWeight)
+            + Int(Double(safetyBonus) * w.safetyWeight))
     }
 
     // MARK: - 棋子动态价值
@@ -899,21 +903,22 @@ final class AIEngine: AIEngineProtocol {
     ///   价值提升至 300。此阈值待自对弈校准。
     /// 注：阈值来源于象棋棋理经验，具体数值待通过大规模自对弈校准调参。
     private func dynamicValue(for piece: Piece, totalPieces: Int) -> Int {
+        let w = evalWeights
         switch piece.kind {
-        case .general:  return 10000
-        case .chariot:  return 900
+        case .general:  return w.generalValue
+        case .chariot:  return w.chariotValue
         case .horse:
-            if totalPieces <= 10 { return 450 }  // 残局：马 > 炮
-            return 400
+            if totalPieces <= w.endgameThreshold { return w.horseValueEndgame }
+            return w.horseValueOpening
         case .cannon:
-            if totalPieces <= 10 { return 400 }  // 残局：炮 < 马
-            return 450
-        case .advisor:  return 200
-        case .elephant: return 200
+            if totalPieces <= w.endgameThreshold { return w.cannonValueEndgame }
+            return w.cannonValueOpening
+        case .advisor:  return w.advisorValue
+        case .elephant: return w.elephantValue
         case .soldier:
-            if totalPieces <= 6 { return 300 }  // 残末期
+            if totalPieces <= w.lateEndgameThreshold { return w.soldierValueLateEndgame }
             let hasCrossedRiver = (piece.side == .red) ? piece.position.row <= 4 : piece.position.row >= 5
-            return hasCrossedRiver ? 200 : 100
+            return hasCrossedRiver ? w.soldierValueCrossed : w.soldierValueEarly
         }
     }
 
@@ -925,6 +930,7 @@ final class AIEngine: AIEngineProtocol {
     /// 开局侧重防守子力完整性，残局侧重将的机动性
     private func kingSafetyScore(for side: Side, on board: Board) -> Int {
         guard let kingPos = board.generalPosition(of: side) else { return -50000 }
+        let w = evalWeights
         var score = 0
         let totalPieces = board.pieces.count
         let isEndgame = totalPieces <= 16
@@ -933,11 +939,11 @@ final class AIEngine: AIEngineProtocol {
         let elephants = board.pieces(for: side).filter { $0.kind == .elephant }
 
         // 士象覆盖加分（开局权重更高）
-        let guardWeight = isEndgame ? 20 : 30
-        score += advisors.count * guardWeight + elephants.count * (guardWeight - 5)
+        let guardWeight = isEndgame ? w.guardWeightEndgame : w.guardWeightOpening
+        score += advisors.count * guardWeight + elephants.count * (guardWeight + w.elephantWeightModifier)
 
         // 将帅暴露扣分（开局更严重）
-        let exposurePenalty = isEndgame ? 25 : 40
+        let exposurePenalty = isEndgame ? w.exposurePenaltyEndgame : w.exposurePenaltyOpening
         if advisors.count < 2 || elephants.count < 2 {
             let missingGuards = (2 - advisors.count) + (2 - elephants.count)
             score -= missingGuards * exposurePenalty
@@ -948,9 +954,9 @@ final class AIEngine: AIEngineProtocol {
         let airDefPos = Position(row: kingPos.row + defenseRowOffset, col: kingPos.col)
         if airDefPos.row >= 0 && airDefPos.row <= 9 {
             if let defender = board.piece(at: airDefPos), defender.side == side {
-                score += 40  // 将上方有子防空
+                score += w.airDefenseBonus  // 将上方有子防空
             } else if !isEndgame {
-                score -= 30  // 开局将上方空虚
+                score -= w.airDefensePenaltyOpening  // 开局将上方空虚
             }
         }
 
@@ -959,7 +965,7 @@ final class AIEngine: AIEngineProtocol {
         for op in board.pieces(for: opSide) {
             if op.kind == .chariot || op.kind == .cannon {
                 if isAttackingPosition(op, target: kingPos, on: board) {
-                    score -= isEndgame ? 250 : 200  // 残局威胁更致命
+                    score -= isEndgame ? w.attackPenaltyEndgame : w.attackPenaltyOpening
                 }
             }
         }
@@ -1043,17 +1049,18 @@ final class AIEngine: AIEngineProtocol {
 
     /// 评估对方马对己方九宫的威胁程度
     private func horsePalaceThreat(_ horse: Piece, kingPos: Position, on board: Board) -> Int {
+        let w = evalWeights
         let jumps = horseJumpTargets(from: horse.position, for: horse.side, on: board)
         for jump in jumps {
             if jump.row == kingPos.row && jump.col == kingPos.col {
-                return 150  // 能直接攻击将帅，立即返回
+                return w.horsePalaceThreatDirect
             }
         }
         // 马的实际跳点中有落在九宫范围内的，视为有间接威胁
         // 九宫范围：将帅周围 3×3 区域（row: kingRow±1, col: kingCol±1）
         for jump in jumps {
             if abs(jump.row - kingPos.row) <= 1 && abs(jump.col - kingPos.col) <= 1 {
-                return 30
+                return w.horsePalaceThreatNear
             }
         }
         return 0
@@ -1065,6 +1072,7 @@ final class AIEngine: AIEngineProtocol {
     /// 炮：炮架质量 + 控制线路
     /// 兵：过河兵机动性 + 推进价值
     private func simplifiedMobilityScore(for side: Side, on board: Board) -> Int {
+        let w = evalWeights
         var score = 0
         let totalPieces = board.pieces.count
         let isEndgame = totalPieces <= 16
@@ -1074,26 +1082,26 @@ final class AIEngine: AIEngineProtocol {
             case .chariot:
                 let rowEmpty = countEmptyInRow(piece.position.row, on: board)
                 let colEmpty = countEmptyInCol(piece.position.col, on: board)
-                let baseMobility = (rowEmpty + colEmpty) * 5
+                let baseMobility = (rowEmpty + colEmpty) * w.chariotRowColEmptyMultiplier
                 let positionalBonus: Int
-                if piece.position.col == 4 { positionalBonus = 30 }
-                else if piece.position.col == 3 || piece.position.col == 5 { positionalBonus = 20 }
+                if piece.position.col == 4 { positionalBonus = w.chariotCenterBonus }
+                else if piece.position.col == 3 || piece.position.col == 5 { positionalBonus = w.chariotNearCenterBonus }
                 else { positionalBonus = 0 }
-                let endgameMult = isEndgame ? 6 : 5
-                score += baseMobility * endgameMult / 5 + positionalBonus
+                let endgameMult = isEndgame ? w.chariotEndgameMultiplier : w.chariotOpeningMultiplier
+                score += baseMobility * endgameMult / w.chariotOpeningMultiplier + positionalBonus
 
             case .cannon:
                 let targets = countCannonTargets(piece, on: board)
-                score += targets * 3
-                if piece.position.col == 4 { score += 20 }
-                if isEndgame { score = score * 7 / 10 }
+                score += targets * w.cannonTargetBonus
+                if piece.position.col == 4 { score += w.cannonCenterBonus }
+                if isEndgame { score = score * w.cannonEndgameFactor / 10 }
 
             case .horse:
                 let jumpCount = horseJumpTargets(from: piece.position, for: side, on: board).count
-                score += jumpCount * 3
-                if isEndgame { score += jumpCount * 2 }
+                score += jumpCount * w.horseJumpBonus
+                if isEndgame { score += jumpCount * w.horseEndgameJumpBonus }
                 let localRow = (side == .black) ? piece.position.row : (9 - piece.position.row)
-                if localRow == 1 && piece.position.col == 4 { score -= 40 }
+                if localRow == 1 && piece.position.col == 4 { score -= w.horseBadPositionPenalty }
 
             case .soldier:
                 let crossed = (side == .black) ? piece.position.row >= 5 : piece.position.row <= 4
@@ -1101,12 +1109,12 @@ final class AIEngine: AIEngineProtocol {
                     let forwardDir = (side == .black) ? 1 : -1
                     let fr = piece.position.row + forwardDir
                     if fr >= 0 && fr <= 9 && board.piece(at: Position(row: fr, col: piece.position.col)) == nil {
-                        score += 15
+                        score += w.soldierForwardBonus
                     }
                     for dc in [-1, 1] {
                         let nc = piece.position.col + dc
                         if nc >= 0 && nc <= 8 && board.piece(at: Position(row: piece.position.row, col: nc)) == nil {
-                            score += 10
+                            score += w.soldierSideBonus
                         }
                     }
                 }
