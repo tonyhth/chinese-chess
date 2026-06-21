@@ -7,7 +7,7 @@ struct EloBaselineTests {
 
     // MARK: - 共用输出格式
 
-    private func printResult(label: String, config: SelfPlayConfig, result: SelfPlayResult, startTime: Date) {
+    private func printResult(label: String, config: SelfPlayConfig, result: SelfPlaySessionResult, startTime: Date) {
         let totalGames = result.redWins + result.blackWins + result.draws
         let elapsed = String(format: "%.1f", Date().timeIntervalSince(startTime))
 
