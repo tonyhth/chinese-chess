@@ -6,6 +6,11 @@ struct PieceView: View {
     let cellSize: CGFloat
     var theme: ThemeColors = ThemeManager.shared.colors
 
+    // v3.0 gap fix P1-2: 读取专属棋子样式解锁状态
+    private var bonusStyleEnabled: Bool {
+        PlayerProfileStore.shared.profile.bonusPieceStyle
+    }
+
     private var pieceDiameter: CGFloat {
         cellSize * 0.85
     }
@@ -53,6 +58,19 @@ struct PieceView: View {
                         .stroke(borderColor, lineWidth: 1.5)
                         .frame(width: pieceDiameter - 4, height: pieceDiameter - 4)
                 )
+
+            // v3.0 gap fix P1-2: 专属棋子样式 — 金色外圈装饰
+            if bonusStyleEnabled {
+                Circle()
+                    .stroke(
+                        AngularGradient(
+                            colors: [.yellow.opacity(0.8), .orange.opacity(0.6), .yellow.opacity(0.8)],
+                            center: .center
+                        ),
+                        lineWidth: 1.0
+                    )
+                    .frame(width: pieceDiameter - 1, height: pieceDiameter - 1)
+            }
 
             // 棋子文字
             Text(piece.displayName)

@@ -123,6 +123,24 @@ struct PuzzleSelectView: View {
                 Text(l10n.t("puzzle.filterCompleted")).tag(CompletionFilter.completed)
             }
             .pickerStyle(.segmented)
+
+            // v3.0 gap fix P1-2: 连续登录奖励残局解锁状态
+            let profile = PlayerProfileStore.shared.profile
+            if profile.bonusPuzzlesUnlocked {
+                HStack(spacing: 6) {
+                    Image(systemName: "flame.fill")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text("连续登录奖励已激活：额外残局已解锁")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                    Spacer()
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(6)
+            }
         }
 
             // 残局列表

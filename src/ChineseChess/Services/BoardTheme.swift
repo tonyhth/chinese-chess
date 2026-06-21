@@ -215,6 +215,10 @@ class ThemeManager {
         if profile.rank >= required || profile.bonusUnlockedThemes.contains(theme.rawValue) {
             return true
         }
+        // v3.0 gap fix P1-2: 棋圣专属主题通过 day100 奖励解锁
+        if profile.bonusSpecialTheme {
+            return true
+        }
         // v3.0 gap fix: 钻石成就关联解锁
         // 拥有 3+ 钻石成就 → 解锁全部主题
         let diamondIds = Set(AchievementLibrary.diamond.map { $0.id })

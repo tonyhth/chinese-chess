@@ -86,6 +86,35 @@ struct PlayerProfile: Codable, Equatable {
     var bonusPieceStyle: Bool = false         // 专属棋子样式
     var bonusSpecialTheme: Bool = false       // 棋圣专属主题
 
+    // MARK: - 自定义解码（P1-3 修复）
+    // v3.0 新增字段对旧存档不存在对应 key，用 decodeIfPresent + 默认值兜底
+    // 防止旧用户升级后 JSONDecoder 抛 keyNotFound 导致档案被静默重置
+    private enum CodingKeys: String, CodingKey {
+        case rank, totalWins, totalLosses, totalDraws, puzzlesCompleted
+        case completedTutorials, unlockedAchievements, dailyStreak, lastPlayDate
+        case bonusUnlockedThemes, bonusPuzzlesUnlocked, bonusPieceStyle, bonusSpecialTheme
+    }
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        rank = try c.decodeIfPresent(Rank.self, forKey: .rank) ?? .student
+        totalWins = try c.decodeIfPresent(Int.self, forKey: .totalWins) ?? 0
+        totalLosses = try c.decodeIfPresent(Int.self, forKey: .totalLosses) ?? 0
+        totalDraws = try c.decodeIfPresent(Int.self, forKey: .totalDraws) ?? 0
+        puzzlesCompleted = try c.decodeIfPresent(Int.self, forKey: .puzzlesCompleted) ?? 0
+        completedTutorials = try c.decodeIfPresent(Bool.self, forKey: .completedTutorials) ?? false
+        unlockedAchievements = try c.decodeIfPresent([String].self, forKey: .unlockedAchievements) ?? []
+        dailyStreak = try c.decodeIfPresent(Int.self, forKey: .dailyStreak) ?? 0
+        lastPlayDate = try c.decodeIfPresent(String.self, forKey: .lastPlayDate)
+        // v3.0 gap fix 新字段 — 旧存档没有这些 key
+        bonusUnlockedThemes = try c.decodeIfPresent([String].self, forKey: .bonusUnlockedThemes) ?? []
+        bonusPuzzlesUnlocked = try c.decodeIfPresent(Bool.self, forKey: .bonusPuzzlesUnlocked) ?? false
+        bonusPieceStyle = try c.decodeIfPresent(Bool.self, forKey: .bonusPieceStyle) ?? false
+        bonusSpecialTheme = try c.decodeIfPresent(Bool.self, forKey: .bonusSpecialTheme) ?? false
+    }
+
     var totalGames: Int { totalWins + totalLosses + totalDraws }
     var winRate: Double { totalGames == 0 ? 0 : Double(totalWins) / Double(totalGames) }
 

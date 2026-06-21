@@ -6,7 +6,6 @@ import SwiftUI
 /// 展示各段位已解锁和即将上线的特权
 struct RankPrivilegeView: View {
     let profile: PlayerProfile
-    private let l10n = L10n.shared
 
     var body: some View {
         List {
