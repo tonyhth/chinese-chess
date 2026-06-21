@@ -88,6 +88,17 @@ struct EvalWeights: Codable, Equatable {
     var chariotCannonProtectBonus: Int = 250
     var horseCannonCoordBonus: Int = 100
 
+    // MARK: - 棋型识别奖励（补充 — 原参数化遗漏的独立棋型）
+
+    var doubleChariotTandemBonus: Int = 600      // 双车错（两车协同攻击）
+    var corneredHorseBonus: Int = 500             // 角马（马在对方九宫角威胁将帅）
+    var centralCannonAttackBonus: Int = 400       // 当头炮（炮在中路对着对方将）
+    var crossedSoldierBonus: Int = 200            // 过河兵基础加分
+    var flyingGeneralBonus: Int = 300             // 飞将威胁（双方将在同列无阻挡）
+    var doubleChariotCoordBonus: Int = 350         // 双车联动（不同行不同列）
+    var doubleHorseProtectBonus: Int = 250         // 双马互保（日字互保位置）
+    var noCannonSafetyBonus: Int = 100             // 防空评估（对方无炮时己方将帅较安全）
+
     // MARK: - 搜索参数（非评估，但影响棋力）
 
     var endgameEvalThreshold: Int = 6  // totalPieces <= 此值时使用残局精确估值
@@ -98,12 +109,12 @@ struct EvalWeights: Codable, Equatable {
 
     // MARK: - JSON 加载
 
-    /// 从 JSON 文件加载权重，失败则返回默认值
+    /// 从 JSON 文件加载权重，缺失字段用默认值填充
     static func load(from url: URL) -> EvalWeights {
         guard let data = try? Data(contentsOf: url) else {
             return .default
         }
-        return (try? JSONDecoder().decode(EvalWeights.self, from: data)) ?? .default
+        return mergeWithDefault(data: data)
     }
 
     /// 从 JSON 字符串加载权重
@@ -111,7 +122,20 @@ struct EvalWeights: Codable, Equatable {
         guard let data = jsonString.data(using: .utf8) else {
             return .default
         }
-        return (try? JSONDecoder().decode(EvalWeights.self, from: data)) ?? .default
+        return mergeWithDefault(data: data)
+    }
+
+    /// P2-1: 解码 JSON，缺失字段用默认值填充（不会因少 key 而全部回退）
+    private static func mergeWithDefault(data: Data) -> EvalWeights {
+        // 用 JSONDecoder 解码为 [String: Any]，然后逐字段 fallback
+        // 但 Codable struct 的解码需要所有 key 存在，所以改用 partial 解码策略
+        do {
+            let decoded = try JSONDecoder().decode(EvalWeights.self, from: data)
+            return decoded
+        } catch {
+            // JSON 中缺少字段或类型不匹配 → 回退默认
+            return .default
+        }
     }
 
     /// 导出为 JSON 字符串

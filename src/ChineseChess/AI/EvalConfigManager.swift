@@ -29,9 +29,9 @@ final class EvalConfigManager {
     private var lastModTime: Date?
 
     private init() {
-        // 配置文件路径：bundle Resources
-        self.configURL = Bundle.main.bundleURL
-            .appendingPathComponent("Contents/Resources/eval-weights.json")
+        // P2-2: 跨平台 bundle 路径
+        self.configURL = Bundle.main.url(forResource: "eval-weights", withExtension: "json")
+            ?? Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/eval-weights.json")
 
         if FileManager.default.fileExists(atPath: configURL.path) {
             self.weights = EvalWeights.load(from: configURL)

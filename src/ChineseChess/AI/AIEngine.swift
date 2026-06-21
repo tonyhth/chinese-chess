@@ -861,8 +861,8 @@ final class AIEngine: AIEngineProtocol {
         }
 
         // 棋型识别加分
-        let blackPatternBonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
-        let redPatternBonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let blackPatternBonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: w)
+        let redPatternBonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: w)
         let patternBonus = blackPatternBonus - redPatternBonus
 
         // 将帅安全评估（所有难度启用，开销极小）

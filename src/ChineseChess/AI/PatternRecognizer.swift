@@ -75,7 +75,7 @@ struct PatternRecognizer {
 
         // 双车错
         if myKinds[.chariot, default: 0] >= 2 {
-            bonus += w.tandemCannonBonus
+            bonus += w.doubleChariotTandemBonus
             if opKinds[.chariot, default: 0] <= 1 { bonus += w.singleChariotWithWeakBonus }
         }
 
@@ -145,7 +145,7 @@ struct PatternRecognizer {
         if let og = opGeneral {
             for h in myPieces where h.kind == .horse {
                 if isCorneredHorse(horse: h, general: og, side: side) {
-                    bonus += w.cornerAdvisorBonus
+                    bonus += w.corneredHorseBonus
                 }
             }
         }
@@ -159,7 +159,7 @@ struct PatternRecognizer {
         // 当头炮：炮在中路（col 4）对着对方将
         if let og = opGeneral, og.col == 4 {
             for c in myPieces where c.kind == .cannon && c.position.col == 4 {
-                bonus += w.riverCannonBonus
+                bonus += w.centralCannonAttackBonus
             }
         }
 
@@ -180,7 +180,7 @@ struct PatternRecognizer {
         for s in myPieces where s.kind == .soldier {
             let crossed = (side == .black) ? s.position.row >= 5 : s.position.row <= 4
             if crossed {
-                bonus += w.cornerAdvisorBonus
+                bonus += w.crossedSoldierBonus
                 // v3.0 Phase 3b: 接近将位递增
                 if let og = opGeneral {
                     let dist = abs(s.position.row - og.row) + abs(s.position.col - og.col)
@@ -206,7 +206,7 @@ struct PatternRecognizer {
             }
             if !blocked {
                 // 飞将——轮到谁走谁有利，简化给当前行加分
-                bonus += w.soldierLineSyncBonus
+                bonus += w.flyingGeneralBonus
             }
         }
 
@@ -222,7 +222,7 @@ struct PatternRecognizer {
             if chariots.count == 2 {
                 if chariots[0].position.row != chariots[1].position.row
                    && chariots[0].position.col != chariots[1].position.col {
-                    bonus += w.chariotCannonCoordBonus  // 联动良好
+                    bonus += w.doubleChariotCoordBonus  // 联动良好
                 }
             }
         }
@@ -235,7 +235,7 @@ struct PatternRecognizer {
                     let rd = abs(horses[i].position.row - horses[j].position.row)
                     let cd = abs(horses[i].position.col - horses[j].position.col)
                     if (rd == 1 && cd == 2) || (rd == 2 && cd == 1) {
-                        bonus += w.chariotCannonProtectBonus  // 互保
+                        bonus += w.doubleHorseProtectBonus  // 互保
                     }
                 }
             }
@@ -243,7 +243,7 @@ struct PatternRecognizer {
 
         // 防空评估：对方无炮时，己方将帅较安全
         if opKinds[.cannon, default: 0] == 0 {
-            bonus += w.horseCannonCoordBonus
+            bonus += w.noCannonSafetyBonus
         }
 
         // 先手价值：简化版——子力推进加分（已在位置权重中体现，此处只加微调）
