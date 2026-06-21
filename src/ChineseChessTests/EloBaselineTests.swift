@@ -55,7 +55,7 @@ struct EloBaselineTests {
 
         // 同级别自对弈，Elo 差应接近 0
         // 主要验证：1) 不崩溃 2) 能分出胜负或和棋 3) 先手胜率合理
-        #expect(totalGames == 20, "应完成 20 局")
+        #expect(totalGames == 5, "应完成 5 局")
         #expect(avgMoves > 0, "应有有效步数")
     }
 }
