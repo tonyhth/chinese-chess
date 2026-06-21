@@ -57,7 +57,7 @@ struct EloBaselineTests {
 
         let totalGames = result.redWins + result.blackWins + result.draws
         #expect(totalGames == 1, "应完成 1 局")
-        #expect(result.games.first?.totalMoves ?? 0 > 0, "应有有效步数")
+        #expect((result.games.first?.totalMoves ?? 0) > 0, "应有有效步数")
     }
 
     // MARK: - Test 2: medium vs hard
@@ -76,7 +76,7 @@ struct EloBaselineTests {
 
         let totalGames = result.redWins + result.blackWins + result.draws
         #expect(totalGames == 1, "应完成 1 局")
-        #expect(result.games.first?.totalMoves ?? 0 > 0, "应有有效步数")
+        #expect((result.games.first?.totalMoves ?? 0) > 0, "应有有效步数")
     }
 
     // MARK: - Test 3: hard vs master
@@ -95,7 +95,7 @@ struct EloBaselineTests {
 
         let totalGames = result.redWins + result.blackWins + result.draws
         #expect(totalGames == 1, "应完成 1 局")
-        #expect(result.games.first?.totalMoves ?? 0 > 0, "应有有效步数")
+        #expect((result.games.first?.totalMoves ?? 0) > 0, "应有有效步数")
     }
 
     // MARK: - Test 4: master vs master
@@ -114,6 +114,6 @@ struct EloBaselineTests {
 
         let totalGames = result.redWins + result.blackWins + result.draws
         #expect(totalGames == 1, "应完成 1 局")
-        #expect(result.games.first?.totalMoves ?? 0 > 0, "应有有效步数")
+        #expect((result.games.first?.totalMoves ?? 0) > 0, "应有有效步数")
     }
 }
