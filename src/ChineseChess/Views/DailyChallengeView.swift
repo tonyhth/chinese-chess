@@ -168,6 +168,15 @@ struct DailyChallengeView: View {
                             }
                         }
                 }
+            } else {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.title)
+                        .foregroundColor(.orange)
+                    Text(L10n.shared.t("daily.puzzleLoadError"))
+                        .foregroundColor(.secondary)
+                }
+                .padding()
             }
         }
     }
