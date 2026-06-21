@@ -53,6 +53,7 @@ struct PatternRecognizer {
     /// 加分相对于 side 方：正值 = side 方优势。
     static func bonusPatterns(on board: Board, for side: Side, weights: EvalWeights = EvalConfigManager.shared.weights) -> Int {
         var bonus = 0
+        let w = weights
 
         let myPieces = board.pieces(for: side)
         let opSide: Side = (side == .red) ? .black : .red
