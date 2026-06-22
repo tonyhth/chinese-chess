@@ -6,7 +6,8 @@ struct Phase2aTests {
 
     // MARK: - ZobristHash 测试
 
-    @Test("Zobrist 哈希：同一局面多次计算结果一致")
+    @MainActor
+@Test("Zobrist 哈希：同一局面多次计算结果一致")
     func zobristConsistency() {
         let board = Board()
         let h1 = ZobristHash.hash(board: board)
@@ -14,7 +15,8 @@ struct Phase2aTests {
         #expect(h1 == h2)
     }
 
-    @Test("Zobrist 哈希：不同局面产生不同哈希")
+    @MainActor
+@Test("Zobrist 哈希：不同局面产生不同哈希")
     func zobristDifferentPositions() {
         let board1 = Board()
         var board2 = Board()
@@ -26,7 +28,8 @@ struct Phase2aTests {
         #expect(h1 != h2)
     }
 
-    @Test("Zobrist 哈希：增量更新等价于全量重算")
+    @MainActor
+@Test("Zobrist 哈希：增量更新等价于全量重算")
     func zobristIncrementalMatchesFull() {
         let board = Board()
         let fullHash = ZobristHash.hash(board: board)
@@ -46,7 +49,8 @@ struct Phase2aTests {
         #expect(incrHash == newFullHash)
     }
 
-    @Test("Zobrist 哈希：棋子索引覆盖 14 种")
+    @MainActor
+@Test("Zobrist 哈希：棋子索引覆盖 14 种")
     func zobristPieceIndexCoverage() {
         let kinds: [PieceKind] = [.general, .advisor, .elephant, .horse, .chariot, .cannon, .soldier]
         for kind in kinds {
@@ -60,7 +64,8 @@ struct Phase2aTests {
 
     // MARK: - TranspositionTable 测试
 
-    @Test("置换表：存取一致性")
+    @MainActor
+@Test("置换表：存取一致性")
     func ttStoreAndLookup() {
         let tt = TranspositionTable()
         let hash: UInt64 = 12345
@@ -74,7 +79,8 @@ struct Phase2aTests {
         #expect(result!.flag == .exact)
     }
 
-    @Test("置换表：深度不够不命中")
+    @MainActor
+@Test("置换表：深度不够不命中")
     func ttDepthTooShallow() {
         let tt = TranspositionTable()
         tt.store(hash: 99999, depth: 2, score: 50, flag: .exact, bestMove: nil)
@@ -84,7 +90,8 @@ struct Phase2aTests {
         #expect(result == nil)
     }
 
-    @Test("置换表：lower flag 截断 beta")
+    @MainActor
+@Test("置换表：lower flag 截断 beta")
     func ttLowerFlagBetaCutoff() {
         let tt = TranspositionTable()
         // lower bound: 实际值 >= 200
@@ -96,7 +103,8 @@ struct Phase2aTests {
         #expect(result!.score == 200)
     }
 
-    @Test("置换表：upper flag 截断 alpha")
+    @MainActor
+@Test("置换表：upper flag 截断 alpha")
     func ttUpperFlagAlphaCutoff() {
         let tt = TranspositionTable()
         // upper bound: 实际值 <= 50
@@ -108,7 +116,8 @@ struct Phase2aTests {
         #expect(result!.score == 50)
     }
 
-    @Test("置换表：深度优先替换策略")
+    @MainActor
+@Test("置换表：深度优先替换策略")
     func ttDepthPreferReplacement() {
         let tt = TranspositionTable(capacity: 4)  // 小容量，容易碰撞
         let hash: UInt64 = 42
@@ -123,7 +132,8 @@ struct Phase2aTests {
         #expect(result!.score == 20)  // 应该是 depth=4 的值
     }
 
-    @Test("置换表：clear 后不命中")
+    @MainActor
+@Test("置换表：clear 后不命中")
     func ttClear() {
         let tt = TranspositionTable()
         tt.store(hash: 55555, depth: 4, score: 100, flag: .exact, bestMove: nil)
@@ -132,7 +142,8 @@ struct Phase2aTests {
         #expect(result == nil)
     }
 
-    @Test("置换表：实际搜索命中率 > 0")
+    @MainActor
+@Test("置换表：实际搜索命中率 > 0")
     func ttHitRateInSearch() {
         let tt = TranspositionTable()
         let board = Board()
@@ -161,7 +172,8 @@ struct Phase2aTests {
 
     // MARK: - MoveOrderer 测试
 
-    @Test("走法排序：吃子走法排在不吃子前面")
+    @MainActor
+@Test("走法排序：吃子走法排在不吃子前面")
     func moveOrdererCaptureFirst() {
         let board = Board()
         // 构造一个有吃子走法的局面
@@ -187,7 +199,8 @@ struct Phase2aTests {
         #expect(firstCaptureIdx < lastNonCaptureIdx)
     }
 
-    @Test("走法排序：TT 最佳走法排在最前")
+    @MainActor
+@Test("走法排序：TT 最佳走法排在最前")
     func moveOrdererTTBestFirst() {
         let board = Board()
         board.setCurrentTurn(.black)
@@ -204,7 +217,8 @@ struct Phase2aTests {
 
     // MARK: - OpeningBook 测试
 
-    @Test("开局库：初始局面有推荐走法")
+    @MainActor
+@Test("开局库：初始局面有推荐走法")
     func openingBookInitialPosition() {
         let book = OpeningBook()
         let board = Board()
@@ -224,7 +238,8 @@ struct Phase2aTests {
         #expect(true)  // 主要验证不 crash
     }
 
-    @Test("开局库：parseICCSMove 正确解析")
+    @MainActor
+@Test("开局库：parseICCSMove 正确解析")
     func openingBookParseICCS() {
         let board = Board()
         let book = OpeningBook()
@@ -236,7 +251,8 @@ struct Phase2aTests {
         #expect(move!.to == Position(row: 7, col: 4))
     }
 
-    @Test("开局库：非法 ICCS 返回 nil")
+    @MainActor
+@Test("开局库：非法 ICCS 返回 nil")
     func openingBookInvalidICCS() {
         let board = Board()
         let book = OpeningBook()
@@ -244,7 +260,8 @@ struct Phase2aTests {
         #expect(book.parseICCSMove("ab", on: board) == nil)    // 长度不对
     }
 
-    @Test("开局库：ICCS 行号映射正确（行 0 = 红方底线 = row 9）")
+    @MainActor
+@Test("开局库：ICCS 行号映射正确（行 0 = 红方底线 = row 9）")
     func openingBookICCSRowMapping() {
         let board = Board()
         let book = OpeningBook()
@@ -258,7 +275,8 @@ struct Phase2aTests {
 
     // MARK: - AI 难度差异化测试
 
-    @Test("新手 AI 返回合法走法")
+    @MainActor
+@Test("新手 AI 返回合法走法")
     func beginnerReturnsLegalMove() {
         let board = Board()
         board.setCurrentTurn(.black)
@@ -270,7 +288,8 @@ struct Phase2aTests {
         #expect(MoveValidator.isLegal(mainMove, on: board))
     }
 
-    @Test("新手 AI 不送大子（多次采样）")
+    @MainActor
+@Test("新手 AI 不送大子（多次采样）")
     func beginnerDoesNotBlunderBigPieces() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
@@ -299,7 +318,8 @@ struct Phase2aTests {
         #expect(blunders <= 5)
     }
 
-    @Test("初级 AI 返回合法走法（depth=2）")
+    @MainActor
+@Test("初级 AI 返回合法走法（depth=2）")
     func easyReturnsLegalMove() {
         let board = Board()
         board.setCurrentTurn(.black)
@@ -311,7 +331,8 @@ struct Phase2aTests {
         #expect(MoveValidator.isLegal(mainMove, on: board))
     }
 
-    @Test("中级 AI 返回合法走法（depth=4 + 开局库）")
+    @MainActor
+@Test("中级 AI 返回合法走法（depth=4 + 开局库）")
     func mediumReturnsLegalMove() {
         let board = Board()
         board.setCurrentTurn(.black)
@@ -323,7 +344,8 @@ struct Phase2aTests {
         #expect(MoveValidator.isLegal(mainMove, on: board))
     }
 
-    @Test("大师级 AI 返回合法走法")
+    @MainActor
+@Test("大师级 AI 返回合法走法")
     func masterReturnsLegalMove() {
         let board = Board()
         board.setCurrentTurn(.black)
@@ -343,7 +365,8 @@ struct Phase2aUCITests {
 
     // MARK: - uciString (Move → UCI)
 
-    @Test("Move → UCI 字符串正确转换")
+    @MainActor
+@Test("Move → UCI 字符串正确转换")
     func testMoveToUCI() {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
         let chariot = board.piece(at: Position(row: 9, col: 0))!
@@ -351,7 +374,8 @@ struct Phase2aUCITests {
         #expect(UCIMoveConverter.uciString(from: move) == "a9a5")
     }
 
-    @Test("不同列位置正确映射")
+    @MainActor
+@Test("不同列位置正确映射")
     func testColMapping() {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
         let piece = board.piece(at: Position(row: 9, col: 4))!
@@ -361,7 +385,8 @@ struct Phase2aUCITests {
 
     // MARK: - positions (UCI → Position pair)
 
-    @Test("UCI → Position 往返转换")
+    @MainActor
+@Test("UCI → Position 往返转换")
     func testPositionsRoundTrip() {
         let testCases = ["a0a9", "h2e2", "b7d7", "e9e8", "d0d9"]
         for uci in testCases {
@@ -376,7 +401,8 @@ struct Phase2aUCITests {
         }
     }
 
-    @Test("非法 UCI 字符串返回 nil")
+    @MainActor
+@Test("非法 UCI 字符串返回 nil")
     func testInvalidUCI() {
         #expect(UCIMoveConverter.positions(from: "") == nil)
         #expect(UCIMoveConverter.positions(from: "abc") == nil)
@@ -386,7 +412,8 @@ struct Phase2aUCITests {
 
     // MARK: - move (UCI → Move on Board)
 
-    @Test("初始局面 UCI → Move 包含 piece")
+    @MainActor
+@Test("初始局面 UCI → Move 包含 piece")
     func testMoveOnBoard() {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
         guard let move = UCIMoveConverter.move(from: "a9a5", on: board) else {
@@ -400,7 +427,8 @@ struct Phase2aUCITests {
 
     // MARK: - board (FEN + UCI moves → Board)
 
-    @Test("初始 FEN 无 moves 解析")
+    @MainActor
+@Test("初始 FEN 无 moves 解析")
     func testFENParsing() {
         let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
         guard let board = UCIMoveConverter.board(from: fen) else {
@@ -410,7 +438,8 @@ struct Phase2aUCITests {
         #expect(board.pieces.count == 32, "初始局面应有 32 个棋子")
     }
 
-    @Test("FEN + moves 解析后棋子数量不变")
+    @MainActor
+@Test("FEN + moves 解析后棋子数量不变")
     func testFENWithMoves() {
         let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
         let uciMoves = ["b2b6"]
@@ -423,14 +452,16 @@ struct Phase2aUCITests {
 
     // MARK: - ChessEngine 协议 — AIEngine 适配
 
-    @Test("AIEngine 实现 ChessEngine 协议属性")
+    @MainActor
+@Test("AIEngine 实现 ChessEngine 协议属性")
     func testAIEngineProperties() {
         let engine = AIEngine()
         #expect(engine.displayName == "内置引擎")
         #expect(engine.engineType == .native)
     }
 
-    @Test("AIEngine 通过 ChessEngine 协议走棋")
+    @MainActor
+@Test("AIEngine 通过 ChessEngine 协议走棋")
     func testAIEngineViaProtocol() async {
         let engine: any ChessEngine = AIEngine()
         let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
@@ -448,7 +479,8 @@ struct Phase2aUCITests {
 
     // MARK: - EngineRouter
 
-    @Test("EngineRouter 默认返回 native 引擎")
+    @MainActor
+@Test("EngineRouter 默认返回 native 引擎")
     func testEngineRouterDefault() {
         let router = EngineRouter.shared
         let engine = router.activeEngine()
@@ -456,7 +488,8 @@ struct Phase2aUCITests {
         #expect(engine.engineType == .native)
     }
 
-    @Test("EngineRouter.native 返回 AIEngine 实例")
+    @MainActor
+@Test("EngineRouter.native 返回 AIEngine 实例")
     func testEngineRouterNative() {
         let router = EngineRouter.shared
         let native = router.native

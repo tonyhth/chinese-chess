@@ -9,7 +9,8 @@ struct Round2ReviewTests {
 
     // MARK: - P0-1: PuzzleSelectView 空状态提示
 
-    @Test("PuzzleSelectView 空状态提示代码存在")
+    @MainActor
+@Test("PuzzleSelectView 空状态提示代码存在")
     func testPuzzleSelectViewEmptyState() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -22,7 +23,8 @@ struct Round2ReviewTests {
         #expect(content.contains("puzzlepiece"), "空状态应有拼图图标")
     }
 
-    @Test("PuzzleSelectView 空状态有图标和文字")
+    @MainActor
+@Test("PuzzleSelectView 空状态有图标和文字")
     func testPuzzleSelectViewEmptyStateComponents() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -35,7 +37,8 @@ struct Round2ReviewTests {
 
     // MARK: - P0-2: 残局失败重试弹窗
 
-    @Test("PuzzlePlayView 失败弹窗有重试按钮")
+    @MainActor
+@Test("PuzzlePlayView 失败弹窗有重试按钮")
     func testPuzzleFailedRetryButton() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -51,7 +54,8 @@ struct Round2ReviewTests {
         #expect(content.contains("common.back"), "应有 common.back 键")
     }
 
-    @Test("PuzzleViewModel.resetPuzzle 恢复初始状态")
+    @MainActor
+@Test("PuzzleViewModel.resetPuzzle 恢复初始状态")
     func testResetPuzzleRestoresState() {
         guard let puzzle = PuzzleStore.shared.puzzles.first else { return }
         let vm = PuzzleViewModel(puzzle: puzzle)
@@ -73,21 +77,24 @@ struct Round2ReviewTests {
 
     // MARK: - P1-3: 将军视觉提示
 
-    @Test("GameViewModel.isInCheck 属性存在")
+    @MainActor
+@Test("GameViewModel.isInCheck 属性存在")
     func testGameViewModelIsInCheck() {
         let vm = GameViewModel()
         // 初始局面未被将军
         #expect(!vm.isInCheck, "初始局面不应被将军")
     }
 
-    @Test("isInCheck 游戏结束时返回 false")
+    @MainActor
+@Test("isInCheck 游戏结束时返回 false")
     func testIsInCheckWhenGameOver() {
         let vm = GameViewModel()
         vm.gameState = .redWon
         #expect(!vm.isInCheck, "游戏结束后 isInCheck 应返回 false")
     }
 
-    @Test("StatusBarView 包含将军视觉提示代码")
+    @MainActor
+@Test("StatusBarView 包含将军视觉提示代码")
     func testStatusBarCheckWarning() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift"
@@ -100,7 +107,8 @@ struct Round2ReviewTests {
         #expect(content.contains("pulseAnimation"), "将军提示应有脉冲动画")
     }
 
-    @Test("MoveValidator.isInCheck 能检测将军状态")
+    @MainActor
+@Test("MoveValidator.isInCheck 能检测将军状态")
     func testMoveValidatorIsInCheck() {
         // 构造一个被将军的局面
         // FEN: 车在将的正前方，无阻隔
@@ -115,7 +123,8 @@ struct Round2ReviewTests {
 
     // MARK: - P1-4: macOS "棋局"菜单栏
 
-    @Test("ChineseChessApp 包含 CommandMenu localized")
+    @MainActor
+@Test("ChineseChessApp 包含 CommandMenu localized")
     func testMacOSCommandMenu() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -134,7 +143,8 @@ struct Round2ReviewTests {
 
     // MARK: - P1-5: 回放 Slider 进度条
 
-    @Test("ReplayControlView 使用 Slider 替代 ProgressView")
+    @MainActor
+@Test("ReplayControlView 使用 Slider 替代 ProgressView")
     func testReplaySlider() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayControlView.swift"
@@ -148,7 +158,8 @@ struct Round2ReviewTests {
         #expect(content.contains("jumpTo"), "Slider 值变化应调用 jumpTo")
     }
 
-    @Test("ReplayViewModel.jumpTo 正确跳转")
+    @MainActor
+@Test("ReplayViewModel.jumpTo 正确跳转")
     func testReplayJumpTo() {
         let moves = [
             GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4)),
@@ -188,7 +199,8 @@ struct Round2ReviewTests {
 
     // MARK: - P1-6: 残局提示框"继续"按钮
 
-    @Test("PuzzlePlayView 提示框有'继续'按钮")
+    @MainActor
+@Test("PuzzlePlayView 提示框有'继续'按钮")
     func testPuzzleHintContinueButton() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -201,7 +213,8 @@ struct Round2ReviewTests {
         #expect(content.contains("dismissHint"), "继续按钮应调用 dismissHint()")
     }
 
-    @Test("PuzzleViewModel.showHint/dismissHint 正常工作")
+    @MainActor
+@Test("PuzzleViewModel.showHint/dismissHint 正常工作")
     func testPuzzleShowDismissHint() {
         guard let puzzle = PuzzleStore.shared.puzzles.first(where: { $0.playerSide == "red" }) else { return }
         let vm = PuzzleViewModel(puzzle: puzzle)
@@ -217,7 +230,8 @@ struct Round2ReviewTests {
 
     // MARK: - P2-8: GameOverOverlay "查看棋谱"按钮
 
-    @Test("GameOverOverlay 有 onViewRecord 回调")
+    @MainActor
+@Test("GameOverOverlay 有 onViewRecord 回调")
     func testGameOverOverlayViewRecord() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift"
@@ -229,7 +243,8 @@ struct Round2ReviewTests {
         #expect(content.contains("gameover.viewRecord"), "应有 gameover.viewRecord 键")
     }
 
-    @Test("GameOverOverlay onViewRecord 为可选（不传时不显示按钮）")
+    @MainActor
+@Test("GameOverOverlay onViewRecord 为可选（不传时不显示按钮）")
     func testGameOverOverlayViewRecordOptional() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift"
@@ -240,7 +255,8 @@ struct Round2ReviewTests {
         #expect(content.contains("if let onViewRecord"), "查看棋谱按钮应在 if let 内")
     }
 
-    @Test("ChineseChessApp 传递 onViewRecord 回调给 GameOverOverlay")
+    @MainActor
+@Test("ChineseChessApp 传递 onViewRecord 回调给 GameOverOverlay")
     func testAppPassesViewRecordCallback() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -253,7 +269,8 @@ struct Round2ReviewTests {
 
     // MARK: - 综合验证：所有改动文件
 
-    @Test("所有 Round 2 修改文件存在且非空")
+    @MainActor
+@Test("所有 Round 2 修改文件存在且非空")
     func testAllModifiedFilesExistAndNonEmpty() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let base = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess"

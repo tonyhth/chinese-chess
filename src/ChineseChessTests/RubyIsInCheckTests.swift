@@ -7,13 +7,15 @@ import Foundation
 @Suite("Ruby 审查返工：isInCheck stored property")
 struct RubyIsInCheckTests {
 
-    @Test("isInCheck 初始值为 false")
+    @MainActor
+@Test("isInCheck 初始值为 false")
     func testInitialIsInCheck() {
         let vm = GameViewModel()
         #expect(!vm.isInCheck, "新游戏初始不应被将军")
     }
 
-    @Test("newGame 重置 isInCheck 为 false")
+    @MainActor
+@Test("newGame 重置 isInCheck 为 false")
     func testNewGameResetsIsInCheck() {
         let vm = GameViewModel()
         // 模拟被将军状态
@@ -22,7 +24,8 @@ struct RubyIsInCheckTests {
         #expect(!vm.isInCheck, "newGame 后 isInCheck 应为 false")
     }
 
-    @Test("isInCheck 是 stored property（非计算属性）")
+    @MainActor
+@Test("isInCheck 是 stored property（非计算属性）")
     func testIsInCheckIsStoredProperty() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift"
@@ -36,7 +39,8 @@ struct RubyIsInCheckTests {
         #expect(content.contains("var isInCheck: Bool = false"), "isInCheck 应为 stored property = false")
     }
 
-    @Test("checkGameState 更新 isInCheck")
+    @MainActor
+@Test("checkGameState 更新 isInCheck")
     func testCheckGameStateUpdatesIsInCheck() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift"
@@ -49,7 +53,8 @@ struct RubyIsInCheckTests {
         #expect(content.contains("isInCheck = false"), "非将军/将死/困毙时应设 isInCheck = false")
     }
 
-    @Test("将死时 isInCheck 为 false（游戏已结束）")
+    @MainActor
+@Test("将死时 isInCheck 为 false（游戏已结束）")
     func testIsInCheckFalseOnCheckmate() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift"
@@ -72,7 +77,8 @@ struct RubyIsInCheckTests {
         #expect(content.contains("isInCheck = false"), "将死时应重置 isInCheck")
     }
 
-    @Test("困毙时 isInCheck 为 false")
+    @MainActor
+@Test("困毙时 isInCheck 为 false")
     func testIsInCheckFalseOnStalemate() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/GameViewModel.swift"
@@ -82,7 +88,8 @@ struct RubyIsInCheckTests {
         #expect(content.contains("isInCheck = false"), "困毙时应重置 isInCheck")
     }
 
-    @Test("将军状态检测：MoveValidator.isInCheck 正确识别")
+    @MainActor
+@Test("将军状态检测：MoveValidator.isInCheck 正确识别")
     func testMoveValidatorIsInCheck() {
         // 构造黑方被将军的局面：红车直面黑将
         let fen = "4k4/9/9/9/9/9/9/4R4/9/4K4 w - - 0 1"
@@ -94,14 +101,16 @@ struct RubyIsInCheckTests {
         #expect(!MoveValidator.isInCheck(.red, on: board), "红方不应被将军")
     }
 
-    @Test("标准开局未被将军")
+    @MainActor
+@Test("标准开局未被将军")
     func testStandardOpeningNotInCheck() {
         let board = Board()
         #expect(!MoveValidator.isInCheck(.red, on: board), "开局红方不应被将军")
         #expect(!MoveValidator.isInCheck(.black, on: board), "开局黑方不应被将军")
     }
 
-    @Test("Round 2 全部修复文件存在")
+    @MainActor
+@Test("Round 2 全部修复文件存在")
     func testAllRound2FilesExist() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let base = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess"

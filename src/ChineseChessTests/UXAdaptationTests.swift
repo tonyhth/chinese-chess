@@ -12,7 +12,8 @@ struct UXAdaptationTests {
     @Suite("LanguageManager 核心功能", .serialized)
     struct LanguageManagerTests {
 
-        @Test("默认跟随系统：preferredLanguage 为 nil 时，currentLanguage 回退到系统语言")
+        @MainActor
+@Test("默认跟随系统：preferredLanguage 为 nil 时，currentLanguage 回退到系统语言")
         func defaultFollowsSystem() {
             let lm = L10n.shared
             lm.setLanguage("zh-Hans")
@@ -21,21 +22,24 @@ struct UXAdaptationTests {
             #expect(lm.language == systemLang)
         }
 
-        @Test("手动覆盖为英文：preferredLanguage = en → currentLanguage = en")
+        @MainActor
+@Test("手动覆盖为英文：preferredLanguage = en → currentLanguage = en")
         func manualOverrideEn() {
             let lm = L10n.shared
             lm.setLanguage("en")
             #expect(lm.language == "en")
         }
 
-        @Test("手动覆盖为中文：preferredLanguage = zh-Hans → currentLanguage = zh-Hans")
+        @MainActor
+@Test("手动覆盖为中文：preferredLanguage = zh-Hans → currentLanguage = zh-Hans")
         func manualOverrideZhHans() {
             let lm = L10n.shared
             lm.setLanguage("zh-Hans")
             #expect(lm.language == "zh-Hans")
         }
 
-        @Test("切回系统语言：preferredLanguage 从 en 设为 nil → 回退到系统语言")
+        @MainActor
+@Test("切回系统语言：preferredLanguage 从 en 设为 nil → 回退到系统语言")
         func switchBackToSystem() {
             let lm = L10n.shared
             lm.setLanguage("en")
@@ -46,7 +50,8 @@ struct UXAdaptationTests {
             #expect(lm.language == systemLang)
         }
 
-        @Test("currentLocale 正确反映当前语言")
+        @MainActor
+@Test("currentLocale 正确反映当前语言")
         func currentLocaleReflectsLanguage() {
             let lm = L10n.shared
             lm.setLanguage("en")
@@ -56,7 +61,8 @@ struct UXAdaptationTests {
             #expect(Locale(identifier: lm.language).identifier.hasPrefix("zh-Hans"))
         }
 
-        @Test("preferredLanguage 通过 setPreferredLanguage 持久化")
+        @MainActor
+@Test("preferredLanguage 通过 setPreferredLanguage 持久化")
         func preferredLanguagePersisted() {
             let testKey = "chinesechess.language"
             // 保存原始值
@@ -86,7 +92,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("init 从 UserDefaults 恢复上次选择的语言")
+        @MainActor
+@Test("init 从 UserDefaults 恢复上次选择的语言")
         func initRestoresFromUserDefaults() {
             let testKey = "chinesechess.language"
             let originalValue = UserDefaults.standard.string(forKey: testKey)
@@ -108,7 +115,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("多次切换语言不丢失状态")
+        @MainActor
+@Test("多次切换语言不丢失状态")
         func multipleSwitches() {
             let lm = L10n.shared
             let languages: [String] = ["en", "zh-Hans", "en", "zh-Hans"]
@@ -126,7 +134,8 @@ struct UXAdaptationTests {
     @Suite("xcstrings 翻译完整性", .serialized)
     struct XcstringsIntegrityTests {
 
-        @Test("xcstrings 文件可正常解析为 JSON")
+        @MainActor
+@Test("xcstrings 文件可正常解析为 JSON")
         func xcstringsParseable() {
             let homeDir = NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Resources/Localizable.xcstrings"
@@ -141,13 +150,15 @@ struct UXAdaptationTests {
             #expect(json["strings"] != nil)
         }
 
-        @Test("xcstrings 包含 151 个 key")
+        @MainActor
+@Test("xcstrings 包含 151 个 key")
         func xcstringsKeyCount() {
             let keys = Self.loadXcstringsKeys()
-            #expect(keys.count == 160, "期望 160 key，实际 \(keys.count)")
+            #expect(keys.count == 162, "期望 162 key，实际 \(keys.count)")
         }
 
-        @Test("en 翻译全覆盖：所有 key 都有英文字符串")
+        @MainActor
+@Test("en 翻译全覆盖：所有 key 都有英文字符串")
         func enTranslationComplete() {
             let (keys, localizations) = Self.loadXcstringsWithLocalizations()
             var missing: [String] = []
@@ -163,7 +174,8 @@ struct UXAdaptationTests {
             #expect(missing.isEmpty, "en 翻译缺失的 key: \(missing)")
         }
 
-        @Test("zh-Hans 翻译全覆盖：所有 key 都有中文字符串")
+        @MainActor
+@Test("zh-Hans 翻译全覆盖：所有 key 都有中文字符串")
         func zhHansTranslationComplete() {
             let (keys, localizations) = Self.loadXcstringsWithLocalizations()
             var missing: [String] = []
@@ -179,7 +191,8 @@ struct UXAdaptationTests {
             #expect(missing.isEmpty, "zh-Hans 翻译缺失的 key: \(missing)")
         }
 
-        @Test("代码中使用的 118 个 localized key 全部在 xcstrings 中存在")
+        @MainActor
+@Test("代码中使用的 118 个 localized key 全部在 xcstrings 中存在")
         func codeUsedKeysExistInXcstrings() {
             let xcstringsKeys = Self.loadXcstringsKeys()
             // 从代码扫描得到的所有 String(localized:) key
@@ -258,14 +271,16 @@ struct UXAdaptationTests {
     @Suite("英文 UI 显示验证", .serialized)
     struct EnglishUIDisplayTests {
 
-        @Test("LanguageManager 设置为 en 后 currentLanguage 为 en")
+        @MainActor
+@Test("LanguageManager 设置为 en 后 currentLanguage 为 en")
         func englishLanguageActive() {
             let lm = L10n.shared
             lm.setLanguage("en")
             #expect(lm.language == "en")
         }
 
-        @Test("英文环境下 Settings 语言选项标签格式正确")
+        @MainActor
+@Test("英文环境下 Settings 语言选项标签格式正确")
         func englishSettingsLanguageOptions() {
             // 验证语言 Picker 的 tag 值
             // nil = 跟随系统, "zh-Hans" = 中文, "en" = English
@@ -278,7 +293,8 @@ struct UXAdaptationTests {
             #expect(enTag == "en")
         }
 
-        @Test("英文 key 对应的翻译值不含中文字符")
+        @MainActor
+@Test("英文 key 对应的翻译值不含中文字符")
         func englishValuesNoChinese() {
             let (_, localizations) = Self.loadXcstringsWithLocalizations()
             var violations: [String] = []
@@ -301,7 +317,8 @@ struct UXAdaptationTests {
             #expect(violations.isEmpty, "en 翻译中包含中文字符的 key: \(violations)")
         }
 
-        @Test("英文翻译值长度合理：不显著短于或长于中文值（布局溢出风险）")
+        @MainActor
+@Test("英文翻译值长度合理：不显著短于或长于中文值（布局溢出风险）")
         func englishTranslationLengthReasonable() {
             let (_, localizations) = Self.loadXcstringsWithLocalizations()
             var tooLong: [String] = []
@@ -346,7 +363,8 @@ struct UXAdaptationTests {
     @Suite("zh-Hans 回归", .serialized)
     struct ZhHansRegressionTests {
 
-        @Test("LanguageManager 切换回中文后 currentLanguage 正确")
+        @MainActor
+@Test("LanguageManager 切换回中文后 currentLanguage 正确")
         func switchBackToZhHans() {
             let lm = L10n.shared
             // 先切英文
@@ -357,7 +375,8 @@ struct UXAdaptationTests {
             #expect(lm.language == "zh-Hans")
         }
 
-        @Test("中文翻译值不含意外英文字符（排除合理用词）")
+        @MainActor
+@Test("中文翻译值不含意外英文字符（排除合理用词）")
         func zhHansValuesNoUnexpectedEnglish() {
             let (_, localizations) = Self.loadXcstringsWithLocalizations()
             var violations: [String] = []
@@ -384,7 +403,8 @@ struct UXAdaptationTests {
             #expect(violations.isEmpty, "zh-Hans 翻译中含意外英文单词的 key: \(violations)")
         }
 
-        @Test("中文 locale 下 GameViewModel 正常运行")
+        @MainActor
+@Test("中文 locale 下 GameViewModel 正常运行")
         func gameViewModelWithZhHansLocale() {
             let lm = L10n.shared
             lm.setLanguage("zh-Hans")
@@ -395,7 +415,8 @@ struct UXAdaptationTests {
             #expect(vm.currentTurn == .red)
         }
 
-        @Test("中文 locale 下 AI 正常走棋")
+        @MainActor
+@Test("中文 locale 下 AI 正常走棋")
         func aiWithZhHansLocale() {
             let lm = L10n.shared
             lm.setLanguage("zh-Hans")
@@ -428,14 +449,16 @@ struct UXAdaptationTests {
     @Suite("全量回归", .serialized)
     struct FullRegressionTests {
 
-        @Test("新局 32 子，GameState = playing")
+        @MainActor
+@Test("新局 32 子，GameState = playing")
         func newGameRegression() {
             let vm = GameViewModel()
             #expect(vm.board.pieces.count == 32)
             #expect(vm.gameState == .playing)
         }
 
-        @Test("AI 各难度正常走棋")
+        @MainActor
+@Test("AI 各难度正常走棋")
         func aiAllDifficulties() {
             let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
             for diff in difficulties {
@@ -446,7 +469,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("PuzzleViewModel 正常初始化")
+        @MainActor
+@Test("PuzzleViewModel 正常初始化")
         func puzzleViewModelRegression() {
             let puzzles = PuzzleStore.shared.puzzles
             guard let puzzle = puzzles.first else {
@@ -458,7 +482,8 @@ struct UXAdaptationTests {
             #expect(vm.board.pieces.count > 0)
         }
 
-        @Test("ReplayViewModel 完整流程")
+        @MainActor
+@Test("ReplayViewModel 完整流程")
         func replayViewModelRegression() {
             let record = Self.makeTestRecord()
             let vm = ReplayViewModel(record: record)
@@ -470,7 +495,8 @@ struct UXAdaptationTests {
             #expect(vm.currentIndex == 0)
         }
 
-        @Test("走棋 + 悔棋 回归")
+        @MainActor
+@Test("走棋 + 悔棋 回归")
         func moveAndUndoRegression() {
             let vm = GameViewModel()
             let initialCount = vm.board.pieces.count
@@ -496,7 +522,8 @@ struct UXAdaptationTests {
             #expect(vm.board.pieces.count == initialCount)
         }
 
-        @Test("棋盘合法性验证：开局所有走法合法")
+        @MainActor
+@Test("棋盘合法性验证：开局所有走法合法")
         func boardLegalMovesRegression() {
             let board = Board()
             let redPieces = board.pieces(for: .red)
@@ -560,7 +587,8 @@ struct UXAdaptationTests {
     @Suite("硬编码中文遗漏检查", .serialized)
     struct HardcodedChineseCheckTests {
 
-        @Test("SettingsView 中无硬编码中文字符串（已全部提取为 localized key）")
+        @MainActor
+@Test("SettingsView 中无硬编码中文字符串（已全部提取为 localized key）")
         func settingsViewNoHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/SettingsView.swift")
             guard let content = content else {
@@ -588,7 +616,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("StatusBarView 中无硬编码中文字符串")
+        @MainActor
+@Test("StatusBarView 中无硬编码中文字符串")
         func statusBarViewNoHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/StatusBarView.swift")
             guard let content = content else {
@@ -609,7 +638,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("ToolbarView 中无硬编码中文字符串")
+        @MainActor
+@Test("ToolbarView 中无硬编码中文字符串")
         func toolbarViewNoHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/ToolbarView.swift")
             guard let content = content else {
@@ -630,7 +660,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("GameOverOverlay 中无硬编码中文字符串")
+        @MainActor
+@Test("GameOverOverlay 中无硬编码中文字符串")
         func gameOverOverlayNoHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/GameOverOverlay.swift")
             guard let content = content else {
@@ -651,7 +682,8 @@ struct UXAdaptationTests {
             }
         }
 
-        @Test("楚河汉界文本是硬编码中文（已知 i18n 遗漏，记录但不阻断）")
+        @MainActor
+@Test("楚河汉界文本是硬编码中文（已知 i18n 遗漏，记录但不阻断）")
         func riverTextHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/ChessBoardView.swift")
             guard let content = content else { return }

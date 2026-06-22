@@ -7,7 +7,8 @@ struct UILayoutOptTests {
 
     // MARK: - 1. ReplayView / ReplayViewModel 回归
 
-    @Test("ReplayViewModel：初始化不 crash")
+    @MainActor
+@Test("ReplayViewModel：初始化不 crash")
     func replayViewModelInit() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -16,7 +17,8 @@ struct UILayoutOptTests {
         #expect(!vm.canGoBack)
     }
 
-    @Test("ReplayViewModel：前进/后退正常工作")
+    @MainActor
+@Test("ReplayViewModel：前进/后退正常工作")
     func replayViewModelNavigation() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -39,7 +41,8 @@ struct UILayoutOptTests {
         #expect(vm.currentIndex == record.moves.count - 1)
     }
 
-    @Test("ReplayViewModel：跳转到指定位置")
+    @MainActor
+@Test("ReplayViewModel：跳转到指定位置")
     func replayViewModelJump() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -56,7 +59,8 @@ struct UILayoutOptTests {
         #expect(vm.currentIndex == record.moves.count)
     }
 
-    @Test("ReplayViewModel：goToStart / goToEnd")
+    @MainActor
+@Test("ReplayViewModel：goToStart / goToEnd")
     func replayViewModelStartEnd() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -68,7 +72,8 @@ struct UILayoutOptTests {
         #expect(vm.currentIndex == 0)
     }
 
-    @Test("ReplayViewModel：progressText 格式正确")
+    @MainActor
+@Test("ReplayViewModel：progressText 格式正确")
     func replayViewModelProgressText() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -77,7 +82,8 @@ struct UILayoutOptTests {
         #expect(vm.progressText == "1/\(record.moves.count)")
     }
 
-    @Test("ReplayViewModel：空走法记录不 crash")
+    @MainActor
+@Test("ReplayViewModel：空走法记录不 crash")
     func replayViewModelEmptyMoves() {
         var record = Self.makeTestRecord()
         record = GameRecord(
@@ -101,7 +107,8 @@ struct UILayoutOptTests {
         vm.goToEnd()
     }
 
-    @Test("ReplayViewModel：自动播放不 crash")
+    @MainActor
+@Test("ReplayViewModel：自动播放不 crash")
     func replayViewModelAutoPlay() async {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -115,7 +122,8 @@ struct UILayoutOptTests {
 
     // MARK: - 2. PuzzleViewModel 回归（布局变更不影响逻辑）
 
-    @Test("PuzzleViewModel：初始化不 crash")
+    @MainActor
+@Test("PuzzleViewModel：初始化不 crash")
     func puzzleViewModelInit() {
         let puzzles = PuzzleStore.shared.puzzles
         guard let puzzle = puzzles.first else {
@@ -127,7 +135,8 @@ struct UILayoutOptTests {
         #expect(vm.board.pieces.count > 0)
     }
 
-    @Test("PuzzleViewModel：resetPuzzle 恢复初始状态")
+    @MainActor
+@Test("PuzzleViewModel：resetPuzzle 恢复初始状态")
     func puzzleViewModelReset() {
         let puzzles = PuzzleStore.shared.puzzles
         guard let puzzle = puzzles.first else { return }
@@ -141,7 +150,8 @@ struct UILayoutOptTests {
 
     // MARK: - 3. layoutPriority 不影响 Board 功能
 
-    @Test("ChessBoardView layoutPriority(1) 不影响棋盘逻辑")
+    @MainActor
+@Test("ChessBoardView layoutPriority(1) 不影响棋盘逻辑")
     func layoutPriorityDoesNotAffectLogic() {
         let engine = AIEngine()
         let board = Board()
@@ -151,7 +161,8 @@ struct UILayoutOptTests {
 
     // MARK: - 4. GameViewModel 回归（对弈主界面棋盘不受影响）
 
-    @Test("GameViewModel：新局初始化正常")
+    @MainActor
+@Test("GameViewModel：新局初始化正常")
     func gameViewModelNewGame() {
         let vm = GameViewModel()
         #expect(vm.gameState == .playing)
@@ -162,7 +173,8 @@ struct UILayoutOptTests {
         #expect(vm.capturedPieces.black.isEmpty)
     }
 
-    @Test("GameViewModel：悔棋后棋盘状态正确")
+    @MainActor
+@Test("GameViewModel：悔棋后棋盘状态正确")
     func gameViewModelUndoAfterAIMove() async {
         let vm = GameViewModel()
         let board = vm.board
@@ -188,7 +200,8 @@ struct UILayoutOptTests {
 
     // MARK: - 5. 底部区域动态限高参数验证
 
-    @Test("bottomAreaMaxHeight 逻辑：参数合理（非零、非负、有限值）")
+    @MainActor
+@Test("bottomAreaMaxHeight 逻辑：参数合理（非零、非负、有限值）")
     func bottomAreaMaxHeightValidation() {
         // 验证思路：不同设备参数计算出的高度应合理
         // macOS 固定 180，iOS 动态计算
@@ -201,7 +214,8 @@ struct UILayoutOptTests {
         #endif
     }
 
-    @Test("iOS fullScreenCover 关闭按钮：ReplayView 有 dismiss 环境")
+    @MainActor
+@Test("iOS fullScreenCover 关闭按钮：ReplayView 有 dismiss 环境")
     func replayViewHasDismiss() {
         // ReplayView 使用 @Environment(\.dismiss)，编译通过即验证
         let record = Self.makeTestRecord()
@@ -212,7 +226,8 @@ struct UILayoutOptTests {
 
     // MARK: - 6. 全量构建验证
 
-    @Test("Sheet 尺寸增大不影响模型编译")
+    @MainActor
+@Test("Sheet 尺寸增大不影响模型编译")
     func sheetSizeChangeNoEffect() {
         // frame(minWidth: 520, minHeight: 680) 仅影响 macOS Sheet 布局
         // 不影响任何模型/逻辑代码
@@ -222,7 +237,8 @@ struct UILayoutOptTests {
 
     // MARK: - 7. 残局通关/失败弹窗条件渲染
 
-    @Test("PuzzleViewModel：gameState 为 playing 时不触发弹窗条件")
+    @MainActor
+@Test("PuzzleViewModel：gameState 为 playing 时不触发弹窗条件")
     func puzzlePlayingStateNoDialog() {
         let puzzles = PuzzleStore.shared.puzzles
         guard let puzzle = puzzles.first else { return }
@@ -235,7 +251,8 @@ struct UILayoutOptTests {
 
     // MARK: - 8. 棋盘走棋前后尺寸一致性（间接验证）
 
-    @Test("AI 走棋后棋盘子力结构合理")
+    @MainActor
+@Test("AI 走棋后棋盘子力结构合理")
     func boardStructureAfterMoves() {
         let engine = AIEngine()
         let board = Board()

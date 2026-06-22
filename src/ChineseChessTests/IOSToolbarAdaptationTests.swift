@@ -12,7 +12,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - 新局按钮逻辑
 
-    @Test("新局后：isThinking=false, moveHistory 为空, gameState=playing, capturedPieces 清空")
+    @MainActor
+@Test("新局后：isThinking=false, moveHistory 为空, gameState=playing, capturedPieces 清空")
     func newGameResetsAllState() {
         let vm = GameViewModel()
         // 模拟走棋后状态
@@ -33,7 +34,8 @@ struct IOSToolbarAdaptationTests {
         #expect(vm.hintMove == nil)
     }
 
-    @Test("新局后按钮 disabled 状态：isThinking=false → 新局按钮可用")
+    @MainActor
+@Test("新局后按钮 disabled 状态：isThinking=false → 新局按钮可用")
     func newGameButtonEnabledAfterNewGame() {
         let vm = GameViewModel()
         vm.isThinking = true
@@ -44,7 +46,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - 悔棋按钮 disabled 条件
 
-    @Test("初始局面悔棋：moveHistory 为空 → disabled=true")
+    @MainActor
+@Test("初始局面悔棋：moveHistory 为空 → disabled=true")
     func undoDisabledOnEmptyHistory() {
         let vm = GameViewModel()
         #expect(vm.board.moveHistory.isEmpty)
@@ -53,7 +56,8 @@ struct IOSToolbarAdaptationTests {
         #expect(undoDisabled == true)
     }
 
-    @Test("AI 思考中悔棋：isThinking=true → disabled=true")
+    @MainActor
+@Test("AI 思考中悔棋：isThinking=true → disabled=true")
     func undoDisabledWhileThinking() {
         let vm = GameViewModel()
         vm.isThinking = true
@@ -62,7 +66,8 @@ struct IOSToolbarAdaptationTests {
         #expect(undoDisabled == true)
     }
 
-    @Test("undoMove 在 moveHistory<2 时无效：不做任何状态变更")
+    @MainActor
+@Test("undoMove 在 moveHistory<2 时无效：不做任何状态变更")
     func undoMoveDoesNothingWithLessThanTwoMoves() {
         let vm = GameViewModel()
         let originalTurn = vm.currentTurn
@@ -72,7 +77,8 @@ struct IOSToolbarAdaptationTests {
         #expect(vm.currentTurn == originalTurn)
     }
 
-    @Test("undoMove 在 isThinking=true 时无效")
+    @MainActor
+@Test("undoMove 在 isThinking=true 时无效")
     func undoMoveBlockedWhenThinking() {
         let vm = GameViewModel()
         vm.isThinking = true
@@ -82,14 +88,16 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - 提示按钮 disabled 条件
 
-    @Test("提示按钮：初始局面 playing 且 !isThinking → disabled=false")
+    @MainActor
+@Test("提示按钮：初始局面 playing 且 !isThinking → disabled=false")
     func hintEnabledOnInitialBoard() {
         let vm = GameViewModel()
         let hintDisabled = vm.isThinking || vm.gameState != .playing
         #expect(hintDisabled == false)
     }
 
-    @Test("提示按钮：游戏结束后 → disabled=true")
+    @MainActor
+@Test("提示按钮：游戏结束后 → disabled=true")
     func hintDisabledAfterGameOver() {
         let vm = GameViewModel()
         vm.gameState = .redWon
@@ -97,7 +105,8 @@ struct IOSToolbarAdaptationTests {
         #expect(hintDisabled == true)
     }
 
-    @Test("提示按钮：AI 思考中 → disabled=true")
+    @MainActor
+@Test("提示按钮：AI 思考中 → disabled=true")
     func hintDisabledWhileThinking() {
         let vm = GameViewModel()
         vm.isThinking = true
@@ -105,7 +114,8 @@ struct IOSToolbarAdaptationTests {
         #expect(hintDisabled == true)
     }
 
-    @Test("requestHint 在 !playing 时被 guard 拦截，不触发异步")
+    @MainActor
+@Test("requestHint 在 !playing 时被 guard 拦截，不触发异步")
     func requestHintBlockedWhenNotPlaying() {
         let vm = GameViewModel()
         vm.gameState = .blackWon
@@ -116,7 +126,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - setDifficulty
 
-    @Test("setDifficulty 正确更新 difficulty 值")
+    @MainActor
+@Test("setDifficulty 正确更新 difficulty 值")
     func setDifficultyUpdatesValue() {
         let vm = GameViewModel()
         #expect(vm.difficulty == .medium) // 默认值
@@ -128,14 +139,16 @@ struct IOSToolbarAdaptationTests {
         #expect(vm.difficulty == .master)
     }
 
-    @Test("AIDifficulty CaseIterable 包含 5 个级别")
+    @MainActor
+@Test("AIDifficulty CaseIterable 包含 5 个级别")
     func allDifficulties() {
         #expect(AIDifficulty.allCases.count == 5)
     }
 
     // MARK: - ToolbarView iOS 分支验证（编译时）
 
-    @Test("ToolbarView 在 macOS 上不返回 EmptyView（编译时确认）")
+    @MainActor
+@Test("ToolbarView 在 macOS 上不返回 EmptyView（编译时确认）")
     func toolbarViewMacOSBranch() {
         let vm = GameViewModel()
         let toolbar = ToolbarView(viewModel: vm)
@@ -146,20 +159,23 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - StatusBarView 状态覆盖
 
-    @Test("StatusBarView 初始状态无被吃棋子")
+    @MainActor
+@Test("StatusBarView 初始状态无被吃棋子")
     func statusBarInitialNoCaptures() {
         let vm = GameViewModel()
         #expect(vm.capturedPieces.red.isEmpty)
         #expect(vm.capturedPieces.black.isEmpty)
     }
 
-    @Test("StatusBarView currentTurn 初始为红方")
+    @MainActor
+@Test("StatusBarView currentTurn 初始为红方")
     func statusBarInitialRedTurn() {
         let vm = GameViewModel()
         #expect(vm.currentTurn == .red)
     }
 
-    @Test("StatusBarView isInCheck 初始为 false")
+    @MainActor
+@Test("StatusBarView isInCheck 初始为 false")
     func statusBarInitialNotInCheck() {
         let vm = GameViewModel()
         #expect(vm.isInCheck == false)
@@ -167,7 +183,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - buildGameRecord
 
-    @Test("buildGameRecord：初始局面（无走法）返回 nil 或有值取决于实现")
+    @MainActor
+@Test("buildGameRecord：初始局面（无走法）返回 nil 或有值取决于实现")
     func buildGameRecordEmpty() {
         let vm = GameViewModel()
         let record = vm.buildGameRecord()
@@ -178,7 +195,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - 回放按钮 disabled 条件
 
-    @Test("回放按钮：gameMoves 为空时 disabled=true")
+    @MainActor
+@Test("回放按钮：gameMoves 为空时 disabled=true")
     func replayDisabledWhenNoMoves() {
         let vm = GameViewModel()
         #expect(vm.gameMoves.isEmpty)
@@ -189,7 +207,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - Panel 互斥管理
 
-    @Test("ChineseChessiOSApp.Panel enum 完整性")
+    @MainActor
+@Test("ChineseChessiOSApp.Panel enum 完整性")
     func panelEnumCases() {
         // Panel 是 ChineseChessiOSApp 内部 enum，无法直接测试
         // 但可以验证 GameViewModel 的面板相关状态管理
@@ -202,7 +221,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - 条件编译边界
 
-    @Test("capturedPieces 元组类型正确")
+    @MainActor
+@Test("capturedPieces 元组类型正确")
     func capturedPiecesTupleType() {
         let vm = GameViewModel()
         // 验证 capturedPieces 结构
@@ -215,7 +235,8 @@ struct IOSToolbarAdaptationTests {
         let _: [Piece] = blackPieces
     }
 
-    @Test("newGame 后 hintMove 被清除")
+    @MainActor
+@Test("newGame 后 hintMove 被清除")
     func newGameClearsHint() {
         let vm = GameViewModel()
         // 假设有 hint
@@ -224,7 +245,8 @@ struct IOSToolbarAdaptationTests {
         #expect(vm.hintMove == nil)
     }
 
-    @Test("newGame 后 selectedPosition 被清除")
+    @MainActor
+@Test("newGame 后 selectedPosition 被清除")
     func newGameClearsSelection() {
         let vm = GameViewModel()
         vm.selectedPosition = Position(row: 5, col: 5)
@@ -232,7 +254,8 @@ struct IOSToolbarAdaptationTests {
         #expect(vm.selectedPosition == nil)
     }
 
-    @Test("newGame 后 legalMovesForSelected 为空")
+    @MainActor
+@Test("newGame 后 legalMovesForSelected 为空")
     func newGameClearsLegalMoves() {
         let vm = GameViewModel()
         vm.legalMovesForSelected = [Position(row: 0, col: 0)]
@@ -242,7 +265,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - macOS 零影响验证
 
-    @Test("StatusBarView macOS 分支：capturedPiecesText 函数可用且不 crash")
+    @MainActor
+@Test("StatusBarView macOS 分支：capturedPiecesText 函数可用且不 crash")
     func statusBarMacOSBranchNoCrash() {
         let vm = GameViewModel()
         let statusBar = StatusBarView(viewModel: vm)
@@ -251,7 +275,8 @@ struct IOSToolbarAdaptationTests {
 
     // MARK: - Undo 后 capturedPieces 同步
 
-    @Test("undoMove 正确恢复 capturedPieces")
+    @MainActor
+@Test("undoMove 正确恢复 capturedPieces")
     func undoMoveRestoresCapturedPieces() async {
         let vm = GameViewModel()
         // 初始局面手动执行走棋（模拟吃子）

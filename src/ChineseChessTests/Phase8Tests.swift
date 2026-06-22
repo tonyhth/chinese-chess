@@ -32,19 +32,25 @@ struct Phase8Tests {
         let manager = ThemeManager.shared
 
         // 学童不能解锁翡翠绿
-        let studentProfile = PlayerProfile(rank: .student, totalWins: 0)
+        var studentProfile = PlayerProfile()
         #expect(manager.isThemeUnlocked(.jadeGreen, profile: studentProfile) == false)
 
         // 秀才可以解锁翡翠绿
-        let scholarProfile = PlayerProfile(rank: .scholar, totalWins: 5)
+        var scholarProfile = PlayerProfile()
+        scholarProfile.rank = .scholar
+        scholarProfile.totalWins = 5
         #expect(manager.isThemeUnlocked(.jadeGreen, profile: scholarProfile) == true)
 
         // 举人可以解锁帝王金
-        let jurenProfile = PlayerProfile(rank: .juren, totalWins: 15)
+        var jurenProfile = PlayerProfile()
+        jurenProfile.rank = .juren
+        jurenProfile.totalWins = 15
         #expect(manager.isThemeUnlocked(.imperialGold, profile: jurenProfile) == true)
 
         // 进士可以解锁朱砂红
-        let jinshiProfile = PlayerProfile(rank: .jinshi, totalWins: 30)
+        var jinshiProfile = PlayerProfile()
+        jinshiProfile.rank = .jinshi
+        jinshiProfile.totalWins = 30
         #expect(manager.isThemeUnlocked(.crimson, profile: jinshiProfile) == true)
     }
 

@@ -18,7 +18,8 @@ struct NotationGeneratorTests {
         UserDefaults.standard.removeObject(forKey: "chinesechess.notationFormat")
     }
 
-    @Test("默认 notationFormat 为中文")
+    @MainActor
+@Test("默认 notationFormat 为中文")
     func defaultFormatIsChinese() {
         clearFormat()
         let board = Board()
@@ -29,7 +30,8 @@ struct NotationGeneratorTests {
         UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat")
     }
 
-    @Test("notationFormat=iccs 输出 ICCS 坐标记谱")
+    @MainActor
+@Test("notationFormat=iccs 输出 ICCS 坐标记谱")
     func iccsFormat() {
         UserDefaults.standard.set("iccs", forKey: "chinesechess.notationFormat")
         defer { UserDefaults.standard.set("chinese", forKey: "chinesechess.notationFormat") }
@@ -41,7 +43,8 @@ struct NotationGeneratorTests {
         #expect(notation == "h2e2", "ICCS 格式应输出 h2e2，实际: \(notation)")
     }
 
-    @Test("格式切换即时生效")
+    @MainActor
+@Test("格式切换即时生效")
     func formatSwitchTakesEffectImmediately() {
         let board = Board()
         let piece = board.piece(at: Position(row: 7, col: 7))!
@@ -60,7 +63,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 红方基本走法
 
-    @Test("红炮二平五")
+    @MainActor
+@Test("红炮二平五")
     func testRedCannonHorizontal() {
         let board = Board()
         // 红炮 col=7 → 纵线二, 移到 col=4 → 纵线五
@@ -70,7 +74,8 @@ struct NotationGeneratorTests {
         #expect(notation == "炮二平五")
     }
 
-    @Test("红馬八进七")
+    @MainActor
+@Test("红馬八进七")
     func testRedHorseForward() {
         let board = Board()
         // 红马 col=1 → 纵线八, 移到 col=2 → 纵线七（斜走，目标=纵线号）
@@ -80,7 +85,8 @@ struct NotationGeneratorTests {
         #expect(notation == "馬八进七")
     }
 
-    @Test("红車九进四")
+    @MainActor
+@Test("红車九进四")
     func testRedChariotForward() {
         let board = Board()
         // 红车 col=0 → 纵线九, 进4格（直线走子，目标=格数）
@@ -90,7 +96,8 @@ struct NotationGeneratorTests {
         #expect(notation == "車九进四")
     }
 
-    @Test("红兵五进一")
+    @MainActor
+@Test("红兵五进一")
     func testRedSoldierForward() {
         let board = Board()
         // 红兵 col=4 → 纵线五, 进1格
@@ -100,7 +107,8 @@ struct NotationGeneratorTests {
         #expect(notation == "兵五进一")
     }
 
-    @Test("红仕进斜线")
+    @MainActor
+@Test("红仕进斜线")
     func testRedAdvisorForward() {
         let board = Board()
         // 红仕 col=3 → 纵线六, 进到 col=4 → 纵线五（斜走）
@@ -113,7 +121,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 黑方基本走法
 
-    @Test("黑马8进7")
+    @MainActor
+@Test("黑马8进7")
     func testBlackHorseForward() {
         let board = Board()
         // 黑马 col=1 → 纵线8, 移到 col=2 → 纵线7
@@ -123,7 +132,8 @@ struct NotationGeneratorTests {
         #expect(notation == "馬8进7")
     }
 
-    @Test("黑卒5进1")
+    @MainActor
+@Test("黑卒5进1")
     func testBlackSoldierForward() {
         let board = Board()
         // 黑卒 col=4 → 纵线5, 进1格
@@ -133,7 +143,8 @@ struct NotationGeneratorTests {
         #expect(notation == "卒5进1")
     }
 
-    @Test("黑車1进2")
+    @MainActor
+@Test("黑車1进2")
     func testBlackChariotForward() {
         let board = Board()
         // 黑车 col=0 → 纵线9, 进2格
@@ -145,7 +156,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 纵线编号验证
 
-    @Test("红方纵线编号：col 0=九, col 4=五, col 8=一")
+    @MainActor
+@Test("红方纵线编号：col 0=九, col 4=五, col 8=一")
     func testRedFileNumbering() {
         let board = Board()
         // 红车 col=0 → 九
@@ -167,7 +179,8 @@ struct NotationGeneratorTests {
         #expect(n8.contains("一"))
     }
 
-    @Test("黑方纵线编号：col 0=9, col 4=5, col 8=1")
+    @MainActor
+@Test("黑方纵线编号：col 0=9, col 4=5, col 8=1")
     func testBlackFileNumbering() {
         let board = Board()
         // 黑车 col=0 → 9
@@ -191,7 +204,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 进退方向
 
-    @Test("红方前进=row减小,后退=row增大")
+    @MainActor
+@Test("红方前进=row减小,后退=row增大")
     func testRedForwardBackward() {
         let board = Board()
         let chariot = board.piece(at: Position(row: 9, col: 0))!
@@ -209,7 +223,8 @@ struct NotationGeneratorTests {
         #expect(bn.contains("退"))
     }
 
-    @Test("黑方前进=row增大,后退=row减小")
+    @MainActor
+@Test("黑方前进=row增大,后退=row减小")
     func testBlackForwardBackward() {
         let board = Board()
         let chariot = board.piece(at: Position(row: 0, col: 0))!
@@ -221,7 +236,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 消歧义（前后同线）
 
-    @Test("双车同列消歧义 — 红方前車/后車")
+    @MainActor
+@Test("双车同列消歧义 — 红方前車/后車")
     func testRedDoubleChariotDisambiguation() {
         // 构造：红方两个车都在 col=4
         var pieces = Board.initialPieces().filter { !($0.kind == .chariot && $0.side == .red) }
@@ -246,7 +262,8 @@ struct NotationGeneratorTests {
         #expect(nBack.contains("进"))
     }
 
-    @Test("双炮同列消歧义 — 黑方")
+    @MainActor
+@Test("双炮同列消歧义 — 黑方")
     func testBlackDoubleCannonDisambiguation() {
         // 构造只有双炮 + 将帅的最小棋盘
         var pieces: [Piece] = []
@@ -272,7 +289,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 无消歧义时无前/后前缀
 
-    @Test("单子无消歧义前缀")
+    @MainActor
+@Test("单子无消歧义前缀")
     func testNoDisambiguationPrefix() {
         let board = Board()
         let chariot = board.piece(at: Position(row: 9, col: 0))!
@@ -284,7 +302,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 平走
 
-    @Test("红車九平五")
+    @MainActor
+@Test("红車九平五")
     func testRedChariotHorizontal() {
         let board = Board()
         // 先把车前的路清空（简化测试：直接构造走法）
@@ -296,7 +315,8 @@ struct NotationGeneratorTests {
 
     // MARK: - 边界情况
 
-    @Test("红帅进一")
+    @MainActor
+@Test("红帅进一")
     func testRedGeneralForward() {
         let board = Board()
         let general = board.piece(at: Position(row: 9, col: 4))!
@@ -305,7 +325,8 @@ struct NotationGeneratorTests {
         #expect(notation == "帅五进一")
     }
 
-    @Test("红相七进五")
+    @MainActor
+@Test("红相七进五")
     func testRedElephantForward() {
         let board = Board()
         let elephant = board.piece(at: Position(row: 9, col: 6))!
@@ -328,14 +349,16 @@ struct StatsManagerTests {
         return StatsManager(defaults: defaults)
     }
 
-    @Test("初始统计为零")
+    @MainActor
+@Test("初始统计为零")
     func testInitialStats() {
         let manager = makeManager()
         let stats = manager.stats
         #expect(stats.vsAI.isEmpty)
     }
 
-    @Test("记录人机胜利")
+    @MainActor
+@Test("记录人机胜利")
     func testRecordAIWin() {
         let manager = makeManager()
 
@@ -346,7 +369,8 @@ struct StatsManagerTests {
         #expect(medium.losses == 0)
     }
 
-    @Test("记录多局人机")
+    @MainActor
+@Test("记录多局人机")
     func testMultipleAIGames() {
         let manager = makeManager()
 
@@ -369,7 +393,8 @@ struct StatsManagerTests {
         #expect(hard2.losses == 1)
     }
 
-    @Test("重置清空统计")
+    @MainActor
+@Test("重置清空统计")
     func testReset() {
         let manager = makeManager()
         manager.recordWin(for: .beginner)
@@ -384,7 +409,8 @@ struct StatsManagerTests {
 @Suite("GameViewModel Phase 3 Tests", .serialized)
 struct GameViewModelPhase3Tests {
 
-    @Test("人机模式悔棋撤一对")
+    @MainActor
+@Test("人机模式悔棋撤一对")
     func testSinglePlayerUndoPair() {
         let vm = GameViewModel()
         // 直接通过 board 走棋模拟（不走 AI）
@@ -406,7 +432,8 @@ struct GameViewModelPhase3Tests {
         #expect(vm.board.moveHistory.isEmpty)
     }
 
-    @Test("GameMove 记录包含棋谱")
+    @MainActor
+@Test("GameMove 记录包含棋谱")
     func testGameMoveHasNotation() {
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 6, col: 4))

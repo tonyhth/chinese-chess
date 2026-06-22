@@ -4,7 +4,8 @@ import Testing
 @Suite("GameViewModel Interaction Tests")
 struct GameViewModelTests {
 
-    @Test("选中棋子后移动到空位")
+    @MainActor
+@Test("选中棋子后移动到空位")
     func selectAndMoveToEmpty() {
         let vm = GameViewModel()
         // 红炮在 (7,1)，前方 (7,4) 是空位
@@ -24,7 +25,8 @@ struct GameViewModelTests {
         #expect(vm.currentTurn == .black)
     }
 
-    @Test("选中棋子吃对方棋子")
+    @MainActor
+@Test("选中棋子吃对方棋子")
     func selectAndCapture() {
         let vm = GameViewModel()
         // 设置场景：红车在 (5,0)，黑卒在 (3,0)
@@ -44,7 +46,8 @@ struct GameViewModelTests {
         #expect(vm.capturedPieces.red.count == 1)
     }
 
-    @Test("选中棋子后点击非法位置不移动")
+    @MainActor
+@Test("选中棋子后点击非法位置不移动")
     func selectAndInvalidMove() {
         let vm = GameViewModel()
         // 红帅在 (9,4)，非法位置比如 (9,0)
@@ -55,7 +58,8 @@ struct GameViewModelTests {
         #expect(vm.board.piece(at: Position(row: 9, col: 4))?.kind == .general)
     }
 
-    @Test("点击空位取消选中")
+    @MainActor
+@Test("点击空位取消选中")
     func clickEmptyDeselect() {
         let vm = GameViewModel()
         // 选中红炮
@@ -68,7 +72,8 @@ struct GameViewModelTests {
         #expect(vm.legalMovesForSelected.isEmpty)
     }
 
-    @Test("新局重置状态")
+    @MainActor
+@Test("新局重置状态")
     func newGameResets() {
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 7, col: 1))
@@ -83,7 +88,8 @@ struct GameViewModelTests {
         #expect(vm.board.pieces.count == 32)
     }
 
-    @Test("黑方回合点击无响应")
+    @MainActor
+@Test("黑方回合点击无响应")
     func blackTurnIgnored() {
         let vm = GameViewModel()
         // 手动走到黑方回合
@@ -97,7 +103,8 @@ struct GameViewModelTests {
         #expect(vm.selectedPosition == nil)
     }
 
-    @Test("悔棋恢复棋盘状态")
+    @MainActor
+@Test("悔棋恢复棋盘状态")
     func undoRestoresBoard() {
         let vm = GameViewModel()
         // 选中并走一步（走完后 AI 也会走，所以走 2 步）

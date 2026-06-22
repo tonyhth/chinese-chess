@@ -7,13 +7,15 @@ struct Phase5Tests {
 
     // MARK: - TutorialViewModel 测试
 
-    @Test("教程包含 5 步课程")
+    @MainActor
+@Test("教程包含 5 步课程")
     func tutorialHasFiveLessons() {
         let vm = TutorialViewModel()
         #expect(vm.lessons.count == 5, "应有 5 步教程")
     }
 
-    @Test("课程标题正确")
+    @MainActor
+@Test("课程标题正确")
     func lessonTitlesCorrect() {
         let vm = TutorialViewModel()
         #expect(vm.lessons[0].title == "棋子走法")
@@ -23,7 +25,8 @@ struct Phase5Tests {
         #expect(vm.lessons[4].title == "第一局实战")
     }
 
-    @Test("下一课功能")
+    @MainActor
+@Test("下一课功能")
     func nextLesson() {
         let vm = TutorialViewModel()
         #expect(vm.currentLesson == 0)
@@ -33,7 +36,8 @@ struct Phase5Tests {
         #expect(vm.currentLesson == 2)
     }
 
-    @Test("上一课功能")
+    @MainActor
+@Test("上一课功能")
     func previousLesson() {
         let vm = TutorialViewModel()
         vm.currentLesson = 2
@@ -41,14 +45,16 @@ struct Phase5Tests {
         #expect(vm.currentLesson == 1)
     }
 
-    @Test("上一课不越界（第 0 课不能再退）")
+    @MainActor
+@Test("上一课不越界（第 0 课不能再退）")
     func previousLessonAtZero() {
         let vm = TutorialViewModel()
         vm.previousLesson()
         #expect(vm.currentLesson == 0)
     }
 
-    @Test("下一课不越界（最后一课不能再进）")
+    @MainActor
+@Test("下一课不越界（最后一课不能再进）")
     func nextLessonAtLast() {
         let vm = TutorialViewModel()
         vm.currentLesson = 4
@@ -56,7 +62,8 @@ struct Phase5Tests {
         #expect(vm.currentLesson == 4)
     }
 
-    @Test("isLastLesson 判断")
+    @MainActor
+@Test("isLastLesson 判断")
     func isLastLesson() {
         let vm = TutorialViewModel()
         #expect(vm.isLastLesson == false)
@@ -64,7 +71,8 @@ struct Phase5Tests {
         #expect(vm.isLastLesson == true)
     }
 
-    @Test("特殊规则课程包含困毙说明")
+    @MainActor
+@Test("特殊规则课程包含困毙说明")
     func specialRulesMentionStalemate() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
@@ -72,7 +80,8 @@ struct Phase5Tests {
         #expect(lesson.description.contains("输"), "应说明困毙是输")
     }
 
-    @Test("特殊规则课程区分困毙和长将")
+    @MainActor
+@Test("特殊规则课程区分困毙和长将")
     func specialRulesDistinguishStalemateAndRepetition() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
@@ -82,7 +91,8 @@ struct Phase5Tests {
 
     // MARK: - 教程完成状态
 
-    @Test("教程完成标记和重置")
+    @MainActor
+@Test("教程完成标记和重置")
     func tutorialCompletionTracking() {
         TutorialViewModel.resetTutorial()
         #expect(TutorialViewModel.hasCompletedTutorial == false)
@@ -96,7 +106,8 @@ struct Phase5Tests {
 
     // MARK: - 选边测试
 
-    @Test("GameViewModel 默认执红")
+    @MainActor
+@Test("GameViewModel 默认执红")
     func gameViewModelDefaultSide() {
         let vm = GameViewModel()
         // 清除 UserDefaults 可能的残留
@@ -105,7 +116,8 @@ struct Phase5Tests {
         #expect(freshVM.humanSide == .red, "默认应执红")
     }
 
-    @Test("GameViewModel 切换执边")
+    @MainActor
+@Test("GameViewModel 切换执边")
     func gameViewModelSwitchSide() {
         let vm = GameViewModel()
         vm.setHumanSide(.black)
@@ -120,7 +132,8 @@ struct Phase5Tests {
         UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide")
     }
 
-    @Test("选边后 newGame 正常执行")
+    @MainActor
+@Test("选边后 newGame 正常执行")
     func newGameAfterSideSelection() {
         let vm = GameViewModel()
         vm.setHumanSide(.red)
@@ -132,7 +145,8 @@ struct Phase5Tests {
         UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide")
     }
 
-    @Test("执黑时玩家选择对方棋子无效")
+    @MainActor
+@Test("执黑时玩家选择对方棋子无效")
     func blackSideCannotSelectRedPieces() {
         let vm = GameViewModel()
         vm.setHumanSide(.black)
@@ -146,7 +160,8 @@ struct Phase5Tests {
         UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide")
     }
 
-    @Test("各难度 AI 返回合法走法（选边后）")
+    @MainActor
+@Test("各难度 AI 返回合法走法（选边后）")
     func allDifficultiesWithSideSelection() {
         for side in [Side.red, .black] {
             let vm = GameViewModel()

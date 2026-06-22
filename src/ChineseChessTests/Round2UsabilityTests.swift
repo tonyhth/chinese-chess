@@ -9,7 +9,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P0-01: 残局空状态
 
-    @Test("U-P0-01: PuzzleSelectView 空状态提示完整")
+    @MainActor
+@Test("U-P0-01: PuzzleSelectView 空状态提示完整")
     func testUP001EmptyStateUI() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -28,7 +29,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P0-02: 残局失败重试
 
-    @Test("U-P0-02: 失败弹窗有重试和返回按钮")
+    @MainActor
+@Test("U-P0-02: 失败弹窗有重试和返回按钮")
     func testUP002RetryUI() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -48,7 +50,8 @@ struct Round2UsabilityTests {
         #expect(content.contains("onTapGesture"), "遮罩应阻止点击穿透")
     }
 
-    @Test("U-P0-02: resetPuzzle 完整重置棋盘状态")
+    @MainActor
+@Test("U-P0-02: resetPuzzle 完整重置棋盘状态")
     func testUP002ResetPuzzleComplete() {
         guard let puzzle = PuzzleStore.shared.puzzles.first else { return }
         let vm = PuzzleViewModel(puzzle: puzzle)
@@ -76,7 +79,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P1-01: 将军提示
 
-    @Test("U-P1-01: isInCheck stored property + checkGameState 手动更新")
+    @MainActor
+@Test("U-P1-01: isInCheck stored property + checkGameState 手动更新")
     func testUP101IsInCheckStored() {
         let vm = GameViewModel()
         #expect(!vm.isInCheck, "初始不应被将军")
@@ -87,7 +91,8 @@ struct Round2UsabilityTests {
         #expect(!vm.isInCheck, "newGame 后应重置")
     }
 
-    @Test("U-P1-01: StatusBarView 将军文字+脉冲动画")
+    @MainActor
+@Test("U-P1-01: StatusBarView 将军文字+脉冲动画")
     func testUP101StatusBarCheckWarning() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift"
@@ -101,7 +106,8 @@ struct Round2UsabilityTests {
         #expect(content.contains("pulseAnimation"), "应有脉冲动画")
     }
 
-    @Test("U-P1-01: ChessBoardView 将军红色闪烁圈")
+    @MainActor
+@Test("U-P1-01: ChessBoardView 将军红色闪烁圈")
     func testUP101ChessBoardCheckHighlight() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift"
@@ -119,7 +125,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P1-02: macOS 快捷键
 
-    @Test("U-P1-02: macOS CommandMenu 含 localized 新局/悔棋/提示")
+    @MainActor
+@Test("U-P1-02: macOS CommandMenu 含 localized 新局/悔棋/提示")
     func testUP102MacOSCommandMenu() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -138,7 +145,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P1-03: 回放拖拽
 
-    @Test("U-P1-03: ReplayControlView 使用 Slider 可拖拽跳转")
+    @MainActor
+@Test("U-P1-03: ReplayControlView 使用 Slider 可拖拽跳转")
     func testUP103ReplaySlider() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayControlView.swift"
@@ -151,7 +159,8 @@ struct Round2UsabilityTests {
         #expect(content.contains("jumpTo"), "Slider 变化应触发 jumpTo")
     }
 
-    @Test("U-P1-03: ReplayViewModel jumpTo 棋盘同步更新")
+    @MainActor
+@Test("U-P1-03: ReplayViewModel jumpTo 棋盘同步更新")
     func testUP103JumpToSyncsBoard() {
         let moves = [
             GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4)),
@@ -192,7 +201,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P1-04: 残局提示高亮
 
-    @Test("U-P1-04: PuzzleViewModel.hintMove 设置起点+终点")
+    @MainActor
+@Test("U-P1-04: PuzzleViewModel.hintMove 设置起点+终点")
     func testUP104HintMoveHighlight() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/PuzzleViewModel.swift"
@@ -207,7 +217,8 @@ struct Round2UsabilityTests {
         #expect(content.contains("to:") || content.contains(".to"), "提示应设置终点")
     }
 
-    @Test("U-P1-04: ChessBoardView 蓝色高亮起点+终点")
+    @MainActor
+@Test("U-P1-04: ChessBoardView 蓝色高亮起点+终点")
     func testUP104BlueHighlight() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift"
@@ -225,7 +236,8 @@ struct Round2UsabilityTests {
 
     // MARK: - U-P2-02: 查看棋谱
 
-    @Test("U-P2-02: GameOverOverlay 查看棋谱按钮 + App 传递回调")
+    @MainActor
+@Test("U-P2-02: GameOverOverlay 查看棋谱按钮 + App 传递回调")
     func testUP202ViewRecord() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
 
@@ -250,7 +262,8 @@ struct Round2UsabilityTests {
         #expect(app.contains("toolbarReplayRecord"), "回调应打开回放视图")
     }
 
-    @Test("U-P2-02: GameViewModel.buildGameRecord 生成有效记录")
+    @MainActor
+@Test("U-P2-02: GameViewModel.buildGameRecord 生成有效记录")
     func testUP202BuildGameRecord() {
         let vm = GameViewModel()
         // 初始局面无走法

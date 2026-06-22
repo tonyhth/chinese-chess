@@ -4,7 +4,8 @@ import Testing
 @Suite("线程安全测试")
 struct ThreadSafetyTests {
 
-    @Test("AI 思考期间 isThinking 为 true")
+    @MainActor
+@Test("AI 思考期间 isThinking 为 true")
     func isThinkingDuringAIComputation() async {
         // 不能直接测试 Task.detached + MainActor.run 的异步行为（需要 XCUITest）
         // 但可以验证 GameViewModel 的初始状态
@@ -19,7 +20,8 @@ struct ThreadSafetyTests {
         #expect(vm.isThinking)
     }
 
-    @Test("isThinking 为 true 时 selectPiece 被忽略")
+    @MainActor
+@Test("isThinking 为 true 时 selectPiece 被忽略")
     func selectPieceIgnoredWhenThinking() {
         let vm = GameViewModel()
         // 手动设置 isThinking（模拟 AI 正在思考）
@@ -36,7 +38,8 @@ struct ThreadSafetyTests {
         #expect(vm.selectedPosition == previousSelected)
     }
 
-    @Test("isThinking 为 true 时 undoMove 被忽略")
+    @MainActor
+@Test("isThinking 为 true 时 undoMove 被忽略")
     func undoIgnoredWhenThinking() {
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 7, col: 7))
@@ -49,7 +52,8 @@ struct ThreadSafetyTests {
         #expect(vm.moveHistory.count == previousHistoryCount)
     }
 
-    @Test("isThinking 为 true 时 newGame 被忽略")
+    @MainActor
+@Test("isThinking 为 true 时 newGame 被忽略")
     func newGameIgnoredWhenThinking() {
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 7, col: 7))
@@ -61,7 +65,8 @@ struct ThreadSafetyTests {
         #expect(vm.board.pieces.count == previousPieceCount)
     }
 
-    @Test("非红方回合时 selectPiece 被忽略")
+    @MainActor
+@Test("非红方回合时 selectPiece 被忽略")
     func selectPieceIgnoredWhenNotRedTurn() {
         let vm = GameViewModel()
         // 红方走一步

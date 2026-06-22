@@ -13,7 +13,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.1 新局开始（32子摆放，红方先行）
 
-    @Test("1.1: 新局开始 - 32子正确摆放")
+    @MainActor
+@Test("1.1: 新局开始 - 32子正确摆放")
     func testNewGamePieces() {
         let board = Board()
         // 总子数 32
@@ -46,13 +47,15 @@ struct R3R1FunctionalTests {
         #expect(countKind(.soldier, side: .black) == 5, "黑卒 5")
     }
 
-    @Test("1.1: 新局开始 - 红方先行")
+    @MainActor
+@Test("1.1: 新局开始 - 红方先行")
     func testNewGameRedFirst() {
         let board = Board()
         #expect(board.currentTurn == .red, "新局应红方先行")
     }
 
-    @Test("1.1: 新局开始 - 关键位置验证")
+    @MainActor
+@Test("1.1: 新局开始 - 关键位置验证")
     func testNewGameKeyPositions() {
         let board = Board()
         // 红帅 (9,4)
@@ -71,7 +74,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.2 点击走子（合法/非法）
 
-    @Test("1.2: 合法走子 - 红炮二平五")
+    @MainActor
+@Test("1.2: 合法走子 - 红炮二平五")
     func testLegalMove() {
         let board = Board()
         let from = Position(row: 7, col: 1)
@@ -84,7 +88,8 @@ struct R3R1FunctionalTests {
         #expect(MoveValidator.isLegal(move, on: board), "炮二平五应为合法走法")
     }
 
-    @Test("1.2: 非法走子 - 红帅直接走出九宫")
+    @MainActor
+@Test("1.2: 非法走子 - 红帅直接走出九宫")
     func testIllegalMove() {
         let board = Board()
         let from = Position(row: 9, col: 4)
@@ -95,7 +100,8 @@ struct R3R1FunctionalTests {
         #expect(!MoveValidator.isLegal(move, on: board), "帅走出九宫应为非法")
     }
 
-    @Test("1.2: 非法走子 - 吃自己人")
+    @MainActor
+@Test("1.2: 非法走子 - 吃自己人")
     func testIllegalMoveCaptureOwn() {
         let board = Board()
         let from = Position(row: 9, col: 4) // 红帅
@@ -105,7 +111,8 @@ struct R3R1FunctionalTests {
         #expect(!MoveValidator.isLegal(move, on: board), "不能吃己方棋子")
     }
 
-    @Test("1.2: 合法走子后棋盘状态更新")
+    @MainActor
+@Test("1.2: 合法走子后棋盘状态更新")
     func testMoveExecution() {
         let board = Board()
         let from = Position(row: 7, col: 1)
@@ -122,7 +129,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.3 拖拽走子（UI 交互，逻辑层验证走子一致性）
 
-    @Test("1.3: 拖拽走子 - 走法逻辑与点击一致")
+    @MainActor
+@Test("1.3: 拖拽走子 - 走法逻辑与点击一致")
     func testDragMoveConsistentWithTap() {
         // 拖拽和点击最终都走 MoveValidator.isLegal → board.execute，
         // 此测试验证同一起终点的走法判定一致
@@ -138,7 +146,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.4 将军提示
 
-    @Test("1.4: 将军判定 - 车将军")
+    @MainActor
+@Test("1.4: 将军判定 - 车将军")
     func testCheckDetection() {
         // 构造一个红车将军黑将的局面
         let board = Board()
@@ -149,7 +158,8 @@ struct R3R1FunctionalTests {
         #expect(MoveValidator.isInCheck(.black, on: board2), "红车在同行将军黑将")
     }
 
-    @Test("1.4: 将军判定 - 非将军局面")
+    @MainActor
+@Test("1.4: 将军判定 - 非将军局面")
     func testNoCheck() {
         let board = Board()
         // 标准开局，无人被将军
@@ -159,7 +169,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.5 将杀判定
 
-    @Test("1.5: 将杀判定 - 典型将杀局面")
+    @MainActor
+@Test("1.5: 将杀判定 - 典型将杀局面")
     func testCheckmate() {
         // 构造将杀：红车在底线将军，黑将无路可走
         let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
@@ -172,7 +183,8 @@ struct R3R1FunctionalTests {
         #expect(MoveValidator.isCheckmate(.black, on: board), "红车底线将军应将杀")
     }
 
-    @Test("1.5: 将杀判定 - 非将杀（有应将走法）")
+    @MainActor
+@Test("1.5: 将杀判定 - 非将杀（有应将走法）")
     func testNotCheckmate() {
         // 标准开局不应是将杀
         let board = Board()
@@ -181,7 +193,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.6 撤销走子
 
-    @Test("1.6: 撤销走子 - 棋盘状态完全恢复")
+    @MainActor
+@Test("1.6: 撤销走子 - 棋盘状态完全恢复")
     func testUndoMove() {
         let board = Board()
         let fenBefore = FENParser.generate(board: board)
@@ -203,7 +216,8 @@ struct R3R1FunctionalTests {
         #expect(fenAfter == fenBefore, "撤销后 FEN 应与走子前一致")
     }
 
-    @Test("1.6: 撤销走子 - 带吃子的撤销")
+    @MainActor
+@Test("1.6: 撤销走子 - 带吃子的撤销")
     func testUndoCaptureMove() {
         // 构造一个吃子局面
         let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
@@ -224,7 +238,8 @@ struct R3R1FunctionalTests {
         #expect(board.piece(at: Position(row: 5, col: 4))?.side == .black, "被吃棋子恢复到原位")
     }
 
-    @Test("1.6: 撤销走子 - 多步连续撤销")
+    @MainActor
+@Test("1.6: 撤销走子 - 多步连续撤销")
     func testUndoMultipleMoves() {
         let board = Board()
         let fenBefore = FENParser.generate(board: board)
@@ -254,7 +269,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.7 五档AI正常走棋
 
-    @Test("1.7: 五档AI均能正常走棋")
+    @MainActor
+@Test("1.7: 五档AI均能正常走棋")
     func testAllDifficultiesCanMove() {
         let engine = AIEngine()
         for diff in AIDifficulty.allCases {
@@ -266,7 +282,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.8 AI难度梯度
 
-    @Test("1.8: AI难度梯度 - 新手级走法质量低于大师级")
+    @MainActor
+@Test("1.8: AI难度梯度 - 新手级走法质量低于大师级")
     func testAIDifficultyGradient() {
         // 使用同一中盘局面，比较不同难度的走法数量和速度
         // 新手级有 70% 概率随机走，大师级有深度搜索，走法质量差异应可观测
@@ -291,7 +308,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.9 残局总数551
 
-    @Test("1.9: 残局总数为 551")
+    @MainActor
+@Test("1.9: 残局总数为 551")
     func testPuzzleCount() {
         let store = PuzzleStore.shared
         #expect(store.totalPuzzles == 551, "残局总数应为 551，实际 \(store.totalPuzzles)")
@@ -299,7 +317,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.10 残局分类筛选
 
-    @Test("1.10: 残局分类筛选 - 所有分类非空且总数匹配")
+    @MainActor
+@Test("1.10: 残局分类筛选 - 所有分类非空且总数匹配")
     func testPuzzleCategories() {
         let store = PuzzleStore.shared
         let categories = store.categories
@@ -311,7 +330,8 @@ struct R3R1FunctionalTests {
         #expect(sumByCategory == store.totalPuzzles, "各分类之和应等于总数")
     }
 
-    @Test("1.10: 残局分类筛选 - 各分类结果与标签匹配")
+    @MainActor
+@Test("1.10: 残局分类筛选 - 各分类结果与标签匹配")
     func testPuzzleCategoryFiltering() {
         let store = PuzzleStore.shared
         for category in store.categories {
@@ -324,7 +344,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.11 残局加载
 
-    @Test("1.11: 残局加载 - 随机5局FEN可解析且棋盘合法")
+    @MainActor
+@Test("1.11: 残局加载 - 随机5局FEN可解析且棋盘合法")
     func testPuzzleLoading() {
         let store = PuzzleStore.shared
         let samplePuzzles = Array(store.puzzles.shuffled().prefix(5))
@@ -338,7 +359,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.12 残局解题
 
-    @Test("1.12: 残局解题 - 引导模式解题流程")
+    @MainActor
+@Test("1.12: 残局解题 - 引导模式解题流程")
     func testPuzzleSolving() {
         let store = PuzzleStore.shared
         // 选一个简单的红方先手残局
@@ -361,7 +383,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.13 解题提示
 
-    @Test("1.13: 解题提示 - 提示功能正常工作")
+    @MainActor
+@Test("1.13: 解题提示 - 提示功能正常工作")
     func testPuzzleHint() {
         let store = PuzzleStore.shared
         guard let puzzle = store.puzzles.first(where: { $0.playerSide == "red" }) else { return }
@@ -376,7 +399,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.14 残局FEN合法性
 
-    @Test("1.14: 残局FEN合法性 - 抽查10局")
+    @MainActor
+@Test("1.14: 残局FEN合法性 - 抽查10局")
     func testPuzzleFENValidity() {
         let store = PuzzleStore.shared
         let samplePuzzles = Array(store.puzzles.shuffled().prefix(10))
@@ -420,7 +444,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.15 开局库命中
 
-    @Test("1.15: 开局库命中 - 初始局面应有开局推荐")
+    @MainActor
+@Test("1.15: 开局库命中 - 初始局面应有开局推荐")
     func testOpeningBookHit() {
         let book = OpeningBook()
         let board = Board()
@@ -436,7 +461,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.16 开局库加权随机
 
-    @Test("1.16: 开局库加权随机 - 多次查询结果不完全相同")
+    @MainActor
+@Test("1.16: 开局库加权随机 - 多次查询结果不完全相同")
     func testOpeningBookWeightedRandom() {
         let book = OpeningBook()
         let board = Board()
@@ -461,7 +487,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.17 搜索深度
 
-    @Test("1.17: 搜索深度 - 各难度AI均能返回走法")
+    @MainActor
+@Test("1.17: 搜索深度 - 各难度AI均能返回走法")
     func testSearchDepth() {
         let engine = AIEngine()
         // 中盘局面（走几步后）
@@ -481,7 +508,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.18 连将杀搜索
 
-    @Test("1.18: 连将杀搜索 - 连将杀局面")
+    @MainActor
+@Test("1.18: 连将杀搜索 - 连将杀局面")
     func testCheckmateSearch() {
         // 构造一个典型的连将杀局面：
         // 红方：帅(9,4), 车(3,0), 马(2,2)
@@ -535,7 +563,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.19 中文记谱
 
-    @Test("1.19: 中文记谱 - 炮八平五")
+    @MainActor
+@Test("1.19: 中文记谱 - 炮八平五")
     func testChineseNotation() {
         let board = Board()
         let from = Position(row: 7, col: 1) // 红方 col 1 = 八
@@ -557,7 +586,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.20 ICCS 记谱
 
-    @Test("1.20: ICCS记谱 - 炮八平五对应b2e2")
+    @MainActor
+@Test("1.20: ICCS记谱 - 炮八平五对应b2e2")
     func testICCSNotation() {
         let board = Board()
         let from = Position(row: 7, col: 1) // row 7 → digit 2, col 1 → b
@@ -582,7 +612,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.22 回放播放
 
-    @Test("1.22: 回放 - ReplayViewModel 基本功能")
+    @MainActor
+@Test("1.22: 回放 - ReplayViewModel 基本功能")
     func testReplayBasic() {
         // 构建一个简单的 GameRecord
         let board = Board()
@@ -618,7 +649,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.23 回放控制
 
-    @Test("1.23: 回放控制 - 前进/后退/首步/末步")
+    @MainActor
+@Test("1.23: 回放控制 - 前进/后退/首步/末步")
     func testReplayControls() {
         let board = Board()
         var moves: [GameMove] = []
@@ -677,7 +709,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.24 空记录回放
 
-    @Test("1.24: 空记录回放 - 不 crash")
+    @MainActor
+@Test("1.24: 空记录回放 - 不 crash")
     func testEmptyReplay() {
         let record = GameRecord(
             id: UUID(), title: "空对局", date: Date(),
@@ -706,7 +739,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.25 胜负统计
 
-    @Test("1.25: 胜负统计 - StatsManager 记录胜负和")
+    @MainActor
+@Test("1.25: 胜负统计 - StatsManager 记录胜负和")
     func testStatsRecording() {
         let stats = StatsManager.shared
         let key = "test_stats_\(Int(Date().timeIntervalSince1970))"
@@ -727,7 +761,8 @@ struct R3R1FunctionalTests {
 
     // MARK: 1.28 记谱格式切换
 
-    @Test("1.28: 记谱格式切换 - 切换后记谱立即生效")
+    @MainActor
+@Test("1.28: 记谱格式切换 - 切换后记谱立即生效")
     func testNotationFormatSwitch() {
         let board = Board()
         let from = Position(row: 7, col: 1)
@@ -753,7 +788,8 @@ struct R3R1FunctionalTests {
     // MARK: - 额外覆盖：GameViewModel 集成测试
     // ============================================================
 
-    @Test("GameViewModel: 新局后状态正确")
+    @MainActor
+@Test("GameViewModel: 新局后状态正确")
     func testGameViewModelNewGame() {
         let vm = GameViewModel()
         #expect(vm.gameState == .playing)
@@ -762,7 +798,8 @@ struct R3R1FunctionalTests {
         #expect(vm.isInCheck == false)
     }
 
-    @Test("GameViewModel: 撤销走子（配对撤销）")
+    @MainActor
+@Test("GameViewModel: 撤销走子（配对撤销）")
     func testGameViewModelUndo() {
         let vm = GameViewModel()
         // 直接在 board 上走两步（红+黑），然后测试 ViewModel 的 undo
@@ -787,7 +824,8 @@ struct R3R1FunctionalTests {
         #expect(vm.board.moveHistory.isEmpty, "撤销后历史应为空")
     }
 
-    @Test("GameViewModel: 难度设置")
+    @MainActor
+@Test("GameViewModel: 难度设置")
     func testGameViewModelDifficulty() {
         let vm = GameViewModel()
         for diff in AIDifficulty.allCases {
@@ -800,7 +838,8 @@ struct R3R1FunctionalTests {
     // MARK: - FEN 往返一致性
     // ============================================================
 
-    @Test("FEN 往返一致性 - 标准开局")
+    @MainActor
+@Test("FEN 往返一致性 - 标准开局")
     func testFENRoundTrip() {
         let original = FENParser.standardInitial
         let board = FENParser.parse(fen: original)
@@ -809,7 +848,8 @@ struct R3R1FunctionalTests {
         #expect(regenerated == original, "FEN 往返应一致")
     }
 
-    @Test("FEN 往返一致性 - 残局抽查")
+    @MainActor
+@Test("FEN 往返一致性 - 残局抽查")
     func testFENRoundTripPuzzles() {
         let store = PuzzleStore.shared
         let sample = Array(store.puzzles.prefix(5))

@@ -30,7 +30,8 @@ struct V2217FixTests {
     @Suite("Bug 1：残局失败后重试无法走子")
     struct Bug1PuzzleRetryTests {
 
-        @Test("resetPuzzle() 重置 isThinking 为 false")
+        @MainActor
+@Test("resetPuzzle() 重置 isThinking 为 false")
         func resetPuzzleClearsIsThinking() {
             let puzzle = V2217FixTests.makeTestPuzzle(id: "test-retry")
             let vm = PuzzleViewModel(puzzle: puzzle)
@@ -46,7 +47,8 @@ struct V2217FixTests {
             #expect(vm.isThinking == false, "resetPuzzle() 应将 isThinking 重置为 false")
         }
 
-        @Test("resetPuzzle() 后 gameState 恢复为 playing")
+        @MainActor
+@Test("resetPuzzle() 后 gameState 恢复为 playing")
         func resetPuzzleRestoresGameState() {
             let puzzle = V2217FixTests.makeTestPuzzle(id: "test-retry-state")
             let vm = PuzzleViewModel(puzzle: puzzle)
@@ -61,7 +63,8 @@ struct V2217FixTests {
             #expect(vm.isThinking == false, "resetPuzzle() 应将 isThinking 重置为 false")
         }
 
-        @Test("resetPuzzle() 后清空 gameMoves")
+        @MainActor
+@Test("resetPuzzle() 后清空 gameMoves")
         func resetPuzzleClearsGameMoves() {
             let puzzle = V2217FixTests.makeTestPuzzle(id: "test-retry-moves")
             let vm = PuzzleViewModel(puzzle: puzzle)
@@ -73,7 +76,8 @@ struct V2217FixTests {
             #expect(vm.legalMovesForSelected.isEmpty, "resetPuzzle() 应清空 legalMovesForSelected")
         }
 
-        @Test("resetPuzzle() 后可以选择棋子（isThinking 不阻塞）")
+        @MainActor
+@Test("resetPuzzle() 后可以选择棋子（isThinking 不阻塞）")
         func resetPuzzleAllowsSelection() {
             // 使用标准开局 FEN，确保红方有棋子可走
             let puzzle = V2217FixTests.makeTestPuzzle(
@@ -99,7 +103,8 @@ struct V2217FixTests {
             #expect(!moves.isEmpty, "重置后应能选择红炮并获取合法走法")
         }
 
-        @Test("triggerDefenderMove 将死/和局路径 isThinking 最终为 false")
+        @MainActor
+@Test("triggerDefenderMove 将死/和局路径 isThinking 最终为 false")
         func triggerDefenderCheckmateClearsIsThinking() async {
             // 构造黑方走棋的局面：黑方走后可能将死红方
             let puzzle = V2217FixTests.makeTestPuzzle(
@@ -119,7 +124,8 @@ struct V2217FixTests {
             #expect(vm.isThinking == false, "AI 走棋完成后 isThinking 应为 false")
         }
 
-        @Test("resetPuzzle() 后 puzzleVersion 递增（防止旧 Task 干扰）")
+        @MainActor
+@Test("resetPuzzle() 后 puzzleVersion 递增（防止旧 Task 干扰）")
         func resetPuzzleIncrementsVersion() {
             let puzzle = V2217FixTests.makeTestPuzzle(id: "test-version")
             let vm = PuzzleViewModel(puzzle: puzzle)
@@ -140,7 +146,8 @@ struct V2217FixTests {
     @Suite("Bug 2：设置页面 ScrollView 移除")
     struct Bug2SettingsViewTests {
 
-        @Test("SettingsView 不包含外层 ScrollView")
+        @MainActor
+@Test("SettingsView 不包含外层 ScrollView")
         func settingsViewNoOuterScrollView() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/SettingsView.swift"
@@ -170,7 +177,8 @@ struct V2217FixTests {
             #expect(!scrollViewBeforeForm, "SettingsView 不应在 Form 之前有外层 ScrollView")
         }
 
-        @Test("SettingsView 使用 .formStyle(.grouped)")
+        @MainActor
+@Test("SettingsView 使用 .formStyle(.grouped)")
         func settingsViewUsesGroupedFormStyle() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/SettingsView.swift"
@@ -183,7 +191,8 @@ struct V2217FixTests {
                    "SettingsView 应使用 .formStyle(.grouped) 提供自带滚动")
         }
 
-        @Test("SettingsView 包含所有必要的 Section")
+        @MainActor
+@Test("SettingsView 包含所有必要的 Section")
         func settingsViewContainsAllSections() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/SettingsView.swift"
@@ -205,7 +214,8 @@ struct V2217FixTests {
     @Suite("Bug 3：历史对局选中后不显示")
     struct Bug3HistoryReplayTests {
 
-        @Test("GameHistoryView 使用 onReplayRequest 回调（非内嵌 sheet）")
+        @MainActor
+@Test("GameHistoryView 使用 onReplayRequest 回调（非内嵌 sheet）")
         func gameHistoryViewUsesCallback() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameHistoryView.swift"
@@ -218,7 +228,8 @@ struct V2217FixTests {
             #expect(content.contains("onReplayRequest?"), "应通过回调通知上层，而非内嵌 sheet")
         }
 
-        @Test("iOS App 层使用 fullScreenCover(item:) 呈现 ReplayView")
+        @MainActor
+@Test("iOS App 层使用 fullScreenCover(item:) 呈现 ReplayView")
         func iOSAppUsesFullScreenCover() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"
@@ -231,7 +242,8 @@ struct V2217FixTests {
             #expect(content.contains("historyReplayRecord"), "应使用 historyReplayRecord 状态变量")
         }
 
-        @Test("macOS App 层使用 .sheet(item:) 呈现 ReplayView")
+        @MainActor
+@Test("macOS App 层使用 .sheet(item:) 呈现 ReplayView")
         func macOSAppUsesSheetItem() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -244,7 +256,8 @@ struct V2217FixTests {
             #expect(content.contains(".sheet(item:"), "macOS 应使用 .sheet(item:) 呈现历史回放")
         }
 
-        @Test("iOS GameHistoryView 的 onReplayRequest 回调设置 historyReplayRecord")
+        @MainActor
+@Test("iOS GameHistoryView 的 onReplayRequest 回调设置 historyReplayRecord")
         func iOSHistoryCallbackSetsRecord() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"
@@ -260,7 +273,8 @@ struct V2217FixTests {
                    "回调应将 record 赋值给 historyReplayRecord")
         }
 
-        @Test("GameHistoryView 不包含嵌套的 sheet 或 fullScreenCover")
+        @MainActor
+@Test("GameHistoryView 不包含嵌套的 sheet 或 fullScreenCover")
         func gameHistoryViewNoNestedSheet() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameHistoryView.swift"
@@ -279,39 +293,45 @@ struct V2217FixTests {
     @Suite("Bug 4：中级AI思考时间优化")
     struct Bug4MediumAITimeTests {
 
-        @Test("TimeManager.forDifficulty(.medium) 现在返回非 nil")
+        @MainActor
+@Test("TimeManager.forDifficulty(.medium) 现在返回非 nil")
         func mediumDifficultyReturnsTimeManager() {
             let tm = TimeManager.forDifficulty(.medium)
             #expect(tm != nil, ".medium 现在应返回 TimeManager（不再返回 nil）")
         }
 
-        @Test("TimeManager.forDifficulty(.medium, isIOS: true) 时间 ≤ 2000ms")
+        @MainActor
+@Test("TimeManager.forDifficulty(.medium, isIOS: true) 时间 ≤ 2000ms")
         func mediumIOSTimeLimit() {
             let tm = TimeManager.forDifficulty(.medium, isIOS: true)
             #expect(tm != nil, ".medium iOS 应返回 TimeManager")
             #expect(tm!.timeLimitMs <= 2000, ".medium iOS 时间上限应为 ≤2000ms，实际 \(tm!.timeLimitMs)")
         }
 
-        @Test("TimeManager.forDifficulty(.medium, isIOS: false) 时间 ≤ 3000ms")
+        @MainActor
+@Test("TimeManager.forDifficulty(.medium, isIOS: false) 时间 ≤ 3000ms")
         func mediumMacOSTimeLimit() {
             let tm = TimeManager.forDifficulty(.medium, isIOS: false)
             #expect(tm != nil, ".medium macOS 应返回 TimeManager")
             #expect(tm!.timeLimitMs <= 3000, ".medium macOS 时间上限应为 ≤3000ms，实际 \(tm!.timeLimitMs)")
         }
 
-        @Test("TimeManager.forDifficulty(.beginner) 仍返回 nil")
+        @MainActor
+@Test("TimeManager.forDifficulty(.beginner) 仍返回 nil")
         func beginnerStillReturnsNil() {
             let tm = TimeManager.forDifficulty(.beginner)
             #expect(tm == nil, ".beginner 应仍返回 nil")
         }
 
-        @Test("TimeManager.forDifficulty(.easy) 仍返回 nil")
+        @MainActor
+@Test("TimeManager.forDifficulty(.easy) 仍返回 nil")
         func easyStillReturnsNil() {
             let tm = TimeManager.forDifficulty(.easy)
             #expect(tm == nil, ".easy 应仍返回 nil")
         }
 
-        @Test("mediumSearch 实际思考时间 macOS ≤ 3.5s（含余量）")
+        @MainActor
+@Test("mediumSearch 实际思考时间 macOS ≤ 3.5s（含余量）")
         func mediumSearchTimeOnMacOS() async {
             let board = Board()  // 标准开局
             let engine = AIEngine()
@@ -324,7 +344,8 @@ struct V2217FixTests {
             #expect(elapsed <= 3.5, "medium AI macOS 思考时间应 ≤3s（含余量 0.5s），实际 \(String(format: "%.2f", elapsed))s")
         }
 
-        @Test("mediumSearch 返回合法走法（棋力不退化）")
+        @MainActor
+@Test("mediumSearch 返回合法走法（棋力不退化）")
         func mediumSearchReturnsLegalMove() {
             let board = Board()
             let engine = AIEngine()
@@ -339,7 +360,8 @@ struct V2217FixTests {
             }
         }
 
-        @Test("mediumSearch 使用 IDS + TimeManager.forDifficulty")
+        @MainActor
+@Test("mediumSearch 使用 IDS + TimeManager.forDifficulty")
         func mediumSearchUsesIDS() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/AI/AIEngine.swift"
@@ -364,7 +386,8 @@ struct V2217FixTests {
             }
         }
 
-        @Test("TimeManager 局面复杂度调整时间")
+        @MainActor
+@Test("TimeManager 局面复杂度调整时间")
         func timeManagerComplexityAdjustment() {
             // 简单局面：子力少，时间应偏短
             let simpleFEN = "4k4/9/9/9/9/9/9/9/9/4K4 w"
@@ -388,7 +411,8 @@ struct V2217FixTests {
     @Suite("Bug 5：当前难度展示")
     struct Bug5DifficultyDisplayTests {
 
-        @Test("StatusBarView 包含难度标签")
+        @MainActor
+@Test("StatusBarView 包含难度标签")
         func statusBarViewContainsDifficultyLabel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift"
@@ -401,7 +425,8 @@ struct V2217FixTests {
                    "StatusBarView 应显示难度标签")
         }
 
-        @Test("StatusBarView 难度标签使用黄色高对比（v2.2.21 增强）")
+        @MainActor
+@Test("StatusBarView 难度标签使用黄色高对比（v2.2.21 增强）")
         func statusBarViewDifficultyLabelColor() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift"
@@ -417,7 +442,8 @@ struct V2217FixTests {
                    "难度标签背景应使用 .brown.opacity(0.6)")
         }
 
-        @Test("iOS App 难度 Menu label 显示当前难度名")
+        @MainActor
+@Test("iOS App 难度 Menu label 显示当前难度名")
         func iOSAppDifficultyMenuLabel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"
@@ -430,7 +456,8 @@ struct V2217FixTests {
                    "iOS App 难度 Menu label 应显示当前难度名")
         }
 
-        @Test("AIDifficulty.displayName 对所有难度返回非空字符串")
+        @MainActor
+@Test("AIDifficulty.displayName 对所有难度返回非空字符串")
         func allDifficultyDisplayNames() {
             for difficulty in AIDifficulty.allCases {
                 let name = difficulty.displayName
@@ -444,7 +471,8 @@ struct V2217FixTests {
     @Suite("Bug 6：棋谱记录实时更新")
     struct Bug6RecordPanelTests {
 
-        @Test("RecordPanelView 有双初始化器")
+        @MainActor
+@Test("RecordPanelView 有双初始化器")
         func recordPanelDualInitializers() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/RecordPanelView.swift"
@@ -457,7 +485,8 @@ struct V2217FixTests {
             #expect(content.contains("init(gameMoves:"), "应有 init(gameMoves:) 初始化器")
         }
 
-        @Test("RecordPanelView 通过 viewModel 实时读取 gameMoves")
+        @MainActor
+@Test("RecordPanelView 通过 viewModel 实时读取 gameMoves")
         func recordPanelReadsFromViewModel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/RecordPanelView.swift"
@@ -470,7 +499,8 @@ struct V2217FixTests {
             #expect(content.contains("_viewModel?.gameMoves"), "gameMoves 应从 viewModel 实时读取")
         }
 
-        @Test("iOS App 棋谱 sheet 传入 viewModel（非静态 gameMoves）")
+        @MainActor
+@Test("iOS App 棋谱 sheet 传入 viewModel（非静态 gameMoves）")
         func iOSAppRecordSheetPassesViewModel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"
@@ -483,7 +513,8 @@ struct V2217FixTests {
                    "iOS 棋谱 sheet 应传入 gameViewModel 以实现实时更新")
         }
 
-        @Test("macOS App 棋谱 sheet 传入 viewModel")
+        @MainActor
+@Test("macOS App 棋谱 sheet 传入 viewModel")
         func macOSAppRecordSheetPassesViewModel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -496,7 +527,8 @@ struct V2217FixTests {
                    "macOS 棋谱 sheet 应传入 viewModel 以实现实时更新")
         }
 
-        @Test("GameViewModel.gameMoves 在走棋后增长")
+        @MainActor
+@Test("GameViewModel.gameMoves 在走棋后增长")
         func gameViewModelGameMovesGrowsAfterMove() {
             let vm = GameViewModel()
             let initialCount = vm.gameMoves.count
@@ -523,7 +555,8 @@ struct V2217FixTests {
     @Suite("追加：PuzzleRow VoiceOver accessibilityLabel")
     struct PuzzleRowAccessibilityTests {
 
-        @Test("PuzzleRow 使用 .accessibilityElement(children: .combine)")
+        @MainActor
+@Test("PuzzleRow 使用 .accessibilityElement(children: .combine)")
         func puzzleRowCombineChildren() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -552,7 +585,8 @@ struct V2217FixTests {
             }
         }
 
-        @Test("PuzzleRow 使用 accessibility.puzzleRow 格式化标签")
+        @MainActor
+@Test("PuzzleRow 使用 accessibility.puzzleRow 格式化标签")
         func puzzleRowAccessibilityLabel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -567,7 +601,8 @@ struct V2217FixTests {
                    "应使用 String(format:) 格式化标签")
         }
 
-        @Test("PuzzleRow 标签包含棋名、星级、通关状态")
+        @MainActor
+@Test("PuzzleRow 标签包含棋名、星级、通关状态")
         func puzzleRowLabelContainsAllInfo() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
@@ -587,7 +622,8 @@ struct V2217FixTests {
             }
         }
 
-        @Test("本地化 key puzzle.notCompleted 存在")
+        @MainActor
+@Test("本地化 key puzzle.notCompleted 存在")
         func puzzleNotCompletedKeyExists() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Resources/Localizable.xcstrings"
@@ -600,7 +636,8 @@ struct V2217FixTests {
                    "Localizable.xcstrings 应包含 puzzle.notCompleted key")
         }
 
-        @Test("本地化 key accessibility.puzzleRow 存在且中英文完整")
+        @MainActor
+@Test("本地化 key accessibility.puzzleRow 存在且中英文完整")
         func puzzleRowKeyBilingual() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Resources/Localizable.xcstrings"
@@ -621,7 +658,8 @@ struct V2217FixTests {
     @Suite("跨平台回归：Bug 3/5/6 涉及改动")
     struct CrossPlatformRegressionTests {
 
-        @Test("macOS App 定义了 historyReplayRecord 状态")
+        @MainActor
+@Test("macOS App 定义了 historyReplayRecord 状态")
         func macOSHistoryReplayRecordExists() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -634,7 +672,8 @@ struct V2217FixTests {
                    "macOS App 应定义 historyReplayRecord 状态变量")
         }
 
-        @Test("macOS StatusBarView 也显示难度标签")
+        @MainActor
+@Test("macOS StatusBarView 也显示难度标签")
         func macOSStatusBarShowsDifficulty() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StatusBarView.swift"
@@ -647,7 +686,8 @@ struct V2217FixTests {
                    "StatusBarView（macOS/iOS 共用）应显示难度标签")
         }
 
-        @Test("macOS RecordPanelView 使用 viewModel 路径")
+        @MainActor
+@Test("macOS RecordPanelView 使用 viewModel 路径")
         func macOSRecordPanelUsesViewModel() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
@@ -660,7 +700,8 @@ struct V2217FixTests {
                    "macOS 棋谱面板应使用 viewModel 初始化器")
         }
 
-        @Test("GameHistoryView 在两个平台都使用 onReplayRequest 回调")
+        @MainActor
+@Test("GameHistoryView 在两个平台都使用 onReplayRequest 回调")
         func bothPlatformsUseCallback() {
             let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
             let iosPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessiOSApp.swift"

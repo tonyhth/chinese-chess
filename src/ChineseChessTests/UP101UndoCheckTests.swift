@@ -7,7 +7,8 @@ import Foundation
 @Suite("U-P1-01 悔棋场景 isInCheck 验证")
 struct UP101UndoCheckTests {
 
-    @Test("undoMove 后 isInCheck 正确更新：从非将军→将军→悔棋→非将军")
+    @MainActor
+@Test("undoMove 后 isInCheck 正确更新：从非将军→将军→悔棋→非将军")
     func testUndoMoveUpdatesIsInCheck() {
         let vm = GameViewModel()
         // 初始局面：红方不被将军
@@ -43,7 +44,8 @@ struct UP101UndoCheckTests {
         }
     }
 
-    @Test("undoMove 代码路径：isInCheck 重新计算而非保持旧值")
+    @MainActor
+@Test("undoMove 代码路径：isInCheck 重新计算而非保持旧值")
     func testUndoMoveRecalculatesIsInCheck() {
         // 行为验证：undoMove 后 isInCheck 与 MoveValidator 独立计算结果一致
         // 这证明 undoMove 内部确实重新计算了 isInCheck
@@ -69,7 +71,8 @@ struct UP101UndoCheckTests {
         }
     }
 
-    @Test("newGame 重置 isInCheck 为 false")
+    @MainActor
+@Test("newGame 重置 isInCheck 为 false")
     func testNewGameResetsIsInCheck() {
         let vm = GameViewModel()
         vm.isInCheck = true
@@ -77,7 +80,8 @@ struct UP101UndoCheckTests {
         #expect(!vm.isInCheck, "newGame 后 isInCheck 应为 false")
     }
 
-    @Test("构造将军局面：undoMove 从将军态恢复为非将军态")
+    @MainActor
+@Test("构造将军局面：undoMove 从将军态恢复为非将军态")
     func testUndoFromCheckState() {
         // 构造一个红方走完后被将军的局面
         // FEN: 黑车在红帅同一列，红方走开后暴露将军
@@ -115,7 +119,8 @@ struct UP101UndoCheckTests {
         #expect(true, "MoveValidator 过滤送将，正常走棋中不会出现 undoMove 从将军恢复的场景")
     }
 
-    @Test("悔棋场景：连续 undoMove 后 isInCheck 保持一致")
+    @MainActor
+@Test("悔棋场景：连续 undoMove 后 isInCheck 保持一致")
     func testConsecutiveUndoIsInCheck() {
         let vm = GameViewModel()
         // 走 3 对（6 步）
@@ -141,7 +146,8 @@ struct UP101UndoCheckTests {
 
     // MARK: - 其他易用性路径补充验证
 
-    @Test("U-P0-01: PuzzleSelectView 空状态有图标+文字+最小高度")
+    @MainActor
+@Test("U-P0-01: PuzzleSelectView 空状态有图标+文字+最小高度")
     func testUP001EmptyStateComplete() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift")
@@ -152,7 +158,8 @@ struct UP101UndoCheckTests {
         #expect(content.contains("minHeight: 120"), "最小高度")
     }
 
-    @Test("U-P0-02: 失败弹窗有重试+返回+resetPuzzle")
+    @MainActor
+@Test("U-P0-02: 失败弹窗有重试+返回+resetPuzzle")
     func testUP002FailedRetryComplete() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift")
@@ -164,7 +171,8 @@ struct UP101UndoCheckTests {
         #expect(content.contains("common.back"), "返回按钮键")
     }
 
-    @Test("U-P1-02: macOS 棋局菜单含快捷键")
+    @MainActor
+@Test("U-P1-02: macOS 棋局菜单含快捷键")
     func testUP102MacOSMenu() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift")
@@ -175,7 +183,8 @@ struct UP101UndoCheckTests {
         #expect(content.contains("keyboardShortcut(\"h\""), "Cmd+Shift+H")
     }
 
-    @Test("U-P1-03: ReplayControlView Slider 替代 ProgressView")
+    @MainActor
+@Test("U-P1-03: ReplayControlView Slider 替代 ProgressView")
     func testUP103Slider() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayControlView.swift")
@@ -184,7 +193,8 @@ struct UP101UndoCheckTests {
         #expect(!content.contains("ProgressView("), "不用 ProgressView")
     }
 
-    @Test("U-P1-04: 残局提示蓝色高亮起点+终点")
+    @MainActor
+@Test("U-P1-04: 残局提示蓝色高亮起点+终点")
     func testUP104HintHighlight() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let boardContent = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift")
@@ -193,7 +203,8 @@ struct UP101UndoCheckTests {
         #expect(boardContent.contains("Color.blue"), "蓝色高亮")
     }
 
-    @Test("U-P2-02: GameOverOverlay 查看棋谱+App回调")
+    @MainActor
+@Test("U-P2-02: GameOverOverlay 查看棋谱+App回调")
     func testUP202ViewRecord() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let overlay = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift")

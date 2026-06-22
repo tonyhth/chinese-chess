@@ -7,7 +7,8 @@ struct UIBugI18nTests {
 
     // MARK: - 1. GameOverOverlay allowsHitTesting 修复验证
 
-    @Test("GameOverOverlay：allowsHitTesting(false) 不影响逻辑层")
+    @MainActor
+@Test("GameOverOverlay：allowsHitTesting(false) 不影响逻辑层")
     func gameOverOverlayLogic() {
         // allowsHitTesting 是 SwiftUI View modifier，无法在单元测试中直接验证属性
         // 但可以验证 GameState 枚举值正确映射到三种状态
@@ -18,7 +19,8 @@ struct UIBugI18nTests {
         }
     }
 
-    @Test("GameOverOverlay：onViewRecord 回调可触发")
+    @MainActor
+@Test("GameOverOverlay：onViewRecord 回调可触发")
     func gameOverOverlayCallback() {
         var triggered = false
         let callback: () -> Void = { triggered = true }
@@ -29,7 +31,8 @@ struct UIBugI18nTests {
 
     // MARK: - 2. 棋盘 frame 约束验证（PuzzlePlayView + ReplayView）
 
-    @Test("PuzzleViewModel：走棋过程中 board 实例持续有效")
+    @MainActor
+@Test("PuzzleViewModel：走棋过程中 board 实例持续有效")
     func puzzleBoardConsistencyDuringMoves() {
         let puzzles = PuzzleStore.shared.puzzles
         guard let puzzle = puzzles.first else {
@@ -55,7 +58,8 @@ struct UIBugI18nTests {
         #expect(vm.board.generalPosition(of: .black) != nil)
     }
 
-    @Test("ReplayViewModel：跳转后棋盘实例持续有效")
+    @MainActor
+@Test("ReplayViewModel：跳转后棋盘实例持续有效")
     func replayBoardConsistencyDuringJump() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -68,7 +72,8 @@ struct UIBugI18nTests {
         }
     }
 
-    @Test("ReplayViewModel：前进到末尾棋盘状态完整")
+    @MainActor
+@Test("ReplayViewModel：前进到末尾棋盘状态完整")
     func replayBoardStateAtEnd() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -80,7 +85,8 @@ struct UIBugI18nTests {
 
     // MARK: - 3. i18n 键完整性验证
 
-    @Test("i18n：所有变更文件中使用的 String(localized:) 键在 xcstrings 中存在")
+    @MainActor
+@Test("i18n：所有变更文件中使用的 String(localized:) 键在 xcstrings 中存在")
     func i18nKeysExist() {
         // 代码变更中使用的 53 个键（已在手动审查中确认全部存在）
         // 这里验证 xcstrings 能被正确加载解析
@@ -94,7 +100,8 @@ struct UIBugI18nTests {
         #expect(url != nil)
     }
 
-    @Test("i18n：GameState 枚举映射到正确的本地化键前缀")
+    @MainActor
+@Test("i18n：GameState 枚举映射到正确的本地化键前缀")
     func gameStateLocalizationMapping() {
         // 验证 GameState 三种终局状态都有对应的 gameover.* 键
         let keys = [
@@ -107,7 +114,8 @@ struct UIBugI18nTests {
         #expect(keys.count == 4)
     }
 
-    @Test("i18n：难度选项 5 级全覆盖")
+    @MainActor
+@Test("i18n：难度选项 5 级全覆盖")
     func difficultyLocalizationComplete() {
         let difficultyKeys = [
             "difficulty.beginner",
@@ -121,7 +129,8 @@ struct UIBugI18nTests {
         #expect(difficultyKeys.count == difficulties.count)
     }
 
-    @Test("i18n：状态栏文字全部提取（红方走棋/黑方走棋/AI思考中/将军/回合/损失）")
+    @MainActor
+@Test("i18n：状态栏文字全部提取（红方走棋/黑方走棋/AI思考中/将军/回合/损失）")
     func statusBarLocalizationComplete() {
         let statusKeys = [
             "status.redTurn",
@@ -137,7 +146,8 @@ struct UIBugI18nTests {
         #expect(statusKeys.count == 9)
     }
 
-    @Test("i18n：工具栏 accessibilityLabel 全部提取")
+    @MainActor
+@Test("i18n：工具栏 accessibilityLabel 全部提取")
     func toolbarAccessibilityLocalizationComplete() {
         let toolbarKeys = [
             "game.newGame",
@@ -149,7 +159,8 @@ struct UIBugI18nTests {
 
     // MARK: - 4. 硬编码中文遗漏检查
 
-    @Test("i18n：GameOverOverlay '查看棋谱' 已提取为 localized")
+    @MainActor
+@Test("i18n：GameOverOverlay '查看棋谱' 已提取为 localized")
     func gameOverOverlayLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift")
@@ -157,7 +168,8 @@ struct UIBugI18nTests {
         #expect(content.contains("gameover.viewRecord"), "GameOverOverlay '查看棋谱' 应使用 gameover.viewRecord 键")
     }
 
-    @Test("i18n：SettingsView Section 标题 '音效' 已提取为 localized")
+    @MainActor
+@Test("i18n：SettingsView Section 标题 '音效' 已提取为 localized")
     func settingsViewLocalized() {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/SettingsView.swift")
@@ -167,7 +179,8 @@ struct UIBugI18nTests {
 
     // MARK: - 5. 功能回归：AI 难度正常走棋
 
-    @Test("AI 回归：beginner 正常走棋")
+    @MainActor
+@Test("AI 回归：beginner 正常走棋")
     func aiBeginnerMove() {
         let engine = AIEngine()
         let board = Board()
@@ -175,7 +188,8 @@ struct UIBugI18nTests {
         #expect(move != nil)
     }
 
-    @Test("AI 回归：medium 正常走棋")
+    @MainActor
+@Test("AI 回归：medium 正常走棋")
     func aiMediumMove() {
         let engine = AIEngine()
         let board = Board()
@@ -183,7 +197,8 @@ struct UIBugI18nTests {
         #expect(move != nil)
     }
 
-    @Test("AI 回归：master 正常走棋")
+    @MainActor
+@Test("AI 回归：master 正常走棋")
     func aiMasterMove() {
         let engine = AIEngine()
         let board = Board()
@@ -193,7 +208,8 @@ struct UIBugI18nTests {
 
     // MARK: - 6. 功能回归：残局/回放正常
 
-    @Test("残局回归：PuzzleViewModel 初始化正常")
+    @MainActor
+@Test("残局回归：PuzzleViewModel 初始化正常")
     func puzzleViewModelRegression() {
         let puzzles = PuzzleStore.shared.puzzles
         guard let puzzle = puzzles.first else { return }
@@ -202,7 +218,8 @@ struct UIBugI18nTests {
         #expect(vm.board.pieces.count > 0)
     }
 
-    @Test("回放回归：ReplayViewModel 完整流程")
+    @MainActor
+@Test("回放回归：ReplayViewModel 完整流程")
     func replayViewModelRegression() {
         let record = Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
@@ -222,7 +239,8 @@ struct UIBugI18nTests {
         }
     }
 
-    @Test("回放回归：空记录不 crash")
+    @MainActor
+@Test("回放回归：空记录不 crash")
     func replayViewModelEmptyRegression() {
         let record = Self.makeTestRecord(moves: [])
         let vm = ReplayViewModel(record: record)
@@ -235,14 +253,16 @@ struct UIBugI18nTests {
 
     // MARK: - 7. GameViewModel 回归
 
-    @Test("GameViewModel 回归：新局 32 子")
+    @MainActor
+@Test("GameViewModel 回归：新局 32 子")
     func gameViewModelRegression() {
         let vm = GameViewModel()
         #expect(vm.board.pieces.count == 32)
         #expect(vm.gameState == .playing)
     }
 
-    @Test("GameViewModel 回归：棋局结束后 GameState 正确")
+    @MainActor
+@Test("GameViewModel 回归：棋局结束后 GameState 正确")
     func gameViewModelGameOverState() {
         let vm = GameViewModel()
         // 初始状态

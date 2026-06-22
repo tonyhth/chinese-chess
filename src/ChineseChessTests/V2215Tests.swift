@@ -12,13 +12,15 @@ struct V2215Tests {
     @Suite("xcstrings 翻译完整性", .serialized)
     struct XcstringsIntegrityTests {
 
-        @Test("xcstrings 包含 151 个 key（138 原有 + 17 新增）")
+        @MainActor
+@Test("xcstrings 包含 151 个 key（138 原有 + 17 新增）")
         func xcstringsKeyCount() {
             let keys = Self.loadKeys()
             #expect(keys.count == 162, "期望 162 key，实际 \(keys.count)")
         }
 
-        @Test("13 个新增 key 全部存在")
+        @MainActor
+@Test("13 个新增 key 全部存在")
         func newKeysExist() {
             let keys = Self.loadKeys()
             let newKeys = [
@@ -45,7 +47,8 @@ struct V2215Tests {
             #expect(missing.isEmpty, "缺失的新 key: \(missing)")
         }
 
-        @Test("en 翻译全覆盖（151 key）")
+        @MainActor
+@Test("en 翻译全覆盖（151 key）")
         func enTranslationComplete() {
             let (keys, locs) = Self.loadWithLocs()
             var missing: [String] = []
@@ -60,7 +63,8 @@ struct V2215Tests {
             #expect(missing.isEmpty, "en 缺失: \(missing)")
         }
 
-        @Test("zh-Hans 翻译全覆盖（151 key）")
+        @MainActor
+@Test("zh-Hans 翻译全覆盖（151 key）")
         func zhHansTranslationComplete() {
             let (keys, locs) = Self.loadWithLocs()
             var missing: [String] = []
@@ -75,7 +79,8 @@ struct V2215Tests {
             #expect(missing.isEmpty, "zh-Hans 缺失: \(missing)")
         }
 
-        @Test("新增 accessibility key 的 en 翻译不含中文")
+        @MainActor
+@Test("新增 accessibility key 的 en 翻译不含中文")
         func newAccessibilityKeysEnNoChinese() {
             let (_, locs) = Self.loadWithLocs()
             let newKeys = ["accessibility.board", "accessibility.pieceHint", "accessibility.rowN",
@@ -97,7 +102,8 @@ struct V2215Tests {
             #expect(violations.isEmpty, "新增 accessibility key en 含中文: \(violations)")
         }
 
-        @Test("新增 replay key 的 en 翻译不含中文")
+        @MainActor
+@Test("新增 replay key 的 en 翻译不含中文")
         func newReplayKeysEnNoChinese() {
             let (_, locs) = Self.loadWithLocs()
             let newKeys = ["replay.firstMove", "replay.previous", "replay.play",
@@ -149,7 +155,8 @@ struct V2215Tests {
     @Suite("动态字体迁移验证", .serialized)
     struct DynamicTypeMigrationTests {
 
-        @Test("Views 中仅剩 1 处 .system(size:)（ChessBoardView cellSize 计算）")
+        @MainActor
+@Test("Views 中仅剩 1 处 .system(size:)（ChessBoardView cellSize 计算）")
         func onlyCellSizeBasedSystemFontRemains() {
             let viewsDir = "\(NSHomeDirectory())/DevTeam/projects/chinese-chess/src/ChineseChess/Views"
             let fm = FileManager.default
@@ -178,7 +185,8 @@ struct V2215Tests {
             #expect(hardcodedCount == 0, "仍有 \(hardcodedCount) 处硬编码 .system(size:): \(hardcodedFiles)")
         }
 
-        @Test("ChessBoardView 保留的 .system(size:) 基于 cellSize 计算（合理）")
+        @MainActor
+@Test("ChessBoardView 保留的 .system(size:) 基于 cellSize 计算（合理）")
         func chessBoardCellSizeFontIsValid() {
             let path = "\(NSHomeDirectory())/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift"
             guard let content = try? String(contentsOfFile: path) else {
@@ -189,7 +197,8 @@ struct V2215Tests {
             #expect(content.contains("cellSize * 0.3"), "ChessBoardView 应保留基于 cellSize 的字体计算")
         }
 
-        @Test("9 个文件已迁移到语义字体")
+        @MainActor
+@Test("9 个文件已迁移到语义字体")
         func semanticFontMigrationCount() {
             let viewsDir = "\(NSHomeDirectory())/DevTeam/projects/chinese-chess/src/ChineseChess/Views"
             let fm = FileManager.default
@@ -220,7 +229,8 @@ struct V2215Tests {
     @Suite("VoiceOver accessibility 验证", .serialized)
     struct VoiceOverAccessibilityTests {
 
-        @Test("ChessBoardView 有 accessibility 容器和标签")
+        @MainActor
+@Test("ChessBoardView 有 accessibility 容器和标签")
         func chessBoardAccessibilityContainer() {
             let content = Self.readFile("ChineseChess/Views/ChessBoardView.swift")
             guard let content = content else {
@@ -231,7 +241,8 @@ struct V2215Tests {
             #expect(content.contains("accessibility.board"), "ChessBoardView 应有 accessibilityLabel")
         }
 
-        @Test("PieceView 有 accessibilityLabel + Hint + isButton trait")
+        @MainActor
+@Test("PieceView 有 accessibilityLabel + Hint + isButton trait")
         func pieceViewAccessibility() {
             let content = Self.readFile("ChineseChess/Views/PieceView.swift")
             guard let content = content else {
@@ -243,7 +254,8 @@ struct V2215Tests {
             #expect(content.contains(".accessibilityAddTraits(.isButton)"), "PieceView 应有 isButton trait")
         }
 
-        @Test("PieceView 使用 rowN/colN 格式（不再用 a-i 列号）")
+        @MainActor
+@Test("PieceView 使用 rowN/colN 格式（不再用 a-i 列号）")
         func pieceViewRowColFormat() {
             let content = Self.readFile("ChineseChess/Views/PieceView.swift")
             guard let content = content else { return }
@@ -254,7 +266,8 @@ struct V2215Tests {
             #expect(!content.contains("abcdefghi"), "PieceView 不应使用旧的 a-i 列号格式")
         }
 
-        @Test("ReplayControlView 5 个按钮全部有 accessibilityLabel")
+        @MainActor
+@Test("ReplayControlView 5 个按钮全部有 accessibilityLabel")
         func replayControlAccessibility() {
             let content = Self.readFile("ChineseChess/Views/ReplayControlView.swift")
             guard let content = content else {
@@ -269,7 +282,8 @@ struct V2215Tests {
             #expect(content.contains("replay.lastMove"), "末步按钮")
         }
 
-        @Test("Overlay/Panel 组件有 accessibilityElement(children: .combine)")
+        @MainActor
+@Test("Overlay/Panel 组件有 accessibilityElement(children: .combine)")
         func overlayCombineAccessibility() {
             let files = ["StatusBarView.swift", "StatsPanelView.swift", "GameOverOverlay.swift", "GameHistoryView.swift"]
             for file in files {
@@ -280,7 +294,8 @@ struct V2215Tests {
             }
         }
 
-        @Test("PuzzleSelectView 成功/失败弹窗有 accessibility 标签")
+        @MainActor
+@Test("PuzzleSelectView 成功/失败弹窗有 accessibility 标签")
         func puzzleOverlayAccessibility() {
             let content = Self.readFile("ChineseChess/Views/PuzzleSelectView.swift")
             guard let content = content else { return }
@@ -288,7 +303,8 @@ struct V2215Tests {
             #expect(content.contains("accessibility.puzzleFailed"), "失败弹窗应有 accessibility 标签")
         }
 
-        @Test("ToolbarView 保持已有的 accessibilityLabel + Hint（iOS/macOS）")
+        @MainActor
+@Test("ToolbarView 保持已有的 accessibilityLabel + Hint（iOS/macOS）")
         func toolbarAccessibilityRetained() {
             let content = Self.readFile("ChineseChess/Views/ToolbarView.swift")
             guard let content = content else { return }
@@ -310,7 +326,8 @@ struct V2215Tests {
     @Suite("macOS 英文布局适配", .serialized)
     struct MacOSLayoutTests {
 
-        @Test("SettingsView Picker 统一为 .menu（移除 #if os(iOS) 条件）")
+        @MainActor
+@Test("SettingsView Picker 统一为 .menu（移除 #if os(iOS) 条件）")
         func settingsViewPickerUnified() {
             let content = Self.readFile("ChineseChess/Views/SettingsView.swift")
             guard let content = content else { return }
@@ -319,7 +336,8 @@ struct V2215Tests {
             #expect(content.contains(".pickerStyle(.menu)"), "SettingsView 应使用 .menu")
         }
 
-        @Test("ToolbarView macOS Picker 从 .segmented 改为 .menu")
+        @MainActor
+@Test("ToolbarView macOS Picker 从 .segmented 改为 .menu")
         func toolbarViewPickerChanged() {
             let content = Self.readFile("ChineseChess/Views/ToolbarView.swift")
             guard let content = content else { return }
@@ -327,7 +345,8 @@ struct V2215Tests {
             #expect(!content.contains(".pickerStyle(.segmented)"), "ToolbarView 不应再使用 .segmented")
         }
 
-        @Test("StatsPanelView 难度标签从 frame(width:40) 改为 frame(minWidth:50)")
+        @MainActor
+@Test("StatsPanelView 难度标签从 frame(width:40) 改为 frame(minWidth:50)")
         func statsPanelMinWidth() {
             let content = Self.readFile("ChineseChess/Views/StatsPanelView.swift")
             guard let content = content else { return }
@@ -346,7 +365,8 @@ struct V2215Tests {
     @Suite("变更文件硬编码中文检查", .serialized)
     struct ChangedFilesHardcodedChineseTests {
 
-        @Test("ReplayControlView 无硬编码中文（accessibilityLabel 使用 localized key）")
+        @MainActor
+@Test("ReplayControlView 无硬编码中文（accessibilityLabel 使用 localized key）")
         func replayControlNoHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/ReplayControlView.swift")
             guard let content = content else { return }
@@ -366,7 +386,8 @@ struct V2215Tests {
             }
         }
 
-        @Test("PieceView 无硬编码中文（defaultValue 除外）")
+        @MainActor
+@Test("PieceView 无硬编码中文（defaultValue 除外）")
         func pieceViewNoHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/PieceView.swift")
             guard let content = content else { return }
@@ -385,7 +406,8 @@ struct V2215Tests {
             }
         }
 
-        @Test("PuzzleSelectView 变更部分无新增硬编码中文")
+        @MainActor
+@Test("PuzzleSelectView 变更部分无新增硬编码中文")
         func puzzleSelectNoNewHardcodedChinese() {
             let content = Self.readFile("ChineseChess/Views/PuzzleSelectView.swift")
             guard let content = content else { return }
@@ -418,14 +440,16 @@ struct V2215Tests {
     @Suite("全量回归", .serialized)
     struct FullRegressionTests {
 
-        @Test("新局 32 子，GameState = playing")
+        @MainActor
+@Test("新局 32 子，GameState = playing")
         func newGameRegression() {
             let vm = GameViewModel()
             #expect(vm.board.pieces.count == 32)
             #expect(vm.gameState == .playing)
         }
 
-        @Test("AI 各难度正常走棋")
+        @MainActor
+@Test("AI 各难度正常走棋")
         func aiAllDifficulties() {
             let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
             for diff in difficulties {
@@ -436,7 +460,8 @@ struct V2215Tests {
             }
         }
 
-        @Test("PuzzleViewModel 正常初始化")
+        @MainActor
+@Test("PuzzleViewModel 正常初始化")
         func puzzleViewModelRegression() {
             let puzzles = PuzzleStore.shared.puzzles
             guard let puzzle = puzzles.first else {
@@ -448,7 +473,8 @@ struct V2215Tests {
             #expect(vm.board.pieces.count > 0)
         }
 
-        @Test("ReplayViewModel 完整流程")
+        @MainActor
+@Test("ReplayViewModel 完整流程")
         func replayViewModelRegression() {
             let record = Self.makeTestRecord()
             let vm = ReplayViewModel(record: record)
@@ -460,7 +486,8 @@ struct V2215Tests {
             #expect(vm.currentIndex == 0)
         }
 
-        @Test("ReplayViewModel 空记录不 crash")
+        @MainActor
+@Test("ReplayViewModel 空记录不 crash")
         func replayViewModelEmptyNoCrash() {
             let record = Self.makeTestRecord(moves: [])
             let vm = ReplayViewModel(record: record)
@@ -471,7 +498,8 @@ struct V2215Tests {
             vm.goToEnd()
         }
 
-        @Test("LanguageManager 语言切换回归")
+        @MainActor
+@Test("LanguageManager 语言切换回归")
         func languageManagerRegression() {
             let lm = L10n.shared
             lm.setLanguage("en")
