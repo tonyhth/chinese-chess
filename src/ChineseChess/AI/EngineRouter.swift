@@ -26,6 +26,48 @@ final class EngineRouter {
         return nativeEngine
     }
 
+    #if os(macOS)
+    /// 检查并执行引擎切换（如有必要）——在对局开始前调用
+    /// - Returns: 切换后的活跃引擎。启动失败时 fallback 到自研引擎。
+    @MainActor
+    func switchEngineIfNeeded() async -> any ChessEngine {
+        let store = EngineConfigStore.shared
+
+        if let selectedId = store.selectedEngineId,
+           let config = store.engines.first(where: { $0.id == selectedId }),
+           config.isEnabled {
+            // 配置没变，引擎已存在——无需切换
+            if currentConfigId == config.id {
+                return externalEngine ?? nativeEngine
+            }
+            // 配置变更——重新创建并启动
+            if let ext = externalEngine {
+                await ext.shutdown()
+            }
+            let newEngine = ExternalEngineManager(config: config)
+            do {
+                try await newEngine.start()
+                externalEngine = newEngine
+                currentConfigId = config.id
+                return newEngine
+            } catch {
+                // 启动失败——fallback
+                externalEngine = nil
+                currentConfigId = nil
+                return nativeEngine
+            }
+        } else {
+            // 使用自研引擎——清理外部引擎
+            if let ext = externalEngine {
+                await ext.shutdown()
+                externalEngine = nil
+                currentConfigId = nil
+            }
+            return nativeEngine
+        }
+    }
+    #endif
+
     /// 获取自研引擎（直接访问，不受路由影响）
     var native: AIEngine { nativeEngine }
 

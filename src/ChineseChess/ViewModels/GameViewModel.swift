@@ -36,7 +36,8 @@ class GameViewModel {
     // Phase 3: 走法记录（含棋谱）
     var gameMoves: [GameMove] = []
 
-    private let aiEngine = AIEngine()
+    // v3.1 Phase 2c: 引擎切换标志——对局开始时执行 switchEngineIfNeeded()
+    private var engineSwitched = false
 
     init() {
         self.board = Board()
@@ -183,7 +184,17 @@ class GameViewModel {
         isInCheck = false
         gameMoves = []
         hintMove = nil
-        aiEngine.clearHistory()
+
+        // v3.1 Phase 2c: 引擎切换 + newGame
+        EngineRouter.shared.newGame()
+        #if os(macOS)
+        if !engineSwitched {
+            Task {
+                _ = await EngineRouter.shared.switchEngineIfNeeded()
+                engineSwitched = true
+            }
+        }
+        #endif
 
         // v3.0 Phase 5: 玩家执黑时 AI（红方）先行
         if humanSide == .black {
@@ -212,22 +223,34 @@ class GameViewModel {
     func requestHint() {
         guard !isThinking, gameState == .playing else { return }
         isThinking = true
-        let snapshot = board.snapshot()
-        let engine = self.aiEngine
-        let diff = difficulty
+        let currentDifficulty = difficulty
         let currentVersion = gameVersion
-        Task.detached {
-            let move = engine.bestMove(for: snapshot, difficulty: diff, isIOS: Self._isIOS)
-            await MainActor.run { [weak self] in
-                guard let self, self.gameVersion == currentVersion else {
-                    self?.isThinking = false
-                    return
-                }
-                if let move = move {
-                    self.hintMove = (from: move.from, to: move.to)
-                }
+
+        // v3.1 Phase 2c: 使用 ChessEngine 协议
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let engine = EngineRouter.shared.activeEngine()
+            let fen = FENParser.generate(board: self.board)
+            let uciMoves = self.board.moveHistory.map { UCIMoveConverter.uciString(from: $0) }
+            
+            let uciMove = await engine.bestMove(
+                fen: fen,
+                moveHistory: uciMoves,
+                difficulty: currentDifficulty,
+                timeLimitMs: 0
+            )
+            
+            guard self.gameVersion == currentVersion else {
                 self.isThinking = false
+                return
             }
+            
+            if let uciMove = uciMove,
+               let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
+                self.hintMove = (from: move.from, to: move.to)
+            }
+            self.isThinking = false
         }
     }
 
@@ -235,66 +258,83 @@ class GameViewModel {
 
     private func triggerAIMove() {
         isThinking = true
-        let snapshot = board.snapshot()
         let currentDifficulty = difficulty
         let currentVersion = gameVersion
+        let humanSide = self.humanSide
 
-        let engine = self.aiEngine
-        Task.detached {
-            let move = engine.bestMove(for: snapshot, difficulty: currentDifficulty, isIOS: Self._isIOS)
-            await MainActor.run { [weak self] in
-                guard let self, self.gameVersion == currentVersion else {
-                    self?.isThinking = false
-                    return
-                }
-                if let move = move {
-                    let mainPiece = self.board.pieces.first { $0.id == move.piece.id }
-                    if let mainPiece = mainPiece {
-                        let captured = self.board.piece(at: move.to)
+        // v3.1 Phase 2c: 使用 ChessEngine 协议
+        Task { [weak self] in
+            guard let self else { return }
+            
+            let engine = EngineRouter.shared.activeEngine()
+            let fen = FENParser.generate(board: self.board)
+            let uciMoves = self.board.moveHistory.map { UCIMoveConverter.uciString(from: $0) }
+            
+            let uciMove = await engine.bestMove(
+                fen: fen,
+                moveHistory: uciMoves,
+                difficulty: currentDifficulty,
+                timeLimitMs: 0
+            )
+            
+            guard self.gameVersion == currentVersion else {
+                self.isThinking = false
+                return
+            }
+            
+            if let uciMove = uciMove,
+               let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
+                let mainPiece = self.board.pieces.first { $0.id == move.piece.id }
+                if let mainPiece = mainPiece {
+                    let captured = self.board.piece(at: move.to)
 
-                        // 生成棋谱（execute 之前）
-                        let aiMove = Move(piece: mainPiece, from: mainPiece.position, to: move.to, captured: captured)
-                        let notation = NotationGenerator.notation(for: aiMove, on: self.board)
+                    // 生成棋谱（execute 之前）
+                    let aiMove = Move(piece: mainPiece, from: mainPiece.position, to: move.to, captured: captured)
+                    let notation = NotationGenerator.notation(for: aiMove, on: self.board)
 
-                        self.board.execute(aiMove)
+                    self.board.execute(aiMove)
 
-                        // 记录 AI 的 GameMove
-                        let turnNumber = (self.gameMoves.count / 2) + 1
-                        let isCheck = MoveValidator.isInCheck(self.humanSide, on: self.board)
+                    // 记录 AI 的 GameMove
+                    let turnNumber = (self.gameMoves.count / 2) + 1
+                    let isCheck = MoveValidator.isInCheck(humanSide, on: self.board)
 
-                        let gameMove = GameMove(
-                            id: UUID(),
-                            piece: mainPiece,
-                            from: aiMove.from,
-                            to: aiMove.to,
-                            captured: captured,
-                            turnNumber: turnNumber,
-                            notation: notation,
-                            timestamp: Date(),
-                            isCheck: isCheck,
-                            isCheckmate: false
-                        )
-                        self.gameMoves.append(gameMove)
+                    let gameMove = GameMove(
+                        id: UUID(),
+                        piece: mainPiece,
+                        from: aiMove.from,
+                        to: aiMove.to,
+                        captured: captured,
+                        turnNumber: turnNumber,
+                        notation: notation,
+                        timestamp: Date(),
+                        isCheck: isCheck,
+                        isCheckmate: false
+                    )
+                    self.gameMoves.append(gameMove)
 
-                        if let captured = captured {
+                    if let captured = captured {
+                        if humanSide == .red {
                             self.capturedPieces.black.append(captured)
-                            SoundEngine.shared.playCapture()
                         } else {
-                            SoundEngine.shared.playMove()
+                            self.capturedPieces.red.append(captured)
                         }
+                        SoundEngine.shared.playCapture()
+                    } else {
+                        SoundEngine.shared.playMove()
                     }
                 }
-                self.isThinking = false
-                self.checkGameState()
+            }
+            
+            self.isThinking = false
+            self.checkGameState()
 
-                // 更新最后一步 isCheckmate
-                if self.gameState != .playing && !self.gameMoves.isEmpty {
-                    self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
-                }
+            // 更新最后一步 isCheckmate
+            if self.gameState != .playing && !self.gameMoves.isEmpty {
+                self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
+            }
 
-                if self.gameState != .playing {
-                    self.recordGameResult()
-                }
+            if self.gameState != .playing {
+                self.recordGameResult()
             }
         }
     }

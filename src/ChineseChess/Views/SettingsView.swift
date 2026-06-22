@@ -81,6 +81,21 @@ struct SettingsView: View {
                     .pickerStyle(.menu)
                 }
 
+                #if os(macOS)
+                // 引擎设置（仅 macOS）
+                Section(l10n.t("settings.engineSection")) {
+                    NavigationLink {
+                        EngineSettingsView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "cpu")
+                                .foregroundColor(.brown)
+                            Text(l10n.t("settings.externalEngine"))
+                        }
+                    }
+                }
+                #endif
+
                 // 关于
                 Section(l10n.t("settings.aboutSection")) {
                     NavigationLink {
