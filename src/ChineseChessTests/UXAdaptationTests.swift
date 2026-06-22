@@ -154,7 +154,7 @@ struct UXAdaptationTests {
 @Test("xcstrings 包含 151 个 key")
         func xcstringsKeyCount() {
             let keys = Self.loadXcstringsKeys()
-            #expect(keys.count == 162, "期望 162 key，实际 \(keys.count)")
+            #expect(keys.count == 170, "期望 170 key，实际 \(keys.count)")
         }
 
         @MainActor
@@ -383,7 +383,7 @@ struct UXAdaptationTests {
             let englishWordPattern = try? NSRegularExpression(pattern: "[a-zA-Z]{4,}")
 
             // 允许的英文词（emoji 描述、格式占位符中的技术术语等）
-            let allowedWords: Set<String> = ["ICCS", "UserDefaults"]
+            let allowedWords: Set<String> = ["ICCS", "UserDefaults", "macOS", "iOS"]
 
             for (key, locs) in localizations {
                 guard let zhDict = locs["zh-Hans"] as? [String: Any],
