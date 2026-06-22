@@ -22,6 +22,11 @@ struct EngineSettingsView: View {
                     set: { newValue in
                         if newValue == "native" {
                             store.selectedEngineId = nil
+                        } else if newValue == "external" {
+                            // 选择第一个已配置的引擎，如果没有则提示添加
+                            if let firstEngine = store.engines.first {
+                                store.selectedEngineId = firstEngine.id
+                            }
                         }
                     }
                 )) {
