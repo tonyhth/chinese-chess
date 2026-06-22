@@ -7,6 +7,9 @@ import Foundation
 final class EngineRouter {
     static let shared = EngineRouter()
 
+    /// P1-2: 外部引擎启动失败时发送此通知，UI 层可观察并弹 alert
+    static let fallbackNotification = Notification.Name("engineRouter.fallback")
+
     private let nativeEngine = AIEngine()
 
     #if os(macOS)
@@ -55,6 +58,8 @@ final class EngineRouter {
                 // 启动失败——fallback
                 externalEngine = nil
                 currentConfigId = nil
+                // P1-2: 通知 UI 层引擎启动失败已 fallback
+                NotificationCenter.default.post(name: Self.fallbackNotification, object: nil)
                 return nativeEngine
             }
         } else {

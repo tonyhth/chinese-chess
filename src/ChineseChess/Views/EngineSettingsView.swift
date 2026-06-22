@@ -12,6 +12,7 @@ struct EngineSettingsView: View {
     @State private var editingEngine: ExternalEngineConfig?
     @State private var testingEngineId: UUID?
     @State private var testResult: String?
+    private let l10n = L10n.shared
 
     var body: some View {
         Form {
@@ -39,41 +40,68 @@ struct EngineSettingsView: View {
             // 外部引擎列表（仅 macOS）
             if store.useExternalEngine {
                 Section("已配置的外部引擎") {
-                    ForEach(store.engines) { engine in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(engine.name)
-                                    .font(.headline)
-                                Text(engine.executablePath)
-                                    .font(.caption)
+                    if store.engines.isEmpty {
+                        // P1-1: 空引擎引导
+                        VStack(spacing: 12) {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .foregroundColor(.orange)
+                                Text(l10n.t("engine.emptyHint"))
                                     .foregroundColor(.secondary)
                             }
-                            Spacer()
-                            if store.selectedEngineId == engine.id {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
+                            Button(action: {
+                                editingEngine = ExternalEngineConfig(
+                                    name: "新引擎",
+                                    executablePath: "",
+                                    arguments: nil,
+                                    options: [],
+                                    isEnabled: true
+                                )
+                                showingAddSheet = true
+                            }) {
+                                Label(l10n.t("engine.addEngine"), systemImage: "plus.circle.fill")
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    } else {
+                        ForEach(store.engines) { engine in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(engine.name)
+                                        .font(.headline)
+                                    Text(engine.executablePath)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                if store.selectedEngineId == engine.id {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                store.selectedEngineId = engine.id
                             }
                         }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            store.selectedEngineId = engine.id
+                        .onDelete { indices in
+                            for index in indices {
+                                store.removeEngine(at: index)
+                            }
                         }
-                    }
-                    .onDelete { indices in
-                        for index in indices {
-                            store.removeEngine(at: index)
-                        }
-                    }
 
-                    Button("添加引擎…") {
-                        editingEngine = ExternalEngineConfig(
-                            name: "新引擎",
-                            executablePath: "",
-                            arguments: nil,
-                            options: [],
-                            isEnabled: true
-                        )
-                        showingAddSheet = true
+                        Button("添加引擎…") {
+                            editingEngine = ExternalEngineConfig(
+                                name: "新引擎",
+                                executablePath: "",
+                                arguments: nil,
+                                options: [],
+                                isEnabled: true
+                            )
+                            showingAddSheet = true
+                        }
                     }
                 }
 

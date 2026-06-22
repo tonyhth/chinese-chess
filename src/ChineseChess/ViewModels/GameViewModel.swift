@@ -26,6 +26,9 @@ class GameViewModel {
         return saved == "black" ? .black : .red
     }()
     var hintMove: (from: Position, to: Position)? = nil
+
+    // P1-2: 外部引擎 fallback 提示（非 nil 时 UI 弹 alert）
+    var engineFallbackMessage: String? = nil
     private var gameVersion: Int = 0
     var moveHistory: [Move] {
         board.moveHistory
@@ -39,6 +42,16 @@ class GameViewModel {
 
     init() {
         self.board = Board()
+        // P1-2: 监听外部引擎 fallback 通知
+        NotificationCenter.default.addObserver(
+            forName: EngineRouter.fallbackNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.engineFallbackMessage = L10n.shared.t("engine.fallbackMessage")
+            }
+        }
     }
 
     // MARK: - 用户操作

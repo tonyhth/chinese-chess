@@ -48,6 +48,18 @@ struct ChineseChessiOSApp: App {
                 }
                 .navigationTitle(L10n.shared.t("app.title"))
                 .navigationBarTitleDisplayMode(.inline)
+                // P1-2: 外部引擎 fallback 提示（iOS 上理论上不会触发，但保持一致）
+                .alert(
+                    L10n.shared.t("engine.fallbackTitle"),
+                    isPresented: Binding(
+                        get: { gameViewModel.engineFallbackMessage != nil },
+                        set: { if !$0 { gameViewModel.engineFallbackMessage = nil } }
+                    )
+                ) {
+                    Button(L10n.shared.t("common.ok")) { gameViewModel.engineFallbackMessage = nil }
+                } message: {
+                    Text(gameViewModel.engineFallbackMessage ?? "")
+                }
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
                         Button(action: { activePanel = activePanel == .record ? .none : .record }) {

@@ -94,6 +94,17 @@ struct SettingsView: View {
                         }
                     }
                 }
+                #else
+                // P1-3: iOS 侧显示外部引擎仅支持 macOS 说明
+                Section(l10n.t("settings.engineSection")) {
+                    HStack {
+                        Image(systemName: "info.circle")
+                            .foregroundColor(.secondary)
+                        Text(l10n.t("engine.iosOnlyHint"))
+                            .foregroundColor(.secondary)
+                            .font(.callout)
+                    }
+                }
                 #endif
 
                 // 关于

@@ -118,6 +118,18 @@ struct ChineseChessApp: App {
             }
             .frame(minWidth: 600, minHeight: 700)
             .preferredColorScheme(.dark)
+            // P1-2: 外部引擎 fallback 提示
+            .alert(
+                L10n.shared.t("engine.fallbackTitle"),
+                isPresented: Binding(
+                    get: { viewModel.engineFallbackMessage != nil },
+                    set: { if !$0 { viewModel.engineFallbackMessage = nil } }
+                )
+            ) {
+                Button(L10n.shared.t("common.ok")) { viewModel.engineFallbackMessage = nil }
+            } message: {
+                Text(viewModel.engineFallbackMessage ?? "")
+            }
             // 棋谱/统计面板互斥 Sheet
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },
