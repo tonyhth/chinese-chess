@@ -1,6 +1,7 @@
 import Foundation
 
 @Observable
+@MainActor
 class GameViewModel {
     /// 编译时平台标记
     private static let _isIOS: Bool = {
@@ -35,9 +36,6 @@ class GameViewModel {
 
     // Phase 3: 走法记录（含棋谱）
     var gameMoves: [GameMove] = []
-
-    // v3.1 Phase 2c: 引擎切换标志——对局开始时执行 switchEngineIfNeeded()
-    private var engineSwitched = false
 
     init() {
         self.board = Board()
@@ -187,16 +185,9 @@ class GameViewModel {
 
         // v3.1 Phase 2c: 引擎切换 + newGame
         EngineRouter.shared.newGame()
-        #if os(macOS)
-        if !engineSwitched {
-            Task {
-                _ = await EngineRouter.shared.switchEngineIfNeeded()
-                engineSwitched = true
-            }
-        }
-        #endif
 
         // v3.0 Phase 5: 玩家执黑时 AI（红方）先行
+        // 注意：switchEngineIfNeeded 在 triggerAIMove 中调用，确保引擎准备好再求走法
         if humanSide == .black {
             triggerAIMove()
         }
@@ -230,6 +221,11 @@ class GameViewModel {
         Task { [weak self] in
             guard let self else { return }
             
+            #if os(macOS)
+            // 确保引擎切换完成
+            _ = await EngineRouter.shared.switchEngineIfNeeded()
+            #endif
+            
             let engine = EngineRouter.shared.activeEngine()
             let fen = FENParser.generate(board: self.board)
             let uciMoves = self.board.moveHistory.map { UCIMoveConverter.uciString(from: $0) }
@@ -242,7 +238,7 @@ class GameViewModel {
             )
             
             guard self.gameVersion == currentVersion else {
-                self.isThinking = false
+                // gameVersion 不匹配——新对局已开始，只 return，不设 isThinking
                 return
             }
             
@@ -266,6 +262,11 @@ class GameViewModel {
         Task { [weak self] in
             guard let self else { return }
             
+            #if os(macOS)
+            // 确保引擎切换完成
+            _ = await EngineRouter.shared.switchEngineIfNeeded()
+            #endif
+            
             let engine = EngineRouter.shared.activeEngine()
             let fen = FENParser.generate(board: self.board)
             let uciMoves = self.board.moveHistory.map { UCIMoveConverter.uciString(from: $0) }
@@ -278,7 +279,7 @@ class GameViewModel {
             )
             
             guard self.gameVersion == currentVersion else {
-                self.isThinking = false
+                // gameVersion 不匹配——新对局已开始，只 return，不设 isThinking
                 return
             }
             

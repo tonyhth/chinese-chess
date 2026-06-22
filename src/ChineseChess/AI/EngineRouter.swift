@@ -17,6 +17,7 @@ final class EngineRouter {
     private init() {}
 
     /// 获取当前活跃引擎（无副作用，只返回已有实例）
+    @MainActor
     func activeEngine() -> any ChessEngine {
         #if os(macOS)
         if let ext = externalEngine {
