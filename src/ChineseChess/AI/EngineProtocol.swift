@@ -30,13 +30,13 @@ protocol ChessEngine: AnyObject {
     ) async -> String?
 
     /// 中止当前搜索（外部引擎发 `stop` 命令）
-    func stopSearch()
+    func stopSearch() async
 
     /// 通知引擎开始新对局（外部引擎发 `ucinewgame`，自研引擎清空 TT）
-    func newGame()
+    func newGame() async
 
     /// 释放资源（外部引擎发 `quit` 命令并终止进程）
-    func shutdown()
+    func shutdown() async
 }
 
 /// 引擎类型
