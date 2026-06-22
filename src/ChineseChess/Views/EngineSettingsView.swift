@@ -19,13 +19,16 @@ struct EngineSettingsView: View {
             // 引擎来源选择
             Section("引擎来源") {
                 Picker("AI 引擎", selection: Binding(
-                    get: { store.useExternalEngine ? "external" : "native" },
+                    get: { store.wantsExternalEngine ? "external" : "native" },
                     set: { newValue in
                         if newValue == "native" {
+                            store.wantsExternalEngine = false
                             store.selectedEngineId = nil
                         } else if newValue == "external" {
-                            // 选择第一个已配置的引擎，如果没有则提示添加
-                            if let firstEngine = store.engines.first {
+                            // P0 修复：无条件设为 true，使空引擎引导 UI 可达
+                            store.wantsExternalEngine = true
+                            // 如果有已配置引擎，自动选中第一个
+                            if store.selectedEngineId == nil, let firstEngine = store.engines.first {
                                 store.selectedEngineId = firstEngine.id
                             }
                         }
@@ -38,7 +41,8 @@ struct EngineSettingsView: View {
             }
 
             // 外部引擎列表（仅 macOS）
-            if store.useExternalEngine {
+            // P0 修复：用 wantsExternalEngine 判断，使空引擎引导可见
+            if store.wantsExternalEngine {
                 Section("已配置的外部引擎") {
                     if store.engines.isEmpty {
                         // P1-1: 空引擎引导

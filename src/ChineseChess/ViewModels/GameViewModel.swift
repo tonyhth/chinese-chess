@@ -29,6 +29,10 @@ class GameViewModel {
 
     // P1-2: 外部引擎 fallback 提示（非 nil 时 UI 弹 alert）
     var engineFallbackMessage: String? = nil
+
+    // P2 修复：持有 observer token，deinit 时移除
+    @ObservationIgnored nonisolated(unsafe) private var fallbackObserver: NSObjectProtocol?
+
     private var gameVersion: Int = 0
     var moveHistory: [Move] {
         board.moveHistory
@@ -43,7 +47,7 @@ class GameViewModel {
     init() {
         self.board = Board()
         // P1-2: 监听外部引擎 fallback 通知
-        NotificationCenter.default.addObserver(
+        fallbackObserver = NotificationCenter.default.addObserver(
             forName: EngineRouter.fallbackNotification,
             object: nil,
             queue: .main
@@ -51,6 +55,12 @@ class GameViewModel {
             Task { @MainActor in
                 self?.engineFallbackMessage = L10n.shared.t("engine.fallbackMessage")
             }
+        }
+    }
+
+    deinit {
+        if let observer = fallbackObserver {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
 

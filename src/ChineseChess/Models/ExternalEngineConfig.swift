@@ -56,14 +56,22 @@ final class EngineConfigStore {
         didSet { save() }
     }
 
-    /// 当前选中的外部引擎 ID（nil 表示使用自研引擎）
+    /// 当前选中的外部引擎 ID（nil 表示未选中具体引擎）
     var selectedEngineId: UUID? {
         didSet {
             UserDefaults.standard.set(selectedEngineId?.uuidString, forKey: "chinesechess.selectedEngine")
         }
     }
 
-    /// 当前是否使用外部引擎
+    /// 用户是否期望使用外部引擎（独立于 selectedEngineId）
+    /// Picker 绑定此属性，使选 "外部引擎" 后即使 engines 为空也能显示引导 UI
+    var wantsExternalEngine: Bool = false {
+        didSet {
+            UserDefaults.standard.set(wantsExternalEngine, forKey: "chinesechess.wantsExternalEngine")
+        }
+    }
+
+    /// 当前是否实际使用外部引擎（有选中的引擎配置）
     var useExternalEngine: Bool {
         selectedEngineId != nil
     }
@@ -78,6 +86,13 @@ final class EngineConfigStore {
         if let idStr = UserDefaults.standard.string(forKey: "chinesechess.selectedEngine"),
            let uuid = UUID(uuidString: idStr) {
             selectedEngineId = uuid
+        }
+        // P0 修复：读取 wantsExternalEngine 标记
+        // 迁移逻辑：如果旧代码中 selectedEngineId != nil 但 wantsExternalEngine 未设置，自动补上
+        if let wants = UserDefaults.standard.object(forKey: "chinesechess.wantsExternalEngine") as? Bool {
+            wantsExternalEngine = wants
+        } else {
+            wantsExternalEngine = selectedEngineId != nil
         }
     }
 
@@ -96,7 +111,11 @@ final class EngineConfigStore {
         let removed = engines[index]
         engines.remove(at: index)
         if selectedEngineId == removed.id {
-            selectedEngineId = nil
+            selectedEngineId = engines.first?.id
+            // 引擎全删完时，重置 wantsExternalEngine
+            if engines.isEmpty {
+                wantsExternalEngine = false
+            }
         }
     }
 }
