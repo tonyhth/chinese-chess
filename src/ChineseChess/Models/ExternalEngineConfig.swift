@@ -12,7 +12,7 @@ struct UCIOption: Codable, Equatable, Identifiable {
 // MARK: - 外部引擎配置
 
 /// 外部引擎配置（持久化到 UserDefaults）
-struct ExternalEngineConfig: Codable, Equatable, Identifiable {
+struct ExternalEngineConfig: Equatable, Identifiable {
     var id: UUID = UUID()
 
     /// 引擎显示名称（用户自定义，如 "Pikafish 4.0"）
@@ -42,6 +42,45 @@ struct ExternalEngineConfig: Codable, Equatable, Identifiable {
         isEnabled: false,
         useInProcessMock: false
     )
+}
+
+// MARK: - Codable 自定义实现（向后兼容）
+
+extension ExternalEngineConfig: Codable {
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case executablePath
+        case arguments
+        case options
+        case isEnabled
+        case useInProcessMock
+    }
+
+    /// P0 修复：手动实现解码，对缺失的 useInProcessMock 使用默认值
+    /// 确保旧配置 JSON（无此字段）能正常加载
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        executablePath = try container.decode(String.self, forKey: .executablePath)
+        arguments = try container.decodeIfPresent([String].self, forKey: .arguments)
+        options = try container.decode([UCIOption].self, forKey: .options)
+        isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        // 关键：缺失时使用默认值 false（向后兼容）
+        useInProcessMock = try container.decodeIfPresent(Bool.self, forKey: .useInProcessMock) ?? false
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(executablePath, forKey: .executablePath)
+        try container.encodeIfPresent(arguments, forKey: .arguments)
+        try container.encode(options, forKey: .options)
+        try container.encode(isEnabled, forKey: .isEnabled)
+        try container.encode(useInProcessMock, forKey: .useInProcessMock)
+    }
 }
 
 // MARK: - 引擎配置管理器
