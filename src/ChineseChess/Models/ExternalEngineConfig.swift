@@ -133,7 +133,10 @@ final class EngineConfigStore {
 
     /// 是否有待切换的引擎
     var hasPendingSwitch: Bool {
-        pendingEngineId != selectedEngineId
+        // 注意：pendingEngineId 为 nil 表示没有新的待切换请求
+        // 不能用 pendingEngineId != selectedEngineId，因为 nil != extId 恒为 true 会导致每次都误触发切换
+        guard let pending = pendingEngineId else { return false }
+        return pending != selectedEngineId
     }
 
     /// 用户是否期望使用外部引擎（独立于 selectedEngineId）
