@@ -37,6 +37,12 @@ final class EngineRouter {
     func switchEngineIfNeeded() async -> any ChessEngine {
         let store = EngineConfigStore.shared
 
+        // P1 #5: 先执行待切换
+        if store.hasPendingSwitch {
+            store.selectedEngineId = store.pendingEngineId
+            store.pendingEngineId = nil
+        }
+
         if let selectedId = store.selectedEngineId,
            let config = store.engines.first(where: { $0.id == selectedId }),
            config.isEnabled {

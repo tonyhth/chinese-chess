@@ -19,6 +19,10 @@ actor UCITransceiver {
     /// info 回调
     private var _onInfo: (@Sendable (UCIInfo) -> Void)?
 
+    // P1 #3: 引擎身份信息（id name/version）
+    private(set) var engineName: String?
+    private(set) var engineVersion: String?
+
     /// 行缓冲队列——后台 Task 持续入队
     private var lineQueue: [String] = []
 
@@ -83,6 +87,12 @@ actor UCITransceiver {
                 if line.hasPrefix("info") {
                     let info = UCIInfo.parse(line: line)
                     _onInfo?(info)
+                    continue
+                }
+
+                // P1 #3: id 行解析（id name/id version），不入等待队列
+                if line.hasPrefix("id ") {
+                    parseIdLine(line)
                     continue
                 }
 
@@ -183,6 +193,24 @@ actor UCITransceiver {
 
     func setInfoCallback(_ callback: @escaping @Sendable (UCIInfo) -> Void) {
         _onInfo = callback
+    }
+
+    // MARK: - P1 #3: 引擎身份信息
+
+    /// 获取引擎自报的名称和版本（UCI 握手后调用）
+    func getEngineInfo() -> (name: String?, version: String?) {
+        return (engineName, engineVersion)
+    }
+
+    /// 解析 UCI id 行（"id name Pikafish" / "id version 4.0.0"）
+    private func parseIdLine(_ line: String) {
+        let tokens = line.split(separator: " ")
+        guard tokens.count >= 3 else { return }
+        if tokens[1] == "name" {
+            engineName = tokens[2...].joined(separator: " ")
+        } else if tokens[1] == "version" {
+            engineVersion = String(tokens[2])
+        }
     }
 
     // MARK: - 私有

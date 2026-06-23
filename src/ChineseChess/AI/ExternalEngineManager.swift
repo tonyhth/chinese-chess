@@ -34,6 +34,10 @@ actor ExternalEngineManager: ChessEngine {
 
     private let config: ExternalEngineConfig
 
+    // P1 #3: 引擎自报信息（握手后填充）
+    private(set) var resolvedName: String?
+    private(set) var resolvedVersion: String?
+
     // MARK: - 方案 E：In-process Mock 引擎
 
     /// 当 config.useInProcessMock = true 时，使用内存 mock 而非外部进程
@@ -59,7 +63,9 @@ actor ExternalEngineManager: ChessEngine {
         guard process == nil else { return }
 
         let proc = Process()
-        proc.executableURL = URL(fileURLWithPath: config.executablePath)
+        // P1 #1: 展开用户目录缩写（~/ → /Users/xxx/）
+        let resolvedPath = (config.executablePath as NSString).expandingTildeInPath
+        proc.executableURL = URL(fileURLWithPath: resolvedPath)
         if let args = config.arguments, !args.isEmpty {
             proc.arguments = args
         }
@@ -86,6 +92,11 @@ actor ExternalEngineManager: ChessEngine {
 
         // UCI 握手
         try await uciHandshake()
+
+        // P1 #3: 握手成功后获取引擎自报信息
+        let (name, version) = await transceiver.getEngineInfo()
+        self.resolvedName = name
+        self.resolvedVersion = version
     }
 
     /// UCI 握手：发送 uci → 等 uciok → 设置选项 → 发送 isready → 等 readyok

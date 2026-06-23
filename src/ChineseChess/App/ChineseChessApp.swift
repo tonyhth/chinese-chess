@@ -19,6 +19,13 @@ struct ChineseChessApp: App {
     enum Panel: Equatable {
         case none, record, stats
     }
+
+    // P1 #2: 引擎选择枚举（菜单栏绑定）
+    enum EngineSelection: Equatable, Hashable {
+        case native
+        case external(UUID)
+    }
+
     @State private var activePanel: Panel = .none
 
     @State private var viewModel = GameViewModel()
@@ -28,6 +35,30 @@ struct ChineseChessApp: App {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
+
+    // P1 #2: 菜单栏引擎选择绑定
+    private var engineSelectionBinding: Binding<EngineSelection> {
+        Binding(
+            get: {
+                if let id = EngineConfigStore.shared.pendingEngineId ?? EngineConfigStore.shared.selectedEngineId {
+                    return .external(id)
+                }
+                return .native
+            },
+            set: { newSelection in
+                switch newSelection {
+                case .native:
+                    EngineConfigStore.shared.pendingEngineId = nil
+                case .external(let id):
+                    EngineConfigStore.shared.pendingEngineId = id
+                }
+                // 通知状态观察器
+                EngineStateObserver.shared.setPendingSwitch(
+                    pendingId: EngineConfigStore.shared.pendingEngineId
+                )
+            }
+        )
+    }
 
     var body: some Scene {
         WindowGroup(L10n.shared.t("app.title")) {
@@ -236,6 +267,23 @@ struct ChineseChessApp: App {
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+            }
+
+            // P1 #2: 引擎菜单（仅 macOS）
+            CommandMenu("引擎") {
+                Picker("选择引擎", selection: engineSelectionBinding) {
+                    Text("内置引擎").tag(EngineSelection.native)
+                    ForEach(EngineConfigStore.shared.engines.filter { $0.isEnabled }) { engine in
+                        Text(engine.name).tag(EngineSelection.external(engine.id))
+                    }
+                }
+                .pickerStyle(.inline)
+
+                Divider()
+
+                Button("配置引擎") {
+                    showSettings = true
+                }
             }
         }
     }

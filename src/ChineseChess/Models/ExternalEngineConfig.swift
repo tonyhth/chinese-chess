@@ -33,6 +33,10 @@ struct ExternalEngineConfig: Equatable, Identifiable {
     /// 方案 E：使用 in-process mock 引擎（测试用，不启动外部进程）
     var useInProcessMock: Bool = false
 
+    // P1 #3: 引擎自报的身份信息（测试连接后填充）
+    var resolvedName: String?     // 如 "Pikafish"
+    var resolvedVersion: String?  // 如 "4.0.0"
+
     /// 默认配置
     static let defaultConfig = ExternalEngineConfig(
         name: "",
@@ -55,6 +59,8 @@ extension ExternalEngineConfig: Codable {
         case options
         case isEnabled
         case useInProcessMock
+        case resolvedName
+        case resolvedVersion
     }
 
     /// P0 修复：手动实现解码，对缺失的 useInProcessMock 使用默认值
@@ -69,6 +75,9 @@ extension ExternalEngineConfig: Codable {
         isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
         // 关键：缺失时使用默认值 false（向后兼容）
         useInProcessMock = try container.decodeIfPresent(Bool.self, forKey: .useInProcessMock) ?? false
+        // P1 #3: 向后兼容，缺失时为 nil
+        resolvedName = try container.decodeIfPresent(String.self, forKey: .resolvedName)
+        resolvedVersion = try container.decodeIfPresent(String.self, forKey: .resolvedVersion)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -80,6 +89,8 @@ extension ExternalEngineConfig: Codable {
         try container.encode(options, forKey: .options)
         try container.encode(isEnabled, forKey: .isEnabled)
         try container.encode(useInProcessMock, forKey: .useInProcessMock)
+        try container.encodeIfPresent(resolvedName, forKey: .resolvedName)
+        try container.encodeIfPresent(resolvedVersion, forKey: .resolvedVersion)
     }
 }
 
@@ -106,6 +117,18 @@ final class EngineConfigStore {
         }
     }
 
+    // P1 #5: 待切换引擎 ID（菜单栏切换目标，下次对局生效）
+    var pendingEngineId: UUID? {
+        didSet {
+            UserDefaults.standard.set(pendingEngineId?.uuidString, forKey: "chinesechess.pendingEngine")
+        }
+    }
+
+    /// 是否有待切换的引擎
+    var hasPendingSwitch: Bool {
+        pendingEngineId != selectedEngineId
+    }
+
     /// 用户是否期望使用外部引擎（独立于 selectedEngineId）
     /// Picker 绑定此属性，使选 "外部引擎" 后即使 engines 为空也能显示引导 UI
     var wantsExternalEngine: Bool = false {
@@ -129,6 +152,11 @@ final class EngineConfigStore {
         if let idStr = UserDefaults.standard.string(forKey: "chinesechess.selectedEngine"),
            let uuid = UUID(uuidString: idStr) {
             selectedEngineId = uuid
+        }
+        // P1 #5: 读取待切换引擎 ID
+        if let idStr = UserDefaults.standard.string(forKey: "chinesechess.pendingEngine"),
+           let uuid = UUID(uuidString: idStr) {
+            pendingEngineId = uuid
         }
         // P0 修复：读取 wantsExternalEngine 标记
         // 迁移逻辑：如果旧代码中 selectedEngineId != nil 但 wantsExternalEngine 未设置，自动补上
