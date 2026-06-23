@@ -34,6 +34,11 @@ actor ExternalEngineManager: ChessEngine {
 
     private let config: ExternalEngineConfig
 
+    // MARK: - 方案 E：In-process Mock 引擎
+
+    /// 当 config.useInProcessMock = true 时，使用内存 mock 而非外部进程
+    private var mockEngine: MockUCIEngine? = nil
+
     init(config: ExternalEngineConfig) {
         self.config = config
     }
@@ -43,6 +48,14 @@ actor ExternalEngineManager: ChessEngine {
     /// 启动引擎进程并发送 UCI 握手
     /// - Throws: 进程启动失败、UCI 握手超时
     func start() async throws {
+        // 方案 E：useInProcessMock 时使用内存 mock
+        if config.useInProcessMock {
+            mockEngine = MockUCIEngine()
+            try await mockEngine!.start()
+            isReady = await mockEngine!.isReady
+            return
+        }
+
         guard process == nil else { return }
 
         let proc = Process()
@@ -101,6 +114,11 @@ actor ExternalEngineManager: ChessEngine {
         difficulty: AIDifficulty,
         timeLimitMs: Int
     ) async -> String? {
+        // 方案 E：转发给 mock 引擎
+        if let mock = mockEngine {
+            return await mock.bestMove(fen: fen, moveHistory: moveHistory, difficulty: difficulty, timeLimitMs: timeLimitMs)
+        }
+
         guard isReady else { return nil }
 
         // 构建 position 命令（P1 修复：写入失败直接返回，不等 30s 超时）
@@ -125,14 +143,31 @@ actor ExternalEngineManager: ChessEngine {
     }
 
     func stopSearch() async {
+        // 方案 E：转发给 mock 引擎
+        if let mock = mockEngine {
+            await mock.stopSearch()
+            return
+        }
         try? sendCommand("stop")
     }
 
     func newGame() async {
+        // 方案 E：转发给 mock 引擎
+        if let mock = mockEngine {
+            await mock.newGame()
+            return
+        }
         try? sendCommand("ucinewgame")
     }
 
     func shutdown() async {
+        // 方案 E：转发给 mock 引擎
+        if let mock = mockEngine {
+            await mock.shutdown()
+            mockEngine = nil
+            isReady = false
+            return
+        }
         try? sendCommand("quit")
         process?.terminate()
         process = nil

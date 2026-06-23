@@ -30,13 +30,17 @@ struct ExternalEngineConfig: Codable, Equatable, Identifiable {
     /// 是否启用
     var isEnabled: Bool
 
+    /// 方案 E：使用 in-process mock 引擎（测试用，不启动外部进程）
+    var useInProcessMock: Bool = false
+
     /// 默认配置
     static let defaultConfig = ExternalEngineConfig(
         name: "",
         executablePath: "",
         arguments: nil,
         options: [],
-        isEnabled: false
+        isEnabled: false,
+        useInProcessMock: false
     )
 }
 

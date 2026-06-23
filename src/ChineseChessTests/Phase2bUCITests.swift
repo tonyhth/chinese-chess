@@ -90,39 +90,22 @@ struct ExternalEngineConfigTests {
 @Suite("Phase 2b: Mock UCI 引擎集成")
 struct ExternalEngineIntegrationTests {
 
-    @Test("Mock 引擎完整 UCI 握手 + bestmove")
-    func mockEngineHandshakeAndBestMove() async throws {
-        let mockPath = Bundle.module.resourcePath.flatMap { "\($0)/../../../tests/mock-engines/mock-uci-engine.sh" }
-            ?? "tests/mock-engines/mock-uci-engine.sh"
-
-        // 尝试多个路径查找 mock 引擎
-        let candidates = [
-            mockPath,
-            "tests/mock-engines/mock-uci-engine.sh",
-            "/Users/hth/DevTeam/projects/chinese-chess/tests/mock-engines/mock-uci-engine.sh",
-        ]
-        var enginePath = ""
-        for path in candidates {
-            if FileManager.default.fileExists(atPath: path) {
-                enginePath = path
-                break
-            }
-        }
-        #expect(!enginePath.isEmpty, "Mock engine script not found")
-
+    @Test("方案 E：In-process Mock 引擎握手 + bestmove")
+    func inProcessMockEngineTest() async throws {
+        // 使用 useInProcessMock: true，无需外部进程，根治残留问题
         let config = ExternalEngineConfig(
             name: "MockEngine",
-            executablePath: enginePath,
-            arguments: nil,
+            executablePath: "",  // mock 模式无需路径
             options: [],
-            isEnabled: true
+            isEnabled: true,
+            useInProcessMock: true
         )
 
         let manager = ExternalEngineManager(config: config)
         try await manager.start()
 
         #expect(await manager.isReady)
-        #expect(await manager.engineType == .external)
+        #expect(await manager.engineType == EngineType.external)
         #expect(await manager.displayName == "MockEngine")
 
         // 初始局面求走法
@@ -130,7 +113,7 @@ struct ExternalEngineIntegrationTests {
         let bestMove = await manager.bestMove(
             fen: fen,
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: AIDifficulty.medium,
             timeLimitMs: 0
         )
 
@@ -138,6 +121,7 @@ struct ExternalEngineIntegrationTests {
         #expect(bestMove == "h2e2")  // mock 引擎固定返回
 
         await manager.shutdown()
+        #expect(await manager.isReady == false)
     }
 
     @Test("Pikafish 真实引擎握手（如可用）", .enabled(if: FileManager.default.isExecutableFile(atPath: "/Users/hth/DevTeam/tools/pikafish/pikafish-bmi2")))
