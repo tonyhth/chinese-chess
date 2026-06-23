@@ -10,7 +10,7 @@ struct EngineSettingsView: View {
     @State private var store = EngineConfigStore.shared
     @State private var editingEngine: ExternalEngineConfig?
     @State private var testingEngineId: UUID?
-    @State private var testResult: String?
+    @State private var testResults: [UUID: EngineTestResult] = [:]  // P2 #14: 结构化测试结果
     private let l10n = L10n.shared
 
     var body: some View {
@@ -71,8 +71,22 @@ struct EngineSettingsView: View {
                         ForEach(store.engines) { engine in
                             HStack {
                                 VStack(alignment: .leading) {
-                                    Text(engine.name)
-                                        .font(.headline)
+                                    HStack(spacing: 4) {
+                        #if os(macOS)
+                                        // P2 #12: 引擎类型提示图标
+                                        Image(systemName: "gearshape.2")
+                                            .font(.caption2)
+                                            .foregroundColor(.blue)
+                        #endif
+                                        Text(engine.name)
+                                            .font(.headline)
+                                        // P2 #12: 显示引擎自报名称（如有）
+                                        if let resolved = engine.resolvedName {
+                                            Text("\(resolved)\(engine.resolvedVersion.map { " \($0)" } ?? "")")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
                                     Text(engine.executablePath)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -87,6 +101,20 @@ struct EngineSettingsView: View {
                             .onTapGesture {
                                 store.selectedEngineId = engine.id
                             }
+                        #if os(macOS)
+                            // P2 #11: 右键删除功能
+                            .contextMenu {
+                                Button("删除引擎", role: .destructive) {
+                                    if let index = store.engines.firstIndex(where: { $0.id == engine.id }) {
+                                        store.removeEngine(at: index)
+                                    }
+                                }
+                                Divider()
+                                Button("设为当前引擎") {
+                                    store.selectedEngineId = engine.id
+                                }
+                            }
+                        #endif
                         }
                         .onDelete { indices in
                             for index in indices {
@@ -123,10 +151,15 @@ struct EngineSettingsView: View {
                             }
                         }
 
-                        if let result = testResult {
-                            Text(result)
+                        if let result = testResults[selectedId] {
+                            Text(result.displayText)
                                 .font(.caption)
-                                .foregroundColor(result.hasPrefix("✅") ? .green : .red)
+                                .foregroundColor(result.isSuccess ? .green : .red)
+                            if let name = result.resolvedName {
+                                Text("引擎: \(name)\(result.resolvedVersion.map { " \($0)" } ?? "")")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
                 }
@@ -143,9 +176,10 @@ struct EngineSettingsView: View {
 
     private func testEngine(_ config: ExternalEngineConfig) {
         testingEngineId = config.id
-        testResult = nil
+        testResults[config.id] = EngineTestResult(engineId: config.id, status: .pending)
 
         Task {
+            let startTime = Date()
             let manager = ExternalEngineManager(config: config)
             do {
                 try await manager.start()
@@ -154,13 +188,34 @@ struct EngineSettingsView: View {
                 let move = await manager.bestMove(fen: fen, moveHistory: [], difficulty: .medium, timeLimitMs: 3000)
                 await manager.shutdown()
 
+                let elapsed = Int(Date().timeIntervalSince(startTime) * 1000)
+
                 if let move = move {
-                    testResult = "✅ 成功：返回走法 \(move)"
+                    let rName = await manager.resolvedName
+                    let rVer = await manager.resolvedVersion
+                    testResults[config.id] = EngineTestResult(
+                        engineId: config.id,
+                        status: .success,
+                        message: "返回走法 \(move)",
+                        moveReturned: move,
+                        resolvedName: rName,
+                        resolvedVersion: rVer,
+                        durationMs: elapsed
+                    )
                 } else {
-                    testResult = "❌ 失败：未返回走法"
+                    testResults[config.id] = EngineTestResult(
+                        engineId: config.id,
+                        status: .failure(.noMoveReturned),
+                        durationMs: elapsed
+                    )
                 }
             } catch {
-                testResult = "❌ 失败：\(error.localizedDescription)"
+                let elapsed = Int(Date().timeIntervalSince(startTime) * 1000)
+                testResults[config.id] = EngineTestResult(
+                    engineId: config.id,
+                    status: .failure(.from(error)),
+                    durationMs: elapsed
+                )
             }
             testingEngineId = nil
         }

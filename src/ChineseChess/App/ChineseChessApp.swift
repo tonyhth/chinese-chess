@@ -11,6 +11,11 @@ struct ChineseChessApp: App {
             runSelfPlayFromCLI()
             Foundation.exit(0)
         }
+        // v3.1: CMA-ES 自动调参模式
+        if args.count >= 2 && args[1] == "--cmaes" {
+            runCMAESFromCLI()
+            Foundation.exit(0)
+        }
         #endif
         FontRegistry.registerFonts()
     }
@@ -40,6 +45,10 @@ struct ChineseChessApp: App {
     private var engineSelectionBinding: Binding<EngineSelection> {
         Binding(
             get: {
+                // P1 返工: pendingNative 优先，解决选"内置引擎"后弹回外部引擎的问题
+                if EngineConfigStore.shared.pendingNative {
+                    return .native
+                }
                 if let id = EngineConfigStore.shared.pendingEngineId ?? EngineConfigStore.shared.selectedEngineId {
                     return .external(id)
                 }
@@ -48,8 +57,10 @@ struct ChineseChessApp: App {
             set: { newSelection in
                 switch newSelection {
                 case .native:
+                    EngineConfigStore.shared.pendingNative = true
                     EngineConfigStore.shared.pendingEngineId = nil
                 case .external(let id):
+                    EngineConfigStore.shared.pendingNative = false
                     EngineConfigStore.shared.pendingEngineId = id
                 }
                 // 通知状态观察器

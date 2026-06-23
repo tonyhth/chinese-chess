@@ -52,6 +52,22 @@ struct StatusBarView: View {
                         .stroke(Color.yellow.opacity(0.3), lineWidth: 0.5)
                 )
 
+                #if os(macOS)
+                // P2 #12: 引擎类型提示
+                HStack(spacing: 3) {
+                    Image(systemName: EngineConfigStore.shared.useExternalEngine ? "externaldrive" : "cpu")
+                        .font(.caption2)
+                    Text(EngineConfigStore.shared.useExternalEngine ? "外部" : "内置")
+                        .font(.caption.weight(.semibold))
+                }
+                .foregroundColor(.cyan)
+                .lineLimit(1)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Color.blue.opacity(0.3))
+                .cornerRadius(6)
+                #endif
+
                 Text(String(format: l10n.t("status.roundN"), max(1, viewModel.moveHistory.count / 2 + 1)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)

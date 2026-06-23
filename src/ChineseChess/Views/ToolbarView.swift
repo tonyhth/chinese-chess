@@ -95,17 +95,31 @@ struct ToolbarView: View {
             #endif
 
             // 设置组
-            Picker(l10n.t("difficulty.label"), selection: Binding(
-                get: { viewModel.difficulty },
-                set: { viewModel.setDifficulty($0) }
-            )) {
-                Text(l10n.t("difficulty.beginner")).tag(AIDifficulty.beginner)
-                Text(l10n.t("difficulty.easy")).tag(AIDifficulty.easy)
-                Text(l10n.t("difficulty.medium")).tag(AIDifficulty.medium)
-                Text(l10n.t("difficulty.hard")).tag(AIDifficulty.hard)
-                Text(l10n.t("difficulty.master")).tag(AIDifficulty.master)
+            HStack(spacing: 8) {
+                // P2 #10: 执边选择
+                Picker("执方", selection: Binding(
+                    get: { viewModel.humanSide },
+                    set: { viewModel.setHumanSide($0); viewModel.newGame() }
+                )) {
+                    Text("红").tag(Side.red)
+                    Text("黑").tag(Side.black)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 80)
+                .help("选择执方")
+
+                Picker(l10n.t("difficulty.label"), selection: Binding(
+                    get: { viewModel.difficulty },
+                    set: { viewModel.setDifficulty($0) }
+                )) {
+                    Text(l10n.t("difficulty.beginner")).tag(AIDifficulty.beginner)
+                    Text(l10n.t("difficulty.easy")).tag(AIDifficulty.easy)
+                    Text(l10n.t("difficulty.medium")).tag(AIDifficulty.medium)
+                    Text(l10n.t("difficulty.hard")).tag(AIDifficulty.hard)
+                    Text(l10n.t("difficulty.master")).tag(AIDifficulty.master)
+                }
+                .pickerStyle(.menu)
             }
-            .pickerStyle(.menu)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

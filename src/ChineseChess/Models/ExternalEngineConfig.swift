@@ -124,6 +124,13 @@ final class EngineConfigStore {
         }
     }
 
+    // P1 返工: pendingNative — 用户选"内置引擎"时标记，解决 Picker 弹回问题
+    var pendingNative: Bool = false {
+        didSet {
+            UserDefaults.standard.set(pendingNative, forKey: "chinesechess.pendingNative")
+        }
+    }
+
     /// 是否有待切换的引擎
     var hasPendingSwitch: Bool {
         pendingEngineId != selectedEngineId
@@ -158,6 +165,8 @@ final class EngineConfigStore {
            let uuid = UUID(uuidString: idStr) {
             pendingEngineId = uuid
         }
+        // P1 返工: 读取 pendingNative 标记
+        pendingNative = UserDefaults.standard.bool(forKey: "chinesechess.pendingNative")
         // P0 修复：读取 wantsExternalEngine 标记
         // 迁移逻辑：如果旧代码中 selectedEngineId != nil 但 wantsExternalEngine 未设置，自动补上
         if let wants = UserDefaults.standard.object(forKey: "chinesechess.wantsExternalEngine") as? Bool {
