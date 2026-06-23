@@ -8,7 +8,6 @@ import SwiftUI
 /// v3.1 Phase 2c: 外部引擎配置 + 测试连接
 struct EngineSettingsView: View {
     @State private var store = EngineConfigStore.shared
-    @State private var showingAddSheet = false
     @State private var editingEngine: ExternalEngineConfig?
     @State private var testingEngineId: UUID?
     @State private var testResult: String?
@@ -61,7 +60,6 @@ struct EngineSettingsView: View {
                                     options: [],
                                     isEnabled: true
                                 )
-                                showingAddSheet = true
                             }) {
                                 Label(l10n.t("engine.addEngine"), systemImage: "plus.circle.fill")
                             }
@@ -104,7 +102,6 @@ struct EngineSettingsView: View {
                                 options: [],
                                 isEnabled: true
                             )
-                            showingAddSheet = true
                         }
                     }
                 }
@@ -136,13 +133,11 @@ struct EngineSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .sheet(isPresented: $showingAddSheet) {
-            if let engine = editingEngine {
-                EngineEditView(engine: engine, onSave: { newEngine in
-                    store.addEngine(newEngine)
-                    showingAddSheet = false
-                })
-            }
+        .sheet(item: $editingEngine) { engine in
+            EngineEditView(engine: engine, onSave: { newEngine in
+                store.addEngine(newEngine)
+                editingEngine = nil
+            })
         }
     }
 
