@@ -285,6 +285,12 @@ class GameViewModel {
         Task { [weak self] in
             guard let self else { return }
             
+            // P0 修复：确保是 AI 的回合（不是玩家的回合）
+            guard self.board.currentTurn != humanSide else {
+                self.isThinking = false
+                return
+            }
+            
             #if os(macOS)
             // 确保引擎切换完成
             _ = await EngineRouter.shared.switchEngineIfNeeded()
@@ -311,6 +317,13 @@ class GameViewModel {
                let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
                 let mainPiece = self.board.pieces.first { $0.id == move.piece.id }
                 if let mainPiece = mainPiece {
+                    // P0 修复：验证 AI 返回的走法是 AI 的棋（不是玩家的棋）
+                    guard mainPiece.side == self.board.currentTurn else {
+                        // 外部引擎返回了错误的走法（走的是玩家的棋）
+                        self.isThinking = false
+                        return
+                    }
+                    
                     let captured = self.board.piece(at: move.to)
 
                     // 生成棋谱（execute 之前）
