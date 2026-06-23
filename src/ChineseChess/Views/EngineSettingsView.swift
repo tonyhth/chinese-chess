@@ -187,7 +187,7 @@ struct EngineEditView: View {
             Section("基本信息") {
                 TextField("名称", text: $engine.name)
                 HStack {
-                    TextField("可执行文件路径", text: $engine.executablePath)
+                    TextField("可执行文件路径", text: $engine.executablePath, prompt: Text("请填写引擎可执行文件路径"))
                     Button("选择…") {
                         showingFilePicker = true
                     }
