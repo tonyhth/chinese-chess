@@ -250,18 +250,18 @@ class GameViewModel {
             #endif
             
             let engine = EngineRouter.shared.activeEngine()
+            // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
             let fen = FENParser.generate(board: self.board)
-            let uciMoves = self.board.moveHistory.map { UCIMoveConverter.uciString(from: $0) }
             
             let uciMove = await engine.bestMove(
                 fen: fen,
-                moveHistory: uciMoves,
+                moveHistory: [],
                 difficulty: currentDifficulty,
                 timeLimitMs: 0
             )
             
             guard self.gameVersion == currentVersion else {
-                // gameVersion 不匹配——新对局已开始，只 return，不设 isThinking
+                self.isThinking = false
                 return
             }
             
@@ -291,18 +291,19 @@ class GameViewModel {
             #endif
             
             let engine = EngineRouter.shared.activeEngine()
+            // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
             let fen = FENParser.generate(board: self.board)
-            let uciMoves = self.board.moveHistory.map { UCIMoveConverter.uciString(from: $0) }
             
             let uciMove = await engine.bestMove(
                 fen: fen,
-                moveHistory: uciMoves,
+                moveHistory: [],
                 difficulty: currentDifficulty,
                 timeLimitMs: 0
             )
             
             guard self.gameVersion == currentVersion else {
-                // gameVersion 不匹配——新对局已开始，只 return，不设 isThinking
+                // gameVersion 不匹配——新对局已开始
+                self.isThinking = false
                 return
             }
             
