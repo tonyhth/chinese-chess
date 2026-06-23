@@ -1,12 +1,50 @@
 import Foundation
 
+// MARK: - EvalWeights 有序字段映射
+
+/// EvalWeights 字段名有序列表，保证编码/解码顺序一致（P1 修复）
+/// 顺序必须与 Mirror.children 顺序完全匹配
+private let evalWeightsFieldNames: [String] = [
+    // 子力价值
+    "generalValue", "chariotValue", "horseValueOpening", "horseValueEndgame",
+    "cannonValueOpening", "cannonValueEndgame", "advisorValue", "elephantValue",
+    "soldierValueEarly", "soldierValueCrossed", "soldierValueLateEndgame",
+    "endgameThreshold", "lateEndgameThreshold",
+    // 评估函数权重
+    "materialWeight", "positionWeight", "patternWeight", "mobilityWeight", "safetyWeight",
+    // 将帅安全
+    "guardWeightOpening", "guardWeightEndgame", "elephantWeightModifier",
+    "exposurePenaltyOpening", "exposurePenaltyEndgame", "airDefenseBonus",
+    "airDefensePenaltyOpening", "attackPenaltyEndgame", "attackPenaltyOpening",
+    "horsePalaceThreatDirect", "horsePalaceThreatNear",
+    // 机动性
+    "chariotRowColEmptyMultiplier", "chariotCenterBonus", "chariotNearCenterBonus",
+    "chariotEndgameMultiplier", "chariotOpeningMultiplier", "cannonTargetBonus",
+    "cannonCenterBonus", "cannonEndgameFactor", "horseJumpBonus", "horseEndgameJumpBonus",
+    "horseBadPositionPenalty", "soldierForwardBonus", "soldierSideBonus",
+    // 棋型识别
+    "doubleChariotBonus", "singleChariotWithWeakBonus", "horseGeneralFacingBonus",
+    "fishingHorseBonus", "ironGateBonus", "centralCannonBonus", "horseCenterBonus",
+    "horseBadCenterPenalty", "chariotCannonLineBonus", "tandemCannonBonus",
+    "riverCannonBonus", "stackedCannonBonus", "cornerAdvisorBonus", "flyingElephantBonus",
+    "generalProximityBonusBase", "generalProximityBonusRange", "soldierStructureBonus",
+    "soldierLineSyncBonus", "chariotCannonCoordBonus", "chariotCannonProtectBonus",
+    "horseCannonCoordBonus",
+    // 补充棋型
+    "doubleChariotTandemBonus", "corneredHorseBonus", "centralCannonAttackBonus",
+    "crossedSoldierBonus", "flyingGeneralBonus", "doubleChariotCoordBonus",
+    "doubleHorseProtectBonus", "noCannonSafetyBonus",
+    // 搜索参数
+    "endgameEvalThreshold"
+]
+
 // MARK: - CMA-ES 参数向量
 
 /// CMA-ES 优化参数向量
 /// 将 EvalWeights 编码为 Double 数组，支持进化操作
 struct CMAESIndividual: Codable {
     let id: UUID
-    var parameters: [Double]       // 参数向量（与 EvalWeights 字段对应）
+    var parameters: [Double]       // 参数向量（与 evalWeightsFieldNames 顺序严格对应）
     var fitness: Double = 0.0      // 适应度（基于自对弈胜率）
     var generation: Int = 0
     
@@ -16,28 +54,32 @@ struct CMAESIndividual: Codable {
         self.generation = generation
     }
     
-    /// 从 EvalWeights 创建个体
+    /// 从 EvalWeights 创建个体（P1 修复：使用有序字段列表）
     init(from weights: EvalWeights, generation: Int = 0) {
         self.id = UUID()
-        self.parameters = weights.toParameterArray().values.map { $0 }
         self.generation = generation
-    }
-    
-    /// 解码为 EvalWeights
-    func toEvalWeights() -> EvalWeights {
-        // 参数向量顺序与 EvalWeights 字段顺序一致
-        // 这里简化处理：直接用默认值 + 参数向量覆盖
-        var weights = EvalWeights.default
+        var params: [Double] = []
         let mirror = Mirror(reflecting: weights)
-        var index = 0
         for child in mirror.children {
             guard let label = child.label else { continue }
-            if index < parameters.count {
-                let value = parameters[index]
-                // 根据 label 设置对应字段（反射方式）
-                weights = weights.setValue(label: label, value: value)
-                index += 1
+            switch child.value {
+            case let v as Int: params.append(Double(v))
+            case let v as Double: params.append(v)
+            default: break
             }
+        }
+        self.parameters = params
+    }
+    
+    /// 解码为 EvalWeights（P1 修复：使用有序字段列表）
+    func toEvalWeights() -> EvalWeights {
+        var weights = EvalWeights.default
+        let mirror = Mirror(reflecting: weights)
+        var mirrorChildren = Array(mirror.children)
+        for i in 0..<min(parameters.count, mirrorChildren.count) {
+            let child = mirrorChildren[i]
+            guard let label = child.label else { continue }
+            weights = weights.setValue(label: label, value: parameters[i])
         }
         return weights
     }
@@ -267,15 +309,11 @@ final class CMAESOptimizer {
         }
     }
     
-    /// 评估单个权重配置的适应度
+    /// 评估单个权重配置的适应度（P0 修复：注入权重到 EvalConfigManager）
     private func evaluateFitness(weights: EvalWeights) -> Double {
-        // 使用 SelfPlayRunner 运行自对弈
-        // 保存权重到临时文件
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("eval_weights_temp.json")
-        _ = weights.save(to: tempURL)
-        
-        // 更新 AIEngine 使用新权重
-        // （简化：直接使用默认引擎，实际应支持权重注入）
+        // P0 修复：注入权重到全局共享实例，使 SelfPlayRunner 使用当前个体权重
+        let previousWeights = EvalConfigManager.shared.weights
+        EvalConfigManager.shared.setWeights(weights)
         
         // 运行自对弈
         let runner = SelfPlayRunner()
@@ -286,6 +324,13 @@ final class CMAESOptimizer {
         )
         
         let result = runner.run(config: config)
+        
+        // P0 修复：评估完成后恢复上一轮最优权重（如果有），否则恢复默认权重
+        if let best = bestIndividual {
+            EvalConfigManager.shared.setWeights(best.toEvalWeights())
+        } else {
+            EvalConfigManager.shared.setWeights(previousWeights)
+        }
         
         // 计算适应度：胜率 + Elo 估值
         let winRate = Double(result.redWins + result.draws) / Double(result.games.count)
