@@ -17,11 +17,11 @@ let package = Package(
             dependencies: ["CPikafish"],
             path: "ChineseChess",
             exclude: [
-                // Pikafish 构建产物目录（静态库在 lib/macos/）
+                // Pikafish 构建脚本和版本文件（非源码）
                 "Pikafish/build.sh",
-                "Pikafish/build_test.sh",
                 "Pikafish/VERSION",
-                "Pikafish/benchmark_stub.cpp"
+                // Pikafish 预编译静态库（由 build.sh 生成，不入 Git）
+                "Pikafish/lib"
             ],
             resources: [.process("Resources")],
             linkerSettings: [
