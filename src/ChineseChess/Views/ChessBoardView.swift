@@ -14,6 +14,7 @@ enum BoardMode {
 struct ChessBoardView: View {
     let mode: BoardMode
     var theme: ThemeColors = ThemeManager.shared.colors
+    var isFlipped: Bool = false
 
     // MARK: - 拖拽状态
 
@@ -197,6 +198,7 @@ struct ChessBoardView: View {
                     .position(posToCGPoint(piece.position, cellSize: cellSize, padding: padding))
                     .allowsHitTesting(false)
                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: piece.position)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFlipped)
             }
         }
 
@@ -236,16 +238,13 @@ struct ChessBoardView: View {
     /// Position → CGPoint，用于 ZStack 内 .position() 定位
     /// ZStack 内 .position() 坐标原点在 ZStack 左上角
     private func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
-        BoardSizing.posToCGPoint(pos, cellSize: cellSize, padding: padding)
+        BoardSizing.posToCGPoint(pos, cellSize: cellSize, padding: padding, flipped: isFlipped)
     }
 
     /// CGPoint → Position，用于交互层点击坐标转换
     /// onTapGesture 坐标相对于视图本地坐标系（左上角为原点）
     private func cgPointToPos(_ point: CGPoint, cellSize: CGFloat, padding: CGFloat) -> Position? {
-        let col = Int(round((point.x - padding) / cellSize))
-        let row = Int(round((point.y - padding) / cellSize))
-        guard row >= 0, row <= 9, col >= 0, col <= 8 else { return nil }
-        return Position(row: row, col: col)
+        BoardSizing.cgPointToPos(point, cellSize: cellSize, padding: padding, flipped: isFlipped)
     }
 
     // MARK: - 拖拽手势处理
@@ -254,7 +253,7 @@ struct ChessBoardView: View {
     private func isPlayerPiece(at pos: Position) -> Bool {
         guard let piece = board.piece(at: pos) else { return false }
         switch mode {
-        case .playGame: return piece.side == .red
+        case .playGame(let vm): return piece.side == vm.humanSide
         case .playPuzzle(let vm): return piece.side == vm.playerSide
         }
     }
@@ -494,10 +493,18 @@ struct ChessBoardView: View {
     private func riverText(width: CGFloat, cellSize: CGFloat, padding: CGFloat) -> some View {
         let y = padding + 4 * cellSize + cellSize / 2
         HStack(spacing: cellSize * 2) {
-            Text("楚  河")
-                .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-            Text("汉  界")
-                .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
+            // 翻转时顺序对调："汉 界"在左，"楚 河"在右
+            if isFlipped {
+                Text("汉  界")
+                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
+                Text("楚  河")
+                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
+            } else {
+                Text("楚  河")
+                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
+                Text("汉  界")
+                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
+            }
         }
         .foregroundColor(theme.riverTextColor)
         .position(x: width / 2, y: y)

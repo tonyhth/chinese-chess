@@ -80,7 +80,7 @@ struct RankProgressView: View {
             }
         }
         .padding()
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(Color.controlBackground)
         .cornerRadius(8)
     }
 }
@@ -153,7 +153,7 @@ struct AchievementView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)
-        .background(isUnlocked ? Color.accentColor.opacity(0.08) : Color(nsColor: .controlBackgroundColor))
+        .background(isUnlocked ? Color.accentColor.opacity(0.08) : Color.controlBackground)
         .cornerRadius(6)
         .opacity(isUnlocked ? 1.0 : 0.6)
     }

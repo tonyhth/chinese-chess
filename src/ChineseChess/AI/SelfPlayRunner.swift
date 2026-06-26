@@ -65,11 +65,20 @@ struct SelfPlayConfig {
 
 /// 引擎 vs 引擎自动对弈框架
 /// 用于 Elo 基线测量和评估函数校准
+/// v3.1 Phase 1b: 支持权重注入（CMA-ES 并行评估）
 final class SelfPlayRunner {
 
-    private let engine = AIEngine()
+    private let engine: AIEngine
 
-    init() {}
+    /// 原有初始化器（兼容现有代码）
+    init() {
+        self.engine = AIEngine()
+    }
+
+    /// CMA-ES 并行评估专用初始化器（注入权重）
+    init(weights: EvalWeights) {
+        self.engine = AIEngine(weights: weights)
+    }
 
     // 统计
     private var redWins = 0

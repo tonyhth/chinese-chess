@@ -6,6 +6,6 @@ struct BoardView: View {
     var theme: ThemeColors = ThemeManager.shared.colors
 
     var body: some View {
-        ChessBoardView(mode: .playGame(viewModel), theme: theme)
+        ChessBoardView(mode: .playGame(viewModel), theme: theme, isFlipped: viewModel.humanSide == .black)
     }
 }

@@ -34,7 +34,7 @@ struct TutorialView: View {
                 .buttonStyle(.borderless)
             }
             .padding()
-            .background(Color(nsColor: .windowBackgroundColor))
+            .background(Color.windowBackground)
 
             // 进度条
             ProgressView(
@@ -68,7 +68,7 @@ struct TutorialView: View {
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
-                        .background(Color(nsColor: .controlBackgroundColor))
+                        .background(Color.controlBackground)
                         .cornerRadius(8)
 
                     // 课程特定交互
@@ -232,54 +232,6 @@ struct FirstLaunchDialog: View {
     }
 }
 
-// MARK: - 选边视图
 
-struct SideSelectionView: View {
-    @Binding var selectedSide: Side
-    var onStart: () -> Void
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("选择执方")
-                .font(.headline)
-
-            HStack(spacing: 30) {
-                // 执红
-                Button(action: { selectedSide = .red }) {
-                    VStack(spacing: 8) {
-                        Image(systemName: selectedSide == .red ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(selectedSide == .red ? .accentColor : .secondary)
-                        Text("执红")
-                            .font(.title3)
-                            .fontWeight(selectedSide == .red ? .bold : .regular)
-                        Text("先手")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(width: 80, height: 80)
-                    .background(selectedSide == .red ? Color.accentColor.opacity(0.1) : Color.clear)
-                    .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-
-                // 执黑
-                Button(action: { selectedSide = .black }) {
-                    VStack(spacing: 8) {
-                        Image(systemName: selectedSide == .black ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(selectedSide == .black ? .accentColor : .secondary)
-                        Text("执黑")
-                            .font(.title3)
-                            .fontWeight(selectedSide == .black ? .bold : .regular)
-                        Text("后手")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(width: 80, height: 80)
-                    .background(selectedSide == .black ? Color.accentColor.opacity(0.1) : Color.clear)
-                    .cornerRadius(8)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-}
+// SideSelectionView 已移除（v3.4）：废弃组件
+// 功能已被 ToolbarView 内联执边按钮替代

@@ -18,8 +18,19 @@ final class AIEngine: AIEngineProtocol {
     /// 历史启发表（实例级，避免并发竞争）
     private var moveOrderer = MoveOrderer()
 
-    /// v3.1 权重配置（运行时可热重载）
-    private var evalWeights: EvalWeights { EvalConfigManager.shared.weights }
+    /// v3.1 权重配置（实例级，持有权重副本）
+    /// CMA-ES 并行评估：每个体独立权重实例，无共享状态
+    private let weights: EvalWeights
+
+    /// 原有初始化器（兼容现有代码）
+    init() {
+        self.weights = EvalConfigManager.shared.weights
+    }
+
+    /// CMA-ES 并行评估专用初始化器（注入权重副本）
+    init(weights: EvalWeights) {
+        self.weights = weights
+    }
 
     /// 清空历史启发表（新对局时调用）
     func clearHistory() {
@@ -839,7 +850,7 @@ final class AIEngine: AIEngineProtocol {
             return endgameScore
         }
 
-        let w = evalWeights
+        let w = weights
 
         let sign: Int = (side == .black) ? 1 : -1
 
@@ -903,7 +914,7 @@ final class AIEngine: AIEngineProtocol {
     ///   价值提升至 300。此阈值待自对弈校准。
     /// 注：阈值来源于象棋棋理经验，具体数值待通过大规模自对弈校准调参。
     private func dynamicValue(for piece: Piece, totalPieces: Int) -> Int {
-        let w = evalWeights
+        let w = weights
         switch piece.kind {
         case .general:  return w.generalValue
         case .chariot:  return w.chariotValue
@@ -930,7 +941,7 @@ final class AIEngine: AIEngineProtocol {
     /// 开局侧重防守子力完整性，残局侧重将的机动性
     private func kingSafetyScore(for side: Side, on board: Board) -> Int {
         guard let kingPos = board.generalPosition(of: side) else { return -50000 }
-        let w = evalWeights
+        let w = weights
         var score = 0
         let totalPieces = board.pieces.count
         let isEndgame = totalPieces <= 16
@@ -1049,7 +1060,7 @@ final class AIEngine: AIEngineProtocol {
 
     /// 评估对方马对己方九宫的威胁程度
     private func horsePalaceThreat(_ horse: Piece, kingPos: Position, on board: Board) -> Int {
-        let w = evalWeights
+        let w = weights
         let jumps = horseJumpTargets(from: horse.position, for: horse.side, on: board)
         for jump in jumps {
             if jump.row == kingPos.row && jump.col == kingPos.col {
@@ -1072,7 +1083,7 @@ final class AIEngine: AIEngineProtocol {
     /// 炮：炮架质量 + 控制线路
     /// 兵：过河兵机动性 + 推进价值
     private func simplifiedMobilityScore(for side: Side, on board: Board) -> Int {
-        let w = evalWeights
+        let w = weights
         var score = 0
         let totalPieces = board.pieces.count
         let isEndgame = totalPieces <= 16

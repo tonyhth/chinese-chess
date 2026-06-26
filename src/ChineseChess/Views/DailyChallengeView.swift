@@ -59,7 +59,7 @@ struct DailyChallengeView: View {
                     }
                 }
                 .padding()
-                .background(Color(nsColor: .controlBackgroundColor))
+                .background(Color.controlBackground)
                 .cornerRadius(12)
 
                 // 连续登录
@@ -109,7 +109,7 @@ struct DailyChallengeView: View {
                     }
                 }
                 .padding()
-                .background(Color(nsColor: .controlBackgroundColor))
+                .background(Color.controlBackground)
                 .cornerRadius(12)
 
                 // 最近挑战
@@ -143,7 +143,7 @@ struct DailyChallengeView: View {
                     }
                 }
                 .padding()
-                .background(Color(nsColor: .controlBackgroundColor))
+                .background(Color.controlBackground)
                 .cornerRadius(12)
             }
             .padding()

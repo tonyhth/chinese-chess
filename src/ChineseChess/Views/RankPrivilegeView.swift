@@ -10,16 +10,9 @@ struct RankPrivilegeView: View {
     var body: some View {
         List {
             Section("当前段位") {
-                HStack {
-                    Image(systemName: "crown.fill")
-                        .foregroundColor(.yellow)
-                    Text(profile.rank.rawValue)
-                        .font(.title2.weight(.bold))
-                    Spacer()
-                    Text("\(profile.totalWins) 胜 / \(profile.puzzlesCompleted) 残局")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                RankProgressView(profile: profile)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
             Section("段位特权") {

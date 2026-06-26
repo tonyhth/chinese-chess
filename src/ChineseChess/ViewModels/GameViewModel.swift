@@ -244,10 +244,8 @@ class GameViewModel {
         Task { [weak self] in
             guard let self else { return }
             
-            #if os(macOS)
             // 确保引擎切换完成
             _ = await EngineRouter.shared.switchEngineIfNeeded()
-            #endif
             
             let engine = EngineRouter.shared.activeEngine()
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
@@ -281,9 +279,12 @@ class GameViewModel {
         let currentVersion = gameVersion
         let humanSide = self.humanSide
 
+
         // v3.1 Phase 2c: 使用 ChessEngine 协议
         Task { [weak self] in
-            guard let self else { return }
+            guard let self else {
+                return
+            }
             
             // P0 修复：确保是 AI 的回合（不是玩家的回合）
             guard self.board.currentTurn != humanSide else {
@@ -291,10 +292,8 @@ class GameViewModel {
                 return
             }
             
-            #if os(macOS)
             // 确保引擎切换完成
             _ = await EngineRouter.shared.switchEngineIfNeeded()
-            #endif
             
             let engine = EngineRouter.shared.activeEngine()
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
@@ -313,54 +312,64 @@ class GameViewModel {
                 return
             }
             
-            if let uciMove = uciMove,
-               let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
-                let mainPiece = self.board.pieces.first { $0.id == move.piece.id }
-                if let mainPiece = mainPiece {
-                    // P0 修复：验证 AI 返回的走法是 AI 的棋（不是玩家的棋）
-                    guard mainPiece.side == self.board.currentTurn else {
-                        // 外部引擎返回了错误的走法（走的是玩家的棋）
-                        self.isThinking = false
-                        return
-                    }
-                    
-                    let captured = self.board.piece(at: move.to)
-
-                    // 生成棋谱（execute 之前）
-                    let aiMove = Move(piece: mainPiece, from: mainPiece.position, to: move.to, captured: captured)
-                    let notation = NotationGenerator.notation(for: aiMove, on: self.board)
-
-                    self.board.execute(aiMove)
-
-                    // 记录 AI 的 GameMove
-                    let turnNumber = (self.gameMoves.count / 2) + 1
-                    let isCheck = MoveValidator.isInCheck(humanSide, on: self.board)
-
-                    let gameMove = GameMove(
-                        id: UUID(),
-                        piece: mainPiece,
-                        from: aiMove.from,
-                        to: aiMove.to,
-                        captured: captured,
-                        turnNumber: turnNumber,
-                        notation: notation,
-                        timestamp: Date(),
-                        isCheck: isCheck,
-                        isCheckmate: false
-                    )
-                    self.gameMoves.append(gameMove)
-
-                    if let captured = captured {
-                        if humanSide == .red {
-                            self.capturedPieces.black.append(captured)
-                        } else {
-                            self.capturedPieces.red.append(captured)
+            if let uciMove = uciMove {
+                if let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
+                    let mainPiece = self.board.pieces.first { $0.id == move.piece.id }
+                    if let mainPiece = mainPiece {
+                        // P0 修复：验证 AI 返回的走法是 AI 的棋（不是玩家的棋）
+                        guard mainPiece.side == self.board.currentTurn else {
+                            // 外部引擎返回了错误的走法（走的是玩家的棋）
+                            self.isThinking = false
+                            return
                         }
-                        SoundEngine.shared.playCapture()
+
+                        let captured = self.board.piece(at: move.to)
+
+                        // 生成棋谱（execute 之前）
+                        let aiMove = Move(piece: mainPiece, from: mainPiece.position, to: move.to, captured: captured)
+                        let notation = NotationGenerator.notation(for: aiMove, on: self.board)
+
+                        self.board.execute(aiMove)
+
+                        // 记录 AI 的 GameMove
+                        let turnNumber = (self.gameMoves.count / 2) + 1
+                        let isCheck = MoveValidator.isInCheck(humanSide, on: self.board)
+
+                        let gameMove = GameMove(
+                            id: UUID(),
+                            piece: mainPiece,
+                            from: aiMove.from,
+                            to: aiMove.to,
+                            captured: captured,
+                            turnNumber: turnNumber,
+                            notation: notation,
+                            timestamp: Date(),
+                            isCheck: isCheck,
+                            isCheckmate: false
+                        )
+                        self.gameMoves.append(gameMove)
+
+                        if let captured = captured {
+                            if humanSide == .red {
+                                self.capturedPieces.black.append(captured)
+                            } else {
+                                self.capturedPieces.red.append(captured)
+                            }
+                            SoundEngine.shared.playCapture()
+                        } else {
+                            SoundEngine.shared.playMove()
+                        }
                     } else {
-                        SoundEngine.shared.playMove()
+                        // move.piece 在棋盘上找不到
+                        print("⚠️ AI move: piece not found on board")
                     }
+                } else {
+                    // UCI 走法解析失败
+                    print("⚠️ AI move: UCI parse failed for \(uciMove)")
                 }
+            } else {
+                // 引擎返回 nil
+                print("⚠️ AI move: engine returned nil")
             }
             
             self.isThinking = false

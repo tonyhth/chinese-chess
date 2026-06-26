@@ -60,10 +60,22 @@ enum BoardSizing {
     }
 
     /// Position → CGPoint（ZStack 内定位）
-    static func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
-        CGPoint(
+    /// - Parameter flipped: 翻转视角（执黑时为 true），row 映射为 9 - row
+    static func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat, flipped: Bool = false) -> CGPoint {
+        let row = flipped ? 9 - pos.row : pos.row
+        return CGPoint(
             x: padding + CGFloat(pos.col) * cellSize,
-            y: padding + CGFloat(pos.row) * cellSize
+            y: padding + CGFloat(row) * cellSize
         )
+    }
+
+    /// CGPoint → Position（交互层点击坐标转换）
+    /// - Parameter flipped: 翻转视角时逆映射 row
+    static func cgPointToPos(_ point: CGPoint, cellSize: CGFloat, padding: CGFloat, flipped: Bool = false) -> Position? {
+        let col = Int(round((point.x - padding) / cellSize))
+        let rowRaw = Int(round((point.y - padding) / cellSize))
+        let row = flipped ? 9 - rowRaw : rowRaw
+        guard row >= 0, row <= 9, col >= 0, col <= 8 else { return nil }
+        return Position(row: row, col: col)
     }
 }

@@ -270,6 +270,25 @@ if [[ $ERRORS -gt 0 ]]; then
     exit 1
 fi
 
+# ============ 8. 签名 + LaunchServices 刷新 ============
+echo "🔐 [8/9] Ad-hoc 签名..."
+if codesign --force --deep --sign - "$APP_DIR" 2>&1; then
+    echo "   ✅ Ad-hoc 签名完成"
+else
+    echo "   ⚠️  签名失败（不影响运行，但 Finder 图标可能不显示）"
+fi
+echo ""
+
+echo "🔄 [9/9] 刷新 LaunchServices..."
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+if [[ -x "$LSREGISTER" ]]; then
+    "$LSREGISTER" -f "$APP_DIR" 2>/dev/null
+    echo "   ✅ LaunchServices 已刷新（Finder 图标将正常显示）"
+else
+    echo "   ⚠️  lsregister 不可用"
+fi
+echo ""
+
 # 汇总
 echo ""
 echo "=========================================="
@@ -292,3 +311,6 @@ if [[ -d "$APP_DIR/Contents/Resources/zh-Hans.lproj" ]]; then
     echo "  Contents/Resources/en.lproj/"
 fi
 echo "=========================================="
+
+# 自动打开 Finder 目录（避免旧窗口缓存图标）
+open "$PROJECT_ROOT"

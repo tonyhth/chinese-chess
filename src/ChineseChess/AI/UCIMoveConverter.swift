@@ -5,7 +5,13 @@ import Foundation
 /// UCI 走法格式：4 字符，如 "h2e2" = 从 col=7,row=2 到 col=4,row=2
 ///
 /// 列映射：a-i → col 0-8
-/// 行映射：'0'-'9' → row 0-9（0 = 黑方底线，9 = 红方底线）
+/// 行映射（UCI 协议约定）：
+///   - UCI 数字 0 = 红方底线（游戏内 row 9）
+///   - UCI 数字 9 = 黑方底线（游戏内 row 0）
+/// 因此需要翻转：gameRow = 9 - uciRow
+///
+/// 修复历史：v2.2.x 初期实现未翻转行坐标，导致 external engine 返回的走法
+///           被错误解析（棋子位置偏移），现已修复。
 ///
 /// FEN 生成/解析复用现有 FENParser.generate(board:) / FENParser.parse(fen:)。
 enum UCIMoveConverter {
@@ -14,7 +20,8 @@ enum UCIMoveConverter {
 
     /// Move → UCI 走法字符串（如 "h2e2"）
     static func uciString(from move: Move) -> String {
-        return "\(colToChar(move.from.col))\(move.from.row)\(colToChar(move.to.col))\(move.to.row)"
+        // 游戏内 row → UCI row：翻转
+        return "\(colToChar(move.from.col))\(9 - move.from.row)\(colToChar(move.to.col))\(9 - move.to.row)"
     }
 
     // MARK: - UCI → Position pair
@@ -29,7 +36,8 @@ enum UCIMoveConverter {
               let toRow = chars[3].wholeNumberValue,
               fromRow >= 0, fromRow <= 9,
               toRow >= 0, toRow <= 9 else { return nil }
-        return (Position(row: fromRow, col: fromCol), Position(row: toRow, col: toCol))
+        // UCI row → 游戏内 row：翻转
+        return (Position(row: 9 - fromRow, col: fromCol), Position(row: 9 - toRow, col: toCol))
     }
 
     // MARK: - UCI → Move

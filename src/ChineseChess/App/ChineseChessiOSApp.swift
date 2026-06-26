@@ -21,6 +21,9 @@ struct ChineseChessiOSApp: App {
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
     @State private var showThemePicker = false
+    @State private var showDailyChallenge = false
+    @State private var showAchievements = false
+    @State private var showRankPrivilege = false
 
     var body: some Scene {
         WindowGroup {
@@ -105,6 +108,17 @@ struct ChineseChessiOSApp: App {
                             Button(action: { showThemePicker = true }) {
                                 Label(L10n.shared.t("toolbar.theme"), systemImage: "paintpalette")
                             }
+                            Divider()
+                            Button(action: { showDailyChallenge = true }) {
+                                Label(L10n.shared.t("toolbar.dailyChallenge"), systemImage: "calendar.badge.clock")
+                            }
+                            Button(action: { showAchievements = true }) {
+                                Label(L10n.shared.t("toolbar.achievements"), systemImage: "trophy")
+                            }
+                            Button(action: { showRankPrivilege = true }) {
+                                Label(L10n.shared.t("toolbar.rankPrivilege"), systemImage: "medal")
+                            }
+                            Divider()
                             Button(action: { showSettings = true }) {
                                 Label(L10n.shared.t("toolbar.settings"), systemImage: "gearshape")
                             }
@@ -193,6 +207,42 @@ struct ChineseChessiOSApp: App {
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button(L10n.shared.t("common.done")) { showSettings = false }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showDailyChallenge) {
+                NavigationStack {
+                    DailyChallengeView()
+                        .navigationTitle(L10n.shared.t("toolbar.dailyChallenge"))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { showDailyChallenge = false }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showAchievements) {
+                NavigationStack {
+                    AchievementView(profile: PlayerProfileStore.shared.profile)
+                        .navigationTitle(L10n.shared.t("toolbar.achievements"))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { showAchievements = false }
+                            }
+                        }
+                }
+            }
+            .sheet(isPresented: $showRankPrivilege) {
+                NavigationStack {
+                    RankPrivilegeView(profile: PlayerProfileStore.shared.profile)
+                        .navigationTitle(L10n.shared.t("toolbar.rankPrivilege"))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { showRankPrivilege = false }
                             }
                         }
                 }

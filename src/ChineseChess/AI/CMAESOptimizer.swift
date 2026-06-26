@@ -227,10 +227,11 @@ final class CMAESOptimizer {
     ///   - initialWeights: 初始权重(作为起点)
     ///   - progressCallback: 进度回调
     /// - Returns: 最优个体
+    /// v3.1 Phase 1b: CMA-ES 并行化，run 改为 async
     func run(
         initialWeights: EvalWeights = .default,
         progressCallback: ((Int, Double, Double) -> Void)? = nil
-    ) -> CMAESIndividual {
+    ) async -> CMAESIndividual {
         startTime = Date()
 
         // 1. 初始化种群
@@ -240,8 +241,8 @@ final class CMAESOptimizer {
         for gen in 0..<config.maxGenerations {
             generation = gen
 
-            // 2.1 评估适应度
-            evaluatePopulation()
+            // 2.1 并行评估适应度
+            await evaluatePopulation()
 
             // 2.2 记录统计
             let avgFitness = population.map { $0.fitness }.reduce(0, +) / Double(population.count)
@@ -296,41 +297,62 @@ final class CMAESOptimizer {
         }
     }
 
-    /// 评估种群适应度(基于自对弈胜率)
-    private func evaluatePopulation() {
-        for i in 0..<population.count {
-            let individual = population[i]
-            let weights = individual.toEvalWeights()
+    /// 并行评估种群适应度（TaskGroup + 并发控制）
+    /// v3.1 Phase 1b: CMA-ES 并行化实现
+    private func evaluatePopulation() async {
+        let parallelism = ProcessInfo.processInfo.activeProcessorCount
+        let maxConcurrent = min(population.count, parallelism)
 
-            // 运行自对弈评估棋力
-            let fitness = evaluateFitness(weights: weights)
-            population[i].fitness = fitness
-            totalEvaluations += 1
+        await withTaskGroup(of: (Int, Double).self) { group in
+            var activeTasks = 0
+            var taskIndex = 0
+
+            // 添加初始批次任务
+            while taskIndex < population.count && activeTasks < maxConcurrent {
+                let i = taskIndex
+                let weights = population[i].toEvalWeights()
+                group.addTask {
+                    let fitness = await self.evaluateFitness(weights: weights)
+                    return (i, fitness)
+                }
+                activeTasks += 1
+                taskIndex += 1
+            }
+
+            // 动态调度：任务完成后添加新任务
+            for await (index, fitness) in group {
+                population[index].fitness = fitness
+                totalEvaluations += 1
+                activeTasks -= 1
+
+                // 添加下一个任务
+                if taskIndex < population.count {
+                    let i = taskIndex
+                    let weights = population[i].toEvalWeights()
+                    group.addTask {
+                        let fitness = await self.evaluateFitness(weights: weights)
+                        return (i, fitness)
+                    }
+                    activeTasks += 1
+                    taskIndex += 1
+                }
+            }
         }
     }
 
-    /// 评估单个权重配置的适应度(P0 修复:注入权重到 EvalConfigManager)
-    private func evaluateFitness(weights: EvalWeights) -> Double {
-        // P0 修复:注入权重到全局共享实例,使 SelfPlayRunner 使用当前个体权重
-        let previousWeights = EvalConfigManager.shared.weights
-        EvalConfigManager.shared.setWeights(weights)
-
-        // 运行自对弈
-        let runner = SelfPlayRunner()
+    /// 评估单个权重配置的适应度（async，直接运行）
+    /// v3.1 Phase 1b: CMA-ES 并行化，每个体独立权重实例
+    private func evaluateFitness(weights: EvalWeights) async -> Double {
+        // 创建独立 SelfPlayRunner 实例（注入权重）
+        let runner = SelfPlayRunner(weights: weights)
         let config = SelfPlayConfig(
-            red: config.selfPlayDifficulty,
-            black: config.selfPlayDifficulty,
-            games: config.selfPlayGames
+            red: self.config.selfPlayDifficulty,
+            black: self.config.selfPlayDifficulty,
+            games: self.config.selfPlayGames
         )
 
+        // 运行自对弈（同步，在 async 函数中直接调用）
         let result = runner.run(config: config)
-
-        // P0 修复:评估完成后恢复上一轮最优权重(如果有),否则恢复默认权重
-        if let best = bestIndividual {
-            EvalConfigManager.shared.setWeights(best.toEvalWeights())
-        } else {
-            EvalConfigManager.shared.setWeights(previousWeights)
-        }
 
         // 计算适应度:胜率 + Elo 估值
         let winRate = Double(result.redWins + result.draws) / Double(result.games.count)
@@ -341,9 +363,7 @@ final class CMAESOptimizer {
         )
 
         // 适应度 = 胜率 * 100 + EloDelta(综合指标)
-        let fitness = winRate * 100 + Double(eloDelta)
-
-        return fitness
+        return winRate * 100 + Double(eloDelta)
     }
 
     /// 进化种群(选择 + 交叉 + 变异)
@@ -438,8 +458,8 @@ final class CMAESOptimizer {
 // MARK: - 命令行入口
 
 #if os(macOS)
-/// 命令行 CMA-ES 入口
-func runCMAESFromCLI() {
+/// 命令行 CMA-ES 入口（async 版本）
+func runCMAESFromCLI() async {
     let args = CommandLine.arguments
     let startTime = Date()  // 用于进度输出计时
     
@@ -485,7 +505,8 @@ func runCMAESFromCLI() {
 
     let optimizer = CMAESOptimizer(config: config)
 
-    let result = optimizer.run(progressCallback: { gen, avg, best in
+    // v3.1 Phase 1b: run() 改为 async，CLI 直接 await 调用
+    _ = await optimizer.run(progressCallback: { gen, avg, best in
         let elapsed = Date().timeIntervalSince(startTime)
         print("  [第\(gen)代] 平均: \(String(format: "%.2f", avg)) | 最优: \(String(format: "%.2f", best)) | 耗时: \(String(format: "%.0f", elapsed))s")
         fflush(stdout)
