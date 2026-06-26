@@ -103,6 +103,7 @@ struct V34GameViewModelNotificationTests {
         let vm = GameViewModel()
         NotificationCenter.default.post(name: EngineRouter.fallbackNotification, object: nil)
         try await Task.sleep(for: .milliseconds(100))
+        #expect(vm.engineFallbackMessage != nil, "engineFallbackMessage should be set after fallback notification")
     }
 
     @MainActor

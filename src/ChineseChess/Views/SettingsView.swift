@@ -84,7 +84,7 @@ struct SettingsView: View {
                 #if os(macOS)
                 // 引擎设置
                 Section(l10n.t("settings.engineSection")) {
-                    Toggle("使用 Pikafish 引擎", isOn: Binding(
+                    Toggle(l10n.t("engine.usePikafish"), isOn: Binding(
                         get: { EngineConfigStore.shared.useEmbeddedEngine },
                         set: { newValue in
                             EngineConfigStore.shared.useEmbeddedEngine = newValue

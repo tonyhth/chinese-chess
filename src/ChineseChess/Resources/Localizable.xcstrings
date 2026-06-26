@@ -3123,6 +3123,38 @@
           }
         }
       }
+    },
+    "engine.usePikafish": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pikafish 引擎"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Pikafish Engine"
+          }
+        }
+      }
+    },
+    "engine.usePikafishMenu": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pikafish"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Pikafish"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

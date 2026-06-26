@@ -14,6 +14,9 @@ import Pikafish  // 通过 modulemap 导入 C API（iOS + macOS 统一）
 /// - stopSearch() is non-blocking, thread-safe C call
 actor EmbeddedPikafishEngine: ChessEngine {
     nonisolated let displayName: String = "Pikafish"
+    // .external 表示非自研引擎。嵌入式 Pikafish 复用此值：
+    // - 与 .native（自研 AIEngine）区分
+    // - StatusBarView/ToolbarView 用 useEmbeddedEngine 判断 UI 显示，不依赖 engineType
     nonisolated let engineType: EngineType = .external
     private(set) var isReady = false
     private var cachedVersion: String = "unknown"
@@ -69,7 +72,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
         // 在 DispatchQueue.global() 执行阻塞调用，避免占用 cooperative pool
         return await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
-                var buffer = [CChar](repeating: 0, count: 32)  // 32 bytes，足够容纳 UCI 走法
+                var buffer = [CChar](repeating: 0, count: 64)  // UCI 走法最大 4 字符 + null，64 字节留足余量防止 C 侧 bug
                 let result = fen.withCString { fenCStr in
                     movesStr.withCString { movesCStr in
                         pikafish_best_move(
@@ -98,6 +101,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
     }
 
     /// 立即停止搜索（原子操作，线程安全，可从任意线程调用）
+    /// Reserved for future cancellation support
     nonisolated func stopSearchImmediate() {
         pikafish_stop()
     }

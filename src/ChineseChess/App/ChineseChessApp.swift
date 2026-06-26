@@ -325,7 +325,7 @@ struct ChineseChessApp: App {
 
             // Phase C: 引擎菜单（简化版，仅 macOS）
             CommandMenu("引擎") {
-                Toggle("使用 Pikafish", isOn: useEmbeddedEngineBinding)
+                Toggle(L10n.shared.t("engine.usePikafishMenu"), isOn: useEmbeddedEngineBinding)
 
                 Divider()
 
