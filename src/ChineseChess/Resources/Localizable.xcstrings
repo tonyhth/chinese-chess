@@ -3155,6 +3155,38 @@
           }
         }
       }
+    },
+    "engine.aiMoveFailed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 暂时无法走棋，请重试"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI cannot make a move right now, please retry"
+          }
+        }
+      }
+    },
+    "engine.hintFailed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 暂时无法提供提示"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI cannot provide a hint right now"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

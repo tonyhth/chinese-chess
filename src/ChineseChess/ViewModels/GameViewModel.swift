@@ -267,7 +267,7 @@ class GameViewModel {
                let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
                 self.hintMove = (from: move.from, to: move.to)
             } else {
-                self.engineFallbackMessage = "AI 暂时无法提供提示"
+                self.engineFallbackMessage = L10n.shared.t("engine.hintFailed")
             }
             self.isThinking = false
         }
@@ -372,7 +372,7 @@ class GameViewModel {
             } else {
                 // 引擎返回 nil
                 print("⚠️ AI move: engine returned nil")
-                self.engineFallbackMessage = "AI 暂时无法走棋，请重试"
+                self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
             }
             
             self.isThinking = false
