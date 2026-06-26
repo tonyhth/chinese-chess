@@ -538,8 +538,15 @@ struct V2217FixTests {
             let redPieces = board.pieces(for: .red)
 
             // 找一个有合法走法的红方棋子
-            guard let piece = redPieces.first,
-                  let move = MoveValidator.legalMoves(for: piece, on: board).first else {
+            var foundMove: Move? = nil
+            for piece in redPieces {
+                if let move = MoveValidator.legalMoves(for: piece, on: board).first {
+                    foundMove = move
+                    break
+                }
+            }
+            guard let move = foundMove else {
+                Issue.record("找不到有合法走法的红方棋子")
                 return
             }
 

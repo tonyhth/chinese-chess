@@ -201,8 +201,8 @@ struct Phase4P2Tests {
             return
         }
         #if os(macOS)
-        #expect(content.contains("Divider()"), "macOS 应使用 Divider 分组")
-        #expect(content.contains("#if os(macOS)"), "Divider 应有平台条件编译")
+        #expect(content.contains("Toggle"), "macOS ToolbarView 应有引擎切换 Toggle")
+        #expect(content.contains("#if os(macOS)"), "应有平台条件编译")
         #endif
     }
 

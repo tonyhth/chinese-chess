@@ -371,7 +371,7 @@ struct Phase2aUCITests {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
         let chariot = board.piece(at: Position(row: 9, col: 0))!
         let move = Move(piece: chariot, from: Position(row: 9, col: 0), to: Position(row: 5, col: 0), captured: nil)
-        #expect(UCIMoveConverter.uciString(from: move) == "a9a5")
+        #expect(UCIMoveConverter.uciString(from: move) == "a0a4")
     }
 
     @MainActor
@@ -380,7 +380,7 @@ struct Phase2aUCITests {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
         let piece = board.piece(at: Position(row: 9, col: 4))!
         let move = Move(piece: piece, from: Position(row: 9, col: 4), to: Position(row: 8, col: 4), captured: nil)
-        #expect(UCIMoveConverter.uciString(from: move) == "e9e8")
+        #expect(UCIMoveConverter.uciString(from: move) == "e0e1")
     }
 
     // MARK: - positions (UCI → Position pair)
@@ -416,7 +416,7 @@ struct Phase2aUCITests {
 @Test("初始局面 UCI → Move 包含 piece")
     func testMoveOnBoard() {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
-        guard let move = UCIMoveConverter.move(from: "a9a5", on: board) else {
+        guard let move = UCIMoveConverter.move(from: "a0a4", on: board) else {
             Issue.record("move 返回 nil")
             return
         }
