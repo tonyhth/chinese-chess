@@ -137,13 +137,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
     }
 
     // MARK: - Difficulty Mapping
-
-    /// Map AIDifficulty to pikafish search parameters (depth + time)
-    ///
-    /// Design:
-    /// - Depth controls search strength (lower depth = weaker play)
-    /// - Time limit acts as a safety cap to prevent long thinking
-    /// - If user specifies timeLimitMs > 0, it overrides difficulty-based time
+    
+    /// Map AIDifficulty to search depth
+    /// Depth controls search strength: lower depth = weaker play
     private func mapDifficulty(_ difficulty: AIDifficulty, timeLimitMs: Int) -> (depth: Int, timeMs: Int) {
         let depth: Int
         let defaultTimeMs: Int
@@ -156,13 +152,13 @@ actor EmbeddedPikafishEngine: ChessEngine {
             depth = 5
             defaultTimeMs = 1000
         case .medium:
-            depth = 8
+            depth = 10
             defaultTimeMs = 2000
         case .hard:
-            depth = 12
+            depth = 18
             defaultTimeMs = 3000
         case .master:
-            depth = 18
+            depth = 24
             defaultTimeMs = 5000
         }
 
