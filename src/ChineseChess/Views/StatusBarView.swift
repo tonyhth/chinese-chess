@@ -57,7 +57,7 @@ struct StatusBarView: View {
                 HStack(spacing: 3) {
                     Image(systemName: EngineConfigStore.shared.useEmbeddedEngine ? "externaldrive" : "cpu")
                         .font(.caption2)
-                    Text(EngineConfigStore.shared.useEmbeddedEngine ? "外部" : "内置")
+                    Text(EngineConfigStore.shared.useEmbeddedEngine ? "Pikafish" : "内置")
                         .font(.caption.weight(.semibold))
                 }
                 .foregroundColor(.cyan)
