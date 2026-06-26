@@ -10,6 +10,8 @@ build/
 DerivedData/
 *.o
 *.profraw
+*.a
+*.nnue
 
 # IDE
 *.xcodeproj/xcuserdata/
