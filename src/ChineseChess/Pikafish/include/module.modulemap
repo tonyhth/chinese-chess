@@ -1,0 +1,6 @@
+// module.modulemap - Swift module mapping for Pikafish C API
+module Pikafish {
+    header "pikafish_api.h"
+    link "pikafish"
+    export *
+}
