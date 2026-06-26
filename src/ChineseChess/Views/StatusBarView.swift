@@ -55,9 +55,9 @@ struct StatusBarView: View {
                 #if os(macOS)
                 // P2 #12: 引擎类型提示
                 HStack(spacing: 3) {
-                    Image(systemName: EngineConfigStore.shared.useExternalEngine ? "externaldrive" : "cpu")
+                    Image(systemName: EngineConfigStore.shared.useEmbeddedEngine ? "externaldrive" : "cpu")
                         .font(.caption2)
-                    Text(EngineConfigStore.shared.useExternalEngine ? "外部" : "内置")
+                    Text(EngineConfigStore.shared.useEmbeddedEngine ? "外部" : "内置")
                         .font(.caption.weight(.semibold))
                 }
                 .foregroundColor(.cyan)

@@ -1,107 +1,82 @@
+// EngineRouter.swift - 引擎路由器（统一版）
+//
+//  Phase C: v3.4.0 macOS Static Embed - 统一 iOS/macOS，删除外部进程分支
+//  只使用 EmbeddedPikafishEngine 或 native AIEngine
+
 import Foundation
 
-// MARK: - 引擎路由器
-
 /// 根据用户设置返回合适的引擎实例
-/// v3.1 Phase 2a: 仅 native 路径，Phase 2c 补充 external 切换
+/// v3.4.0: 统一 iOS/macOS，嵌入式 Pikafish ↔ 自研引擎
+@MainActor
 final class EngineRouter {
     static let shared = EngineRouter()
 
-    /// P1-2: 外部引擎启动失败时发送此通知，UI 层可观察并弹 alert
+    /// 外部引擎启动失败时发送此通知，UI 层可观察并弹 alert
     static let fallbackNotification = Notification.Name("engineRouter.fallback")
 
     private let nativeEngine = AIEngine()
-
-    #if os(macOS)
-    private var externalEngine: (any ChessEngine)?
-    private var currentConfigId: UUID?
-    #endif
+    private var embeddedEngine: EmbeddedPikafishEngine?
 
     private init() {}
 
     /// 获取当前活跃引擎（无副作用，只返回已有实例）
-    @MainActor
     func activeEngine() -> any ChessEngine {
-        #if os(macOS)
-        if let ext = externalEngine {
-            return ext
+        if let emb = embeddedEngine {
+            return emb
         }
-        #endif
         return nativeEngine
     }
 
-    #if os(macOS)
     /// 检查并执行引擎切换（如有必要）——在对局开始前调用
     /// - Returns: 切换后的活跃引擎。启动失败时 fallback 到自研引擎。
-    @MainActor
     func switchEngineIfNeeded() async -> any ChessEngine {
         let store = EngineConfigStore.shared
 
-        // P1 #5: 先执行待切换（含 pendingNative 处理）
-        if store.pendingNative || store.hasPendingSwitch {
-            store.selectedEngineId = store.pendingEngineId
-            store.pendingEngineId = nil
-            store.pendingNative = false
-        }
-
-        if let selectedId = store.selectedEngineId,
-           let config = store.engines.first(where: { $0.id == selectedId }),
-           config.isEnabled {
-            // 配置没变，引擎已存在——无需切换
-            if currentConfigId == config.id {
-                return externalEngine ?? nativeEngine
+        if store.useEmbeddedEngine {
+            if embeddedEngine == nil {
+                let engine = EmbeddedPikafishEngine()
+                do {
+                    try await engine.start()
+                    embeddedEngine = engine
+                } catch {
+                    // NNUE 加载失败或其他初始化错误——fallback
+                    NSLog("[EngineRouter] Embedded pikafish failed to start, falling back to native")
+                    embeddedEngine = nil
+                    // 通知 UI 层引擎启动失败已 fallback
+                    NotificationCenter.default.post(name: Self.fallbackNotification, object: nil)
+                    return nativeEngine
+                }
             }
-            // 配置变更——重新创建并启动
-            if let ext = externalEngine {
-                await ext.shutdown()
-            }
-            let newEngine = ExternalEngineManager(config: config)
-            do {
-                try await newEngine.start()
-                externalEngine = newEngine
-                currentConfigId = config.id
-                return newEngine
-            } catch {
-                // 启动失败——fallback
-                externalEngine = nil
-                currentConfigId = nil
-                // P1-2: 通知 UI 层引擎启动失败已 fallback
-                NotificationCenter.default.post(name: Self.fallbackNotification, object: nil)
+            guard let engine = embeddedEngine else {
                 return nativeEngine
             }
+            return engine
         } else {
-            // 使用自研引擎——清理外部引擎
-            if let ext = externalEngine {
-                await ext.shutdown()
-                externalEngine = nil
-                currentConfigId = nil
+            // 使用自研引擎——清理嵌入式引擎
+            if let emb = embeddedEngine {
+                await emb.shutdown()
+                embeddedEngine = nil
             }
             return nativeEngine
         }
     }
-    #endif
 
     /// 获取自研引擎（直接访问，不受路由影响）
-    var native: AIEngine { nativeEngine }
+    nonisolated var native: AIEngine { nativeEngine }
 
     /// 通知引擎开始新对局
     func newGame() {
         nativeEngine.newGame()
-        #if os(macOS)
-        if let ext = externalEngine {
-            Task { await ext.newGame() }
+        if let emb = embeddedEngine {
+            Task { await emb.newGame() }
         }
-        #endif
     }
 
     /// 关闭所有引擎（App 退出时调用）
     func shutdown() {
-        #if os(macOS)
-        if let ext = externalEngine {
-            Task { await ext.shutdown() }
-            externalEngine = nil
-            currentConfigId = nil
+        if let emb = embeddedEngine {
+            Task { await emb.shutdown() }
+            embeddedEngine = nil
         }
-        #endif
     }
 }

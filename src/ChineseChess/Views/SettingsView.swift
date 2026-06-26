@@ -82,17 +82,15 @@ struct SettingsView: View {
                 }
 
                 #if os(macOS)
-                // 引擎设置（仅 macOS）
+                // 引擎设置
                 Section(l10n.t("settings.engineSection")) {
-                    NavigationLink {
-                        EngineSettingsView()
-                    } label: {
-                        HStack {
-                            Image(systemName: "cpu")
-                                .foregroundColor(.brown)
-                            Text(l10n.t("settings.externalEngine"))
+                    Toggle("使用 Pikafish 引擎", isOn: Binding(
+                        get: { EngineConfigStore.shared.useEmbeddedEngine },
+                        set: { newValue in
+                            EngineConfigStore.shared.useEmbeddedEngine = newValue
+                            Task { await EngineRouter.shared.switchEngineIfNeeded() }
                         }
-                    }
+                    ))
                 }
                 #else
                 // P1-3: iOS 侧显示外部引擎仅支持 macOS 说明

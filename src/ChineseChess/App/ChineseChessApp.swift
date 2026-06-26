@@ -13,22 +13,24 @@ struct ChineseChessApp: App {
         }
         // v3.1: CMA-ES 自动调参模式
         if args.count >= 2 && args[1] == "--cmaes" {
-            runCMAESFromCLI()
+            // 用 RunLoop 轮询替代 DispatchSemaphore.wait() 避免潜在死锁
+            var done = false
+            Task.detached {
+                await runCMAESFromCLI()
+                done = true
+            }
+            while !done {
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+            }
             Foundation.exit(0)
         }
         #endif
         FontRegistry.registerFonts()
     }
 
-    // 面板状态：互斥管理
+    // 面板状态:互斥管理
     enum Panel: Equatable {
         case none, record, stats
-    }
-
-    // P1 #2: 引擎选择枚举（菜单栏绑定）
-    enum EngineSelection: Equatable, Hashable {
-        case native
-        case external(UUID)
     }
 
     @State private var activePanel: Panel = .none
@@ -40,33 +42,17 @@ struct ChineseChessApp: App {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var historyReplayRecord: GameRecord?
+    @State private var showDailyChallenge = false
+    @State private var showAchievements = false
+    @State private var showRankPrivilege = false
 
-    // P1 #2: 菜单栏引擎选择绑定
-    private var engineSelectionBinding: Binding<EngineSelection> {
+    // Phase C: 引擎开关绑定(简化版)
+    private var useEmbeddedEngineBinding: Binding<Bool> {
         Binding(
-            get: {
-                // P1 返工: pendingNative 优先，解决选"内置引擎"后弹回外部引擎的问题
-                if EngineConfigStore.shared.pendingNative {
-                    return .native
-                }
-                if let id = EngineConfigStore.shared.pendingEngineId ?? EngineConfigStore.shared.selectedEngineId {
-                    return .external(id)
-                }
-                return .native
-            },
-            set: { newSelection in
-                switch newSelection {
-                case .native:
-                    EngineConfigStore.shared.pendingNative = true
-                    EngineConfigStore.shared.pendingEngineId = nil
-                case .external(let id):
-                    EngineConfigStore.shared.pendingNative = false
-                    EngineConfigStore.shared.pendingEngineId = id
-                }
-                // 通知状态观察器
-                EngineStateObserver.shared.setPendingSwitch(
-                    pendingId: EngineConfigStore.shared.pendingEngineId
-                )
+            get: { EngineConfigStore.shared.useEmbeddedEngine },
+            set: { newValue in
+                EngineConfigStore.shared.useEmbeddedEngine = newValue
+                Task { await EngineRouter.shared.switchEngineIfNeeded() }
             }
         )
     }
@@ -136,6 +122,27 @@ struct ChineseChessApp: App {
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.history"))
+
+                        Button(action: { showDailyChallenge.toggle() }) {
+                            Image(systemName: "calendar.badge.clock")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .help(L10n.shared.t("toolbar.dailyChallenge"))
+
+                        Button(action: { showAchievements.toggle() }) {
+                            Image(systemName: "trophy")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .help(L10n.shared.t("toolbar.achievements"))
+
+                        Button(action: { showRankPrivilege.toggle() }) {
+                            Image(systemName: "medal")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .help(L10n.shared.t("toolbar.rankPrivilege"))
 
                         Button(action: { showSettings.toggle() }) {
                             Image(systemName: "gearshape")
@@ -247,6 +254,42 @@ struct ChineseChessApp: App {
                 }
                 .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
             }
+            .sheet(isPresented: $showDailyChallenge) {
+                NavigationStack {
+                    DailyChallengeView()
+                        .navigationTitle(L10n.shared.t("toolbar.dailyChallenge"))
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { showDailyChallenge = false }
+                            }
+                        }
+                }
+                .frame(minWidth: 400, minHeight: 500)
+            }
+            .sheet(isPresented: $showAchievements) {
+                NavigationStack {
+                    AchievementView(profile: PlayerProfileStore.shared.profile)
+                        .navigationTitle(L10n.shared.t("toolbar.achievements"))
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { showAchievements = false }
+                            }
+                        }
+                }
+                .frame(minWidth: 400, minHeight: 500)
+            }
+            .sheet(isPresented: $showRankPrivilege) {
+                NavigationStack {
+                    RankPrivilegeView(profile: PlayerProfileStore.shared.profile)
+                        .navigationTitle(L10n.shared.t("toolbar.rankPrivilege"))
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { showRankPrivilege = false }
+                            }
+                        }
+                }
+                .frame(minWidth: 400, minHeight: 500)
+            }
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
@@ -280,15 +323,9 @@ struct ChineseChessApp: App {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
             }
 
-            // P1 #2: 引擎菜单（仅 macOS）
+            // Phase C: 引擎菜单（简化版，仅 macOS）
             CommandMenu("引擎") {
-                Picker("选择引擎", selection: engineSelectionBinding) {
-                    Text("内置引擎").tag(EngineSelection.native)
-                    ForEach(EngineConfigStore.shared.engines.filter { $0.isEnabled }) { engine in
-                        Text(engine.name).tag(EngineSelection.external(engine.id))
-                    }
-                }
-                .pickerStyle(.inline)
+                Toggle("使用 Pikafish", isOn: useEmbeddedEngineBinding)
 
                 Divider()
 
