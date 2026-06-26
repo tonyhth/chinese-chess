@@ -1,12 +1,15 @@
 # Build artifacts
 .build/
 *.build/
+.build-release/
 *.app/
 *.icns
 *.iconset/
 build-mac/
 build/
 DerivedData/
+*.o
+*.profraw
 
 # IDE
 *.xcodeproj/xcuserdata/
@@ -17,6 +20,10 @@ DerivedData/
 .DS_Store
 *.swp
 *~
+
+# Logs
+debug.log
+training.log
 
 # Temp
 tmp/
@@ -50,3 +57,6 @@ tools/__pycache__/
 tools/pgn_data
 src/NewFile.swift
 selfplay-results/
+
+# Pikafish 编译中间产物
+src/ChineseChess/Pikafish/build_test.sh
