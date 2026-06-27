@@ -57,6 +57,23 @@ int pikafish_set_option(const char* name, const char* value);
 /// Caller must copy the string if it needs to persist beyond quit().
 const char* pikafish_get_info(void);
 
+/// Get the evaluation score from the last search (centipawn)
+/// Positive = red side advantage, negative = black side advantage.
+/// For mate scores: returns ±(100000 - plies) to distinguish from cp values.
+/// Returns 0 if no search has been completed yet.
+int pikafish_last_eval(void);
+
+/// Set the number of principal variations (MultiPV) to search
+/// n: 1~10 (number of PV lines)
+/// Returns 0 on success, -1 on failure (engine not initialized or n out of range)
+int pikafish_set_multipv(int n);
+
+/// Get the principal variation (PV) line from the last search
+/// Returns space-separated UCI moves (e.g. "h2e2 h9g7 i9h9")
+/// Returns the number of bytes written (excluding null terminator), -1 on failure.
+/// If buffer is too small, output is truncated but still null-terminated.
+int pikafish_get_pv_line(char* buffer, int buffer_size);
+
 #ifdef __cplusplus
 }
 #endif
