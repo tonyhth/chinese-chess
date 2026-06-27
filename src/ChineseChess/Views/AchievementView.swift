@@ -140,12 +140,12 @@ struct AchievementView: View {
                 .font(.title2)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(isUnlocked ? achievement.displayName : achievement.displayName)
+                Text(achievement.displayName)
                     .font(.caption)
                     .fontWeight(isUnlocked ? .bold : .regular)
                     .foregroundColor(isUnlocked ? .primary : .secondary)
 
-                Text(isUnlocked ? achievement.displayDescription : achievement.displayDescription)
+                Text(achievement.displayDescription)
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .lineLimit(1)

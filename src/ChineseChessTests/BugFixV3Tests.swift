@@ -281,6 +281,14 @@ struct BugFixV3Tests {
             let rewardText = reward.localizedReward
             #expect(!desc.isEmpty, "\(reward) 应有描述")
             #expect(!rewardText.isEmpty, "\(reward) 应有奖励文案")
+            // 验证 rewardType 与预期一致（确保文案映射正确）
+            switch reward {
+            case .day3, .day45: #expect(reward.rewardType == "puzzle_unlock")
+            case .day7, .day30, .day60: #expect(reward.rewardType == "theme_unlock")
+            case .day14: #expect(reward.rewardType == "piece_style")
+            case .day70: #expect(reward.rewardType == "puzzle_unlock_all")
+            case .day100: #expect(reward.rewardType == "theme_special")
+            }
         }
     }
 

@@ -76,7 +76,9 @@ struct Phase5Tests {
     func specialRulesMentionStalemate() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
-        #expect(lesson.description == L10n.shared.t("tutorial.3.description"), "应提及困毙")
+        // 验证 lesson 3 对应 tutorial.3 description key
+        #expect(lesson.description == L10n.shared.t("tutorial.3.description"))
+        #expect(lesson.title == L10n.shared.t("tutorial.3.title"))
     }
 
     @MainActor
@@ -84,6 +86,9 @@ struct Phase5Tests {
     func specialRulesDistinguishStalemateAndRepetition() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
+        // 验证 lesson 3 subtitle 和 title 正确对应特殊规则主题
+        #expect(lesson.subtitle == L10n.shared.t("tutorial.3.subtitle"))
+        #expect(lesson.icon == "book")
     }
 
     // MARK: - 教程完成状态
