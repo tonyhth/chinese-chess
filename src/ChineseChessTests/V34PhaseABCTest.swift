@@ -51,7 +51,7 @@ struct PhaseATests {
         // 验证 EmbeddedPikafishEngine 的 Swift 层接口
         let engine = EmbeddedPikafishEngine()
         #expect(engine.displayName == "Pikafish")
-        #expect(engine.engineType == .external)
+        #expect(engine.engineType == .embedded)
     }
 
     @Test("C API 符号可达：pikafish_get_info")
@@ -82,7 +82,7 @@ struct PhaseBEngineTests {
     func engineProperties() {
         let engine = EmbeddedPikafishEngine()
         #expect(engine.displayName == "Pikafish")
-        #expect(engine.engineType == .external)
+        #expect(engine.engineType == .embedded)
     }
 
     @Test("pikafish_init() 不崩溃（NNUE 缺失时返回错误码）")
@@ -320,7 +320,7 @@ struct PhaseCEngineRouterTests {
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
 
         // 测试环境 NNUE 缺失，预期 fallback 到 native
-        if engine.engineType == .external {
+        if engine.engineType == .embedded {
             #expect(engine.displayName == "Pikafish")
         } else {
             #expect(engine.engineType == .native, "fallback 时应返回 native")

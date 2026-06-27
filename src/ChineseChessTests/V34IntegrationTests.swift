@@ -125,7 +125,7 @@ struct V34EmbeddedPikafishEngineTests {
         // 验证类型存在且可创建
         let engine = EmbeddedPikafishEngine()
         #expect(engine.displayName == "Pikafish")
-        #expect(engine.engineType == .external)
+        #expect(engine.engineType == .embedded)
     }
 
     @Test("EmbeddedPikafishEngine 未启动时 bestMove 返回 nil")
