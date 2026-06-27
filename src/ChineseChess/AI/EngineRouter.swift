@@ -79,4 +79,16 @@ final class EngineRouter {
             embeddedEngine = nil
         }
     }
+
+    /// 主线程同步紧急关闭（用于 applicationWillTerminate，不能 await）
+    /// 直接调 C API，不走 actor isolation
+    nonisolated func emergencyShutdown() {
+        // MainActor 同步访问：applicationWillTerminate 在主线程
+        MainActor.assumeIsolated {
+            if let emb = embeddedEngine {
+                emb.emergencyShutdown()
+                embeddedEngine = nil
+            }
+        }
+    }
 }

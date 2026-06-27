@@ -136,6 +136,16 @@ actor EmbeddedPikafishEngine: ChessEngine {
         pikafish_stop()
     }
 
+    /// 紧急同步关闭：不走 actor isolation，用于 applicationWillTerminate 等
+    /// 主线程阻塞场景。stop → 短暂等待 → quit。
+    nonisolated func emergencyShutdown() {
+        pikafish_stop()
+        // 短暂等待让 stop flag 生效（比直接 quit 安全）
+        Thread.sleep(forTimeInterval: 0.5)
+        pikafish_quit()
+        NSLog("[EmbeddedPikafishEngine] emergencyShutdown() completed")
+    }
+
     func stopSearch() {
         pikafish_stop()
     }

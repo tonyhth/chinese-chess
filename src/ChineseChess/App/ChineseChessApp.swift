@@ -5,13 +5,8 @@ import AppKit
 // macOS 退出钩子兜底：scenePhase 在 macOS 上不保证触发
 private final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
-        // 同步等待引擎关闭（最长 2s）
-        let semaphore = DispatchSemaphore(value: 0)
-        Task {
-            await EngineRouter.shared.shutdown()
-            semaphore.signal()
-        }
-        _ = semaphore.wait(timeout: .now() + 3)
+        // 同步紧急关闭引擎，不走 actor isolation 避免 MainActor 死锁
+        EngineRouter.shared.emergencyShutdown()
     }
 }
 
