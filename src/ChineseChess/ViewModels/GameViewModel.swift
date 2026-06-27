@@ -126,7 +126,8 @@ class GameViewModel {
         gameMoves.append(gameMove)
 
         if let captured = captured {
-            if piece.side == .red {
+            // 按被吃子的归属方存储（红方损失的子存入 red）
+            if captured.side == .red {
                 capturedPieces.red.append(captured)
             } else {
                 capturedPieces.black.append(captured)
@@ -352,10 +353,11 @@ class GameViewModel {
                         self.gameMoves.append(gameMove)
 
                         if let captured = captured {
-                            if humanSide == .red {
-                                self.capturedPieces.black.append(captured)
-                            } else {
+                            // 按被吃子的归属方存储（红方损失的子存入 red）
+                            if captured.side == .red {
                                 self.capturedPieces.red.append(captured)
+                            } else {
+                                self.capturedPieces.black.append(captured)
                             }
                             SoundEngine.shared.playCapture()
                         } else {

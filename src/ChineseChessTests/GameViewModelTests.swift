@@ -50,7 +50,7 @@ struct GameViewModelTests {
 
         #expect(vm.board.piece(at: Position(row: 3, col: 0))?.kind == .chariot)
         #expect(vm.board.piece(at: Position(row: 3, col: 0))?.side == .red)
-        #expect(vm.capturedPieces.red.count == 1)
+        #expect(vm.capturedPieces.black.count == 1)
     }
 
     @MainActor
