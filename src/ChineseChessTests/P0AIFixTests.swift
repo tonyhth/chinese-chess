@@ -102,9 +102,8 @@ struct P0AIFixTests {
 
         // requestHint 会设置 isThinking = true（短暂）
         // 测试环境无 NNUE 时 fallback 到 nativeEngine，计算时间不确定
-        // 只验证 requestHint 不崩溃
+        // 只验证 requestHint 不崩溃（不检查 isThinking 状态）
         try await Task.sleep(for: .milliseconds(100))
-        #expect(Bool(true), "requestHint 执行完成不崩溃")
     }
 
     @MainActor
@@ -140,9 +139,6 @@ struct P0AIFixTests {
         // 等待 AI 响应（nativeEngine fallback 后仍会计算）
         // 测试环境无 NNUE，nativeEngine 计算时间不确定，只验证不卡死
         try await Task.sleep(for: .milliseconds(3000))
-
-        // 不崩溃即通过
-        #expect(Bool(true), "AI 响应流程完成不崩溃")
     }
 
     @MainActor
@@ -166,8 +162,6 @@ struct P0AIFixTests {
 
         // 等待 AI 响应
         try await Task.sleep(for: .milliseconds(3000))
-        // 不崩溃即通过
-        #expect(Bool(true), "新对局后 AI 响应完成不崩溃")
     }
 }
 
@@ -186,8 +180,7 @@ struct P0HintTests {
         // 等待 AI 计算提示
         try await Task.sleep(for: .milliseconds(500))
 
-        // 关键是不崩溃
-        #expect(Bool(true), "提示请求完成不崩溃")
+        // 关键是不崩溃（不检查 isThinking 状态）
     }
 
     @MainActor
@@ -211,8 +204,7 @@ struct P0HintTests {
         vm.requestHint()
         try await Task.sleep(for: .milliseconds(500))
 
-        // 不崩溃即通过
-        #expect(Bool(true), "玩家走棋后提示请求完成不崩溃")
+        // 不崩溃即通过（不检查 isThinking 状态）
     }
 }
 

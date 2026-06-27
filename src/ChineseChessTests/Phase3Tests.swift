@@ -436,6 +436,7 @@ struct GameViewModelPhase3Tests {
 @Test("GameMove 记录包含棋谱")
     func testGameMoveHasNotation() {
         UserDefaults.standard.set("red", forKey: "chinesechess.humanSide")
+        defer { UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide") }
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 6, col: 4))
         vm.movePiece(from: Position(row: 6, col: 4), to: Position(row: 5, col: 4))

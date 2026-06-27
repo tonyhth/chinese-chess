@@ -143,6 +143,7 @@ struct IOSToolbarAdaptationV31Tests {
     func newGameFullReset() {
         // 重置 humanSide 避免 triggerAIMove 干扰
         UserDefaults.standard.set("red", forKey: "chinesechess.humanSide")
+        defer { UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide") }
 
         let vm = GameViewModel()
         let testPiece = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
