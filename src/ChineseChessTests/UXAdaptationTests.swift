@@ -417,12 +417,12 @@ struct UXAdaptationTests {
 
         @MainActor
 @Test("中文 locale 下 AI 正常走棋")
-        func aiWithZhHansLocale() {
+        func aiWithZhHansLocale() async {
             let lm = L10n.shared
             lm.setLanguage("zh-Hans")
             let engine = AIEngine()
             let board = Board()
-            let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
             #expect(move != nil)
         }
 
@@ -459,12 +459,12 @@ struct UXAdaptationTests {
 
         @MainActor
 @Test("AI 各难度正常走棋")
-        func aiAllDifficulties() {
+        func aiAllDifficulties() async {
             let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
             for diff in difficulties {
                 let engine = AIEngine()
                 let board = Board()
-                let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+                let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
                 #expect(move != nil, "\(diff) 未返回有效走法")
             }
         }
@@ -484,8 +484,8 @@ struct UXAdaptationTests {
 
         @MainActor
 @Test("ReplayViewModel 完整流程")
-        func replayViewModelRegression() {
-            let record = Self.makeTestRecord()
+        func replayViewModelRegression() async {
+            let record = await Self.makeTestRecord()
             let vm = ReplayViewModel(record: record)
 
             while vm.canGoForward { vm.goForward() }
@@ -537,16 +537,17 @@ struct UXAdaptationTests {
 
         // MARK: Helper
 
-        private static func makeTestRecord(moves: [GameMove]? = nil) -> GameRecord {
+        private static func makeTestRecord(moves: [GameMove]? = nil) async -> GameRecord {
             let tempBoard = Board()
             let engine = AIEngine()
-            let gameMoves: [GameMove] = []
-
-            let _ = moves ?? {
+            let gameMoves: [GameMove]
+            if let moves {
+                gameMoves = moves
+            } else {
                 var m: [GameMove] = []
                 for i in 0..<6 {
                     let side = tempBoard.currentTurn
-                    guard let move = engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+                    guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
                     let notation = NotationGenerator.notation(for: move, on: tempBoard)
                     let opponent: Side = (side == .red) ? .black : .red
                     tempBoard.execute(move)
@@ -564,8 +565,8 @@ struct UXAdaptationTests {
                         isCheckmate: false
                     ))
                 }
-                return m
-            }()
+                gameMoves = m
+            }
 
             return GameRecord(
                 id: UUID(),

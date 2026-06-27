@@ -7,36 +7,36 @@ struct Phase2aSearchTests {
     // MARK: - PVS 测试
 
     @Test("PVS 启用时不改变最佳走法正确性（beginner）")
-    func pvsBeginnerCorrectness() {
+    func pvsBeginnerCorrectness() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(move != nil, "PVS 启用后仍应返回合法走法")
     }
 
     @Test("PVS 启用时不改变最佳走法正确性（hard）")
-    func pvsHardCorrectness() {
+    func pvsHardCorrectness() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil, "hard 难度启用 PVS 后仍应返回合法走法")
     }
 
     @Test("PVS 启用时不改变最佳走法正确性（master）")
-    func pvsMasterCorrectness() {
+    func pvsMasterCorrectness() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(move != nil, "master 难度启用 PVS 后仍应返回合法走法")
     }
 
     @Test("PVS 结果一致性：同一局面多次搜索结果相同")
-    func pvsConsistency() {
+    func pvsConsistency() async {
         let engine = AIEngine()
         let board = Board()
         // master 使用确定性开局，所以前几步固定
-        let move1 = engine.bestMove(for: board, difficulty: .master, isIOS: false)
-        let move2 = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move1 = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move2 = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(move1 != nil)
         #expect(move2 != nil)
         // 确定性开局应返回相同走法

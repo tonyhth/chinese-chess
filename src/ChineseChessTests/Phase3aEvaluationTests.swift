@@ -149,61 +149,61 @@ struct Phase3aEvaluationTests {
     // MARK: - 位置权重表测试
 
     @Test("兵/卒开局权重表存在")
-    func soldierOpeningWeights() {
+    func soldierOpeningWeights() async {
         let engine = AIEngine()
         let board = Board()  // 标准初始局面
         // 验证不崩溃，且返回正值
-        let move = engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(move != nil)
     }
 
     @Test("兵/卒残局权重表推进价值更高")
-    func soldierEndgameWeights() {
+    func soldierEndgameWeights() async {
         // 残局局面
         let fen = "4k4/9/9/9/4p4/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
         // 验证评估不崩溃
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil)
     }
 
     // MARK: - 机动性评估测试
 
     @Test("机动性评估：车在中路加分")
-    func chariotCenterMobility() {
+    func chariotCenterMobility() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil, "hard 难度启用机动性评估应正常工作")
     }
 
     @Test("机动性评估：残局马更活跃")
-    func horseEndgameMobility() {
+    func horseEndgameMobility() async {
         let engine = AIEngine()
         let fen = "4k4/9/9/9/9/9/8n/9/9/4K4 b"
         let board = Board(fen: fen)
-        let move = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(move != nil, "master 残局机动性应正常")
     }
 
     // MARK: - 集成验证
 
     @Test("Phase 3a 全部启用：beginner vs beginner 2局")
-    func selfPlayPhase3a() {
+    func selfPlayPhase3a() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)
     }
 
     @Test("各难度 AI 返回合法走法")
-    func allDifficultiesValidMove() {
+    func allDifficultiesValidMove() async {
         let engine = AIEngine()
         let board = Board()
         for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
-            let move = engine.bestMove(for: board, difficulty: diff, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 应返回合法走法")
         }
     }

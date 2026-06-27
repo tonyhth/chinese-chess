@@ -450,12 +450,12 @@ struct V2215Tests {
 
         @MainActor
 @Test("AI 各难度正常走棋")
-        func aiAllDifficulties() {
+        func aiAllDifficulties() async {
             let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
             for diff in difficulties {
                 let engine = AIEngine()
                 let board = Board()
-                let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+                let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
                 #expect(move != nil, "\(diff) 未返回有效走法")
             }
         }
@@ -475,8 +475,8 @@ struct V2215Tests {
 
         @MainActor
 @Test("ReplayViewModel 完整流程")
-        func replayViewModelRegression() {
-            let record = Self.makeTestRecord()
+        func replayViewModelRegression() async {
+            let record = await Self.makeTestRecord()
             let vm = ReplayViewModel(record: record)
 
             while vm.canGoForward { vm.goForward() }
@@ -488,8 +488,8 @@ struct V2215Tests {
 
         @MainActor
 @Test("ReplayViewModel 空记录不 crash")
-        func replayViewModelEmptyNoCrash() {
-            let record = Self.makeTestRecord(moves: [])
+        func replayViewModelEmptyNoCrash() async {
+            let record = await Self.makeTestRecord(moves: [])
             let vm = ReplayViewModel(record: record)
             #expect(!vm.canGoForward)
             vm.goForward()
@@ -515,33 +515,36 @@ struct V2215Tests {
 
         // MARK: Helper
 
-        private static func makeTestRecord(moves: [GameMove]? = nil) -> GameRecord {
+        private static func makeTestRecord(moves: [GameMove]? = nil) async -> GameRecord {
             let tempBoard = Board()
             let engine = AIEngine()
-            let gameMoves: [GameMove] = moves ?? {
+            let gameMoves: [GameMove]
+            if let moves {
+                gameMoves = moves
+            } else {
                 var m: [GameMove] = []
                 for i in 0..<6 {
-                    let side = tempBoard.currentTurn
-                    guard let move = engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
-                    let notation = NotationGenerator.notation(for: move, on: tempBoard)
-                    let opponent: Side = (side == .red) ? .black : .red
-                    tempBoard.execute(move)
-                    let isCheck = MoveValidator.isInCheck(opponent, on: tempBoard)
-                    m.append(GameMove(
-                        id: UUID(),
-                        piece: move.piece,
-                        from: move.from,
-                        to: move.to,
-                        captured: move.captured,
-                        turnNumber: i / 2 + 1,
-                        notation: notation,
-                        timestamp: Date(),
-                        isCheck: isCheck,
-                        isCheckmate: false
-                    ))
+                let side = tempBoard.currentTurn
+                guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+                let notation = NotationGenerator.notation(for: move, on: tempBoard)
+                let opponent: Side = (side == .red) ? .black : .red
+                tempBoard.execute(move)
+                let isCheck = MoveValidator.isInCheck(opponent, on: tempBoard)
+                m.append(GameMove(
+                id: UUID(),
+                piece: move.piece,
+                from: move.from,
+                to: move.to,
+                captured: move.captured,
+                turnNumber: i / 2 + 1,
+                notation: notation,
+                timestamp: Date(),
+                isCheck: isCheck,
+                isCheckmate: false
+                ))
                 }
-                return m
-            }()
+                gameMoves = m
+            }
 
             return GameRecord(
                 id: UUID(),

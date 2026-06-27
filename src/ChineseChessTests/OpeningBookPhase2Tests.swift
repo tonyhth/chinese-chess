@@ -93,10 +93,10 @@ struct OpeningBookPhase2Tests {
     // MARK: - 各难度开局行为
 
     @Test("中级：初始局面返回合法走法（可能来自开局库）")
-    func mediumDifficultyOpeningMove() {
+    func mediumDifficultyOpeningMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -106,18 +106,18 @@ struct OpeningBookPhase2Tests {
     }
 
     @Test("高级：初始局面返回合法走法")
-    func hardDifficultyOpeningMove() {
+    func hardDifficultyOpeningMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
     }
 
     @Test("大师：初始局面返回合法走法")
-    func masterDifficultyOpeningMove() {
+    func masterDifficultyOpeningMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         #expect(move != nil)
     }
 
@@ -132,7 +132,7 @@ struct OpeningBookPhase2Tests {
         for _ in 0..<6 {
             let side = board.currentTurn
             let diff: AIDifficulty = side == .red ? .easy : .easy
-            guard let move = engine.bestMove(for: board.snapshot(), difficulty: diff) else {
+            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: diff) else {
                 Issue.record("AI 返回 nil")
                 return
             }
@@ -140,7 +140,7 @@ struct OpeningBookPhase2Tests {
         }
 
         // 第 7 步应该 fallback 到搜索，不 crash
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil, "开局库 miss 后 AI 返回 nil")
     }
 
@@ -183,11 +183,11 @@ struct OpeningBookPhase2Tests {
     // MARK: - 回归：所有难度
 
     @Test("所有难度均返回合法走法")
-    func allDifficultiesValidMoves() {
+    func allDifficultiesValidMoves() async {
         let engine = AIEngine()
         let board = Board()
         for diff in [AIDifficulty.beginner, .easy, .medium] {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             #expect(move != nil, "\(diff) 返回 nil")
         }
     }

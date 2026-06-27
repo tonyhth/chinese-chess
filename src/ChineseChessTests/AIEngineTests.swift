@@ -5,21 +5,21 @@ import Testing
 struct AIEngineTests {
 
     @Test("初级难度返回合法走法")
-    func easyReturnsLegalMove() {
+    func easyReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
         #expect(MoveValidator.isLegal(move!, on: board))
     }
 
     @Test("中级难度返回合法走法")
-    func mediumReturnsLegalMove() {
+    func mediumReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .medium)
         #expect(move != nil)
         // 验证走法在原棋盘上合法
         let captured = board.piece(at: move!.to)
@@ -28,11 +28,11 @@ struct AIEngineTests {
     }
 
     @Test("高级难度返回合法走法")
-    func hardReturnsLegalMove() {
+    func hardReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -40,7 +40,7 @@ struct AIEngineTests {
     }
 
     @Test("评估函数初始局面接近 0")
-    func evaluateInitialBoard() {
+    func evaluateInitialBoard() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
@@ -49,12 +49,12 @@ struct AIEngineTests {
         let snapshot = board.snapshot()
         // 通过 bestMove 间接测试（评估函数是私有的）
         // 这里测试 AI 能正常走步即可
-        let move = engine.bestMove(for: snapshot, difficulty: .easy)
+        let move = await engine.bestMove(for: snapshot, difficulty: .easy)
         #expect(move != nil)
     }
 
     @Test("无合法走法时返回 nil")
-    func noLegalMovesReturnsNil() {
+    func noLegalMovesReturnsNil() async {
         let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 3))
@@ -63,7 +63,7 @@ struct AIEngineTests {
         let board = Board(pieces: [redGeneral, blackGeneral, blackChariot, blackChariot2])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
     }
 }

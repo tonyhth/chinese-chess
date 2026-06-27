@@ -367,8 +367,8 @@ struct PhaseCEngineRouterTests {
 
     @MainActor
     @Test("EngineRouter.newGame 不崩溃")
-    func newGameNoCrash() {
-        EngineRouter.shared.newGame()
+    func newGameNoCrash() async {
+        await EngineRouter.shared.newGame()
         #expect(Bool(true))
     }
 

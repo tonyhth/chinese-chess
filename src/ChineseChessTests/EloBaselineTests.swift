@@ -44,14 +44,14 @@ struct EloBaselineTests {
     // MARK: - Test 1: easy vs medium
 
     @Test("easyVsMedium — easy vs medium 1局")
-    func easyVsMedium() {
+    func easyVsMedium() async {
         let config = SelfPlayConfig(
             red: .easy, black: .medium,
             games: 1, maxMoves: 150, swapSides: false
         )
         let runner = SelfPlayRunner()
         let start = Date()
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         printResult(label: "easy vs medium", config: config, result: result, startTime: start)
 
@@ -63,14 +63,14 @@ struct EloBaselineTests {
     // MARK: - Test 2: medium vs hard
 
     @Test("mediumVsHard — medium vs hard 1局")
-    func mediumVsHard() {
+    func mediumVsHard() async {
         let config = SelfPlayConfig(
             red: .medium, black: .hard,
             games: 1, maxMoves: 150, swapSides: false
         )
         let runner = SelfPlayRunner()
         let start = Date()
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         printResult(label: "medium vs hard", config: config, result: result, startTime: start)
 
@@ -82,14 +82,14 @@ struct EloBaselineTests {
     // MARK: - Test 3: hard vs master
 
     @Test("hardVsMaster — hard vs master 1局")
-    func hardVsMaster() {
+    func hardVsMaster() async {
         let config = SelfPlayConfig(
             red: .hard, black: .master,
             games: 1, maxMoves: 150, swapSides: false
         )
         let runner = SelfPlayRunner()
         let start = Date()
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         printResult(label: "hard vs master", config: config, result: result, startTime: start)
 
@@ -101,14 +101,14 @@ struct EloBaselineTests {
     // MARK: - Test 4: master vs master
 
     @Test("masterVsMaster — master vs master 1局")
-    func masterVsMaster() {
+    func masterVsMaster() async {
         let config = SelfPlayConfig(
             red: .master, black: .master,
             games: 1, maxMoves: 150, swapSides: false
         )
         let runner = SelfPlayRunner()
         let start = Date()
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         printResult(label: "master vs master", config: config, result: result, startTime: start)
 

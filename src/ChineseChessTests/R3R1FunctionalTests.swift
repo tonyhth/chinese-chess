@@ -271,11 +271,11 @@ struct R3R1FunctionalTests {
 
     @MainActor
 @Test("1.7: 五档AI均能正常走棋")
-    func testAllDifficultiesCanMove() {
+    func testAllDifficultiesCanMove() async {
         let engine = AIEngine()
         for diff in AIDifficulty.allCases {
             let board = Board()
-            let move = engine.bestMove(for: board, difficulty: diff, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 难度 AI 应能走出一步棋")
         }
     }
@@ -284,18 +284,18 @@ struct R3R1FunctionalTests {
 
     @MainActor
 @Test("1.8: AI难度梯度 - 新手级走法质量低于大师级")
-    func testAIDifficultyGradient() {
+    func testAIDifficultyGradient() async {
         // 使用同一中盘局面，比较不同难度的走法数量和速度
         // 新手级有 70% 概率随机走，大师级有深度搜索，走法质量差异应可观测
         let engine = AIEngine()
         let board = Board()
 
         // 新手级应能返回走法（随机或浅搜索）
-        let beginnerMove = engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let beginnerMove = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(beginnerMove != nil, "新手级应能走棋")
 
         // 大师级应能返回走法（深度搜索）
-        let masterMove = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let masterMove = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(masterMove != nil, "大师级应能走棋")
 
         // 验证五档难度枚举完整
@@ -489,7 +489,7 @@ struct R3R1FunctionalTests {
 
     @MainActor
 @Test("1.17: 搜索深度 - 各难度AI均能返回走法")
-    func testSearchDepth() {
+    func testSearchDepth() async {
         let engine = AIEngine()
         // 中盘局面（走几步后）
         let board = Board()
@@ -501,7 +501,7 @@ struct R3R1FunctionalTests {
         board.execute(move2)
 
         for diff in AIDifficulty.allCases {
-            let move = engine.bestMove(for: board, difficulty: diff, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 在中盘局面应能找到走法")
         }
     }

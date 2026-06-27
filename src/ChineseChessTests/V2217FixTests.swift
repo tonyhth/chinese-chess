@@ -337,7 +337,7 @@ struct V2217FixTests {
             let engine = AIEngine()
 
             let start = Date()
-            let move = engine.bestMove(for: board, difficulty: .medium, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: .medium, isIOS: false)
             let elapsed = Date().timeIntervalSince(start)
 
             #expect(move != nil, "medium AI 应能返回走法")
@@ -346,11 +346,11 @@ struct V2217FixTests {
 
         @MainActor
 @Test("mediumSearch 返回合法走法（棋力不退化）")
-        func mediumSearchReturnsLegalMove() {
+        func mediumSearchReturnsLegalMove() async {
             let board = Board()
             let engine = AIEngine()
 
-            let move = engine.bestMove(for: board, difficulty: .medium, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: .medium, isIOS: false)
 
             #expect(move != nil, "medium AI 应返回走法")
             if let move = move {

@@ -7,14 +7,14 @@ struct AIAdvancedTests {
     // MARK: - 三个难度都返回合法走法
 
     @Test("初级 AI 从残局返回合法走法")
-    func easyFromEndgame() {
+    func easyFromEndgame() async {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -22,14 +22,14 @@ struct AIAdvancedTests {
     }
 
     @Test("中级 AI 从残局返回合法走法")
-    func mediumFromEndgame() {
+    func mediumFromEndgame() async {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .medium)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -37,14 +37,14 @@ struct AIAdvancedTests {
     }
 
     @Test("高级 AI 从残局返回合法走法")
-    func hardFromEndgame() {
+    func hardFromEndgame() async {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -54,7 +54,7 @@ struct AIAdvancedTests {
     // MARK: - 高级难度不应送明显大子
 
     @Test("高级 AI 不送车")
-    func hardDoesNotBlunderChariot() {
+    func hardDoesNotBlunderChariot() async {
         // 黑方有车，红方有炮（可吃黑车）
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
@@ -69,7 +69,7 @@ struct AIAdvancedTests {
         var chariotMovedToUnsafeCount = 0
         let iterations = 5
         for _ in 0..<iterations {
-            let move = engine.bestMove(for: board, difficulty: .hard)
+            let move = await engine.bestMove(for: board, difficulty: .hard)
             #expect(move != nil)
             // 检查黑车是否走到了红炮可以吃它的位置
             // 红炮在 (7,1)，需要炮架才能吃
@@ -94,12 +94,12 @@ struct AIAdvancedTests {
     // MARK: - AI 走法是黑方棋子
 
     @Test("AI 返回当前行走方的走法")
-    func aiReturnsCurrentSideMove() {
+    func aiReturnsCurrentSideMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
         for _ in 0..<10 {
-            let move = engine.bestMove(for: board, difficulty: .easy)
+            let move = await engine.bestMove(for: board, difficulty: .easy)
             if let move {
                 #expect(move.piece.side == .black)
             }
@@ -109,13 +109,13 @@ struct AIAdvancedTests {
     // MARK: - AI 不修改原棋盘
 
     @Test("AI 不修改传入的棋盘")
-    func aiDoesNotModifyOriginalBoard() {
+    func aiDoesNotModifyOriginalBoard() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let originalPieceCount = board.pieces.count
         let originalTurn = board.currentTurn
         let engine = AIEngine()
-        _ = engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .medium)
         #expect(board.pieces.count == originalPieceCount)
         #expect(board.currentTurn == originalTurn)
     }

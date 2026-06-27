@@ -143,20 +143,20 @@ struct Phase7Tests {
     // MARK: - 集成验证
 
     @Test("各难度 AI 返回合法走法")
-    func allDifficultiesValidMove() {
+    func allDifficultiesValidMove() async {
         let engine = AIEngine()
         let board = Board()
         for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
-            let move = engine.bestMove(for: board, difficulty: diff, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 应返回合法走法")
         }
     }
 
     @Test("自对弈正常完成")
-    func selfPlayIntegration() {
+    func selfPlayIntegration() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)
     }

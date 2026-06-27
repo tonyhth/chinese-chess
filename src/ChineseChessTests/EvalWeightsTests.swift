@@ -35,7 +35,7 @@ struct EvalWeightsTests {
     }
 
     @Test("默认权重下 AI 评估结果合理")
-    func evaluationConsistentWithHardcoded() {
+    func evaluationConsistentWithHardcoded() async {
         // 用默认权重初始化 EvalConfigManager
         let manager = EvalConfigManager(weights: .default)
         let board = Board()
@@ -44,7 +44,7 @@ struct EvalWeightsTests {
         let engine = AIEngine()
 
         // 验证 AI 能返回合法走法
-        let move = engine.bestMove(for: board, difficulty: .medium, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .medium, isIOS: false)
         #expect(move != nil, "应返回合法走法")
     }
 
@@ -201,18 +201,18 @@ struct EvalWeightsTests {
     // ============================
 
     @Test("AIEngine 默认权重下返回合法走法")
-    func aiEngineDefaultWeights() {
+    func aiEngineDefaultWeights() async {
         // AIEngine 使用 EvalConfigManager.shared.weights
         let engine = AIEngine()
         let board = Board()
 
         // 验证不崩溃
-        let move = engine.bestMove(for: board, difficulty: .easy, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .easy, isIOS: false)
         #expect(move != nil, "默认权重下应返回合法走法")
     }
 
     @Test("自定义权重通过 EvalConfigManager.setWeights")
-    func customWeightsViaConfigManager() {
+    func customWeightsViaConfigManager() async {
         var customWeights = EvalWeights.default
         customWeights.chariotValue = 1500  // 车价值增加
 
@@ -223,7 +223,7 @@ struct EvalWeightsTests {
         let engine = AIEngine()
         let board = Board()
 
-        let move = engine.bestMove(for: board, difficulty: .easy, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .easy, isIOS: false)
         #expect(move != nil, "自定义权重下应返回合法走法")
     }
 
@@ -270,7 +270,7 @@ struct EvalWeightsTests {
     // ============================
 
     @Test("极端权重下 AI 不崩溃")
-    func extremeWeightsNoCrash() {
+    func extremeWeightsNoCrash() async {
         var extremeWeights = EvalWeights.default
         extremeWeights.chariotValue = 1  // 极小值
         extremeWeights.generalValue = 1000000  // 极大值
@@ -281,7 +281,7 @@ struct EvalWeightsTests {
         let engine = AIEngine()
         let board = Board()
 
-        let move = engine.bestMove(for: board, difficulty: .easy, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .easy, isIOS: false)
         #expect(move != nil, "极端权重下应返回合法走法（不崩溃）")
     }
 

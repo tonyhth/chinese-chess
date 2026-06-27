@@ -7,55 +7,55 @@ struct Phase2bOptimizationTests {
     // MARK: - Razoring 测试
 
     @Test("Razoring 启用后 hard 难度返回合法走法")
-    func razoringHard() {
+    func razoringHard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil, "启用 Razoring 后 hard 应返回合法走法")
     }
 
     @Test("Razoring 启用后 master 难度返回合法走法")
-    func razoringMaster() {
+    func razoringMaster() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(move != nil, "启用 Razoring 后 master 应返回合法走法")
     }
 
     // MARK: - Futility Pruning 测试
 
     @Test("Futility Pruning 启用后 AI 正常工作")
-    func futilityPruningWorks() {
+    func futilityPruningWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil, "启用 Futility Pruning 后应返回合法走法")
     }
 
     @Test("Futility Pruning 不影响 beginner 难度")
-    func futilityBeginnerUnaffected() {
+    func futilityBeginnerUnaffected() async {
         let engine = AIEngine()
         let board = Board()
         // beginner 不启用 futility，应正常工作
-        let move = engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(move != nil)
     }
 
     // MARK: - IID 测试
 
     @Test("IID 启用后 master 难度正常工作")
-    func iidMasterWorks() {
+    func iidMasterWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(move != nil, "启用 IID 后 master 应返回合法走法")
     }
 
     @Test("IID 启用后 hard 难度正常工作")
-    func iidHardWorks() {
+    func iidHardWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil, "启用 IID 后 hard 应返回合法走法")
     }
 
@@ -195,7 +195,7 @@ struct Phase2bOptimizationTests {
     // MARK: - 自对弈集成验证
 
     @Test("Phase 2b 全部启用：beginner vs beginner 2局正常完成")
-    func selfPlayWithPhase2b() {
+    func selfPlayWithPhase2b() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
             red: .beginner,
@@ -203,7 +203,7 @@ struct Phase2bOptimizationTests {
             games: 2,
             maxMoves: 40
         )
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)
     }

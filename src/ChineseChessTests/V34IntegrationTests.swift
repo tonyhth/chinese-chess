@@ -36,8 +36,8 @@ struct V34EngineRouterTests {
 
     @MainActor
     @Test("EngineRouter.newGame 不崩溃")
-    func newGameNoCrash() {
-        EngineRouter.shared.newGame()
+    func newGameNoCrash() async {
+        await EngineRouter.shared.newGame()
         #expect(true, "newGame 应正常调用")
     }
 

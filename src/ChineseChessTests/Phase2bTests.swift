@@ -216,7 +216,7 @@ struct TimeManagerTests {
 struct Phase2bIntegrationTests {
 
     @Test("高级 AI 能找到杀法（简单残局）")
-    func hardAIFindsCheckmate() {
+    func hardAIFindsCheckmate() async {
         // 红车底线，黑将无防守
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 1, col: 4))
@@ -225,13 +225,13 @@ struct Phase2bIntegrationTests {
         board.setCurrentTurn(.red)
 
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
         // 高级 AI 应该能找到直接的杀法
     }
 
     @Test("大师 AI 残局估值合理")
-    func masterAIEndgameReasonable() {
+    func masterAIEndgameReasonable() async {
         // 残局 ≤6 子，大师级应使用 EndgameEvaluator
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
@@ -240,13 +240,13 @@ struct Phase2bIntegrationTests {
         board.setCurrentTurn(.black)
 
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .master)
+        let move = await engine.bestMove(for: board, difficulty: .master)
         // 黑方只能走将，应该不崩溃
         #expect(move != nil)
     }
 
     @Test("5 级 AI 全部能完成残局对局")
-    func allDifficultyCompleteEndgame() {
+    func allDifficultyCompleteEndgame() async {
         let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
@@ -257,7 +257,7 @@ struct Phase2bIntegrationTests {
         let engine = AIEngine()
         for diff in difficulties {
             board.setCurrentTurn(.red)
-            let move = engine.bestMove(for: board, difficulty: diff)
+            let move = await engine.bestMove(for: board, difficulty: diff)
             #expect(move != nil, "\(diff) returned nil")
         }
     }

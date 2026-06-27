@@ -144,14 +144,14 @@ struct Phase2aTests {
 
     @MainActor
 @Test("置换表：实际搜索命中率 > 0")
-    func ttHitRateInSearch() {
+    func ttHitRateInSearch() async {
         let tt = TranspositionTable()
         let board = Board()
         board.setCurrentTurn(.black)
 
         // 第一次搜索 depth=2，填充置换表
         let engine = AIEngine()
-        _ = engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .medium)
 
         // 注意：AIEngine 内部每次 bestMove 都会 clear TT，所以这个测试
         // 验证的是 TT 在搜索过程中被正确使用（通过 probeBestMove）
@@ -277,11 +277,11 @@ struct Phase2aTests {
 
     @MainActor
 @Test("新手 AI 返回合法走法")
-    func beginnerReturnsLegalMove() {
+    func beginnerReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .beginner)
+        let move = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -290,7 +290,7 @@ struct Phase2aTests {
 
     @MainActor
 @Test("新手 AI 不送大子（多次采样）")
-    func beginnerDoesNotBlunderBigPieces() {
+    func beginnerDoesNotBlunderBigPieces() async {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
@@ -302,7 +302,7 @@ struct Phase2aTests {
             let board = Board(pieces: [rg, bg, blackChariot, redCannon, redSoldier])
             board.setCurrentTurn(.black)
             let engine = AIEngine()
-            let move = engine.bestMove(for: board, difficulty: .beginner)
+            let move = await engine.bestMove(for: board, difficulty: .beginner)
             if let move, move.piece.kind == .chariot {
                 // 检查走后是否被吃
                 let snapshot = board.snapshot()
@@ -320,11 +320,11 @@ struct Phase2aTests {
 
     @MainActor
 @Test("初级 AI 返回合法走法（depth=2）")
-    func easyReturnsLegalMove() {
+    func easyReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .easy)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -333,11 +333,11 @@ struct Phase2aTests {
 
     @MainActor
 @Test("中级 AI 返回合法走法（depth=4 + 开局库）")
-    func mediumReturnsLegalMove() {
+    func mediumReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .medium)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -346,11 +346,11 @@ struct Phase2aTests {
 
     @MainActor
 @Test("大师级 AI 返回合法走法")
-    func masterReturnsLegalMove() {
+    func masterReturnsLegalMove() async {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = engine.bestMove(for: board, difficulty: .master)
+        let move = await engine.bestMove(for: board, difficulty: .master)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)

@@ -38,10 +38,10 @@ struct Phase3bLMRTimeManagementTests {
     // MARK: - LMR 通过 AI 行为验证
 
     @Test("LMR：高级初始局面返回合法走法")
-    func lmrHardInitialBoard() {
+    func lmrHardInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -51,10 +51,10 @@ struct Phase3bLMRTimeManagementTests {
     }
 
     @Test("LMR：大师初始局面返回合法走法")
-    func lmrMasterInitialBoard() {
+    func lmrMasterInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -64,15 +64,15 @@ struct Phase3bLMRTimeManagementTests {
     }
 
     @Test("LMR：中级不启用，仍正常返回")
-    func lmrMediumNotAffected() {
+    func lmrMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
     }
 
     @Test("LMR：残局多走法局面不 crash")
-    func lmrEndgameManyMoves() {
+    func lmrEndgameManyMoves() async {
         let engine = AIEngine()
         // 残局车马炮 vs 将士象，走法数多
         let fen = "3ak4/4a4/4b4/9/9/9/9/4N4/3R5/3K5 w - - 0 1"
@@ -81,7 +81,7 @@ struct Phase3bLMRTimeManagementTests {
             return
         }
         for diff in [AIDifficulty.hard, .master] {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
                 let isLegal = legalMoves.contains { $0.from == move.from && $0.to == move.to }
@@ -91,14 +91,14 @@ struct Phase3bLMRTimeManagementTests {
     }
 
     @Test("LMR：吃子密集局面 re-search 路径不 crash")
-    func lmrCaptureHeavyReSearch() {
+    func lmrCaptureHeavyReSearch() async {
         let engine = AIEngine()
         let fen = "2bak4/1R2a4/3Nc4/9/9/9/9/9/9/4K4 w - - 0 1"
         guard let board = FENParser.parse(fen: fen) else {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
     }
 
@@ -215,43 +215,43 @@ struct Phase3bLMRTimeManagementTests {
     // MARK: - SmartTime 仅 master 启用
 
     @Test("SmartTime：master IDS 使用智能迭代控制")
-    func smartTimeMasterIDS() {
+    func smartTimeMasterIDS() async {
         let engine = AIEngine()
         let board = Board()
         // master 应正常返回（SmartTime 启用）
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         #expect(move != nil)
     }
 
     @Test("SmartTime：hard 不使用智能迭代控制")
-    func smartTimeHardNoSmartTime() {
+    func smartTimeHardNoSmartTime() async {
         let engine = AIEngine()
         let board = Board()
         // hard 不启用 SmartTime，但仍有普通 shouldStop 检查
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
     }
 
     // MARK: - lmrReduction 边界
 
     @Test("LMR：depth=3 时不触发 LMR（canReduce 要求 depth>=4）")
-    func lmrDepth3NoReduction() {
+    func lmrDepth3NoReduction() async {
         let engine = AIEngine()
         // 深度 3 不会触发 LMR，但不应 crash
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
     }
 
     // MARK: - 综合压力测试
 
     @Test("综合：hard/master 交替走 10 步不 crash")
-    func hardMasterAlternating10Steps() {
+    func hardMasterAlternating10Steps() async {
         let engine = AIEngine()
         let board = Board()
         for step in 0..<10 {
             let diff: AIDifficulty = step % 2 == 0 ? .hard : .master
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             guard let move = move else { break }
             let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
             let isLegal = legalMoves.contains { $0.from == move.from && $0.to == move.to }
@@ -261,7 +261,7 @@ struct Phase3bLMRTimeManagementTests {
     }
 
     @Test("综合：所有难度残局合法走法")
-    func allDifficultiesEndgameMoves() {
+    func allDifficultiesEndgameMoves() async {
         let engine = AIEngine()
         let fen = "4k4/4c4/9/9/9/9/9/4N4/4R4/4K4 w - - 0 1"
         guard let board = FENParser.parse(fen: fen) else {
@@ -269,7 +269,7 @@ struct Phase3bLMRTimeManagementTests {
             return
         }
         for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
                 let isLegal = legalMoves.contains { $0.from == move.from && $0.to == move.to }

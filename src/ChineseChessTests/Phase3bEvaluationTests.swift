@@ -42,31 +42,31 @@ struct Phase3bEvaluationTests {
     // MARK: - 3.5 将帅安全增强
 
     @Test("将帅安全：防空检测（将上方有子）")
-    func kingAirDefense() {
+    func kingAirDefense() async {
         let engine = AIEngine()
         // 正常开局局面，将上方有士
         let board = Board()
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil, "防空检测应正常工作")
     }
 
     @Test("将帅安全：残局阶段权重变化")
-    func kingSafetyEndgameWeight() {
+    func kingSafetyEndgameWeight() async {
         let engine = AIEngine()
         // 残局局面（少量子力）
         let fen = "3ak4/9/9/9/9/9/9/9/4r4/3AK4 w"
         let board = Board(fen: fen)
-        let move = engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
         #expect(move != nil, "残局将帅安全评估应正常")
     }
 
     @Test("将帅安全：士象完整 vs 缺失")
-    func guardCompleteness() {
+    func guardCompleteness() async {
         let engine = AIEngine()
         // 缺士缺象局面
         let fen = "4k4/9/9/9/9/9/9/9/4r4/3AK4 w"
         let board = Board(fen: fen)
-        let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
         #expect(move != nil)
     }
 
@@ -95,26 +95,26 @@ struct Phase3bEvaluationTests {
     // MARK: - 集成验证
 
     @Test("Phase 3b 全部启用：beginner vs beginner 2局")
-    func selfPlayPhase3b() {
+    func selfPlayPhase3b() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)
     }
 
     @Test("各难度 AI 返回合法走法")
-    func allDifficultiesValidMove() {
+    func allDifficultiesValidMove() async {
         let engine = AIEngine()
         let board = Board()
         for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
-            let move = engine.bestMove(for: board, difficulty: diff, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 应返回合法走法")
         }
     }
 
     @Test("残局 AI 评估不崩溃")
-    func endgameEvaluation() {
+    func endgameEvaluation() async {
         let engine = AIEngine()
         let fens = [
             "3ak4/9/9/9/9/9/9/9/4r4/3AK4 w",    // 车 vs 士象全
@@ -123,7 +123,7 @@ struct Phase3bEvaluationTests {
         ]
         for fen in fens {
             let board = Board(fen: fen)
-            let move = engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
             #expect(move != nil, "残局 FEN 应正常评估: \(fen)")
         }
     }

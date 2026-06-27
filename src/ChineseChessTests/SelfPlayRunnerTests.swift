@@ -8,7 +8,7 @@ struct SelfPlayRunnerTests {
     // MARK: - 基础功能测试
 
     @Test("SelfPlayRunner 快速对弈：beginner vs beginner 2局")
-    func quickSelfPlay() {
+    func quickSelfPlay() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
             red: .beginner,
@@ -17,7 +17,7 @@ struct SelfPlayRunnerTests {
             maxMoves: 40
         )
 
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         #expect(result.games.count == 2, "应完成 2 局")
         #expect(result.redWins + result.blackWins + result.draws == 2, "胜负统计应等于总局数")
@@ -26,7 +26,7 @@ struct SelfPlayRunnerTests {
     }
 
     @Test("SelfPlayRunner 先后手交换")
-    func sideSwap() {
+    func sideSwap() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
             red: .beginner,
@@ -36,7 +36,7 @@ struct SelfPlayRunnerTests {
             swapSides: true
         )
 
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         // 交换先后手时，偶数局红=beginner，奇数局红=beginner（同难度交换无区别）
         // 验证交换逻辑：游戏数=4，swapSides=true
@@ -48,7 +48,7 @@ struct SelfPlayRunnerTests {
     }
 
     @Test("SelfPlayRunner 不交换先后手")
-    func noSideSwap() {
+    func noSideSwap() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
             red: .beginner,
@@ -58,7 +58,7 @@ struct SelfPlayRunnerTests {
             swapSides: false
         )
 
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         for game in result.games {
             #expect(game.redDifficulty == .beginner)
@@ -67,7 +67,7 @@ struct SelfPlayRunnerTests {
     }
 
     @Test("SelfPlayRunner 步数上限判和")
-    func moveLimit() {
+    func moveLimit() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
             red: .beginner,
@@ -76,7 +76,7 @@ struct SelfPlayRunnerTests {
             maxMoves: 10  // 极小步数上限
         )
 
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         // 10 步内不太可能将死，应该是和棋（步数上限）
         let game = result.games[0]
@@ -88,7 +88,7 @@ struct SelfPlayRunnerTests {
     }
 
     @Test("SelfPlayRunner 结果摘要格式")
-    func summaryFormat() {
+    func summaryFormat() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
             red: .beginner,
@@ -97,7 +97,7 @@ struct SelfPlayRunnerTests {
             maxMoves: 20
         )
 
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
         let summary = result.summary
 
         #expect(summary.contains("自对弈结果"), "摘要应包含标题")

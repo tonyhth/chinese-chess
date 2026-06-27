@@ -52,10 +52,10 @@ struct Phase3aSearchOptimizationTests {
     // MARK: - Quiescence Search（通过 AI 行为验证）
 
     @Test("QS：高级初始局面返回合法走法（QS 启用）")
-    func quiescenceSearchHardInitialBoard() {
+    func quiescenceSearchHardInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -65,23 +65,23 @@ struct Phase3aSearchOptimizationTests {
     }
 
     @Test("QS：大师初始局面返回合法走法（QS 启用，maxQSDepth=6）")
-    func quiescenceSearchMasterInitialBoard() {
+    func quiescenceSearchMasterInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         #expect(move != nil)
     }
 
     @Test("QS：中级不启用，仍正常返回")
-    func quiescenceSearchMediumNotAffected() {
+    func quiescenceSearchMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
     }
 
     @Test("QS：残局吃子密集局面不 crash")
-    func quiescenceSearchCaptureHeavyPosition() {
+    func quiescenceSearchCaptureHeavyPosition() async {
         let engine = AIEngine()
         // 多子对杀局面
         let fen = "2bak4/4a4/4c4/9/4p4/4P4/9/4C4/4A4/3AK4 w - - 0 1"
@@ -89,26 +89,26 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
     }
 
     @Test("QS：极度简化局面（2 子）不 crash")
-    func quiescenceSearchMinimalPosition() {
+    func quiescenceSearchMinimalPosition() async {
         let engine = AIEngine()
         let fen = "4k4/9/9/9/9/9/9/9/4R4/4K4 w - - 0 1"
         guard let board = FENParser.parse(fen: fen) else {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         _ = move  // 可能无合法走法（将帅对），只要不 crash
     }
 
     // MARK: - Check Extension
 
     @Test("Check Extension：hard 上限 6 不导致无限递归")
-    func checkExtensionHardNoInfiniteRecursion() {
+    func checkExtensionHardNoInfiniteRecursion() async {
         let engine = AIEngine()
         // 持续将军的局面
         let fen = "R3k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1"
@@ -117,7 +117,7 @@ struct Phase3aSearchOptimizationTests {
             return
         }
         let start = Date()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         let elapsed = Date().timeIntervalSince(start)
         _ = move
         // check extension 不应导致超时（应在合理时间内返回）
@@ -125,7 +125,7 @@ struct Phase3aSearchOptimizationTests {
     }
 
     @Test("Check Extension：master 上限 8 不导致无限递归")
-    func checkExtensionMasterNoInfiniteRecursion() {
+    func checkExtensionMasterNoInfiniteRecursion() async {
         let engine = AIEngine()
         let fen = "R3k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1"
         guard let board = FENParser.parse(fen: fen) else {
@@ -133,17 +133,17 @@ struct Phase3aSearchOptimizationTests {
             return
         }
         let start = Date()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         let elapsed = Date().timeIntervalSince(start)
         _ = move
         #expect(elapsed < 60.0, "Check extension 导致搜索时间过长: \(elapsed)s")
     }
 
     @Test("Check Extension：中级不启用 check extension")
-    func checkExtensionMediumNotAffected() {
+    func checkExtensionMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
     }
 
@@ -210,11 +210,11 @@ struct Phase3aSearchOptimizationTests {
     }
 
     @Test("Killer Move：高级/大师 AI 不 crash（killer 启用）")
-    func killerMoveAIDoesNotCrash() {
+    func killerMoveAIDoesNotCrash() async {
         let engine = AIEngine()
         let board = Board()
         for diff in [AIDifficulty.hard, .master] {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             #expect(move != nil, "\(diff) 启用 killer 后返回 nil")
         }
     }
@@ -222,7 +222,7 @@ struct Phase3aSearchOptimizationTests {
     // MARK: - Null Move 改进
 
     @Test("Null Move：高级 AI 残局不 crash（Zugzwang 防护启用）")
-    func nullMoveEndgameNoCrash() {
+    func nullMoveEndgameNoCrash() async {
         let engine = AIEngine()
         // 残局无车，Zugzwang 风险高
         let fen = "4k4/9/9/9/9/4c4/4N4/9/9/4K4 w - - 0 1"
@@ -230,27 +230,27 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
     }
 
     @Test("Null Move：大师 AI 残局不 crash")
-    func nullMoveMasterEndgameNoCrash() {
+    func nullMoveMasterEndgameNoCrash() async {
         let engine = AIEngine()
         let fen = "4k4/9/9/9/9/9/9/4N4/9/4K4 w - - 0 1"
         guard let board = FENParser.parse(fen: fen) else {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         _ = move
     }
 
     @Test("Null Move：中级不启用 null move fix，仍正常")
-    func nullMoveMediumNotAffected() {
+    func nullMoveMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
     }
 
@@ -275,7 +275,7 @@ struct Phase3aSearchOptimizationTests {
     // MARK: - check extension bug fix 验证
 
     @Test("check extension bug fix：连续将军局面 hard 返回合法走法")
-    func checkExtensionBugFixHard() {
+    func checkExtensionBugFixHard() async {
         let engine = AIEngine()
         // 红車在 a 列将军，黑将在 e 列
         let fen = "R3k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1"
@@ -283,7 +283,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -293,33 +293,33 @@ struct Phase3aSearchOptimizationTests {
     }
 
     @Test("check extension bug fix：master 连续将军不 crash")
-    func checkExtensionBugFixMaster() {
+    func checkExtensionBugFixMaster() async {
         let engine = AIEngine()
         let fen = "R3k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1"
         guard let board = FENParser.parse(fen: fen) else {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         #expect(move != nil)
     }
 
     // MARK: - 综合压力测试
 
     @Test("综合：所有难度标准开局 10 次调用不 crash")
-    func allDifficultiesMultipleCallsNoCrash() {
+    func allDifficultiesMultipleCallsNoCrash() async {
         let engine = AIEngine()
         let board = Board()
         for diff in [AIDifficulty.beginner, .easy, .medium] {
             for _ in 0..<3 {
-                let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+                let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
                 #expect(move != nil, "\(diff) 返回 nil")
             }
         }
     }
 
     @Test("综合：hard/master 残局复杂局面不 crash")
-    func hardMasterComplexEndgame() {
+    func hardMasterComplexEndgame() async {
         let engine = AIEngine()
         // 多子残局：車马炮 vs 車炮
         let fen = "4k4/4c4/9/9/9/9/9/4N4/4R4/4K4 w - - 0 1"
@@ -328,7 +328,7 @@ struct Phase3aSearchOptimizationTests {
             return
         }
         for diff in [AIDifficulty.hard, .master] {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
                 let isLegal = legalMoves.contains { $0.from == move.from && $0.to == move.to }
@@ -338,12 +338,12 @@ struct Phase3aSearchOptimizationTests {
     }
 
     @Test("综合：hard/master 走多步不 crash")
-    func hardMasterMultipleMoves() {
+    func hardMasterMultipleMoves() async {
         let engine = AIEngine()
         let board = Board()
         for step in 0..<8 {
             let diff: AIDifficulty = step % 2 == 0 ? .hard : .master
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             guard let move = move else { break }
             let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
             let isLegal = legalMoves.contains { $0.from == move.from && $0.to == move.to }

@@ -122,8 +122,8 @@ struct BoardLayoutConsistencyTests {
 
     @MainActor
 @Test("ReplayViewModel：布局变更后功能正常")
-    func replayViewModelFunctionalAfterLayoutChange() {
-        let record = Self.makeTestRecord()
+    func replayViewModelFunctionalAfterLayoutChange() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
 
         // 完整导航流程
@@ -196,7 +196,7 @@ struct BoardLayoutConsistencyTests {
 
     @MainActor
 @Test("ChessBoardView：三种 mode 的 Board 初始化一致")
-    func chessBoardViewThreeModesConsistency() {
+    func chessBoardViewThreeModesConsistency() async {
         // 对弈
         let gameVM = GameViewModel()
         #expect(gameVM.board.pieces.count == 32)
@@ -211,7 +211,7 @@ struct BoardLayoutConsistencyTests {
         #expect(puzzleVM.board.pieces.count > 0)
 
         // 回放
-        let record = Self.makeTestRecord()
+        let record = await Self.makeTestRecord()
         let replayVM = ReplayViewModel(record: record)
         #expect(replayVM.currentIndex == 0)
     }
@@ -276,14 +276,14 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - Helper
 
-    private static func makeTestRecord() -> GameRecord {
+    private static func makeTestRecord() async -> GameRecord {
         let tempBoard = Board()
         let engine = AIEngine()
         var moves: [GameMove] = []
 
         for i in 0..<6 {
             let side = tempBoard.currentTurn
-            guard let move = engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+            guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
             let notation = NotationGenerator.notation(for: move, on: tempBoard)
             let opponent: Side = (side == .red) ? .black : .red
             tempBoard.execute(move)

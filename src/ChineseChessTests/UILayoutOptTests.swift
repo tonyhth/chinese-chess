@@ -9,8 +9,8 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ReplayViewModel：初始化不 crash")
-    func replayViewModelInit() {
-        let record = Self.makeTestRecord()
+    func replayViewModelInit() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
         #expect(vm.currentIndex == 0)
         #expect(vm.canGoForward)
@@ -19,8 +19,8 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ReplayViewModel：前进/后退正常工作")
-    func replayViewModelNavigation() {
-        let record = Self.makeTestRecord()
+    func replayViewModelNavigation() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
 
         // 前进一步
@@ -43,8 +43,8 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ReplayViewModel：跳转到指定位置")
-    func replayViewModelJump() {
-        let record = Self.makeTestRecord()
+    func replayViewModelJump() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
 
         guard record.moves.count >= 3 else { return }
@@ -61,8 +61,8 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ReplayViewModel：goToStart / goToEnd")
-    func replayViewModelStartEnd() {
-        let record = Self.makeTestRecord()
+    func replayViewModelStartEnd() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
 
         vm.goToEnd()
@@ -74,8 +74,8 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ReplayViewModel：progressText 格式正确")
-    func replayViewModelProgressText() {
-        let record = Self.makeTestRecord()
+    func replayViewModelProgressText() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
         #expect(vm.progressText == "0/\(record.moves.count)")
         vm.goForward()
@@ -84,8 +84,8 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ReplayViewModel：空走法记录不 crash")
-    func replayViewModelEmptyMoves() {
-        var record = Self.makeTestRecord()
+    func replayViewModelEmptyMoves() async {
+        var record = await Self.makeTestRecord()
         record = GameRecord(
             id: record.id,
             title: record.title,
@@ -110,7 +110,7 @@ struct UILayoutOptTests {
     @MainActor
 @Test("ReplayViewModel：自动播放不 crash")
     func replayViewModelAutoPlay() async {
-        let record = Self.makeTestRecord()
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
         vm.toggleAutoPlay()
         #expect(vm.isAutoPlaying)
@@ -152,10 +152,10 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("ChessBoardView layoutPriority(1) 不影响棋盘逻辑")
-    func layoutPriorityDoesNotAffectLogic() {
+    func layoutPriorityDoesNotAffectLogic() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil, "AI 功能受 layoutPriority 影响而异常")
     }
 
@@ -216,9 +216,9 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("iOS fullScreenCover 关闭按钮：ReplayView 有 dismiss 环境")
-    func replayViewHasDismiss() {
+    func replayViewHasDismiss() async {
         // ReplayView 使用 @Environment(\.dismiss)，编译通过即验证
-        let record = Self.makeTestRecord()
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
         // 只要不 crash 就说明初始化正常
         _ = vm
@@ -253,13 +253,13 @@ struct UILayoutOptTests {
 
     @MainActor
 @Test("AI 走棋后棋盘子力结构合理")
-    func boardStructureAfterMoves() {
+    func boardStructureAfterMoves() async {
         let engine = AIEngine()
         let board = Board()
         let initialPieces = board.pieces.count
 
         for _ in 0..<4 {
-            guard let move = engine.bestMove(for: board.snapshot(), difficulty: .easy) else { break }
+            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .easy) else { break }
             board.execute(move)
         }
 
@@ -272,7 +272,7 @@ struct UILayoutOptTests {
 
     // MARK: - Helper
 
-    private static func makeTestRecord() -> GameRecord {
+    private static func makeTestRecord() async -> GameRecord {
         // 生成一个简单的测试对局记录（走几步棋）
         let board = Board()
         let engine = AIEngine()
@@ -281,7 +281,7 @@ struct UILayoutOptTests {
 
         for i in 0..<6 {
             let side = tempBoard.currentTurn
-            guard let move = engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+            guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
             let notation = NotationGenerator.notation(for: move, on: tempBoard)
             let opponent: Side = (side == .red) ? .black : .red
             tempBoard.execute(move)

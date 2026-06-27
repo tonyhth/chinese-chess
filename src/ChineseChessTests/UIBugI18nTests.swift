@@ -60,8 +60,8 @@ struct UIBugI18nTests {
 
     @MainActor
 @Test("ReplayViewModel：跳转后棋盘实例持续有效")
-    func replayBoardConsistencyDuringJump() {
-        let record = Self.makeTestRecord()
+    func replayBoardConsistencyDuringJump() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
 
         // 多次跳转
@@ -74,8 +74,8 @@ struct UIBugI18nTests {
 
     @MainActor
 @Test("ReplayViewModel：前进到末尾棋盘状态完整")
-    func replayBoardStateAtEnd() {
-        let record = Self.makeTestRecord()
+    func replayBoardStateAtEnd() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
         vm.goToEnd()
         #expect(vm.currentIndex == record.moves.count)
@@ -181,28 +181,28 @@ struct UIBugI18nTests {
 
     @MainActor
 @Test("AI 回归：beginner 正常走棋")
-    func aiBeginnerMove() {
+    func aiBeginnerMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         #expect(move != nil)
     }
 
     @MainActor
 @Test("AI 回归：medium 正常走棋")
-    func aiMediumMove() {
+    func aiMediumMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
     }
 
     @MainActor
 @Test("AI 回归：master 正常走棋")
-    func aiMasterMove() {
+    func aiMasterMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
         #expect(move != nil)
     }
 
@@ -220,8 +220,8 @@ struct UIBugI18nTests {
 
     @MainActor
 @Test("回放回归：ReplayViewModel 完整流程")
-    func replayViewModelRegression() {
-        let record = Self.makeTestRecord()
+    func replayViewModelRegression() async {
+        let record = await Self.makeTestRecord()
         let vm = ReplayViewModel(record: record)
 
         // 前进到头
@@ -241,8 +241,8 @@ struct UIBugI18nTests {
 
     @MainActor
 @Test("回放回归：空记录不 crash")
-    func replayViewModelEmptyRegression() {
-        let record = Self.makeTestRecord(moves: [])
+    func replayViewModelEmptyRegression() async {
+        let record = await Self.makeTestRecord(moves: [])
         let vm = ReplayViewModel(record: record)
         #expect(!vm.canGoForward)
         vm.goForward()
@@ -274,16 +274,17 @@ struct UIBugI18nTests {
 
     // MARK: - Helper
 
-    private static func makeTestRecord(moves: [GameMove]? = nil) -> GameRecord {
+    private static func makeTestRecord(moves: [GameMove]? = nil) async -> GameRecord {
         let tempBoard = Board()
         let engine = AIEngine()
-        var gameMoves: [GameMove] = []
-
-        let movesToGenerate = moves ?? {
+        let gameMoves: [GameMove]
+        if let moves {
+            gameMoves = moves
+        } else {
             var m: [GameMove] = []
             for i in 0..<6 {
                 let side = tempBoard.currentTurn
-                guard let move = engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+                guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
                 let notation = NotationGenerator.notation(for: move, on: tempBoard)
                 let opponent: Side = (side == .red) ? .black : .red
                 tempBoard.execute(move)
@@ -301,8 +302,8 @@ struct UIBugI18nTests {
                     isCheckmate: false
                 ))
             }
-            return m
-        }()
+            gameMoves = m
+        }
 
         return GameRecord(
             id: UUID(),

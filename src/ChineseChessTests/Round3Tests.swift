@@ -103,7 +103,7 @@ struct Round3Tests {
     // MARK: - P1-02: ReplayViewModel Task.sleep 正确处理 CancellationError
 
     @Test("P1-02: ReplayViewModel 自动播放处理 CancellationError")
-    func testReplayCancellationError() {
+    func testReplayCancellationError() async {
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
         let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/ViewModels/ReplayViewModel.swift"
         guard let content = try? String(contentsOfFile: filePath) else {

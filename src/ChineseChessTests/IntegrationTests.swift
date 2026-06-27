@@ -18,7 +18,7 @@ struct IntegrationTests {
     }
 
     @Test("多步走棋后 AI 响应")
-    func multiStepGameWithAI() {
+    func multiStepGameWithAI() async {
         let board = Board()
         let engine = AIEngine()
 
@@ -29,7 +29,7 @@ struct IntegrationTests {
         board.execute(move1)
 
         // 黑方 AI 走
-        let aiMove1 = engine.bestMove(for: board, difficulty: .easy)
+        let aiMove1 = await engine.bestMove(for: board, difficulty: .easy)
         #expect(aiMove1 != nil)
         let captured1 = board.piece(at: aiMove1!.to)
         let mainMove1 = Move(piece: aiMove1!.piece, from: aiMove1!.from, to: aiMove1!.to, captured: captured1)
@@ -43,7 +43,7 @@ struct IntegrationTests {
         board.execute(move2)
 
         // 黑方 AI 走
-        let aiMove2 = engine.bestMove(for: board, difficulty: .easy)
+        let aiMove2 = await engine.bestMove(for: board, difficulty: .easy)
         #expect(aiMove2 != nil)
         let captured2 = board.piece(at: aiMove2!.to)
         let mainMove2 = Move(piece: aiMove2!.piece, from: aiMove2!.from, to: aiMove2!.to, captured: captured2)
@@ -57,7 +57,7 @@ struct IntegrationTests {
     }
 
     @Test("吃子流程：吃子 → 记录 → 悔棋 → 恢复")
-    func captureUndoFlow() {
+    func captureUndoFlow() async {
         let board = Board()
         let engine = AIEngine()
 
@@ -67,7 +67,7 @@ struct IntegrationTests {
         board.execute(move1)
 
         // 黑方走
-        let aiMove1 = engine.bestMove(for: board, difficulty: .easy)!
+        let aiMove1 = await engine.bestMove(for: board, difficulty: .easy)!
         let c1 = board.piece(at: aiMove1.to)
         board.execute(Move(piece: aiMove1.piece, from: aiMove1.from, to: aiMove1.to, captured: c1))
 
@@ -77,7 +77,7 @@ struct IntegrationTests {
         board.execute(move2)
 
         // 黑方走
-        let aiMove2 = engine.bestMove(for: board, difficulty: .easy)!
+        let aiMove2 = await engine.bestMove(for: board, difficulty: .easy)!
         let c2 = board.piece(at: aiMove2.to)
         board.execute(Move(piece: aiMove2.piece, from: aiMove2.from, to: aiMove2.to, captured: c2))
 
@@ -93,7 +93,7 @@ struct IntegrationTests {
     }
 
     @Test("10 回合对局不崩溃")
-    func tenRoundGameDoesNotCrash() {
+    func tenRoundGameDoesNotCrash() async {
         let board = Board()
         let engine = AIEngine()
 
@@ -109,7 +109,7 @@ struct IntegrationTests {
             }
 
             // 黑方 AI 走
-            guard let blackMove = engine.bestMove(for: board, difficulty: .easy) else { break }
+            guard let blackMove = await engine.bestMove(for: board, difficulty: .easy) else { break }
             let captured = board.piece(at: blackMove.to)
             let mainMove = Move(piece: blackMove.piece, from: blackMove.from, to: blackMove.to, captured: captured)
             #expect(MoveValidator.isLegal(mainMove, on: board))
@@ -126,7 +126,7 @@ struct IntegrationTests {
     }
 
     @Test("残局 AI 高级难度能走")
-    func hardEndgameCompletes() {
+    func hardEndgameCompletes() async {
         // 简单残局：黑方车马 vs 红方帅
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
@@ -135,7 +135,7 @@ struct IntegrationTests {
         let board = Board(pieces: [rg, bg, bc, bh])
         let engine = AIEngine()
 
-        let move = engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)

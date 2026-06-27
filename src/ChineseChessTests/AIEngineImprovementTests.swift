@@ -8,18 +8,18 @@ struct AIEngineImprovementTests {
     // MARK: - P0：新手级平滑过渡
 
     @Test("beginnerMove 返回合法走法（非 nil）")
-    func beginnerMoveReturnsValidMove() {
+    func beginnerMoveReturnsValidMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         #expect(move != nil)
     }
 
     @Test("beginnerMove 走法起点有己方棋子")
-    func beginnerMoveFromHasPiece() {
+    func beginnerMoveFromHasPiece() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         #expect(move != nil)
         if let move = move {
             let piece = board.piece(at: move.from)
@@ -28,20 +28,20 @@ struct AIEngineImprovementTests {
     }
 
     @Test("beginnerMove 多次调用不 crash（概率性路径覆盖）")
-    func beginnerMoveMultipleCallsNoCrash() {
+    func beginnerMoveMultipleCallsNoCrash() async {
         let engine = AIEngine()
         let board = Board()
         for _ in 0..<20 {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
             #expect(move != nil)
         }
     }
 
     @Test("beginnerMove 走法是合法的")
-    func beginnerMoveIsLegal() {
+    func beginnerMoveIsLegal() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -51,38 +51,38 @@ struct AIEngineImprovementTests {
     }
 
     @Test("beginnerMove 100 次调用两条路径都安全")
-    func beginnerMoveBothPathsSafe() {
+    func beginnerMoveBothPathsSafe() async {
         let engine = AIEngine()
         let board = Board()
         // 30% 概率走 depth=1，70% 走随机。100 次必然覆盖两条路径
         for _ in 0..<100 {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
             #expect(move != nil)
         }
     }
 
     @Test("其他难度不受 beginnerMove 影响：初级返回合法走法")
-    func easyDifficultyStillWorks() {
+    func easyDifficultyStillWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .easy)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .easy)
         #expect(move != nil)
     }
 
     @Test("其他难度不受 beginnerMove 影响：中级返回合法走法")
-    func mediumDifficultyStillWorks() {
+    func mediumDifficultyStillWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
         #expect(move != nil)
     }
 
     @Test("新手级走法不修改原棋盘")
-    func beginnerMoveDoesNotMutateBoard() {
+    func beginnerMoveDoesNotMutateBoard() async {
         let engine = AIEngine()
         let board = Board()
         let snapshot = board.snapshot()
-        _ = engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        _ = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         // board 应该没变（bestMove 内部做了 snapshot）
         #expect(board.pieces.count == snapshot.pieces.count)
     }
@@ -147,11 +147,11 @@ struct AIEngineImprovementTests {
     // MARK: - 回归：所有难度
 
     @Test("AI 各难度均返回合法走法")
-    func allDifficultiesReturnValidMoves() {
+    func allDifficultiesReturnValidMoves() async {
         let engine = AIEngine()
         let board = Board()
         for diff in AIDifficulty.allCases {
-            let move = engine.bestMove(for: board.snapshot(), difficulty: diff)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             #expect(move != nil, "难度 \(diff) 返回 nil")
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
