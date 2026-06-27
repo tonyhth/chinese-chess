@@ -65,6 +65,8 @@ final class EngineRouter {
     func getNativeEngine() -> AIEngine { nativeEngine }
 
     /// 通知引擎开始新对局
+    /// Note: fire-and-forget is safe — newGame only clears moveOrderer;
+    /// bestMove does not depend on its cleared state, and TT uses hash verification.
     func newGame() {
         Task { await nativeEngine.newGame() }
         if let emb = embeddedEngine {

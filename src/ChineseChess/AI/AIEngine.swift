@@ -627,6 +627,10 @@ extension AIEngine: ChessEngine {
         return move.map { UCIMoveConverter.uciString(from: $0) }
     }
 
+    // Note: These are synchronous implementations that satisfy the async ChessEngine
+    // protocol requirement. For actor AIEngine, callers still undergo an actor hop
+    // when using `await`, so the async semantics are preserved at the call site.
+
     func stopSearch() {
         // 自研引擎不支持中止，时间管理由内部处理
     }

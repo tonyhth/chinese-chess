@@ -13,32 +13,26 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct ChineseChessApp: App {
     init() {
-        // v3.0: 命令行自对弈模式
+        // v3.0: 命令行自对弈模式（CLI-only，非用户路径）
         #if os(macOS)
         let args = CommandLine.arguments
         if args.count >= 2 && args[1] == "--selfplay" {
-            var done = false
             Task {
                 await runSelfPlayFromCLI()
-                done = true
+                Foundation.exit(0)
             }
-            while !done {
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
-            }
-            Foundation.exit(0)
+            RunLoop.main.run()
+            // 不应到达此处
+            fatalError("selfplay CLI should have exited")
         }
-        // v3.1: CMA-ES 自动调参模式
+        // v3.1: CMA-ES 自动调参模式（CLI-only，非用户路径）
         if args.count >= 2 && args[1] == "--cmaes" {
-            // 用 RunLoop 轮询替代 DispatchSemaphore.wait() 避免潜在死锁
-            var done = false
             Task.detached {
                 await runCMAESFromCLI()
-                done = true
+                Foundation.exit(0)
             }
-            while !done {
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
-            }
-            Foundation.exit(0)
+            RunLoop.main.run()
+            fatalError("cmaes CLI should have exited")
         }
         #endif
         FontRegistry.registerFonts()
