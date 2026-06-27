@@ -4,13 +4,42 @@ import Foundation
 
 /// 7 级段位
 enum Rank: String, Codable, CaseIterable, Comparable {
-    case student = "学童"       // 起始
-    case scholar = "秀才"       // 5 胜
-    case juren = "举人"         // 15 胜
-    case jinshi = "进士"        // 30 胜 + 5 残局
-    case hanlin = "翰林"        // 50 胜 + 10 残局
-    case master = "国手"        // 100 胜 + 20 残局
-    case sage = "棋圣"          // 200 胜 + 40 残局
+    case student       // 起始
+    case scholar       // 5 胜
+    case juren         // 15 胜
+    case jinshi        // 30 胜 + 5 残局
+    case hanlin        // 50 胜 + 10 残局
+    case master        // 100 胜 + 20 残局
+    case sage          // 200 胜 + 40 残局
+
+    // 兼容旧中文 rawValue
+    init(from decoder: Decoder) throws {
+        let value = try decoder.singleValueContainer().decode(String.self)
+        switch value {
+        case "student", "学童": self = .student
+        case "scholar", "秀才": self = .scholar
+        case "juren", "举人": self = .juren
+        case "jinshi", "进士": self = .jinshi
+        case "hanlin", "翰林": self = .hanlin
+        case "master", "国手": self = .master
+        case "sage", "棋圣": self = .sage
+        default:
+            NSLog("[i18n] Unknown rank value: \(value), defaulting to student")
+            self = .student
+        }
+    }
+
+    var localizedTitle: String {
+        switch self {
+        case .student: return L10n.shared.t("rank.student")
+        case .scholar: return L10n.shared.t("rank.scholar")
+        case .juren: return L10n.shared.t("rank.juren")
+        case .jinshi: return L10n.shared.t("rank.jinshi")
+        case .hanlin: return L10n.shared.t("rank.hanlin")
+        case .master: return L10n.shared.t("rank.master")
+        case .sage: return L10n.shared.t("rank.sage")
+        }
+    }
 
     /// 升级所需胜场
     var requiredWins: Int {

@@ -15,7 +15,7 @@ struct RankPrivilegeView: View {
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
 
-            Section("段位特权") {
+            Section(L10n.shared.t("rank.privilege.title")) {
                 ForEach(Rank.allCases, id: \.self) { rank in
                     RankPrivilegeRow(
                         rank: rank,
@@ -25,7 +25,7 @@ struct RankPrivilegeView: View {
                 }
             }
         }
-        .navigationTitle("段位特权")
+        .navigationTitle(L10n.shared.t("rank.privilege.title"))
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -40,7 +40,7 @@ private struct RankPrivilegeRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(rank.rawValue)
+                Text(rank.localizedTitle)
                     .font(.headline)
                     .foregroundColor(isUnlocked ? .primary : .secondary)
 

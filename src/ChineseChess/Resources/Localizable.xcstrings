@@ -1871,7 +1871,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mate"
+            "value": "Checkmate"
           }
         }
       }
@@ -1887,7 +1887,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Try"
+            "value": "Challenge"
           }
         }
       }
@@ -1903,7 +1903,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Combo"
+            "value": "Brilliant"
           }
         }
       }
@@ -3184,6 +3184,2294 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI cannot provide a hint right now"
+          }
+        }
+      }
+    },
+    "rarity.bronze": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bronze"
+          }
+        }
+      }
+    },
+    "rarity.silver": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silver"
+          }
+        }
+      }
+    },
+    "rarity.gold": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gold"
+          }
+        }
+      }
+    },
+    "rarity.diamond": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "钻石"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diamond"
+          }
+        }
+      }
+    },
+    "rarity.hidden": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hidden"
+          }
+        }
+      }
+    },
+    "rank.student": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学童"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novice"
+          }
+        }
+      }
+    },
+    "rank.scholar": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "秀才"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scholar"
+          }
+        }
+      }
+    },
+    "rank.juren": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "举人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graduate"
+          }
+        }
+      }
+    },
+    "rank.jinshi": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进士"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master"
+          }
+        }
+      }
+    },
+    "rank.hanlin": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翰林"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grandmaster"
+          }
+        }
+      }
+    },
+    "rank.master": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "国手"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Champion"
+          }
+        }
+      }
+    },
+    "rank.sage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋圣"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sage"
+          }
+        }
+      }
+    },
+    "achievement.first_game.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初出茅庐"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First Steps"
+          }
+        }
+      }
+    },
+    "achievement.first_game.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成第一局对弈"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete your first game"
+          }
+        }
+      }
+    },
+    "achievement.first_win.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旗开得胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First Victory"
+          }
+        }
+      }
+    },
+    "achievement.first_win.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获得第一场胜利"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win your first game"
+          }
+        }
+      }
+    },
+    "achievement.tutorial_done.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学业初成"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Learner"
+          }
+        }
+      }
+    },
+    "achievement.tutorial_done.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成新手教程"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete the tutorial"
+          }
+        }
+      }
+    },
+    "achievement.play_red.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "红方先锋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red Vanguard"
+          }
+        }
+      }
+    },
+    "achievement.play_red.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "执红对弈 5 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play 5 games as Red"
+          }
+        }
+      }
+    },
+    "achievement.play_black.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑方守将"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black Guardian"
+          }
+        }
+      }
+    },
+    "achievement.play_black.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "执黑对弈 5 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play 5 games as Black"
+          }
+        }
+      }
+    },
+    "achievement.first_puzzle.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初涉残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzle Beginner"
+          }
+        }
+      }
+    },
+    "achievement.first_puzzle.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过第一个残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solve your first puzzle"
+          }
+        }
+      }
+    },
+    "achievement.use_hint.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "虚心求教"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open-minded"
+          }
+        }
+      }
+    },
+    "achievement.use_hint.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 3 次提示"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use 3 hints"
+          }
+        }
+      }
+    },
+    "achievement.draw_game.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "和为贵"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peacemaker"
+          }
+        }
+      }
+    },
+    "achievement.draw_game.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "达成一次和棋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw a game"
+          }
+        }
+      }
+    },
+    "achievement.win_10.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "十战十胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decisive Ten"
+          }
+        }
+      }
+    },
+    "achievement.win_10.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "累计获胜 10 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 10 games total"
+          }
+        }
+      }
+    },
+    "achievement.beat_medium.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中等克星"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium Slayer"
+          }
+        }
+      }
+    },
+    "achievement.beat_medium.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "战胜中级 AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beat Medium AI"
+          }
+        }
+      }
+    },
+    "achievement.beat_hard.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "硬核挑战者"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hard Challenger"
+          }
+        }
+      }
+    },
+    "achievement.beat_hard.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "战胜高级 AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beat Hard AI"
+          }
+        }
+      }
+    },
+    "achievement.puzzles_5.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局新秀"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rising Star"
+          }
+        }
+      }
+    },
+    "achievement.puzzles_5.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 5 个残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solve 5 puzzles"
+          }
+        }
+      }
+    },
+    "achievement.win_streak_3.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "三连胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triple Streak"
+          }
+        }
+      }
+    },
+    "achievement.win_streak_3.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续获胜 3 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 3 in a row"
+          }
+        }
+      }
+    },
+    "achievement.rank_scholar.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金榜题名"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promoted"
+          }
+        }
+      }
+    },
+    "achievement.rank_scholar.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升至秀才段位"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reach Scholar rank"
+          }
+        }
+      }
+    },
+    "achievement.no_hint_win.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自力更生"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-reliant"
+          }
+        }
+      }
+    },
+    "achievement.no_hint_win.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不使用提示获胜一局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win without hints"
+          }
+        }
+      }
+    },
+    "achievement.quick_win.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速战速决"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blitzkrieg"
+          }
+        }
+      }
+    },
+    "achievement.quick_win.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 步内获胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win in 30 moves or less"
+          }
+        }
+      }
+    },
+    "achievement.win_50.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "百战雄师"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veteran"
+          }
+        }
+      }
+    },
+    "achievement.win_50.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "累计获胜 50 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 50 games total"
+          }
+        }
+      }
+    },
+    "achievement.beat_master.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋逢对手"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worthy Opponent"
+          }
+        }
+      }
+    },
+    "achievement.beat_master.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "战胜大师级 AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beat Master AI"
+          }
+        }
+      }
+    },
+    "achievement.puzzles_20.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局大师"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzle Master"
+          }
+        }
+      }
+    },
+    "achievement.puzzles_20.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 20 个残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solve 20 puzzles"
+          }
+        }
+      }
+    },
+    "achievement.win_streak_5.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五连霸主"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pentakill"
+          }
+        }
+      }
+    },
+    "achievement.win_streak_5.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续获胜 5 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 5 in a row"
+          }
+        }
+      }
+    },
+    "achievement.rank_juren.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "乡试头名"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Graduate"
+          }
+        }
+      }
+    },
+    "achievement.rank_juren.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升至举人段位"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reach Graduate rank"
+          }
+        }
+      }
+    },
+    "achievement.comeback_win.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "绝地反击"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comeback King"
+          }
+        }
+      }
+    },
+    "achievement.comeback_win.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "子力劣势下获胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win from a material deficit"
+          }
+        }
+      }
+    },
+    "achievement.perfect_game.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完美对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flawless"
+          }
+        }
+      }
+    },
+    "achievement.perfect_game.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不丢一子获胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win without losing a piece"
+          }
+        }
+      }
+    },
+    "achievement.endgame_master.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局圣手"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endgame Sage"
+          }
+        }
+      }
+    },
+    "achievement.endgame_master.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 步内解残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solve a puzzle in 10 moves"
+          }
+        }
+      }
+    },
+    "achievement.win_100.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "战神"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centurion"
+          }
+        }
+      }
+    },
+    "achievement.win_100.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "累计获胜 100 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 100 games total"
+          }
+        }
+      }
+    },
+    "achievement.rank_hanlin.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翰林学士"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grandmaster"
+          }
+        }
+      }
+    },
+    "achievement.rank_hanlin.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升至翰林段位"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reach Grandmaster rank"
+          }
+        }
+      }
+    },
+    "achievement.puzzles_40.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局宗师"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzle Grandmaster"
+          }
+        }
+      }
+    },
+    "achievement.puzzles_40.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 40 个残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solve 40 puzzles"
+          }
+        }
+      }
+    },
+    "achievement.all_difficulties.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全能战士"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All-rounder"
+          }
+        }
+      }
+    },
+    "achievement.all_difficulties.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "战胜所有难度 AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beat all difficulty levels"
+          }
+        }
+      }
+    },
+    "achievement.win_streak_10.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "十连绝杀"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unstoppable"
+          }
+        }
+      }
+    },
+    "achievement.win_streak_10.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续获胜 10 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 10 in a row"
+          }
+        }
+      }
+    },
+    "achievement.rank_sage.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋道至尊"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sage of Chess"
+          }
+        }
+      }
+    },
+    "achievement.rank_sage.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升至棋圣段位"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reach Sage rank"
+          }
+        }
+      }
+    },
+    "achievement.200_wins.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "千秋霸业"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conqueror"
+          }
+        }
+      }
+    },
+    "achievement.200_wins.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "累计获胜 200 局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win 200 games total"
+          }
+        }
+      }
+    },
+    "achievement.all_puzzles.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "破局之王"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzle King"
+          }
+        }
+      }
+    },
+    "achievement.all_puzzles.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通关所有残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solve all puzzles"
+          }
+        }
+      }
+    },
+    "achievement.daily_7.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "七日不辍"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dedicated"
+          }
+        }
+      }
+    },
+    "achievement.daily_7.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续 7 天对弈"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play 7 days in a row"
+          }
+        }
+      }
+    },
+    "achievement.first_blood.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先声夺人"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First Blood"
+          }
+        }
+      }
+    },
+    "achievement.first_blood.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一步就将军"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check on the first move"
+          }
+        }
+      }
+    },
+    "daily.type.endgamePuzzle.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每日残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Puzzle"
+          }
+        }
+      }
+    },
+    "daily.type.endgamePuzzle.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日残局挑战，找到致胜走法"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's puzzle challenge: find the winning move"
+          }
+        }
+      }
+    },
+    "daily.type.materialAdvantage.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让子局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handicap Game"
+          }
+        }
+      }
+    },
+    "daily.type.materialAdvantage.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 让一子，争取胜利"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI gives up a piece, aim for victory"
+          }
+        }
+      }
+    },
+    "daily.type.timeBlitz.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "闪电局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blitz Game"
+          }
+        }
+      }
+    },
+    "daily.type.timeBlitz.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 分钟限时对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5-minute blitz game"
+          }
+        }
+      }
+    },
+    "daily.type.endgameStart.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局起步"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endgame Start"
+          }
+        }
+      }
+    },
+    "daily.type.endgameStart.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从残局局面开始"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start from an endgame position"
+          }
+        }
+      }
+    },
+    "daily.type.solveMate.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解杀棋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mate in One"
+          }
+        }
+      }
+    },
+    "daily.type.solveMate.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一步杀练习"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One-move checkmate practice"
+          }
+        }
+      }
+    },
+    "daily.type.masterChallenge.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大师挑战"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master Challenge"
+          }
+        }
+      }
+    },
+    "daily.type.masterChallenge.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对战大师级 AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Challenge Master-level AI"
+          }
+        }
+      }
+    },
+    "daily.type.defendChallenge.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "防守挑战"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defense Challenge"
+          }
+        }
+      }
+    },
+    "daily.type.defendChallenge.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "劣势局面中守和"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defend a disadvantageous position"
+          }
+        }
+      }
+    },
+    "daily.type.comboKill.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连杀挑战"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Combo Kill"
+          }
+        }
+      }
+    },
+    "daily.type.comboKill.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续将军致胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win with consecutive checks"
+          }
+        }
+      }
+    },
+    "daily.type.cannonOnly.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "炮镇全局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannon Focus"
+          }
+        }
+      }
+    },
+    "daily.type.cannonOnly.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以炮为主力的对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A game focused on cannons"
+          }
+        }
+      }
+    },
+    "daily.type.horseOnly.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "马踏连营"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cavalry Focus"
+          }
+        }
+      }
+    },
+    "daily.type.horseOnly.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以马为主力的对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A game focused on horses"
+          }
+        }
+      }
+    },
+    "daily.streak.day3.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铜牌徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bronze Badge"
+          }
+        }
+      }
+    },
+    "daily.streak.day3.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "铜牌徽章 + 残局进度加成"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bronze Badge + Puzzle Progress Bonus"
+          }
+        }
+      }
+    },
+    "daily.streak.day7.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "银牌徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silver Badge"
+          }
+        }
+      }
+    },
+    "daily.streak.day7.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁翡翠绿主题（无需段位）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Jade Green Theme"
+          }
+        }
+      }
+    },
+    "daily.streak.day14.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "金牌徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gold Badge"
+          }
+        }
+      }
+    },
+    "daily.streak.day14.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁专属棋子样式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Exclusive Piece Style"
+          }
+        }
+      }
+    },
+    "daily.streak.day30.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月度勋章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly Medal"
+          }
+        }
+      }
+    },
+    "daily.streak.day30.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁帝王金主题（无需段位）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Imperial Gold Theme"
+          }
+        }
+      }
+    },
+    "daily.streak.day45.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "钻石徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diamond Badge"
+          }
+        }
+      }
+    },
+    "daily.streak.day45.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "钻石徽章 + 残局进度加成"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diamond Badge + Puzzle Progress Bonus"
+          }
+        }
+      }
+    },
+    "daily.streak.day60.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "双月勋章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bimonthly Medal"
+          }
+        }
+      }
+    },
+    "daily.streak.day60.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁朱砂红主题（无需段位）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Vermilion Theme"
+          }
+        }
+      }
+    },
+    "daily.streak.day70.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "百日勋章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centurion Badge"
+          }
+        }
+      }
+    },
+    "daily.streak.day70.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "百日勋章 + 残局大师称号"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centurion Badge + Puzzle Master Title"
+          }
+        }
+      }
+    },
+    "daily.streak.day100.reward": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "百日庆典勋章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centennial Medal"
+          }
+        }
+      }
+    },
+    "daily.streak.day100.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁棋圣专属主题"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Sage Exclusive Theme"
+          }
+        }
+      }
+    },
+    "daily.view.todayChallenge": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日挑战"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's Challenge"
+          }
+        }
+      }
+    },
+    "daily.view.recommendedDifficulty": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "推荐难度：%@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommended: %@"
+          }
+        }
+      }
+    },
+    "daily.view.loginStreak": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连续登录"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Login Streak"
+          }
+        }
+      }
+    },
+    "daily.view.days": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "天"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days"
+          }
+        }
+      }
+    },
+    "daily.view.noRecord": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无记录"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Records"
+          }
+        }
+      }
+    },
+    "achievement.view.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成就"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievements"
+          }
+        }
+      }
+    },
+    "achievement.view.rank": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "段位"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rank"
+          }
+        }
+      }
+    },
+    "achievement.view.wins": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "胜场"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wins"
+          }
+        }
+      }
+    },
+    "achievement.view.puzzles": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzles"
+          }
+        }
+      }
+    },
+    "achievement.view.progress": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进度"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress"
+          }
+        }
+      }
+    },
+    "achievement.view.nextRank": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一段位：%@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next rank: %@"
+          }
+        }
+      }
+    },
+    "tutorial.0.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋子走法"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piece Movements"
+          }
+        }
+      }
+    },
+    "tutorial.0.subtitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学习每种棋子的移动规则"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn how each piece moves"
+          }
+        }
+      }
+    },
+    "tutorial.0.description": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔴 车走直线，可进可退\n🔴 马走日字，蹩脚不能跳\n🔴 象走田字，塞眼不能过\n🔴 炮翻山吃子，不吃子走直线\n🔴 兵卒过河可横移，不退\n🔴 士走斜线，不出九宫\n🔴 将帅不出宫，横竖一步\n\n点击棋子查看可走位置！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔴 Rook moves in straight lines\n🔴 Knight moves in L-shape, blocked by adjacent pieces\n🔴 Bishop moves diagonally, blocked at center\n🔴 Cannon captures by jumping, moves straight otherwise\n🔴 Pawn can move sideways after crossing the river\n🔴 Advisor moves diagonally within the palace\n🔴 General moves one step within the palace\n\nTap a piece to see valid moves!"
+          }
+        }
+      }
+    },
+    "tutorial.1.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将军与应将"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check and Respond"
+          }
+        }
+      }
+    },
+    "tutorial.1.subtitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学会被将军时如何应对"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn how to respond to check"
+          }
+        }
+      }
+    },
+    "tutorial.1.description": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ 将军：对方走子后，你的将/帅被攻击\n\n应将方式：\n1️⃣ 逃跑：将/帅移到安全位置\n2️⃣ 挡住：用子力挡住攻击路线\n3️⃣ 吃子：吃掉将军的棋子\n\n⚠️ 不能不应将！必须解除将军状态。\n\nAI 将对你将军，尝试应将！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ Check: your General is under attack\n\nResponses:\n1️⃣ Flee: move General to safety\n2️⃣ Block: intercept the attack\n3️⃣ Capture: take the checking piece\n\n⚠️ You must respond to check!\n\nThe AI will check you — try to respond!"
+          }
+        }
+      }
+    },
+    "tutorial.2.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将死判定"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checkmate"
+          }
+        }
+      }
+    },
+    "tutorial.2.subtitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 个一步杀练习"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 one-move checkmate puzzles"
+          }
+        }
+      }
+    },
+    "tutorial.2.description": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏆 将死：将军且对方无法应将 = 获胜\n\n将死条件：\n• 被将军\n• 且无法逃跑、挡住、吃子\n\n尝试 3 个一步杀题目，\n找到致胜走法！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏆 Checkmate: Check with no possible response = Win\n\nConditions:\n• Under check\n• Cannot flee, block, or capture\n\nTry 3 one-move checkmate puzzles!\nFind the winning move!"
+          }
+        }
+      }
+    },
+    "tutorial.3.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特殊规则"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Special Rules"
+          }
+        }
+      }
+    },
+    "tutorial.3.subtitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "困毙、长将、长捉"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stalemate, perpetual check, perpetual chase"
+          }
+        }
+      }
+    },
+    "tutorial.3.description": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ 困毙 = 输！（不是和棋）\n轮到走棋但无棋可走 = 判负\n\n🤝 长将和棋：连续将军，对方循环\n🤝 长捉和棋：连续捉子，循环不变\n\n💡 记住：困毙是输，不是和！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Stalemate = Loss! (Not a draw)\nNo legal moves = Loss\n\n🤝 Perpetual check = Draw\n🤝 Perpetual chase = Draw\n\n💡 Remember: stalemate is a loss, not a draw!"
+          }
+        }
+      }
+    },
+    "tutorial.4.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一局实战"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First Game"
+          }
+        }
+      }
+    },
+    "tutorial.4.subtitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与 AI 对弈（新手难度）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play against AI (Beginner)"
+          }
+        }
+      }
+    },
+    "tutorial.4.description": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 实战时间！\n\n• 新手难度 AI\n• 关键局面会高亮推荐走法\n• 执红先行\n\n放手去下，享受对弈！"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 Game time!\n\n• Beginner AI\n• Key positions will highlight suggested moves\n• Red moves first\n\nEnjoy your first game!"
+          }
+        }
+      }
+    },
+    "rank.privilege.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "段位特权"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rank Privileges"
           }
         }
       }

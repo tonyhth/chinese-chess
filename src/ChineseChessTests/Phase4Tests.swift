@@ -531,17 +531,17 @@ struct Phase35Tests {
         let checkmate = Puzzle(id: "t1", name: "t", category: "t", difficulty: 1, stars: 1,
             description: "t", playerSide: "red", initialFEN: FENParser.standardInitial,
             solution: [], hints: nil, maxMoves: 10, solutionType: "checkmate")
-        #expect(checkmate.typeLabel == "杀局")
+        #expect(checkmate.typeLabel == L10n.shared.t("puzzle.type.checkmate"))
 
         let sequence = Puzzle(id: "t2", name: "t", category: "t", difficulty: 1, stars: 1,
             description: "t", playerSide: "red", initialFEN: FENParser.standardInitial,
             solution: [], hints: nil, maxMoves: 10, solutionType: "sequence")
-        #expect(sequence.typeLabel == "妙手")
+        #expect(sequence.typeLabel == L10n.shared.t("puzzle.type.sequence"))
 
         let hint = Puzzle(id: "t3", name: "t", category: "t", difficulty: 1, stars: 1,
             description: "t", playerSide: "red", initialFEN: FENParser.standardInitial,
             solution: [], hints: nil, maxMoves: 10, solutionType: "hint")
-        #expect(hint.typeLabel == "挑战")
+        #expect(hint.typeLabel == L10n.shared.t("puzzle.type.hint"))
     }
 
     // P4: playerSolutionMoves 通过棋子颜色提取红方步

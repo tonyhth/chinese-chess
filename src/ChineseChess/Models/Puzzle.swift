@@ -95,9 +95,9 @@ struct Puzzle: Identifiable, Codable {
     /// solutionType 显示标签
     var typeLabel: String {
         switch solutionType {
-        case "checkmate": return "杀局"
-        case "sequence": return "妙手"
-        case "hint": return "挑战"
+        case "checkmate": return L10n.shared.t("puzzle.type.checkmate")
+        case "sequence": return L10n.shared.t("puzzle.type.sequence")
+        case "hint": return L10n.shared.t("puzzle.type.hint")
         default: return ""
         }
     }

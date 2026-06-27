@@ -4,16 +4,44 @@ import Foundation
 
 /// 每日挑战模式
 enum DailyChallengeMode: String, Codable, CaseIterable {
-    case endgamePuzzle = "每日残局"       // 残局挑战
-    case materialAdvantage = "让子局"     // AI 让子
-    case timeBlitz = "闪电局"             // 限时 5 分钟
-    case endgameStart = "残局起步"        // 从残局开始对弈
-    case solveMate = "解杀棋"             // 一步杀练习
-    case masterChallenge = "大师挑战"     // 对战 master 难度
-    case defendChallenge = "防守挑战"      // 劣势防守
-    case comboKill = "连杀挑战"           // 连续将军
-    case cannonOnly = "炮镇全局"          // 限制主力为炮
-    case horseOnly = "马踏连营"           // 限制主力为马
+    case endgamePuzzle       // 残局挑战
+    case materialAdvantage   // AI 让子
+    case timeBlitz           // 限时 5 分钟
+    case endgameStart        // 从残局开始对弈
+    case solveMate           // 一步杀练习
+    case masterChallenge     // 对战 master 难度
+    case defendChallenge      // 劣势防守
+    case comboKill           // 连续将军
+    case cannonOnly          // 限制主力为炮
+    case horseOnly           // 限制主力为马
+
+    // 兼容旧中文 rawValue
+    init(from decoder: Decoder) throws {
+        let value = try decoder.singleValueContainer().decode(String.self)
+        switch value {
+        case "endgamePuzzle", "每日残局": self = .endgamePuzzle
+        case "materialAdvantage", "让子局": self = .materialAdvantage
+        case "timeBlitz", "闪电局": self = .timeBlitz
+        case "endgameStart", "残局起步": self = .endgameStart
+        case "solveMate", "解杀棋": self = .solveMate
+        case "masterChallenge", "大师挑战": self = .masterChallenge
+        case "defendChallenge", "防守挑战": self = .defendChallenge
+        case "comboKill", "连杀挑战": self = .comboKill
+        case "cannonOnly", "炮镇全局": self = .cannonOnly
+        case "horseOnly", "马踏连营": self = .horseOnly
+        default:
+            NSLog("[i18n] Unknown daily challenge type: \(value), defaulting to endgamePuzzle")
+            self = .endgamePuzzle
+        }
+    }
+
+    var localizedTitle: String {
+        L10n.shared.t("daily.type.\(rawValue).title")
+    }
+
+    var localizedDesc: String {
+        L10n.shared.t("daily.type.\(rawValue).desc")
+    }
 
     var icon: String {
         switch self {
@@ -27,21 +55,6 @@ enum DailyChallengeMode: String, Codable, CaseIterable {
         case .comboKill: return "flame"
         case .cannonOnly: return "scope"
         case .horseOnly: return "figure.equestrian.sports"
-        }
-    }
-
-    var description: String {
-        switch self {
-        case .endgamePuzzle: return "今日残局挑战，找到致胜走法"
-        case .materialAdvantage: return "AI 让一子，争取胜利"
-        case .timeBlitz: return "5 分钟限时对局"
-        case .endgameStart: return "从残局局面开始"
-        case .solveMate: return "一步杀练习"
-        case .masterChallenge: return "对战大师级 AI"
-        case .defendChallenge: return "劣势局面中守和"
-        case .comboKill: return "连续将军致胜"
-        case .cannonOnly: return "以炮为主力的对局"
-        case .horseOnly: return "以马为主力的对局"
         }
     }
 }
@@ -67,31 +80,13 @@ enum DailyStreakReward: Int, CaseIterable {
     case day70 = 70
     case day100 = 100
 
-    var reward: String {
-        switch self {
-        case .day3: return "铜牌徽章"
-        case .day7: return "银牌徽章"
-        case .day14: return "金牌徽章"
-        case .day30: return "月度勋章"
-        case .day45: return "钻石徽章"
-        case .day60: return "双月勋章"
-        case .day70: return "百日勋章"
-        case .day100: return "百日庆典勋章"
-        }
+    var localizedReward: String {
+        L10n.shared.t("daily.streak.day\(rawValue).reward")
     }
 
     // v3.0 gap fix: 实际解锁内容描述
-    var unlockDescription: String {
-        switch self {
-        case .day3: return "铜牌徽章 + 残局进度加成"
-        case .day7: return "解锁翡翠绿主题（无需段位）"
-        case .day14: return "解锁专属棋子样式"
-        case .day30: return "解锁帝王金主题（无需段位）"
-        case .day45: return "钻石徽章 + 残局进度加成"
-        case .day60: return "解锁朱砂红主题（无需段位）"
-        case .day70: return "百日勋章 + 残局大师称号"
-        case .day100: return "解锁棋圣专属主题"
-        }
+    var localizedDesc: String {
+        L10n.shared.t("daily.streak.day\(rawValue).desc")
     }
 
     // v3.0 gap fix: 奖励类型标识

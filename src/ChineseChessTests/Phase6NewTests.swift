@@ -194,8 +194,8 @@ struct Phase6Tests {
     @Test("非隐藏成就描述正常显示")
     func visibleAchievementDescription() {
         let bronze = AchievementLibrary.bronze[0]
-        #expect(bronze.displayName == bronze.name)
-        #expect(bronze.displayDescription == bronze.description)
+        #expect(bronze.displayName == L10n.shared.t(bronze.nameKey))
+        #expect(bronze.displayDescription == L10n.shared.t(bronze.descriptionKey))
     }
 
     // MARK: - Phase 5 联动

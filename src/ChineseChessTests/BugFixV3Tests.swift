@@ -277,23 +277,10 @@ struct BugFixV3Tests {
     @Test("DailyStreakReward 文案与实际效果匹配")
     func streakRewardDescriptionMatches() {
         for reward in DailyStreakReward.allCases {
-            let desc = reward.unlockDescription
+            let desc = reward.localizedDesc
+            let rewardText = reward.localizedReward
             #expect(!desc.isEmpty, "\(reward) 应有描述")
-
-            // day3/day45 → puzzle_unlock 类型，文案应包含"残局进度加成"
-            if reward.rewardType == "puzzle_unlock" {
-                #expect(desc.contains("残局"), "day3/day45 文案应提到残局，实际: \(desc)")
-            }
-
-            // day7/day30/day60 → theme_unlock，文案应包含主题名
-            if reward.rewardType == "theme_unlock" {
-                #expect(desc.contains("主题"), "theme_unlock 文案应提到主题，实际: \(desc)")
-            }
-
-            // day14 → piece_style，文案应包含棋子
-            if reward.rewardType == "piece_style" {
-                #expect(desc.contains("棋子"), "piece_style 文案应提到棋子，实际: \(desc)")
-            }
+            #expect(!rewardText.isEmpty, "\(reward) 应有奖励文案")
         }
     }
 

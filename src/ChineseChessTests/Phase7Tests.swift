@@ -16,7 +16,7 @@ struct Phase7Tests {
     func challengeModeMetadata() {
         for mode in DailyChallengeMode.allCases {
             #expect(!mode.icon.isEmpty, "\(mode.rawValue) 应有图标")
-            #expect(!mode.description.isEmpty, "\(mode.rawValue) 应有描述")
+            #expect(!mode.localizedDesc.isEmpty, "\(mode.rawValue) 应有描述")
         }
     }
 
@@ -73,7 +73,7 @@ struct Phase7Tests {
         #expect(DailyStreakReward.allCases.count == 8)
         #expect(DailyStreakReward.day3.rawValue == 3)
         #expect(DailyStreakReward.day100.rawValue == 100)
-        #expect(!DailyStreakReward.day3.reward.isEmpty)
+        #expect(!DailyStreakReward.day3.localizedReward.isEmpty)
     }
 
     @Test("日期回拨不增加连续天数")

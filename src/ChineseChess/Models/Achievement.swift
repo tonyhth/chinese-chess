@@ -4,11 +4,32 @@ import Foundation
 
 /// 成就稀有度
 enum AchievementRarity: String, Codable, CaseIterable {
-    case bronze = "铜"
-    case silver = "银"
-    case gold = "金"
-    case diamond = "钻石"
-    case hidden = "隐藏"
+    case bronze, silver, gold, diamond, hidden
+
+    // 兼容旧中文 rawValue（数据迁移）
+    init(from decoder: Decoder) throws {
+        let value = try decoder.singleValueContainer().decode(String.self)
+        switch value {
+        case "bronze", "铜": self = .bronze
+        case "silver", "银": self = .silver
+        case "gold", "金": self = .gold
+        case "diamond", "钻石": self = .diamond
+        case "hidden", "隐藏": self = .hidden
+        default:
+            NSLog("[i18n] Unknown rarity value: \(value), defaulting to bronze")
+            self = .bronze
+        }
+    }
+
+    var localizedName: String {
+        switch self {
+        case .bronze: return L10n.shared.t("rarity.bronze")
+        case .silver: return L10n.shared.t("rarity.silver")
+        case .gold: return L10n.shared.t("rarity.gold")
+        case .diamond: return L10n.shared.t("rarity.diamond")
+        case .hidden: return L10n.shared.t("rarity.hidden")
+        }
+    }
 
     var icon: String {
         switch self {
@@ -24,16 +45,16 @@ enum AchievementRarity: String, Codable, CaseIterable {
 /// 成就定义
 struct Achievement: Identifiable, Codable, Equatable {
     let id: String
-    let name: String
-    let description: String
+    let nameKey: String
+    let descriptionKey: String
     let rarity: AchievementRarity
 
     // 隐藏成就的描述在解锁前显示为 ????
     var displayDescription: String {
-        rarity == .hidden ? "?????" : description
+        rarity == .hidden ? "?????" : L10n.shared.t(descriptionKey)
     }
     var displayName: String {
-        rarity == .hidden ? "?????" : name
+        rarity == .hidden ? "?????" : L10n.shared.t(nameKey)
     }
 }
 
@@ -42,56 +63,56 @@ struct Achievement: Identifiable, Codable, Equatable {
 enum AchievementLibrary {
     /// 铜牌成就（8个）— 新手目标
     static let bronze: [Achievement] = [
-        Achievement(id: "first_game", name: "初出茅庐", description: "完成第一局对弈", rarity: .bronze),
-        Achievement(id: "first_win", name: "旗开得胜", description: "获得第一场胜利", rarity: .bronze),
-        Achievement(id: "tutorial_done", name: "学业初成", description: "完成新手教程", rarity: .bronze),
-        Achievement(id: "play_red", name: "红方先锋", description: "执红对弈 5 局", rarity: .bronze),
-        Achievement(id: "play_black", name: "黑方守将", description: "执黑对弈 5 局", rarity: .bronze),
-        Achievement(id: "first_puzzle", name: "初涉残局", description: "通过第一个残局", rarity: .bronze),
-        Achievement(id: "use_hint", name: "虚心求教", description: "使用 3 次提示", rarity: .bronze),
-        Achievement(id: "draw_game", name: "和为贵", description: "达成一次和棋", rarity: .bronze),
+        Achievement(id: "first_game", nameKey: "achievement.first_game.name", descriptionKey: "achievement.first_game.desc", rarity: .bronze),
+        Achievement(id: "first_win", nameKey: "achievement.first_win.name", descriptionKey: "achievement.first_win.desc", rarity: .bronze),
+        Achievement(id: "tutorial_done", nameKey: "achievement.tutorial_done.name", descriptionKey: "achievement.tutorial_done.desc", rarity: .bronze),
+        Achievement(id: "play_red", nameKey: "achievement.play_red.name", descriptionKey: "achievement.play_red.desc", rarity: .bronze),
+        Achievement(id: "play_black", nameKey: "achievement.play_black.name", descriptionKey: "achievement.play_black.desc", rarity: .bronze),
+        Achievement(id: "first_puzzle", nameKey: "achievement.first_puzzle.name", descriptionKey: "achievement.first_puzzle.desc", rarity: .bronze),
+        Achievement(id: "use_hint", nameKey: "achievement.use_hint.name", descriptionKey: "achievement.use_hint.desc", rarity: .bronze),
+        Achievement(id: "draw_game", nameKey: "achievement.draw_game.name", descriptionKey: "achievement.draw_game.desc", rarity: .bronze),
     ]
 
     /// 银牌成就（8个）— 进阶目标
     static let silver: [Achievement] = [
-        Achievement(id: "win_10", name: "十战十胜", description: "累计获胜 10 局", rarity: .silver),
-        Achievement(id: "beat_medium", name: "中等克星", description: "战胜中级 AI", rarity: .silver),
-        Achievement(id: "beat_hard", name: "硬核挑战者", description: "战胜高级 AI", rarity: .silver),
-        Achievement(id: "puzzles_5", name: "残局新秀", description: "通过 5 个残局", rarity: .silver),
-        Achievement(id: "win_streak_3", name: "三连胜", description: "连续获胜 3 局", rarity: .silver),
-        Achievement(id: "rank_scholar", name: "金榜题名", description: "升至秀才段位", rarity: .silver),
-        Achievement(id: "no_hint_win", name: "自力更生", description: "不使用提示获胜一局", rarity: .silver),
-        Achievement(id: "quick_win", name: "速战速决", description: "30 步内获胜", rarity: .silver),
+        Achievement(id: "win_10", nameKey: "achievement.win_10.name", descriptionKey: "achievement.win_10.desc", rarity: .silver),
+        Achievement(id: "beat_medium", nameKey: "achievement.beat_medium.name", descriptionKey: "achievement.beat_medium.desc", rarity: .silver),
+        Achievement(id: "beat_hard", nameKey: "achievement.beat_hard.name", descriptionKey: "achievement.beat_hard.desc", rarity: .silver),
+        Achievement(id: "puzzles_5", nameKey: "achievement.puzzles_5.name", descriptionKey: "achievement.puzzles_5.desc", rarity: .silver),
+        Achievement(id: "win_streak_3", nameKey: "achievement.win_streak_3.name", descriptionKey: "achievement.win_streak_3.desc", rarity: .silver),
+        Achievement(id: "rank_scholar", nameKey: "achievement.rank_scholar.name", descriptionKey: "achievement.rank_scholar.desc", rarity: .silver),
+        Achievement(id: "no_hint_win", nameKey: "achievement.no_hint_win.name", descriptionKey: "achievement.no_hint_win.desc", rarity: .silver),
+        Achievement(id: "quick_win", nameKey: "achievement.quick_win.name", descriptionKey: "achievement.quick_win.desc", rarity: .silver),
     ]
 
     /// 金牌成就（8个）— 高手目标
     static let gold: [Achievement] = [
-        Achievement(id: "win_50", name: "百战雄师", description: "累计获胜 50 局", rarity: .gold),
-        Achievement(id: "beat_master", name: "棋逢对手", description: "战胜大师级 AI", rarity: .gold),
-        Achievement(id: "puzzles_20", name: "残局大师", description: "通过 20 个残局", rarity: .gold),
-        Achievement(id: "win_streak_5", name: "五连霸主", description: "连续获胜 5 局", rarity: .gold),
-        Achievement(id: "rank_juren", name: "乡试头名", description: "升至举人段位", rarity: .gold),
-        Achievement(id: "comeback_win", name: "绝地反击", description: "子力劣势下获胜", rarity: .gold),
-        Achievement(id: "perfect_game", name: "完美对局", description: "不丢一子获胜", rarity: .gold),
-        Achievement(id: "endgame_master", name: "残局圣手", description: "10 步内解残局", rarity: .gold),
+        Achievement(id: "win_50", nameKey: "achievement.win_50.name", descriptionKey: "achievement.win_50.desc", rarity: .gold),
+        Achievement(id: "beat_master", nameKey: "achievement.beat_master.name", descriptionKey: "achievement.beat_master.desc", rarity: .gold),
+        Achievement(id: "puzzles_20", nameKey: "achievement.puzzles_20.name", descriptionKey: "achievement.puzzles_20.desc", rarity: .gold),
+        Achievement(id: "win_streak_5", nameKey: "achievement.win_streak_5.name", descriptionKey: "achievement.win_streak_5.desc", rarity: .gold),
+        Achievement(id: "rank_juren", nameKey: "achievement.rank_juren.name", descriptionKey: "achievement.rank_juren.desc", rarity: .gold),
+        Achievement(id: "comeback_win", nameKey: "achievement.comeback_win.name", descriptionKey: "achievement.comeback_win.desc", rarity: .gold),
+        Achievement(id: "perfect_game", nameKey: "achievement.perfect_game.name", descriptionKey: "achievement.perfect_game.desc", rarity: .gold),
+        Achievement(id: "endgame_master", nameKey: "achievement.endgame_master.name", descriptionKey: "achievement.endgame_master.desc", rarity: .gold),
     ]
 
     /// 钻石成就（5个）— 大师目标
     static let diamond: [Achievement] = [
-        Achievement(id: "win_100", name: "战神", description: "累计获胜 100 局", rarity: .diamond),
-        Achievement(id: "rank_hanlin", name: "翰林学士", description: "升至翰林段位", rarity: .diamond),
-        Achievement(id: "puzzles_40", name: "残局宗师", description: "通过 40 个残局", rarity: .diamond),
-        Achievement(id: "all_difficulties", name: "全能战士", description: "战胜所有难度 AI", rarity: .diamond),
-        Achievement(id: "win_streak_10", name: "十连绝杀", description: "连续获胜 10 局", rarity: .diamond),
+        Achievement(id: "win_100", nameKey: "achievement.win_100.name", descriptionKey: "achievement.win_100.desc", rarity: .diamond),
+        Achievement(id: "rank_hanlin", nameKey: "achievement.rank_hanlin.name", descriptionKey: "achievement.rank_hanlin.desc", rarity: .diamond),
+        Achievement(id: "puzzles_40", nameKey: "achievement.puzzles_40.name", descriptionKey: "achievement.puzzles_40.desc", rarity: .diamond),
+        Achievement(id: "all_difficulties", nameKey: "achievement.all_difficulties.name", descriptionKey: "achievement.all_difficulties.desc", rarity: .diamond),
+        Achievement(id: "win_streak_10", nameKey: "achievement.win_streak_10.name", descriptionKey: "achievement.win_streak_10.desc", rarity: .diamond),
     ]
 
     /// 隐藏成就（5个）— 特殊条件
     static let hidden: [Achievement] = [
-        Achievement(id: "rank_sage", name: "棋道至尊", description: "升至棋圣段位", rarity: .hidden),
-        Achievement(id: "200_wins", name: "千秋霸业", description: "累计获胜 200 局", rarity: .hidden),
-        Achievement(id: "all_puzzles", name: "破局之王", description: "通关所有残局", rarity: .hidden),
-        Achievement(id: "daily_7", name: "七日不辍", description: "连续 7 天对弈", rarity: .hidden),
-        Achievement(id: "first_blood", name: "先声夺人", description: "第一步就将军", rarity: .hidden),
+        Achievement(id: "rank_sage", nameKey: "achievement.rank_sage.name", descriptionKey: "achievement.rank_sage.desc", rarity: .hidden),
+        Achievement(id: "200_wins", nameKey: "achievement.200_wins.name", descriptionKey: "achievement.200_wins.desc", rarity: .hidden),
+        Achievement(id: "all_puzzles", nameKey: "achievement.all_puzzles.name", descriptionKey: "achievement.all_puzzles.desc", rarity: .hidden),
+        Achievement(id: "daily_7", nameKey: "achievement.daily_7.name", descriptionKey: "achievement.daily_7.desc", rarity: .hidden),
+        Achievement(id: "first_blood", nameKey: "achievement.first_blood.name", descriptionKey: "achievement.first_blood.desc", rarity: .hidden),
     ]
 
     /// 所有成就

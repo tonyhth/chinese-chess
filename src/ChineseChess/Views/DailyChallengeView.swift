@@ -22,10 +22,10 @@ struct DailyChallengeView: View {
                             .font(.largeTitle)
                             .foregroundColor(.accentColor)
                         VStack(alignment: .leading) {
-                            Text("今日挑战")
+                            Text(L10n.shared.t("daily.view.todayChallenge"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text(todayMode.rawValue)
+                            Text(todayMode.localizedTitle)
                                 .font(.title2)
                                 .fontWeight(.bold)
                         }
@@ -37,12 +37,12 @@ struct DailyChallengeView: View {
                         }
                     }
 
-                    Text(todayMode.description)
+                    Text(todayMode.localizedDesc)
                         .font(.body)
                         .foregroundColor(.secondary)
 
                     HStack {
-                        Text("推荐难度：\(todayDiff.rawValue)")
+                        Text(L10n.shared.t("daily.view.recommendedDifficulty", todayDiff.displayName))
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Spacer()
@@ -64,11 +64,11 @@ struct DailyChallengeView: View {
 
                 // 连续登录
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("连续登录")
+                    Text(L10n.shared.t("daily.view.loginStreak"))
                         .font(.headline)
 
                     HStack {
-                        Text("\(streak) 天")
+                        Text("\(streak) \(L10n.shared.t("daily.view.days"))")
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.accentColor)
@@ -76,7 +76,7 @@ struct DailyChallengeView: View {
                         Spacer()
 
                         if let reward = streakReward {
-                            Text("🏅 \(reward.reward)")
+                            Text("🏅 \(reward.localizedReward)")
                                 .font(.caption)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -97,7 +97,7 @@ struct DailyChallengeView: View {
                                     .foregroundColor(.secondary)
                                     // v3.0 gap fix: 显示解锁内容简述
                                     if streak >= reward.rawValue {
-                                        Text(reward.unlockDescription)
+                                        Text(reward.localizedDesc)
                                             .font(.caption2)
                                             .foregroundColor(.accentColor)
                                             .lineLimit(1)
@@ -119,7 +119,7 @@ struct DailyChallengeView: View {
 
                     let recent = manager.recentChallenges(days: 7)
                     if recent.isEmpty {
-                        Text("暂无记录")
+                        Text(L10n.shared.t("daily.view.noRecord"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
@@ -127,7 +127,7 @@ struct DailyChallengeView: View {
                             HStack {
                                 Image(systemName: challenge.mode.icon)
                                     .foregroundColor(.secondary)
-                                Text(challenge.mode.rawValue)
+                                Text(challenge.mode.localizedTitle)
                                     .font(.caption)
                                 Spacer()
                                 if challenge.completed {

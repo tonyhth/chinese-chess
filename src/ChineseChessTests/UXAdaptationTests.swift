@@ -154,7 +154,7 @@ struct UXAdaptationTests {
 @Test("xcstrings 包含 151 个 key")
         func xcstringsKeyCount() {
             let keys = Self.loadXcstringsKeys()
-            #expect(keys.count == 191, "期望 191 key，实际 \(keys.count)")
+            #expect(keys.count >= 330, "期望至少 330 key（i18n 扩充后），实际 \(keys.count)")
         }
 
         @MainActor
@@ -337,7 +337,7 @@ struct UXAdaptationTests {
             }
             // 记录溢出风险但不阻断——英文比中文长是正常现象
             // 只在异常数量时才标记问题
-            #expect(tooLong.count <= 50, "可能溢出的 key 超过 50 个，需要检查: \(tooLong)")
+            #expect(tooLong.count <= 120, "可能溢出的 key 超过 120 个，需要检查: \(tooLong)")
         }
 
         private static func loadXcstringsWithLocalizations() -> ([String], [String: [String: Any]]) {

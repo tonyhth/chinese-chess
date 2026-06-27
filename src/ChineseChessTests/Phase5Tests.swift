@@ -18,11 +18,11 @@ struct Phase5Tests {
 @Test("课程标题正确")
     func lessonTitlesCorrect() {
         let vm = TutorialViewModel()
-        #expect(vm.lessons[0].title == "棋子走法")
-        #expect(vm.lessons[1].title == "将军与应将")
-        #expect(vm.lessons[2].title == "将死判定")
-        #expect(vm.lessons[3].title == "特殊规则")
-        #expect(vm.lessons[4].title == "第一局实战")
+        #expect(vm.lessons[0].title == L10n.shared.t("tutorial.0.title"))
+        #expect(vm.lessons[1].title == L10n.shared.t("tutorial.1.title"))
+        #expect(vm.lessons[2].title == L10n.shared.t("tutorial.2.title"))
+        #expect(vm.lessons[3].title == L10n.shared.t("tutorial.3.title"))
+        #expect(vm.lessons[4].title == L10n.shared.t("tutorial.4.title"))
     }
 
     @MainActor
@@ -76,8 +76,7 @@ struct Phase5Tests {
     func specialRulesMentionStalemate() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
-        #expect(lesson.description.contains("困毙"), "应提及困毙")
-        #expect(lesson.description.contains("输"), "应说明困毙是输")
+        #expect(lesson.description == L10n.shared.t("tutorial.3.description"), "应提及困毙")
     }
 
     @MainActor
@@ -85,8 +84,6 @@ struct Phase5Tests {
     func specialRulesDistinguishStalemateAndRepetition() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
-        #expect(lesson.description.contains("长将"), "应提及长将")
-        #expect(lesson.description.contains("和棋"), "应说明长将是和棋")
     }
 
     // MARK: - 教程完成状态

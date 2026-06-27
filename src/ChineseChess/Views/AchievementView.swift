@@ -13,11 +13,11 @@ struct RankBadgeView: View {
                 .foregroundColor(rankColor)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(rank.rawValue)
+                Text(rank.localizedTitle)
                     .font(.headline)
                     .foregroundColor(rankColor)
                 if let next = rank.next {
-                    Text("→ \(next.rawValue)")
+                    Text("→ \(next.localizedTitle)")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -54,7 +54,7 @@ struct RankProgressView: View {
                 Spacer()
                 if let next = profile.rank.next {
                     VStack(alignment: .trailing) {
-                        Text("下一段位：\(next.rawValue)")
+                        Text(L10n.shared.t("achievement.view.nextRank", next.localizedTitle))
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text("需 \(next.requiredWins) 胜\(next.requiredPuzzles > 0 ? " + \(next.requiredPuzzles) 残局" : "")")
@@ -68,12 +68,12 @@ struct RankProgressView: View {
                 .tint(profile.rank >= .hanlin ? .yellow : .accentColor)
 
             HStack {
-                Text("胜场：\(profile.totalWins)/\(profile.rank.next?.requiredWins ?? profile.totalWins)")
+                Text("\(L10n.shared.t("achievement.view.wins"))：\(profile.totalWins)/\(profile.rank.next?.requiredWins ?? profile.totalWins)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
                 if profile.rank.next?.requiredPuzzles ?? 0 > 0 {
-                    Text("残局：\(profile.puzzlesCompleted)/\(profile.rank.next?.requiredPuzzles ?? 0)")
+                    Text("\(L10n.shared.t("achievement.view.puzzles"))：\(profile.puzzlesCompleted)/\(profile.rank.next?.requiredPuzzles ?? 0)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -95,7 +95,7 @@ struct AchievementView: View {
             VStack(alignment: .leading, spacing: 16) {
                 // 总进度
                 HStack {
-                    Text("成就")
+                    Text(L10n.shared.t("achievement.view.title"))
                         .font(.title2)
                         .fontWeight(.bold)
                     Spacer()
@@ -117,7 +117,7 @@ struct AchievementView: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text("\(rarity.rawValue) (\(unlocked.count)/\(achievements.count))")
+                            Text("\(rarity.localizedName) (\(unlocked.count)/\(achievements.count))")
                                 .font(.headline)
                             Spacer()
                         }
@@ -140,12 +140,12 @@ struct AchievementView: View {
                 .font(.title2)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(isUnlocked ? achievement.name : achievement.displayName)
+                Text(isUnlocked ? achievement.displayName : achievement.displayName)
                     .font(.caption)
                     .fontWeight(isUnlocked ? .bold : .regular)
                     .foregroundColor(isUnlocked ? .primary : .secondary)
 
-                Text(isUnlocked ? achievement.description : achievement.displayDescription)
+                Text(isUnlocked ? achievement.displayDescription : achievement.displayDescription)
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .lineLimit(1)
