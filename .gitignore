@@ -35,11 +35,10 @@ tmp/
 # Design/Docs (not code)
 design/
 designs/
-docs/
 knowledge/
 plans/
 proposals/
-*.md
+/*.md
 !README.md
 
 # Scripts (not project code)
