@@ -610,8 +610,8 @@ final class AIEngine: AIEngineProtocol {
 // MARK: - ChessEngine 协议实现
 
 extension AIEngine: ChessEngine {
-    var displayName: String { "内置引擎" }
-    var engineType: EngineType { .native }
+    nonisolated var displayName: String { "内置引擎" }
+    nonisolated var engineType: EngineType { .native }
     var isReady: Bool { true }
 
     func bestMove(
