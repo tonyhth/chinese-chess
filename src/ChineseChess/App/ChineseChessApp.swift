@@ -17,7 +17,14 @@ struct ChineseChessApp: App {
         #if os(macOS)
         let args = CommandLine.arguments
         if args.count >= 2 && args[1] == "--selfplay" {
-            runSelfPlayFromCLI()
+            var done = false
+            Task {
+                await runSelfPlayFromCLI()
+                done = true
+            }
+            while !done {
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+            }
             Foundation.exit(0)
         }
         // v3.1: CMA-ES 自动调参模式

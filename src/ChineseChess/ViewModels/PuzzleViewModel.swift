@@ -404,7 +404,7 @@ class PuzzleViewModel {
 
         let engine = self.aiEngine
         Task.detached {
-            let move = engine.bestMove(for: snapshot, difficulty: difficulty, isIOS: Self._isIOS)
+            let move = await engine.bestMove(for: snapshot, difficulty: difficulty, isIOS: Self._isIOS)
             await MainActor.run { [weak self] in
                 guard let self, self.puzzleVersion == currentVersion else { return }
                 if let move = move {

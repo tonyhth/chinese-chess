@@ -87,7 +87,7 @@ final class SelfPlayRunner {
     private var totalMoves = 0
     private var gameResults: [SelfPlayGameResult] = []
 
-    func run(config: SelfPlayConfig, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) -> SelfPlaySessionResult {
+    func run(config: SelfPlayConfig, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) async -> SelfPlaySessionResult {
         let startTime = Date()
 
         for gameIndex in 0..<config.totalGames {
@@ -102,7 +102,7 @@ final class SelfPlayRunner {
                 actualBlack = config.blackDifficulty
             }
 
-            let result = playGame(
+            let result = await playGame(
                 gameIndex: gameIndex,
                 redDifficulty: actualRed,
                 blackDifficulty: actualBlack,
@@ -123,7 +123,7 @@ final class SelfPlayRunner {
             progressCallback?(gameIndex + 1, result)
 
             // 每局之间清空引擎状态
-            engine.clearHistory()
+            await engine.clearHistory()
         }
 
         let elapsed = Date().timeIntervalSince(startTime)
@@ -156,7 +156,7 @@ final class SelfPlayRunner {
         blackDifficulty: AIDifficulty,
         maxMoves: Int,
         repetitionThreshold: Int
-    ) -> SelfPlayGameResult {
+    ) async -> SelfPlayGameResult {
         let board = Board()  // 标准初始局面
         var moveHistory: [String] = []
         var fenCounts: [String: Int] = [:]
@@ -169,7 +169,7 @@ final class SelfPlayRunner {
             let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
 
             // 清空 TT 避免跨局污染（但局内保留 TT 加速搜索）
-            guard let move = engine.bestMove(for: board, difficulty: difficulty, isIOS: isIOS) else {
+            guard let move = await engine.bestMove(for: board, difficulty: difficulty, isIOS: isIOS) else {
                 // 无棋可走 = 困毙
                 endReason = .stalemate
                 let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
@@ -249,8 +249,8 @@ final class SelfPlayRunner {
 
 extension SelfPlayRunner {
     /// 运行自对弈并生成报告字符串
-    func runAndReport(config: SelfPlayConfig, label: String, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) -> String {
-        let result = run(config: config, progressCallback: progressCallback)
+    func runAndReport(config: SelfPlayConfig, label: String, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) async -> String {
+        let result = await run(config: config, progressCallback: progressCallback)
 
         let eloDelta = BayesElo.estimateDelta(
             wins: result.redWins,
@@ -306,7 +306,7 @@ enum BayesElo {
 
 #if os(macOS)
 /// 命令行自对弈入口（在 ChineseChessApp.swift 的 main 中通过 --selfplay 参数调用）
-func runSelfPlayFromCLI() {
+func runSelfPlayFromCLI() async {
     let args = CommandLine.arguments
 
     guard args.count >= 4 else {
@@ -348,7 +348,7 @@ func runSelfPlayFromCLI() {
 
     let startTime = Date()
 
-    let report = runner.runAndReport(config: config, label: label) { completed, gameResult in
+    let report = await runner.runAndReport(config: config, label: label) { completed, gameResult in
         let elapsed = Date().timeIntervalSince(startTime)
         let winnerStr: String
         switch gameResult.result {

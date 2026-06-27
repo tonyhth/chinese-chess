@@ -4,12 +4,12 @@ import Foundation
 
 protocol AIEngineProtocol {
     /// 计算最佳走法。内部会复制棋盘，不会修改传入的 board。
-    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool) -> Move?
+    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool) async -> Move?
 }
 
 // MARK: - AI 引擎实现
 
-final class AIEngine: AIEngineProtocol {
+actor AIEngine: AIEngineProtocol {
 
     /// 开局库（实例级，避免多 ViewModel 并发访问）
     private let openingBook = OpeningBook()
@@ -40,7 +40,7 @@ final class AIEngine: AIEngineProtocol {
         moveOrderer.clearHistory()
     }
 
-    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) -> Move? {
+    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
         let workBoard = board.snapshot()
 
         switch difficulty {
@@ -623,7 +623,7 @@ extension AIEngine: ChessEngine {
         guard let board = UCIMoveConverter.board(from: fen, moves: moveHistory) else {
             return nil
         }
-        let move = self.bestMove(for: board, difficulty: difficulty, isIOS: false)
+        let move = await self.bestMove(for: board, difficulty: difficulty, isIOS: false)
         return move.map { UCIMoveConverter.uciString(from: $0) }
     }
 

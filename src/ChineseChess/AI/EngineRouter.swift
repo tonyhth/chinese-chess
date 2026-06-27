@@ -66,7 +66,7 @@ final class EngineRouter {
 
     /// 通知引擎开始新对局
     func newGame() {
-        nativeEngine.newGame()
+        Task { await nativeEngine.newGame() }
         if let emb = embeddedEngine {
             Task { await emb.newGame() }
         }

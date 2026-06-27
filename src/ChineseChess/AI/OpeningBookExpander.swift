@@ -65,7 +65,7 @@ final class OpeningBookExpander {
             )
             
             // 运行自对弈
-            let result = runner.run(config: config)
+            let result = await runner.run(config: config)
             
             // 从走法历史提取开局局面
             for game in result.games {

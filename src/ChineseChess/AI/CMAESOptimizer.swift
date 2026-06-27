@@ -352,7 +352,7 @@ final class CMAESOptimizer {
         )
 
         // 运行自对弈（同步，在 async 函数中直接调用）
-        let result = runner.run(config: config)
+        let result = await runner.run(config: config)
 
         // 计算适应度:胜率 + Elo 估值
         let winRate = Double(result.redWins + result.draws) / Double(result.games.count)
