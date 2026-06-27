@@ -46,6 +46,8 @@ struct ChineseChessApp: App {
     @State private var showAchievements = false
     @State private var showRankPrivilege = false
 
+    @Environment(\.scenePhase) private var scenePhase
+
     // Phase C: 引擎开关绑定(简化版)
     private var useEmbeddedEngineBinding: Binding<Bool> {
         Binding(
@@ -294,6 +296,11 @@ struct ChineseChessApp: App {
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
         .defaultSize(width: 760, height: 860)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                Task { await EngineRouter.shared.shutdown() }
+            }
+        }
         .commands {
             CommandGroup(replacing: .appSettings) {
                 Button(L10n.shared.t("game.settings")) {

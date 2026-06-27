@@ -22,6 +22,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
     nonisolated(unsafe) private(set) var isReady = false
     private var cachedVersion: String = "unknown"
 
+    // 在途搜索计数（actor 上下文内安全操作）
+    private var activeSearchCount = 0
+
     // MARK: - Lifecycle
 
     func start() async throws {
@@ -42,8 +45,28 @@ actor EmbeddedPikafishEngine: ChessEngine {
         isReady = true
     }
 
-    func shutdown() {
+    /// 安全关闭：先 stop 在途搜索，等待搜索完成，再 quit
+    func shutdown() async {
         guard isReady else { return }
+
+        // 1. 请求停止所有在途搜索（C API: volatile flag, 线程安全, non-blocking）
+        pikafish_stop()
+
+        // 2. 等待在途搜索完成（50ms 轮询，2秒超时）
+        let maxWait: Duration = .seconds(2)
+        let deadline = ContinuousClock.now + maxWait
+        while activeSearchCount > 0 && ContinuousClock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+
+        if activeSearchCount > 0 {
+            // 超时不 quit——让 OS 在进程退出时回收（比 UAF 安全）
+            NSLog("[EmbeddedPikafishEngine] WARNING: \(activeSearchCount) search(es) still active after 2s timeout, skipping quit to avoid UAF")
+            isReady = false
+            return
+        }
+
+        // 3. 所有搜索已结束，安全 quit
         pikafish_quit()
         isReady = false
     }
@@ -70,10 +93,14 @@ actor EmbeddedPikafishEngine: ChessEngine {
         let (depth, timeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
         let movesStr = moveHistory.joined(separator: " ")
 
-        // 在 DispatchQueue.global() 执行阻塞调用，避免占用 cooperative pool
+        // 标记搜索开始（actor 上下文，安全）
+        activeSearchCount += 1
+        defer { activeSearchCount -= 1 }
+
+        // 闭包不捕获 self，只捕获局部值类型（fen/movesStr/depth/timeMs/buffer）
         return await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
-                var buffer = [CChar](repeating: 0, count: 64)  // UCI 走法最大 4 字符 + null，64 字节留足余量防止 C 侧 bug
+                var buffer = [CChar](repeating: 0, count: 64)
                 let result = fen.withCString { fenCStr in
                     movesStr.withCString { movesCStr in
                         pikafish_best_move(
@@ -86,19 +113,17 @@ actor EmbeddedPikafishEngine: ChessEngine {
 
                 switch result {
                 case 0:
-                    // 正常完成
                     let move = String(cString: buffer)
                     continuation.resume(returning: move.isEmpty ? nil : move)
                 case -1:
-                    // 搜索被中断，返回截至中断时的最佳走法
                     let move = String(cString: buffer)
                     continuation.resume(returning: move.isEmpty ? nil : move)
                 default:
-                    // 参数错误或其他失败
                     continuation.resume(returning: nil)
                 }
             }
         }
+        // withCheckedContinuation 返回后，defer 执行 activeSearchCount -= 1
     }
 
     /// 立即停止搜索（原子操作，线程安全，可从任意线程调用）

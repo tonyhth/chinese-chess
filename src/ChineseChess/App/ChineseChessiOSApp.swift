@@ -25,6 +25,8 @@ struct ChineseChessiOSApp: App {
     @State private var showAchievements = false
     @State private var showRankPrivilege = false
 
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
             NavigationStack {
@@ -248,6 +250,11 @@ struct ChineseChessiOSApp: App {
                 }
             }
             .preferredColorScheme(.dark)
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase == .background {
+                        Task { await EngineRouter.shared.shutdown() }
+                    }
+                }
         }
     }
 }

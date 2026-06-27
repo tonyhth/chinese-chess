@@ -73,9 +73,9 @@ final class EngineRouter {
     }
 
     /// 关闭所有引擎（App 退出时调用）
-    func shutdown() {
+    func shutdown() async {
         if let emb = embeddedEngine {
-            Task { await emb.shutdown() }
+            await emb.shutdown()
             embeddedEngine = nil
         }
     }
