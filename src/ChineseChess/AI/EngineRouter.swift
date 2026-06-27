@@ -62,7 +62,7 @@ final class EngineRouter {
     }
 
     /// 获取自研引擎（直接访问，不受路由影响）
-    nonisolated var native: AIEngine { nativeEngine }
+    func getNativeEngine() -> AIEngine { nativeEngine }
 
     /// 通知引擎开始新对局
     func newGame() {

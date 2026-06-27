@@ -489,10 +489,10 @@ struct Phase2aUCITests {
     }
 
     @MainActor
-@Test("EngineRouter.native 返回 AIEngine 实例")
-    func testEngineRouterNative() {
+@Test("EngineRouter.nativeEngine 返回 AIEngine 实例")
+    func testEngineRouterNative() async {
         let router = EngineRouter.shared
-        let native = router.native
+        let native = await router.getNativeEngine()
         let chessEngine: any ChessEngine = native
         #expect(chessEngine.engineType == .native)
     }
