@@ -5,6 +5,10 @@ struct StatusBarView: View {
 
     private let l10n = L10n.shared
 
+    // Phase 2.1: 每秒刷新计时器显示
+    @State private var elapsedSeconds: Int = 0
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
     var body: some View {
         VStack(spacing: 8) {
             // 当前轮次 + AI 思考状态
@@ -18,10 +22,25 @@ struct StatusBarView: View {
                 // TODO: guided 走错回退文案 — 待 PuzzlePlayView 集成 StatusBarView 后启用
 
                 if viewModel.isThinking {
-                    Text(l10n.t("status.aiThinking"))
-                        .font(.footnote)
-                        .foregroundColor(.yellow)
-                        .pulseAnimation()
+                    HStack(spacing: 4) {
+                        Text(l10n.t("status.aiThinking"))
+                            .font(.footnote)
+                            .foregroundColor(.yellow)
+                        if elapsedSeconds > 0 {
+                            Text(String(format: l10n.t("status.thinkingSeconds"), elapsedSeconds))
+                                .font(.footnote)
+                                .foregroundColor(.yellow)
+                        }
+                    }
+                    .pulseAnimation()
+                    .onReceive(timer) { _ in
+                        elapsedSeconds = viewModel.thinkingElapsedSeconds
+                    }
+                    .onChange(of: viewModel.isThinking) { _, newVal in
+                        if newVal {
+                            elapsedSeconds = 0
+                        }
+                    }
                 }
 
                 if viewModel.isInCheck {

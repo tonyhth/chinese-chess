@@ -106,9 +106,27 @@ struct AchievementView: View {
 
                 ProgressView(
                     value: Double(profile.unlockedAchievements.count),
-                    total: Double(AchievementLibrary.all.count)
+                    total: Double(max(AchievementLibrary.all.count, 1))
                 )
                 .tint(.accentColor)
+
+                // Phase 2.2: 空状态引导
+                if profile.unlockedAchievements.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "trophy")
+                            .font(.system(size: 48))
+                            .foregroundColor(.secondary.opacity(0.5))
+                        Text(L10n.shared.t("achievement.empty.title"))
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text(L10n.shared.t("achievement.empty.hint"))
+                            .font(.subheadline)
+                            .foregroundColor(.secondary.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                }
 
                 // 按稀有度分组
                 ForEach(AchievementRarity.allCases, id: \.self) { rarity in

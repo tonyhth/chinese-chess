@@ -5475,6 +5475,54 @@
           }
         }
       }
+    },
+    "status.thinkingSeconds": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(%d秒)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(%ds)"
+          }
+        }
+      }
+    },
+    "achievement.empty.title": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无成就"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Achievements Yet"
+          }
+        }
+      }
+    },
+    "achievement.empty.hint": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始游戏和解谜，解锁更多成就"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play games and solve puzzles to unlock achievements"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

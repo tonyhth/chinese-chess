@@ -18,6 +18,27 @@ class GameViewModel {
     var capturedPieces: (red: [Piece], black: [Piece]) = (red: [], black: [])
     var gameState: GameState = .playing
     var isThinking: Bool = false
+    
+    // Phase 2.1: AI 思考计时器
+    var thinkingStartTime: Date? = nil
+    
+    /// 计算已思考秒数（供 UI 绑定刷新）
+    var thinkingElapsedSeconds: Int {
+        guard let start = thinkingStartTime else { return 0 }
+        return Int(Date().timeIntervalSince(start))
+    }
+    
+    /// 标记开始思考
+    private func startThinking() {
+        isThinking = true
+        thinkingStartTime = Date()
+    }
+    
+    /// 标记思考结束
+    private func stopThinking() {
+        isThinking = false
+        thinkingStartTime = nil
+    }
     var isProcessingWrongMove: Bool = false
     var isInCheck: Bool = false
     var difficulty: AIDifficulty = .medium
@@ -197,7 +218,7 @@ class GameViewModel {
 
     func newGame() {
         gameVersion += 1
-        isThinking = false
+        stopThinking()
         board = Board()
         selectedPosition = nil
         legalMovesForSelected = []
@@ -237,7 +258,7 @@ class GameViewModel {
 
     func requestHint() {
         guard !isThinking, gameState == .playing else { return }
-        isThinking = true
+        startThinking()
         let currentDifficulty = difficulty
         let currentVersion = gameVersion
 
@@ -260,7 +281,7 @@ class GameViewModel {
             )
             
             guard self.gameVersion == currentVersion else {
-                self.isThinking = false
+                self.stopThinking()
                 return
             }
             
@@ -270,14 +291,14 @@ class GameViewModel {
             } else {
                 self.engineFallbackMessage = L10n.shared.t("engine.hintFailed")
             }
-            self.isThinking = false
+            self.stopThinking()
         }
     }
 
     // MARK: - AI
 
     private func triggerAIMove() {
-        isThinking = true
+        startThinking()
         let currentDifficulty = difficulty
         let currentVersion = gameVersion
         let humanSide = self.humanSide
@@ -291,7 +312,7 @@ class GameViewModel {
             
             // P0 修复：确保是 AI 的回合（不是玩家的回合）
             guard self.board.currentTurn != humanSide else {
-                self.isThinking = false
+                self.stopThinking()
                 return
             }
             
@@ -311,7 +332,7 @@ class GameViewModel {
             
             guard self.gameVersion == currentVersion else {
                 // gameVersion 不匹配——新对局已开始
-                self.isThinking = false
+                self.stopThinking()
                 return
             }
             
@@ -322,7 +343,7 @@ class GameViewModel {
                         // P0 修复：验证 AI 返回的走法是 AI 的棋（不是玩家的棋）
                         guard mainPiece.side == self.board.currentTurn else {
                             // 外部引擎返回了错误的走法（走的是玩家的棋）
-                            self.isThinking = false
+                            self.stopThinking()
                             return
                         }
 
@@ -377,7 +398,7 @@ class GameViewModel {
                 self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
             }
             
-            self.isThinking = false
+            self.stopThinking()
             self.checkGameState()
 
             // 更新最后一步 isCheckmate
