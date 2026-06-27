@@ -1,5 +1,19 @@
 #if os(macOS)
 import SwiftUI
+import AppKit
+
+// macOS 退出钩子兜底：scenePhase 在 macOS 上不保证触发
+private final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationWillTerminate(_ notification: Notification) {
+        // 同步等待引擎关闭（最长 2s）
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            await EngineRouter.shared.shutdown()
+            semaphore.signal()
+        }
+        _ = semaphore.wait(timeout: .now() + 3)
+    }
+}
 
 @main
 struct ChineseChessApp: App {
@@ -47,6 +61,8 @@ struct ChineseChessApp: App {
     @State private var showRankPrivilege = false
 
     @Environment(\.scenePhase) private var scenePhase
+
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     // Phase C: 引擎开关绑定(简化版)
     private var useEmbeddedEngineBinding: Binding<Bool> {

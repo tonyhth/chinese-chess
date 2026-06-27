@@ -72,7 +72,11 @@ actor EmbeddedPikafishEngine: ChessEngine {
     }
 
     deinit {
+        // 防御性兜底：正常路径应通过 async shutdown() 完成
+        // 如果走到这里且有在途搜索，quit 仍有 UAF 风险，但比泄漏好
         if isReady {
+            pikafish_stop()
+            NSLog("[EmbeddedPikafishEngine] deinit: defensive pikafish_stop()+quit() (should have called shutdown() first)")
             pikafish_quit()
         }
     }
