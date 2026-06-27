@@ -435,11 +435,13 @@ struct GameViewModelPhase3Tests {
     @MainActor
 @Test("GameMove 记录包含棋谱")
     func testGameMoveHasNotation() {
+        UserDefaults.standard.set("red", forKey: "chinesechess.humanSide")
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 6, col: 4))
         vm.movePiece(from: Position(row: 6, col: 4), to: Position(row: 5, col: 4))
 
-        #expect(vm.gameMoves.count >= 1)
+        #expect(vm.gameMoves.count >= 1, "走棋后应记录 GameMove")
+        guard !vm.gameMoves.isEmpty else { return }
         #expect(!vm.gameMoves[0].notation.isEmpty)
         #expect(vm.gameMoves[0].notation == "兵五进一")
     }

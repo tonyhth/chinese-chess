@@ -1,12 +1,16 @@
+import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("GameViewModel Interaction Tests")
+@Suite("GameViewModel Interaction Tests", .serialized)
 struct GameViewModelTests {
+
+    private static let defaultsKey = "chinesechess.humanSide"
 
     @MainActor
 @Test("选中棋子后移动到空位")
     func selectAndMoveToEmpty() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         // 红炮在 (7,1)，前方 (7,4) 是空位
         let cannonPos = Position(row: 7, col: 1)
@@ -28,6 +32,7 @@ struct GameViewModelTests {
     @MainActor
 @Test("选中棋子吃对方棋子")
     func selectAndCapture() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         // 设置场景：红车在 (5,0)，黑卒在 (3,0)
         let board = Board(pieces: [
@@ -49,6 +54,7 @@ struct GameViewModelTests {
     @MainActor
 @Test("选中棋子后点击非法位置不移动")
     func selectAndInvalidMove() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         // 红帅在 (9,4)，非法位置比如 (9,0)
         vm.selectPiece(at: Position(row: 9, col: 4))
@@ -61,6 +67,7 @@ struct GameViewModelTests {
     @MainActor
 @Test("点击空位取消选中")
     func clickEmptyDeselect() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         // 选中红炮
         vm.selectPiece(at: Position(row: 7, col: 1))
@@ -75,6 +82,7 @@ struct GameViewModelTests {
     @MainActor
 @Test("新局重置状态")
     func newGameResets() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         vm.selectPiece(at: Position(row: 7, col: 1))
         vm.newGame()
@@ -91,6 +99,7 @@ struct GameViewModelTests {
     @MainActor
 @Test("黑方回合点击无响应")
     func blackTurnIgnored() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         // 手动走到黑方回合
         let cannon = vm.board.piece(at: Position(row: 7, col: 1))!
@@ -106,6 +115,7 @@ struct GameViewModelTests {
     @MainActor
 @Test("悔棋恢复棋盘状态")
     func undoRestoresBoard() {
+        UserDefaults.standard.set("red", forKey: Self.defaultsKey)
         let vm = GameViewModel()
         // 选中并走一步（走完后 AI 也会走，所以走 2 步）
         let fromPos = Position(row: 7, col: 1)

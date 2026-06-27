@@ -4,31 +4,41 @@ import Testing
 
 // MARK: - 第三批次 P1/P2 任务测试（v3.4.0 Phase C 适配版）
 
-@Suite("P2 #10 执边选择 UI")
+@Suite("P2 #10 执边选择 UI", .serialized)
 struct HumanSideSelectionTests {
 
+    private static let key = "chinesechess.humanSide"
+
+    @MainActor
     @Test("humanSide 默认值（红方）")
     func humanSideDefault() async {
-        let viewModel = await GameViewModel()
-        #expect(await viewModel.humanSide == .red, "默认执红")
+        UserDefaults.standard.removeObject(forKey: Self.key)
+        let viewModel = GameViewModel()
+        #expect(viewModel.humanSide == .red, "默认执红")
     }
 
+    @MainActor
     @Test("setHumanSide 切换执方")
     func setHumanSide() async {
-        let viewModel = await GameViewModel()
-        await viewModel.setHumanSide(.black)
-        #expect(await viewModel.humanSide == .black, "应切换为执黑")
+        UserDefaults.standard.removeObject(forKey: Self.key)
+        defer { UserDefaults.standard.removeObject(forKey: Self.key) }
+        let viewModel = GameViewModel()
+        viewModel.setHumanSide(.black)
+        #expect(viewModel.humanSide == .black, "应切换为执黑")
     }
 
+    @MainActor
     @Test("切换执方后新对局生效（newGame）")
     func humanSideNewGame() async {
-        let viewModel = await GameViewModel()
-        await viewModel.setHumanSide(.black)
-        await viewModel.newGame()
+        UserDefaults.standard.removeObject(forKey: Self.key)
+        defer { UserDefaults.standard.removeObject(forKey: Self.key) }
+        let viewModel = GameViewModel()
+        viewModel.setHumanSide(.black)
+        viewModel.newGame()
 
         // 新对局后，玩家执黑，AI 执红
-        #expect(await viewModel.humanSide == .black)
-        #expect(await viewModel.board.currentTurn == .red, "红方先走（AI）")
+        #expect(viewModel.humanSide == .black)
+        #expect(viewModel.board.currentTurn == .red, "红方先走（AI）")
     }
 }
 

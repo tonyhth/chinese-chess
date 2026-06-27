@@ -16,7 +16,7 @@ struct V2215Tests {
 @Test("xcstrings 包含正确的 key 数量")
         func xcstringsKeyCount() {
             let keys = Self.loadKeys()
-            #expect(keys.count == 189, "期望 189 key，实际 \(keys.count)")
+            #expect(keys.count == 191, "期望 191 key，实际 \(keys.count)")
         }
 
         @MainActor
