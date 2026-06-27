@@ -7,18 +7,18 @@ struct Phase3aSearchOptimizationTests {
 
     // MARK: - SearchConfig 配置验证
 
-    @Test("SearchConfig.default 所有优化均关闭")
+    @Test("AISearchConfig.default 所有优化均关闭")
     func searchConfigDefaultAllOff() {
-        let cfg = AIEngine.SearchConfig.default
+        let cfg = AISearchConfig.default
         #expect(!cfg.enableQuiescence)
         #expect(!cfg.enableKillerMove)
         #expect(!cfg.enableCheckExtension)
         #expect(!cfg.enableNullMoveFix)
     }
 
-    @Test("SearchConfig.hard 全部启用")
+    @Test("AISearchConfig.hard 全部启用")
     func searchConfigHardAllOn() {
-        let cfg = AIEngine.SearchConfig.hard
+        let cfg = AISearchConfig.hard
         #expect(cfg.enableQuiescence)
         #expect(cfg.enableKillerMove)
         #expect(cfg.enableCheckExtension)
@@ -27,9 +27,9 @@ struct Phase3aSearchOptimizationTests {
         #expect(cfg.maxQSDepth == 4)
     }
 
-    @Test("SearchConfig.master 全部启用，check extension 上限 8")
+    @Test("AISearchConfig.master 全部启用，check extension 上限 8")
     func searchConfigMasterAllOn() {
-        let cfg = AIEngine.SearchConfig.master
+        let cfg = AISearchConfig.master
         #expect(cfg.enableQuiescence)
         #expect(cfg.enableKillerMove)
         #expect(cfg.enableCheckExtension)
@@ -38,9 +38,9 @@ struct Phase3aSearchOptimizationTests {
         #expect(cfg.maxQSDepth == 6)
     }
 
-    @Test("SearchConfig.fullOptimization 全开")
+    @Test("AISearchConfig.fullOptimization 全开")
     func searchConfigFullOptimization() {
-        let cfg = AIEngine.SearchConfig.fullOptimization
+        let cfg = AISearchConfig.fullOptimization
         #expect(cfg.enableQuiescence)
         #expect(cfg.enableKillerMove)
         #expect(cfg.enableCheckExtension)

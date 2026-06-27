@@ -150,28 +150,28 @@ struct Phase2aSearchTests {
 
     @Test("SearchConfig PVS 和 Countermove 默认关闭")
     func searchConfigDefaultsOff() {
-        let config = AIEngine.SearchConfig.default
+        let config = AISearchConfig.default
         #expect(config.enablePVS == false, "默认配置 PVS 应关闭")
         #expect(config.enableCountermove == false, "默认配置 Countermove 应关闭")
     }
 
     @Test("SearchConfig master 配置启用 PVS 和 Countermove")
     func searchConfigMasterEnabled() {
-        let config = AIEngine.SearchConfig.master
+        let config = AISearchConfig.master
         #expect(config.enablePVS == true, "master 配置应启用 PVS")
         #expect(config.enableCountermove == true, "master 配置应启用 Countermove")
     }
 
     @Test("SearchConfig hard 配置启用 PVS 和 Countermove")
     func searchConfigHardEnabled() {
-        let config = AIEngine.SearchConfig.hard
+        let config = AISearchConfig.hard
         #expect(config.enablePVS == true, "hard 配置应启用 PVS")
         #expect(config.enableCountermove == true, "hard 配置应启用 Countermove")
     }
 
     @Test("SearchConfig medium 配置不启用 PVS")
     func searchConfigMediumDisabled() {
-        let config = AIEngine.SearchConfig.medium
+        let config = AISearchConfig.medium
         #expect(config.enablePVS == false, "medium 配置不应启用 PVS")
         #expect(config.enableCountermove == false, "medium 配置不应启用 Countermove")
     }

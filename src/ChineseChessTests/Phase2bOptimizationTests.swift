@@ -162,7 +162,7 @@ struct Phase2bOptimizationTests {
 
     @Test("SearchConfig Phase 2b 默认关闭")
     func searchConfigPhase2bDefaults() {
-        let config = AIEngine.SearchConfig.default
+        let config = AISearchConfig.default
         #expect(config.enableFutility == false)
         #expect(config.enableRazoring == false)
         #expect(config.enableIID == false)
@@ -170,7 +170,7 @@ struct Phase2bOptimizationTests {
 
     @Test("SearchConfig master 配置启用 Phase 2b")
     func searchConfigMasterPhase2b() {
-        let config = AIEngine.SearchConfig.master
+        let config = AISearchConfig.master
         #expect(config.enableFutility == true)
         #expect(config.enableRazoring == true)
         #expect(config.enableIID == true)
@@ -178,7 +178,7 @@ struct Phase2bOptimizationTests {
 
     @Test("SearchConfig hard 配置启用 Phase 2b")
     func searchConfigHardPhase2b() {
-        let config = AIEngine.SearchConfig.hard
+        let config = AISearchConfig.hard
         #expect(config.enableFutility == true)
         #expect(config.enableRazoring == true)
         #expect(config.enableIID == true)
@@ -186,7 +186,7 @@ struct Phase2bOptimizationTests {
 
     @Test("SearchConfig medium 不启用 Phase 2b")
     func searchConfigMediumPhase2b() {
-        let config = AIEngine.SearchConfig.medium
+        let config = AISearchConfig.medium
         #expect(config.enableFutility == false)
         #expect(config.enableRazoring == false)
         #expect(config.enableIID == false)

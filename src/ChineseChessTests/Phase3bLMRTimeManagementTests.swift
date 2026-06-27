@@ -7,30 +7,30 @@ struct Phase3bLMRTimeManagementTests {
 
     // MARK: - SearchConfig LMR/SmartTime 配置
 
-    @Test("SearchConfig.default LMR 和 SmartTime 均关闭")
+    @Test("AISearchConfig.default LMR 和 SmartTime 均关闭")
     func searchConfigDefaultLMROff() {
-        let cfg = AIEngine.SearchConfig.default
+        let cfg = AISearchConfig.default
         #expect(!cfg.enableLMR)
         #expect(!cfg.enableSmartTime)
     }
 
-    @Test("SearchConfig.hard 启用 LMR，不启用 SmartTime")
+    @Test("AISearchConfig.hard 启用 LMR，不启用 SmartTime")
     func searchConfigHardLMR() {
-        let cfg = AIEngine.SearchConfig.hard
+        let cfg = AISearchConfig.hard
         #expect(cfg.enableLMR)
         #expect(!cfg.enableSmartTime)
     }
 
-    @Test("SearchConfig.master 启用 LMR + SmartTime")
+    @Test("AISearchConfig.master 启用 LMR + SmartTime")
     func searchConfigMasterLMRAndSmartTime() {
-        let cfg = AIEngine.SearchConfig.master
+        let cfg = AISearchConfig.master
         #expect(cfg.enableLMR)
         #expect(cfg.enableSmartTime)
     }
 
-    @Test("SearchConfig.fullOptimization 启用 LMR，不启用 SmartTime")
+    @Test("AISearchConfig.fullOptimization 启用 LMR，不启用 SmartTime")
     func searchConfigFullOptimizationLMR() {
-        let cfg = AIEngine.SearchConfig.fullOptimization
+        let cfg = AISearchConfig.fullOptimization
         #expect(cfg.enableLMR)
         #expect(!cfg.enableSmartTime)
     }
