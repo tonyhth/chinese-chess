@@ -374,8 +374,8 @@ struct PhaseCEngineRouterTests {
 
     @MainActor
     @Test("EngineRouter.shutdown 不崩溃")
-    func shutdownNoCrash() {
-        EngineRouter.shared.shutdown()
+    func shutdownNoCrash() async {
+        await EngineRouter.shared.shutdown()
         #expect(Bool(true))
     }
 }

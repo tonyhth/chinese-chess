@@ -43,8 +43,8 @@ struct V34EngineRouterTests {
 
     @MainActor
     @Test("EngineRouter.shutdown 不崩溃")
-    func shutdownNoCrash() {
-        EngineRouter.shared.shutdown()
+    func shutdownNoCrash() async {
+        await EngineRouter.shared.shutdown()
         #expect(true, "shutdown 应正常调用")
     }
 }
