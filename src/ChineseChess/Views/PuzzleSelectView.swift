@@ -154,6 +154,11 @@ struct PuzzleSelectView: View {
                     Text(debouncedSearchText.isEmpty ? l10n.t("puzzle.empty") : l10n.t("puzzle.noMatch"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                    if debouncedSearchText.isEmpty {
+                        Text(l10n.t("puzzle.empty.hint"))
+                            .font(.caption)
+                            .foregroundColor(.secondary.opacity(0.8))
+                    }
                 }
                 .frame(maxWidth: .infinity, minHeight: 120)
             } else {

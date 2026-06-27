@@ -38,6 +38,8 @@ struct ChineseChessiOSApp: App {
                     VStack(spacing: 0) {
                         ToolbarView(viewModel: gameViewModel)
 
+                        ChessClockView(viewModel: gameViewModel)
+
                         BoardView(viewModel: gameViewModel)
                             .layoutPriority(1)
 

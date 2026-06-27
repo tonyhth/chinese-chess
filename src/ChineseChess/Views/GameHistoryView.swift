@@ -17,6 +17,9 @@ struct GameHistoryView: View {
                         .foregroundColor(.secondary)
                     Text(l10n.t("history.empty"))
                         .foregroundColor(.secondary)
+                    Text(l10n.t("history.empty.hint"))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary.opacity(0.8))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)

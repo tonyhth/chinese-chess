@@ -81,6 +81,8 @@ struct ChineseChessApp: App {
                 VStack(spacing: 0) {
                     ToolbarView(viewModel: viewModel)
 
+                    ChessClockView(viewModel: viewModel)
+
                     BoardView(viewModel: viewModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .frame(minHeight: 280)

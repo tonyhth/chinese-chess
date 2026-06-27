@@ -22,6 +22,51 @@ class GameViewModel {
     // Phase 2.1: AI 思考计时器
     var thinkingStartTime: Date? = nil
     
+    // Phase 2.3: 棋钟（对局双方用时）
+    var redClockSeconds: Int = 0
+    var blackClockSeconds: Int = 0
+    /// 当前计时方的计时起始时间
+    var clockStartTime: Date? = nil
+    
+    /// 当前轮次已走棋时间（供 UI 刷新计算）
+    var currentTurnElapsedSeconds: Int {
+        guard let start = clockStartTime else { return 0 }
+        return Int(Date().timeIntervalSince(start))
+    }
+    
+    /// 棋钟：切换到下一方的计时
+    private func switchClock() {
+        // 先把当前方的时间累加
+        accumulateCurrentTurnTime()
+        // 开始下一方计时
+        clockStartTime = Date()
+    }
+    
+    /// 棋钟：累加当前方的已用时间
+    private func accumulateCurrentTurnTime() {
+        guard let start = clockStartTime else { return }
+        let elapsed = Int(Date().timeIntervalSince(start))
+        if board.currentTurn == .red {
+            // 切换前是红方走，累加到红方（注意 currentTurn 还未切换）
+            redClockSeconds += elapsed
+        } else {
+            blackClockSeconds += elapsed
+        }
+        clockStartTime = nil
+    }
+    
+    /// 棋钟：停止计时（游戏结束时调用）
+    private func stopClock() {
+        accumulateCurrentTurnTime()
+    }
+    
+    /// 棋钟：重置并开始红方计时
+    private func resetClock() {
+        redClockSeconds = 0
+        blackClockSeconds = 0
+        clockStartTime = Date()
+    }
+    
     /// 计算已思考秒数（供 UI 绑定刷新）
     var thinkingElapsedSeconds: Int {
         guard let start = thinkingStartTime else { return 0 }
@@ -171,10 +216,12 @@ class GameViewModel {
         // Phase 3: 记录统计
         if gameState != .playing {
             recordGameResult()
+            stopClock()
         }
 
         if gameState == .playing {
             hintMove = nil
+            switchClock()
             triggerAIMove()
         }
     }
@@ -227,6 +274,7 @@ class GameViewModel {
         isInCheck = false
         gameMoves = []
         hintMove = nil
+        resetClock()
 
         // v3.1 Phase 2c: 引擎切换 + newGame
         EngineRouter.shared.newGame()
@@ -408,6 +456,9 @@ class GameViewModel {
 
             if self.gameState != .playing {
                 self.recordGameResult()
+                self.stopClock()
+            } else {
+                self.switchClock()
             }
         }
     }
