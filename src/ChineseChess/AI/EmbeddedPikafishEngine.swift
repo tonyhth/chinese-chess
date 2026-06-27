@@ -17,7 +17,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
     // .external 表示非自研引擎。嵌入式 Pikafish 复用此值：
     // - 与 .native（自研 AIEngine）区分
     // - StatusBarView/ToolbarView 用 useEmbeddedEngine 判断 UI 显示，不依赖 engineType
-    nonisolated let engineType: EngineType = .external
+    nonisolated let engineType: EngineType = .embedded
     // nonisolated(unsafe): 只在 actor 方法内写入，deinit 时无并发访问
     nonisolated(unsafe) private(set) var isReady = false
     private var cachedVersion: String = "unknown"

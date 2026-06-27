@@ -42,5 +42,6 @@ protocol ChessEngine: AnyObject {
 /// 引擎类型
 enum EngineType: String, Codable {
     case native   // 自研引擎
-    case external // 外部 UCI 引擎
+    case embedded // 嵌入式 Pikafish（C API）
+    case external // 预留：未来真正的外部 UCI 进程引擎
 }
