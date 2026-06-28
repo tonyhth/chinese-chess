@@ -124,6 +124,11 @@ int pikafish_init(void) {
                 }
             }
             CFRelease(nnueURL);
+        } else {
+            // P1 fix: NNUE 文件缺失时安全返回，避免空指针 SIGSEGV（xctest 环境）
+            fprintf(stderr, "[pikafish_api] NNUE file not found in bundle\n");
+            last_error = "NNUE file not found";
+            return -1;
         }
 #endif
 

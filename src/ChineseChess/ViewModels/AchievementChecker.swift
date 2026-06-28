@@ -122,7 +122,7 @@ enum AchievementChecker {
         }
 
         // perfect_game_v2（全程走法评级 ≥ good，需 Phase 2 PositionAnalyzer）
-        // 前期不可触发，待 Phase 2 数据接入后补充
+        // 前期不可触发，available=false 保护，待 Phase 2 数据接入后补充
 
         // continuous_check（连续 3 步将军）
         if result.maxConsecutiveChecks >= 3 && !beaten.contains("continuous_check") {

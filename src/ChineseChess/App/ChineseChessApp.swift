@@ -36,6 +36,24 @@ struct ChineseChessApp: App {
         }
         #endif
         FontRegistry.registerFonts()
+
+        // P2: 一次性清理 bonus 脏数据（dailyStreak=0 但 bonusSpecialTheme=true 不可能）
+        if !UserDefaults.standard.bool(forKey: "chinesechess.bonusDataCleaned_v1") {
+            let store = PlayerProfileStore.shared
+            let profile = store.profile
+            if profile.dailyStreak == 0 && profile.bonusSpecialTheme {
+                _ = store.update { p in
+                    p.bonusSpecialTheme = false
+                    p.bonusPuzzlesUnlocked = false
+                    p.bonusMasterNoPenalty = false
+                    p.bonusChapter7EarlyUnlock = false
+                    p.bonusDoubleScore = false
+                    p.bonusPieceStyle = false
+                    p.bonusExtraHints = 0
+                }
+            }
+            UserDefaults.standard.set(true, forKey: "chinesechess.bonusDataCleaned_v1")
+        }
     }
 
     // 面板状态:互斥管理

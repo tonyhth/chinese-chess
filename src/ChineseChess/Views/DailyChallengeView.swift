@@ -237,31 +237,25 @@ struct DailyChallengeView: View {
 
             Spacer()
 
-            // 模式按钮
-            switch mode {
-            case .endgamePuzzle:
-                if dailyPuzzleId != nil {
-                    Button(L10n.shared.t("daily.startPuzzle")) { showPuzzle = true }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.brown)
-                        .controlSize(.small)
-                }
-            case .timeBlitz:
-                Button(L10n.shared.t("daily.startBlitz")) { showBlitzGame = true }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                    .controlSize(.small)
-            case .masterChallenge:
-                Button(L10n.shared.t("daily.startMaster")) { showMasterGame = true }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
-                    .controlSize(.small)
-            default:
-                EmptyView()
-            }
+            Image(systemName: "play.circle.fill")
+                .font(.title2)
+                .foregroundColor(.accentColor)
         }
         .padding(12)
         .background(Color.accentColor.opacity(0.05))
         .cornerRadius(10)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            switch mode {
+            case .endgamePuzzle:
+                showPuzzle = true
+            case .timeBlitz:
+                showBlitzGame = true
+            case .masterChallenge:
+                showMasterGame = true
+            default:
+                break
+            }
+        }
     }
 }

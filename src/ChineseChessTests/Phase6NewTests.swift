@@ -126,14 +126,14 @@ struct Phase6Tests {
 
     // MARK: - 成就系统测试
 
-    @Test("成就库包含 34 个成就")
+    @Test("成就库包含 35 个成就")
     func achievementCount() {
-        #expect(AchievementLibrary.all.count == 34, "应有 34 个成就")
+        #expect(AchievementLibrary.all.count == 35, "应有 35 个成就")
         #expect(AchievementLibrary.bronze.count == 8)
-        #expect(AchievementLibrary.silver.count == 8)
-        #expect(AchievementLibrary.gold.count == 8)
+        #expect(AchievementLibrary.silver.count == 9)
+        #expect(AchievementLibrary.gold.count == 7)
         #expect(AchievementLibrary.diamond.count == 5)
-        #expect(AchievementLibrary.hidden.count == 5)
+        #expect(AchievementLibrary.hidden.count == 6)
     }
 
     @Test("成就 ID 唯一")

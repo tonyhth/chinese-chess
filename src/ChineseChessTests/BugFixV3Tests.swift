@@ -151,16 +151,24 @@ struct BugFixV3Tests {
         #expect(store.profile.bonusPuzzlesUnlocked == true)
     }
 
-    @Test("bonusSpecialTheme — 解锁所有段位主题")
-    func bonusSpecialThemeUnlocksAll() {
+    @Test("bonusSpecialTheme — 只解锁棋圣段位主题（P1 门禁修复）")
+    func bonusSpecialThemeOnlySage() {
         let manager = ThemeManager.shared
         var profile = PlayerProfile()
         profile.bonusSpecialTheme = true
 
-        // bonusSpecialTheme = true → 所有段位主题都解锁
-        #expect(manager.isThemeUnlocked(.jadeGreen, profile: profile) == true)
-        #expect(manager.isThemeUnlocked(.imperialGold, profile: profile) == true)
-        #expect(manager.isThemeUnlocked(.crimson, profile: profile) == true)
+        // P1 修复后：bonusSpecialTheme 只解锁 requiredRank == .sage 的主题
+        // 非 sage 段位的主题不应被解锁
+        #expect(manager.isThemeUnlocked(.jadeGreen, profile: profile) == false)
+        #expect(manager.isThemeUnlocked(.imperialGold, profile: profile) == false)
+        #expect(manager.isThemeUnlocked(.crimson, profile: profile) == false)
+
+        // sage 主题应被解锁（如果有的话）
+        for theme in BoardTheme.allCases {
+            if theme.requiredRank == .sage {
+                #expect(manager.isThemeUnlocked(theme, profile: profile) == true)
+            }
+        }
     }
 
     // MARK: - P1-3 关键：旧存档兼容性
