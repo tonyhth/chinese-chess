@@ -90,6 +90,7 @@ enum AchievementLibrary {
         Achievement(id: "rank_scholar", nameKey: "achievement.rank_scholar.name", descriptionKey: "achievement.rank_scholar.desc", rarity: .silver),
         Achievement(id: "no_hint_win", nameKey: "achievement.no_hint_win.name", descriptionKey: "achievement.no_hint_win.desc", rarity: .silver),
         Achievement(id: "blitz_5min", nameKey: "achievement.blitz_5min.name", descriptionKey: "achievement.blitz_5min.desc", rarity: .silver),
+        Achievement(id: "continuous_check", nameKey: "achievement.continuous_check.name", descriptionKey: "achievement.continuous_check.desc", rarity: .silver),
     ]
 
     /// 金牌成就（7个）— 高手目标

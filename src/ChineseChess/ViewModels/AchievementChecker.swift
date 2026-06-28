@@ -12,6 +12,7 @@ struct GameResultInfo {
     let usedHint: Bool               // 是否用过提示
     let checkmatePattern: CheckmatePattern?  // 杀法类型（如有）
     let maxMaterialDeficit: Int      // 最大兵力劣势（负数=劣势）
+    let maxConsecutiveChecks: Int    // 最大连续将军次数
 }
 
 /// 杀法类型识别（简化版）
@@ -122,6 +123,11 @@ enum AchievementChecker {
 
         // perfect_game_v2（全程走法评级 ≥ good，需 Phase 2 PositionAnalyzer）
         // 前期不可触发，待 Phase 2 数据接入后补充
+
+        // continuous_check（连续 3 步将军）
+        if result.maxConsecutiveChecks >= 3 && !beaten.contains("continuous_check") {
+            unlocked.append("continuous_check")
+        }
 
         return unlocked
     }

@@ -561,6 +561,40 @@ class GameViewModel {
             }
         }
 
+        // Q3: 行为成就检测
+        if playerWon || playerLost {
+            let playerMoves = gameMoves.filter { $0.piece.side == humanSide }
+            var maxConsec = 0
+            var currentConsec = 0
+            for move in playerMoves {
+                if move.isCheck {
+                    currentConsec += 1
+                    maxConsec = max(maxConsec, currentConsec)
+                } else {
+                    currentConsec = 0
+                }
+            }
+            let result = GameResultInfo(
+                isWin: playerWon,
+                difficulty: difficulty,
+                moveCount: gameMoves.count,
+                playerMoveCount: playerMoves.count,
+                elapsedSeconds: TimeInterval(redClockSeconds + blackClockSeconds),
+                usedHint: hintMove != nil,
+                checkmatePattern: AchievementChecker.detectCheckmatePattern(
+                    lastMoves: gameMoves.suffix(6), playerSide: humanSide
+                ),
+                maxMaterialDeficit: 0, // TODO: Phase 2 MaterialTracker
+                maxConsecutiveChecks: maxConsec
+            )
+            let newlyUnlocked = AchievementChecker.checkAfterGame(
+                result: result, profile: PlayerProfileStore.shared.profile
+            )
+            for id in newlyUnlocked {
+                AchievementManager.shared.unlock(id)
+            }
+        }
+
         // Phase 4: 自动保存历史对局
         if gameState != .playing, let record = buildGameRecord() {
             GameHistoryStore.shared.addRecord(record)

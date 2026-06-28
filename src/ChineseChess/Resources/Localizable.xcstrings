@@ -7427,6 +7427,38 @@
           }
         }
       }
+    },
+    "achievement.continuous_check.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triple Check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连将三步"
+          }
+        }
+      }
+    },
+    "achievement.continuous_check.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make 3 consecutive checking moves in a game"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在一局中连续3步将军"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
