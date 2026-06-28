@@ -189,8 +189,9 @@ actor CoachExplainer {
 
     /// 是否是将军走法（简化判断：目标位置在九宫格附近）
     private func isCheckingMove(_ move: String, fen: String) -> Bool {
-        // UCI move like "h2e2" — 简化判断：目标列在 d-f 范围（九宫格列）
-        guard move.count >= 4 else { return false }
+        // UCI 格式：colRankColRank（如 "h2e2"）
+        // move[2] 是目标列（a-i），九宫格列 d-f
+        guard move.count >= 3 else { return false }
         let toCol = move[move.index(move.startIndex, offsetBy: 2)]
         return toCol == "d" || toCol == "e" || toCol == "f"
     }
@@ -205,9 +206,10 @@ actor CoachExplainer {
 
     /// 是否是展开子力走法（简化判断：起始行在底线附近）
     private func isDevelopmentMove(_ move: String, fen: String) -> Bool {
-        guard move.count >= 4 else { return false }
-        let rankChar = move[move.startIndex]
-        // UCI rank 0-9，0 和 9 是底线（子力未展开）
+        // UCI 格式：colRankColRank（如 "h0e3"）
+        // move[1] 是起始行（0-9），0 和 9 是底线
+        guard move.count >= 2 else { return false }
+        let rankChar = move[move.index(move.startIndex, offsetBy: 1)]
         return rankChar == "0" || rankChar == "9"
     }
 
@@ -220,9 +222,10 @@ actor CoachExplainer {
 
     /// 是否是中线控制走法
     private func isCenterControlMove(_ move: String, fen: String) -> Bool {
-        guard move.count >= 4 else { return false }
+        // UCI 格式：colRankColRank（如 "h2e2"）
+        // move[2] 是目标列（a-i），中线列 c-g
+        guard move.count >= 3 else { return false }
         let toCol = move[move.index(move.startIndex, offsetBy: 2)]
-        // 中线列：c, d, e, f, g
         return toCol == "c" || toCol == "d" || toCol == "e" || toCol == "f" || toCol == "g"
     }
 }
