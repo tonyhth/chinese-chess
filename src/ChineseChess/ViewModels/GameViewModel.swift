@@ -27,6 +27,8 @@ class GameViewModel {
     var blackClockSeconds: Int = 0
     /// 当前计时方的计时起始时间
     var clockStartTime: Date? = nil
+    /// 当前正在计时的方（解决走子后 currentTurn 已翻转的问题）
+    var clockRunningSide: Side = .red
     
     /// 当前轮次已走棋时间（供 UI 刷新计算）
     var currentTurnElapsedSeconds: Int {
@@ -38,7 +40,8 @@ class GameViewModel {
     private func switchClock() {
         // 先把当前方的时间累加
         accumulateCurrentTurnTime()
-        // 开始下一方计时
+        // 切换到对方计时
+        clockRunningSide = (clockRunningSide == .red) ? .black : .red
         clockStartTime = Date()
     }
     
@@ -46,8 +49,7 @@ class GameViewModel {
     private func accumulateCurrentTurnTime() {
         guard let start = clockStartTime else { return }
         let elapsed = Int(Date().timeIntervalSince(start))
-        if board.currentTurn == .red {
-            // 切换前是红方走，累加到红方（注意 currentTurn 还未切换）
+        if clockRunningSide == .red {
             redClockSeconds += elapsed
         } else {
             blackClockSeconds += elapsed
@@ -64,6 +66,7 @@ class GameViewModel {
     private func resetClock() {
         redClockSeconds = 0
         blackClockSeconds = 0
+        clockRunningSide = .red
         clockStartTime = Date()
     }
     

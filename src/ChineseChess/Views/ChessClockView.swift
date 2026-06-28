@@ -16,7 +16,7 @@ struct ChessClockView: View {
             clockCell(
                 side: .red,
                 seconds: displayRedSeconds,
-                isRunning: viewModel.isThinking == false && viewModel.board.currentTurn == .red && viewModel.gameState == .playing,
+                isRunning: viewModel.isThinking == false && viewModel.clockRunningSide == .red && viewModel.gameState == .playing,
                 label: l10n.t("clock.red")
             )
 
@@ -26,7 +26,7 @@ struct ChessClockView: View {
             clockCell(
                 side: .black,
                 seconds: displayBlackSeconds,
-                isRunning: viewModel.isThinking == false && viewModel.board.currentTurn == .black && viewModel.gameState == .playing,
+                isRunning: viewModel.isThinking == false && viewModel.clockRunningSide == .black && viewModel.gameState == .playing,
                 label: l10n.t("clock.black")
             )
         }
@@ -75,7 +75,7 @@ struct ChessClockView: View {
         var black = viewModel.blackClockSeconds
         if viewModel.gameState == .playing, let start = viewModel.clockStartTime {
             let elapsed = Int(Date().timeIntervalSince(start))
-            if viewModel.board.currentTurn == .red {
+            if viewModel.clockRunningSide == .red {
                 red += elapsed
             } else {
                 black += elapsed
