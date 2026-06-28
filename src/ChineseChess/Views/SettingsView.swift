@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var themeManager = ThemeManager.shared
     @State private var soundEngine = SoundEngine.shared
     @AppStorage("chinesechess.notationFormat") private var notationFormat: String = "chinese"
+    @State private var showTutorial = false
     private let l10n = L10n.shared
 
     var body: some View {
@@ -106,6 +107,21 @@ struct SettingsView: View {
                 #endif
 
                 // 关于
+                // P0: 新手教程入口
+                Section(l10n.t("settings.tutorialSection")) {
+                    Button {
+                        showTutorial = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "graduationcap")
+                                .foregroundColor(.brown)
+                            Text(UserDefaults.standard.bool(forKey: "chinesechess.tutorialCompleted")
+                                 ? l10n.t("settings.restartTutorial")
+                                 : l10n.t("settings.startTutorial"))
+                        }
+                    }
+                }
+
                 Section(l10n.t("settings.aboutSection")) {
                     NavigationLink {
                         PrivacyPolicyView()
@@ -120,6 +136,9 @@ struct SettingsView: View {
             }
         .formStyle(.grouped)
         .navigationTitle(l10n.t("settings.title"))
+        .sheet(isPresented: $showTutorial) {
+            TutorialView()
+        }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

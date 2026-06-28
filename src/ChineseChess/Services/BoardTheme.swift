@@ -227,7 +227,8 @@ class ThemeManager {
             return true
         }
         // v3.0 gap fix P1-2: 棋圣专属主题通过 day100 奖励解锁
-        if profile.bonusSpecialTheme {
+        // P1 修复：bonusSpecialTheme 只对 requiredRank == .sage 的主题生效，不是无条件全部解锁
+        if profile.bonusSpecialTheme && theme.requiredRank == .sage {
             return true
         }
         // v3.0 gap fix: 钻石成就关联解锁
