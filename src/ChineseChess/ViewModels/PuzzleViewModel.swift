@@ -568,8 +568,7 @@ class PuzzleViewModel {
     func switchToGuided() {
         guard playMode == .freePlay else { return }
         playMode = .guided
-        // 注意：不自动重置局面。玩家可以 undo 回到正确位置继续引导。
-        // 如果需要严格恢复，可以在这里重置到 savedSolutionStepIndex。
+        solutionStepIndex = savedSolutionStepIndex
     }
 
     /// 是否可以切换模式（freePlay 残局不能切到 guided）
