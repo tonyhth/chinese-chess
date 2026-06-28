@@ -21,7 +21,6 @@ final class TranspositionTable {
         let flag: TTFlag
         let bestMove: Move?
         let isValid: Bool      // false = 空槽位
-        let age: Int           // v3.0 Phase 2b: 用于多桶替换策略
     }
 
     struct TTLookupResult {
@@ -38,7 +37,6 @@ final class TranspositionTable {
     private var table: [TTEntry?]  // 双桶：index * 2 = slot 0, index * 2 + 1 = slot 1
     private let capacity: Int      // 桶数（每桶 2 slot）
     private let mask: UInt64
-    private var currentAge: Int = 0  // v3.0 Phase 2b: 每次 IDS 新根深度递增
 
     // MARK: - 初始化
 
@@ -109,31 +107,23 @@ final class TranspositionTable {
         if let existing = table[baseIdx] {
             if !existing.isValid || depth >= existing.depth {
                 table[baseIdx] = TTEntry(hash: hash, depth: depth, score: score,
-                                          flag: flag, bestMove: bestMove, isValid: true, age: currentAge)
+                                          flag: flag, bestMove: bestMove, isValid: true)
                 return
             }
         } else {
             table[baseIdx] = TTEntry(hash: hash, depth: depth, score: score,
-                                      flag: flag, bestMove: bestMove, isValid: true, age: currentAge)
+                                      flag: flag, bestMove: bestMove, isValid: true)
             return
         }
 
         // slot 1: always-replace
         table[baseIdx + 1] = TTEntry(hash: hash, depth: depth, score: score,
-                                      flag: flag, bestMove: bestMove, isValid: true, age: currentAge)
+                                      flag: flag, bestMove: bestMove, isValid: true)
     }
 
     // MARK: - 清理
 
     func clear() {
         table = Array(repeating: nil, count: capacity * 2)
-        currentAge = 0
-    }
-
-    // MARK: - v3.0 Phase 2b: Age 管理
-
-    /// 递增 age（每次 IDS 新根深度时调用）
-    func incrementAge() {
-        currentAge += 1
     }
 }

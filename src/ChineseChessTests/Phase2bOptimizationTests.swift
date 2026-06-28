@@ -148,16 +148,6 @@ struct Phase2bOptimizationTests {
         #expect(best != nil, "probeBestMove 应返回存储的走法")
     }
 
-    @Test("TT 双桶：incrementAge 不崩溃")
-    func ttIncrementAge() {
-        let tt = TranspositionTable(capacity: 256)
-        tt.incrementAge()
-        tt.store(hash: 100, depth: 3, score: 50, flag: .exact, bestMove: nil)
-        // 确保存储后仍正常工作
-        let result = tt.lookup(hash: 100, depth: 1, alpha: -1000, beta: 1000)
-        #expect(result != nil)
-    }
-
     // MARK: - SearchConfig Phase 2b 配置测试
 
     @Test("SearchConfig Phase 2b 默认关闭")
