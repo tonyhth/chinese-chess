@@ -84,6 +84,19 @@ actor PositionAnalyzer {
 
     static let shared = PositionAnalyzer()
 
+    /// 引擎是否已初始化
+    private var engineInitialized = false
+
+    /// 确保引擎已初始化（必须在所有 C API 调用前执行）
+    private func ensureEngineInitialized() {
+        if !engineInitialized {
+            let result = pikafish_init()
+            if result == 0 {
+                engineInitialized = true
+            }
+        }
+    }
+
     // MARK: - 分析参数
 
     /// 分析搜索深度（比实战浅，快速返回）
@@ -97,6 +110,7 @@ actor PositionAnalyzer {
 
     /// 评估当前局面（单 PV）
     func evaluate(fen: String, moveHistory: [String] = []) async -> AnalysisLine? {
+        ensureEngineInitialized()
         let movesStr = moveHistory.joined(separator: " ")
         return await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -126,6 +140,7 @@ actor PositionAnalyzer {
 
     /// 获取多条候选走法（MultiPV）
     func topMoves(fen: String, moveHistory: [String] = [], count: Int = 3) async -> [AnalysisLine] {
+        ensureEngineInitialized()
         let movesStr = moveHistory.joined(separator: " ")
         let n = min(count, multiPVCount)
         return await withCheckedContinuation { continuation in
@@ -140,7 +155,8 @@ actor PositionAnalyzer {
                     }
                 }
                 var lines: [AnalysisLine] = []
-                for i in 0..<Int(actualCount) {
+                let safeCount = max(0, Int(actualCount))
+                for i in 0..<safeCount {
                     let basePtr = UnsafeRawPointer(results).advanced(by: MemoryLayout<PikafishEvalResult>.stride * i)
                     let bestMove = String(cString: basePtr.advanced(by: 8).assumingMemoryBound(to: CChar.self))
                     let pv = String(cString: basePtr.advanced(by: 24).assumingMemoryBound(to: CChar.self))
