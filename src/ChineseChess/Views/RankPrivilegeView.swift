@@ -9,7 +9,7 @@ struct RankPrivilegeView: View {
 
     var body: some View {
         List {
-            Section("当前段位") {
+            Section(L10n.shared.t("rank.section.current_rank")) {
                 RankProgressView(profile: profile)
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -45,7 +45,7 @@ private struct RankPrivilegeRow: View {
                     .foregroundColor(isUnlocked ? .primary : .secondary)
 
                 if isCurrent {
-                    Text("当前")
+                    Text(L10n.shared.t("rank.privilege.current"))
                         .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -75,21 +75,22 @@ private struct RankPrivilegeRow: View {
 
     /// 各段位特权列表
     private var privileges: [String] {
+        let l = L10n.shared
         switch rank {
         case .student:
-            return ["基础对弈", "新手教程"]
+            return [l.t("rank.privilege.student.1"), l.t("rank.privilege.student.2")]
         case .scholar:
-            return ["翡翠绿主题", "成就系统"]
+            return [l.t("rank.privilege.scholar.1"), l.t("rank.privilege.scholar.2")]
         case .juren:
-            return ["帝王金主题", "中等难度 AI"]
+            return [l.t("rank.privilege.juren.1"), l.t("rank.privilege.juren.2")]
         case .jinshi:
-            return ["朱砂红主题", "残局挑战库"]
+            return [l.t("rank.privilege.jinshi.1"), l.t("rank.privilege.jinshi.2")]
         case .hanlin:
-            return ["AI 教练（即将上线）", "开局树浏览（即将上线）"]
+            return [l.t("rank.privilege.hanlin.1"), l.t("rank.privilege.hanlin.2")]
         case .master:
-            return ["引擎分析（即将上线）", "大师级 AI 对弈"]
+            return [l.t("rank.privilege.master.1"), l.t("rank.privilege.master.2")]
         case .sage:
-            return ["专属棋圣徽章", "棋谱导出（即将上线）", "自定义主题（即将上线）"]
+            return [l.t("rank.privilege.sage.1"), l.t("rank.privilege.sage.2"), l.t("rank.privilege.sage.3")]
         }
     }
 }

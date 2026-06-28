@@ -5587,6 +5587,278 @@
           }
         }
       }
+    },
+    "rank.section.current_rank": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前段位"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current Rank"
+          }
+        }
+      }
+    },
+    "rank.privilege.current": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        }
+      }
+    },
+    "rank.privilege.student.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "基础对弈"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basic gameplay"
+          }
+        }
+      }
+    },
+    "rank.privilege.student.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新手教程"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginner tutorial"
+          }
+        }
+      }
+    },
+    "rank.privilege.scholar.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翡翠绿主题"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emerald theme"
+          }
+        }
+      }
+    },
+    "rank.privilege.scholar.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成就系统"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achievement system"
+          }
+        }
+      }
+    },
+    "rank.privilege.juren.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帝王金主题"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imperial gold theme"
+          }
+        }
+      }
+    },
+    "rank.privilege.juren.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中等难度 AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium AI difficulty"
+          }
+        }
+      }
+    },
+    "rank.privilege.jinshi.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朱砂红主题"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cinnabar red theme"
+          }
+        }
+      }
+    },
+    "rank.privilege.jinshi.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局挑战库"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endgame puzzles"
+          }
+        }
+      }
+    },
+    "rank.privilege.hanlin.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 教练（即将上线）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Coach (coming soon)"
+          }
+        }
+      }
+    },
+    "rank.privilege.hanlin.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开局树浏览（即将上线）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening tree (coming soon)"
+          }
+        }
+      }
+    },
+    "rank.privilege.master.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引擎分析（即将上线）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engine analysis (coming soon)"
+          }
+        }
+      }
+    },
+    "rank.privilege.master.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大师级 AI 对弈"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master-level AI"
+          }
+        }
+      }
+    },
+    "rank.privilege.sage.1": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "专属棋圣徽章"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exclusive Sage badge"
+          }
+        }
+      }
+    },
+    "rank.privilege.sage.2": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋谱导出（即将上线）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game export (coming soon)"
+          }
+        }
+      }
+    },
+    "rank.privilege.sage.3": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义主题（即将上线）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom themes (coming soon)"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
