@@ -10,12 +10,12 @@ struct AnalysisView: View {
     private let l10n = L10n.shared
     private let profile = PlayerProfileStore.shared.profile
 
-    // 段位门禁
+    // 段位门禁（统一到 UnlockedFeature 框架口径）
     private var hasBasicAnalysis: Bool {
-        profile.rank >= .scholar
+        profile.rank >= .scholar  // 同 openingTreeBrowse
     }
     private var hasExpertAnalysis: Bool {
-        profile.rank >= .jinshi
+        profile.rank >= .hanlin   // 同 engineAnalysis（Q2 定义）
     }
 
     init(record: GameRecord) {
