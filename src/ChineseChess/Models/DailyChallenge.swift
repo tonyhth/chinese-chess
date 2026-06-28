@@ -196,13 +196,15 @@ final class DailyChallengeManager {
 
     func completeChallenge(score: Int) {
         var challenge = todayChallenge()
+        // Q4 P2: bonusDoubleScore — 每日挑战双倍积分
+        let finalScore = PlayerProfileStore.shared.profile.bonusDoubleScore ? score * 2 : score
         challenge = DailyChallenge(
             date: challenge.date,
             mode: challenge.mode,
             puzzleId: challenge.puzzleId,
             targetDifficulty: challenge.targetDifficulty,
             completed: true,
-            score: score
+            score: finalScore
         )
         saveChallenge(challenge)
     }

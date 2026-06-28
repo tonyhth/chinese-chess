@@ -189,11 +189,17 @@ actor CoachExplainer {
 
     /// 是否是将军走法（简化判断：目标位置在九宫格附近）
     private func isCheckingMove(_ move: String, fen: String) -> Bool {
-        // UCI 格式：colRankColRank（如 "h2e2"）
-        // move[2] 是目标列（a-i），九宫格列 d-f
-        guard move.count >= 3 else { return false }
-        let toCol = move[move.index(move.startIndex, offsetBy: 2)]
-        return toCol == "d" || toCol == "e" || toCol == "f"
+        // P2 fix: 精确推演走法后检查对方是否被将军
+        guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        guard let piece = board.piece(at: from) else { return false }
+
+        let chessMove = Move(piece: piece, from: from, to: to, captured: board.piece(at: to))
+        board.execute(chessMove)
+
+        // 走完后检查对方是否被将军
+        let opponent: Side = (piece.side == .red) ? .black : .red
+        return MoveValidator.isInCheck(opponent, on: board)
     }
 
     /// 是否是安全吃子（简化判断）

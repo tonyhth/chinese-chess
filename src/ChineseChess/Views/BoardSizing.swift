@@ -72,8 +72,18 @@ enum BoardSizing {
     /// CGPoint → Position（交互层点击坐标转换）
     /// - Parameter flipped: 翻转视角时逆映射 row
     static func cgPointToPos(_ point: CGPoint, cellSize: CGFloat, padding: CGFloat, flipped: Bool = false) -> Position? {
-        let col = Int(round((point.x - padding) / cellSize))
-        let rowRaw = Int(round((point.y - padding) / cellSize))
+        // P2 fix: 坐标在 padding 内侧（半个格以内）返回 nil，避免误判 col=0/row=0
+        let halfCell = cellSize / 2
+        let adjustedX = point.x - padding
+        let adjustedY = point.y - padding
+
+        // 坐标在棋盘外（负方向）
+        if adjustedX < -halfCell || adjustedY < -halfCell {
+            return nil
+        }
+
+        let col = Int(round(adjustedX / cellSize))
+        let rowRaw = Int(round(adjustedY / cellSize))
         let row = flipped ? 9 - rowRaw : rowRaw
         guard row >= 0, row <= 9, col >= 0, col <= 8 else { return nil }
         return Position(row: row, col: col)

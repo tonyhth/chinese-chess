@@ -50,6 +50,13 @@ char g_bestmove_result[16] = {0};
 int  g_last_eval = 0;       // centipawn (±100000 - plies for mate)
 std::string g_last_pv;      // space-separated UCI moves
 
+// MultiPV results — collected from update_full callback
+struct MultiPVEntry {
+    int score_cp;
+    std::string pv;
+};
+std::vector<MultiPVEntry> g_multi_pv_results;
+
 // Stop flag — atomic, no mutex needed
 std::atomic<bool> g_stopping{false};
 
@@ -131,19 +138,28 @@ int pikafish_init(void) {
         g_engine->set_on_update_full([](const Stockfish::Engine::InfoFull& info) {
             std::lock_guard<std::mutex> lock(g_mutex);
             // Convert Score variant to int centipawn
+            int eval_cp = 0;
             info.score.visit([](auto&& arg) {
                 using T = std::decay_t<decltype(arg)>;
                 if constexpr (std::is_same_v<T, Stockfish::Score::Mate>) {
-                    // Mate: ±(100000 - plies) to distinguish from cp values
-                    g_last_eval = arg.plies > 0
+                    eval_cp = arg.plies > 0
                         ? (100000 - arg.plies)
                         : -(100000 + arg.plies);
                 } else if constexpr (std::is_same_v<T, Stockfish::Score::InternalUnits>) {
-                    // InternalUnits.value is already in centipawn
-                    g_last_eval = arg.value;
+                    eval_cp = arg.value;
                 }
             });
+            g_last_eval = eval_cp;
             g_last_pv = std::string(info.pv);
+
+            // Collect MultiPV entries (1-indexed)
+            size_t pvIdx = info.multiPV > 0 ? info.multiPV - 1 : 0;
+            if (pvIdx < 32) {  // safety cap
+                if (g_multi_pv_results.size() <= pvIdx) {
+                    g_multi_pv_results.resize(pvIdx + 1);
+                }
+                g_multi_pv_results[pvIdx] = { eval_cp, std::string(info.pv) };
+            }
         });
 
         // Set default options
@@ -183,6 +199,7 @@ int pikafish_best_move(const char* fen, const char* moves,
         g_bestmove_result[0] = '\0';
         g_searching = true;
         g_stopping = false;
+        g_multi_pv_results.clear();
 
         // Set position
         auto move_vec = parse_moves(moves);
@@ -444,4 +461,5 @@ int pikafish_multi_pv(const char* fen, const char* moves,
     return 1;  // 当前只返回 1 条结果
 }
 
+} // extern "C"
 } // extern "C"

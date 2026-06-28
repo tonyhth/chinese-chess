@@ -55,6 +55,18 @@ class GameViewModel {
             blackClockSeconds += elapsed
         }
         clockStartTime = nil
+
+        // Q4 P2: 闪电局超时判负
+        if isBlitzMode {
+            let limit = blitzTimeLimitSeconds
+            if clockRunningSide == .red && redClockSeconds >= limit {
+                gameState = .blackWon  // 红方超时，黑方胜
+                stopClock()
+            } else if clockRunningSide == .black && blackClockSeconds >= limit {
+                gameState = .redWon  // 黑方超时，红方胜
+                stopClock()
+            }
+        }
     }
     
     /// 棋钟：停止计时（游戏结束时调用）
@@ -531,8 +543,12 @@ class GameViewModel {
                 }
                 profile.beatenDifficulties.insert(difficulty.id)
             } else if playerLost {
-                profile.totalLosses += 1
                 // Q4: 大师挑战输了不重置连胜（鼓励尝试）
+                // bonusMasterNoPenalty（day60 奖励）更进一步：不记录败局
+                let skipLoss = isMasterChallenge && PlayerProfileStore.shared.profile.bonusMasterNoPenalty
+                if !skipLoss {
+                    profile.totalLosses += 1
+                }
                 if !isMasterChallenge {
                     profile.currentWinStreak = 0
                 }

@@ -72,6 +72,10 @@ final class ChapterStore: ObservableObject {
             let chapter = builtChapters.first { $0.id == chId }
             return (chapter?.completedCount ?? 0) >= count
         case .rank(let rank):
+            // Q4 P2: bonusChapter7EarlyUnlock — day70 奖励，跳过段位检查
+            if profile.bonusChapter7EarlyUnlock {
+                return true
+            }
             return profile.rank >= rank
         case .and(let conditions):
             return conditions.allSatisfy { checkUnlock($0, profile: profile, builtChapters: builtChapters) }
