@@ -28,6 +28,11 @@
 #include <atomic>
 #include <cstring>
 
+#if defined(__APPLE__) && defined(__MACH__)
+#include <CoreFoundation/CoreFoundation.h>
+#include <climits>
+#endif
+
 namespace {
 
 // Global engine instance (singleton)
@@ -80,13 +85,35 @@ int pikafish_init(void) {
     std::lock_guard<std::mutex> lock(g_mutex);
 
     if (g_engine != nullptr) {
-        // Already initialized
         return 0;
     }
 
     try {
-        // Create engine (nullopt = use embedded NNUE or search default paths)
-        g_engine = new Stockfish::Engine(std::nullopt);
+        // P0 fix: 在 macOS/iOS 上从 app bundle 中发现 NNUE 文件路径
+        std::optional<std::string> pathOpt;
+
+#if defined(__APPLE__) && defined(__MACH__)
+        // Core Foundation: 查找 bundle 中的 pikafish.nnue
+        CFURLRef nnueURL = CFBundleCopyResourceURL(
+            CFBundleGetMainBundle(),
+            CFSTR("pikafish"),
+            CFSTR("nnue"),
+            NULL
+        );
+        if (nnueURL) {
+            UInt8 buf[PATH_MAX];
+            if (CFURLGetFileSystemRepresentation(nnueURL, true, buf, sizeof(buf))) {
+                std::string fullPath(reinterpret_cast<const char*>(buf));
+                size_t lastSlash = fullPath.find_last_of("/");
+                if (lastSlash != std::string::npos) {
+                    pathOpt = fullPath.substr(0, lastSlash + 1);
+                }
+            }
+            CFRelease(nnueURL);
+        }
+#endif
+
+        g_engine = new Stockfish::Engine(pathOpt);
 
         // Set bestmove callback — writes result under mutex, then notifies CV
         g_engine->set_on_bestmove([](std::string_view bestmove, std::string_view ponder) {
