@@ -181,6 +181,11 @@ int pikafish_init(void) {
         g_engine->set_tt_size(64);  // 64MB hash table
         g_engine->resize_threads(); // Use default thread count (1)
 
+        // P0 fix: 设置 verify_network 回调（否则 Engine::go() 调 verify_network 会 throw bad_function_call）
+        g_engine->set_on_verify_network([](std::string_view message) {
+            fprintf(stderr, "[pikafish_api] verify_network: %.*s\n", (int)message.size(), message.data());
+        });
+
         // P0 fix: NNUE 加载后设置起始局面
         // pos.set() 已从 Engine 构造函数移出，这里显式调用
         g_engine->set_start_position();
@@ -242,7 +247,12 @@ int pikafish_best_move(const char* fen, const char* moves,
         }
 
         // Start search (non-blocking — search runs on engine's internal threads)
-        g_engine->go(limits);
+        try {
+            g_engine->go(limits);
+        } catch (const std::exception& e) {
+            g_searching = false;
+            return -1;
+        }
 
     } // <-- mutex released here
 
