@@ -6329,13 +6329,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "段位达到%s可解锁复盘分析"
+            "value": "段位达到%@可解锁复盘分析"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reach %s rank to unlock analysis"
+            "value": "Reach %@ rank to unlock analysis"
           }
         }
       }
@@ -6537,13 +6537,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "推荐走法 %s，评估差距 %s 分"
+            "value": "推荐走法 %@，评估差距 %@ 分"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recommended %s, eval gap %s cp"
+            "value": "Recommended %@, eval gap %@ cp"
           }
         }
       }
@@ -6553,13 +6553,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这里可以杀棋！推荐走法 %s"
+            "value": "这里可以杀棋！推荐走法 %@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mate possible here! Best move: %s"
+            "value": "Mate possible here! Best move: %@"
           }
         }
       }
@@ -6569,13 +6569,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可以将军！推荐走法 %s 先手占优"
+            "value": "可以将军！推荐走法 %@ 先手占优"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check available! %s gains initiative"
+            "value": "Check available! %@ gains initiative"
           }
         }
       }
@@ -6585,13 +6585,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可以安全吃子，推荐走法 %s"
+            "value": "可以安全吃子，推荐走法 %@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Safe capture available: %s"
+            "value": "Safe capture available: %@"
           }
         }
       }
@@ -6601,13 +6601,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此时展开子力更重要，推荐走法 %s"
+            "value": "此时展开子力更重要，推荐走法 %@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Develop pieces first: %s"
+            "value": "Develop pieces first: %@"
           }
         }
       }
@@ -6617,13 +6617,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前应先防守，推荐走法 %s"
+            "value": "当前应先防守，推荐走法 %@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Defend first: %s"
+            "value": "Defend first: %@"
           }
         }
       }
@@ -6633,13 +6633,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "控制中线是关键，推荐走法 %s"
+            "value": "控制中线是关键，推荐走法 %@"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Control the center: %s"
+            "value": "Control the center: %@"
           }
         }
       }
@@ -6649,13 +6649,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "推荐走法 %s，评估高出 %s 分"
+            "value": "推荐走法 %@，评估高出 %@ 分"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Better move: %s, %s cp better"
+            "value": "Better move: %@, %@ cp better"
           }
         }
       }
@@ -6793,13 +6793,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "第%d步失误最大（差距%s分）"
+            "value": "第%d步失误最大（差距%@分）"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Biggest blunder at move %d (%s cp gap)"
+            "value": "Biggest blunder at move %d (%@ cp gap)"
           }
         }
       }
@@ -6825,13 +6825,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "段位达到%s可解锁开局探索"
+            "value": "段位达到%@可解锁开局探索"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reach %s rank to unlock opening explorer"
+            "value": "Reach %@ rank to unlock opening explorer"
           }
         }
       }
