@@ -18,6 +18,8 @@
 //  License: GPLv3 (same as pikafish)
 
 #include "pikafish_api.h"
+#include "bitboard.h"
+#include "position.h"
 #include "engine.h"
 #include "uci.h"
 #include "thread.h"
@@ -119,6 +121,14 @@ int pikafish_init(void) {
             CFRelease(nnueURL);
         }
 #endif
+
+        // P0 fix: 全局查找表初始化（Pikafish main() 中必须先调）
+        static bool s_initialized = false;
+        if (!s_initialized) {
+            Stockfish::Bitboards::init();
+            Stockfish::Position::init();
+            s_initialized = true;
+        }
 
         g_engine = new Stockfish::Engine(pathOpt);
 
