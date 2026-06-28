@@ -139,7 +139,7 @@ int pikafish_init(void) {
             std::lock_guard<std::mutex> lock(g_mutex);
             // Convert Score variant to int centipawn
             int eval_cp = 0;
-            info.score.visit([](auto&& arg) {
+            info.score.visit([&](auto&& arg) {
                 using T = std::decay_t<decltype(arg)>;
                 if constexpr (std::is_same_v<T, Stockfish::Score::Mate>) {
                     eval_cp = arg.plies > 0
@@ -165,6 +165,10 @@ int pikafish_init(void) {
         // Set default options
         g_engine->set_tt_size(64);  // 64MB hash table
         g_engine->resize_threads(); // Use default thread count (1)
+
+        // P0 fix: NNUE 加载后设置起始局面
+        // pos.set() 已从 Engine 构造函数移出，这里显式调用
+        g_engine->set_start_position();
 
         // Build engine info string
         g_engine_info = "Pikafish ";
@@ -435,31 +439,45 @@ int pikafish_multi_pv(const char* fen, const char* moves,
         return -1;
     }
 
-    // MultiPV 的多条 PV 线在 Pikafish 中通过 update_full callback 的 multipv 字段区分。
-    // 但当前 callback 只保存最后一条。要获取多条 PV，需要改进 callback 收集逻辑。
-    //
-    // 简化实现：对于 num_lines > 1 的情况，多次搜索获取不同走法。
-    // 这是一个临时方案，后续可以优化为在一次搜索中收集所有 PV。
-    //
-    // 当前实现：返回 1 条结果（最佳走法），其余字段置零。
+    // P2 fix: 从 g_multi_pv_results 收集多条 PV（由 update_full callback 填充）
     {
         std::lock_guard<std::mutex> lock(g_mutex);
 
-        // 第一条结果
-        results[0].score_cp = g_last_eval;
-        std::strncpy(results[0].best_move, move_buf, sizeof(results[0].best_move) - 1);
-        results[0].best_move[sizeof(results[0].best_move) - 1] = '\0';
-        std::strncpy(results[0].pv, g_last_pv.c_str(), sizeof(results[0].pv) - 1);
-        results[0].pv[sizeof(results[0].pv) - 1] = '\0';
-        results[0].depth = 0;
+        int filled = 0;
+        int result_count = std::min((int)g_multi_pv_results.size(), actual_lines);
+
+        for (int i = 0; i < result_count && i < max_results; i++) {
+            const auto& entry = g_multi_pv_results[i];
+            results[i].score_cp = entry.score_cp;
+            results[i].depth = 0;
+
+            // 从 PV 中提取第一步作为 best_move
+            std::string pv = entry.pv;
+            std::string bestMv = pv.substr(0, pv.find(' '));
+            std::strncpy(results[i].best_move, bestMv.c_str(), sizeof(results[i].best_move) - 1);
+            results[i].best_move[sizeof(results[i].best_move) - 1] = '\0';
+            std::strncpy(results[i].pv, pv.c_str(), sizeof(results[i].pv) - 1);
+            results[i].pv[sizeof(results[i].pv) - 1] = '\0';
+            filled++;
+        }
+
+        // Fallback: 如果 callback 没收集到，用 best_move 结果
+        if (filled == 0) {
+            results[0].score_cp = g_last_eval;
+            std::strncpy(results[0].best_move, move_buf, sizeof(results[0].best_move) - 1);
+            results[0].best_move[sizeof(results[0].best_move) - 1] = '\0';
+            std::strncpy(results[0].pv, g_last_pv.c_str(), sizeof(results[0].pv) - 1);
+            results[0].pv[sizeof(results[0].pv) - 1] = '\0';
+            results[0].depth = 0;
+            filled = 1;
+        }
 
         // 重置 MultiPV 为 1（恢复默认）
         std::istringstream iss("name MultiPV value 1");
         g_engine->get_options().setoption(iss);
-    }
 
-    return 1;  // 当前只返回 1 条结果
+        return filled;
+    }
 }
 
-} // extern "C"
 } // extern "C"
