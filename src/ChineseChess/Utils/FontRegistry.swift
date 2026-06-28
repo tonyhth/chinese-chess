@@ -38,7 +38,7 @@ enum FontRegistry {
                 return
             }
             #endif
-            print("[FontRegistry] Warning: LXGWWenKai-Regular.ttf not found in bundle")
+            AppLog.fontRegistry.warning("LXGWWenKai-Regular.ttf not found in bundle")
             return
         }
         registerFontAt(fontURL)
@@ -64,7 +64,7 @@ enum FontRegistry {
                     // OK — font was registered in a previous launch
                 } else {
                     let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
-                    print("[FontRegistry] Registration failed: \(desc)")
+                    AppLog.fontRegistry.error("Registration failed: \(desc)")
                 }
             }
         }
@@ -74,7 +74,7 @@ enum FontRegistry {
         if !success, let err = error?.takeUnretainedValue() {
             if !isAlreadyRegisteredError(err) {
                 let desc = CFErrorCopyDescription(err) as String? ?? "unknown"
-                print("[FontRegistry] Registration failed: \(desc)")
+                AppLog.fontRegistry.error("Registration failed: \(desc)")
             }
         }
         #endif

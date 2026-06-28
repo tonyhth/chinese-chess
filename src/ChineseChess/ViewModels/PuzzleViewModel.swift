@@ -625,7 +625,7 @@ class PuzzleViewModel {
         for (i, iccs) in puzzle.solution.enumerated() {
             guard let move = ICCSParser.parse(iccs, on: tempBoard) else {
                 #if DEBUG
-                print("[PuzzleViewModel] getSolutionInfo: parse failed at step \(i), iccs=\(iccs)")
+                AppLog.puzzleVM.warning("getSolutionInfo: parse failed at step \(i), iccs=\(iccs)")
                 #endif
                 return nil
             }

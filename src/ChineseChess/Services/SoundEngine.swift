@@ -25,7 +25,7 @@ class SoundEngine {
                 players[name] = player
             } else {
                 #if DEBUG
-                print("[Sound] missing: \(name).\(ext)")
+                AppLog.soundEngine.warning("missing: \(name).\(ext)")
                 #endif
             }
         }

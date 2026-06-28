@@ -50,7 +50,7 @@ final class GameHistoryStore {
         // 去重
         if ids.contains(record.id) {
             #if DEBUG
-            print("[History] duplicate record \(record.id), skipping")
+            AppLog.history.warning("duplicate record \(record.id), skipping")
             #endif
             return
         }
@@ -103,7 +103,7 @@ final class GameHistoryStore {
     private func saveIndex(_ ids: [UUID]) {
         guard let data = try? JSONEncoder().encode(ids) else {
             #if DEBUG
-            print("[History] failed to encode index")
+            AppLog.history.error("failed to encode index")
             #endif
             return
         }
@@ -115,7 +115,7 @@ final class GameHistoryStore {
         guard let data = defaults.data(forKey: key),
               let record = try? JSONDecoder().decode(GameRecord.self, from: data) else {
             #if DEBUG
-            print("[History] failed to load record \(id)")
+            AppLog.history.error("failed to load record \(id)")
             #endif
             return nil
         }
@@ -126,7 +126,7 @@ final class GameHistoryStore {
         let key = recordPrefix + record.id.uuidString
         guard let data = try? JSONEncoder().encode(record) else {
             #if DEBUG
-            print("[History] failed to encode record \(record.id)")
+            AppLog.history.error("failed to encode record \(record.id)")
             #endif
             return
         }

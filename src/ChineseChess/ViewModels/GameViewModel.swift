@@ -442,15 +442,15 @@ class GameViewModel {
                         }
                     } else {
                         // move.piece 在棋盘上找不到
-                        print("⚠️ AI move: piece not found on board")
+                        AppLog.gameVM.error("AI move: piece not found on board")
                     }
                 } else {
                     // UCI 走法解析失败
-                    print("⚠️ AI move: UCI parse failed for \(uciMove)")
+                    AppLog.gameVM.error("AI move: UCI parse failed for \(uciMove)")
                 }
             } else {
                 // 引擎返回 nil
-                print("⚠️ AI move: engine returned nil")
+                AppLog.gameVM.error("AI move: engine returned nil")
                 self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
             }
             

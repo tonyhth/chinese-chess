@@ -29,12 +29,12 @@ final class PuzzleStore {
         }
 
         guard let puzzleURL = url else {
-            print("[WARN] PuzzleStore: puzzles.json not found in any location")
+            AppLog.puzzleStore.error("puzzles.json not found in any location")
             return
         }
 
         guard let data = try? Data(contentsOf: puzzleURL) else {
-            print("[WARN] PuzzleStore: failed to read puzzles.json")
+            AppLog.puzzleStore.error("failed to read puzzles.json")
             return
         }
 
@@ -50,7 +50,7 @@ final class PuzzleStore {
                 // version 变化时不自动清除进度（puzzleId 保持兼容）
             }
         } catch {
-            print("[WARN] PuzzleStore: failed to decode puzzles.json - \(error)")
+            AppLog.puzzleStore.error("failed to decode puzzles.json - \(error)")
             return
         }
     }

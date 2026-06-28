@@ -34,22 +34,22 @@ enum ResourceBundle {
         }
         
         #if DEBUG
-        print("[ResourceBundle] Bundle.main.bundleURL = \(Bundle.main.bundleURL)")
-        print("[ResourceBundle] cwd = \(cwd)")
-        print("[ResourceBundle] Searching \(candidates.count) paths for \(bundleName).bundle")
+        AppLog.resourceBundle.debug("Bundle.main.bundleURL = \(Bundle.main.bundleURL)")
+        AppLog.resourceBundle.debug("cwd = \(cwd)")
+        AppLog.resourceBundle.debug("Searching \(candidates.count) paths for \(bundleName).bundle")
         #endif
         
         for path in candidates {
             if let bundle = Bundle(path: path) {
                 #if DEBUG
-                print("[ResourceBundle] Found: \(path)")
+                AppLog.resourceBundle.debug("Found: \(path)")
                 #endif
                 return bundle
             }
         }
         
         #if DEBUG
-        print("[ResourceBundle] Not found in any path")
+        AppLog.resourceBundle.error("Not found in any path")
         #endif
         return nil
     }()

@@ -49,7 +49,7 @@ struct OpeningBook {
                     .sorted { $0.weight > $1.weight }
             }
             #if DEBUG
-            print("[INFO] OpeningBook: loaded v2 format, \(idx.count) positions")
+            AppLog.openingBook.info("loaded v2 format, \(idx.count) positions")
             #endif
         } else {
             // fallback: 加载旧 v1 格式
@@ -59,11 +59,11 @@ struct OpeningBook {
                let decoded = try? JSONDecoder().decode([OpeningEntryV1].self, from: data) {
                 idx = Self.buildV1Index(decoded)
                 #if DEBUG
-                print("[INFO] OpeningBook: loaded v1 format (fallback), \(idx.count) positions")
+                AppLog.openingBook.info("loaded v1 format (fallback), \(idx.count) positions")
                 #endif
             } else {
                 #if DEBUG
-                print("[INFO] OpeningBook: no opening book found, using empty book")
+                AppLog.openingBook.warning("no opening book found, using empty book")
                 #endif
             }
         }
@@ -115,7 +115,7 @@ struct OpeningBook {
                 for (stepIndex, iccsMove) in variation.enumerated() {
                     guard let move = ICCSParser.parse(iccsMove, on: board) else {
                         #if DEBUG
-                        print("[WARN] OpeningBook: illegal move '\(iccsMove)' in '\(entry.name)' at step \(stepIndex + 1)")
+                        AppLog.openingBook.warning("illegal move '\(iccsMove)' in '\(entry.name)' at step \(stepIndex + 1)")
                         #endif
                         break
                     }
