@@ -11,8 +11,10 @@ protocol AIEngineProtocol {
 
 actor AIEngine: AIEngineProtocol {
 
-    /// 开局库（实例级，避免多 ViewModel 并发访问）
-    private let openingBook = OpeningBook()
+    /// 开局库（实例级，异步加载避免阻塞 init）
+    private var openingBook: OpeningBook?
+    /// 开局库加载锁（确保只加载一次）
+    private var openingBookLoaded = false
     /// 置换表（实例级，避免多 ViewModel 并发访问）
     private let transpositionTable = TranspositionTable()
     /// 历史启发表（实例级，避免并发竞争）
@@ -33,6 +35,13 @@ actor AIEngine: AIEngineProtocol {
     init(weights: EvalWeights) {
         self.weights = weights
         self.evaluator = AIEvaluator(weights: weights)
+    }
+
+    /// 懒加载开局库（首次调用时加载 3.7MB JSON）
+    private func ensureOpeningBook() {
+        guard !openingBookLoaded else { return }
+        openingBookLoaded = true
+        openingBook = OpeningBook()
     }
 
     /// 清空历史启发表（新对局时调用）
@@ -185,9 +194,11 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - 中级
 
     private func mediumSearch(for board: Board, isIOS: Bool) -> Move? {
+        ensureOpeningBook()
         let hash = ZobristHash.hash(board: board)
-        if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-           let move = openingBook.parseICCSMove(iccsMove, on: board) {
+        if let book = openingBook,
+           let iccsMove = book.lookupWeightedRandom(zobristHash: hash),
+           let move = book.parseICCSMove(iccsMove, on: board) {
             return move
         }
 
@@ -207,9 +218,11 @@ actor AIEngine: AIEngineProtocol {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
+            ensureOpeningBook()
             let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+            if let book = openingBook,
+               let iccsMove = book.lookupWeightedRandom(zobristHash: hash),
+               let move = book.parseICCSMove(iccsMove, on: board) {
                 return move
             }
         }
@@ -237,9 +250,11 @@ actor AIEngine: AIEngineProtocol {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
+            ensureOpeningBook()
             let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookup(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+            if let book = openingBook,
+               let iccsMove = book.lookup(zobristHash: hash),
+               let move = book.parseICCSMove(iccsMove, on: board) {
                 return move
             }
         }
