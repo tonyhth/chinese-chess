@@ -1,5 +1,12 @@
 import Foundation
 
+// MARK: - v3.6.0 Q3: 段位/成就通知
+
+extension Notification.Name {
+    static let rankPromoted = Notification.Name("com.chinesechess.rankPromoted")
+    static let achievementUnlocked = Notification.Name("com.chinesechess.achievementUnlocked")
+}
+
 // MARK: - v3.0 Phase 6: 成就系统
 
 /// 成就稀有度
@@ -66,11 +73,11 @@ enum AchievementLibrary {
         Achievement(id: "first_game", nameKey: "achievement.first_game.name", descriptionKey: "achievement.first_game.desc", rarity: .bronze),
         Achievement(id: "first_win", nameKey: "achievement.first_win.name", descriptionKey: "achievement.first_win.desc", rarity: .bronze),
         Achievement(id: "tutorial_done", nameKey: "achievement.tutorial_done.name", descriptionKey: "achievement.tutorial_done.desc", rarity: .bronze),
-        Achievement(id: "play_red", nameKey: "achievement.play_red.name", descriptionKey: "achievement.play_red.desc", rarity: .bronze),
-        Achievement(id: "play_black", nameKey: "achievement.play_black.name", descriptionKey: "achievement.play_black.desc", rarity: .bronze),
+        Achievement(id: "kill_mate_horse_cannon", nameKey: "achievement.kill_mate_horse_cannon.name", descriptionKey: "achievement.kill_mate_horse_cannon.desc", rarity: .bronze),
+        Achievement(id: "kill_mate_double_rook", nameKey: "achievement.kill_mate_double_rook.name", descriptionKey: "achievement.kill_mate_double_rook.desc", rarity: .bronze),
         Achievement(id: "first_puzzle", nameKey: "achievement.first_puzzle.name", descriptionKey: "achievement.first_puzzle.desc", rarity: .bronze),
-        Achievement(id: "use_hint", nameKey: "achievement.use_hint.name", descriptionKey: "achievement.use_hint.desc", rarity: .bronze),
-        Achievement(id: "draw_game", nameKey: "achievement.draw_game.name", descriptionKey: "achievement.draw_game.desc", rarity: .bronze),
+        Achievement(id: "first_draw_puzzle", nameKey: "achievement.first_draw_puzzle.name", descriptionKey: "achievement.first_draw_puzzle.desc", rarity: .bronze),
+        Achievement(id: "chapter1_clear", nameKey: "achievement.chapter1_clear.name", descriptionKey: "achievement.chapter1_clear.desc", rarity: .bronze),
     ]
 
     /// 银牌成就（8个）— 进阶目标
@@ -79,10 +86,10 @@ enum AchievementLibrary {
         Achievement(id: "beat_medium", nameKey: "achievement.beat_medium.name", descriptionKey: "achievement.beat_medium.desc", rarity: .silver),
         Achievement(id: "beat_hard", nameKey: "achievement.beat_hard.name", descriptionKey: "achievement.beat_hard.desc", rarity: .silver),
         Achievement(id: "puzzles_5", nameKey: "achievement.puzzles_5.name", descriptionKey: "achievement.puzzles_5.desc", rarity: .silver),
-        Achievement(id: "win_streak_3", nameKey: "achievement.win_streak_3.name", descriptionKey: "achievement.win_streak_3.desc", rarity: .silver),
+        Achievement(id: "kill_ten_steps", nameKey: "achievement.kill_ten_steps.name", descriptionKey: "achievement.kill_ten_steps.desc", rarity: .silver),
         Achievement(id: "rank_scholar", nameKey: "achievement.rank_scholar.name", descriptionKey: "achievement.rank_scholar.desc", rarity: .silver),
         Achievement(id: "no_hint_win", nameKey: "achievement.no_hint_win.name", descriptionKey: "achievement.no_hint_win.desc", rarity: .silver),
-        Achievement(id: "quick_win", nameKey: "achievement.quick_win.name", descriptionKey: "achievement.quick_win.desc", rarity: .silver),
+        Achievement(id: "blitz_5min", nameKey: "achievement.blitz_5min.name", descriptionKey: "achievement.blitz_5min.desc", rarity: .silver),
     ]
 
     /// 金牌成就（8个）— 高手目标
@@ -92,8 +99,8 @@ enum AchievementLibrary {
         Achievement(id: "puzzles_20", nameKey: "achievement.puzzles_20.name", descriptionKey: "achievement.puzzles_20.desc", rarity: .gold),
         Achievement(id: "win_streak_5", nameKey: "achievement.win_streak_5.name", descriptionKey: "achievement.win_streak_5.desc", rarity: .gold),
         Achievement(id: "rank_juren", nameKey: "achievement.rank_juren.name", descriptionKey: "achievement.rank_juren.desc", rarity: .gold),
-        Achievement(id: "comeback_win", nameKey: "achievement.comeback_win.name", descriptionKey: "achievement.comeback_win.desc", rarity: .gold),
-        Achievement(id: "perfect_game", nameKey: "achievement.perfect_game.name", descriptionKey: "achievement.perfect_game.desc", rarity: .gold),
+        Achievement(id: "comeback_king", nameKey: "achievement.comeback_king.name", descriptionKey: "achievement.comeback_king.desc", rarity: .gold),
+        Achievement(id: "perfect_game_v2", nameKey: "achievement.perfect_game_v2.name", descriptionKey: "achievement.perfect_game_v2.desc", rarity: .gold),
         Achievement(id: "endgame_master", nameKey: "achievement.endgame_master.name", descriptionKey: "achievement.endgame_master.desc", rarity: .gold),
     ]
 
@@ -133,6 +140,12 @@ enum AchievementLibrary {
     static func find(id: String) -> Achievement? {
         all.first { $0.id == id }
     }
+
+    /// 已退役的成就 ID（从库中移除但保留在老用户记录中）
+    static let retired: Set<String> = [
+        "play_red", "play_black", "use_hint", "draw_game",
+        "win_streak_3", "quick_win", "comeback_win", "perfect_game"
+    ]
 }
 
 // MARK: - 成就管理器
@@ -157,7 +170,48 @@ final class AchievementManager {
                 profile.unlockedAchievements.append(achievementId)
             }
         }
+
+        // Q3: 成就解锁奖励
+        if let achievement = AchievementLibrary.find(id: achievementId) {
+            applyUnlockReward(achievement)
+        }
+
+        // Q3: 成就可能触发段位升级
+        checkRankPromotion()
+
+        // Q3: 发送通知
+        NotificationCenter.default.post(
+            name: .achievementUnlocked, object: achievementId
+        )
+
         return true
+    }
+
+    /// Q3: 应用成就解锁奖励
+    private func applyUnlockReward(_ achievement: Achievement) {
+        switch achievement.rarity {
+        case .silver:
+            _ = store.update { $0.bonusExtraHints += 1 }
+        case .gold:
+            _ = store.update { $0.bonusExtraHints += 2 }
+        case .diamond:
+            _ = store.update { $0.bonusPieceStyle = true }
+        case .hidden:
+            _ = store.update { $0.bonusSpecialTheme = true }
+        case .bronze:
+            break  // 段位贡献已通过 effectiveWins 处理
+        }
+    }
+
+    /// Q3: 检查段位升级
+    private func checkRankPromotion() {
+        let profile = store.profile
+        if let newRank = profile.checkRankUp() {
+            _ = store.update { $0.rank = newRank }
+            NotificationCenter.default.post(
+                name: .rankPromoted, object: newRank
+            )
+        }
     }
 
     /// 批量检查并解锁

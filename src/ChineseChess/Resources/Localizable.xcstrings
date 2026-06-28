@@ -5161,7 +5161,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "胜场"
+            "value": "已胜"
           }
         },
         "en": {
@@ -6848,6 +6848,294 @@
           "stringUnit": {
             "state": "translated",
             "value": "Board Preview"
+          }
+        }
+      }
+    },
+    "achievement.kill_mate_horse_cannon.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "马后炮杀"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horse-Cannon Mate"
+          }
+        }
+      }
+    },
+    "achievement.kill_mate_horse_cannon.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用马后炮将杀赢1局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win with horse-cannon mate"
+          }
+        }
+      }
+    },
+    "achievement.kill_mate_double_rook.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "双车错杀"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Double Rook Mate"
+          }
+        }
+      }
+    },
+    "achievement.kill_mate_double_rook.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用双车错杀法赢1局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win with double rook mate"
+          }
+        }
+      }
+    },
+    "achievement.first_draw_puzzle.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "和局残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw Puzzle"
+          }
+        }
+      }
+    },
+    "achievement.first_draw_puzzle.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次完成和局类型残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete a draw puzzle for the first time"
+          }
+        }
+      }
+    },
+    "achievement.chapter1_clear.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一章通关"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chapter 1 Clear"
+          }
+        }
+      }
+    },
+    "achievement.chapter1_clear.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一章残局全通关"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all chapter 1 puzzles"
+          }
+        }
+      }
+    },
+    "achievement.kill_ten_steps.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "十步杀"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10-Step Mate"
+          }
+        }
+      }
+    },
+    "achievement.kill_ten_steps.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10步内将杀AI（中等以上）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mate AI in 10 moves (medium+)"
+          }
+        }
+      }
+    },
+    "achievement.blitz_5min.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五分钟闪击"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5-Min Blitz"
+          }
+        }
+      }
+    },
+    "achievement.blitz_5min.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5分钟内赢一局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win a game within 5 minutes"
+          }
+        }
+      }
+    },
+    "achievement.comeback_king.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "绝地翻盘"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comeback King"
+          }
+        }
+      }
+    },
+    "achievement.comeback_king.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "兵力劣势时翻盘获胜"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Win from a material deficit"
+          }
+        }
+      }
+    },
+    "achievement.perfect_game_v2.name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完美对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfect Game"
+          }
+        }
+      }
+    },
+    "achievement.perfect_game_v2.desc": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全程走法评级≥好棋"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All moves rated good or better"
+          }
+        }
+      }
+    },
+    "achievement.retired": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已退役"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retired"
+          }
+        }
+      }
+    },
+    "achievement.view.bonus": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "含成就加成"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "incl. achievement bonus"
           }
         }
       }
