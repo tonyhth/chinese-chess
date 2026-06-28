@@ -1,0 +1,141 @@
+name: Build Pikafish ARM64
+
+# 在 Apple Silicon runner 上编译完整的 arm64 Pikafish 静态库（含 NEON 优化）
+# Intel Mac 无法交叉编译 entry_arm64.cpp 的 ARM NEON 汇编
+#
+# 触发方式：
+# 1. 手动触发（workflow_dispatch）
+# 2. Pikafish 源码变更时自动触发（paths filter）
+# 3. 打 tag 时触发
+
+on:
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: '启用调试日志'
+        required: false
+        default: 'false'
+  push:
+    paths:
+      - 'ChineseChess-iOS/Pikafish/src/**'
+    branches:
+      - main
+  release:
+    types: [created]
+
+jobs:
+  build-arm64:
+    name: Build Pikafish arm64 (Apple Silicon)
+    runs-on: macos-14  # M1 Apple Silicon runner
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Verify runner architecture
+        run: |
+          echo "=== Runner CPU ==="
+          uname -m
+          sysctl -n machdep.cpu.brand_string
+          echo "=== Xcode ==="
+          xcodebuild -version
+
+      - name: Build Pikafish arm64 static library
+        run: |
+          cd ${{ github.workspace }}
+          
+          PIKAFISH_SRC="ChineseChess-iOS/Pikafish/src"
+          OUTPUT_DIR="src/ChineseChess/Pikafish"
+          
+          # 编译参数（与 build.sh 一致）
+          DEPLOYMENT_TARGET="13.0"
+          OPTIMIZATION="-O3"
+          TARGET="arm64-apple-macosx${DEPLOYMENT_TARGET}"
+          COMMON_FLAGS="-std=c++17 ${OPTIMIZATION} -fPIC -DNDEBUG -DIS_64BIT -fexceptions"
+          PLATFORM_FLAGS="-target ${TARGET} -isysroot $(xcrun --sdk macosx --show-sdk-path)"
+          
+          # 源文件（排除 main/benchmark/test）
+          SOURCES=$(find "$PIKAFISH_SRC" -name "*.cpp" \
+            | grep -v "_test.cpp" \
+            | grep -v "benchmark.cpp" \
+            | grep -v "main.cpp")
+          
+          echo "=== 编译 arm64 (含 entry_arm64.cpp NEON 优化) ==="
+          BUILD_DIR="$OUTPUT_DIR/build_arm64_ci"
+          mkdir -p "$BUILD_DIR"
+          
+          OBJ_FILES=""
+          for src in $SOURCES; do
+            OBJ="$BUILD_DIR/$(basename "${src%.cpp}").o"
+            clang++ $COMMON_FLAGS $PLATFORM_FLAGS \
+              -I"$PIKAFISH_SRC" \
+              -I"$OUTPUT_DIR/include" \
+              -c "$src" -o "$OBJ" 2>&1
+            OBJ_FILES="$OBJ_FILES $OBJ"
+          done
+          
+          # 创建静态库
+          LIB_PATH="$OUTPUT_DIR/lib/macos-arm64-ci/libpikafish.a"
+          mkdir -p "$(dirname "$LIB_PATH")"
+          ar rcs "$LIB_PATH" $OBJ_FILES
+          
+          # 验证
+          echo "=== 验证产物 ==="
+          lipo -info "$LIB_PATH"
+          file "$LIB_PATH"
+          echo "=== entry_arm64 符号检查 ==="
+          nm "$LIB_PATH" | grep "entry_arm64" | head -3
+          
+          # 清理中间产物
+          rm -rf "$BUILD_DIR"
+          
+          # 记录编译信息
+          echo "## Pikafish ARM64 Build" > build-info.md
+          echo "**Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> build-info.md
+          echo "**Runner**: $(uname -m) - $(sysctl -n machdep.cpu.brand_string)" >> build-info.md
+          echo "**Xcode**: $(xcodebuild -version | head -1)" >> build-info.md
+          echo "**Commit**: ${{ github.sha }}" >> build-info.md
+          echo "**Size**: $(ls -la "$LIB_PATH" | awk '{print $5}') bytes" >> build-info.md
+          cat build-info.md
+
+      - name: Upload arm64 library
+        uses: actions/upload-artifact@v4
+        with:
+          name: pikafish-arm64-neon
+          path: |
+            src/ChineseChess/Pikafish/lib/macos-arm64-ci/libpikafish.a
+            build-info.md
+          retention-days: 90
+
+      - name: Create universal binary (if x86_64 exists)
+        run: |
+          cd ${{ github.workspace }}
+          ARM64_LIB="src/ChineseChess/Pikafish/lib/macos-arm64-ci/libpikafish.a"
+          X86_LIB="src/ChineseChess/Pikafish/lib/macos-x86_64/libpikafish.a"
+          UNIVERSAL_LIB="src/ChineseChess/Pikafish/lib/macos-ci/libpikafish.a"
+          
+          if [ -f "$X86_LIB" ]; then
+            echo "=== 创建 universal binary ==="
+            mkdir -p "$(dirname "$UNIVERSAL_LIB")"
+            lipo -create "$ARM64_LIB" "$X86_LIB" -output "$UNIVERSAL_LIB"
+            lipo -info "$UNIVERSAL_LIB"
+            
+            # 上传 universal 版本
+            echo "UNIVERSAL_AVAILABLE=true" >> $GITHUB_ENV
+          else
+            echo "x86_64 library not found, skipping universal creation"
+            echo "UNIVERSAL_AVAILABLE=false" >> $GITHUB_ENV
+          fi
+
+      - name: Upload universal library
+        if: env.UNIVERSAL_AVAILABLE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pikafish-universal-ci
+          path: src/ChineseChess/Pikafish/lib/macos-ci/libpikafish.a
+          retention-days: 90
