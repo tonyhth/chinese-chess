@@ -89,14 +89,17 @@ enum DailyStreakReward: Int, CaseIterable {
         L10n.shared.t("daily.streak.day\(rawValue).desc")
     }
 
-    // v3.0 gap fix: 奖励类型标识
+    // Q4: 奖励类型标识（更新后）
     var rewardType: String {
         switch self {
-        case .day3, .day45: return "puzzle_unlock"
-        case .day7, .day30, .day60: return "theme_unlock"
-        case .day14: return "piece_style"
-        case .day70: return "puzzle_unlock_all"
-        case .day100: return "theme_special"
+        case .day3: return "puzzle_progress_boost"   // 残局进度×2
+        case .day7: return "extra_hints"             // 每日额外提示+3
+        case .day14: return "piece_style"            // 专属棋子样式
+        case .day30: return "blitz_time_bonus"       // 闪电局时间+1分钟
+        case .day45: return "double_score"            // 每日挑战双倍积分
+        case .day60: return "master_no_penalty"       // 大师挑战失败不扣统计
+        case .day70: return "chapter7_early_unlock"   // 第七章提前解锁
+        case .day100: return "custom_board_theme"     // 自定义棋盘配色
         }
     }
 }
@@ -300,47 +303,43 @@ final class DailyChallengeManager {
         defaults.array(forKey: claimedRewardsKey) as? [Int] ?? []
     }
 
-    /// 实际应用奖励解锁
+    /// Q4: 实际应用奖励解锁
     private func applyRewards(_ rewards: [DailyStreakReward]) {
         let store = PlayerProfileStore.shared
 
         for reward in rewards {
             switch reward.rewardType {
-            case "theme_unlock":
-                // 连续登录解锁主题（绕过段位检查）
-                let theme: BoardTheme?
-                switch reward {
-                case .day7: theme = .jadeGreen
-                case .day30: theme = .imperialGold
-                case .day60: theme = .crimson
-                default: theme = nil
-                }
-                if let theme = theme {
-                    // 记录到 profile 的额外解锁列表
-                    store.update { profile in
-                        if !profile.bonusUnlockedThemes.contains(theme.rawValue) {
-                            profile.bonusUnlockedThemes.append(theme.rawValue)
-                        }
-                    }
-                }
+            case "puzzle_progress_boost":
+                // day3: 残局进度×2（已通过 bonusPuzzlesUnlocked 实现）
+                store.update { $0.bonusPuzzlesUnlocked = true }
 
-            case "puzzle_unlock", "puzzle_unlock_all":
-                // 解锁额外残局：标记到 profile
-                store.update { profile in
-                    profile.bonusPuzzlesUnlocked = true
-                }
+            case "extra_hints":
+                // day7: 每日额外提示+3
+                store.update { $0.bonusExtraHints += 3 }
 
             case "piece_style":
-                // 解锁专属棋子样式
-                store.update { profile in
-                    profile.bonusPieceStyle = true
-                }
+                // day14: 解锁专属棋子样式
+                store.update { $0.bonusPieceStyle = true }
 
-            case "theme_special":
-                // 棋圣专属主题
-                store.update { profile in
-                    profile.bonusSpecialTheme = true
-                }
+            case "blitz_time_bonus":
+                // day30: 闪电局时间+60秒
+                store.update { $0.bonusBlitzTimeBonus += 60 }
+
+            case "double_score":
+                // day45: 每日挑战双倍积分
+                store.update { $0.bonusDoubleScore = true }
+
+            case "master_no_penalty":
+                // day60: 大师挑战失败不扣统计
+                store.update { $0.bonusMasterNoPenalty = true }
+
+            case "chapter7_early_unlock":
+                // day70: 第七章提前解锁（跳过段位检查）
+                store.update { $0.bonusChapter7EarlyUnlock = true }
+
+            case "custom_board_theme":
+                // day100: 自定义棋盘配色
+                store.update { $0.bonusSpecialTheme = true }
 
             default:
                 break

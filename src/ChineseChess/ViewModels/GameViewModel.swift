@@ -99,6 +99,13 @@ class GameViewModel {
     // P1-2: 外部引擎 fallback 提示（非 nil 时 UI 弹 alert）
     var engineFallbackMessage: String? = nil
 
+    // Q4: 闪电局模式
+    var isBlitzMode: Bool = false
+    var blitzTimeLimitSeconds: Int = 300  // 双方各 5 分钟
+
+    // Q4: 大师挑战模式（输了不扣统计）
+    var isMasterChallenge: Bool = false
+
     // P2 修复：持有 observer token，deinit 时移除
     @ObservationIgnored nonisolated(unsafe) private var fallbackObserver: NSObjectProtocol?
 
@@ -282,6 +289,8 @@ class GameViewModel {
         isInCheck = false
         gameMoves = []
         hintMove = nil
+        isBlitzMode = false
+        isMasterChallenge = false
         resetClock()
 
         // v3.1 Phase 2c: 引擎切换 + newGame
@@ -523,7 +532,10 @@ class GameViewModel {
                 profile.beatenDifficulties.insert(difficulty.id)
             } else if playerLost {
                 profile.totalLosses += 1
-                profile.currentWinStreak = 0  // 输局重置连胜
+                // Q4: 大师挑战输了不重置连胜（鼓励尝试）
+                if !isMasterChallenge {
+                    profile.currentWinStreak = 0
+                }
             } else if gameState == .draw {
                 profile.totalDraws += 1
                 // 和局不影响 currentWinStreak（不加不减）

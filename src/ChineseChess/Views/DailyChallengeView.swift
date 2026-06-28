@@ -10,51 +10,55 @@ struct DailyChallengeView: View {
     @State private var streak = 0
     @State private var streakReward: DailyStreakReward? = nil
     @State private var showPuzzle = false
+    @State private var showBlitzGame = false
+    @State private var showMasterGame = false
     @State private var dailyPuzzleId: String? = nil
+
+    /// Q4: 可玩模式
+    private let playableModes: [DailyChallengeMode] = [.endgamePuzzle, .timeBlitz, .masterChallenge]
+    /// Q4: 敬请期待模式
+    private let comingSoonModes: [DailyChallengeMode] = [
+        .materialAdvantage, .endgameStart, .solveMate,
+        .defendChallenge, .comboKill, .cannonOnly, .horseOnly
+    ]
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                // 今日挑战卡片
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: todayMode.icon)
-                            .font(.largeTitle)
-                            .foregroundColor(.accentColor)
-                        VStack(alignment: .leading) {
-                            Text(L10n.shared.t("daily.view.todayChallenge"))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text(todayMode.localizedTitle)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                        }
-                        Spacer()
-                        if isCompleted {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                                .font(.title)
-                        }
-                    }
+                // Q4: 三种可玩模式
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(L10n.shared.t("daily.view.todayChallenge"))
+                        .font(.headline)
 
-                    Text(todayMode.localizedDesc)
-                        .font(.body)
+                    ForEach(playableModes, id: \.self) { mode in
+                        challengeCard(for: mode)
+                    }
+                }
+                .padding()
+                .background(Color.controlBackground)
+                .cornerRadius(12)
+
+                // Q4: 敬请期待模式
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(L10n.shared.t("daily.view.comingSoon"))
+                        .font(.headline)
                         .foregroundColor(.secondary)
 
-                    HStack {
-                        Text(L10n.shared.t("daily.view.recommendedDifficulty", todayDiff.displayName))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        // v3.0 gap fix: 残局模式可点击进入
-                        if todayMode == .endgamePuzzle || todayMode == .endgameStart || todayMode == .solveMate {
-                            if dailyPuzzleId != nil {
-                                Button("开始残局挑战") {
-                                    showPuzzle = true
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .tint(.brown)
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                        ForEach(comingSoonModes, id: \.self) { mode in
+                            HStack(spacing: 6) {
+                                Image(systemName: mode.icon)
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                                Text(mode.localizedTitle)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
+                            .padding(8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.secondary.opacity(0.05))
+                            .cornerRadius(8)
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.secondary.opacity(0.15), lineWidth: 1))
                         }
                     }
                 }
@@ -179,5 +183,85 @@ struct DailyChallengeView: View {
                 .padding()
             }
         }
+        .sheet(isPresented: $showBlitzGame) {
+            NavigationStack {
+                BoardView(viewModel: {
+                    let vm = GameViewModel()
+                    vm.difficulty = todayDiff
+                    vm.isBlitzMode = true
+                    let profile = PlayerProfileStore.shared.profile
+                    vm.blitzTimeLimitSeconds = 300 + profile.bonusBlitzTimeBonus
+                    return vm
+                }())
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("完成") { showBlitzGame = false }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showMasterGame) {
+            NavigationStack {
+                BoardView(viewModel: {
+                    let vm = GameViewModel()
+                    vm.difficulty = .master
+                    vm.isMasterChallenge = true
+                    return vm
+                }())
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("完成") { showMasterGame = false }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Q4: 挑战卡片
+
+    @ViewBuilder
+    private func challengeCard(for mode: DailyChallengeMode) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: mode.icon)
+                .font(.title2)
+                .foregroundColor(.accentColor)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(mode.localizedTitle)
+                    .font(.headline)
+                Text(mode.localizedDesc)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            // 模式按钮
+            switch mode {
+            case .endgamePuzzle:
+                if dailyPuzzleId != nil {
+                    Button(L10n.shared.t("daily.startPuzzle")) { showPuzzle = true }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.brown)
+                        .controlSize(.small)
+                }
+            case .timeBlitz:
+                Button(L10n.shared.t("daily.startBlitz")) { showBlitzGame = true }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                    .controlSize(.small)
+            case .masterChallenge:
+                Button(L10n.shared.t("daily.startMaster")) { showMasterGame = true }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.purple)
+                    .controlSize(.small)
+            default:
+                EmptyView()
+            }
+        }
+        .padding(12)
+        .background(Color.accentColor.opacity(0.05))
+        .cornerRadius(10)
     }
 }

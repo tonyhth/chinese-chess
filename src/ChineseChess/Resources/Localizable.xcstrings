@@ -4921,13 +4921,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钻石徽章"
+            "value": "双倍积分"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diamond Badge"
+            "value": "Double Score"
           }
         }
       }
@@ -4937,13 +4937,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "钻石徽章 + 残局进度加成"
+            "value": "每日挑战积分×2"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diamond Badge + Puzzle Progress Bonus"
+            "value": "Daily challenge score ×2"
           }
         }
       }
@@ -4953,13 +4953,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "双月勋章"
+            "value": "大师免罚"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bimonthly Medal"
+            "value": "No Penalty"
           }
         }
       }
@@ -4969,13 +4969,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "解锁朱砂红主题（无需段位）"
+            "value": "大师挑战失败不扣统计"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock Vermilion Theme"
+            "value": "Master challenge loss no penalty"
           }
         }
       }
@@ -4985,13 +4985,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "百日勋章"
+            "value": "提前解锁"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Centurion Badge"
+            "value": "Early Unlock"
           }
         }
       }
@@ -5001,13 +5001,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "百日勋章 + 残局大师称号"
+            "value": "第七章残局提前解锁"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Centurion Badge + Puzzle Master Title"
+            "value": "Chapter 7 puzzles early unlock"
           }
         }
       }
@@ -5017,13 +5017,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "百日庆典勋章"
+            "value": "自定义配色"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Centennial Medal"
+            "value": "Custom Theme"
           }
         }
       }
@@ -5033,13 +5033,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "解锁棋圣专属主题"
+            "value": "自定义棋盘配色"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock Sage Exclusive Theme"
+            "value": "Custom board theme"
           }
         }
       }
@@ -7136,6 +7136,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "incl. achievement bonus"
+          }
+        }
+      }
+    },
+    "daily.startPuzzle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始残局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Puzzle"
+          }
+        }
+      }
+    },
+    "daily.startBlitz": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "闪电局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Blitz"
+          }
+        }
+      }
+    },
+    "daily.startMaster": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大师挑战"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master Challenge"
+          }
+        }
+      }
+    },
+    "daily.view.comingSoon": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "敬请期待"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming Soon"
           }
         }
       }

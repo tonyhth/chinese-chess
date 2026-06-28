@@ -121,6 +121,12 @@ struct PlayerProfile: Codable, Equatable {
     var beatenDifficulties: Set<String> = []   // 已击败的难度 ID
     var bonusExtraHints: Int = 0               // 每日额外提示次数（由成就解锁增加）
 
+    // v3.6.0 Q4: 每日挑战做实新增字段
+    var bonusBlitzTimeBonus: Int = 0           // 闪电局时间奖励（秒）
+    var bonusDoubleScore: Bool = false         // 每日挑战双倍积分
+    var bonusMasterNoPenalty: Bool = false     // 大师挑战失败不扣统计
+    var bonusChapter7EarlyUnlock: Bool = false // 第七章提前解锁
+
     // MARK: - 自定义解码（P1-3 修复）
     // v3.0 新增字段对旧存档不存在对应 key，用 decodeIfPresent + 默认值兜底
     // 防止旧用户升级后 JSONDecoder 抛 keyNotFound 导致档案被静默重置
@@ -129,6 +135,7 @@ struct PlayerProfile: Codable, Equatable {
         case completedTutorials, unlockedAchievements, dailyStreak, lastPlayDate
         case bonusUnlockedThemes, bonusPuzzlesUnlocked, bonusPieceStyle, bonusSpecialTheme
         case currentWinStreak, maxWinStreak, beatenDifficulties, bonusExtraHints
+        case bonusBlitzTimeBonus, bonusDoubleScore, bonusMasterNoPenalty, bonusChapter7EarlyUnlock
     }
 
     init() {}
@@ -154,6 +161,11 @@ struct PlayerProfile: Codable, Equatable {
         maxWinStreak = try c.decodeIfPresent(Int.self, forKey: .maxWinStreak) ?? 0
         beatenDifficulties = try c.decodeIfPresent(Set<String>.self, forKey: .beatenDifficulties) ?? []
         bonusExtraHints = try c.decodeIfPresent(Int.self, forKey: .bonusExtraHints) ?? 0
+        // v3.6.0 Q4 新字段
+        bonusBlitzTimeBonus = try c.decodeIfPresent(Int.self, forKey: .bonusBlitzTimeBonus) ?? 0
+        bonusDoubleScore = try c.decodeIfPresent(Bool.self, forKey: .bonusDoubleScore) ?? false
+        bonusMasterNoPenalty = try c.decodeIfPresent(Bool.self, forKey: .bonusMasterNoPenalty) ?? false
+        bonusChapter7EarlyUnlock = try c.decodeIfPresent(Bool.self, forKey: .bonusChapter7EarlyUnlock) ?? false
     }
 
     var totalGames: Int { totalWins + totalLosses + totalDraws }
