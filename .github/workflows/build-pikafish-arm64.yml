@@ -3,10 +3,8 @@ name: Build Pikafish ARM64
 # 在 Apple Silicon runner 上编译完整的 arm64 Pikafish 静态库（含 NEON 优化）
 # Intel Mac 无法交叉编译 entry_arm64.cpp 的 ARM NEON 汇编
 #
-# 触发方式：
-# 1. 手动触发（workflow_dispatch）
-# 2. Pikafish 版本更新时（VERSION 文件变更）
-# 3. 打 tag 时触发
+# 产物：libpikafish.a（arm64，含 NEON）
+# 下载后用 scripts/fetch-arm64-pikafish.sh 与 x86_64 版本合并为 universal binary
 
 on:
   workflow_dispatch:
@@ -15,25 +13,18 @@ on:
       - 'src/ChineseChess/Pikafish/VERSION'
     branches:
       - main
-  release:
-    types: [created]
 
 jobs:
   build-arm64:
     name: Build Pikafish arm64 (Apple Silicon)
-    runs-on: macos-14  # M1 Apple Silicon runner
+    runs-on: macos-14
     
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest-stable
-
       - name: Read Pikafish version
-        id: pikafish_version
+        id: pf
         run: |
           COMMIT=$(grep 'PIKAFISH_COMMIT=' src/ChineseChess/Pikafish/VERSION | cut -d= -f2)
           echo "commit=$COMMIT" >> $GITHUB_OUTPUT
@@ -41,51 +32,35 @@ jobs:
 
       - name: Clone Pikafish source
         run: |
-          git clone https://github.com/official-pikafish/Pikafish.git /tmp/pikafish-src
+          git clone --depth 1 https://github.com/official-pikafish/Pikafish.git /tmp/pikafish-src
           cd /tmp/pikafish-src
-          git checkout ${{ steps.pikafish_version.outputs.commit }}
-          echo "Checked out Pikafish ${{ steps.pikafish_version.outputs.commit }}"
-          ls -la src/arch/ 2>/dev/null || ls -la src/ 2>/dev/null | head -10
+          git fetch --depth 100 origin ${{ steps.pf.outputs.commit }}
+          git checkout ${{ steps.pf.outputs.commit }}
+          echo "=== Pikafish 源码结构 ==="
+          ls src/
+          echo "=== entry_arm64 确认 ==="
+          find src/ -name "entry_arm64*" -o -name "*neon*" 2>/dev/null
 
-      - name: Copy custom C API wrapper
+      - name: Build arm64 static library
         run: |
-          # 用项目里的 pikafish_api.cpp 覆盖官方版本（或放到正确位置）
-          cp src/ChineseChess/Pikafish/include/pikafish_api.h /tmp/pikafish-wrapper/
-          cp ChineseChess-iOS/Pikafish/src/pikafish_api.cpp /tmp/pikafish-wrapper/ 2>/dev/null || echo "No custom api.cpp in repo, using project one"
-          # 项目里唯一跟踪的 pikafish_api.cpp
-          ls -la ChineseChess-iOS/Pikafish/src/pikafish_api.cpp 2>/dev/null
-
-      - name: Verify runner architecture
-        run: |
-          echo "=== Runner CPU ==="
-          uname -m
-          sysctl -n machdep.cpu.brand_string
-          echo "=== Xcode ==="
-          xcodebuild -version
-
-      - name: Build Pikafish arm64 static library
-        run: |
-          cd ${{ github.workspace }}
-          
-          # Pikafish 源码路径
           PIKAFISH_SRC="/tmp/pikafish-src/src"
-          OUTPUT_DIR="src/ChineseChess/Pikafish"
+          OUTPUT_DIR="${{ github.workspace }}/src/ChineseChess/Pikafish"
           
-          # 编译参数（与 build.sh 一致）
           DEPLOYMENT_TARGET="13.0"
-          OPTIMIZATION="-O3"
           TARGET="arm64-apple-macosx${DEPLOYMENT_TARGET}"
-          COMMON_FLAGS="-std=c++17 ${OPTIMIZATION} -fPIC -DNDEBUG -DIS_64BIT -fexceptions"
+          COMMON_FLAGS="-std=c++17 -O3 -fPIC -DNDEBUG -DIS_64BIT -fexceptions"
           PLATFORM_FLAGS="-target ${TARGET} -isysroot $(xcrun --sdk macosx --show-sdk-path)"
           
-          # 源文件（排除 main/benchmark/test）
+          # 源文件（排除 main/benchmark/test/example）
           SOURCES=$(find "$PIKAFISH_SRC" -name "*.cpp" \
             | grep -v "_test.cpp" \
             | grep -v "benchmark.cpp" \
-            | grep -v "main.cpp")
+            | grep -v "main.cpp" \
+            | grep -v "example.cpp")
           
-          echo "=== 编译 arm64 (含 entry_arm64.cpp NEON 优化) ==="
+          echo "=== 编译 arm64 (含 NEON) ==="
           echo "源文件数: $(echo "$SOURCES" | wc -l | tr -d ' ')"
+          
           BUILD_DIR="/tmp/pikafish-build"
           mkdir -p "$BUILD_DIR"
           
@@ -93,50 +68,40 @@ jobs:
           FAILED=0
           for src in $SOURCES; do
             OBJ="$BUILD_DIR/$(basename "${src%.cpp}").o"
-            if ! clang++ $COMMON_FLAGS $PLATFORM_FLAGS \
+            if clang++ $COMMON_FLAGS $PLATFORM_FLAGS \
               -I"$PIKAFISH_SRC" \
               -I"$OUTPUT_DIR/include" \
               -c "$src" -o "$OBJ" 2>&1; then
-              echo "⚠️ 编译失败: $(basename $src)"
-              FAILED=$((FAILED+1))
-            else
               OBJ_FILES="$OBJ_FILES $OBJ"
+            else
+              echo "⚠️ Failed: $(basename $src)"
+              FAILED=$((FAILED+1))
             fi
           done
           
-          echo "编译完成: 成功 $(echo "$OBJ_FILES" | wc -w) 个, 失败 $FAILED 个"
-          
-          if [ "$FAILED" -gt 0 ]; then
-            echo "⚠️ 有 $FAILED 个文件编译失败，继续创建库（部分文件可能不适用于 macOS）"
-          fi
+          SUCCESS=$(echo "$OBJ_FILES" | wc -w | tr -d ' ')
+          echo "编译完成: 成功 $SUCCESS, 失败 $FAILED"
           
           # 创建静态库
           LIB_PATH="$OUTPUT_DIR/lib/macos-arm64-ci/libpikafish.a"
           mkdir -p "$(dirname "$LIB_PATH")"
           ar rcs "$LIB_PATH" $OBJ_FILES
           
-          # 验证
-          echo "=== 验证产物 ==="
+          echo "=== 验证 ==="
           lipo -info "$LIB_PATH"
-          ls -la "$LIB_PATH"
-          echo "=== entry_arm64 符号检查 ==="
-          nm "$LIB_PATH" | grep "entry_arm64" | head -5 || echo "⚠️ 未找到 entry_arm64 符号"
-          echo "=== NEON 相关符号 ==="
-          nm "$LIB_PATH" | grep -i "neon\|simd" | head -3 || echo "(无 NEON 专用符号，可能内联了)"
+          ls -la "$LIB_PATH" | awk '{print "Size:", $5, "bytes"}'
+          echo "=== entry_arm64 符号 ==="
+          nm "$LIB_PATH" | grep "entry_arm64" | head -3 || echo "(未找到)"
           
-          # 清理中间产物
           rm -rf "$BUILD_DIR"
           
-          # 记录编译信息
           {
-            echo "## Pikafish ARM64 Build"
-            echo "**Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            echo "**Runner**: $(uname -m) - $(sysctl -n machdep.cpu.brand_string)"
-            echo "**Xcode**: $(xcodebuild -version | head -1)"
-            echo "**Commit**: ${{ github.sha }}"
-            echo "**Pikafish**: ${{ steps.pikafish_version.outputs.commit }}"
-            echo "**Size**: $(ls -la "$LIB_PATH" | awk '{print $5}') bytes"
-            echo "**Failed files**: $FAILED"
+            echo "## Pikafish ARM64 NEON Build"
+            echo "- **Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            echo "- **Runner**: $(uname -m) - $(sysctl -n machdep.cpu.brand_string)"
+            echo "- **Pikafish**: ${{ steps.pf.outputs.commit }}"
+            echo "- **Size**: $(stat -f%z "$LIB_PATH") bytes"
+            echo "- **Objects**: $SUCCESS compiled, $FAILED failed"
           } > build-info.md
           cat build-info.md
 
