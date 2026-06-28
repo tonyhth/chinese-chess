@@ -7523,6 +7523,22 @@
           }
         }
       }
+    },
+    "settings.themeRequiresRank": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requires %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需%@段位"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

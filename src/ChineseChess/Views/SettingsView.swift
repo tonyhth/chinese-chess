@@ -28,21 +28,7 @@ struct SettingsView: View {
                 // 主题
                 Section(l10n.t("settings.themeSection")) {
                     ForEach(BoardTheme.allCases, id: \.self) { theme in
-                        HStack {
-                            Image(systemName: theme.icon)
-                                .foregroundColor(.brown)
-                                .frame(width: 24)
-                            Text(theme.displayName)
-                            Spacer()
-                            if themeManager.currentTheme == theme {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.brown)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            withAnimation { themeManager.currentTheme = theme }
-                        }
+                        themeRow(for: theme)
                     }
                 }
 
@@ -145,5 +131,34 @@ struct SettingsView: View {
         #if os(macOS)
         .frame(width: 320)
         #endif
+    }
+
+    @ViewBuilder
+    private func themeRow(for theme: BoardTheme) -> some View {
+        let profile = PlayerProfileStore.shared.profile
+        let unlocked = themeManager.isThemeUnlocked(theme, profile: profile)
+        HStack {
+            Image(systemName: unlocked ? theme.icon : "lock")
+                .foregroundColor(unlocked ? .brown : .gray)
+                .frame(width: 24)
+            Text(theme.displayName)
+                .foregroundColor(unlocked ? .primary : .secondary)
+            Spacer()
+            if !unlocked, let required = theme.requiredRank {
+                Text(String(format: l10n.t("settings.themeRequiresRank"), l10n.t("rank.\(required.rawValue)")))
+                    .font(.caption2)
+                    .foregroundColor(.orange)
+            } else if themeManager.currentTheme == theme {
+                Image(systemName: "checkmark")
+                    .foregroundColor(.brown)
+            }
+        }
+        .contentShape(Rectangle())
+        .opacity(unlocked ? 1.0 : 0.6)
+        .onTapGesture {
+            if unlocked {
+                withAnimation { themeManager.currentTheme = theme }
+            }
+        }
     }
 }
