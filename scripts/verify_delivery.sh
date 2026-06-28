@@ -79,7 +79,6 @@ FORBIDDEN_DIRS=(
     ".build-release"
     "DerivedData"
     "*.xcodeproj"
-    "ChineseChess-iOS"
 )
 
 FOUND_FORBIDDEN=0
