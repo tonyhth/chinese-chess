@@ -228,11 +228,11 @@ actor CoachExplainer {
 
     /// 是否是中线控制走法
     private func isCenterControlMove(_ move: String, fen: String) -> Bool {
-        // UCI 格式：colRankColRank（如 "h2e2"）
-        // move[2] 是目标列（a-i），中线列 c-g
+        // P3 fix: 收窄范围 c-g → d-f（九宫格列 + 中线）
+        // 中国象棋中线控制核心区域：d(4列)、e(5列/正中)、f(6列)
         guard move.count >= 3 else { return false }
         let toCol = move[move.index(move.startIndex, offsetBy: 2)]
-        return toCol == "c" || toCol == "d" || toCol == "e" || toCol == "f" || toCol == "g"
+        return toCol == "d" || toCol == "e" || toCol == "f"
     }
 }
 
@@ -266,6 +266,7 @@ extension CoachExplainer {
 
         let totalAnalyzed = analyses.compactMap { $0 }.count
         let goodCount = (dist[.brilliant] ?? 0) + (dist[.good] ?? 0)
+        let doubtfulCount = dist[.doubtful] ?? 0
         let badCount = (dist[.blunder] ?? 0) + (dist[.losing] ?? 0)
 
         // 棋力评分（1-5星）
@@ -274,8 +275,9 @@ extension CoachExplainer {
             rating = 3
         } else {
             let goodRatio = Double(goodCount) / Double(totalAnalyzed)
+            let doubtfulRatio = Double(doubtfulCount) / Double(totalAnalyzed)
             let badRatio = Double(badCount) / Double(totalAnalyzed)
-            let score = goodRatio * 5 - badRatio * 2
+            let score = goodRatio * 5 - doubtfulRatio * 0.5 - badRatio * 2
             rating = max(1, min(5, Int(score.rounded()) + 3))
         }
 
@@ -283,6 +285,8 @@ extension CoachExplainer {
         let suggestion: String
         if badCount > goodCount {
             suggestion = l10n.t("coach.review.morePractice")
+        } else if doubtfulCount > goodCount {
+            suggestion = l10n.t("coach.review.reduceDoubtful")
         } else if rating >= 4 {
             suggestion = l10n.t("coach.review.wellPlayed")
         } else {

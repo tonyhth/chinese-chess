@@ -217,12 +217,13 @@ struct AnalysisView: View {
 
                         // 评估曲线
                         Path { path in
-                            let stepWidth = sequence.count > 1
-                                ? geo.size.width / CGFloat(sequence.count - 1)
+                            let totalSteps = sequence.last?.index ?? sequence.count
+                            let stepWidth = totalSteps > 0
+                                ? geo.size.width / CGFloat(totalSteps)
                                 : geo.size.width
 
                             for (i, item) in sequence.enumerated() {
-                                let x = CGFloat(i) * stepWidth
+                                let x = CGFloat(item.index) * stepWidth
                                 let normalized = CGFloat(maxScore - item.score) / CGFloat(range)
                                 let y = normalized * height
 
@@ -236,13 +237,13 @@ struct AnalysisView: View {
                         .stroke(Color(red: 200/255, green: 160/255, blue: 100/255), lineWidth: 1.5)
 
                         // 当前位置标记
-                        if replayVM.currentIndex > 0 && replayVM.currentIndex <= sequence.count {
-                            let idx = replayVM.currentIndex - 1
-                            let stepWidth = sequence.count > 1
-                                ? geo.size.width / CGFloat(sequence.count - 1)
+                        if let matched = sequence.first(where: { $0.index == replayVM.currentIndex - 1 }) {
+                            let totalSteps = sequence.last?.index ?? sequence.count
+                            let stepWidth = totalSteps > 0
+                                ? geo.size.width / CGFloat(totalSteps)
                                 : 0
-                            let x = CGFloat(idx) * stepWidth
-                            let normalized = CGFloat(maxScore - sequence[idx].score) / CGFloat(range)
+                            let x = CGFloat(matched.index) * stepWidth
+                            let normalized = CGFloat(maxScore - matched.score) / CGFloat(range)
                             let y = normalized * height
 
                             Circle()

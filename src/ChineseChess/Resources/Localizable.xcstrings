@@ -7203,6 +7203,22 @@
           }
         }
       }
+    },
+    "coach.review.reduceDoubtful": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reduce questionable moves to improve your rating"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "减少疑问手可以提升评分"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
