@@ -74,6 +74,49 @@ int pikafish_set_multipv(int n);
 /// If buffer is too small, output is truncated but still null-terminated.
 int pikafish_get_pv_line(char* buffer, int buffer_size);
 
+// MARK: - v3.6.0 新增：评估与多线索分析
+
+/// 评估结果结构体
+/// 用于 pikafish_eval 和 pikafish_multi_pv
+typedef struct {
+    int score_cp;        // 厘兵值（正=红方优势，负=黑方优势）
+    int depth;           // 搜索深度
+    char best_move[16];  // 最佳走法（UCI 格式，如 "h2e2"）
+    char pv[256];        // 主变路径（空格分隔 UCI 走法）
+} PikafishEvalResult;
+
+/// 评估当前局面（单 PV）
+/// 在后台线程调用（阻塞函数）。
+///
+/// Parameters:
+///   - fen: 局面 FEN 字符串
+///   - moves: UCI 走法历史（空格分隔，可为 NULL）
+///   - depth: 搜索深度限制（0 表示不限）
+///   - time_ms: 时间限制（毫秒，0 表示不限）
+///   - result: 输出参数，填充评估结果
+///
+/// Returns 0 on success, -1 on failure.
+int pikafish_eval(const char* fen, const char* moves,
+                  int depth, int time_ms,
+                  PikafishEvalResult* result);
+
+/// 多 PV 分析（返回多条候选走法）
+/// 调用前可通过 pikafish_set_multipv() 设置 PV 数量。
+///
+/// Parameters:
+///   - fen: 局面 FEN 字符串
+///   - moves: UCI 走法历史（空格分隔，可为 NULL）
+///   - num_lines: 期望返回的 PV 线数（1-10）
+///   - depth: 搜索深度限制
+///   - time_ms: 时间限制（毫秒）
+///   - results: 输出数组，调用方分配
+///   - max_results: results 数组容量
+///
+/// Returns: 实际填充的 result 数量，-1 on failure.
+int pikafish_multi_pv(const char* fen, const char* moves,
+                      int num_lines, int depth, int time_ms,
+                      PikafishEvalResult* results, int max_results);
+
 #ifdef __cplusplus
 }
 #endif

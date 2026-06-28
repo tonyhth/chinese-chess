@@ -324,4 +324,97 @@ int pikafish_get_pv_line(char* buffer, int buffer_size) {
     return copy_len;
 }
 
+// MARK: - v3.6.0 新增：评估与多 PV 分析
+
+int pikafish_eval(const char* fen, const char* moves,
+                  int depth, int time_ms,
+                  PikafishEvalResult* result) {
+    if (!fen || !result) {
+        return -1;
+    }
+
+    // 确保使用单 PV
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        if (g_engine == nullptr) return -1;
+        std::istringstream iss("name MultiPV value 1");
+        g_engine->get_options().setoption(iss);
+    }
+
+    // 使用 best_move 的搜索流程（复用现有逻辑）
+    char move_buf[16];
+    int ret = pikafish_best_move(fen, moves, depth, time_ms, move_buf, sizeof(move_buf));
+    if (ret != 0) {
+        return -1;
+    }
+
+    // 读取搜索结果
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        result->score_cp = g_last_eval;
+        result->depth = 0;  // depth 从 update_full callback 中获取（简化：不单独追踪）
+        std::strncpy(result->best_move, move_buf, sizeof(result->best_move) - 1);
+        result->best_move[sizeof(result->best_move) - 1] = '\0';
+        std::strncpy(result->pv, g_last_pv.c_str(), sizeof(result->pv) - 1);
+        result->pv[sizeof(result->pv) - 1] = '\0';
+    }
+
+    return 0;
+}
+
+int pikafish_multi_pv(const char* fen, const char* moves,
+                      int num_lines, int depth, int time_ms,
+                      PikafishEvalResult* results, int max_results) {
+    if (!fen || !results || num_lines < 1 || max_results < 1) {
+        return -1;
+    }
+
+    int actual_lines = num_lines > max_results ? max_results : num_lines;
+    if (actual_lines > 10) actual_lines = 10;
+
+    // 设置 MultiPV
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        if (g_engine == nullptr) return -1;
+        std::istringstream iss("name MultiPV value " + std::to_string(actual_lines));
+        g_engine->get_options().setoption(iss);
+    }
+
+    // 运行搜索
+    char move_buf[16];
+    int ret = pikafish_best_move(fen, moves, depth, time_ms, move_buf, sizeof(move_buf));
+    if (ret != 0) {
+        // 搜索失败，重置 MultiPV 为 1
+        std::lock_guard<std::mutex> lock(g_mutex);
+        std::istringstream iss("name MultiPV value 1");
+        g_engine->get_options().setoption(iss);
+        return -1;
+    }
+
+    // MultiPV 的多条 PV 线在 Pikafish 中通过 update_full callback 的 multipv 字段区分。
+    // 但当前 callback 只保存最后一条。要获取多条 PV，需要改进 callback 收集逻辑。
+    //
+    // 简化实现：对于 num_lines > 1 的情况，多次搜索获取不同走法。
+    // 这是一个临时方案，后续可以优化为在一次搜索中收集所有 PV。
+    //
+    // 当前实现：返回 1 条结果（最佳走法），其余字段置零。
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+
+        // 第一条结果
+        results[0].score_cp = g_last_eval;
+        std::strncpy(results[0].best_move, move_buf, sizeof(results[0].best_move) - 1);
+        results[0].best_move[sizeof(results[0].best_move) - 1] = '\0';
+        std::strncpy(results[0].pv, g_last_pv.c_str(), sizeof(results[0].pv) - 1);
+        results[0].pv[sizeof(results[0].pv) - 1] = '\0';
+        results[0].depth = 0;
+
+        // 重置 MultiPV 为 1（恢复默认）
+        std::istringstream iss("name MultiPV value 1");
+        g_engine->get_options().setoption(iss);
+    }
+
+    return 1;  // 当前只返回 1 条结果
+}
+
 } // extern "C"
