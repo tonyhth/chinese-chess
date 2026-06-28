@@ -245,6 +245,11 @@ class GameViewModel {
             if !gameMoves.isEmpty { gameMoves.removeLast() }
         }
 
+        // P1: 同步棋钟 — 先保存当前时段，再回退到玩家方计时
+        accumulateCurrentTurnTime()
+        clockRunningSide = humanSide
+        clockStartTime = Date()
+
         selectedPosition = nil
         legalMovesForSelected = []
         hintMove = nil
