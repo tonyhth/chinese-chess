@@ -162,7 +162,7 @@ struct PlayerProfile: Codable, Equatable {
     // MARK: - Q3: 成就→段位联动
 
     /// 成就贡献的虚拟胜场数（总上限 ~7）
-    private var achievementBonusWins: Int {
+    var achievementBonusWins: Int {
         var bonus = 0
         if unlockedAchievements.contains("tutorial_done") { bonus += 1 }
         if unlockedAchievements.contains("beat_medium") { bonus += 1 }
@@ -172,7 +172,7 @@ struct PlayerProfile: Codable, Equatable {
     }
 
     /// 成就贡献的虚拟残局通关数（总上限 ~9）
-    private var achievementBonusPuzzles: Int {
+    var achievementBonusPuzzles: Int {
         var bonus = 0
         if unlockedAchievements.contains("first_puzzle") { bonus += 1 }
         if unlockedAchievements.contains("chapter1_clear") { bonus += 3 }

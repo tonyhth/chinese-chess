@@ -509,6 +509,27 @@ class GameViewModel {
             break
         }
 
+        // Q3: 更新 PlayerProfile 连胜/击败难度/基础统计
+        let playerWon = (humanSide == .red && gameState == .redWon) || (humanSide == .black && gameState == .blackWon)
+        let playerLost = (humanSide == .red && gameState == .blackWon) || (humanSide == .black && gameState == .redWon)
+
+        PlayerProfileStore.shared.update { profile in
+            if playerWon {
+                profile.totalWins += 1
+                profile.currentWinStreak += 1
+                if profile.currentWinStreak > profile.maxWinStreak {
+                    profile.maxWinStreak = profile.currentWinStreak
+                }
+                profile.beatenDifficulties.insert(difficulty.id)
+            } else if playerLost {
+                profile.totalLosses += 1
+                profile.currentWinStreak = 0  // 输局重置连胜
+            } else if gameState == .draw {
+                profile.totalDraws += 1
+                // 和局不影响 currentWinStreak（不加不减）
+            }
+        }
+
         // Phase 4: 自动保存历史对局
         if gameState != .playing, let record = buildGameRecord() {
             GameHistoryStore.shared.addRecord(record)

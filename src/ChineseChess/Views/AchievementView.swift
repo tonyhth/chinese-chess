@@ -68,12 +68,12 @@ struct RankProgressView: View {
                 .tint(profile.rank >= .hanlin ? .yellow : .accentColor)
 
             HStack {
-                Text("\(L10n.shared.t("achievement.view.wins"))：\(profile.totalWins)/\(profile.rank.next?.requiredWins ?? profile.totalWins)")
+                Text("\(L10n.shared.t("achievement.view.wins"))：\(profile.effectiveWins)/\(profile.rank.next?.requiredWins ?? profile.effectiveWins)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
                 if profile.rank.next?.requiredPuzzles ?? 0 > 0 {
-                    Text("\(L10n.shared.t("achievement.view.puzzles"))：\(profile.puzzlesCompleted)/\(profile.rank.next?.requiredPuzzles ?? 0)")
+                    Text("\(L10n.shared.t("achievement.view.puzzles"))：\(profile.effectivePuzzles)/\(profile.rank.next?.requiredPuzzles ?? 0)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
