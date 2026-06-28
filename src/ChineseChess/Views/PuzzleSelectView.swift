@@ -476,7 +476,7 @@ struct PuzzlePlayView: View {
 
     /// 是否为自由对弈模式
     private var isFreePlay: Bool {
-        puzzle.effectiveMode == .freePlay
+        viewModel.playMode == .freePlay
     }
 
     /// 底部区域最大高度（动态计算，防止挤压棋盘）
@@ -521,7 +521,7 @@ struct PuzzlePlayView: View {
                     .font(.callout.weight(.bold))
                     .foregroundColor(.white)
                 Spacer()
-                // 步数显示
+                // 步数显示 + 模式切换
                 if viewModel.gameState == .success {
                     Text(l10n.t("puzzle.completed"))
                         .font(.subheadline)
@@ -534,6 +534,27 @@ struct PuzzlePlayView: View {
                     Text(String(format: l10n.t("puzzle.moveProgress"), viewModel.gameMoves.count, puzzle.maxMoves))
                         .font(.subheadline)
                         .foregroundColor(.gray)
+                }
+
+                // 模式切换按钮
+                if viewModel.canSwitchToGuided && !isFreePlay {
+                    Button {
+                        viewModel.switchToFreePlay()
+                    } label: {
+                        Image(systemName: "person.2")
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    .buttonStyle(.plain)
+                    .help(l10n.t("puzzle.switchToFreePlay"))
+                } else if isFreePlay && viewModel.canSwitchToGuided {
+                    Button {
+                        viewModel.switchToGuided()
+                    } label: {
+                        Image(systemName: "list.number")
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    .buttonStyle(.plain)
+                    .help(l10n.t("puzzle.switchToGuided"))
                 }
             }
             .padding(.horizontal, 16)

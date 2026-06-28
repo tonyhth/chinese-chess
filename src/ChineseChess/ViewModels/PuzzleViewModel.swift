@@ -1,5 +1,13 @@
 import Foundation
 
+// MARK: - Phase 0: 残局游戏模式
+
+/// 残局游戏模式
+enum PuzzlePlayMode {
+    case guided    // 按步骤引导
+    case freePlay  // 自由对弈 vs AI
+}
+
 @Observable
 class PuzzleViewModel {
     /// 编译时平台标记
@@ -39,6 +47,14 @@ class PuzzleViewModel {
     /// 走错回退锁(独立于 isThinking,避免 "AI 思考中" 文案混淆)
     var isProcessingWrongMove: Bool = false
 
+    // MARK: - Phase 0: 模式切换
+
+    /// 当前游戏模式（引导式/自由对弈）
+    var playMode: PuzzlePlayMode
+
+    /// 切换模式时保存的 solutionStepIndex（从 freePlay 切回 guided 时恢复）
+    private var savedSolutionStepIndex: Int = 0
+
     private let aiEngine = AIEngine()
     private var puzzleVersion: Int = 0
     private var cachedSolutionRecord: GameRecord?
@@ -64,6 +80,7 @@ class PuzzleViewModel {
         self.puzzle = puzzle
         self.playerSide = puzzle.side
         self.board = Board(fen: puzzle.initialFEN)
+        self.playMode = (puzzle.effectiveMode == .guided) ? .guided : .freePlay
         self.positionHistory = [boardFingerprint()]
     }
 
@@ -87,7 +104,7 @@ class PuzzleViewModel {
     private var solutionDegraded: Bool = false
 
     private var isGuidedMode: Bool {
-        puzzle.effectiveMode == .guided && !puzzle.solution.isEmpty && !solutionDegraded
+        playMode == .guided && !puzzle.solution.isEmpty && !solutionDegraded
     }
 
     // MARK: - 统一点击处理(由 ChessBoardView 调用)
@@ -221,7 +238,7 @@ class PuzzleViewModel {
 
         // 检查是否超过最大步数
         if gameMoves.count >= puzzle.maxMoves {
-            if puzzle.effectiveMode == .freePlay {
+            if playMode == .freePlay {
                 // 自由对弈模式:超步只警告,不失败
                 if !hasShownMaxMovesWarning {
                     hasShownMaxMovesWarning = true
@@ -234,7 +251,7 @@ class PuzzleViewModel {
         }
 
         // 和局检测(仅自由对弈模式)
-        if puzzle.effectiveMode == .freePlay && checkDraw() {
+        if playMode == .freePlay && checkDraw() {
             gameState = .draw
             return
         }
@@ -402,9 +419,33 @@ class PuzzleViewModel {
         let difficulty = defenderDifficulty
         let currentVersion = puzzleVersion
 
-        let engine = self.aiEngine
+        // 0.2: freePlay 模式优先用 EngineRouter（可能是 Pikafish）
+        let useEngineRouter = playMode == .freePlay
+        let nativeEngine = self.aiEngine
+        let boardSnapshot = board.snapshot()
+        let currentFEN = FENParser.generate(board: board)
         Task.detached {
-            let move = await engine.bestMove(for: snapshot, difficulty: difficulty, isIOS: Self._isIOS)
+            var move: Move?
+            if useEngineRouter {
+                let engine = await MainActor.run { EngineRouter.shared.activeEngine() }
+                let uciMove = await engine.bestMove(
+                    fen: currentFEN,
+                    moveHistory: [],
+                    difficulty: difficulty,
+                    timeLimitMs: 0
+                )
+                if let uci = uciMove {
+                    move = await MainActor.run {
+                        UCIMoveConverter.move(from: uci, on: boardSnapshot)
+                    }
+                }
+                // Pikafish fallback 到自研引擎
+                if move == nil {
+                    move = await nativeEngine.bestMove(for: snapshot, difficulty: difficulty, isIOS: Self._isIOS)
+                }
+            } else {
+                move = await nativeEngine.bestMove(for: snapshot, difficulty: difficulty, isIOS: Self._isIOS)
+            }
             await MainActor.run { [weak self] in
                 guard let self, self.puzzleVersion == currentVersion else { return }
                 if let move = move {
@@ -447,7 +488,7 @@ class PuzzleViewModel {
                         self.updatePositionHistory(captured: captured, movedPiece: mainPiece)
 
                         // 和局检测(自由对弈模式)
-                        if self.puzzle.effectiveMode == .freePlay && self.checkDraw() {
+                        if self.playMode == .freePlay && self.checkDraw() {
                             self.gameState = .draw
                             self.isThinking = false
                             return
@@ -458,7 +499,7 @@ class PuzzleViewModel {
 
                 // 再次检查步数
                 if self.gameState == .playing && self.gameMoves.count >= self.puzzle.maxMoves {
-                    if self.puzzle.effectiveMode == .freePlay {
+                    if self.playMode == .freePlay {
                         if !self.hasShownMaxMovesWarning {
                             self.hasShownMaxMovesWarning = true
                             self.gameState = .maxMovesWarning
@@ -512,6 +553,33 @@ class PuzzleViewModel {
 
     func dismissMaxMovesWarning() {
         gameState = .playing
+    }
+
+    // MARK: - Phase 0: 模式切换
+
+    /// 切换到自由对弈模式
+    func switchToFreePlay() {
+        guard playMode == .guided else { return }
+        savedSolutionStepIndex = solutionStepIndex
+        playMode = .freePlay
+    }
+
+    /// 切换回引导式模式（恢复到切换前的 solutionStepIndex）
+    func switchToGuided() {
+        guard playMode == .freePlay else { return }
+        playMode = .guided
+        // 注意：不自动重置局面。玩家可以 undo 回到正确位置继续引导。
+        // 如果需要严格恢复，可以在这里重置到 savedSolutionStepIndex。
+    }
+
+    /// 是否可以切换模式（freePlay 残局不能切到 guided）
+    var canSwitchToGuided: Bool {
+        !puzzle.solution.isEmpty
+    }
+
+    /// 是否可以切换到 freePlay
+    var canSwitchToFreePlay: Bool {
+        playMode == .guided
     }
 
     // MARK: - 悔棋

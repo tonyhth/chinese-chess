@@ -6179,6 +6179,38 @@
           }
         }
       }
+    },
+    "puzzle.switchToFreePlay": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换到自由对弈"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to free play"
+          }
+        }
+      }
+    },
+    "puzzle.switchToGuided": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换到引导模式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to guided mode"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
