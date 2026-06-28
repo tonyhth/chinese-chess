@@ -7459,6 +7459,22 @@
           }
         }
       }
+    },
+    "achievement.comingSoon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coming Soon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "即将开放"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

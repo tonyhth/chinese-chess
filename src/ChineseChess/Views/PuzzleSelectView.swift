@@ -536,26 +536,45 @@ struct PuzzlePlayView: View {
                         .foregroundColor(.gray)
                 }
 
-                // 模式切换按钮
-                if viewModel.canSwitchToGuided && !isFreePlay {
+                // 模式切换 segmented control
+                HStack(spacing: 0) {
                     Button {
-                        viewModel.switchToFreePlay()
+                        if isFreePlay { viewModel.switchToGuided() }
                     } label: {
-                        Image(systemName: "person.2")
-                            .foregroundColor(.white.opacity(0.7))
+                        HStack(spacing: 4) {
+                            Image(systemName: "list.number")
+                            Text(l10n.t("puzzle.guided"))
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(!isFreePlay ? Color.brown : Color.clear)
+                        .foregroundColor(!isFreePlay ? .white : .white.opacity(0.6))
+                        .cornerRadius(6)
                     }
                     .buttonStyle(.plain)
-                    .help(l10n.t("puzzle.switchToFreePlay"))
-                } else if isFreePlay && viewModel.canSwitchToGuided {
+                    .disabled(!viewModel.canSwitchToGuided && isFreePlay)
+
                     Button {
-                        viewModel.switchToGuided()
+                        if !isFreePlay { viewModel.switchToFreePlay() }
                     } label: {
-                        Image(systemName: "list.number")
-                            .foregroundColor(.white.opacity(0.7))
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2")
+                            Text(l10n.t("puzzle.freePlay"))
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(isFreePlay ? Color.brown : Color.clear)
+                        .foregroundColor(isFreePlay ? .white : .white.opacity(0.6))
+                        .cornerRadius(6)
                     }
                     .buttonStyle(.plain)
-                    .help(l10n.t("puzzle.switchToGuided"))
+                    .disabled(!viewModel.canSwitchToGuided && !isFreePlay)
                 }
+                .padding(3)
+                .background(Color.white.opacity(0.15))
+                .cornerRadius(8)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)

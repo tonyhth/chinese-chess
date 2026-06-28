@@ -55,6 +55,15 @@ struct Achievement: Identifiable, Codable, Equatable {
     let nameKey: String
     let descriptionKey: String
     let rarity: AchievementRarity
+    let available: Bool  // false = 即将开放，不可解锁
+
+    init(id: String, nameKey: String, descriptionKey: String, rarity: AchievementRarity, available: Bool = true) {
+        self.id = id
+        self.nameKey = nameKey
+        self.descriptionKey = descriptionKey
+        self.rarity = rarity
+        self.available = available
+    }
 
     // 隐藏成就的描述在解锁前显示为 ????
     var displayDescription: String {
@@ -120,7 +129,7 @@ enum AchievementLibrary {
         Achievement(id: "all_puzzles", nameKey: "achievement.all_puzzles.name", descriptionKey: "achievement.all_puzzles.desc", rarity: .hidden),
         Achievement(id: "daily_7", nameKey: "achievement.daily_7.name", descriptionKey: "achievement.daily_7.desc", rarity: .hidden),
         Achievement(id: "first_blood", nameKey: "achievement.first_blood.name", descriptionKey: "achievement.first_blood.desc", rarity: .hidden),
-        Achievement(id: "perfect_game_v2", nameKey: "achievement.perfect_game_v2.name", descriptionKey: "achievement.perfect_game_v2.desc", rarity: .hidden),
+        Achievement(id: "perfect_game_v2", nameKey: "achievement.perfect_game_v2.name", descriptionKey: "achievement.perfect_game_v2.desc", rarity: .hidden, available: false),
     ]
 
     /// 所有成就
@@ -164,6 +173,10 @@ final class AchievementManager {
     /// 返回 true 表示新解锁
     @discardableResult
     func unlock(_ achievementId: String) -> Bool {
+        // P2: available=false 的成就不可解锁
+        if let a = AchievementLibrary.find(id: achievementId), !a.available {
+            return false
+        }
         let current = store.profile
         if current.unlockedAchievements.contains(achievementId) { return false }
         _ = store.update { profile in

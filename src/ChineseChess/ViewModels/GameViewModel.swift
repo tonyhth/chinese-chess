@@ -122,6 +122,7 @@ class GameViewModel {
     @ObservationIgnored nonisolated(unsafe) private var fallbackObserver: NSObjectProtocol?
 
     private var gameVersion: Int = 0
+    private var materialTracker = MaterialTracker()
     var moveHistory: [Move] {
         board.moveHistory
     }
@@ -230,6 +231,9 @@ class GameViewModel {
 
         checkGameState()
 
+        // P1: MaterialTracker 更新
+        materialTracker.update(board: board, playerSide: humanSide)
+
         // 更新最后一步的 isCheckmate 标记
         if gameState != .playing {
             gameMoves[gameMoves.count - 1].isCheckmate = true
@@ -300,6 +304,7 @@ class GameViewModel {
         gameState = .playing
         isInCheck = false
         gameMoves = []
+        materialTracker = MaterialTracker()
         hintMove = nil
         isBlitzMode = false
         isMasterChallenge = false
@@ -481,6 +486,9 @@ class GameViewModel {
             self.stopThinking()
             self.checkGameState()
 
+            // P1: MaterialTracker 更新（AI 走棋后）
+            self.materialTracker.update(board: self.board, playerSide: self.humanSide)
+
             // 更新最后一步 isCheckmate
             if self.gameState != .playing && !self.gameMoves.isEmpty {
                 self.gameMoves[self.gameMoves.count - 1].isCheckmate = true
@@ -584,7 +592,7 @@ class GameViewModel {
                 checkmatePattern: AchievementChecker.detectCheckmatePattern(
                     lastMoves: gameMoves.suffix(6), playerSide: humanSide
                 ),
-                maxMaterialDeficit: 0, // TODO: Phase 2 MaterialTracker
+                maxMaterialDeficit: materialTracker.maxDeficit,
                 maxConsecutiveChecks: maxConsec
             )
             let newlyUnlocked = AchievementChecker.checkAfterGame(

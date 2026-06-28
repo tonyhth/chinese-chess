@@ -163,16 +163,22 @@ struct AchievementView: View {
                     .fontWeight(isUnlocked ? .bold : .regular)
                     .foregroundColor(isUnlocked ? .primary : .secondary)
 
-                Text(achievement.displayDescription)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
+                if !achievement.available {
+                    Text(L10n.shared.t("achievement.comingSoon"))
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                } else {
+                    Text(achievement.displayDescription)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)
         .background(isUnlocked ? Color.accentColor.opacity(0.08) : Color.controlBackground)
         .cornerRadius(6)
-        .opacity(isUnlocked ? 1.0 : 0.6)
+        .opacity(isUnlocked ? 1.0 : (achievement.available ? 0.6 : 0.45))
     }
 }

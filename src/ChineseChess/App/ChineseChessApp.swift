@@ -90,7 +90,9 @@ struct ChineseChessApp: App {
                         .frame(minHeight: 280)
                         .layoutPriority(1)
 
+                    // P2: StatusBarView 固定高度避免内容变化导致棋盘尺寸微变
                     StatusBarView(viewModel: viewModel)
+                        .frame(height: 28)
 
                     // 底部操作栏
                     HStack(spacing: 8) {
