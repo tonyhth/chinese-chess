@@ -4,16 +4,15 @@
 # 默认 project-dir: ~/DevTeam/projects/chinese-chess
 #
 # 检查项：
-#   1. 编译验证（swift build 零错误）
+#   1. 编译验证（xcodegen + xcodebuild 零错误）
 #   2. Git 工作区干净（无未提交改动）
-#   3. 禁止文件未被跟踪（.build, *.o, *.a, DerivedData 等）
+#   3. 禁止文件未被跟踪（*.o, *.a, DerivedData 等）
 #   4. NNUE 文件存在且非空
 #   5. .gitignore 覆盖关键路径
 
 set -euo pipefail
 
 PROJECT_DIR="${1:-$HOME/DevTeam/projects/chinese-chess}"
-SRC_DIR="$PROJECT_DIR/src"
 
 # 颜色
 RED='\033[0;31m'
@@ -35,15 +34,18 @@ echo "  项目: $PROJECT_DIR"
 echo "═══════════════════════════════════════════"
 
 # --------------------------------------------------
-# 1. 编译验证
+# 1. 编译验证 (xcodegen + xcodebuild)
 # --------------------------------------------------
 echo ""
 echo "📦 [1/5] 编译验证"
-echo "  运行: swift build"
-if (cd "$SRC_DIR" && swift build 2>&1 | grep -q "Build complete!"); then
-    ok "swift build 成功"
+echo "  运行: xcodegen generate + xcodebuild"
+cd "$PROJECT_DIR"
+if xcodegen generate 2>&1 | grep -q "Created project" && \
+   xcodebuild -target ChineseChess -configuration Release -sdk macosx build \
+     CONFIGURATION_BUILD_DIR="$PROJECT_DIR/build/Release" 2>&1 | grep -q "BUILD SUCCEEDED"; then
+    ok "xcodegen + xcodebuild Release 成功"
 else
-    fail "swift build 失败"
+    fail "xcodegen + xcodebuild 失败"
 fi
 
 # --------------------------------------------------
@@ -76,13 +78,13 @@ FORBIDDEN_DIRS=(
     "*.build"
     ".build-release"
     "DerivedData"
+    "*.xcodeproj"
     "ChineseChess-iOS"
 )
 
 FOUND_FORBIDDEN=0
 cd "$PROJECT_DIR"
 
-# 检查 git 跟踪的禁止文件
 for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
     if git ls-files -- "$pattern" 2>/dev/null | grep -q .; then
         fail "Git 跟踪了禁止文件: $pattern"
@@ -107,7 +109,7 @@ fi
 # --------------------------------------------------
 echo ""
 echo "♟️  [4/5] NNUE 引擎文件检查"
-NNUE_PATH="$SRC_DIR/ChineseChess/Resources/pikafish.nnue"
+NNUE_PATH="$PROJECT_DIR/src/ChineseChess/Resources/pikafish.nnue"
 if [ -f "$NNUE_PATH" ]; then
     NNUE_SIZE=$(stat -f%z "$NNUE_PATH" 2>/dev/null || stat -c%s "$NNUE_PATH" 2>/dev/null || echo 0)
     if [ "$NNUE_SIZE" -gt 1000000 ]; then
@@ -126,11 +128,11 @@ echo ""
 echo "📝 [5/5] .gitignore 覆盖检查"
 GITIGNORE="$PROJECT_DIR/.gitignore"
 REQUIRED_IGNORES=(
-    ".build/"
-    "*.build/"
+    "*.xcodeproj/"
     "*.o"
     "*.a"
     "DerivedData/"
+    "build/"
 )
 
 GI_MISSING=0
