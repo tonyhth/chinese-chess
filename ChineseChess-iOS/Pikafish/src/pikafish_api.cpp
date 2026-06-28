@@ -103,8 +103,13 @@ int pikafish_init(void) {
 
 #if defined(__APPLE__) && defined(__MACH__)
         // Core Foundation: 查找 bundle 中的 pikafish.nnue
+        // 优先用 app bundle（xctest 中 CFBundleGetMainBundle 返回 test bundle）
+        CFBundleRef appBundle = CFBundleGetBundleWithIdentifier(CFSTR("com.chinesechess.app"));
+        if (!appBundle) {
+            appBundle = CFBundleGetMainBundle();
+        }
         CFURLRef nnueURL = CFBundleCopyResourceURL(
-            CFBundleGetMainBundle(),
+            appBundle,
             CFSTR("pikafish"),
             CFSTR("nnue"),
             NULL
