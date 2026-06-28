@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct PuzzleSelectView: View {
+    /// 可选：章节模式。传入时只显示该章节的残局。
+    var chapter: PuzzleChapter? = nil
+
     @State private var selectedCategory: String?
     @State private var selectedPuzzle: Puzzle?
     @State private var selectedStars: Int? = nil
@@ -249,7 +252,7 @@ struct PuzzleSelectView: View {
 
     /// 最终展示的残局列表（分类 + 难度 + 通关状态 + 搜索四重过滤）
     private var filteredPuzzles: [Puzzle] {
-        var result = PuzzleStore.shared.puzzles
+        var result = chapter?.puzzles ?? PuzzleStore.shared.puzzles
 
         // 1. 分类筛选
         if let cat = selectedCategory {
