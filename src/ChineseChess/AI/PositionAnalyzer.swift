@@ -84,17 +84,10 @@ actor PositionAnalyzer {
 
     static let shared = PositionAnalyzer()
 
-    /// 引擎是否已初始化
-    private var engineInitialized = false
-
-    /// 确保引擎已初始化（必须在所有 C API 调用前执行）
-    private func ensureEngineInitialized() {
-        if !engineInitialized {
-            let result = pikafish_init()
-            if result == 0 {
-                engineInitialized = true
-            }
-        }
+    /// 通过 EngineRouter 确保嵌入式引擎已启动（含 NNUE 加载）
+    /// 避免直接调 pikafish_init() 绕过 EmbeddedPikafishEngine
+    private func ensureEngineReady() async {
+        _ = await EngineRouter.shared.switchEngineIfNeeded()
     }
 
     // MARK: - 分析参数
@@ -110,7 +103,7 @@ actor PositionAnalyzer {
 
     /// 评估当前局面（单 PV）
     func evaluate(fen: String, moveHistory: [String] = []) async -> AnalysisLine? {
-        ensureEngineInitialized()
+        await ensureEngineReady()
         let movesStr = moveHistory.joined(separator: " ")
         return await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -140,7 +133,7 @@ actor PositionAnalyzer {
 
     /// 获取多条候选走法（MultiPV）
     func topMoves(fen: String, moveHistory: [String] = [], count: Int = 3) async -> [AnalysisLine] {
-        ensureEngineInitialized()
+        await ensureEngineReady()
         let movesStr = moveHistory.joined(separator: " ")
         let n = min(count, multiPVCount)
         return await withCheckedContinuation { continuation in
