@@ -92,7 +92,7 @@ enum AchievementLibrary {
         Achievement(id: "blitz_5min", nameKey: "achievement.blitz_5min.name", descriptionKey: "achievement.blitz_5min.desc", rarity: .silver),
     ]
 
-    /// 金牌成就（8个）— 高手目标
+    /// 金牌成就（7个）— 高手目标
     static let gold: [Achievement] = [
         Achievement(id: "win_50", nameKey: "achievement.win_50.name", descriptionKey: "achievement.win_50.desc", rarity: .gold),
         Achievement(id: "beat_master", nameKey: "achievement.beat_master.name", descriptionKey: "achievement.beat_master.desc", rarity: .gold),
@@ -100,7 +100,6 @@ enum AchievementLibrary {
         Achievement(id: "win_streak_5", nameKey: "achievement.win_streak_5.name", descriptionKey: "achievement.win_streak_5.desc", rarity: .gold),
         Achievement(id: "rank_juren", nameKey: "achievement.rank_juren.name", descriptionKey: "achievement.rank_juren.desc", rarity: .gold),
         Achievement(id: "comeback_king", nameKey: "achievement.comeback_king.name", descriptionKey: "achievement.comeback_king.desc", rarity: .gold),
-        Achievement(id: "perfect_game_v2", nameKey: "achievement.perfect_game_v2.name", descriptionKey: "achievement.perfect_game_v2.desc", rarity: .gold),
         Achievement(id: "endgame_master", nameKey: "achievement.endgame_master.name", descriptionKey: "achievement.endgame_master.desc", rarity: .gold),
     ]
 
@@ -113,13 +112,14 @@ enum AchievementLibrary {
         Achievement(id: "win_streak_10", nameKey: "achievement.win_streak_10.name", descriptionKey: "achievement.win_streak_10.desc", rarity: .diamond),
     ]
 
-    /// 隐藏成就（5个）— 特殊条件
+    /// 隐藏成就（6个）— 特殊条件
     static let hidden: [Achievement] = [
         Achievement(id: "rank_sage", nameKey: "achievement.rank_sage.name", descriptionKey: "achievement.rank_sage.desc", rarity: .hidden),
         Achievement(id: "200_wins", nameKey: "achievement.200_wins.name", descriptionKey: "achievement.200_wins.desc", rarity: .hidden),
         Achievement(id: "all_puzzles", nameKey: "achievement.all_puzzles.name", descriptionKey: "achievement.all_puzzles.desc", rarity: .hidden),
         Achievement(id: "daily_7", nameKey: "achievement.daily_7.name", descriptionKey: "achievement.daily_7.desc", rarity: .hidden),
         Achievement(id: "first_blood", nameKey: "achievement.first_blood.name", descriptionKey: "achievement.first_blood.desc", rarity: .hidden),
+        Achievement(id: "perfect_game_v2", nameKey: "achievement.perfect_game_v2.name", descriptionKey: "achievement.perfect_game_v2.desc", rarity: .hidden),
     ]
 
     /// 所有成就
