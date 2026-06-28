@@ -20,7 +20,9 @@ fi
 
 # ============ 路径定义 ============
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP_NAME="中国象棋-v${VERSION}.app"
+# 去掉参数可能带的 v 前缀，避免输出 vv3.5.0
+VERSION_NUM="${VERSION#v}"
+APP_NAME="中国象棋-v${VERSION_NUM}.app"
 APP_DIR="$PROJECT_ROOT/$APP_NAME"
 ICONSET_DIR="$PROJECT_ROOT/src/ChineseChess/Resources/Assets.xcassets/AppIcon.appiconset"
 
@@ -40,6 +42,7 @@ echo "📦 [1/6] xcodebuild Release..."
 cd "$PROJECT_ROOT"
 xcodegen generate 2>&1
 xcodebuild -target ChineseChess -sdk macosx -configuration Release build \
+    ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO \
     CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" 2>&1 | tail -5
 
 if [[ ! -d "$XC_APP" ]]; then
@@ -107,11 +110,11 @@ ICNS_OUTPUT=$(mktemp -d)/AppIcon.icns
 if iconutil -c icns "$ICONSET_TMP" -o "$ICNS_OUTPUT" 2>&1; then
     echo "   ✅ iconutil 生成成功 ($(ls -la "$ICNS_OUTPUT" | awk '{print $5}') bytes)"
 else
-    echo "⚠️  iconutil 生成失败，尝试使用预编译 icns..."
-    PREV_ICNS=$(find "$PROJECT_ROOT" -name "AppIcon.icns" -path "*.app/*" 2>/dev/null | head -1)
-    if [[ -n "$PREV_ICNS" ]]; then
-        cp "$PREV_ICNS" "$ICNS_OUTPUT"
-        echo "   ✅ 使用预编译 icns"
+    echo "⚠️  iconutil 生成失败，尝试使用源码预编译 icns..."
+    SOURCE_ICNS="$ICONSET_DIR/AppIcon.icns"
+    if [[ -f "$SOURCE_ICNS" ]]; then
+        cp "$SOURCE_ICNS" "$ICNS_OUTPUT"
+        echo "   ✅ 使用源码 appiconset/AppIcon.icns"
     else
         echo "❌ 无法生成或找到 AppIcon.icns"
         rm -rf "$(dirname "$ICONSET_TMP")"
@@ -140,11 +143,11 @@ echo ""
 echo "📋 [5/6] 更新 Info.plist..."
 
 /usr/libexec/PlistBuddy \
-    -c "Set :CFBundleShortVersionString $VERSION" \
-    -c "Set :CFBundleVersion $VERSION" \
+    -c "Set :CFBundleShortVersionString $VERSION_NUM" \
+    -c "Set :CFBundleVersion $VERSION_NUM" \
     -c "Set :CFBundleDisplayName 中国象棋" \
     "$APP_DIR/Contents/Info.plist" 2>/dev/null
-echo "   ✅ 版本号已更新为 $VERSION"
+echo "   ✅ 版本号已更新为 $VERSION_NUM"
 echo ""
 
 # ============ 6. 签名 + 最终验证 ============
