@@ -12,16 +12,21 @@ enum MoveQuality: Int, CaseIterable, Codable {
     case blunder = 1     // 失误：≤700cp
     case losing = 0      // 败着：>700cp
 
-    /// 显示标签（中文）
-    var label: String {
+    /// 显示标签的 i18n key
+    var l10nKey: String {
         switch self {
-        case .brilliant: return "精妙"
-        case .good:      return "好棋"
-        case .normal:    return "正常"
-        case .doubtful:  return "疑问"
-        case .blunder:   return "失误"
-        case .losing:    return "败着"
+        case .brilliant: return "move.quality.brilliant"
+        case .good:      return "move.quality.good"
+        case .normal:    return "move.quality.normal"
+        case .doubtful:  return "move.quality.doubtful"
+        case .blunder:   return "move.quality.blunder"
+        case .losing:    return "move.quality.losing"
         }
+    }
+
+    /// 显示标签（通过 L10n）
+    func localizedLabel() -> String {
+        L10n.shared.t(l10nKey)
     }
 
     /// SF Symbol 名称
@@ -211,11 +216,14 @@ actor PositionAnalyzer {
         // 这里用 before + afterHistory 的评估来推算
         let playerEval = playerLine?.scoreCp ?? bestEval
 
+        // P0: playerEval 是走完后的局面评估，视角已翻转到对手，需要取反
+        let adjustedPlayerEval = -playerEval
+
         let quality = classifyMove(
             playerMove: playerMove,
             bestMove: bestMove,
             bestEval: bestEval,
-            playerEval: playerEval
+            playerEval: adjustedPlayerEval
         )
 
         return MoveAnalysis(
@@ -223,8 +231,8 @@ actor PositionAnalyzer {
             quality: quality,
             bestMove: bestMove,
             bestEval: bestEval,
-            playerEval: playerEval,
-            evalDelta: abs(bestEval - playerEval),
+            playerEval: adjustedPlayerEval,
+            evalDelta: abs(bestEval - adjustedPlayerEval),
             alternatives: lines
         )
     }
