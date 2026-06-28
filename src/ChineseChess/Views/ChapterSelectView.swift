@@ -6,6 +6,8 @@ import SwiftUI
 /// 点击已解锁章节 → 进入章节内残局列表。
 /// 点击锁定章节 → 显示解锁条件。
 struct ChapterSelectView: View {
+    @StateObject private var store = ChapterStore.shared
+
     @State private var selectedChapter: PuzzleChapter?
     @State private var lockedChapterInfo: PuzzleChapter?
 
@@ -17,7 +19,7 @@ struct ChapterSelectView: View {
             // 章节卡片列表
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    ForEach(ChapterStore.shared.chapters) { chapter in
+                    ForEach(store.chapters) { chapter in
                         ChapterCard(
                             chapter: chapter,
                             onTap: {
@@ -47,7 +49,7 @@ struct ChapterSelectView: View {
                 set: { if !$0 { lockedChapterInfo = nil } }
             )
         ) {
-            Button("OK", role: .cancel) { lockedChapterInfo = nil }
+            Button(L10n.shared.t("common.ok"), role: .cancel) { lockedChapterInfo = nil }
         } message: {
             if let info = lockedChapterInfo {
                 Text(info.unlockDescription)
@@ -59,7 +61,7 @@ struct ChapterSelectView: View {
 // MARK: - 总进度
 
 private struct TotalProgressHeader: View {
-    private var store: ChapterStore { .shared }
+    var store: ChapterStore { .shared }
 
     var body: some View {
         HStack {

@@ -4,10 +4,10 @@ import Foundation
 
 /// 章节管理器：按全局排序把 551 局分配到 7 个章节，并计算解锁状态。
 /// 两遍构建：Pass 1 算 puzzles + completedCount，Pass 2 算 isUnlocked。
-final class ChapterStore {
+final class ChapterStore: ObservableObject {
     static let shared = ChapterStore()
 
-    private(set) var chapters: [PuzzleChapter] = []
+    @Published private(set) var chapters: [PuzzleChapter] = []
 
     private init() {
         rebuildChapters()
@@ -16,23 +16,25 @@ final class ChapterStore {
     // MARK: - 全局排序列表
 
     /// 全局排序后的 puzzle 列表（按 stars 升序 + id 升序）
-    private lazy var globalSorted: [Puzzle] = {
+    private var globalSorted: [Puzzle] {
         PuzzleStore.shared.puzzles.sorted { a, b in
             if a.stars != b.stars { return a.stars < b.stars }
             return a.id < b.id
         }
-    }()
+    }
 
     // MARK: - 两遍构建
 
     func rebuildChapters() {
+        let sorted = globalSorted
+        assert(!sorted.isEmpty, "ChapterStore: PuzzleStore has no puzzles loaded")
         let progress = PuzzleStore.shared.progressMap
 
         // Pass 1: 构建 puzzle 列表 + completedCount（isUnlocked 暂设 false）
         var built: [PuzzleChapter] = ChapterDefinitions.chapters.map { config in
             let startIndex = config.globalStart
             let endIndex = min(config.globalEnd, globalSorted.count)
-            let puzzles = Array(globalSorted[startIndex..<endIndex])
+            let puzzles = Array(sorted[startIndex..<endIndex])
             let completedCount = puzzles.filter { progress[$0.id]?.isCompleted == true }.count
             return PuzzleChapter(
                 id: config.id,
