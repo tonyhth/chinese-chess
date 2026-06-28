@@ -305,6 +305,9 @@ class GameViewModel {
         isMasterChallenge = false
         resetClock()
 
+        // Phase 3.4: 教练难度自动调节（段位+1）
+        difficulty = PlayerProfileStore.shared.profile.rank.recommendedCoachDifficulty
+
         // v3.1 Phase 2c: 引擎切换 + newGame
         EngineRouter.shared.newGame()
 

@@ -77,6 +77,19 @@ enum Rank: String, Codable, CaseIterable, Comparable {
         Rank.allCases.firstIndex(of: self) ?? 0
     }
 
+    /// Phase 3.4: 教练模式推荐难度（段位+1）
+    var recommendedCoachDifficulty: AIDifficulty {
+        switch self {
+        case .student: return .easy       // 学童+1=初级
+        case .scholar: return .medium     // 秀才+1=中级
+        case .juren:   return .hard       // 举人+1=高级
+        case .jinshi:  return .hard       // 进士+1=高级（master 太强）
+        case .hanlin:  return .master     // 翰林+1=大师
+        case .master:  return .master     // 国手→大师
+        case .sage:    return .master     // 棋圣→大师
+        }
+    }
+
     /// 段位图标（SF Symbol）
     var icon: String {
         switch self {
