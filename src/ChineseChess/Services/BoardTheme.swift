@@ -52,6 +52,17 @@ enum BoardTheme: String, CaseIterable, Codable {
     var isUnlockedByDefault: Bool {
         requiredRank == nil
     }
+
+    /// 段位升级弹窗预览色
+    var previewColor: Color {
+        switch self {
+        case .classicWood: return .brown
+        case .inkStone: return .gray
+        case .jadeGreen: return .green
+        case .imperialGold: return .yellow
+        case .crimson: return .red
+        }
+    }
 }
 
 // MARK: - 主题颜色配置

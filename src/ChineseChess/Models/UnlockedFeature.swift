@@ -42,6 +42,36 @@ enum UnlockedFeature: String, Codable, CaseIterable {
             return false  // 待 Phase 2/3 实现
         }
     }
+
+    /// 段位升级弹窗图标
+    var iconName: String {
+        switch self {
+        case .chapter2Early:       return "book.fill"
+        case .chapter3Early:       return "book.closed.fill"
+        case .freePlayPuzzles:     return "puzzlepiece.fill"
+        case .engineAnalysis:      return "chart.line.uptrend.xyaxis"
+        case .aiCoach:             return "graduationcap.fill"
+        case .openingTreeBrowse:   return "tree"
+        case .openingTreeFavorite: return "star.fill"
+        case .gameRecordExport:    return "square.and.arrow.up"
+        case .customTheme:         return "paintbrush.fill"
+        }
+    }
+
+    /// 段位升级弹窗功能名称
+    var localizedName: String {
+        switch self {
+        case .chapter2Early:       return L10n.shared.t("feature.chapter2Early")
+        case .chapter3Early:       return L10n.shared.t("feature.chapter3Early")
+        case .freePlayPuzzles:     return L10n.shared.t("feature.freePlayPuzzles")
+        case .engineAnalysis:      return L10n.shared.t("feature.engineAnalysis")
+        case .aiCoach:             return L10n.shared.t("feature.aiCoach")
+        case .openingTreeBrowse:   return L10n.shared.t("feature.openingTreeBrowse")
+        case .openingTreeFavorite: return L10n.shared.t("feature.openingTreeFavorite")
+        case .gameRecordExport:    return L10n.shared.t("feature.gameRecordExport")
+        case .customTheme:         return L10n.shared.t("feature.customTheme")
+        }
+    }
 }
 
 // MARK: - PlayerProfile 段位解锁扩展

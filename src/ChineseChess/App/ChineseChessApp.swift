@@ -55,6 +55,8 @@ struct ChineseChessApp: App {
     @State private var showDailyChallenge = false
     @State private var showAchievements = false
     @State private var showRankPrivilege = false
+    @State private var showRankUp = false
+    @State private var rankUpRank: Rank?
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -181,6 +183,13 @@ struct ChineseChessApp: App {
                 }
 
             }
+            // Q2: 监听段位升级通知
+            .onReceive(NotificationCenter.default.publisher(for: .rankPromoted)) { notification in
+                if let newRank = notification.object as? Rank {
+                    rankUpRank = newRank
+                    showRankUp = true
+                }
+            }
             .frame(minWidth: 600, minHeight: 700)
             .preferredColorScheme(.dark)
             // P1-2: 外部引擎 fallback 提示
@@ -305,6 +314,15 @@ struct ChineseChessApp: App {
                         }
                 }
                 .frame(minWidth: 400, minHeight: 500)
+            }
+            // Q2: 段位升级奖励弹窗
+            .sheet(isPresented: $showRankUp) {
+                if let rank = rankUpRank {
+                    RankUpView(newRank: rank) {
+                        showRankUp = false
+                    }
+                    .frame(minWidth: 320, minHeight: 300)
+                }
             }
         }
         .windowStyle(.titleBar)
