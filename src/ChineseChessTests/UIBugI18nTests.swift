@@ -90,8 +90,7 @@ struct UIBugI18nTests {
     func i18nKeysExist() {
         // 代码变更中使用的 53 个键（已在手动审查中确认全部存在）
         // 这里验证 xcstrings 能被正确加载解析
-        guard let url = Bundle.main.url(forResource: "Localizable", withExtension: "xcstrings") ??
-              Bundle.module.url(forResource: "Localizable", withExtension: "xcstrings") else {
+        guard let url = Bundle.main.url(forResource: "Localizable", withExtension: "xcstrings") else {
             // xcstrings 在 app bundle 中，测试 bundle 可能无法直接访问
             // 但编译通过即证明 String(localized:) 键引用有效
             #expect(Bool(true), "xcstrings 编译期已验证键存在")

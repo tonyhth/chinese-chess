@@ -1,0 +1,80 @@
+name: ChineseChess
+options:
+  bundleIdPrefix: com.chinesechess
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    PRODUCT_BUNDLE_IDENTIFIER: com.chinesechess.app
+    MARKETING_VERSION: "3.5.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "-"
+
+targets:
+  # ── 主 App (macOS) ──
+  ChineseChess:
+    type: application
+    platform: macOS
+    sources:
+      - path: src/ChineseChess/AI
+        type: group
+      - path: src/ChineseChess/Accessibility
+        type: group
+      - path: src/ChineseChess/App
+        type: group
+      - path: src/ChineseChess/Helpers
+        type: group
+      - path: src/ChineseChess/Models
+        type: group
+      - path: src/ChineseChess/Services
+        type: group
+      - path: src/ChineseChess/Utils
+        type: group
+      - path: src/ChineseChess/ViewModels
+        type: group
+      - path: src/ChineseChess/Views
+        type: group
+      - path: src/ChineseChess/Resources
+        type: group
+        excludes:
+          - "Assets.xcassets"
+      - path: src/ChineseChess/Resources/Assets.xcassets
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: 中国象棋
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.board-games
+        INFOPLIST_KEY_NSHighResolutionCapable: YES
+        HEADER_SEARCH_PATHS:
+          - $(SRCROOT)/src/ChineseChess/Pikafish/include
+        SWIFT_INCLUDE_PATHS: $(SRCROOT)/src/ChineseChess/Pikafish/include
+        LIBRARY_SEARCH_PATHS:
+          - $(SRCROOT)/src/ChineseChess/Pikafish/lib/macos
+        OTHER_LDFLAGS:
+          - -lpikafish
+          - -lc++
+        CLANG_CXX_LANGUAGE_STANDARD: "c++17"
+
+  # ── 测试 (macOS) ──
+  ChineseChessTests:
+    type: bundle.unit-test
+    platform: macOS
+    dependencies:
+      - target: ChineseChess
+    sources:
+      - path: src/ChineseChessTests
+        type: group
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_INCLUDE_PATHS: $(SRCROOT)/src/ChineseChess/Pikafish/include
+        HEADER_SEARCH_PATHS:
+          - $(SRCROOT)/src/ChineseChess/Pikafish/include
+        LIBRARY_SEARCH_PATHS:
+          - $(SRCROOT)/src/ChineseChess/Pikafish/lib/macos
