@@ -5673,13 +5673,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "成就系统"
+            "value": "第二章提前解锁 + 开局树浏览"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achievement system"
+            "value": "Chapter 2 early unlock + Opening tree"
           }
         }
       }
@@ -5705,13 +5705,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中等难度 AI"
+            "value": "第三章提前解锁 + 中等难度 AI"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Medium AI difficulty"
+            "value": "Chapter 3 early unlock + Medium AI"
           }
         }
       }
@@ -5753,13 +5753,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "AI 教练（即将上线）"
+            "value": "自由对弈残局全解锁"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "AI Coach (coming soon)"
+            "value": "Free-play puzzles unlocked"
           }
         }
       }
@@ -5769,13 +5769,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开局树浏览（即将上线）"
+            "value": "引擎分析"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opening tree (coming soon)"
+            "value": "Engine analysis"
           }
         }
       }
@@ -5785,13 +5785,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "引擎分析（即将上线）"
+            "value": "AI 教练"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Engine analysis (coming soon)"
+            "value": "AI Coach"
           }
         }
       }
@@ -5833,13 +5833,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "棋谱导出（即将上线）"
+            "value": "棋谱导出"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Game export (coming soon)"
+            "value": "Game record export"
           }
         }
       }
@@ -5849,13 +5849,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "自定义主题（即将上线）"
+            "value": "自定义主题"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Custom themes (coming soon)"
+            "value": "Custom themes"
           }
         }
       }
