@@ -36,9 +36,11 @@ struct OpeningBook {
     init() {
         var idx: [UInt64: [(move: String, weight: Int)]] = [:]
 
-        // 优先尝试加载 v2 格式
-        if let url = ResourceBundle.url(forResource: "opening_book_v2", withExtension: "json",
-                                         subdirectory: "OpeningBook"),
+        // 优先尝试加载 v2 格式（subdirectory → 根目录 fallback）
+        var v2URL = ResourceBundle.url(forResource: "opening_book_v2", withExtension: "json",
+                                         subdirectory: "OpeningBook")
+        if v2URL == nil { v2URL = ResourceBundle.url(forResource: "opening_book_v2", withExtension: "json") }
+        if let url = v2URL,
            let data = try? Data(contentsOf: url),
            let book = try? JSONDecoder().decode(BookFileV2.self, from: data),
            book.version == 2 {
@@ -52,9 +54,11 @@ struct OpeningBook {
             AppLog.openingBook.info("loaded v2 format, \(idx.count) positions")
             #endif
         } else {
-            // fallback: 加载旧 v1 格式
-            if let url = ResourceBundle.url(forResource: "openings", withExtension: "json",
-                                             subdirectory: "OpeningBook"),
+            // fallback: 加载旧 v1 格式（subdirectory → 根目录 fallback）
+            var v1URL = ResourceBundle.url(forResource: "openings", withExtension: "json",
+                                             subdirectory: "OpeningBook")
+            if v1URL == nil { v1URL = ResourceBundle.url(forResource: "openings", withExtension: "json") }
+            if let url = v1URL,
                let data = try? Data(contentsOf: url),
                let decoded = try? JSONDecoder().decode([OpeningEntryV1].self, from: data) {
                 idx = Self.buildV1Index(decoded)

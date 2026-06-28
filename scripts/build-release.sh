@@ -54,11 +54,10 @@ echo "🔍 [2/6] 验证 App bundle 资源完整性..."
 RES_DIR="$XC_APP/Contents/Resources"
 
 REQUIRED_FILES=(
-    "Localizable.xcstrings"
     "LXGWWenKai-Regular.ttf"
-    "OpeningBook/opening_book_v2.json"
-    "OpeningBook/openings.json"
-    "Puzzles/puzzles.json"
+    "opening_book_v2.json"
+    "openings.json"
+    "puzzles.json"
     "move.wav"
     "capture.wav"
     "check.wav"
@@ -67,6 +66,8 @@ REQUIRED_FILES=(
     "defeat.wav"
     "undo.wav"
     "pikafish.nnue"
+    "zh-Hans.lproj/Localizable.strings"
+    "en.lproj/Localizable.strings"
 )
 
 MISSING=0
