@@ -165,6 +165,12 @@ enum AchievementChecker {
     /// - Parameter lastMoves: 最后几步走法（含 piece 信息）
     /// - Parameter playerSide: 玩家方
     /// - Returns: 杀法类型（可能误判，标注 simplified）
+    // v1 简化版：仅检查最近走法中是否包含马+炮或双車
+    // 已知局限：
+    //   1. 不区分主动杀法 vs 配合杀法（如马后炮需車作诱饵）
+    //   2. 不检查实际将军路径（可能只是凑巧有这些棋子）
+    //   3. "other" 太笼统，无法区分具体杀法类型
+    //   待 v2 用引擎分析走法实际贡献度
     static func detectCheckmatePattern(lastMoves: [GameMove], playerSide: Side) -> CheckmatePattern? {
         let playerPieces = lastMoves.filter { $0.piece.side == playerSide }
 
