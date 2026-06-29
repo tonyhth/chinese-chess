@@ -149,42 +149,29 @@ final class DataMigration {
         guard !migrated else { return }
 
         let oldStore = GameHistoryStore.shared
-        guard oldStore.count > 0 else {
+        let oldRecords = oldStore.records
+        guard !oldRecords.isEmpty else {
             // 无旧数据，直接标记已迁移
             defaults.set(true, forKey: "chinesechess.history.migrated")
             return
         }
 
+        let migratedCount = oldRecords.count
         let newStore = GameRecordStore.shared
 
-        // 原子迁移：逐条写入，任何一条失败都中止
-        for record in oldStore.records {
+        // 使用 addRecord() 写入（内置 id 去重，崩溃重试不会重复）
+        for record in oldRecords {
             var r = record
             r.source = .versusAI
-            // 先写入文件，确认成功后再继续
-            let fileURL = newStore.baseURL.appendingPathComponent("\(r.id.uuidString).json")
-            do {
-                let data = try JSONEncoder().encode(r)
-                try data.write(to: fileURL, options: .atomic)
-            } catch {
-                // 单条写入失败 → 中止迁移，保留旧数据
-                // 已写入的记录保留（不回滚，因为 .atomic 保证单文件完整性）
-                #if DEBUG
-                AppLog.history.error("migration failed at record \(r.id): \(error)")
-                #endif
-                return
-            }
+            newStore.addRecord(r)
         }
-
-        // 全部写入成功 → 重新加载摘要索引
-        newStore.reloadSummaries()
 
         // 确认 JSON 文件完整后才清空旧存储
         oldStore.clearAll()
         defaults.set(true, forKey: "chinesechess.history.migrated")
 
         #if DEBUG
-        AppLog.history.info("migrated \(oldStore.count) records from UserDefaults to JSON files")
+        AppLog.history.info("migrated \(migratedCount) records from UserDefaults to JSON files")
         #endif
     }
 
