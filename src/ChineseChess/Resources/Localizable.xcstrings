@@ -498,6 +498,38 @@
         }
       }
     },
+    "export.partialFail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功导出 %d 局，%d 局加载失败"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exported %d games, %d failed to load"
+          }
+        }
+      }
+    },
+    "export.resultTitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出结果"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export Result"
+          }
+        }
+      }
+    },
     "difficulty.beginner": {
       "localizations": {
         "zh-Hans": {
@@ -942,6 +974,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Clear All"
+          }
+        }
+      }
+    },
+    "history.corruptMessage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该记录文件已损坏，无法打开。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This record is corrupted and cannot be opened."
+          }
+        }
+      }
+    },
+    "history.corruptTitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "记录损坏"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corrupted Record"
           }
         }
       }

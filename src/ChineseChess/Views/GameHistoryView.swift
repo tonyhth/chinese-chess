@@ -3,6 +3,10 @@ import SwiftUI
 struct GameHistoryView: View {
     @State private var summaries: [RecordSummary] = []
     @State private var showClearAlert = false
+    @State private var showCorruptAlert = false
+    @State private var showExportResultAlert = false
+    @State private var exportSuccessCount = 0
+    @State private var exportFailCount = 0
     // v3.7.0 Phase 2: 多选模式
     @State private var isSelectMode = false
     @State private var selectedIDs: Set<UUID> = []
@@ -44,6 +48,8 @@ struct GameHistoryView: View {
                                 // P1-1: 从 GameRecordStore 按需加载完整记录
                                 if let record = store.loadRecord(id: summary.id) {
                                     onReplayRequest?(record)
+                                } else {
+                                    showCorruptAlert = true
                                 }
                             }
                         }
@@ -115,13 +121,9 @@ struct GameHistoryView: View {
                     Spacer()
 
                     if canExport && !selectedIDs.isEmpty {
-                        ShareLink(
-                            item: exportSelectedPGN(),
-                            preview: SharePreview(
-                                "棋谱.pgn",
-                                image: Image(systemName: "doc.text")
-                            )
-                        ) {
+                        Button {
+                            exportSelectedAndReport()
+                        } label: {
                             Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
                         }
                     }
@@ -187,6 +189,18 @@ struct GameHistoryView: View {
         } message: {
             Text(l10n.t("history.clearConfirm"))
         }
+        // P1-1: 记录损坏提示
+        .alert(l10n.t("history.corruptTitle"), isPresented: $showCorruptAlert) {
+            Button(l10n.t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(l10n.t("history.corruptMessage"))
+        }
+        // P1-2: 导出部分失败提示
+        .alert(l10n.t("export.resultTitle"), isPresented: $showExportResultAlert) {
+            Button(l10n.t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(String(format: l10n.t("export.partialFail"), exportSuccessCount, exportFailCount))
+        }
     }
 
     // MARK: - 操作
@@ -230,6 +244,28 @@ struct GameHistoryView: View {
     private func exportSelectedPGN() -> String {
         let selectedRecords = selectedIDs.compactMap { store.loadRecord(id: $0) }
         return PGNExporter.exportBatch(selectedRecords)
+    }
+
+    // P1-2: 导出后统计成功/失败数，不一致时提示
+    private func exportSelectedAndReport() {
+        let total = selectedIDs.count
+        let selectedRecords = selectedIDs.compactMap { store.loadRecord(id: $0) }
+        let successCount = selectedRecords.count
+        let failCount = total - successCount
+
+        let pgn = PGNExporter.exportBatch(selectedRecords)
+        #if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(pgn, forType: .string)
+        #else
+        UIPasteboard.general.string = pgn
+        #endif
+
+        if failCount > 0 {
+            exportSuccessCount = successCount
+            exportFailCount = failCount
+            showExportResultAlert = true
+        }
     }
 
     private func deleteSelectedRecords() {
