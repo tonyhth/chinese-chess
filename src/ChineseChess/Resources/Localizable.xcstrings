@@ -1268,6 +1268,22 @@
         }
       }
     },
+    "player.ai": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI"
+          }
+        }
+      }
+    },
     "player.aiLabel": {
       "localizations": {
         "zh-Hans": {
@@ -1296,6 +1312,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Black"
+          }
+        }
+      }
+    },
+    "player.human": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "玩家"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Player"
           }
         }
       }

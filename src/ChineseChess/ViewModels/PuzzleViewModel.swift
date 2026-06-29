@@ -879,12 +879,15 @@ class PuzzleViewModel {
             moves.append(gameMove)
             if isCheckmate { break }
         }
+        let isHumanRed = puzzle.side == .red
+        let humanName = L10n.shared.t("player.human")
+        let aiName = String(format: L10n.shared.t("player.aiLabel"), defenderDifficulty.displayName)
         let record = GameRecord(
             id: UUID(),
             title: String(format: L10n.shared.t("puzzle.solutionTitle"), puzzle.name),
             date: Date(),
-            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: L10n.shared.t("player.black"), isAI: true, difficulty: defenderDifficulty),
+            redPlayer: PlayerInfo(name: isHumanRed ? humanName : aiName, isAI: !isHumanRed, difficulty: isHumanRed ? nil : defenderDifficulty),
+            blackPlayer: PlayerInfo(name: isHumanRed ? aiName : humanName, isAI: isHumanRed, difficulty: isHumanRed ? defenderDifficulty : nil),
             difficulty: defenderDifficulty,
             result: .redWon,
             totalMoves: moves.count,

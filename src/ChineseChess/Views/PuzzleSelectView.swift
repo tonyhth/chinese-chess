@@ -643,12 +643,15 @@ struct PuzzlePlayView: View {
                         let puzzleResult: GameState = viewModel.gameState == .success
                             ? (viewModel.puzzle.side == .red ? .redWon : .blackWon)
                             : .playing
+                        let isHumanRed = viewModel.puzzle.side == .red
+                        let humanName = L10n.shared.t("player.human")
+                        let aiName = L10n.shared.t("player.ai")
                         let record = GameRecord(
                             id: UUID(),
                             title: viewModel.puzzle.name,
                             date: Date(),
-                            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: false, difficulty: nil),
-                            blackPlayer: PlayerInfo(name: L10n.shared.t("player.black"), isAI: true, difficulty: nil),
+                            redPlayer: PlayerInfo(name: isHumanRed ? humanName : aiName, isAI: !isHumanRed, difficulty: nil),
+                            blackPlayer: PlayerInfo(name: isHumanRed ? aiName : humanName, isAI: isHumanRed, difficulty: nil),
                             difficulty: .medium,
                             result: puzzleResult,
                             totalMoves: viewModel.gameMoves.count,
