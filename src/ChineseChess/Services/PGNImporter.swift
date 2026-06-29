@@ -35,12 +35,6 @@ struct PGNImporter {
 
     // MARK: - 共享 DateFormatter（P2-2: 避免每次调用创建）
 
-    private static let exportDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy.MM.dd"
-        return f
-    }()
-
     private static let importDateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy.MM.dd"
