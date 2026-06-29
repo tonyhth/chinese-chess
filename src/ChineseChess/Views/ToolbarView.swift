@@ -77,7 +77,7 @@ struct ToolbarView: View {
 
             Spacer()
 
-            // 右侧：引擎切换 + 新开一局
+            // 右侧：引擎切换 + 执边 + 新开一局
             HStack(spacing: 8) {
                 // P2 #12: 快速切换引擎按钮
                 Button(action: toggleEngine) {
@@ -90,6 +90,41 @@ struct ToolbarView: View {
                 .opacity(viewModel.isThinking ? 0.5 : 1.0)
                 .tint(EngineConfigStore.shared.useEmbeddedEngine ? .cyan : .brown)
                 .accessibilityLabel(l10n.t(EngineConfigStore.shared.useEmbeddedEngine ? "engine.external" : "engine.builtIn"))
+
+                // v3.7.1 B1: iOS 执边选择按钮
+                Button(action: {
+                    let newSide: Side = viewModel.humanSide == .red ? .black : .red
+                    viewModel.setHumanSide(newSide)
+                    viewModel.newGame()
+                }) {
+                    Circle()
+                        .fill(viewModel.humanSide == .red ? Color.red : Color.black)
+                        .frame(width: 14, height: 14)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .disabled(viewModel.isThinking)
+                .opacity(viewModel.isThinking ? 0.5 : 1.0)
+                .tint(.brown)
+                .accessibilityLabel(l10n.t("game.sideLabel"))
+
+                // v3.7.1 B2: iOS 难度快捷按钮
+                Menu {
+                    Button(l10n.t("difficulty.beginner")) { viewModel.setDifficulty(.beginner) }
+                    Button(l10n.t("difficulty.easy")) { viewModel.setDifficulty(.easy) }
+                    Button(l10n.t("difficulty.medium")) { viewModel.setDifficulty(.medium) }
+                    Button(l10n.t("difficulty.hard")) { viewModel.setDifficulty(.hard) }
+                    Button(l10n.t("difficulty.master")) { viewModel.setDifficulty(.master) }
+                } label: {
+                    Text(difficultyShortName(viewModel.difficulty))
+                        .font(.caption.weight(.bold))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .disabled(viewModel.isThinking)
+                .opacity(viewModel.isThinking ? 0.5 : 1.0)
+                .tint(.brown)
+                .accessibilityLabel(l10n.t("difficulty.label"))
 
                 Button(action: { viewModel.newGame() }) {
                     Image(systemName: "plus.circle")
@@ -202,6 +237,19 @@ struct ToolbarView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         #endif
+    }
+
+    // MARK: - Helpers
+
+    /// v3.7.1 B2: 难度首字缩写（iOS 工具栏用）
+    private func difficultyShortName(_ difficulty: AIDifficulty) -> String {
+        switch difficulty {
+        case .beginner: return l10n.t("difficulty.short.beginner")
+        case .easy: return l10n.t("difficulty.short.easy")
+        case .medium: return l10n.t("difficulty.short.medium")
+        case .hard: return l10n.t("difficulty.short.hard")
+        case .master: return l10n.t("difficulty.short.master")
+        }
     }
 
     // MARK: - Engine Toggle

@@ -824,11 +824,32 @@ class PuzzleViewModel {
         PuzzleStore.shared.recordProgress(progress)
 
         // v3.7.0 Phase 3: 保存残局棋谱到 GameRecordStore
+        // v3.7.1 A4: 同 puzzleId 去重，重玩时 updateRecord 替换
         if var record = buildSolutionRecord() {
             record.source = .puzzle
             record.puzzleId = puzzle.id
             record.title = String(format: L10n.shared.t("puzzle.recordTitle"), puzzle.name)
-            GameRecordStore.shared.addRecord(record)
+            if let existing = GameRecordStore.shared.findRecordByPuzzleId(puzzle.id) {
+                // 重玩同一残局：用原 id 创建新记录替换
+                let updated = GameRecord(
+                    id: existing.id,
+                    title: record.title,
+                    date: record.date,
+                    redPlayer: record.redPlayer,
+                    blackPlayer: record.blackPlayer,
+                    difficulty: record.difficulty,
+                    result: record.result,
+                    totalMoves: record.totalMoves,
+                    moves: record.moves,
+                    initialFEN: record.initialFEN,
+                    source: record.source,
+                    tags: record.tags,
+                    puzzleId: record.puzzleId
+                )
+                GameRecordStore.shared.updateRecord(updated)
+            } else {
+                GameRecordStore.shared.addRecord(record)
+            }
         }
     }
 

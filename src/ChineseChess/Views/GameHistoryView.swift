@@ -17,6 +17,8 @@ struct GameHistoryView: View {
     // v3.7.0 Phase 2: 多选模式
     @State private var isSelectMode = false
     @State private var selectedIDs: Set<UUID> = []
+    // v3.7.1 A2: 搜索
+    @State private var searchText = ""
 
     var onReplayRequest: ((GameRecord) -> Void)?
 
@@ -29,9 +31,17 @@ struct GameHistoryView: View {
         profile.isFeatureUnlocked(.gameRecordExport)
     }
 
+    // v3.7.1 A2: 搜索过滤
+    private var filteredSummaries: [RecordSummary] {
+        if searchText.isEmpty {
+            return summaries
+        }
+        return summaries.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
+
     var body: some View {
         List(selection: isSelectMode ? $selectedIDs : nil) {
-            if summaries.isEmpty {
+            if filteredSummaries.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.largeTitle)
@@ -45,7 +55,7 @@ struct GameHistoryView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
             } else {
-                ForEach(summaries) { summary in
+                ForEach(filteredSummaries) { summary in
                     GameHistorySummaryRow(summary: summary)
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -138,6 +148,7 @@ struct GameHistoryView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .searchable(text: $searchText, prompt: l10n.t("history.searchPlaceholder"))
         .onAppear {
             reloadSummaries()
         }
@@ -156,7 +167,7 @@ struct GameHistoryView: View {
                         Button {
                             exportSelectedAndReport()
                         } label: {
-                            Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                            Label(l10n.t("export.copyPGN"), systemImage: "doc.on.doc")
                         }
                     }
 
@@ -252,7 +263,7 @@ struct GameHistoryView: View {
         }
         // v3.7.0 Phase 3: iOS 文件导入
         #if os(iOS)
-        .fileImporter(isPresented: $showImportPicker, allowedContentTypes: [.plainText]) { result in
+        .fileImporter(isPresented: $showImportPicker, allowedContentTypes: [.item]) { result in
             switch result {
             case .success(let url):
                 importFromFile(url)
@@ -307,6 +318,7 @@ struct GameHistoryView: View {
     }
 
     // P1-2: 导出后统计成功/失败数，不一致时提示
+    // v3.7.1 A3: iOS 降级为剪贴板复制 + 提示
     private func exportSelectedAndReport() {
         let total = selectedIDs.count
         let selectedRecords = selectedIDs.compactMap { store.loadRecord(id: $0) }
@@ -323,6 +335,9 @@ struct GameHistoryView: View {
 
         if failCount > 0 {
             exportResultText = String(format: l10n.t("export.partialFail"), successCount, failCount)
+            showExportResultAlert = true
+        } else {
+            exportResultText = String(format: l10n.t("export.copiedN"), successCount)
             showExportResultAlert = true
         }
     }
@@ -355,6 +370,13 @@ struct GameHistoryView: View {
     }
 
     private func importFromFile(_ url: URL) {
+        // A1: 过滤非 PGN 文件
+        let ext = url.pathExtension.lowercased()
+        guard ext == "pgn" || ext == "txt" else {
+            importResultText = l10n.t("import.unsupportedFormat")
+            showImportResultAlert = true
+            return
+        }
         guard url.startAccessingSecurityScopedResource() else { return }
         defer { url.stopAccessingSecurityScopedResource() }
         guard let text = try? String(contentsOf: url, encoding: .utf8), !text.isEmpty else {

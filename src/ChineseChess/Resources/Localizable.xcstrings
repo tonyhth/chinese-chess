@@ -551,13 +551,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "标题"
+            "value": "历史对局"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Title"
+            "value": "History"
           }
         }
       }
@@ -583,7 +583,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "\u5bfc\u5165\u5931\u8d25\uff1a\u68cb\u8c31\u683c\u5f0f\u9519\u8bef"
+            "value": "导入失败：棋谱格式错误"
           }
         },
         "en": {
@@ -1278,22 +1278,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Replay"
-          }
-        }
-      }
-    },
-    "history.title": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "历史对局"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "History"
           }
         }
       }
@@ -7840,6 +7824,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "需%@段位"
+          }
+        }
+      }
+    },
+    "history.searchPlaceholder": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索棋谱"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search records"
+          }
+        }
+      }
+    },
+    "export.copiedN": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已复制 %d 局棋谱"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied %d record(s)"
+          }
+        }
+      }
+    },
+    "import.unsupportedFormat": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不支持的文件格式，请选择 .pgn 或 .txt 文件"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsupported format, please select .pgn or .txt files"
+          }
+        }
+      }
+    },
+    "difficulty.short.beginner": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "初"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "B"
+          }
+        }
+      }
+    },
+    "difficulty.short.easy": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "易"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E"
+          }
+        }
+      }
+    },
+    "difficulty.short.medium": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "M"
+          }
+        }
+      }
+    },
+    "difficulty.short.hard": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "难"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "H"
+          }
+        }
+      }
+    },
+    "difficulty.short.master": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         }
       }

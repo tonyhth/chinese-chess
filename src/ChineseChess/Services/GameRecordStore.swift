@@ -89,6 +89,18 @@ final class GameRecordStore {
     /// 记录数量
     var count: Int { summaries.count }
 
+    /// v3.7.1 A4: 按 puzzleId 查找记录
+    func findRecordByPuzzleId(_ puzzleId: String) -> GameRecord? {
+        for summary in summaries {
+            if summary.source == .puzzle,
+               let record = loadRecord(id: summary.id),
+               record.puzzleId == puzzleId {
+                return record
+            }
+        }
+        return nil
+    }
+
     // MARK: - 写入（线程安全 + 去重 + 原子写入）
 
     /// 添加记录（自动去重，新记录插入最前面）

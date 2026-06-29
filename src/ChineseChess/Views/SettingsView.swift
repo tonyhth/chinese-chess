@@ -80,8 +80,17 @@ struct SettingsView: View {
                     ))
                 }
                 #else
-                // P1-3: iOS 侧显示外部引擎仅支持 macOS 说明
+                // v3.7.1 B3: iOS 侧显示引擎状态 + Toggle（与 macOS 一致）
                 Section(l10n.t("settings.engineSection")) {
+                    Toggle(l10n.t("engine.usePikafish"), isOn: Binding(
+                        get: { EngineConfigStore.shared.useEmbeddedEngine },
+                        set: { newValue in
+                            EngineConfigStore.shared.useEmbeddedEngine = newValue
+                            Task { await EngineRouter.shared.switchEngineIfNeeded() }
+                        }
+                    ))
+                    .disabled(true)
+                    .opacity(0.5)
                     HStack {
                         Image(systemName: "info.circle")
                             .foregroundColor(.secondary)

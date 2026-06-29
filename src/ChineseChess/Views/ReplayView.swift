@@ -24,41 +24,37 @@ struct ReplayView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 标题栏 + 对局信息（ZStack 标题居中，信息左对齐）
-            ZStack {
-                // 居中标题
-                Text(viewModel.record.title)
-                    .font(.callout.weight(.bold))
+            // v3.7.1 B4: 标题栏改为 HStack 布局，避免 iOS 文字重叠
+            HStack(spacing: 8) {
+                // 左侧：关闭按钮
+                Button(l10n.t("common.close")) { close() }
                     .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
 
-                // 左侧：关闭按钮 + 对局信息
-                HStack {
-                    Button(l10n.t("common.close")) { close() }
-                        .foregroundColor(.white)
-                    Spacer().frame(width: 12)
-                    Text(String(format: l10n.t("replay.vsFormat"), viewModel.record.redPlayer.name))
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.red)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Text(" vs")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
-                    Text(viewModel.record.blackPlayer.name)
-                        .font(.caption.weight(.medium))
+                // 中间：标题 + vs 信息（单行截断）
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(viewModel.record.title)
+                        .font(.callout.weight(.bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                    Spacer()
+                    HStack(spacing: 4) {
+                        Text(viewModel.record.redPlayer.name)
+                            .font(.caption2.weight(.medium))
+                            .foregroundColor(.red)
+                            .lineLimit(1)
+                        Text("vs")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                        Text(viewModel.record.blackPlayer.name)
+                            .font(.caption2.weight(.medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                    }
                 }
+                .frame(maxWidth: .infinity)
 
-                // v3.7.0 Phase 2: 右侧分享按钮
-                HStack {
-                    Spacer()
-                    shareMenu
-                }
+                // 右侧：分享按钮
+                shareMenu
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 6)
