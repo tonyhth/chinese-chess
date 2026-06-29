@@ -6,6 +6,14 @@ struct GameHistoryView: View {
     @State private var showCorruptAlert = false
     @State private var showExportResultAlert = false
     @State private var exportResultText = ""
+    // v3.7.0 Phase 3: 重命名
+    @State private var showRenameAlert = false
+    @State private var renameTargetID: UUID?
+    @State private var renameText = ""
+    // v3.7.0 Phase 3: 导入
+    @State private var showImportResultAlert = false
+    @State private var importResultText = ""
+    @State private var showImportPicker = false
     // v3.7.0 Phase 2: 多选模式
     @State private var isSelectMode = false
     @State private var selectedIDs: Set<UUID> = []
@@ -55,6 +63,12 @@ struct GameHistoryView: View {
                         #if os(macOS)
                         .contextMenu {
                             Button {
+                                startRename(summary)
+                            } label: {
+                                Label(l10n.t("history.rename"), systemImage: "pencil")
+                            }
+
+                            Button {
                                 copyPGNToClipboard(summary.id)
                             } label: {
                                 Label(l10n.t("export.copyPGN"), systemImage: "doc.on.doc")
@@ -75,6 +89,25 @@ struct GameHistoryView: View {
                             }
 
                             Divider()
+
+                            Button(l10n.t("common.delete"), role: .destructive) {
+                                deleteRecord(summary.id)
+                            }
+                        }
+                        #else
+                        .contextMenu {
+                            Button {
+                                startRename(summary)
+                            } label: {
+                                Label(l10n.t("history.rename"), systemImage: "pencil")
+                            }
+
+                            Button {
+                                copyPGNToClipboard(summary.id)
+                            } label: {
+                                Label(l10n.t("export.copyPGN"), systemImage: "doc.on.doc")
+                            }
+                            .disabled(!canExport)
 
                             Button(l10n.t("common.delete"), role: .destructive) {
                                 deleteRecord(summary.id)
@@ -141,9 +174,9 @@ struct GameHistoryView: View {
 
                     Spacer()
 
-                    // v3.7.0 Phase 2: 导入入口（按钮先加，逻辑 Phase 3 实现）
+                    // v3.7.0 Phase 3: 导入入口（粘贴 PGN）
                     Button {
-                        // Phase 3: 打开导入界面
+                        importFromClipboard()
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -163,9 +196,9 @@ struct GameHistoryView: View {
                         showClearAlert = true
                     }
                 }
-                // v3.7.0 Phase 2: 导入入口
+                // v3.7.0 Phase 3: 导入入口（粘贴 PGN）
                 Button {
-                    // Phase 3: 打开导入界面
+                    importFromClipboard()
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -200,6 +233,34 @@ struct GameHistoryView: View {
         } message: {
             Text(exportResultText)
         }
+        // v3.7.0 Phase 3: 重命名弹窗
+        .alert(l10n.t("history.rename"), isPresented: $showRenameAlert) {
+            TextField(l10n.t("history.title"), text: $renameText)
+            Button(l10n.t("common.cancel"), role: .cancel) {}
+            Button(l10n.t("common.save")) {
+                guard let id = renameTargetID, var record = store.loadRecord(id: id) else { return }
+                record.title = renameText
+                store.updateRecord(record)
+                reloadSummaries()
+            }
+        }
+        // v3.7.0 Phase 3: 导入结果提示
+        .alert(l10n.t("import.resultTitle"), isPresented: $showImportResultAlert) {
+            Button(l10n.t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(importResultText)
+        }
+        // v3.7.0 Phase 3: iOS 文件导入
+        #if os(iOS)
+        .fileImporter(isPresented: $showImportPicker, allowedContentTypes: [.plainText]) { result in
+            switch result {
+            case .success(let url):
+                importFromFile(url)
+            case .failure:
+                break
+            }
+        }
+        #endif
     }
 
     // MARK: - 操作
@@ -273,6 +334,59 @@ struct GameHistoryView: View {
         selectedIDs.removeAll()
         reloadSummaries()
     }
+
+    // MARK: - v3.7.0 Phase 3: 导入
+
+    private func importFromClipboard() {
+        #if os(macOS)
+        guard let text = NSPasteboard.general.string(forType: .string), !text.isEmpty else {
+            importResultText = l10n.t("import.emptyClipboard")
+            showImportResultAlert = true
+            return
+        }
+        #else
+        guard let text = UIPasteboard.general.string, !text.isEmpty else {
+            importResultText = l10n.t("import.emptyClipboard")
+            showImportResultAlert = true
+            return
+        }
+        #endif
+        processImportText(text)
+    }
+
+    private func importFromFile(_ url: URL) {
+        guard url.startAccessingSecurityScopedResource() else { return }
+        defer { url.stopAccessingSecurityScopedResource() }
+        guard let text = try? String(contentsOf: url, encoding: .utf8), !text.isEmpty else {
+            importResultText = l10n.t("import.readFileFail")
+            showImportResultAlert = true
+            return
+        }
+        processImportText(text)
+    }
+
+    private func processImportText(_ text: String) {
+        let result = PGNImporter.parse(text)
+        for record in result.records {
+            store.addRecord(record)
+        }
+        reloadSummaries()
+
+        if result.warnings.isEmpty {
+            importResultText = String(format: l10n.t("import.success"), result.records.count)
+        } else {
+            importResultText = String(format: l10n.t("import.partial"), result.records.count, result.warnings.count)
+        }
+        showImportResultAlert = true
+    }
+
+    // MARK: - v3.7.0 Phase 3: 重命名
+
+    private func startRename(_ summary: RecordSummary) {
+        renameTargetID = summary.id
+        renameText = summary.title
+        showRenameAlert = true
+    }
 }
 
 // MARK: - 历史对局摘要行（基于 RecordSummary，无需全量加载）
@@ -283,8 +397,8 @@ struct GameHistorySummaryRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // 结果图标
-            resultIcon
+            // 来源图标
+            sourceIcon
                 .font(.title2)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -334,6 +448,25 @@ struct GameHistorySummaryRow: View {
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
+    }
+
+    // MARK: - 来源图标
+
+    private var sourceIcon: some View {
+        switch summary.source {
+        case .versusAI:
+            return Image(systemName: "sword.fill")
+                .foregroundColor(.orange)
+        case .puzzle:
+            return Image(systemName: "puzzlepiece.fill")
+                .foregroundColor(.purple)
+        case .imported:
+            return Image(systemName: "arrow.down.doc.fill")
+                .foregroundColor(.blue)
+        case .freePlay:
+            return Image(systemName: "person.2.fill")
+                .foregroundColor(.green)
+        }
     }
 
     // MARK: - 来源文本

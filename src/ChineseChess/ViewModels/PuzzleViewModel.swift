@@ -822,6 +822,14 @@ class PuzzleViewModel {
             bestRating: completionRating
         )
         PuzzleStore.shared.recordProgress(progress)
+
+        // v3.7.0 Phase 3: 保存残局棋谱到 GameRecordStore
+        if var record = buildSolutionRecord() {
+            record.source = .puzzle
+            record.puzzleId = puzzle.id
+            record.title = String(format: L10n.shared.t("puzzle.recordTitle"), puzzle.name)
+            GameRecordStore.shared.addRecord(record)
+        }
     }
 
     // MARK: - 重置(puzzleVersion 防护)

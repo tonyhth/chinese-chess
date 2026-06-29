@@ -261,6 +261,10 @@ struct ChineseChessiOSApp: App {
                         Task { await EngineRouter.shared.shutdown() }
                     }
                 }
+                // v3.7.0 Phase 3: 打开 .pgn 文件
+                .onOpenURL { url in
+                    handleOpenURL(url)
+                }
         }
     }
 
@@ -269,6 +273,22 @@ struct ChineseChessiOSApp: App {
     private func copyRecordToClipboard(_ record: GameRecord) {
         let pgn = PGNExporter.export(record)
         UIPasteboard.general.string = pgn
+    }
+
+    // MARK: - v3.7.0 Phase 3: 打开 .pgn 文件
+
+    private func handleOpenURL(_ url: URL) {
+        guard url.pathExtension == "pgn" else { return }
+        guard url.startAccessingSecurityScopedResource() else { return }
+        defer { url.stopAccessingSecurityScopedResource() }
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        let result = PGNImporter.parse(text)
+        for record in result.records {
+            GameRecordStore.shared.addRecord(record)
+        }
+        if !result.records.isEmpty {
+            showHistory = true
+        }
     }
 }
 #endif

@@ -346,6 +346,10 @@ struct ChineseChessApp: App {
                     .frame(minWidth: 320, minHeight: 300)
                 }
             }
+            // v3.7.0 Phase 3: 打开 .pgn 文件
+            .onOpenURL { url in
+                handleOpenURL(url)
+            }
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
@@ -403,6 +407,21 @@ struct ChineseChessApp: App {
         let pgn = PGNExporter.export(record)
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(pgn, forType: .string)
+    }
+
+    // MARK: - v3.7.0 Phase 3: 打开 .pgn 文件
+
+    private func handleOpenURL(_ url: URL) {
+        guard url.pathExtension == "pgn" else { return }
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        let result = PGNImporter.parse(text)
+        for record in result.records {
+            GameRecordStore.shared.addRecord(record)
+        }
+        // 导入后打开历史页面
+        if !result.records.isEmpty {
+            showHistory = true
+        }
     }
 }
 #endif

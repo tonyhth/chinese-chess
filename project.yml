@@ -47,7 +47,8 @@ targets:
       - path: src/ChineseChess/Resources/Assets.xcassets
     settings:
       base:
-        GENERATE_INFOPLIST_FILE: YES
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: src/ChineseChess/Resources/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: 中国象棋
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.board-games
         INFOPLIST_KEY_NSHighResolutionCapable: YES

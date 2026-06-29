@@ -27,9 +27,11 @@ struct ReplayView: View {
             // 标题栏 + 对局信息（ZStack 标题居中，信息左对齐）
             ZStack {
                 // 居中标题
-                Text(l10n.t("replay.title"))
+                Text(viewModel.record.title)
                     .font(.callout.weight(.bold))
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
 
                 // 左侧：关闭按钮 + 对局信息
                 HStack {
