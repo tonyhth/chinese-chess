@@ -272,8 +272,8 @@ struct PGNImporter {
                 throw PGNError.illegalMove(step: index + 1, moveStr: token)
             }
 
-            // P1-2: ICCS 行号合法范围 1-9
-            guard fromRow >= 1 && fromRow <= 9 && toRow >= 1 && toRow <= 9 else {
+            // ICCS 行号合法范围 0-9
+            guard fromRow >= 0 && fromRow <= 9 && toRow >= 0 && toRow <= 9 else {
                 throw PGNError.illegalMove(step: index + 1, moveStr: token)
             }
 
