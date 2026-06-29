@@ -57,6 +57,16 @@ final class GameRecordStore {
         reconcileOrphanFiles()
     }
 
+    /// 测试用初始化器（指定 baseURL，避免污染真实数据）
+    init(baseURL: URL) {
+        self.baseURL = baseURL
+        indexURL = baseURL.appendingPathComponent("index.json")
+
+        try? fileManager.createDirectory(at: baseURL, withIntermediateDirectories: true)
+        loadSummariesFromDisk()
+        reconcileOrphanFiles()
+    }
+
     // MARK: - 读取
 
     /// 全部记录摘要（列表展示用，从内存缓存读取）

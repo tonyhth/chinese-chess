@@ -54,6 +54,9 @@ struct ChineseChessApp: App {
             }
             UserDefaults.standard.set(true, forKey: "chinesechess.bonusDataCleaned_v1")
         }
+
+        // v3.7.0 Phase 4: UserDefaults 历史数据迁移到 JSON 文件
+        DataMigration.migrateGameHistoryToFiles()
     }
 
     // 面板状态:互斥管理
