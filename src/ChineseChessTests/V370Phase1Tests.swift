@@ -770,6 +770,27 @@ final class V370Phase1Tests: XCTestCase {
         XCTAssertTrue(result.warnings.count > 0)
     }
 
+    func testPGNImport_ICCSRowZero_IsLegal() {
+        // 5fc9567 修正：ICCS 行号范围 0-9（P1-2 的 1-9 限制是错的）
+        // b0c2 = 黑方马从 row=0(黑方底线) 起步，是合法走法
+        let pgn = """
+        [Event "ICCS row=0"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. h2e2 b0c2 1-0
+        """
+        let result = PGNImporter.parse(pgn)
+
+        XCTAssertEqual(result.records.count, 1, "ICCS 行号 0 应合法")
+        XCTAssertEqual(result.records[0].moves.count, 2, "应解析出 2 步走法")
+        // b0c2: ICCS col b=1, row 0 → Board row=9-0=9, col=1 → (9,1)
+        //        ICCS col c=2, row 2 → Board row=9-2=7, col=2 → (7,2)
+        XCTAssertEqual(result.records[0].moves[1].from, Position(row: 9, col: 1))
+        XCTAssertEqual(result.records[0].moves[1].to, Position(row: 7, col: 2))
+    }
+
     // ============================================================
     // 10. GameHistoryStore deprecated 标记
     // ============================================================

@@ -227,7 +227,11 @@ struct ChineseChessApp: App {
                 get: { activePanel == .record },
                 set: { if !$0 { activePanel = .none } }
             )) {
-                RecordPanelView(viewModel: viewModel)
+                RecordPanelView(viewModel: viewModel, onExportRequest: {
+                    if let record = viewModel.buildGameRecord() {
+                        copyRecordToClipboard(record)
+                    }
+                })
                     .frame(minWidth: 280, minHeight: 250, maxHeight: 400)
             }
             .sheet(isPresented: Binding(
@@ -391,6 +395,14 @@ struct ChineseChessApp: App {
                 }
             }
         }
+    }
+
+    // MARK: - 导出辅助
+
+    private func copyRecordToClipboard(_ record: GameRecord) {
+        let pgn = PGNExporter.export(record)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(pgn, forType: .string)
     }
 }
 #endif

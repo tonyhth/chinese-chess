@@ -17,15 +17,17 @@ struct RecordPanelView: View {
     }
 
     /// 对弈模式：传入 viewModel，sheet 内自动追踪 gameMoves 变化
-    init(viewModel: GameViewModel) {
+    init(viewModel: GameViewModel, onExportRequest: (() -> Void)? = nil) {
         self._viewModel = viewModel
         self._staticGameMoves = []
+        self.onExportRequest = onExportRequest
     }
 
     /// 残局模式：传入静态 gameMoves（不在 sheet 中，无刷新问题）
-    init(gameMoves: [GameMove]) {
+    init(gameMoves: [GameMove], onExportRequest: (() -> Void)? = nil) {
         self._viewModel = nil
         self._staticGameMoves = gameMoves
+        self.onExportRequest = onExportRequest
     }
 
     /// 当前棋步列表：优先从 viewModel 实时读取，否则使用静态快照

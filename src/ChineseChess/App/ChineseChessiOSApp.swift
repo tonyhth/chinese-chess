@@ -136,7 +136,11 @@ struct ChineseChessiOSApp: App {
                     set: { if !$0 { activePanel = .none } }
                 )) {
                     NavigationStack {
-                        RecordPanelView(viewModel: gameViewModel)
+                        RecordPanelView(viewModel: gameViewModel, onExportRequest: {
+                            if let record = gameViewModel.buildGameRecord() {
+                                copyRecordToClipboard(record)
+                            }
+                        })
                             .navigationTitle(L10n.shared.t("record.title"))
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
@@ -258,6 +262,13 @@ struct ChineseChessiOSApp: App {
                     }
                 }
         }
+    }
+
+    // MARK: - 导出辅助
+
+    private func copyRecordToClipboard(_ record: GameRecord) {
+        let pgn = PGNExporter.export(record)
+        UIPasteboard.general.string = pgn
     }
 }
 #endif

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct GameHistoryView: View {
-    @State private var records: [GameRecord] = []
+    @State private var summaries: [RecordSummary] = []
     @State private var showClearAlert = false
     // v3.7.0 Phase 2: 多选模式
     @State private var isSelectMode = false
@@ -11,6 +11,7 @@ struct GameHistoryView: View {
 
     private let l10n = L10n.shared
     private let profile = PlayerProfileStore.shared.profile
+    private let store = GameRecordStore.shared
 
     // v3.7.0 Phase 2: 导出门禁
     private var canExport: Bool {
@@ -19,7 +20,7 @@ struct GameHistoryView: View {
 
     var body: some View {
         List(selection: isSelectMode ? $selectedIDs : nil) {
-            if records.isEmpty {
+            if summaries.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.largeTitle)
@@ -33,46 +34,51 @@ struct GameHistoryView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
             } else {
-                ForEach(records) { record in
-                    GameHistoryRow(record: record)
+                ForEach(summaries) { summary in
+                    GameHistorySummaryRow(summary: summary)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             if isSelectMode {
-                                toggleSelection(record.id)
+                                toggleSelection(summary.id)
                             } else {
-                                onReplayRequest?(record)
+                                // P1-1: 从 GameRecordStore 按需加载完整记录
+                                if let record = store.loadRecord(id: summary.id) {
+                                    onReplayRequest?(record)
+                                }
                             }
                         }
                         #if os(macOS)
                         .contextMenu {
                             Button {
-                                copyPGNToClipboard(record)
+                                copyPGNToClipboard(summary.id)
                             } label: {
                                 Label(l10n.t("export.copyPGN"), systemImage: "doc.on.doc")
                             }
                             .disabled(!canExport)
 
-                            ShareLink(
-                                item: PGNExporter.export(record),
-                                preview: SharePreview(
-                                    "\(record.title).pgn",
-                                    image: Image(systemName: "doc.text")
-                                )
-                            ) {
-                                Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                            if let record = store.loadRecord(id: summary.id) {
+                                ShareLink(
+                                    item: PGNExporter.export(record),
+                                    preview: SharePreview(
+                                        "\(record.title).pgn",
+                                        image: Image(systemName: "doc.text")
+                                    )
+                                ) {
+                                    Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                                }
+                                .disabled(!canExport)
                             }
-                            .disabled(!canExport)
 
                             Divider()
 
                             Button(l10n.t("common.delete"), role: .destructive) {
-                                deleteRecord(record)
+                                deleteRecord(summary.id)
                             }
                         }
                         #endif
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
-                                deleteRecord(record)
+                                deleteRecord(summary.id)
                             } label: {
                                 Label(l10n.t("common.delete"), systemImage: "trash")
                             }
@@ -80,7 +86,7 @@ struct GameHistoryView: View {
                         // v3.7.0 Phase 2: 左滑分享按钮
                         .swipeActions(edge: .leading, allowsFullSwipe: false) {
                             Button {
-                                copyPGNToClipboard(record)
+                                copyPGNToClipboard(summary.id)
                             } label: {
                                 Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
                             }
@@ -95,7 +101,7 @@ struct GameHistoryView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .onAppear {
-            reloadRecords()
+            reloadSummaries()
         }
         .toolbar {
             #if os(iOS)
@@ -126,7 +132,7 @@ struct GameHistoryView: View {
                         }
                     }
                 } else {
-                    if !records.isEmpty {
+                    if !summaries.isEmpty {
                         Button(l10n.t("history.clear"), role: .destructive) {
                             showClearAlert = true
                         }
@@ -142,7 +148,7 @@ struct GameHistoryView: View {
                     }
 
                     // v3.7.0 Phase 2: 多选按钮
-                    if !records.isEmpty {
+                    if !summaries.isEmpty {
                         Button(l10n.t("history.select")) {
                             isSelectMode = true
                         }
@@ -151,7 +157,7 @@ struct GameHistoryView: View {
             }
             #else
             ToolbarItemGroup(placement: .primaryAction) {
-                if !records.isEmpty {
+                if !summaries.isEmpty {
                     Button(l10n.t("history.clear"), role: .destructive) {
                         showClearAlert = true
                     }
@@ -164,7 +170,7 @@ struct GameHistoryView: View {
                 }
 
                 // v3.7.0 Phase 2: 多选按钮
-                if !records.isEmpty {
+                if !summaries.isEmpty {
                     Button(l10n.t("history.select")) {
                         isSelectMode = true
                     }
@@ -175,8 +181,8 @@ struct GameHistoryView: View {
         .alert(l10n.t("history.clear"), isPresented: $showClearAlert) {
             Button(l10n.t("common.cancel"), role: .cancel) {}
             Button(l10n.t("common.clear"), role: .destructive) {
-                GameHistoryStore.shared.clearAll()
-                reloadRecords()
+                store.clearAll()
+                reloadSummaries()
             }
         } message: {
             Text(l10n.t("history.clearConfirm"))
@@ -185,18 +191,19 @@ struct GameHistoryView: View {
 
     // MARK: - 操作
 
-    private func reloadRecords() {
-        records = GameHistoryStore.shared.records
+    private func reloadSummaries() {
+        store.reloadSummaries()
+        summaries = store.loadSummaries()
     }
 
-    private func deleteRecord(_ record: GameRecord) {
-        GameHistoryStore.shared.deleteRecord(id: record.id)
-        reloadRecords()
+    private func deleteRecord(_ id: UUID) {
+        store.deleteRecord(id: id)
+        reloadSummaries()
     }
 
     // v3.7.0 Phase 2: 复制 PGN 到剪贴板
-    private func copyPGNToClipboard(_ record: GameRecord) {
-        guard canExport else { return }
+    private func copyPGNToClipboard(_ id: UUID) {
+        guard canExport, let record = store.loadRecord(id: id) else { return }
         let pgn = PGNExporter.export(record)
         #if os(macOS)
         NSPasteboard.general.clearContents()
@@ -221,23 +228,23 @@ struct GameHistoryView: View {
     }
 
     private func exportSelectedPGN() -> String {
-        let selected = records.filter { selectedIDs.contains($0.id) }
-        return PGNExporter.exportBatch(selected)
+        let selectedRecords = selectedIDs.compactMap { store.loadRecord(id: $0) }
+        return PGNExporter.exportBatch(selectedRecords)
     }
 
     private func deleteSelectedRecords() {
         for id in selectedIDs {
-            GameHistoryStore.shared.deleteRecord(id: id)
+            store.deleteRecord(id: id)
         }
         selectedIDs.removeAll()
-        reloadRecords()
+        reloadSummaries()
     }
 }
 
-// MARK: - 历史对局行
+// MARK: - 历史对局摘要行（基于 RecordSummary，无需全量加载）
 
-struct GameHistoryRow: View {
-    let record: GameRecord
+struct GameHistorySummaryRow: View {
+    let summary: RecordSummary
     private let l10n = L10n.shared
 
     var body: some View {
@@ -248,7 +255,7 @@ struct GameHistoryRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 // 标题
-                Text(record.title)
+                Text(summary.title)
                     .font(.headline)
 
                 // 详细信息
@@ -260,20 +267,27 @@ struct GameHistoryRow: View {
                     Text("·")
                         .foregroundColor(.secondary)
 
-                    Text(String(format: l10n.t("history.moveCount"), record.totalMoves))
+                    Text(String(format: l10n.t("history.moveCount"), summary.totalMoves))
                         .foregroundColor(.secondary)
                         .font(.subheadline)
 
                     Text("·")
                         .foregroundColor(.secondary)
 
-                    Text(record.difficulty.displayName)
+                    Text(summary.difficulty.displayName)
                         .foregroundColor(.secondary)
                         .font(.subheadline)
+
+                    // v3.7.0 Phase 2: 来源标签
+                    Text("·")
+                        .foregroundColor(.secondary)
+                    Text(sourceText)
+                        .foregroundColor(.secondary.opacity(0.8))
+                        .font(.caption2)
                 }
 
                 // 日期
-                Text(formatDate(record.date))
+                Text(formatDate(summary.date))
                     .foregroundColor(.secondary)
                     .font(.caption)
             }
@@ -288,10 +302,21 @@ struct GameHistoryRow: View {
         .accessibilityElement(children: .combine)
     }
 
+    // MARK: - 来源文本
+
+    private var sourceText: String {
+        switch summary.source {
+        case .versusAI: return l10n.t("source.versusAI")
+        case .puzzle:   return l10n.t("source.puzzle")
+        case .imported: return l10n.t("source.imported")
+        case .freePlay: return l10n.t("source.freePlay")
+        }
+    }
+
     // MARK: - 结果显示
 
     private var resultIcon: some View {
-        switch record.result {
+        switch summary.result {
         case .redWon:
             return Image(systemName: "trophy.fill")
                 .foregroundColor(.yellow)
@@ -308,7 +333,7 @@ struct GameHistoryRow: View {
     }
 
     private var resultText: String {
-        switch record.result {
+        switch summary.result {
         case .redWon: return l10n.t("result.redWon")
         case .blackWon: return l10n.t("result.blackWon")
         case .draw: return l10n.t("result.draw")
@@ -317,7 +342,7 @@ struct GameHistoryRow: View {
     }
 
     private var resultColor: Color {
-        switch record.result {
+        switch summary.result {
         case .redWon: return .green
         case .blackWon: return .red
         case .draw: return .gray

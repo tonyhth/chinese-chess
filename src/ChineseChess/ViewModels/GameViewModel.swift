@@ -605,7 +605,7 @@ class GameViewModel {
 
         // Phase 4: 自动保存历史对局
         if gameState != .playing, let record = buildGameRecord() {
-            GameHistoryStore.shared.addRecord(record)
+            GameRecordStore.shared.addRecord(record)
         }
     }
 
@@ -615,13 +615,19 @@ class GameViewModel {
     func buildGameRecord() -> GameRecord? {
         guard !gameMoves.isEmpty else { return nil }
         let isHumanRed = humanSide == .red
+        let humanName = L10n.shared.t("player.human")
+        let aiName = String(format: L10n.shared.t("player.aiLabel"), difficulty.displayName)
         return GameRecord(
             id: UUID(),
             title: String(format: L10n.shared.t("game.vsAITitle"), formatShortDate()),
             date: Date(),
-            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: !isHumanRed, difficulty: isHumanRed ? nil : difficulty),
+            redPlayer: PlayerInfo(
+                name: isHumanRed ? humanName : aiName,
+                isAI: !isHumanRed,
+                difficulty: isHumanRed ? nil : difficulty
+            ),
             blackPlayer: PlayerInfo(
-                name: String(format: L10n.shared.t("player.aiLabel"), difficulty.displayName),
+                name: isHumanRed ? aiName : humanName,
                 isAI: isHumanRed,
                 difficulty: isHumanRed ? difficulty : nil
             ),
@@ -630,7 +636,7 @@ class GameViewModel {
             totalMoves: gameMoves.count,
             moves: gameMoves,
             initialFEN: nil,
-            source: .versusAI  // v3.7.0 Phase 2: 对弈模式
+            source: .versusAI
         )
     }
 

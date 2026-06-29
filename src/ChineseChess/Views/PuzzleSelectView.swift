@@ -639,7 +639,32 @@ struct PuzzlePlayView: View {
 
                 // 棋谱（内部自带 ScrollView，外层不套 ScrollView 避免嵌套冲突）
                 if !viewModel.gameMoves.isEmpty {
-                    RecordPanelView(gameMoves: viewModel.gameMoves)
+                    RecordPanelView(gameMoves: viewModel.gameMoves, onExportRequest: {
+                        let puzzleResult: GameState = viewModel.gameState == .success
+                            ? (viewModel.puzzle.side == .red ? .redWon : .blackWon)
+                            : .playing
+                        let record = GameRecord(
+                            id: UUID(),
+                            title: viewModel.puzzle.name,
+                            date: Date(),
+                            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: false, difficulty: nil),
+                            blackPlayer: PlayerInfo(name: L10n.shared.t("player.black"), isAI: true, difficulty: nil),
+                            difficulty: .medium,
+                            result: puzzleResult,
+                            totalMoves: viewModel.gameMoves.count,
+                            moves: viewModel.gameMoves,
+                            initialFEN: viewModel.puzzle.initialFEN,
+                            source: .puzzle,
+                            tags: [],
+                            puzzleId: viewModel.puzzle.id
+                        )
+                        #if os(macOS)
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(PGNExporter.export(record), forType: .string)
+                        #else
+                        UIPasteboard.general.string = PGNExporter.export(record)
+                        #endif
+                    })
                         .padding(.horizontal, 12)
                         .padding(.bottom, 8)
                 }
