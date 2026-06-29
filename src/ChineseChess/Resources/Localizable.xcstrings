@@ -578,6 +578,22 @@
         }
       }
     },
+    "import.parseFail": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u5bfc\u5165\u5931\u8d25\uff1a\u68cb\u8c31\u683c\u5f0f\u9519\u8bef"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import failed: invalid PGN format"
+          }
+        }
+      }
+    },
     "import.partial": {
       "localizations": {
         "zh-Hans": {

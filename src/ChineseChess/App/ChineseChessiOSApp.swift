@@ -24,6 +24,8 @@ struct ChineseChessiOSApp: App {
     @State private var showDailyChallenge = false
     @State private var showAchievements = false
     @State private var showRankPrivilege = false
+    @State private var showImportFailAlert = false
+    @State private var importFailMessage = ""
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -265,6 +267,11 @@ struct ChineseChessiOSApp: App {
                 .onOpenURL { url in
                     handleOpenURL(url)
                 }
+                .alert(L10n.shared.t("import.resultTitle"), isPresented: $showImportFailAlert) {
+                    Button(L10n.shared.t("common.ok"), role: .cancel) {}
+                } message: {
+                    Text(importFailMessage)
+                }
         }
     }
 
@@ -279,15 +286,26 @@ struct ChineseChessiOSApp: App {
 
     private func handleOpenURL(_ url: URL) {
         guard url.pathExtension == "pgn" else { return }
-        guard url.startAccessingSecurityScopedResource() else { return }
+        guard url.startAccessingSecurityScopedResource() else {
+            importFailMessage = L10n.shared.t("import.readFileFail")
+            showImportFailAlert = true
+            return
+        }
         defer { url.stopAccessingSecurityScopedResource() }
-        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else {
+            importFailMessage = L10n.shared.t("import.readFileFail")
+            showImportFailAlert = true
+            return
+        }
         let result = PGNImporter.parse(text)
         for record in result.records {
             GameRecordStore.shared.addRecord(record)
         }
         if !result.records.isEmpty {
             showHistory = true
+        } else {
+            importFailMessage = L10n.shared.t("import.parseFail")
+            showImportFailAlert = true
         }
     }
 }

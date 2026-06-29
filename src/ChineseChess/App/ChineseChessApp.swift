@@ -74,6 +74,8 @@ struct ChineseChessApp: App {
     @State private var showAchievements = false
     @State private var showRankPrivilege = false
     @State private var showRankUp = false
+    @State private var showImportFailAlert = false
+    @State private var importFailMessage = ""
     @State private var rankUpRank: Rank?
 
     @Environment(\.scenePhase) private var scenePhase
@@ -350,6 +352,11 @@ struct ChineseChessApp: App {
             .onOpenURL { url in
                 handleOpenURL(url)
             }
+            .alert(L10n.shared.t("import.resultTitle"), isPresented: $showImportFailAlert) {
+                Button(L10n.shared.t("common.ok"), role: .cancel) {}
+            } message: {
+                Text(importFailMessage)
+            }
         }
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
@@ -413,14 +420,20 @@ struct ChineseChessApp: App {
 
     private func handleOpenURL(_ url: URL) {
         guard url.pathExtension == "pgn" else { return }
-        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else {
+            importFailMessage = L10n.shared.t("import.readFileFail")
+            showImportFailAlert = true
+            return
+        }
         let result = PGNImporter.parse(text)
         for record in result.records {
             GameRecordStore.shared.addRecord(record)
         }
-        // 导入后打开历史页面
         if !result.records.isEmpty {
             showHistory = true
+        } else {
+            importFailMessage = L10n.shared.t("import.parseFail")
+            showImportFailAlert = true
         }
     }
 }
