@@ -8019,6 +8019,22 @@
           }
         }
       }
+    },
+    "history.newTitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新标题"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Title"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

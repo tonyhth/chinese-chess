@@ -3,14 +3,12 @@ import SwiftUI
 struct ReplayView: View {
     @State private var viewModel: ReplayViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var isRenaming = false
+    @State private var newTitle = ""
+    @State private var showFEN = false
     var onClose: (() -> Void)? = nil
 
-    // v3.7.1 C3: FEN 显示开关
-    @State private var showFEN = false
     private let l10n = L10n.shared
-    // v3.7.1 C4: 重命名状态
-    @State private var showRenameAlert = false
-    @State private var renameText = ""
     private let profile = PlayerProfileStore.shared.profile
 
     // v3.7.0 Phase 2: 导出门禁
@@ -36,16 +34,16 @@ struct ReplayView: View {
                     .foregroundColor(.white)
 
                 // 中间：标题 + vs 信息（单行截断）
+                // C4: 长按标题触发重命名
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.displayTitle)
                         .font(.callout.weight(.bold))
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
-                        // C4: 长按重命名
                         .onLongPressGesture {
-                            renameText = viewModel.record.title
-                            showRenameAlert = true
+                            newTitle = viewModel.displayTitle
+                            isRenaming = true
                         }
                     HStack(spacing: 4) {
                         Text(viewModel.record.redPlayer.name)
@@ -83,43 +81,29 @@ struct ReplayView: View {
             }
 
             // 回放控制条
-            ReplayControlView(viewModel: viewModel)
+            ReplayControlView(viewModel: viewModel, showFEN: $showFEN)
 
-            // v3.7.1 C3: 可折叠 FEN 显示
-            VStack(spacing: 4) {
-                Button {
-                    withAnimation { showFEN.toggle() }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: showFEN ? "chevron.down" : "chevron.right")
-                            .font(.caption2)
-                        Text("FEN")
-                            .font(.caption2.weight(.medium))
-                        Spacer()
-                    }
+            // C3: FEN 折叠显示
+            if showFEN {
+                Text(FENParser.generate(board: viewModel.board))
+                    .font(.system(size: 10, design: .monospaced))
                     .foregroundColor(.gray)
-                    .padding(.horizontal, 16)
-                }
-                if showFEN {
-                    Text(FENParser.generate(board: viewModel.board))
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundColor(.gray)
-                        .textSelection(.enabled)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 2)
-                }
+                    .lineLimit(2)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color(red: 30/255, green: 20/255, blue: 12/255))
+                    .textSelection(.enabled)
             }
-            .padding(.vertical, 2)
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
-        // C4: 重命名弹窗
-        .alert(l10n.t("history.rename"), isPresented: $showRenameAlert) {
-            Button(l10n.t("common.cancel"), role: .cancel) {}
-            Button(l10n.t("common.ok")) {
-                guard !renameText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                viewModel.rename(renameText.trimmingCharacters(in: .whitespaces))
+        .alert(l10n.t("history.rename"), isPresented: $isRenaming) {
+            TextField(l10n.t("history.newTitle"), text: $newTitle)
+            Button(l10n.t("common.confirm")) {
+                let trimmed = newTitle.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return }
+                viewModel.rename(trimmed)
             }
-            TextField(l10n.t("history.rename"), text: $renameText)
+            Button(l10n.t("common.cancel"), role: .cancel) {}
         }
     }
 
