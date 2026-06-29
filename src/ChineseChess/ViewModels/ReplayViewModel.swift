@@ -3,6 +3,7 @@ import Foundation
 @Observable
 class ReplayViewModel {
     let record: GameRecord
+    private(set) var displayTitle: String  // C4: 可更新的显示标题
     private(set) var board: Board
     private(set) var currentIndex: Int = 0  // 当前步数索引（0 = 初始局面）
     var lastMove: (from: Position, to: Position)? = nil
@@ -22,7 +23,32 @@ class ReplayViewModel {
 
     init(record: GameRecord) {
         self.record = record
+        self.displayTitle = record.title
         self.board = Board(fen: record.initialFEN ?? FENParser.standardInitial)
+    }
+
+    // MARK: - 重命名（C4）
+
+    func rename(_ newTitle: String) {
+        guard !newTitle.isEmpty else { return }
+        displayTitle = newTitle
+        var updated = record
+        updated = GameRecord(
+            id: record.id,
+            title: newTitle,
+            date: record.date,
+            redPlayer: record.redPlayer,
+            blackPlayer: record.blackPlayer,
+            difficulty: record.difficulty,
+            result: record.result,
+            totalMoves: record.totalMoves,
+            moves: record.moves,
+            initialFEN: record.initialFEN,
+            source: record.source,
+            tags: record.tags,
+            puzzleId: record.puzzleId
+        )
+        GameRecordStore.shared.updateRecord(updated)
     }
 
     // MARK: - 导航

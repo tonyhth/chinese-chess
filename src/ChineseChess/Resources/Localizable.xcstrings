@@ -7987,6 +7987,38 @@
           }
         }
       }
+    },
+    "import.pastePGN": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴 PGN"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste PGN"
+          }
+        }
+      }
+    },
+    "import.fromFile": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从文件导入"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from File"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

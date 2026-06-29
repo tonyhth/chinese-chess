@@ -155,12 +155,12 @@ struct PGNImporter {
         let blackName = tags["Black"] ?? "黑方"
         let result = parseResult(tags["Result"])
 
-        // 确定 difficulty
-        let difficulty: AIDifficulty
+        // 确定 difficulty（C5: 导入记录无难度信息时为 nil）
+        let difficulty: AIDifficulty?
         if let diffStr = tags["Difficulty"], let diff = AIDifficulty(rawValue: diffStr) {
             difficulty = diff
         } else {
-            difficulty = .medium  // 导入记录默认中等
+            difficulty = nil  // 无法确定 AI 难度
         }
 
         // 确定 source

@@ -25,7 +25,7 @@ struct GameRecord: Identifiable, Codable {
     let date: Date
     let redPlayer: PlayerInfo
     let blackPlayer: PlayerInfo
-    let difficulty: AIDifficulty
+    let difficulty: AIDifficulty?  // v3.7.1 C5: 导入记录无难度信息
     let result: GameState      // redWon / blackWon / draw
     let totalMoves: Int
     let moves: [GameMove]      // 完整走法列表
@@ -51,7 +51,7 @@ struct GameRecord: Identifiable, Codable {
         date = try c.decode(Date.self, forKey: .date)
         redPlayer = try c.decode(PlayerInfo.self, forKey: .redPlayer)
         blackPlayer = try c.decode(PlayerInfo.self, forKey: .blackPlayer)
-        difficulty = try c.decode(AIDifficulty.self, forKey: .difficulty)
+        difficulty = try c.decodeIfPresent(AIDifficulty.self, forKey: .difficulty)
         result = try c.decode(GameState.self, forKey: .result)
         totalMoves = try c.decode(Int.self, forKey: .totalMoves)
         moves = try c.decode([GameMove].self, forKey: .moves)
@@ -70,7 +70,7 @@ struct GameRecord: Identifiable, Codable {
         date: Date = Date(),
         redPlayer: PlayerInfo,
         blackPlayer: PlayerInfo,
-        difficulty: AIDifficulty,
+        difficulty: AIDifficulty? = nil,
         result: GameState,
         totalMoves: Int,
         moves: [GameMove],

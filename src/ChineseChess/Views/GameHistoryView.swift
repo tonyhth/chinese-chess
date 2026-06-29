@@ -119,6 +119,16 @@ struct GameHistoryView: View {
                             }
                             .disabled(!canExport)
 
+                            // C1: iOS 分享（复制到剪贴板 + 提示，避免 ShareLink 不稳定）
+                            Button {
+                                shareRecordOnIOS(summary.id)
+                            } label: {
+                                Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                            }
+                            .disabled(!canExport)
+
+                            Divider()
+
                             Button(l10n.t("common.delete"), role: .destructive) {
                                 deleteRecord(summary.id)
                             }
@@ -207,9 +217,18 @@ struct GameHistoryView: View {
                         showClearAlert = true
                     }
                 }
-                // v3.7.0 Phase 3: 导入入口（粘贴 PGN）
-                Button {
-                    importFromClipboard()
+                // v3.7.0 Phase 3 + C2: 导入入口（Menu：粘贴 + 文件导入）
+                Menu {
+                    Button {
+                        importFromClipboard()
+                    } label: {
+                        Label(l10n.t("import.pastePGN"), systemImage: "doc.on.clipboard")
+                    }
+                    Button {
+                        showImportPicker = true
+                    } label: {
+                        Label(l10n.t("import.fromFile"), systemImage: "doc.text")
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -295,6 +314,17 @@ struct GameHistoryView: View {
         NSPasteboard.general.setString(pgn, forType: .string)
         #else
         UIPasteboard.general.string = pgn
+        #endif
+    }
+
+    // C1: iOS 分享（复制 + 提示）
+    private func shareRecordOnIOS(_ id: UUID) {
+        guard canExport, let record = store.loadRecord(id: id) else { return }
+        let pgn = PGNExporter.export(record)
+        #if os(iOS)
+        UIPasteboard.general.string = pgn
+        importResultText = String(format: l10n.t("export.copiedN"), 1)
+        showImportResultAlert = true
         #endif
     }
 
@@ -444,7 +474,7 @@ struct GameHistorySummaryRow: View {
                     Text("·")
                         .foregroundColor(.secondary)
 
-                    Text(summary.difficulty.displayName)
+                    Text(summary.difficulty?.displayName ?? "–")
                         .foregroundColor(.secondary)
                         .font(.subheadline)
 

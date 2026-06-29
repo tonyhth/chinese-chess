@@ -8,7 +8,7 @@ struct RecordSummary: Codable, Identifiable {
     let date: Date
     let result: GameState
     let totalMoves: Int
-    let difficulty: AIDifficulty
+    let difficulty: AIDifficulty?
     let source: RecordSource
 
     init(from record: GameRecord) {
