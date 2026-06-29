@@ -17,6 +17,14 @@ struct FENRebuilder {
         if index == 0 { return initialFEN }
 
         let board = Board(fen: initialFEN)
+
+        // P2-3: 如果 FEN 无效，Board 会静默回退到标准开局，记录警告
+        if !FENParser.isStandardInitial(initialFEN) && FENParser.parse(fen: initialFEN) == nil {
+            #if DEBUG
+            AppLog.history.warning("FENRebuilder: invalid FEN '\(initialFEN)', fallback to standard initial")
+            #endif
+        }
+
         for i in 0..<index {
             let gm = moves[i]
             let piece = board.piece(at: gm.from) ?? gm.piece
@@ -31,6 +39,14 @@ struct FENRebuilder {
     /// - Returns: FEN 数组，[0] = initialFEN, [1] = 第一步走后, ...
     static func computeAllFENs(initialFEN: String, moves: [GameMove]) -> [String] {
         var board = Board(fen: initialFEN)
+
+        // P2-3: 如果 FEN 无效，Board 会静默回退到标准开局，记录警告
+        if !FENParser.isStandardInitial(initialFEN) && FENParser.parse(fen: initialFEN) == nil {
+            #if DEBUG
+            AppLog.history.warning("FENRebuilder: invalid FEN '\(initialFEN)', fallback to standard initial")
+            #endif
+        }
+
         var fens = [initialFEN]
         for gm in moves {
             let piece = board.piece(at: gm.from) ?? gm.piece

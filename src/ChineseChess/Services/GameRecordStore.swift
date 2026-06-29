@@ -27,7 +27,7 @@ struct RecordSummary: Codable, Identifiable {
 /// 基于 JSON 文件存储，替代 UserDefaults 方案
 /// - 路径：Documents/GameRecords/index.json + {uuid}.json
 /// - 线程安全：串行写入队列
-/// - 原子写入：先写 .tmp 临时文件再 rename
+/// - 原子写入：Data.write(to:options:.atomic) 本身即原子操作
 /// - id 去重：addRecord 中检查 summaries
 final class GameRecordStore {
     static let shared = GameRecordStore()
@@ -52,6 +52,9 @@ final class GameRecordStore {
 
         // 启动时加载摘要
         loadSummariesFromDisk()
+
+        // P1-5: 启动时一致性校验（发现孤立文件时 reconcil）
+        reconcileOrphanFiles()
     }
 
     // MARK: - 读取
@@ -84,17 +87,11 @@ final class GameRecordStore {
             // id 去重：同 id 不重复写入
             guard !summaries.contains(where: { $0.id == record.id }) else { return }
 
-            // 1. 写入单条文件（原子写入：先写临时文件再 rename）
+            // 1. 写入单条文件（P1-4: .atomic 本身即原子操作，无需双重间接）
             let fileURL = baseURL.appendingPathComponent("\(record.id.uuidString).json")
-            let tmpURL = baseURL.appendingPathComponent("\(record.id.uuidString).tmp")
             do {
                 let data = try JSONEncoder().encode(record)
-                try data.write(to: tmpURL, options: .atomic)
-                // 如果目标文件已存在，先删除
-                if fileManager.fileExists(atPath: fileURL.path) {
-                    try fileManager.removeItem(at: fileURL)
-                }
-                try fileManager.moveItem(at: tmpURL, to: fileURL)
+                try data.write(to: fileURL, options: .atomic)
             } catch {
                 #if DEBUG
                 AppLog.history.error("failed to write record \(record.id): \(error)")
@@ -113,16 +110,11 @@ final class GameRecordStore {
     /// 更新记录（改标题/标签等）
     func updateRecord(_ record: GameRecord) {
         writeQueue.sync {
-            // 1. 覆写单条文件（原子写入）
+            // 1. 覆写单条文件（P1-4: .atomic 本身即原子操作）
             let fileURL = baseURL.appendingPathComponent("\(record.id.uuidString).json")
-            let tmpURL = baseURL.appendingPathComponent("\(record.id.uuidString).tmp")
             do {
                 let data = try JSONEncoder().encode(record)
-                try data.write(to: tmpURL, options: .atomic)
-                if fileManager.fileExists(atPath: fileURL.path) {
-                    try fileManager.removeItem(at: fileURL)
-                }
-                try fileManager.moveItem(at: tmpURL, to: fileURL)
+                try data.write(to: fileURL, options: .atomic)
             } catch {
                 #if DEBUG
                 AppLog.history.error("failed to update record \(record.id): \(error)")
@@ -180,20 +172,60 @@ final class GameRecordStore {
         summaries = loaded
     }
 
-    /// 持久化 index.json（原子写入：先写临时文件再 rename）
+    /// 持久化 index.json（P1-4: .atomic 本身即原子操作）
     private func persistIndex() {
         guard let data = try? JSONEncoder().encode(summaries) else { return }
-        let tmpURL = baseURL.appendingPathComponent("index.tmp")
         do {
-            try data.write(to: tmpURL, options: .atomic)
-            if fileManager.fileExists(atPath: indexURL.path) {
-                try fileManager.removeItem(at: indexURL)
-            }
-            try fileManager.moveItem(at: tmpURL, to: indexURL)
+            try data.write(to: indexURL, options: .atomic)
         } catch {
             #if DEBUG
             AppLog.history.error("failed to persist index: \(error)")
             #endif
+        }
+    }
+
+    /// P1-5: 启动时一致性校验 — 扫描目录发现孤立文件，补充到 index
+    private func reconcileOrphanFiles() {
+        let indexedIDs = Set(summaries.map { $0.id })
+
+        guard let files = try? fileManager.contentsOfDirectory(at: baseURL, includingPropertiesForKeys: nil) else {
+            return
+        }
+
+        var orphans: [RecordSummary] = []
+
+        for fileURL in files {
+            let filename = fileURL.lastPathComponent
+            // 只处理 {uuid}.json 文件
+            guard filename.hasSuffix(".json"), filename != "index.json" else { continue }
+
+            let uuidStr = filename.replacingOccurrences(of: ".json", with: "")
+            guard let uuid = UUID(uuidString: uuidStr) else { continue }
+
+            // 已在索引中 → 跳过
+            if indexedIDs.contains(uuid) { continue }
+
+            // 孤立文件：尝试加载并补充摘要
+            guard let data = try? Data(contentsOf: fileURL),
+                  let record = try? JSONDecoder().decode(GameRecord.self, from: data) else {
+                #if DEBUG
+                AppLog.history.warning("orphan file \(filename) is corrupt, removing")
+                #endif
+                try? fileManager.removeItem(at: fileURL)
+                continue
+            }
+
+            #if DEBUG
+            AppLog.history.warning("orphan file \(filename) recovered, adding to index")
+            #endif
+            orphans.append(RecordSummary(from: record))
+        }
+
+        // 将孤立记录补充到摘要（按日期排序后插入）
+        if !orphans.isEmpty {
+            summaries.append(contentsOf: orphans)
+            summaries.sort { $0.date > $1.date }
+            persistIndex()
         }
     }
 }

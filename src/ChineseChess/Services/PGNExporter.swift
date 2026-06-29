@@ -135,16 +135,21 @@ struct PGNExporter {
         switch record.source {
         case .versusAI: return "人机对弈"
         case .puzzle: return "残局练习"
-        case .imported: return "??"
+        case .imported: return "导入棋谱"
         case .freePlay: return "自由对弈"
         }
     }
 
     /// 日期格式化
-    private static func formatDate(_ date: Date) -> String {
+    /// 日期格式化（P2-2: 避免每次调用创建）
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy.MM.dd"
-        return f.string(from: date)
+        return f
+    }()
+
+    private static func formatDate(_ date: Date) -> String {
+        return dateFormatter.string(from: date)
     }
 
     /// 结果编码

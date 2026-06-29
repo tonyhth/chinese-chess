@@ -33,6 +33,20 @@ struct ImportResult {
 /// 走法解析：忽略换行符合并为单行，去掉回合号和结果标记，按空格 tokenize，走法序号=出现顺序
 struct PGNImporter {
 
+    // MARK: - 共享 DateFormatter（P2-2: 避免每次调用创建）
+
+    private static let exportDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy.MM.dd"
+        return f
+    }()
+
+    private static let importDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy.MM.dd"
+        return f
+    }()
+
     // MARK: - 公开接口
 
     /// 解析 PGN 文本（支持单局和多局）
@@ -179,7 +193,7 @@ struct PGNImporter {
             result: result,
             totalMoves: moves.count,
             moves: moves,
-            initialFEN: source == .imported ? (tags["FEN"] != nil ? initialFEN : nil) : (FENParser.isStandardInitial(initialFEN) ? nil : initialFEN),
+            initialFEN: resolveInitialFEN(fenTag: tags["FEN"], parsedFEN: initialFEN, source: source),
             source: source,
             tags: [],
             puzzleId: tags["PuzzleId"]
@@ -188,27 +202,28 @@ struct PGNImporter {
         return record
     }
 
-    // MARK: - 解析标签段
+    // MARK: - 解析标签段（P1-1: 用 regex capture groups 替代手动字符串切割）
 
     private static func parseTags(_ lines: [String]) -> [String: String] {
         var tags: [String: String] = [:]
-        // 正则匹配 [Key "Value"]
+        // 正则匹配 [Key "Value"]，用 capture groups 提取
         let pattern = #"^\[(\w+)\s+"(.*)"\]$"#
+
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
+            return tags
+        }
 
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
-            guard let range = trimmed.range(of: pattern, options: .regularExpression) else { continue }
-            let matchStr = String(trimmed[range])
+            let nsRange = NSRange(trimmed.startIndex..., in: trimmed)
+            guard let match = regex.firstMatch(in: trimmed, options: [], range: nsRange) else { continue }
 
-            // 提取 key 和 value
-            let openBracket = matchStr.firstIndex(of: "[")!
-            let spaceIdx = matchStr.firstIndex(of: " ")!
-            let closeQuote = matchStr.lastIndex(of: "\"")!
-            let openQuote = matchStr.index(before: closeQuote)
+            // Capture group 1 = Key, Capture group 2 = Value
+            guard let keyRange = Range(match.range(at: 1), in: trimmed),
+                  let valueRange = Range(match.range(at: 2), in: trimmed) else { continue }
 
-            let key = String(matchStr[matchStr.index(after: openBracket)..<spaceIdx])
-            let value = String(matchStr[matchStr.index(after: matchStr.firstIndex(of: "\"")!)..<closeQuote])
-
+            let key = String(trimmed[keyRange])
+            let value = String(trimmed[valueRange])
             tags[key] = value
         }
         return tags
@@ -263,6 +278,11 @@ struct PGNImporter {
                 throw PGNError.illegalMove(step: index + 1, moveStr: token)
             }
 
+            // P1-2: ICCS 行号合法范围 1-9
+            guard fromRow >= 1 && fromRow <= 9 && toRow >= 1 && toRow <= 9 else {
+                throw PGNError.illegalMove(step: index + 1, moveStr: token)
+            }
+
             // ICCS 行号 → Board row：9 - iccsRow
             let boardFromRow = 9 - fromRow
             let boardToRow = 9 - toRow
@@ -307,6 +327,17 @@ struct PGNImporter {
 
     // MARK: - 辅助
 
+    /// P2-1: 提取 initialFEN 三元逻辑为辅助函数
+    private static func resolveInitialFEN(fenTag: String?, parsedFEN: String, source: RecordSource) -> String? {
+        if source == .imported {
+            // 导入记录：只有标签中有 FEN 才保留
+            return fenTag != nil ? parsedFEN : nil
+        } else {
+            // 非导入记录：非标准开局才保留
+            return FENParser.isStandardInitial(parsedFEN) ? nil : parsedFEN
+        }
+    }
+
     /// 解析结果标记
     private static func parseResult(_ resultStr: String?) -> GameState {
         guard let str = resultStr else { return .playing }
@@ -321,8 +352,6 @@ struct PGNImporter {
     /// 解析日期标签
     private static func parseDate(_ dateStr: String?) -> Date {
         guard let str = dateStr, str != "????.??.??" else { return Date() }
-        let f = DateFormatter()
-        f.dateFormat = "yyyy.MM.dd"
-        return f.date(from: str) ?? Date()
+        return importDateFormatter.date(from: str) ?? Date()
     }
 }
