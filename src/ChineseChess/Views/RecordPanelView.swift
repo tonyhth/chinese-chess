@@ -5,8 +5,16 @@ struct RecordPanelView: View {
     private let _viewModel: GameViewModel?
     // 静态棋步（残局模式）：不在 sheet 中，无刷新问题
     private let _staticGameMoves: [GameMove]
+    // v3.7.0 Phase 2: 可选的导出回调
+    var onExportRequest: (() -> Void)? = nil
 
     private let l10n = L10n.shared
+    private let profile = PlayerProfileStore.shared.profile
+
+    // v3.7.0 Phase 2: 导出门禁
+    private var canExport: Bool {
+        profile.isFeatureUnlocked(.gameRecordExport)
+    }
 
     /// 对弈模式：传入 viewModel，sheet 内自动追踪 gameMoves 变化
     init(viewModel: GameViewModel) {
@@ -133,6 +141,30 @@ struct RecordPanelView: View {
                 Text(gm.isCheckmate ? "#" : "+")
                     .font(.footnote.weight(.bold))
                     .foregroundColor(.yellow)
+            }
+        }
+        // v3.7.0 Phase 2: 底部导出按钮
+        if !gameMoves.isEmpty {
+            Divider()
+                .background(Color.white.opacity(0.2))
+                .padding(.horizontal, 4)
+
+            HStack {
+                Spacer()
+                if canExport {
+                    Button {
+                        onExportRequest?()
+                    } label: {
+                        Label(l10n.t("export.quick"), systemImage: "square.and.arrow.up")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                } else {
+                    Label(String(format: l10n.t("export.locked"), l10n.t("rank.hanlin")), systemImage: "lock")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
             }
         }
     }

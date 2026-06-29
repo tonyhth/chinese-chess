@@ -614,21 +614,23 @@ class GameViewModel {
     /// 生成当前对局的回放记录
     func buildGameRecord() -> GameRecord? {
         guard !gameMoves.isEmpty else { return nil }
+        let isHumanRed = humanSide == .red
         return GameRecord(
             id: UUID(),
             title: String(format: L10n.shared.t("game.vsAITitle"), formatShortDate()),
             date: Date(),
-            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: false, difficulty: nil),
+            redPlayer: PlayerInfo(name: L10n.shared.t("player.red"), isAI: !isHumanRed, difficulty: isHumanRed ? nil : difficulty),
             blackPlayer: PlayerInfo(
                 name: String(format: L10n.shared.t("player.aiLabel"), difficulty.displayName),
-                isAI: true,
-                difficulty: difficulty
+                isAI: isHumanRed,
+                difficulty: isHumanRed ? difficulty : nil
             ),
             difficulty: difficulty,
             result: gameState,
             totalMoves: gameMoves.count,
             moves: gameMoves,
-            initialFEN: nil
+            initialFEN: nil,
+            source: .versusAI  // v3.7.0 Phase 2: 对弈模式
         )
     }
 

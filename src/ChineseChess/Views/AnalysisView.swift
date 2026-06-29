@@ -17,6 +17,10 @@ struct AnalysisView: View {
     private var hasExpertAnalysis: Bool {
         profile.rank >= .hanlin   // 同 engineAnalysis（Q2 定义）
     }
+    // v3.7.0 Phase 2: 导出门禁
+    private var canExport: Bool {
+        profile.isFeatureUnlocked(.gameRecordExport)
+    }
 
     init(record: GameRecord) {
         self._replayVM = State(initialValue: ReplayViewModel(record: record))
@@ -61,11 +65,43 @@ struct AnalysisView: View {
                 Button(l10n.t("common.close")) { dismiss() }
                     .foregroundColor(.white)
                 Spacer()
+
+                // v3.7.0 Phase 2: 分享按钮
+                shareMenu
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
         .background(Color(red: 50/255, green: 30/255, blue: 20/255))
+    }
+
+    // MARK: - 分享菜单
+
+    private var shareMenu: some View {
+        Menu {
+            if canExport {
+                Button {
+                    copyPGNToClipboard()
+                } label: {
+                    Label(l10n.t("export.copyPGN"), systemImage: "doc.on.doc")
+                }
+
+                ShareLink(
+                    item: PGNExporter.export(replayVM.record),
+                    preview: SharePreview(
+                        "\(replayVM.record.title).pgn",
+                        image: Image(systemName: "doc.text")
+                    )
+                ) {
+                    Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                }
+            } else {
+                Label(String(format: l10n.t("export.locked"), l10n.t("rank.hanlin")), systemImage: "lock")
+            }
+        } label: {
+            Image(systemName: canExport ? "square.and.arrow.up" : "lock")
+                .foregroundColor(.white)
+        }
     }
 
     // MARK: - 锁定视图
@@ -266,16 +302,32 @@ struct AnalysisView: View {
 
     private func startAnalysis() async {
         let fileChars = Array("abcdefghi")
-        let moves = replayVM.record.moves.map { move -> String in
+        let gameMoves = replayVM.record.moves
+
+        // v3.7.0 Phase 2 修复：ICCS 行号映射用 9 - row（不是 10 - row）
+        let moves = gameMoves.map { move -> String in
             let fromFile = String(fileChars[move.from.col])
-            let fromRank = String(10 - move.from.row)
+            let fromRank = String(9 - move.from.row)
             let toFile = String(fileChars[move.to.col])
-            let toRank = String(10 - move.to.row)
+            let toRank = String(9 - move.to.row)
             return fromFile + fromRank + toFile + toRank
         }
 
         let fen = replayVM.record.initialFEN ?? FENParser.standardInitial
-        analysisVM.load(moves: moves, initialFEN: fen)
+        // v3.7.0 Phase 2: 传入 gameMoves 用于 FEN 精确推算
+        analysisVM.load(moves: moves, initialFEN: fen, gameMoves: gameMoves)
         await analysisVM.analyzeAll()
+    }
+
+    // MARK: - 导出操作
+
+    private func copyPGNToClipboard() {
+        let pgn = PGNExporter.export(replayVM.record)
+        #if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(pgn, forType: .string)
+        #else
+        UIPasteboard.general.string = pgn
+        #endif
     }
 }

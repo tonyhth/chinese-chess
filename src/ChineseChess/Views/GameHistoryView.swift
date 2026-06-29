@@ -3,13 +3,22 @@ import SwiftUI
 struct GameHistoryView: View {
     @State private var records: [GameRecord] = []
     @State private var showClearAlert = false
+    // v3.7.0 Phase 2: 多选模式
+    @State private var isSelectMode = false
+    @State private var selectedIDs: Set<UUID> = []
 
     var onReplayRequest: ((GameRecord) -> Void)?
 
     private let l10n = L10n.shared
+    private let profile = PlayerProfileStore.shared.profile
+
+    // v3.7.0 Phase 2: 导出门禁
+    private var canExport: Bool {
+        profile.isFeatureUnlocked(.gameRecordExport)
+    }
 
     var body: some View {
-        List {
+        List(selection: isSelectMode ? $selectedIDs : nil) {
             if records.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
@@ -28,10 +37,34 @@ struct GameHistoryView: View {
                     GameHistoryRow(record: record)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            onReplayRequest?(record)
+                            if isSelectMode {
+                                toggleSelection(record.id)
+                            } else {
+                                onReplayRequest?(record)
+                            }
                         }
                         #if os(macOS)
                         .contextMenu {
+                            Button {
+                                copyPGNToClipboard(record)
+                            } label: {
+                                Label(l10n.t("export.copyPGN"), systemImage: "doc.on.doc")
+                            }
+                            .disabled(!canExport)
+
+                            ShareLink(
+                                item: PGNExporter.export(record),
+                                preview: SharePreview(
+                                    "\(record.title).pgn",
+                                    image: Image(systemName: "doc.text")
+                                )
+                            ) {
+                                Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                            }
+                            .disabled(!canExport)
+
+                            Divider()
+
                             Button(l10n.t("common.delete"), role: .destructive) {
                                 deleteRecord(record)
                             }
@@ -43,6 +76,16 @@ struct GameHistoryView: View {
                             } label: {
                                 Label(l10n.t("common.delete"), systemImage: "trash")
                             }
+                        }
+                        // v3.7.0 Phase 2: 左滑分享按钮
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                            Button {
+                                copyPGNToClipboard(record)
+                            } label: {
+                                Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                            }
+                            .tint(.blue)
+                            .disabled(!canExport)
                         }
                 }
             }
@@ -56,10 +99,53 @@ struct GameHistoryView: View {
         }
         .toolbar {
             #if os(iOS)
-            ToolbarItem(placement: .bottomBar) {
-                if !records.isEmpty {
-                    Button(l10n.t("history.clear"), role: .destructive) {
-                        showClearAlert = true
+            ToolbarItemGroup(placement: .bottomBar) {
+                if isSelectMode {
+                    // 多选模式工具栏
+                    Button(l10n.t("common.cancel")) {
+                        exitSelectMode()
+                    }
+
+                    Spacer()
+
+                    if canExport && !selectedIDs.isEmpty {
+                        ShareLink(
+                            item: exportSelectedPGN(),
+                            preview: SharePreview(
+                                "棋谱.pgn",
+                                image: Image(systemName: "doc.text")
+                            )
+                        ) {
+                            Label(l10n.t("export.share"), systemImage: "square.and.arrow.up")
+                        }
+                    }
+
+                    if !selectedIDs.isEmpty {
+                        Button(l10n.t("common.delete"), role: .destructive) {
+                            deleteSelectedRecords()
+                        }
+                    }
+                } else {
+                    if !records.isEmpty {
+                        Button(l10n.t("history.clear"), role: .destructive) {
+                            showClearAlert = true
+                        }
+                    }
+
+                    Spacer()
+
+                    // v3.7.0 Phase 2: 导入入口（按钮先加，逻辑 Phase 3 实现）
+                    Button {
+                        // Phase 3: 打开导入界面
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+
+                    // v3.7.0 Phase 2: 多选按钮
+                    if !records.isEmpty {
+                        Button(l10n.t("history.select")) {
+                            isSelectMode = true
+                        }
                     }
                 }
             }
@@ -68,6 +154,19 @@ struct GameHistoryView: View {
                 if !records.isEmpty {
                     Button(l10n.t("history.clear"), role: .destructive) {
                         showClearAlert = true
+                    }
+                }
+                // v3.7.0 Phase 2: 导入入口
+                Button {
+                    // Phase 3: 打开导入界面
+                } label: {
+                    Image(systemName: "plus")
+                }
+
+                // v3.7.0 Phase 2: 多选按钮
+                if !records.isEmpty {
+                    Button(l10n.t("history.select")) {
+                        isSelectMode = true
                     }
                 }
             }
@@ -84,12 +183,53 @@ struct GameHistoryView: View {
         }
     }
 
+    // MARK: - 操作
+
     private func reloadRecords() {
         records = GameHistoryStore.shared.records
     }
 
     private func deleteRecord(_ record: GameRecord) {
         GameHistoryStore.shared.deleteRecord(id: record.id)
+        reloadRecords()
+    }
+
+    // v3.7.0 Phase 2: 复制 PGN 到剪贴板
+    private func copyPGNToClipboard(_ record: GameRecord) {
+        guard canExport else { return }
+        let pgn = PGNExporter.export(record)
+        #if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(pgn, forType: .string)
+        #else
+        UIPasteboard.general.string = pgn
+        #endif
+    }
+
+    // v3.7.0 Phase 2: 多选操作
+    private func toggleSelection(_ id: UUID) {
+        if selectedIDs.contains(id) {
+            selectedIDs.remove(id)
+        } else {
+            selectedIDs.insert(id)
+        }
+    }
+
+    private func exitSelectMode() {
+        isSelectMode = false
+        selectedIDs.removeAll()
+    }
+
+    private func exportSelectedPGN() -> String {
+        let selected = records.filter { selectedIDs.contains($0.id) }
+        return PGNExporter.exportBatch(selected)
+    }
+
+    private func deleteSelectedRecords() {
+        for id in selectedIDs {
+            GameHistoryStore.shared.deleteRecord(id: id)
+        }
+        selectedIDs.removeAll()
         reloadRecords()
     }
 }
