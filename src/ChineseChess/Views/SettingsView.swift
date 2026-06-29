@@ -81,13 +81,11 @@ struct SettingsView: View {
                 }
                 #else
                 // v3.7.1 B3: iOS 侧显示引擎状态 + Toggle（与 macOS 一致）
+                // P2-2 fix: disabled Toggle 只用只读 Binding
                 Section(l10n.t("settings.engineSection")) {
                     Toggle(l10n.t("engine.usePikafish"), isOn: Binding(
                         get: { EngineConfigStore.shared.useEmbeddedEngine },
-                        set: { newValue in
-                            EngineConfigStore.shared.useEmbeddedEngine = newValue
-                            Task { await EngineRouter.shared.switchEngineIfNeeded() }
-                        }
+                        set: { _ in }
                     ))
                     .disabled(true)
                     .opacity(0.5)

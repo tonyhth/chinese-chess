@@ -8,6 +8,8 @@ struct ToolbarView: View {
     // Toast 提示状态
     @State private var showToast = false
     @State private var toastMessage = ""
+    // v3.7.1 P2-3: 执边切换确认
+    @State private var showSideSwitchConfirm = false
 
     var body: some View {
         ZStack {
@@ -91,11 +93,15 @@ struct ToolbarView: View {
                 .tint(EngineConfigStore.shared.useEmbeddedEngine ? .cyan : .brown)
                 .accessibilityLabel(l10n.t(EngineConfigStore.shared.useEmbeddedEngine ? "engine.external" : "engine.builtIn"))
 
-                // v3.7.1 B1: iOS 执边选择按钮
+                // v3.7.1 B1: iOS 执边选择按钮（P2-3: 对弈中确认）
                 Button(action: {
-                    let newSide: Side = viewModel.humanSide == .red ? .black : .red
-                    viewModel.setHumanSide(newSide)
-                    viewModel.newGame()
+                    if !viewModel.board.moveHistory.isEmpty && viewModel.gameState == .playing {
+                        showSideSwitchConfirm = true
+                    } else {
+                        let newSide: Side = viewModel.humanSide == .red ? .black : .red
+                        viewModel.setHumanSide(newSide)
+                        viewModel.newGame()
+                    }
                 }) {
                     Circle()
                         .fill(viewModel.humanSide == .red ? Color.red : Color.black)
@@ -141,6 +147,16 @@ struct ToolbarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
+        .alert(l10n.t("game.sideSwitchConfirmTitle"), isPresented: $showSideSwitchConfirm) {
+            Button(l10n.t("common.cancel"), role: .cancel) {}
+            Button(l10n.t("game.newGame")) {
+                let newSide: Side = viewModel.humanSide == .red ? .black : .red
+                viewModel.setHumanSide(newSide)
+                viewModel.newGame()
+            }
+        } message: {
+            Text(l10n.t("game.sideSwitchConfirmMessage"))
+        }
         #else
         HStack(spacing: 12) {
             // 棋局控制组（左侧不动）

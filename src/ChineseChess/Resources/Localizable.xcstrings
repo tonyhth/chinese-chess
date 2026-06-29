@@ -7955,6 +7955,38 @@
           }
         }
       }
+    },
+    "game.sideSwitchConfirmTitle": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换执边"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch Side"
+          }
+        }
+      }
+    },
+    "game.sideSwitchConfirmMessage": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前棋局尚未结束，切换执边将开新局。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current game is in progress. Switching side will start a new game."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
