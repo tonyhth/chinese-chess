@@ -5,8 +5,7 @@ struct GameHistoryView: View {
     @State private var showClearAlert = false
     @State private var showCorruptAlert = false
     @State private var showExportResultAlert = false
-    @State private var exportSuccessCount = 0
-    @State private var exportFailCount = 0
+    @State private var exportResultText = ""
     // v3.7.0 Phase 2: 多选模式
     @State private var isSelectMode = false
     @State private var selectedIDs: Set<UUID> = []
@@ -199,7 +198,7 @@ struct GameHistoryView: View {
         .alert(l10n.t("export.resultTitle"), isPresented: $showExportResultAlert) {
             Button(l10n.t("common.ok"), role: .cancel) {}
         } message: {
-            Text(String(format: l10n.t("export.partialFail"), exportSuccessCount, exportFailCount))
+            Text(exportResultText)
         }
     }
 
@@ -262,8 +261,7 @@ struct GameHistoryView: View {
         #endif
 
         if failCount > 0 {
-            exportSuccessCount = successCount
-            exportFailCount = failCount
+            exportResultText = String(format: l10n.t("export.partialFail"), successCount, failCount)
             showExportResultAlert = true
         }
     }
