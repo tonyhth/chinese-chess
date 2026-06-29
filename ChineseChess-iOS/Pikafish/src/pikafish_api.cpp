@@ -47,6 +47,7 @@ std::condition_variable g_search_cv;
 // Search state — all accessed under g_mutex unless noted
 bool g_searching = false;
 char g_bestmove_result[16] = {0};
+std::string g_last_error;
 
 // Last search info — written by set_on_update_full callback, read by API functions
 int  g_last_eval = 0;       // centipawn (±100000 - plies for mate)
@@ -127,7 +128,7 @@ int pikafish_init(void) {
         } else {
             // P1 fix: NNUE 文件缺失时安全返回，避免空指针 SIGSEGV（xctest 环境）
             fprintf(stderr, "[pikafish_api] NNUE file not found in bundle\n");
-            last_error = "NNUE file not found";
+            g_last_error = "NNUE file not found";
             return -1;
         }
 #endif

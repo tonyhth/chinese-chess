@@ -160,7 +160,7 @@ private struct ChapterCard: View {
                                     : .secondary)
             }
             .padding()
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(Color.controlBackground)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)

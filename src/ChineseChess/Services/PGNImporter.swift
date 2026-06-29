@@ -1,0 +1,328 @@
+import Foundation
+
+// MARK: - PGN 导入错误
+
+enum PGNError: Error, LocalizedError {
+    case illegalMove(step: Int, moveStr: String)
+    case noValidGame
+    case invalidFEN(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .illegalMove(let step, let moveStr):
+            return "第 \(step) 步非法走法(\(moveStr))"
+        case .noValidGame:
+            return "无有效棋局"
+        case .invalidFEN(let fen):
+            return "无效 FEN: \(fen)"
+        }
+    }
+}
+
+// MARK: - 导入结果
+
+struct ImportResult {
+    let records: [GameRecord]
+    let warnings: [String]
+}
+
+// MARK: - PGN 导入解析器
+
+/// 解析 PGN 文本为 GameRecord
+/// 导入容错：标签缺失→默认值，FEN 缺失→标准开局，单局非法走法→整体回滚该局，多局→部分成功
+/// 走法解析：忽略换行符合并为单行，去掉回合号和结果标记，按空格 tokenize，走法序号=出现顺序
+struct PGNImporter {
+
+    // MARK: - 公开接口
+
+    /// 解析 PGN 文本（支持单局和多局）
+    static func parse(_ pgnText: String) -> ImportResult {
+        var records: [GameRecord] = []
+        var warnings: [String] = []
+
+        let games = splitGames(pgnText)
+
+        for (i, gameText) in games.enumerated() {
+            do {
+                let record = try parseSingleGame(gameText)
+                records.append(record)
+            } catch PGNError.illegalMove(let step, let moveStr) {
+                warnings.append("第 \(i + 1) 局第 \(step) 步非法走法(\(moveStr))，已跳过该局")
+            } catch {
+                warnings.append("第 \(i + 1) 局解析失败：\(error.localizedDescription)")
+            }
+        }
+
+        return ImportResult(records: records, warnings: warnings)
+    }
+
+    // MARK: - 分割多局 PGN
+
+    /// 按 double newline 或新标签段分割多局 PGN
+    private static func splitGames(_ text: String) -> [String] {
+        // 策略：当遇到空行后紧跟 [ 标签时，认为新一局开始
+        var games: [String] = []
+        var currentLines: [String] = []
+        let lines = text.components(separatedBy: .newlines)
+
+        var prevWasEmpty = false
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+
+            // 空行标记
+            if trimmed.isEmpty {
+                prevWasEmpty = true
+                currentLines.append(line)
+                continue
+            }
+
+            // 新标签段开始且前面有空行 → 新一局
+            if trimmed.hasPrefix("[") && prevWasEmpty && !currentLines.isEmpty {
+                // 之前的行作为一个 game
+                let gameText = currentLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+                if !gameText.isEmpty {
+                    games.append(gameText)
+                }
+                currentLines = [line]
+                prevWasEmpty = false
+                continue
+            }
+
+            prevWasEmpty = false
+            currentLines.append(line)
+        }
+
+        // 最后一局
+        let lastGame = currentLines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !lastGame.isEmpty {
+            games.append(lastGame)
+        }
+
+        return games
+    }
+
+    // MARK: - 解析单局
+
+    private static func parseSingleGame(_ text: String) throws -> GameRecord {
+        let lines = text.components(separatedBy: .newlines)
+
+        // 分离标签段和走法段
+        var tagLines: [String] = []
+        var moveLines: [String] = []
+        var inTags = true
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if inTags {
+                if trimmed.hasPrefix("[") && trimmed.hasSuffix("]") {
+                    tagLines.append(trimmed)
+                } else if !trimmed.isEmpty {
+                    // 第一个非标签非空行 → 进入走法段
+                    inTags = false
+                    moveLines.append(line)
+                }
+                // 空行在标签段内跳过
+            } else {
+                moveLines.append(line)
+            }
+        }
+
+        // 解析标签
+        let tags = parseTags(tagLines)
+
+        // 确定初始 FEN
+        let initialFEN: String
+        if let fenTag = tags["FEN"] {
+            initialFEN = fenTag
+        } else {
+            initialFEN = FENParser.standardInitial
+        }
+
+        // 解析走法
+        let moves = try parseMoves(moveLines, initialFEN: initialFEN)
+
+        // 构建标签默认值
+        let redName = tags["Red"] ?? "红方"
+        let blackName = tags["Black"] ?? "黑方"
+        let result = parseResult(tags["Result"])
+
+        // 确定 difficulty
+        let difficulty: AIDifficulty
+        if let diffStr = tags["Difficulty"], let diff = AIDifficulty(rawValue: diffStr) {
+            difficulty = diff
+        } else {
+            difficulty = .medium  // 导入记录默认中等
+        }
+
+        // 确定 source
+        let source: RecordSource
+        if let sourceStr = tags["Source"], let s = RecordSource(rawValue: sourceStr) {
+            source = s
+        } else {
+            source = .imported  // 导入的记录默认标记为 imported
+        }
+
+        // 构建记录
+        let redPlayer = PlayerInfo(name: redName, isAI: false, difficulty: nil)
+        let blackPlayer = PlayerInfo(name: blackName, isAI: false, difficulty: nil)
+
+        // 解析日期
+        let date = parseDate(tags["Date"])
+
+        let record = GameRecord(
+            title: tags["Event"] ?? "导入棋谱",
+            date: date,
+            redPlayer: redPlayer,
+            blackPlayer: blackPlayer,
+            difficulty: difficulty,
+            result: result,
+            totalMoves: moves.count,
+            moves: moves,
+            initialFEN: source == .imported ? (tags["FEN"] != nil ? initialFEN : nil) : (FENParser.isStandardInitial(initialFEN) ? nil : initialFEN),
+            source: source,
+            tags: [],
+            puzzleId: tags["PuzzleId"]
+        )
+
+        return record
+    }
+
+    // MARK: - 解析标签段
+
+    private static func parseTags(_ lines: [String]) -> [String: String] {
+        var tags: [String: String] = [:]
+        // 正则匹配 [Key "Value"]
+        let pattern = #"^\[(\w+)\s+"(.*)"\]$"#
+
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard let range = trimmed.range(of: pattern, options: .regularExpression) else { continue }
+            let matchStr = String(trimmed[range])
+
+            // 提取 key 和 value
+            let openBracket = matchStr.firstIndex(of: "[")!
+            let spaceIdx = matchStr.firstIndex(of: " ")!
+            let closeQuote = matchStr.lastIndex(of: "\"")!
+            let openQuote = matchStr.index(before: closeQuote)
+
+            let key = String(matchStr[matchStr.index(after: openBracket)..<spaceIdx])
+            let value = String(matchStr[matchStr.index(after: matchStr.firstIndex(of: "\"")!)..<closeQuote])
+
+            tags[key] = value
+        }
+        return tags
+    }
+
+    // MARK: - 解析走法段
+
+    /// 解析走法段（ICCS 格式）
+    /// 忽略换行符合并为单行，去掉回合号和结果标记，按空格 tokenize，走法序号=出现顺序
+    private static func parseMoves(_ lines: [String], initialFEN: String) throws -> [GameMove] {
+        // 1. 将走法段所有行合并为单行
+        let movetext = lines.joined(separator: " ")
+
+        // 2. 去掉回合号（如 "1." "2." "10." 等），提取纯走法 token
+        let rawTokens = movetext.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+
+        // 过滤回合号和结果标记
+        let resultMarkers: Set<String> = ["1-0", "0-1", "1/2-1/2", "*"]
+        let tokens = rawTokens.filter { token in
+            // 过滤结果标记
+            if resultMarkers.contains(token) { return false }
+            // 过滤回合号（如 "1." "2." "10."）
+            if token.hasSuffix(".") {
+                let withoutDot = token.dropLast()
+                if withoutDot.allSatisfy(\.isNumber) { return false }
+            }
+            // 过滤纯注释
+            if token.hasPrefix("{") || token.hasSuffix("}") { return false }
+            if token.hasPrefix("(") || token.hasSuffix(")") { return false }
+            if token.hasPrefix(";") { return false }
+            if token.hasPrefix("%") { return false }
+            return true
+        }
+
+        // 3. 逐个 token 解析为 ICCS 走法，并在棋盘上执行验证
+        var board = Board(fen: initialFEN)
+        var gameMoves: [GameMove] = []
+        let fileChars = Array("abcdefghi")
+
+        for (index, token) in tokens.enumerated() {
+            guard token.count == 4 else {
+                throw PGNError.illegalMove(step: index + 1, moveStr: token)
+            }
+
+            let chars = Array(token)
+
+            // 解析 ICCS 坐标
+            guard let fromCol = fileChars.firstIndex(of: chars[0]),
+                  let fromRow = Int(String(chars[1])),
+                  let toCol = fileChars.firstIndex(of: chars[2]),
+                  let toRow = Int(String(chars[3])) else {
+                throw PGNError.illegalMove(step: index + 1, moveStr: token)
+            }
+
+            // ICCS 行号 → Board row：9 - iccsRow
+            let boardFromRow = 9 - fromRow
+            let boardToRow = 9 - toRow
+
+            let fromPos = Position(row: boardFromRow, col: fromCol)
+            let toPos = Position(row: boardToRow, col: toCol)
+
+            // 验证位置有效性
+            guard Position.isValid(fromPos) && Position.isValid(toPos) else {
+                throw PGNError.illegalMove(step: index + 1, moveStr: token)
+            }
+
+            // 查找棋子
+            guard let piece = board.piece(at: fromPos) else {
+                throw PGNError.illegalMove(step: index + 1, moveStr: token)
+            }
+
+            let captured = board.piece(at: toPos)
+            let move = Move(piece: piece, from: fromPos, to: toPos, captured: captured)
+
+            // 执行走法
+            board.execute(move)
+
+            // 构建 GameMove
+            let gameMove = GameMove(
+                id: UUID(),
+                piece: piece,
+                from: fromPos,
+                to: toPos,
+                captured: captured,
+                turnNumber: (index / 2) + 1,
+                notation: "",  // 导入时不生成中文棋谱
+                timestamp: Date(),
+                isCheck: false,
+                isCheckmate: false
+            )
+            gameMoves.append(gameMove)
+        }
+
+        return gameMoves
+    }
+
+    // MARK: - 辅助
+
+    /// 解析结果标记
+    private static func parseResult(_ resultStr: String?) -> GameState {
+        guard let str = resultStr else { return .playing }
+        switch str {
+        case "1-0": return .redWon
+        case "0-1": return .blackWon
+        case "1/2-1/2": return .draw
+        default: return .playing
+        }
+    }
+
+    /// 解析日期标签
+    private static func parseDate(_ dateStr: String?) -> Date {
+        guard let str = dateStr, str != "????.??.??" else { return Date() }
+        let f = DateFormatter()
+        f.dateFormat = "yyyy.MM.dd"
+        return f.date(from: str) ?? Date()
+    }
+}

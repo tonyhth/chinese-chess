@@ -94,6 +94,16 @@ struct FENParser {
         return "\(rows.joined(separator: "/")) \(turnStr) - - 0 1"
     }
 
+    // MARK: - 标准开局判断
+
+    /// 判断 FEN 是否代表标准开局（归一化后比较）
+    /// parse→generate→compare，消除所有编码差异
+    static func isStandardInitial(_ fen: String) -> Bool {
+        guard let board = parse(fen: fen) else { return false }
+        let normalized = generate(board: board)
+        return normalized == standardInitial
+    }
+
     // MARK: - 辅助
 
     private static func fenCharToPiece(_ char: Character, row: Int, col: Int) -> Piece? {

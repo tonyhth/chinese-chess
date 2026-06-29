@@ -4,6 +4,7 @@ import Foundation
 
 /// UserDefaults 双层存储：index（id 列表） + record-{id}（单条记录）
 /// 最多 20 局，按时间倒序
+@available(*, deprecated, message: "Use GameRecordStore instead. Will be removed in a future version.")
 final class GameHistoryStore {
     static let shared = GameHistoryStore()
 
