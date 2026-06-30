@@ -158,7 +158,24 @@ struct GameHistoryView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        #if os(iOS)
         .searchable(text: $searchText, prompt: l10n.t("history.searchPlaceholder"))
+        #endif
+        #if os(macOS)
+        // macOS: .searchable 在 sheet 内 NavigationStack 中会导致渲染卡死
+        // 用 toolbar 搜索栏替代
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    TextField(l10n.t("history.searchPlaceholder"), text: $searchText)
+                        .textFieldStyle(.plain)
+                        .frame(width: 160)
+                }
+            }
+        }
+        #endif
         .onAppear {
             reloadSummaries()
         }
