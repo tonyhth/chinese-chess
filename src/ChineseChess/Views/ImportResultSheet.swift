@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ImportResultSheet: View {
     let result: ImportResult
-    let onConfirm: () -> Int      // 返回实际导入数量
+    let onConfirm: () -> Void
     let onCancel: () -> Void
 
     @State private var showDetail = false
@@ -73,7 +73,7 @@ struct ImportResultSheet: View {
                 .tint(.brown)
 
                 Button(l10n.t("import.confirm")) {
-                    _ = onConfirm()
+                    onConfirm()
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)

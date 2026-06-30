@@ -288,7 +288,7 @@ struct GameHistoryView: View {
         )) { result in
             ImportResultSheet(
                 result: result,
-                onConfirm: { _ = importViewModel.confirmImport(); reloadSummaries() },
+                onConfirm: { importViewModel.confirmImport(); reloadSummaries() },
                 onCancel: { importViewModel.reset() }
             )
         }
