@@ -24,7 +24,13 @@ class PuzzleViewModel {
     let playerSide: Side
 
     var gameMoves: [GameMove] = []
-    var gameState: PuzzleState = .playing
+    var gameState: PuzzleState = .playing {
+        didSet {
+            if gameState == .success {
+                recordCompletion()
+            }
+        }
+    }
     var hintIndex: Int = 0
     var currentHint: String?
     var isThinking: Bool = false
@@ -220,7 +226,6 @@ class PuzzleViewModel {
             gameState = .success
             gameMoves[gameMoves.count - 1].isCheckmate = true
             completionRating = calculateRating()
-            recordCompletion()
             return
         }
 
@@ -231,7 +236,6 @@ class PuzzleViewModel {
             if playerMoveCount >= solutionPlayerMoveCount {
                 gameState = .success
                 completionRating = calculateRating()
-                recordCompletion()
                 return
             }
         }
@@ -280,7 +284,6 @@ class PuzzleViewModel {
             gameState = .success
             gameMoves[gameMoves.count - 1].isCheckmate = true
             completionRating = calculateRating()
-            recordCompletion()
             return
         }
 
@@ -290,7 +293,6 @@ class PuzzleViewModel {
         if playerMoveCount >= solutionPlayerMoveCount {
             gameState = .success
             completionRating = calculateRating()
-            recordCompletion()
             return
         }
 

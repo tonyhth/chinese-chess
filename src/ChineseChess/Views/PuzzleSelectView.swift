@@ -500,9 +500,9 @@ struct PuzzlePlayView: View {
 
     var body: some View {
         Group {
-            if showSolutionReplay, let record = viewModel.buildSolutionRecord() {
-                // 解法回放：直接在当前容器内显示，不用嵌套 sheet
-                ReplayView(record: record, onClose: { showSolutionReplay = false })
+            if showSolutionReplay, let savedRecord = GameRecordStore.shared.findRecordByPuzzleId(viewModel.puzzle.id) {
+                // v3.7.1 Phase 3B: 解法回放从 Store 取已保存记录
+                ReplayView(record: savedRecord, onClose: { showSolutionReplay = false })
             } else {
                 gameContent
             }
