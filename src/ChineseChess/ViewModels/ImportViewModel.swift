@@ -10,6 +10,7 @@ class ImportViewModel {
     }
 
     private(set) var state: ImportState = .idle
+    private var parseTask: Task<Void, Never>?
 
     /// 标记解析失败（用于剪贴板空等非解析错误）
     func fail(_ message: String) {
@@ -17,12 +18,17 @@ class ImportViewModel {
     }
 
     /// 从 PGN 文本解析
-    /// 解析在后台执行，结果回调回 MainActor
+    /// 解析在后台线程执行（Task.detached），结果通过 MainActor.run 回调
+    /// 调用方通过观察 state 属性变化感知结果（.success / .failure）
     func parse(pgnText: String) {
+        // 取消前一次解析（如果有）
+        parseTask?.cancel()
         state = .parsing
-        Task.detached {
+        parseTask = Task.detached { [weak self] in
             let result = PGNImporter.parse(pgnText)
+            guard !Task.isCancelled else { return }
             await MainActor.run {
+                guard let self else { return }
                 if result.records.isEmpty {
                     self.state = .failure(L10n.shared.t("import.noValidContent"))
                 } else {
@@ -42,6 +48,8 @@ class ImportViewModel {
 
     /// 重置
     func reset() {
+        parseTask?.cancel()
+        parseTask = nil
         state = .idle
     }
 }

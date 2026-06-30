@@ -30,6 +30,24 @@ struct ImportResult: Identifiable {
 
     var isSuccess: Bool { !records.isEmpty }
     var hasWarnings: Bool { !warnings.isEmpty }
+
+    /// 便利构造器：从 records 和 warnings 推算 skippedCount/totalGames
+    /// skippedCount = warnings.count（每条 warning 对应一局失败）
+    /// totalGames = records.count + skippedCount
+    init(records: [GameRecord], warnings: [String]) {
+        self.records = records
+        self.warnings = warnings
+        self.skippedCount = warnings.count
+        self.totalGames = records.count + warnings.count
+    }
+
+    /// 完整构造器（parse() 使用，skippedCount 从实际逻辑推算）
+    init(records: [GameRecord], warnings: [String], skippedCount: Int, totalGames: Int) {
+        self.records = records
+        self.warnings = warnings
+        self.skippedCount = skippedCount
+        self.totalGames = totalGames
+    }
 }
 
 // MARK: - PGN 导入解析器

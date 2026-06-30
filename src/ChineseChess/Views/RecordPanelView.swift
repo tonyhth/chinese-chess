@@ -65,6 +65,30 @@ struct RecordPanelView: View {
                         }
                     }
                 }
+
+                // 底部统一导出栏（从 moveText 移出）
+                if let onExport = onExportRequest {
+                    Divider()
+                        .background(Color.white.opacity(0.2))
+
+                    HStack {
+                        Spacer()
+                        if canExport {
+                            Button {
+                                onExport()
+                            } label: {
+                                Label(l10n.t("export.quick"), systemImage: "square.and.arrow.up")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                        } else {
+                            Label(String(format: l10n.t("export.locked"), l10n.t("rank.hanlin")), systemImage: "lock")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        Spacer()
+                    }
+                }
             }
         }
         .padding(8)
@@ -143,30 +167,6 @@ struct RecordPanelView: View {
                 Text(gm.isCheckmate ? "#" : "+")
                     .font(.footnote.weight(.bold))
                     .foregroundColor(.yellow)
-            }
-        }
-        // v3.7.0 Phase 2: 底部导出按钮
-        if !gameMoves.isEmpty {
-            Divider()
-                .background(Color.white.opacity(0.2))
-                .padding(.horizontal, 4)
-
-            HStack {
-                Spacer()
-                if canExport {
-                    Button {
-                        onExportRequest?()
-                    } label: {
-                        Label(l10n.t("export.quick"), systemImage: "square.and.arrow.up")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
-                } else {
-                    Label(String(format: l10n.t("export.locked"), l10n.t("rank.hanlin")), systemImage: "lock")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
             }
         }
     }
