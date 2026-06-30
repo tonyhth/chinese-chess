@@ -64,19 +64,39 @@ struct ChineseChessApp: App {
         case none, record, stats
     }
 
+    // v3.7.1 P0: 统一 sheet 管理 — 解决多 .sheet 串联导致 sheet 弹不出的 bug
+    enum SheetDestination: Identifiable {
+        case puzzles
+        case themePicker
+        case history
+        case settings
+        case dailyChallenge
+        case achievements
+        case rankPrivilege
+        case rankUp(Rank)
+        case toolbarReplay(GameRecord)
+        case historyReplay(GameRecord)
+
+        var id: String {
+            switch self {
+            case .puzzles: return "puzzles"
+            case .themePicker: return "themePicker"
+            case .history: return "history"
+            case .settings: return "settings"
+            case .dailyChallenge: return "dailyChallenge"
+            case .achievements: return "achievements"
+            case .rankPrivilege: return "rankPrivilege"
+            case .rankUp: return "rankUp"
+            case .toolbarReplay: return "toolbarReplay"
+            case .historyReplay: return "historyReplay"
+            }
+        }
+    }
+
     @State private var activePanel: Panel = .none
+    @State private var activeSheet: SheetDestination?
 
     @State private var viewModel = GameViewModel()
-    @State private var showPuzzles = false
-    @State private var toolbarReplayRecord: GameRecord?
-    @State private var showThemePicker = false
-    @State private var showHistory = false
-    @State private var showSettings = false
-    @State private var historyReplayRecord: GameRecord?
-    @State private var showDailyChallenge = false
-    @State private var showAchievements = false
-    @State private var showRankPrivilege = false
-    @State private var showRankUp = false
     @State private var showImportFailAlert = false
     @State private var importFailMessage = ""
     @State private var rankUpRank: Rank?
@@ -131,7 +151,7 @@ struct ChineseChessApp: App {
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.stats"))
 
-                        Button(action: { showPuzzles.toggle() }) {
+                        Button(action: { activeSheet = .puzzles }) {
                             Image(systemName: "puzzlepiece")
                         }
                         .buttonStyle(.bordered)
@@ -139,7 +159,9 @@ struct ChineseChessApp: App {
                         .help(L10n.shared.t("toolbar.puzzle"))
 
                         Button(action: {
-                            toolbarReplayRecord = viewModel.buildGameRecord()
+                            if let record = viewModel.buildGameRecord() {
+                                activeSheet = .toolbarReplay(record)
+                            }
                         }) {
                             Image(systemName: "play.circle")
                         }
@@ -150,42 +172,42 @@ struct ChineseChessApp: App {
 
                         Spacer()
 
-                        Button(action: { showThemePicker.toggle() }) {
+                        Button(action: { activeSheet = .themePicker }) {
                             Image(systemName: "paintpalette")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.theme"))
 
-                        Button(action: { showHistory.toggle() }) {
+                        Button(action: { activeSheet = .history }) {
                             Image(systemName: "clock.arrow.circlepath")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.history"))
 
-                        Button(action: { showDailyChallenge.toggle() }) {
+                        Button(action: { activeSheet = .dailyChallenge }) {
                             Image(systemName: "calendar.badge.clock")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.dailyChallenge"))
 
-                        Button(action: { showAchievements.toggle() }) {
+                        Button(action: { activeSheet = .achievements }) {
                             Image(systemName: "trophy")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.achievements"))
 
-                        Button(action: { showRankPrivilege.toggle() }) {
+                        Button(action: { activeSheet = .rankPrivilege }) {
                             Image(systemName: "medal")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.rankPrivilege"))
 
-                        Button(action: { showSettings.toggle() }) {
+                        Button(action: { activeSheet = .settings }) {
                             Image(systemName: "gearshape")
                         }
                         .buttonStyle(.bordered)
@@ -201,7 +223,9 @@ struct ChineseChessApp: App {
                     GameOverOverlay(gameState: viewModel.gameState) {
                         viewModel.newGame()
                     } onViewRecord: {
-                        toolbarReplayRecord = viewModel.buildGameRecord()
+                        if let record = viewModel.buildGameRecord() {
+                            activeSheet = .toolbarReplay(record)
+                        }
                     }
                 }
 
@@ -210,7 +234,7 @@ struct ChineseChessApp: App {
             .onReceive(NotificationCenter.default.publisher(for: .rankPromoted)) { notification in
                 if let newRank = notification.object as? Rank {
                     rankUpRank = newRank
-                    showRankUp = true
+                    activeSheet = .rankUp(newRank)
                 }
             }
             .frame(minWidth: 600, minHeight: 700)
@@ -227,7 +251,112 @@ struct ChineseChessApp: App {
             } message: {
                 Text(viewModel.engineFallbackMessage ?? "")
             }
-            // 棋谱/统计面板互斥 Sheet
+            // v3.7.1 P0: 统一 sheet — 解决多 .sheet 串联导致弹不出的 bug
+            .sheet(item: $activeSheet) { destination in
+                switch destination {
+                case .puzzles:
+                    NavigationStack {
+                        PuzzleSelectView()
+                            .navigationTitle(L10n.shared.t("puzzle.title"))
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 600, minHeight: 700)
+
+                case .toolbarReplay(let record):
+                    ReplayView(record: record)
+                        .frame(minWidth: 600, minHeight: 750)
+
+                case .themePicker:
+                    NavigationStack {
+                        VStack(spacing: 16) {
+                            ThemePickerView()
+                        }
+                        .padding()
+                        .navigationTitle(L10n.shared.t("theme.title"))
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                            }
+                        }
+                    }
+                    .frame(minWidth: 300, minHeight: 200)
+
+                case .history:
+                    NavigationStack {
+                        GameHistoryView(onReplayRequest: { record in
+                            activeSheet = .historyReplay(record)
+                        })
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                            }
+                        }
+                    }
+                    .frame(minWidth: 350, minHeight: 400)
+
+                case .historyReplay(let record):
+                    ReplayView(record: record)
+                        .frame(minWidth: 600, minHeight: 750)
+
+                case .settings:
+                    NavigationStack {
+                        SettingsView(viewModel: viewModel)
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
+
+                case .dailyChallenge:
+                    NavigationStack {
+                        DailyChallengeView()
+                            .navigationTitle(L10n.shared.t("toolbar.dailyChallenge"))
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 400, minHeight: 500)
+
+                case .achievements:
+                    NavigationStack {
+                        AchievementView(profile: PlayerProfileStore.shared.profile)
+                            .navigationTitle(L10n.shared.t("toolbar.achievements"))
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 400, minHeight: 500)
+
+                case .rankPrivilege:
+                    NavigationStack {
+                        RankPrivilegeView(profile: PlayerProfileStore.shared.profile)
+                            .navigationTitle(L10n.shared.t("toolbar.rankPrivilege"))
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 400, minHeight: 500)
+
+                case .rankUp(let rank):
+                    RankUpView(newRank: rank) {
+                        activeSheet = nil
+                    }
+                    .frame(minWidth: 320, minHeight: 300)
+                }
+            }
+            // 棋谱/统计面板互斥 Sheet（保持独立，因为它们与 activeSheet 不冲突）
             .sheet(isPresented: Binding(
                 get: { activePanel == .record },
                 set: { if !$0 { activePanel = .none } }
@@ -245,111 +374,6 @@ struct ChineseChessApp: App {
             )) {
                 StatsPanelView()
                     .frame(minWidth: 280, minHeight: 180, maxHeight: 400)
-            }
-            .sheet(isPresented: $showPuzzles) {
-                NavigationStack {
-                    PuzzleSelectView()
-                        .navigationTitle(L10n.shared.t("puzzle.title"))
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(L10n.shared.t("common.done")) { showPuzzles = false }
-                            }
-                        }
-                }
-                .frame(minWidth: 600, minHeight: 700)
-            }
-            .sheet(item: $toolbarReplayRecord) { record in
-                ReplayView(record: record)
-                    .frame(minWidth: 600, minHeight: 750)
-            }
-            .sheet(isPresented: $showThemePicker) {
-                NavigationStack {
-                    VStack(spacing: 16) {
-                        ThemePickerView()
-                    }
-                    .padding()
-                    .navigationTitle(L10n.shared.t("theme.title"))
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button(L10n.shared.t("common.done")) { showThemePicker = false }
-                        }
-                    }
-                }
-                .frame(minWidth: 300, minHeight: 200)
-            }
-            .sheet(isPresented: $showHistory) {
-                NavigationStack {
-                    GameHistoryView(onReplayRequest: { record in
-                        showHistory = false
-                        historyReplayRecord = record
-                    })
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(L10n.shared.t("common.done")) { showHistory = false }
-                            }
-                        }
-                }
-                .frame(minWidth: 350, minHeight: 400)
-            }
-            .sheet(item: $historyReplayRecord) { record in
-                ReplayView(record: record)
-                    .frame(minWidth: 600, minHeight: 750)
-            }
-            .sheet(isPresented: $showSettings) {
-                NavigationStack {
-                    SettingsView(viewModel: viewModel)
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(L10n.shared.t("common.done")) { showSettings = false }
-                            }
-                        }
-                }
-                .frame(minWidth: 320, minHeight: 300, maxHeight: 500)
-            }
-            .sheet(isPresented: $showDailyChallenge) {
-                NavigationStack {
-                    DailyChallengeView()
-                        .navigationTitle(L10n.shared.t("toolbar.dailyChallenge"))
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(L10n.shared.t("common.done")) { showDailyChallenge = false }
-                            }
-                        }
-                }
-                .frame(minWidth: 400, minHeight: 500)
-            }
-            .sheet(isPresented: $showAchievements) {
-                NavigationStack {
-                    AchievementView(profile: PlayerProfileStore.shared.profile)
-                        .navigationTitle(L10n.shared.t("toolbar.achievements"))
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(L10n.shared.t("common.done")) { showAchievements = false }
-                            }
-                        }
-                }
-                .frame(minWidth: 400, minHeight: 500)
-            }
-            .sheet(isPresented: $showRankPrivilege) {
-                NavigationStack {
-                    RankPrivilegeView(profile: PlayerProfileStore.shared.profile)
-                        .navigationTitle(L10n.shared.t("toolbar.rankPrivilege"))
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button(L10n.shared.t("common.done")) { showRankPrivilege = false }
-                            }
-                        }
-                }
-                .frame(minWidth: 400, minHeight: 500)
-            }
-            // Q2: 段位升级奖励弹窗
-            .sheet(isPresented: $showRankUp) {
-                if let rank = rankUpRank {
-                    RankUpView(newRank: rank) {
-                        showRankUp = false
-                    }
-                    .frame(minWidth: 320, minHeight: 300)
-                }
             }
             // v3.7.0 Phase 3: 打开 .pgn 文件
             .onOpenURL { url in
@@ -372,7 +396,7 @@ struct ChineseChessApp: App {
         .commands {
             CommandGroup(replacing: .appSettings) {
                 Button(L10n.shared.t("game.settings")) {
-                    showSettings = true
+                    activeSheet = .settings
                 }
                 .keyboardShortcut(",", modifiers: .command)
             }
@@ -405,7 +429,7 @@ struct ChineseChessApp: App {
                 Divider()
 
                 Button("配置引擎") {
-                    showSettings = true
+                    activeSheet = .settings
                 }
             }
         }
@@ -433,7 +457,7 @@ struct ChineseChessApp: App {
             GameRecordStore.shared.addRecord(record)
         }
         if !result.records.isEmpty {
-            showHistory = true
+            activeSheet = .history
         } else {
             importFailMessage = L10n.shared.t("import.parseFail")
             showImportFailAlert = true
