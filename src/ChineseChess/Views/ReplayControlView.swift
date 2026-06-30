@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ReplayControlView: View {
     let viewModel: ReplayViewModel
+    @Binding var showFEN: Bool
 
     private let l10n = L10n.shared
 
@@ -78,6 +79,13 @@ struct ReplayControlView: View {
                 }
                 .disabled(!viewModel.canGoForward)
                 .accessibilityLabel(l10n.t("replay.lastMove"))
+
+                // C3: FEN 折叠切换
+                Button(action: { withAnimation { showFEN.toggle() } }) {
+                    Image(systemName: showFEN ? "chevron.down" : "chevron.right")
+                        .font(.caption)
+                }
+                .accessibilityLabel(l10n.t("replay.fen"))
             }
             .foregroundColor(.white)
 

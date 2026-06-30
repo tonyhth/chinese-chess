@@ -98,7 +98,7 @@ struct ReplayView: View {
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
         .alert(l10n.t("history.rename"), isPresented: $isRenaming) {
             TextField(l10n.t("history.newTitle"), text: $newTitle)
-            Button(l10n.t("common.confirm")) {
+            Button(l10n.t("common.ok")) {
                 let trimmed = newTitle.trimmingCharacters(in: .whitespaces)
                 guard !trimmed.isEmpty else { return }
                 viewModel.rename(trimmed)

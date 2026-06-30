@@ -8035,6 +8035,22 @@
           }
         }
       }
+    },
+    "replay.fen": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FEN 局面代码"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FEN Position Code"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
