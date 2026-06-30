@@ -46,6 +46,8 @@ struct ReplayView: View {
                             isRenaming = true
                         }
                     HStack(spacing: 4) {
+                        SourceBadgeView(source: viewModel.record.source, showLabel: false)
+                            .font(.caption2)
                         Text(viewModel.record.redPlayer.name)
                             .font(.caption2.weight(.medium))
                             .foregroundColor(.red)

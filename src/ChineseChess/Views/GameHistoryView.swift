@@ -450,7 +450,7 @@ struct GameHistorySummaryRow: View {
     var body: some View {
         HStack(spacing: 12) {
             // 来源图标
-            sourceIcon
+            SourceBadgeView(source: summary.source, showLabel: false)
                 .font(.title2)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -481,9 +481,7 @@ struct GameHistorySummaryRow: View {
                     // v3.7.0 Phase 2: 来源标签
                     Text("·")
                         .foregroundColor(.secondary)
-                    Text(sourceText)
-                        .foregroundColor(.secondary.opacity(0.8))
-                        .font(.caption2)
+                    SourceBadgeView(source: summary.source, showIcon: false)
                 }
 
                 // 日期
@@ -500,36 +498,6 @@ struct GameHistorySummaryRow: View {
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
-    }
-
-    // MARK: - 来源图标
-
-    private var sourceIcon: some View {
-        switch summary.source {
-        case .versusAI:
-            return Image(systemName: "sword.fill")
-                .foregroundColor(.orange)
-        case .puzzle:
-            return Image(systemName: "puzzlepiece.fill")
-                .foregroundColor(.purple)
-        case .imported:
-            return Image(systemName: "arrow.down.doc.fill")
-                .foregroundColor(.blue)
-        case .freePlay:
-            return Image(systemName: "person.2.fill")
-                .foregroundColor(.green)
-        }
-    }
-
-    // MARK: - 来源文本
-
-    private var sourceText: String {
-        switch summary.source {
-        case .versusAI: return l10n.t("source.versusAI")
-        case .puzzle:   return l10n.t("source.puzzle")
-        case .imported: return l10n.t("source.imported")
-        case .freePlay: return l10n.t("source.freePlay")
-        }
     }
 
     // MARK: - 结果显示
