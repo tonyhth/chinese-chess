@@ -213,6 +213,8 @@ class ThemeManager {
         } else {
             self.currentTheme = .classicWood
         }
+        // 启动时校验：如果当前主题未解锁（段位降级/数据迁移），回退到默认
+        ensureValidTheme()
     }
 
     private func save() {
@@ -249,5 +251,14 @@ class ThemeManager {
         guard isThemeUnlocked(theme, profile: profile) else { return false }
         currentTheme = theme
         return true
+    }
+
+    /// 校验当前主题是否已解锁，未解锁则回退到 .classicWood
+    /// App 启动时和段位变化时调用
+    func ensureValidTheme() {
+        let profile = PlayerProfileStore.shared.profile
+        if !isThemeUnlocked(currentTheme, profile: profile) && !currentTheme.isUnlockedByDefault {
+            currentTheme = .classicWood
+        }
     }
 }

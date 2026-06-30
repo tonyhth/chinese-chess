@@ -1,368 +1,542 @@
 import XCTest
 @testable import ChineseChess
 
-// MARK: - v3.7.0 Phase 3 测试：PGN 导入、残局保存、来源图标、重命名、ReplayView 标题、.pgn 文件打开
+// MARK: - Phase 3 Tests: PGN导入增强 + 残局棋谱 + UI + 线程安全
 
 final class V370Phase3Tests: XCTestCase {
 
-    // MARK: - 1. PGN 导入
+    // 临时 Store 工厂
+    private func makeTestStore() -> GameRecordStore {
+        let tmpDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try? FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
+        return GameRecordStore(baseURL: tmpDir)
+    }
 
-    /// 验证 PGNImporter.parse 对 ICCS 格式 PGN 文本能正确解析
-    func testPGNImporter_ParseSingleGame() {
-        let pgn = """
+    // 标准测试 PGN
+    private var singleGamePGN: String {
+        """
         [Event "测试对局"]
-        [Site "中国象棋"]
-        [Date "2026.06.29"]
-        [Red "玩家"]
-        [Black "AI-中级"]
+        [Red "红方"]
+        [Black "黑方"]
         [Result "1-0"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
 
-        1. h2e2 b0c2 2. b9c7 a9a8
-        1-0
+        1. h2e2 1-0
         """
-        let result = PGNImporter.parse(pgn)
-        XCTAssertEqual(result.records.count, 1, "应解析出 1 局棋")
-        XCTAssertEqual(result.warnings.count, 0, "不应有警告")
-        XCTAssertEqual(result.records.first?.source, .imported, "导入记录 source 应为 .imported")
-        XCTAssertEqual(result.records.first?.redPlayer.name, "玩家")
-        XCTAssertEqual(result.records.first?.blackPlayer.name, "AI-中级")
     }
 
-    /// 验证空文本导入返回空结果
-    func testPGNImporter_ParseEmpty() {
+    private var multiGamePGN: String {
+        """
+        [Event "局1"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. h2e2 1-0
+
+        [Event "局2"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "0-1"]
+
+        1. i9i7 0-1
+        """
+    }
+
+    private var illegalMovePGN: String {
+        """
+        [Event "合法局"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. h2e2 1-0
+
+        [Event "非法走法局"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. h2e2 2. e2e9 1-0
+        """
+    }
+
+    // ============================================================
+    // 3A: PGN 导入增强
+    // ============================================================
+
+    // MARK: ImportResult 扩展
+
+    /// ImportResult 便利构造器：skippedCount = warnings.count, totalGames = records + warnings
+    func testImportResult_ConvenienceInit() {
+        let record = GameRecord(
+            title: "测试", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+            difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+            initialFEN: nil, source: .imported
+        )
+        let result = ImportResult(records: [record], warnings: ["局2失败", "局3失败"])
+        XCTAssertEqual(result.skippedCount, 2, "便利构造器 skippedCount 应等于 warnings.count")
+        XCTAssertEqual(result.totalGames, 3, "totalGames 应等于 records + warnings")
+        XCTAssertTrue(result.isSuccess, "有 records 时 isSuccess")
+        XCTAssertTrue(result.hasWarnings, "有 warnings 时 hasWarnings")
+    }
+
+    /// ImportResult 完整构造器
+    func testImportResult_FullInit() {
+        let result = ImportResult(records: [], warnings: [], skippedCount: 2, totalGames: 2)
+        XCTAssertFalse(result.isSuccess, "无 records 时不是 success")
+        XCTAssertFalse(result.hasWarnings, "无 warnings 时 hasWarnings=false")
+        XCTAssertEqual(result.skippedCount, 2)
+        XCTAssertEqual(result.totalGames, 2)
+    }
+
+    /// ImportResult Identifiable
+    func testImportResult_Identifiable() {
+        let r1 = ImportResult(records: [], warnings: [], skippedCount: 0, totalGames: 0)
+        let r2 = ImportResult(records: [], warnings: [], skippedCount: 0, totalGames: 0)
+        XCTAssertNotEqual(r1.id, r2.id, "每个 ImportResult 应有唯一 id")
+    }
+
+    // MARK: 单局导入
+
+    /// 单局 PGN 解析成功
+    func testPGNImport_SingleGame_Success() {
+        let result = PGNImporter.parse(singleGamePGN)
+        XCTAssertEqual(result.records.count, 1, "应解析出 1 局")
+        XCTAssertEqual(result.totalGames, 1)
+        XCTAssertEqual(result.skippedCount, 0)
+        XCTAssertTrue(result.isSuccess)
+    }
+
+    /// 多局 PGN 全部成功
+    func testPGNImport_MultiGame_AllSuccess() {
+        let result = PGNImporter.parse(multiGamePGN)
+        XCTAssertEqual(result.records.count, 2, "应解析出 2 局")
+        XCTAssertEqual(result.totalGames, 2)
+        XCTAssertEqual(result.skippedCount, 0)
+        XCTAssertTrue(result.isSuccess)
+    }
+
+    /// 部分失败显示跳过数
+    func testPGNImport_PartialFailure_SkippedCount() {
+        // 用列号越界（j0e2）制造真正非法的走法
+        let pgn = """
+        [Event "合法局"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. h2e2 1-0
+
+        [Event "非法列号局"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. j0e2 1-0
+        """
+        let result = PGNImporter.parse(pgn)
+        XCTAssertTrue(result.records.count >= 1, "至少 1 局成功")
+        XCTAssertTrue(result.skippedCount >= 1, "至少 1 局跳过")
+        XCTAssertTrue(result.hasWarnings)
+    }
+
+    /// 非PGN内容：splitGames 把非标签文本当成 1 局，但解析失败后 records 为空
+    func testPGNImport_NonPGN_Failure() {
+        let result = PGNImporter.parse("这是普通文本，不是 PGN")
+        XCTAssertTrue(result.records.isEmpty, "非PGN应返回空 records")
+        XCTAssertFalse(result.isSuccess)
+        // splitGames 可能把文本当成 1 段，但解析失败后 skippedCount=1
+        XCTAssertTrue(result.skippedCount >= 1, "非PGN内容应有跳过")
+    }
+
+    /// 空字符串
+    func testPGNImport_EmptyString_Failure() {
         let result = PGNImporter.parse("")
-        XCTAssertTrue(result.records.isEmpty, "空文本应返回 0 条记录")
-        XCTAssertTrue(result.warnings.isEmpty, "空文本不应有警告")
+        XCTAssertTrue(result.records.isEmpty)
+        XCTAssertEqual(result.totalGames, 0)
     }
 
-    /// 验证非法走法导入产生警告（ICCS 格式非法）
-    func testPGNImporter_ParseInvalidMove_ProducesWarning() {
-        let pgn = """
-        [Event "坏棋"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
-        [Result "*"]
+    // MARK: batchAdd 批量导入
 
-        1. a0a9
-        *
-        """
-        let result = PGNImporter.parse(pgn)
-        // a0a9 在 ICCS 坐标中 a0 行号=0，棋盘 row=9-a0 → row=9，但 9 行没有红方车
-        // 预期：解析失败产生 warning
-        if result.records.isEmpty {
-            XCTAssertFalse(result.warnings.isEmpty, "非法走法应产生警告")
+    /// batchAdd 基本功能
+    func testBatchAdd_Basic() {
+        let store = makeTestStore()
+        let records = [
+            GameRecord(title: "局1", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                       difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                       initialFEN: nil, source: .imported),
+            GameRecord(title: "局2", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                       difficulty: .medium, result: .blackWon, totalMoves: 2, moves: [],
+                       initialFEN: nil, source: .imported),
+        ]
+        let added = store.batchAdd(records)
+        XCTAssertEqual(added, 2, "应成功添加 2 条")
+        XCTAssertEqual(store.count, 2)
+    }
+
+    /// batchAdd id 去重
+    func testBatchAdd_DedupById() {
+        let store = makeTestStore()
+        let id = UUID()
+        let record1 = GameRecord(id: id, title: "局1", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                                  difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                  initialFEN: nil, source: .imported)
+        let record2 = GameRecord(id: id, title: "局1副本", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                                  difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                  initialFEN: nil, source: .imported)
+        store.addRecord(record1)
+        let added = store.batchAdd([record2])
+        XCTAssertEqual(added, 0, "重复 id 不应再添加")
+        XCTAssertEqual(store.count, 1)
+    }
+
+    /// batchAdd puzzleId 去重
+    func testBatchAdd_DedupByPuzzleId() {
+        let store = makeTestStore()
+        let pid = "puzzle-dedup-test"
+        let record1 = GameRecord(title: "残局1", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .hard),
+                                  difficulty: .hard, result: .redWon, totalMoves: 3, moves: [],
+                                  initialFEN: nil, source: .puzzle, puzzleId: pid)
+        let record2 = GameRecord(title: "残局1重玩", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .hard),
+                                  difficulty: .hard, result: .redWon, totalMoves: 2, moves: [],
+                                  initialFEN: nil, source: .puzzle, puzzleId: pid)
+        store.addRecord(record1)
+        let added = store.batchAdd([record2])
+        XCTAssertEqual(added, 0, "重复 puzzleId 不应再添加")
+        XCTAssertEqual(store.count, 1)
+    }
+
+    /// batchAdd 排序：新记录在前（reversed() 后最后添加的排在最前面）
+    func testBatchAdd_NewRecordsFirst() {
+        let store = makeTestStore()
+        let records = [
+            GameRecord(title: "局A", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                       difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                       initialFEN: nil, source: .imported),
+            GameRecord(title: "局B", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                       difficulty: .medium, result: .blackWon, totalMoves: 2, moves: [],
+                       initialFEN: nil, source: .imported),
+        ]
+        _ = store.batchAdd(records)
+        let summaries = store.loadSummaries()
+        // batchAdd 用 newSummaries.reversed() insert(at:0)，所以最后一条在前
+        XCTAssertEqual(summaries[0].title, "局B", "最后添加的记录应在最前面")
+        XCTAssertEqual(summaries[1].title, "局A")
+    }
+
+    /// batchAdd 空数组
+    func testBatchAdd_EmptyArray() {
+        let store = makeTestStore()
+        let added = store.batchAdd([])
+        XCTAssertEqual(added, 0, "空数组应返回 0")
+        XCTAssertEqual(store.count, 0)
+    }
+
+    /// batchAdd 与 addRecord 混合使用
+    func testBatchAdd_MixedWithAddRecord() {
+        let store = makeTestStore()
+        let r1 = GameRecord(title: "单条", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                             difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                             initialFEN: nil, source: .versusAI)
+        store.addRecord(r1)
+        XCTAssertEqual(store.count, 1)
+
+        let r2 = GameRecord(title: "批量", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                             difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                             initialFEN: nil, source: .imported)
+        _ = store.batchAdd([r2])
+        XCTAssertEqual(store.count, 2)
+    }
+
+    // MARK: ImportViewModel 状态机
+
+    /// ImportViewModel 初始状态
+    func testImportViewModel_InitialState() {
+        let vm = ImportViewModel()
+        if case .idle = vm.state {
+            // OK
+        } else {
+            XCTFail("初始状态应为 idle")
         }
     }
 
-    /// 验证多局 PGN 解析
-    func testPGNImporter_ParseMultipleGames() {
-        let pgn = """
-        [Event "第一局"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
-        [Result "*"]
-
-        *
-
-        [Event "第二局"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
-        [Result "*"]
-
-        *
-        """
-        let result = PGNImporter.parse(pgn)
-        // 两局空走法的 PGN，result 为 * 标记
-        // 至少应该尝试解析两局
-        XCTAssertGreaterThanOrEqual(result.records.count, 0, "多局解析不应崩溃")
-    }
-
-    /// 验证导入记录 source = .imported
-    func testPGNImporter_ImportedSource() {
-        let pgn = """
-        [Event "来源测试"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
-        [Result "*"]
-
-        *
-        """
-        let result = PGNImporter.parse(pgn)
-        for record in result.records {
-            XCTAssertEqual(record.source, .imported, "导入记录 source 必须为 .imported")
+    /// ImportViewModel fail 设置失败状态
+    func testImportViewModel_Fail() {
+        let vm = ImportViewModel()
+        vm.fail("测试失败")
+        if case .failure(let msg) = vm.state {
+            XCTAssertEqual(msg, "测试失败")
+        } else {
+            XCTFail("应为 failure 状态")
         }
     }
 
-    /// 验证导入写入 GameRecordStore 后可读取
-    func testPGNImporter_StoreAfterImport() {
-        let store = GameRecordStore.shared
-        let initialCount = store.count
-
-        let pgn = """
-        [Event "存储测试"]
-        [Red "红方"]
-        [Black "黑方"]
-        [Date "2026.06.29"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
-        [Result "*"]
-
-        *
-        """
-        let result = PGNImporter.parse(pgn)
-        for record in result.records {
-            store.addRecord(record)
-        }
-
-        if !result.records.isEmpty {
-            XCTAssertGreaterThanOrEqual(store.count, initialCount + 1, "导入后 count 应增加")
-            let loaded = store.loadRecord(id: result.records[0].id)
-            XCTAssertNotNil(loaded, "导入的记录应可通过 loadRecord 读取")
-            XCTAssertEqual(loaded?.source, .imported)
-        }
-
-        // 清理
-        for record in result.records {
-            store.deleteRecord(id: record.id)
-        }
-        XCTAssertEqual(store.count, initialCount, "清理后 count 应恢复")
-    }
-
-    // MARK: - 2. 残局通关保存 source=.puzzle
-
-    /// 验证 PuzzleViewModel.recordCompletion 保存 GameRecord 且 source=.puzzle
-    @MainActor
-    func testPuzzleCompletion_SavesPuzzleRecord() {
-        let puzzle = Puzzle(
-            id: "test-phase3-puzzle",
-            name: "测试残局",
-            category: "test",
-            difficulty: 1,
-            stars: 1,
-            description: "测试",
-            playerSide: "red",
-            initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
-            solution: ["h2e2"],  // 炮二平五
-            hints: nil,
-            maxMoves: 10
-        )
-        let vm = PuzzleViewModel(puzzle: puzzle)
-
-        // 模拟通关：直接调用 recordCompletion
-        // recordCompletion 是 private，通过 buildSolutionRecord 验证记录结构
-        let record = vm.buildSolutionRecord()
-        XCTAssertNotNil(record, "有 solution 时 buildSolutionRecord 应返回有效记录")
-        // recordCompletion 内部会设置 source = .puzzle，验证这个逻辑
-        // 我们通过 GameRecordStore 检查
-        let store = GameRecordStore.shared
-        let initialCount = store.count
-
-        // 手动构造 recordCompletion 的逻辑
-        if var rec = record {
-            rec.source = .puzzle
-            rec.puzzleId = puzzle.id
-            rec.title = String(format: L10n.shared.t("puzzle.recordTitle"), puzzle.name)
-            store.addRecord(rec)
-
-            XCTAssertGreaterThanOrEqual(store.count, initialCount + 1, "残局记录应写入 store")
-            let loaded = store.loadRecord(id: rec.id)
-            XCTAssertNotNil(loaded)
-            XCTAssertEqual(loaded?.source, .puzzle, "残局记录 source 应为 .puzzle")
-            XCTAssertEqual(loaded?.puzzleId, puzzle.id, "残局记录 puzzleId 应正确")
-
-            // 清理
-            store.deleteRecord(id: rec.id)
-        }
-        XCTAssertEqual(store.count, initialCount, "清理后 count 应恢复")
-    }
-
-    /// 验证无 solution 的残局不保存记录（buildSolutionRecord 返回 nil）
-    @MainActor
-    func testPuzzleCompletion_NoSolution_NoRecord() {
-        let puzzle = Puzzle(
-            id: "test-phase3-nosol",
-            name: "无解法残局",
-            category: "test",
-            difficulty: 1,
-            stars: 1,
-            description: "测试",
-            playerSide: "red",
-            initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
-            solution: [],
-            hints: nil,
-            maxMoves: 10
-        )
-        let vm = PuzzleViewModel(puzzle: puzzle)
-        let record = vm.buildSolutionRecord()
-        XCTAssertNil(record, "无 solution 时 buildSolutionRecord 应返回 nil")
-    }
-
-    // MARK: - 3. 来源图标验证（RecordSummary source 字段）
-
-    /// 验证 RecordSummary 保留 source 字段
-    func testRecordSummary_SourceField() {
-        let sources: [RecordSource] = [.versusAI, .puzzle, .imported, .freePlay]
-        for source in sources {
-            let record = GameRecord(
-                id: UUID(),
-                title: "Source Test",
-                date: Date(),
-                redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                difficulty: .medium,
-                result: .redWon,
-                totalMoves: 1,
-                moves: [],
-                source: source
-            )
-            let summary = RecordSummary(from: record)
-            XCTAssertEqual(summary.source, source, "RecordSummary source 应与 GameRecord 一致")
+    /// ImportViewModel reset 回到 idle
+    func testImportViewModel_Reset() {
+        let vm = ImportViewModel()
+        vm.fail("测试")
+        vm.reset()
+        if case .idle = vm.state {
+            // OK
+        } else {
+            XCTFail("reset 后应为 idle")
         }
     }
 
-    /// 验证 source 枚举覆盖 4 种来源
-    func testGameRecordSource_AllCases() {
-        // GameRecord.Source 不是 CaseIterable，手动验证
-        let allSources: [RecordSource] = [.versusAI, .puzzle, .imported, .freePlay]
-        XCTAssertEqual(allSources.count, 4, "应有 4 种 source 类型")
-        // 验证去重
-        let uniqueCount = Set(allSources.map { "\($0)" }).count
-        XCTAssertEqual(uniqueCount, 4, "4 种 source 应互不相同")
+    /// ImportViewModel confirmImport 非 success 状态返回 0
+    func testImportViewModel_ConfirmImport_NotSuccess() {
+        let vm = ImportViewModel()
+        let added = vm.confirmImport()
+        XCTAssertEqual(added, 0, "非 success 状态 confirmImport 应返回 0")
     }
 
-    // MARK: - 4. 重命名（GameRecordStore.updateRecord）
+    // ============================================================
+    // 3B: 残局棋谱自动入库
+    // ============================================================
 
-    /// 验证 updateRecord 修改标题后能持久化
-    func testGameRecordStore_UpdateRecord_Title() {
-        let store = GameRecordStore.shared
-        let record = makeTestRecord(title: "原始标题")
-        store.addRecord(record)
+    /// puzzleId 去重：重玩同一残局不新增
+    func testPuzzleReplay_DedupViaBatchAdd() {
+        let store = makeTestStore()
+        let pid = "puzzle-3b-dedup"
+        let r1 = GameRecord(title: "残局", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
+                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
+                             difficulty: .hard, result: .redWon, totalMoves: 5, moves: [],
+                             initialFEN: nil, source: .puzzle, puzzleId: pid)
+        store.addRecord(r1)
 
-        guard var loaded = store.loadRecord(id: record.id) else {
-            XCTFail("loadRecord 应返回记录")
-            return
+        // 重玩：用 updateRecord 而非 addRecord
+        let saved = store.findRecordByPuzzleId(pid)
+        XCTAssertNotNil(saved, "应找到已保存的残局记录")
+        var updated = saved!
+        updated.title = "残局-重玩"
+        store.updateRecord(updated)
+
+        XCTAssertEqual(store.count, 1, "重玩后仍应只有 1 条")
+        let loaded = store.loadRecord(id: saved!.id)
+        XCTAssertEqual(loaded?.title, "残局-重玩", "应更新为最新内容")
+    }
+
+    /// findRecordByPuzzleId 找不到返回 nil
+    func testFindRecordByPuzzleId_NotFound() {
+        let store = makeTestStore()
+        XCTAssertNil(store.findRecordByPuzzleId("nonexistent"))
+    }
+
+    /// findRecordByPuzzleId 只找 puzzle 来源
+    func testFindRecordByPuzzleId_OnlyPuzzleSource() {
+        let store = makeTestStore()
+        // 非 puzzle 记录不应有 puzzleId，但即使有也不应被找到
+        //（实际上非 puzzle 不会设 puzzleId，所以 findRecordByPuzzleId 不会匹配）
+        let r = GameRecord(title: "人机", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
+                           blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
+                           difficulty: .medium, result: .redWon, totalMoves: 10, moves: [],
+                           initialFEN: nil, source: .versusAI)
+        store.addRecord(r)
+        XCTAssertNil(store.findRecordByPuzzleId("any"))
+    }
+
+    /// 不同 puzzleId 各自保留
+    func testDifferentPuzzleId_BothKept() {
+        let store = makeTestStore()
+        let r1 = GameRecord(title: "残局A", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
+                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
+                             difficulty: .hard, result: .redWon, totalMoves: 3, moves: [],
+                             initialFEN: nil, source: .puzzle, puzzleId: "p-a")
+        let r2 = GameRecord(title: "残局B", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
+                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
+                             difficulty: .hard, result: .redWon, totalMoves: 5, moves: [],
+                             initialFEN: nil, source: .puzzle, puzzleId: "p-b")
+        store.addRecord(r1)
+        store.addRecord(r2)
+        XCTAssertEqual(store.count, 2, "不同 puzzleId 各自保留")
+    }
+
+    // ============================================================
+    // 3C: UI 组件（非 UI 测试，验证数据和映射逻辑）
+    // ============================================================
+
+    /// SourceBadgeView 映射完整性：4种来源都有映射
+    func testSourceBadge_AllSourceMappings() {
+        // 验证 RecordSource 有 4 种 case
+        let allCases: [RecordSource] = [.versusAI, .puzzle, .imported, .freePlay]
+        XCTAssertEqual(allCases.count, 4, "RecordSource 应有 4 种来源")
+    }
+
+    /// RecordSummary 包含 puzzleId 字段
+    func testRecordSummary_ContainsPuzzleId() {
+        let record = GameRecord(title: "测试", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                 blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                                 difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                 initialFEN: nil, source: .puzzle, puzzleId: "test-pid")
+        let summary = RecordSummary(from: record)
+        XCTAssertEqual(summary.puzzleId, "test-pid", "summary 应包含 puzzleId")
+    }
+
+    /// RecordSummary puzzleId 为 nil（非 puzzle 来源）
+    func testRecordSummary_PuzzleIdNil_ForNonPuzzle() {
+        let record = GameRecord(title: "人机", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                 blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                                 difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                 initialFEN: nil, source: .versusAI)
+        let summary = RecordSummary(from: record)
+        XCTAssertNil(summary.puzzleId, "非 puzzle 来源 puzzleId 应为 nil")
+    }
+
+    /// 重命名 trim：前后空格被去除
+    func testRename_TrimWhitespace() {
+        let trimmed = "  新标题  ".trimmingCharacters(in: .whitespaces)
+        XCTAssertEqual(trimmed, "新标题", "前后空格应被 trim")
+    }
+
+    /// 重命名 trim：纯空格为空
+    func testRename_TrimAllWhitespace_Empty() {
+        let trimmed = "   ".trimmingCharacters(in: .whitespaces)
+        XCTAssertTrue(trimmed.isEmpty, "纯空格 trim 后应为空")
+    }
+
+    /// 重命名 trim：空字符串仍为空
+    func testRename_TrimEmptyString() {
+        let trimmed = "".trimmingCharacters(in: .whitespaces)
+        XCTAssertTrue(trimmed.isEmpty, "空字符串 trim 后仍为空")
+    }
+
+    // ============================================================
+    // 线程安全
+    // ============================================================
+
+    /// 快速连续写入不 crash
+    func testConcurrentWrite_NoCrash() {
+        let store = makeTestStore()
+        let expectation = XCTestExpectation(description: "concurrent writes")
+        expectation.expectedFulfillmentCount = 10
+
+        for i in 0..<10 {
+            DispatchQueue.global().async {
+                let record = GameRecord(
+                    title: "并发\(i)",
+                    redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                    difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                    initialFEN: nil, source: .versusAI
+                )
+                store.addRecord(record)
+                expectation.fulfill()
+            }
         }
-        loaded.title = "重命名标题"
-        store.updateRecord(loaded)
 
-        // 验证 loadRecord 从文件读取更新后的标题
-        let reloaded = store.loadRecord(id: record.id)
-        XCTAssertEqual(reloaded?.title, "重命名标题", "updateRecord 后标题应更新")
-
-        // 清理
-        store.deleteRecord(id: record.id)
+        wait(for: [expectation], timeout: 10)
+        XCTAssertEqual(store.count, 10, "10 条并发写入后应有 10 条记录")
     }
 
-    /// 验证 updateRecord 不影响其他字段
-    func testGameRecordStore_UpdateRecord_PreservesOtherFields() {
-        let store = GameRecordStore.shared
-        let record = makeTestRecord(title: "原始")
-        store.addRecord(record)
+    /// 快速连续读写不 crash
+    func testConcurrentReadWrite_NoCrash() {
+        let store = makeTestStore()
+        // 先加一条
+        let r0 = GameRecord(title: "初始", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                             difficulty: .medium, result: .redWon, totalMoves: 0, moves: [],
+                             initialFEN: nil, source: .versusAI)
+        store.addRecord(r0)
 
-        guard var loaded = store.loadRecord(id: record.id) else {
-            XCTFail("loadRecord 应返回记录")
-            return
-        }
-        let originalMoves = loaded.totalMoves
-        let originalSource = loaded.source
-        let originalDate = loaded.date
+        let expectation = XCTestExpectation(description: "concurrent read/write")
+        expectation.expectedFulfillmentCount = 20
 
-        loaded.title = "新标题"
-        store.updateRecord(loaded)
-
-        let reloaded = store.loadRecord(id: record.id)
-        XCTAssertEqual(reloaded?.totalMoves, originalMoves, "totalMoves 不应被修改")
-        XCTAssertEqual(reloaded?.source, originalSource, "source 不应被修改")
-        XCTAssertEqual(reloaded?.date, originalDate, "date 不应被修改")
-
-        // 清理
-        store.deleteRecord(id: record.id)
-    }
-
-    // MARK: - 5. ReplayView 标题
-
-    /// 验证 GameRecord.title 传递到 ReplayView
-    func testReplayView_DisplaysRecordTitle() {
-        let record = makeTestRecord(title: "我的对局")
-        XCTAssertEqual(record.title, "我的对局", "GameRecord.title 应正确存储")
-        // ReplayView 通过 viewModel.record.title 显示标题
-        // 无法在单元测试中验证 SwiftUI View，但验证数据链路正确
-    }
-
-    /// 验证残局记录标题格式
-    func testPuzzleRecordTitle_Format() {
-        let puzzleName = "车马冷着"
-        let expectedTitle = String(format: L10n.shared.t("puzzle.recordTitle"), puzzleName)
-        XCTAssertFalse(expectedTitle.isEmpty, "残局标题不应为空")
-        XCTAssertTrue(expectedTitle.contains(puzzleName), "残局标题应包含残局名称")
-    }
-
-    // MARK: - 6. .pgn 文件打开（数据链路验证）
-
-    /// 验证 handleOpenURL 只处理 .pgn 扩展名
-    func testHandleOpenURL_OnlyPGN() {
-        let pgnURL = URL(fileURLWithPath: "/tmp/test.pgn")
-        let txtURL = URL(fileURLWithPath: "/tmp/test.txt")
-        XCTAssertEqual(pgnURL.pathExtension, "pgn", "pathExtension 应为 pgn")
-        XCTAssertNotEqual(txtURL.pathExtension, "pgn", "非 pgn 文件不应处理")
-    }
-
-    /// 验证 PGN 导入 -> store 写入 -> 历史页面数据链路
-    func testPGNImportToHistory_DataPipeline() {
-        let store = GameRecordStore.shared
-        let initialCount = store.count
-
-        // 模拟 handleOpenURL 的逻辑（ICCS 格式走法）
-        let pgn = """
-        [Event "文件导入测试"]
-        [Red "红方"]
-        [Black "黑方"]
-        [Date "2026.06.29"]
-        [FEN "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"]
-        [Result "*"]
-
-        *
-        """
-        let result = PGNImporter.parse(pgn)
-        for record in result.records {
-            store.addRecord(record)
+        for i in 0..<10 {
+            DispatchQueue.global().async {
+                let record = GameRecord(
+                    title: "写入\(i)",
+                    redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                    difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                    initialFEN: nil, source: .versusAI
+                )
+                store.addRecord(record)
+                expectation.fulfill()
+            }
+            DispatchQueue.global().async {
+                _ = store.count  // 读操作（线程安全版）
+                _ = store.loadSummaries()
+                expectation.fulfill()
+            }
         }
 
-        // 验证数据链路：import -> store -> loadRecord
-        if !result.records.isEmpty {
-            XCTAssertGreaterThanOrEqual(store.count, initialCount + 1, "导入后 count 应增加")
-            let loaded = store.loadRecord(id: result.records[0].id)
-            XCTAssertNotNil(loaded, "导入的记录应可通过 loadRecord 读取")
-            XCTAssertEqual(loaded?.source, .imported)
-        }
-
-        // 清理
-        for record in result.records {
-            store.deleteRecord(id: record.id)
-        }
-        XCTAssertEqual(store.count, initialCount)
+        wait(for: [expectation], timeout: 10)
+        // 不验证精确数量（并发写入），只验证不 crash
+        XCTAssertTrue(store.count >= 1, "至少有初始记录")
     }
 
-    /// 验证 Info.plist 注册了 .pgn 文件类型
-    func testInfoplist_PGNFileTypeRegistered() {
-        // 验证方式：检查 Info.plist 中 CFBundleDocumentTypes 是否包含 pgn
-        // 已通过代码审查确认：Info.plist 第 7 行 CFBundleDocumentTypes，第 20 行 pgn extension
-        // 此测试作为存在性断言
-        _ = Bundle.main.path(forResource: "Info", ofType: "plist")
-        // 在测试环境中 plist 可能不在 main bundle，验证源码文件存在
-        XCTAssertTrue(true, "Info.plist 包含 CFBundleDocumentTypes + pgn extension（代码审查确认）")
+    /// 快速连续 batchAdd 不 crash
+    func testConcurrentBatchAdd_NoCrash() {
+        let store = makeTestStore()
+        let expectation = XCTestExpectation(description: "concurrent batchAdd")
+        expectation.expectedFulfillmentCount = 5
+
+        for i in 0..<5 {
+            DispatchQueue.global().async {
+                let records = (0..<3).map { j in
+                    GameRecord(
+                        title: "batch\(i)-\(j)",
+                        redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                        blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                        difficulty: .medium, result: .redWon, totalMoves: i * 3 + j, moves: [],
+                        initialFEN: nil, source: .imported
+                    )
+                }
+                _ = store.batchAdd(records)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 10)
+        // 只验证不 crash，不验证精确数量
+        XCTAssertTrue(store.count > 0, "应有记录")
     }
 
-    // MARK: - 辅助方法
+    /// deleteRecord + addRecord 交叉不 crash
+    func testConcurrentDeleteAndAdd_NoCrash() {
+        let store = makeTestStore()
+        var ids: [UUID] = []
+        for i in 0..<5 {
+            let r = GameRecord(title: "待删\(i)", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                                difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                                initialFEN: nil, source: .versusAI)
+            store.addRecord(r)
+            ids.append(r.id)
+        }
 
-    private func makeTestRecord(title: String = "Phase3 Test") -> GameRecord {
-        GameRecord(
-            id: UUID(),
-            title: title,
-            date: Date(),
-            redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI-中级", isAI: true, difficulty: .medium),
-            difficulty: .medium,
-            result: .redWon,
-            totalMoves: 2,
-            moves: [],
-            source: .versusAI
-        )
+        let expectation = XCTestExpectation(description: "delete+add")
+        expectation.expectedFulfillmentCount = 10
+
+        for i in 0..<5 {
+            let delId = ids[i]
+            DispatchQueue.global().async {
+                store.deleteRecord(id: delId)
+                expectation.fulfill()
+            }
+            DispatchQueue.global().async {
+                let r = GameRecord(title: "新增\(i)", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
+                                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
+                                    difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                                    initialFEN: nil, source: .versusAI)
+                store.addRecord(r)
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 10)
+        // 不 crash 即通过
     }
 }

@@ -267,6 +267,8 @@ final class PlayerProfileStore {
 
     func reset() {
         defaults.removeObject(forKey: key)
+        // 段位重置后当前主题可能不再解锁，回退到默认
+        ThemeManager.shared.ensureValidTheme()
     }
 }
 

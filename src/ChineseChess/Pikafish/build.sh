@@ -49,10 +49,28 @@ build_static_lib() {
     local build_dir="$OUTPUT_DIR/build_${output_name}"
     mkdir -p "$build_dir"
 
-    # 编译参数
-    local target="${arch}-apple-${platform}${deploy_target}"
-    local common_flags="-std=c++17 ${OPTIMIZATION} -fPIC -DNDEBUG -DIS_64BIT -fexceptions"
-    local platform_flags="-target ${target} -isysroot $(xcrun --sdk ${platform} --show-sdk-path 2>/dev/null || xcrun --sdk macosx --show-sdk-path)"
+    # 编译参数（含架构相关 SIMD 宏）
+    local simd_flags
+    case $arch in
+      arm64)  simd_flags="-DUSE_NEON=8" ;;
+      x86_64) simd_flags="-DUSE_SSE2=1" ;;
+      *)      simd_flags="" ;;
+    esac
+    local common_flags="-std=c++17 -stdlib=libc++ ${OPTIMIZATION} -fPIC -DNDEBUG -DIS_64BIT -fexceptions ${simd_flags}"
+
+    # 平台参数：macOS 用 -target，iOS 用 -arch + -miphoneos-version-min
+    local platform_flags
+    case $platform in
+      macosx)
+        platform_flags="-target ${arch}-apple-macosx${deploy_target} -isysroot $(xcrun --sdk macosx --show-sdk-path)"
+        ;;
+      iphoneos)
+        platform_flags="-arch ${arch} -isysroot $(xcrun --sdk iphoneos --show-sdk-path) -miphoneos-version-min=${deploy_target}"
+        ;;
+      iphonesimulator)
+        platform_flags="-arch ${arch} -isysroot $(xcrun --sdk iphonesimulator --show-sdk-path) -miphonesimulator-version-min=${deploy_target} -DSIMULATOR"
+        ;;
+    esac
 
     # 编译所有源文件
     local obj_files=""
