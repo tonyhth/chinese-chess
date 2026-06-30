@@ -59,13 +59,10 @@ struct ChineseChessApp: App {
         DataMigration.migrateGameHistoryToFiles()
     }
 
-    // 面板状态:互斥管理
-    enum Panel: Equatable {
-        case none, record, stats
-    }
-
     // v3.7.1 P0: 统一 sheet 管理 — 解决多 .sheet 串联导致 sheet 弹不出的 bug
     enum SheetDestination: Identifiable {
+        case record
+        case stats
         case puzzles
         case themePicker
         case history
@@ -79,6 +76,8 @@ struct ChineseChessApp: App {
 
         var id: String {
             switch self {
+            case .record: return "record"
+            case .stats: return "stats"
             case .puzzles: return "puzzles"
             case .themePicker: return "themePicker"
             case .history: return "history"
@@ -93,7 +92,6 @@ struct ChineseChessApp: App {
         }
     }
 
-    @State private var activePanel: Panel = .none
     @State private var activeSheet: SheetDestination?
 
     @State private var viewModel = GameViewModel()
@@ -137,14 +135,14 @@ struct ChineseChessApp: App {
 
                     // 底部操作栏
                     HStack(spacing: 8) {
-                        Button(action: { activePanel = activePanel == .record ? .none : .record }) {
+                        Button(action: { activeSheet = (activeSheet?.id == "record") ? nil : .record }) {
                             Image(systemName: "doc.text")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.record"))
 
-                        Button(action: { activePanel = activePanel == .stats ? .none : .stats }) {
+                        Button(action: { activeSheet = (activeSheet?.id == "stats") ? nil : .stats }) {
                             Image(systemName: "chart.bar")
                         }
                         .buttonStyle(.bordered)
@@ -354,26 +352,19 @@ struct ChineseChessApp: App {
                         activeSheet = nil
                     }
                     .frame(minWidth: 320, minHeight: 300)
-                }
-            }
-            // 棋谱/统计面板互斥 Sheet（保持独立，因为它们与 activeSheet 不冲突）
-            .sheet(isPresented: Binding(
-                get: { activePanel == .record },
-                set: { if !$0 { activePanel = .none } }
-            )) {
-                RecordPanelView(viewModel: viewModel, onExportRequest: {
-                    if let record = viewModel.buildGameRecord() {
-                        copyRecordToClipboard(record)
-                    }
-                })
+
+                case .record:
+                    RecordPanelView(viewModel: viewModel, onExportRequest: {
+                        if let record = viewModel.buildGameRecord() {
+                            copyRecordToClipboard(record)
+                        }
+                    })
                     .frame(minWidth: 280, minHeight: 250, maxHeight: 400)
-            }
-            .sheet(isPresented: Binding(
-                get: { activePanel == .stats },
-                set: { if !$0 { activePanel = .none } }
-            )) {
-                StatsPanelView()
-                    .frame(minWidth: 280, minHeight: 180, maxHeight: 400)
+
+                case .stats:
+                    StatsPanelView()
+                        .frame(minWidth: 280, minHeight: 180, maxHeight: 400)
+                }
             }
             // v3.7.0 Phase 3: 打开 .pgn 文件
             .onOpenURL { url in
