@@ -102,6 +102,7 @@ class GameViewModel {
     var isProcessingWrongMove: Bool = false
     var isInCheck: Bool = false
     var difficulty: AIDifficulty = .medium
+    private var userDidSetDifficulty = false
     var humanSide: Side = {
         let saved = UserDefaults.standard.string(forKey: "chinesechess.humanSide") ?? "red"
         return saved == "black" ? .black : .red
@@ -311,7 +312,10 @@ class GameViewModel {
         resetClock()
 
         // Phase 3.4: 教练难度自动调节（段位+1）
-        difficulty = PlayerProfileStore.shared.profile.rank.recommendedCoachDifficulty
+        // 仅当用户未手动选过难度时才用段位推荐
+        if !userDidSetDifficulty {
+            difficulty = PlayerProfileStore.shared.profile.rank.recommendedCoachDifficulty
+        }
 
         // v3.1 Phase 2c: 引擎切换 + newGame
         EngineRouter.shared.newGame()
@@ -337,6 +341,7 @@ class GameViewModel {
 
     func setDifficulty(_ diff: AIDifficulty) {
         difficulty = diff
+        userDidSetDifficulty = true
     }
 
     // MARK: - 提示
