@@ -324,12 +324,20 @@ final class V370Phase1Tests: XCTestCase {
     }
 
     func testPGNExport_ImportedSource_NoDifficultyTag() {
-        let record = sample(source: .imported, difficulty: .hard)
-        let pgn = PGNExporter.export(record)
+        // source==.imported 时跳过 Difficulty 标签
+        let recordImported = sample(source: .imported, difficulty: .hard)
+        let pgnImported = PGNExporter.export(recordImported)
+        XCTAssertFalse(pgnImported.contains("[Difficulty"), "imported 来源不应输出 Difficulty 标签")
 
-        XCTAssertTrue(pgn.contains("[Event \"导入棋谱\"]"))
-        XCTAssertFalse(pgn.contains("[Difficulty"), "imported 来源不应输出 Difficulty 标签")
-        XCTAssertTrue(pgn.contains("[Source \"imported\"]"))
+        // source 非 .imported + difficulty 非 nil 时输出
+        let recordVsAI = sample(source: .versusAI, difficulty: .hard)
+        let pgnVsAI = PGNExporter.export(recordVsAI)
+        XCTAssertTrue(pgnVsAI.contains("[Difficulty"), "非 imported 来源 + difficulty 非 nil 应输出 Difficulty 标签")
+
+        // difficulty=nil 时跳过
+        let recordNil = sample(source: .versusAI, difficulty: nil)
+        let pgnNil = PGNExporter.export(recordNil)
+        XCTAssertFalse(pgnNil.contains("[Difficulty"), "difficulty=nil 不应输出 Difficulty 标签")
     }
 
     func testPGNExport_StandardInitial_NoFENTag() {
@@ -449,7 +457,7 @@ final class V370Phase1Tests: XCTestCase {
         let record = result.records[0]
         XCTAssertEqual(record.title, "导入棋谱", "缺少 Event 标签应默认为 '导入棋谱'")
         XCTAssertEqual(record.source, .imported, "缺少 Source 标签应默认为 imported")
-        XCTAssertEqual(record.difficulty, .medium, "缺少 Difficulty 标签应默认为 medium")
+        XCTAssertEqual(record.difficulty, nil, "缺少 Difficulty 标签时 difficulty 应为 nil")
     }
 
     func testPGNImport_MultipleGames() {
@@ -861,7 +869,7 @@ final class V370Phase1Tests: XCTestCase {
         title: String = "测试对局",
         date: Date = Date(),
         source: RecordSource = .versusAI,
-        difficulty: AIDifficulty = .hard,
+        difficulty: AIDifficulty? = .hard,
         result: GameState = .redWon,
         initialFEN: String? = nil,
         moves: [GameMove] = [],

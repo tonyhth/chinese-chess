@@ -43,7 +43,7 @@ struct PGNExporter {
             }
         }
         lines.append("[Format \"ICCS\"]")
-        if let diff = record.difficulty {
+        if let diff = record.difficulty, record.source != .imported {
             lines.append("[Difficulty \"\(diff.rawValue)\"]")
         }
         if let puzzleId = record.puzzleId {

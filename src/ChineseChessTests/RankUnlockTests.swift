@@ -16,11 +16,15 @@ struct RankUnlockTests {
 
     // MARK: - 段位 → 功能解锁
 
-    @Test("学童：无额外功能解锁")
+    @Test("学童：仅解锁无段位限制的功能")
     func studentUnlocks() {
         let profile = makeProfile(.student)
         for feature in UnlockedFeature.allCases {
-            #expect(!profile.isFeatureUnlocked(feature), "学童不应解锁 \(feature.rawValue)")
+            if feature.requiredRank == .student {
+                #expect(profile.isFeatureUnlocked(feature), "学童应解锁无段位限制功能 \(feature.rawValue)")
+            } else {
+                #expect(!profile.isFeatureUnlocked(feature), "学童不应解锁 \(feature.rawValue)")
+            }
         }
     }
 
@@ -50,12 +54,12 @@ struct RankUnlockTests {
         #expect(!profile.isFeatureUnlocked(.aiCoach))
     }
 
-    @Test("国手：解锁 aiCoach")
+    @Test("国手：解锁 aiCoach + gameRecordExport")
     func masterUnlocks() {
         let profile = makeProfile(.master)
         #expect(profile.isFeatureUnlocked(.aiCoach))
+        #expect(profile.isFeatureUnlocked(.gameRecordExport))  // 翰林+均可导出
         #expect(!profile.isFeatureUnlocked(.openingTreeFavorite))
-        #expect(!profile.isFeatureUnlocked(.gameRecordExport))
     }
 
     @Test("棋圣：解锁全部功能")
@@ -89,8 +93,12 @@ struct RankUnlockTests {
         #expect(UnlockedFeature.chapter2Early.isImplemented)
         #expect(UnlockedFeature.chapter3Early.isImplemented)
         #expect(UnlockedFeature.freePlayPuzzles.isImplemented)
+        #expect(UnlockedFeature.engineAnalysis.isImplemented)      // v3.7.0 Phase 2
+        #expect(UnlockedFeature.gameRecordExport.isImplemented)    // v3.7.0 Phase 2
+        #expect(UnlockedFeature.gameRecordImport.isImplemented)    // v3.7.0 Phase 2
 
-        #expect(!UnlockedFeature.engineAnalysis.isImplemented)
         #expect(!UnlockedFeature.aiCoach.isImplemented)
+        #expect(!UnlockedFeature.openingTreeFavorite.isImplemented)
+        #expect(!UnlockedFeature.customTheme.isImplemented)
     }
 }

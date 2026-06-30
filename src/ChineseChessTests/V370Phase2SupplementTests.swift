@@ -4,6 +4,22 @@ import XCTest
 // MARK: - v3.7.0 Phase 2 补充测试：导出/分享、数据源切换、isAI/name 语义、段位门禁
 
 final class V370Phase2SupplementTests: XCTestCase {
+    private var savedHumanSide: String?
+
+    override func setUp() {
+        super.setUp()
+        savedHumanSide = UserDefaults.standard.string(forKey: "chinesechess.humanSide")
+        UserDefaults.standard.set("red", forKey: "chinesechess.humanSide")
+    }
+
+    override func tearDown() {
+        if let saved = savedHumanSide {
+            UserDefaults.standard.set(saved, forKey: "chinesechess.humanSide")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide")
+        }
+        super.tearDown()
+    }
 
     // MARK: - 2. 导出/分享功能：RecordPanelView onExportRequest 连接验证
 
