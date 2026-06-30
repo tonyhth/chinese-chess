@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct GameHistoryView: View {
     @State private var summaries: [RecordSummary] = []
@@ -10,10 +11,9 @@ struct GameHistoryView: View {
     @State private var showRenameAlert = false
     @State private var renameTargetID: UUID?
     @State private var renameText = ""
-    // v3.7.0 Phase 3: 导入
-    @State private var showImportResultAlert = false
-    @State private var importResultText = ""
-    @State private var showImportPicker = false
+    // v3.7.0 Phase 3: 导入（改造为 ImportViewModel）
+    @State private var importViewModel = ImportViewModel()
+    @State private var showFileImporter = false
     // v3.7.0 Phase 2: 多选模式
     @State private var isSelectMode = false
     @State private var selectedIDs: Set<UUID> = []
@@ -217,7 +217,7 @@ struct GameHistoryView: View {
                         showClearAlert = true
                     }
                 }
-                // v3.7.0 Phase 3 + C2: 导入入口（Menu：粘贴 + 文件导入）
+                // v3.7.1 Phase 3A: 导入入口（Menu：粘贴 + 文件导入）
                 Menu {
                     Button {
                         importFromClipboard()
@@ -225,7 +225,7 @@ struct GameHistoryView: View {
                         Label(l10n.t("import.pastePGN"), systemImage: "doc.on.clipboard")
                     }
                     Button {
-                        showImportPicker = true
+                        showFileImporter = true
                     } label: {
                         Label(l10n.t("import.fromFile"), systemImage: "doc.text")
                     }
@@ -274,23 +274,58 @@ struct GameHistoryView: View {
                 reloadSummaries()
             }
         }
-        // v3.7.0 Phase 3: 导入结果提示
-        .alert(l10n.t("import.resultTitle"), isPresented: $showImportResultAlert) {
-            Button(l10n.t("common.ok"), role: .cancel) {}
-        } message: {
-            Text(importResultText)
+        // v3.7.1 Phase 3A: 导入结果 sheet（用 .sheet(item:) 避免空白 sheet）
+        .sheet(item: Binding<ImportResult?>(
+            get: {
+                if case .success(let result) = importViewModel.state {
+                    return result
+                }
+                return nil
+            },
+            set: { _ in }
+        )) { result in
+            ImportResultSheet(
+                result: result,
+                onConfirm: { importViewModel.confirmImport() },
+                onCancel: { importViewModel.reset() }
+            )
         }
-        // v3.7.0 Phase 3: iOS 文件导入
-        #if os(iOS)
-        .fileImporter(isPresented: $showImportPicker, allowedContentTypes: [.item]) { result in
+        // v3.7.1 Phase 3A: 导入失败 alert
+        .alert(l10n.t("import.resultTitle"), isPresented: Binding(
+            get: { if case .failure = importViewModel.state { return true } else { return false } },
+            set: { if !$0 { importViewModel.reset() } }
+        )) {
+            Button(l10n.t("common.ok"), role: .cancel) { importViewModel.reset() }
+        } message: {
+            if case .failure(let msg) = importViewModel.state {
+                Text(msg)
+            }
+        }
+        // v3.7.1 Phase 3A: 文件导入
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: {
+                if let pgnType = UTType(filenameExtension: "pgn") {
+                    return [pgnType]
+                } else {
+                    return [UTType.plainText]
+                }
+            }(),
+            allowsMultipleSelection: false
+        ) { result in
             switch result {
-            case .success(let url):
-                importFromFile(url)
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                if url.startAccessingSecurityScopedResource() {
+                    defer { url.stopAccessingSecurityScopedResource() }
+                    if let text = try? String(contentsOf: url, encoding: .utf8) {
+                        importViewModel.parse(pgnText: text)
+                    }
+                }
             case .failure:
                 break
             }
         }
-        #endif
     }
 
     // MARK: - 操作
@@ -323,8 +358,8 @@ struct GameHistoryView: View {
         let pgn = PGNExporter.export(record)
         #if os(iOS)
         UIPasteboard.general.string = pgn
-        importResultText = String(format: l10n.t("export.copiedN"), 1)
-        showImportResultAlert = true
+        exportResultText = String(format: l10n.t("export.copiedN"), 1)
+        showExportResultAlert = true
         #endif
     }
 
@@ -385,51 +420,20 @@ struct GameHistoryView: View {
     private func importFromClipboard() {
         #if os(macOS)
         guard let text = NSPasteboard.general.string(forType: .string), !text.isEmpty else {
-            importResultText = l10n.t("import.emptyClipboard")
-            showImportResultAlert = true
+            importViewModel.fail(l10n.t("import.emptyClipboard"))
             return
         }
         #else
         guard let text = UIPasteboard.general.string, !text.isEmpty else {
-            importResultText = l10n.t("import.emptyClipboard")
-            showImportResultAlert = true
+            importViewModel.fail(l10n.t("import.emptyClipboard"))
             return
         }
         #endif
-        processImportText(text)
-    }
-
-    private func importFromFile(_ url: URL) {
-        // A1: 过滤非 PGN 文件
-        let ext = url.pathExtension.lowercased()
-        guard ext == "pgn" || ext == "txt" else {
-            importResultText = l10n.t("import.unsupportedFormat")
-            showImportResultAlert = true
-            return
-        }
-        guard url.startAccessingSecurityScopedResource() else { return }
-        defer { url.stopAccessingSecurityScopedResource() }
-        guard let text = try? String(contentsOf: url, encoding: .utf8), !text.isEmpty else {
-            importResultText = l10n.t("import.readFileFail")
-            showImportResultAlert = true
-            return
-        }
-        processImportText(text)
+        importViewModel.parse(pgnText: text)
     }
 
     private func processImportText(_ text: String) {
-        let result = PGNImporter.parse(text)
-        for record in result.records {
-            store.addRecord(record)
-        }
-        reloadSummaries()
-
-        if result.warnings.isEmpty {
-            importResultText = String(format: l10n.t("import.success"), result.records.count)
-        } else {
-            importResultText = String(format: l10n.t("import.partial"), result.records.count, result.warnings.count)
-        }
-        showImportResultAlert = true
+        importViewModel.parse(pgnText: text)
     }
 
     // MARK: - v3.7.0 Phase 3: 重命名

@@ -21,9 +21,15 @@ enum PGNError: Error, LocalizedError {
 
 // MARK: - 导入结果
 
-struct ImportResult {
+struct ImportResult: Identifiable {
+    let id = UUID()  // 用于 .sheet(item:) 绑定
     let records: [GameRecord]
     let warnings: [String]
+    let skippedCount: Int    // 跳过的局数
+    let totalGames: Int      // 检测到的总局数
+
+    var isSuccess: Bool { !records.isEmpty }
+    var hasWarnings: Bool { !warnings.isEmpty }
 }
 
 // MARK: - PGN 导入解析器
@@ -49,6 +55,7 @@ struct PGNImporter {
         var warnings: [String] = []
 
         let games = splitGames(pgnText)
+        let totalGames = games.count
 
         for (i, gameText) in games.enumerated() {
             do {
@@ -61,7 +68,12 @@ struct PGNImporter {
             }
         }
 
-        return ImportResult(records: records, warnings: warnings)
+        return ImportResult(
+            records: records,
+            warnings: warnings,
+            skippedCount: totalGames - records.count,
+            totalGames: totalGames
+        )
     }
 
     // MARK: - 分割多局 PGN

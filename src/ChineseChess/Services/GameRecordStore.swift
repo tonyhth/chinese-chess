@@ -10,6 +10,7 @@ struct RecordSummary: Codable, Identifiable {
     let totalMoves: Int
     let difficulty: AIDifficulty?
     let source: RecordSource
+    let puzzleId: String?   // v3.7.1: 用于 puzzleId 去重
 
     init(from record: GameRecord) {
         self.id = record.id
@@ -19,6 +20,7 @@ struct RecordSummary: Codable, Identifiable {
         self.totalMoves = record.totalMoves
         self.difficulty = record.difficulty
         self.source = record.source
+        self.puzzleId = record.puzzleId
     }
 }
 
@@ -109,17 +111,8 @@ final class GameRecordStore {
             // id 去重：同 id 不重复写入
             guard !summaries.contains(where: { $0.id == record.id }) else { return }
 
-            // 1. 写入单条文件（P1-4: .atomic 本身即原子操作，无需双重间接）
-            let fileURL = baseURL.appendingPathComponent("\(record.id.uuidString).json")
-            do {
-                let data = try JSONEncoder().encode(record)
-                try data.write(to: fileURL, options: .atomic)
-            } catch {
-                #if DEBUG
-                AppLog.history.error("failed to write record \(record.id): \(error)")
-                #endif
-                return
-            }
+            // 1. 写入单条文件
+            persistSingleRecord(record)
 
             // 2. 更新内存摘要（新记录插入最前面，按日期倒序）
             summaries.insert(RecordSummary(from: record), at: 0)
@@ -132,17 +125,8 @@ final class GameRecordStore {
     /// 更新记录（改标题/标签等）
     func updateRecord(_ record: GameRecord) {
         writeQueue.sync {
-            // 1. 覆写单条文件（P1-4: .atomic 本身即原子操作）
-            let fileURL = baseURL.appendingPathComponent("\(record.id.uuidString).json")
-            do {
-                let data = try JSONEncoder().encode(record)
-                try data.write(to: fileURL, options: .atomic)
-            } catch {
-                #if DEBUG
-                AppLog.history.error("failed to update record \(record.id): \(error)")
-                #endif
-                return
-            }
+            // 1. 覆写单条文件
+            persistSingleRecord(record)
 
             // 2. 更新内存摘要
             if let idx = summaries.firstIndex(where: { $0.id == record.id }) {
@@ -182,7 +166,46 @@ final class GameRecordStore {
         }
     }
 
+    // MARK: - 批量导入
+
+    /// 批量添加记录，返回实际新增数量
+    /// 单次 writeQueue.sync 内完成所有写入，只调用一次 persistIndex()
+    @discardableResult
+    func batchAdd(_ records: [GameRecord]) -> Int {
+        writeQueue.sync {
+            var added = 0
+            for record in records {
+                // puzzleId 去重
+                if let pid = record.puzzleId,
+                   summaries.contains(where: { $0.puzzleId == pid }) {
+                    continue
+                }
+                // 直接操作内存，不逐条调 addRecord
+                summaries.append(RecordSummary(from: record))
+                persistSingleRecord(record)
+                added += 1
+            }
+            if added > 0 {
+                persistIndex()
+            }
+            return added
+        }
+    }
+
     // MARK: - 内部
+
+    /// 写入单条记录文件（调用方需在 writeQueue 内）
+    private func persistSingleRecord(_ record: GameRecord) {
+        let fileURL = baseURL.appendingPathComponent("\(record.id.uuidString).json")
+        do {
+            let data = try JSONEncoder().encode(record)
+            try data.write(to: fileURL, options: .atomic)
+        } catch {
+            #if DEBUG
+            AppLog.history.error("failed to write record \(record.id): \(error)")
+            #endif
+        }
+    }
 
     /// 从磁盘加载摘要到内存
     private func loadSummariesFromDisk() {
