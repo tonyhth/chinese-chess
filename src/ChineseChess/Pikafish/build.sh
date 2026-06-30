@@ -29,7 +29,7 @@ if [ ! -d "$PIKAFISH_SRC" ]; then
 fi
 
 # 排除不需要的源文件（main.cpp 和 benchmark.cpp 是独立可执行文件入口）
-SOURCES=$(find "$PIKAFISH_SRC" -name "*.cpp" | grep -v "_test.cpp" | grep -v "benchmark.cpp" | grep -v "main.cpp" | grep -v "entry_arm64.cpp" | grep -v "entry_x86.cpp")
+SOURCES=$(find "$PIKAFISH_SRC" -name "*.cpp" | grep -v "_test.cpp"  | grep -v "main.cpp" | grep -v "entry_arm64.cpp" | grep -v "entry_x86.cpp")
 
 # 记录版本信息
 PIKAFISH_COMMIT=$(cd "$PIKAFISH_SRC" && git rev-parse --short HEAD 2>/dev/null || echo "unknown")
