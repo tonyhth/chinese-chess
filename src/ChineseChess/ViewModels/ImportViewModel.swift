@@ -23,8 +23,8 @@ class ImportViewModel {
         Task.detached {
             let result = PGNImporter.parse(pgnText)
             await MainActor.run {
-                if result.records.isEmpty && result.totalGames == 0 {
-                    self.state = .failure("无法识别有效的 PGN 内容")
+                if result.records.isEmpty {
+                    self.state = .failure(L10n.shared.t("import.noValidContent"))
                 } else {
                     self.state = .success(result)
                 }

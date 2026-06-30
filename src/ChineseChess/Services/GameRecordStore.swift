@@ -174,18 +174,23 @@ final class GameRecordStore {
     func batchAdd(_ records: [GameRecord]) -> Int {
         writeQueue.sync {
             var added = 0
+            var newSummaries: [RecordSummary] = []
             for record in records {
+                // id 去重（与 addRecord 一致）
+                guard !summaries.contains(where: { $0.id == record.id }) else { continue }
                 // puzzleId 去重
                 if let pid = record.puzzleId,
                    summaries.contains(where: { $0.puzzleId == pid }) {
                     continue
                 }
                 // 直接操作内存，不逐条调 addRecord
-                summaries.append(RecordSummary(from: record))
+                newSummaries.append(RecordSummary(from: record))
                 persistSingleRecord(record)
                 added += 1
             }
             if added > 0 {
+                // 批量插入到最前面（与 addRecord 的 insert(at: 0) 一致，保持新记录在前）
+                summaries.insert(contentsOf: newSummaries.reversed(), at: 0)
                 persistIndex()
             }
             return added

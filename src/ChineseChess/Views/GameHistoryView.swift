@@ -267,7 +267,7 @@ struct GameHistoryView: View {
         .alert(l10n.t("history.rename"), isPresented: $showRenameAlert) {
             TextField(l10n.t("history.title"), text: $renameText)
             Button(l10n.t("common.cancel"), role: .cancel) {}
-            Button(l10n.t("common.save")) {
+            Button(l10n.t("common.done")) {
                 guard let id = renameTargetID, var record = store.loadRecord(id: id) else { return }
                 record.title = renameText
                 store.updateRecord(record)
@@ -429,10 +429,6 @@ struct GameHistoryView: View {
             return
         }
         #endif
-        importViewModel.parse(pgnText: text)
-    }
-
-    private func processImportText(_ text: String) {
         importViewModel.parse(pgnText: text)
     }
 

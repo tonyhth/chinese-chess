@@ -8147,6 +8147,22 @@
           }
         }
       }
+    },
+    "import.noValidContent": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法识别有效的 PGN 内容"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No valid PGN content found"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
