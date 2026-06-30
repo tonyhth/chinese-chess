@@ -269,7 +269,9 @@ struct GameHistoryView: View {
             Button(l10n.t("common.cancel"), role: .cancel) {}
             Button(l10n.t("common.done")) {
                 guard let id = renameTargetID, var record = store.loadRecord(id: id) else { return }
-                record.title = renameText
+                let trimmed = renameText.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return }
+                record.title = trimmed
                 store.updateRecord(record)
                 reloadSummaries()
             }
@@ -286,7 +288,7 @@ struct GameHistoryView: View {
         )) { result in
             ImportResultSheet(
                 result: result,
-                onConfirm: { importViewModel.confirmImport() },
+                onConfirm: { _ = importViewModel.confirmImport(); reloadSummaries() },
                 onCancel: { importViewModel.reset() }
             )
         }

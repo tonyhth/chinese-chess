@@ -73,7 +73,7 @@ final class GameRecordStore {
 
     /// 全部记录摘要（列表展示用，从内存缓存读取）
     func loadSummaries() -> [RecordSummary] {
-        return summaries
+        writeQueue.sync { summaries }
     }
 
     /// 从磁盘重新加载摘要到内存
@@ -89,18 +89,20 @@ final class GameRecordStore {
     }
 
     /// 记录数量
-    var count: Int { summaries.count }
+    var count: Int { writeQueue.sync { summaries.count } }
 
     /// v3.7.1 A4: 按 puzzleId 查找记录
     func findRecordByPuzzleId(_ puzzleId: String) -> GameRecord? {
-        for summary in summaries {
-            if summary.source == .puzzle,
-               let record = loadRecord(id: summary.id),
-               record.puzzleId == puzzleId {
-                return record
+        writeQueue.sync {
+            for summary in summaries {
+                if summary.source == .puzzle,
+                   let record = loadRecord(id: summary.id),
+                   record.puzzleId == puzzleId {
+                    return record
+                }
             }
+            return nil
         }
-        return nil
     }
 
     // MARK: - 写入（线程安全 + 去重 + 原子写入）
