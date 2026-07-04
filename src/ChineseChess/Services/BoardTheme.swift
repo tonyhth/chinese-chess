@@ -215,6 +215,15 @@ class ThemeManager {
         }
         // 启动时校验：如果当前主题未解锁（段位降级/数据迁移），回退到默认
         ensureValidTheme()
+        // 监听档案重置通知（v3.8.0: PlayerProfileStore 不再直接引用 ThemeManager）
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(onProfileReset),
+            name: .profileReset, object: nil
+        )
+    }
+
+    @objc private func onProfileReset() {
+        ensureValidTheme()
     }
 
     private func save() {

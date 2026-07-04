@@ -13,11 +13,11 @@ struct RankBadgeView: View {
                 .foregroundColor(rankColor)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(rank.localizedTitle)
+                Text(L10n.shared.t(rank.localizedTitleKey))
                     .font(.headline)
                     .foregroundColor(rankColor)
                 if let next = rank.next {
-                    Text("→ \(next.localizedTitle)")
+                    Text("→ \(L10n.shared.t(next.localizedTitleKey))")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -54,10 +54,12 @@ struct RankProgressView: View {
                 Spacer()
                 if let next = profile.rank.next {
                     VStack(alignment: .trailing) {
-                        Text(L10n.shared.t("achievement.view.nextRank", next.localizedTitle))
+                        Text(L10n.shared.t("achievement.view.nextRank", L10n.shared.t(next.localizedTitleKey)))
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("需 \(next.requiredWins) 胜\(next.requiredPuzzles > 0 ? " + \(next.requiredPuzzles) 残局" : "")")
+                        Text(L10n.shared.t("achievement.view.rankProgress",
+                                      String(next.requiredWins),
+                                      next.requiredPuzzles > 0 ? L10n.shared.t("achievement.view.rankProgress.puzzles", String(next.requiredPuzzles)) : ""))
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
@@ -135,7 +137,7 @@ struct AchievementView: View {
 
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text("\(rarity.localizedName) (\(unlocked.count)/\(achievements.count))")
+                            Text("\(L10n.shared.t(rarity.localizedKey)) (\(unlocked.count)/\(achievements.count))")
                                 .font(.headline)
                             Spacer()
                         }
@@ -158,7 +160,7 @@ struct AchievementView: View {
                 .font(.title2)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(achievement.displayName)
+                Text(achievement.rarity == .hidden ? "?????" : L10n.shared.t(achievement.nameL10nKey))
                     .font(.caption)
                     .fontWeight(isUnlocked ? .bold : .regular)
                     .foregroundColor(isUnlocked ? .primary : .secondary)
@@ -168,7 +170,7 @@ struct AchievementView: View {
                         .font(.caption2)
                         .foregroundColor(.orange)
                 } else {
-                    Text(achievement.displayDescription)
+                    Text(achievement.rarity == .hidden ? "?????" : L10n.shared.t(achievement.descriptionL10nKey))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(1)

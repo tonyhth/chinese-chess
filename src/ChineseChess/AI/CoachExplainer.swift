@@ -202,12 +202,26 @@ actor CoachExplainer {
         return MoveValidator.isInCheck(opponent, on: board)
     }
 
-    /// 是否是安全吃子（简化判断）
+    /// 是否是安全吃子（走法推演：吃子后己方不被将军，且落点不受对方攻击）
     private func isSafeCapture(_ move: String, fen: String) -> Bool {
-        // 无法在不重建棋盘的情况下精确判断
-        // 简化：如果评估优势方走这步且 eval 高，很可能是吃子
-        // 后续可以用 Board 推演精确判断
-        return false  // 先不触发，避免误判
+        guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        guard let piece = board.piece(at: from) else { return false }
+        guard let captured = board.piece(at: to) else { return false }  // 必须有吃子目标
+
+        let chessMove = Move(piece: piece, from: from, to: to, captured: captured)
+        board.execute(chessMove)
+
+        let moverSide: Side = piece.side
+        let opponentSide: Side = (moverSide == .red) ? .black : .red
+
+        // 条件 1：走完后己方不能被将军
+        if MoveValidator.isInCheck(moverSide, on: board) { return false }
+
+        // 条件 2：落点不受对方攻击（对方无法回吃）
+        let opponentMoves = MoveValidator.allLegalMoves(for: opponentSide, on: board)
+        let isContested = opponentMoves.contains { $0.to == to }
+        return !isContested
     }
 
     /// 是否是展开子力走法（简化判断：起始行在底线附近）

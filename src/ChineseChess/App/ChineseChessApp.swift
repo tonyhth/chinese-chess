@@ -35,6 +35,11 @@ struct ChineseChessApp: App {
             fatalError("cmaes CLI should have exited")
         }
         #endif
+
+        // v3.7.1 fix: 迁移旧 Bundle ID 的偏好数据
+        // 必须在所有读取 UserDefaults 的逻辑之前执行
+        PreferencesMigration.migrateIfNeeded()
+
         FontRegistry.registerFonts()
 
         // P2: 一次性清理 bonus 脏数据（dailyStreak=0 但 bonusSpecialTheme=true 不可能）
@@ -74,6 +79,11 @@ struct ChineseChessApp: App {
         case toolbarReplay(GameRecord)
         case historyReplay(GameRecord)
 
+        // ✅ v3.7.2: 新增 3 个 UI 入口
+        case analysis(GameRecord)
+        case coach(GameRecord)
+        case openingExplorer
+
         var id: String {
             switch self {
             case .record: return "record"
@@ -88,6 +98,9 @@ struct ChineseChessApp: App {
             case .rankUp: return "rankUp"
             case .toolbarReplay: return "toolbarReplay"
             case .historyReplay: return "historyReplay"
+            case .analysis: return "analysis"
+            case .coach: return "coach"
+            case .openingExplorer: return "openingExplorer"
             }
         }
     }
@@ -98,6 +111,12 @@ struct ChineseChessApp: App {
     @State private var showImportFailAlert = false
     @State private var importFailMessage = ""
     @State private var rankUpRank: Rank?
+
+    // v3.7.2 Phase 4: 对弈结束复盘卡片
+    @State private var showReviewCard = false
+    @State private var reviewCardRecord: GameRecord?
+    @State private var reviewCardData: GameReviewCard?
+    @State private var pendingReviewRecord: GameRecord?  // RankUpView dismiss 后检查
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -168,6 +187,42 @@ struct ChineseChessApp: App {
                         .disabled(viewModel.gameMoves.isEmpty)
                         .help(L10n.shared.t("toolbar.replay"))
 
+                        Button(action: {
+                            if let record = viewModel.buildGameRecord() {
+                                activeSheet = .analysis(record)
+                            }
+                        }) {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .disabled(viewModel.gameMoves.isEmpty)
+                        .help(L10n.shared.t("toolbar.analysis"))
+                        .keyboardShortcut("a", modifiers: [.command, .shift])
+
+                        Button(action: {
+                            if let record = viewModel.buildGameRecord() {
+                                activeSheet = .coach(record)
+                            }
+                        }) {
+                            Image(systemName: "graduationcap.fill")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .disabled(viewModel.gameMoves.isEmpty)
+                        .help(L10n.shared.t("toolbar.coach"))
+                        .keyboardShortcut("t", modifiers: [.command, .shift])
+
+                        Button(action: {
+                            activeSheet = .openingExplorer
+                        }) {
+                            Image(systemName: "book.fill")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .help(L10n.shared.t("toolbar.openingExplorer"))
+                        .keyboardShortcut("o", modifiers: [.command, .shift])
+
                         Spacer()
 
                         Button(action: { activeSheet = .themePicker }) {
@@ -227,12 +282,48 @@ struct ChineseChessApp: App {
                     }
                 }
 
+                // v3.7.2 Phase 4: 对弈结束复盘卡片
+                if showReviewCard, let card = reviewCardData, let record = reviewCardRecord {
+                    VStack {
+                        Spacer()
+                        ReviewCardView(
+                            card: card,
+                            onViewDetail: {
+                                showReviewCard = false
+                                activeSheet = .coach(record)
+                            },
+                            onClose: {
+                                showReviewCard = false
+                            }
+                        )
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .animation(.easeInOut(duration: 0.3), value: showReviewCard)
+                }
+
             }
             // Q2: 监听段位升级通知
             .onReceive(NotificationCenter.default.publisher(for: .rankPromoted)) { notification in
                 if let newRank = notification.object as? Rank {
                     rankUpRank = newRank
+                    // 竟态防护：段位升级优先，暂停 review card
+                    showReviewCard = false
+                    if let record = reviewCardRecord {
+                        pendingReviewRecord = record
+                    }
                     activeSheet = .rankUp(newRank)
+                }
+            }
+            // v3.7.2 Phase 4: 对弈结束触发复盘卡片
+            .onChange(of: viewModel.gameState) { _, newState in
+                if newState != .playing {
+                    generateReviewCard()
+                } else {
+                    // 新局开始，清理
+                    showReviewCard = false
+                    reviewCardRecord = nil
+                    reviewCardData = nil
+                    pendingReviewRecord = nil
                 }
             }
             .frame(minWidth: 600, minHeight: 700)
@@ -254,8 +345,7 @@ struct ChineseChessApp: App {
                 switch destination {
                 case .puzzles:
                     NavigationStack {
-                        PuzzleSelectView()
-                            .navigationTitle(L10n.shared.t("puzzle.title"))
+                        ChapterSelectView()
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
                                     Button(L10n.shared.t("common.done")) { activeSheet = nil }
@@ -350,6 +440,12 @@ struct ChineseChessApp: App {
                 case .rankUp(let rank):
                     RankUpView(newRank: rank) {
                         activeSheet = nil
+                        // 竟态防护：RankUpView dismiss 后检查 pending review card
+                        if let record = pendingReviewRecord {
+                            pendingReviewRecord = nil
+                            reviewCardRecord = record
+                            showReviewCard = true
+                        }
                     }
                     .frame(minWidth: 320, minHeight: 300)
 
@@ -364,6 +460,35 @@ struct ChineseChessApp: App {
                 case .stats:
                     StatsPanelView()
                         .frame(minWidth: 280, minHeight: 180, maxHeight: 400)
+
+                // ✅ v3.7.2: 新增 UI 入口 placeholder
+                case .analysis(let record):
+                    AnalysisView(record: record)
+                        .frame(minWidth: 600, minHeight: 700)
+
+                case .coach(let record):
+                    NavigationStack {
+                        CoachSessionView(record: record)
+                            .navigationTitle(L10n.shared.t("coach.title"))
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 500, minHeight: 600)
+
+                case .openingExplorer:
+                    NavigationStack {
+                        OpeningExplorerView()
+                            .navigationTitle(L10n.shared.t("opening.title"))
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 500, minHeight: 600)
                 }
             }
             // v3.7.0 Phase 3: 打开 .pgn 文件
@@ -414,12 +539,12 @@ struct ChineseChessApp: App {
             }
 
             // Phase C: 引擎菜单（简化版，仅 macOS）
-            CommandMenu("引擎") {
+            CommandMenu(L10n.shared.t("engine.menuLabel")) {
                 Toggle(L10n.shared.t("engine.usePikafishMenu"), isOn: useEmbeddedEngineBinding)
 
                 Divider()
 
-                Button("配置引擎") {
+                Button(L10n.shared.t("engine.configureLabel")) {
                     activeSheet = .settings
                 }
             }
@@ -432,6 +557,37 @@ struct ChineseChessApp: App {
         let pgn = PGNExporter.export(record)
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(pgn, forType: .string)
+    }
+
+    // MARK: - v3.7.2 Phase 4: 复盘卡片生成
+
+    private func generateReviewCard() {
+        guard let record = viewModel.buildGameRecord() else { return }
+        guard !record.moves.isEmpty else { return }
+
+        reviewCardRecord = record
+
+        // 异步分析 + 生成 review card
+        Task {
+            let uciMoves = record.moves.uciMoves
+
+            let fen = record.initialFEN ?? FENParser.standardInitial
+            let analysisVM = AnalysisViewModel()
+            analysisVM.load(moves: uciMoves, initialFEN: fen, gameMoves: record.moves)
+            await analysisVM.analyzeAll()
+
+            let card = await CoachExplainer.shared.generateReviewCard(analyses: analysisVM.analyses)
+
+            await MainActor.run {
+                reviewCardData = card
+                // 如果正在显示 RankUpView，延后显示
+                if activeSheet?.id == "rankUp" {
+                    pendingReviewRecord = record
+                } else {
+                    showReviewCard = true
+                }
+            }
+        }
     }
 
     // MARK: - v3.7.0 Phase 3: 打开 .pgn 文件

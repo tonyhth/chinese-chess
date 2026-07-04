@@ -150,16 +150,7 @@ struct ChessBoardView: View {
         }
 
         // 提示高亮（蓝色）
-        if let hint = hintMove {
-            Circle()
-                .stroke(Color.blue, lineWidth: 3)
-                .frame(width: cellSize * 0.85, height: cellSize * 0.85)
-                .position(posToCGPoint(hint.from, cellSize: cellSize, padding: padding))
-            Circle()
-                .fill(Color.blue.opacity(0.5))
-                .frame(width: cellSize * 0.35, height: cellSize * 0.35)
-                .position(posToCGPoint(hint.to, cellSize: cellSize, padding: padding))
-        }
+        // 提示高亮移至棋子之后渲染（避免被棋子遮挡）
 
         // 合法走法提示
         ForEach(legalMoves, id: \.self) { pos in
@@ -214,6 +205,29 @@ struct ChessBoardView: View {
                     )
                 )
                 .allowsHitTesting(false)
+        }
+
+        // 提示高亮（蓝色）— 渲染在棋子之上，避免被吃子位置棋子遮挡
+        if let hint = hintMove {
+            // from: 蓝色空心圆圈（标记起始棋子）
+            Circle()
+                .stroke(Color.blue, lineWidth: 3)
+                .frame(width: cellSize * 0.85, height: cellSize * 0.85)
+                .position(posToCGPoint(hint.from, cellSize: cellSize, padding: padding))
+            // to: 区分空位/吃子
+            if board.piece(at: hint.to) != nil {
+                // 吃子：蓝色空心圆圈（与 from 同样式，叠在棋子上方）
+                Circle()
+                    .stroke(Color.blue, lineWidth: 3)
+                    .frame(width: cellSize * 0.85, height: cellSize * 0.85)
+                    .position(posToCGPoint(hint.to, cellSize: cellSize, padding: padding))
+            } else {
+                // 空位：蓝色实心圆点
+                Circle()
+                    .fill(Color.blue.opacity(0.5))
+                    .frame(width: cellSize * 0.35, height: cellSize * 0.35)
+                    .position(posToCGPoint(hint.to, cellSize: cellSize, padding: padding))
+            }
         }
 
         // 非法走法提示：红色圆圈 + 叉号

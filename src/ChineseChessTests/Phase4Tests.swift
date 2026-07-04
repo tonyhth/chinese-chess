@@ -124,10 +124,10 @@ struct ReplayViewModelTests {
         let moves = [
             GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4)),
                      from: Position(row: 6, col: 4), to: Position(row: 5, col: 4), captured: nil,
-                     turnNumber: 1, notation: "兵五进一", timestamp: Date(), isCheck: false, isCheckmate: false),
+                     turnNumber: 1, notation: "兵五进一", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
             GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4)),
                      from: Position(row: 3, col: 4), to: Position(row: 4, col: 4), captured: nil,
-                     turnNumber: 1, notation: "卒5进1", timestamp: Date(), isCheck: false, isCheckmate: false),
+                     turnNumber: 1, notation: "卒5进1", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
         ]
         return GameRecord(
             id: UUID(), title: "测试对局", date: Date(),
@@ -531,17 +531,17 @@ struct Phase35Tests {
         let checkmate = Puzzle(id: "t1", name: "t", category: "t", difficulty: 1, stars: 1,
             description: "t", playerSide: "red", initialFEN: FENParser.standardInitial,
             solution: [], hints: nil, maxMoves: 10, solutionType: "checkmate")
-        #expect(checkmate.typeLabel == L10n.shared.t("puzzle.type.checkmate"))
+        #expect(checkmate.typeLabelKey == "puzzle.type.checkmate")
 
         let sequence = Puzzle(id: "t2", name: "t", category: "t", difficulty: 1, stars: 1,
             description: "t", playerSide: "red", initialFEN: FENParser.standardInitial,
             solution: [], hints: nil, maxMoves: 10, solutionType: "sequence")
-        #expect(sequence.typeLabel == L10n.shared.t("puzzle.type.sequence"))
+        #expect(sequence.typeLabelKey == "puzzle.type.sequence")
 
         let hint = Puzzle(id: "t3", name: "t", category: "t", difficulty: 1, stars: 1,
             description: "t", playerSide: "red", initialFEN: FENParser.standardInitial,
             solution: [], hints: nil, maxMoves: 10, solutionType: "hint")
-        #expect(hint.typeLabel == L10n.shared.t("puzzle.type.hint"))
+        #expect(hint.typeLabelKey == "puzzle.type.hint")
     }
 
     // P4: playerSolutionMoves 通过棋子颜色提取红方步

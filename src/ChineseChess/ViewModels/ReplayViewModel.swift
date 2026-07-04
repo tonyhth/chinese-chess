@@ -139,19 +139,24 @@ class ReplayViewModel {
     // MARK: - 内部：局面重建
 
     private func rebuildBoard(upTo index: Int) {
-        // 找到最近的快照
+        // 找到最近的快照（snapshot[K] = 执行完 move[K] 后的棋盘状态）
         let snapIdx = (index / snapshotInterval) * snapshotInterval
+        var startIndex: Int
         let startBoard: Board
-        if let snap = snapshots[snapIdx] {
+
+        if snapIdx > 0, let snap = snapshots[snapIdx] {
+            // 有快照：状态已包含 move[0...snapIdx]，从 snapIdx+1 继续
             startBoard = snap.snapshot()
+            startIndex = snapIdx + 1
         } else {
+            // 无快照：从初始局面重建
             startBoard = Board(fen: record.initialFEN ?? FENParser.standardInitial)
+            startIndex = 0
         }
 
         board = startBoard
 
-        // 从 snapIdx 到 index 逐步执行
-        for i in snapIdx..<index {
+        for i in startIndex..<index {
             guard i < record.moves.count else { break }
             let move = record.moves[i]
             let piece = board.piece(at: move.from) ?? move.piece

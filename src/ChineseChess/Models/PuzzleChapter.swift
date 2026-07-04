@@ -85,7 +85,7 @@ enum ChapterDefinitions {
 // MARK: - 章节运行时数据
 
 /// 章节运行时状态（每次打开章节列表时计算，不持久化）
-struct PuzzleChapter: Identifiable {
+struct PuzzleChapter: Identifiable, Hashable {
     let id: String
     let config: ChapterConfig
     let puzzles: [Puzzle]              // 本章包含的残局列表
@@ -93,8 +93,16 @@ struct PuzzleChapter: Identifiable {
     var isUnlocked: Bool               // 是否已解锁（两遍构建中 Pass 2 修改）
     let unlockDescription: String      // 解锁条件描述（未解锁时显示）
 
-    var title: String { L10n.shared.t(config.titleKey) }
-    var subtitle: String { L10n.shared.t(config.subtitleKey) }
+    // Hashable：仅用 id 区分（避免合成 Hashable 要求所有属性遵循）
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    static func == (lhs: PuzzleChapter, rhs: PuzzleChapter) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    var titleKey: String { config.titleKey }
+    var subtitleKey: String { config.subtitleKey }
     var totalCount: Int { puzzles.count }
     var progress: Double {
         totalCount == 0 ? 0 : Double(completedCount) / Double(totalCount)

@@ -13,7 +13,7 @@ struct TutorialView: View {
             // 顶部导航
             HStack {
                 if viewModel.currentLesson > 0 {
-                    Button("上一步") {
+                    Button(L10n.shared.t("tutorial.prev")) {
                         viewModel.previousLesson()
                     }
                     .buttonStyle(.borderless)
@@ -21,12 +21,12 @@ struct TutorialView: View {
 
                 Spacer()
 
-                Text("新手教程 \(viewModel.currentLesson + 1)/\(viewModel.lessons.count)")
+                Text(L10n.shared.t("tutorial.progress", String(viewModel.currentLesson + 1), String(viewModel.lessons.count)))
                     .font(.headline)
 
                 Spacer()
 
-                Button("跳过") {
+                Button(L10n.shared.t("tutorial.skip")) {
                     TutorialViewModel.markTutorialCompleted()
                     onComplete?()
                     dismiss()
@@ -81,7 +81,7 @@ struct TutorialView: View {
             HStack {
                 Spacer()
                 if viewModel.isLastLesson {
-                    Button("完成教程") {
+                    Button(L10n.shared.t("tutorial.complete")) {
                         TutorialViewModel.markTutorialCompleted()
                         onComplete?()
                         dismiss()
@@ -89,7 +89,7 @@ struct TutorialView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                 } else {
-                    Button("下一课") {
+                    Button(L10n.shared.t("tutorial.next")) {
                         viewModel.nextLesson()
                     }
                     .buttonStyle(.borderedProminent)
@@ -110,11 +110,11 @@ struct TutorialView: View {
         case 0:
             // 第 1 课：棋子走法提示
             VStack(alignment: .leading, spacing: 8) {
-                Text("💡 提示")
+                Text(L10n.shared.t("tutorial.lesson0.hint"))
                     .font(.headline)
-                Text("在对局中点击你的棋子，绿色圆点表示可移动的位置。")
+                Text(L10n.shared.t("tutorial.lesson0.hintBody"))
                     .foregroundColor(.secondary)
-                Text("注意：马有蹩脚、象有塞眼，不是所有方向都能走！")
+                Text(L10n.shared.t("tutorial.lesson0.hintNote"))
                     .foregroundColor(.secondary)
             }
             .padding()
@@ -124,9 +124,9 @@ struct TutorialView: View {
         case 1:
             // 第 2 课：将军提示
             VStack(alignment: .leading, spacing: 8) {
-                Text("💡 练习")
+                Text(L10n.shared.t("tutorial.lesson1.hint"))
                     .font(.headline)
-                Text("开始一局对弈，AI 会对你将军。尝试用不同方式应将。")
+                Text(L10n.shared.t("tutorial.lesson1.hintBody"))
                     .foregroundColor(.secondary)
             }
             .padding()
@@ -136,11 +136,11 @@ struct TutorialView: View {
         case 2:
             // 第 3 课：将死练习
             VStack(alignment: .leading, spacing: 8) {
-                Text("💡 一步杀")
+                Text(L10n.shared.t("tutorial.lesson2.hint"))
                     .font(.headline)
-                Text("进入残局模式，尝试找到将死的走法。")
+                Text(L10n.shared.t("tutorial.lesson2.hintBody"))
                     .foregroundColor(.secondary)
-                Text("关键：不仅要将军，还要让对方无法应将！")
+                Text(L10n.shared.t("tutorial.lesson2.hintNote"))
                     .foregroundColor(.secondary)
             }
             .padding()
@@ -150,20 +150,20 @@ struct TutorialView: View {
         case 3:
             // 第 4 课：特殊规则
             VStack(alignment: .leading, spacing: 8) {
-                Text("⚠️ 重要区分")
+                Text(L10n.shared.t("tutorial.lesson3.hint"))
                     .font(.headline)
                 HStack {
-                    Text("困毙")
+                    Text(L10n.shared.t("tutorial.lesson3.stalemate"))
                         .fontWeight(.bold)
                         .foregroundColor(.red)
-                    Text("= 判负（输棋）")
+                    Text(L10n.shared.t("tutorial.lesson3.stalemateDesc"))
                         .foregroundColor(.red)
                 }
                 HStack {
-                    Text("长将/长捉")
+                    Text(L10n.shared.t("tutorial.lesson3.perpetual"))
                         .fontWeight(.bold)
                         .foregroundColor(.blue)
-                    Text("= 和棋")
+                    Text(L10n.shared.t("tutorial.lesson3.perpetualDesc"))
                         .foregroundColor(.blue)
                 }
             }
@@ -174,11 +174,11 @@ struct TutorialView: View {
         case 4:
             // 第 5 课：实战
             VStack(alignment: .leading, spacing: 8) {
-                Text("🎮 准备好了！")
+                Text(L10n.shared.t("tutorial.lesson4.hint"))
                     .font(.headline)
-                Text("完成教程后，点击「新对局」开始实战。")
+                Text(L10n.shared.t("tutorial.lesson4.hintBody"))
                     .foregroundColor(.secondary)
-                Text("新手难度 AI 会陪你练习，善用「提示」功能学习开局。")
+                Text(L10n.shared.t("tutorial.lesson4.hintNote"))
                     .foregroundColor(.secondary)
             }
             .padding()
@@ -204,22 +204,22 @@ struct FirstLaunchDialog: View {
                 .font(.largeTitle)
                 .foregroundColor(.accentColor)
 
-            Text("欢迎使用中国象棋！")
+            Text(L10n.shared.t("tutorial.welcome"))
                 .font(.title2)
                 .fontWeight(.bold)
 
-            Text("你是否熟悉中国象棋的规则？")
+            Text(L10n.shared.t("tutorial.welcomeQuestion"))
                 .font(.body)
 
             HStack(spacing: 16) {
-                Button("不太熟悉") {
+                Button(L10n.shared.t("tutorial.notFamiliar")) {
                     onShowTutorial()
                     isPresented = false
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
 
-                Button("已了解") {
+                Button(L10n.shared.t("tutorial.familiar")) {
                     onSkip()
                     isPresented = false
                 }

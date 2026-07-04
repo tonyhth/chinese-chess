@@ -626,7 +626,7 @@ struct R3R1FunctionalTests {
         let gameMove = GameMove(
             id: UUID(), piece: piece, from: from, to: to, captured: nil,
             turnNumber: 1, notation: notation, timestamp: Date(),
-            isCheck: false, isCheckmate: false
+            isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
 
         let record = GameRecord(
@@ -673,7 +673,7 @@ struct R3R1FunctionalTests {
             let gameMove = GameMove(
                 id: UUID(), piece: piece, from: from, to: to, captured: captured,
                 turnNumber: i / 2 + 1, notation: notation, timestamp: Date(),
-                isCheck: false, isCheckmate: false
+                isCheck: false, isCheckmate: false, halfmoveClock: 0
             )
             moves.append(gameMove)
         }

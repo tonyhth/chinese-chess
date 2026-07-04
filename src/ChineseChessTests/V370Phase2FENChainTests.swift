@@ -51,7 +51,7 @@ final class V370Phase2FENChainTests: XCTestCase {
                 notation: "",
                 timestamp: Date(),
                 isCheck: false,
-                isCheckmate: false
+                isCheckmate: false, halfmoveClock: 0
             )
             gameMoves.append(gameMove)
         }
@@ -105,7 +105,7 @@ final class V370Phase2FENChainTests: XCTestCase {
                 notation: "",
                 timestamp: Date(),
                 isCheck: false,
-                isCheckmate: false
+                isCheckmate: false, halfmoveClock: 0
             )
             gameMoves.append(gameMove)
         }
@@ -148,7 +148,7 @@ final class V370Phase2FENChainTests: XCTestCase {
             notation: "",
             timestamp: Date(),
             isCheck: false,
-            isCheckmate: false
+            isCheckmate: false, halfmoveClock: 0
         )
 
         let fenBefore = FENRebuilder.computeFEN(initialFEN: customFEN, moves: [gameMove], before: 0)
@@ -189,7 +189,7 @@ final class V370Phase2FENChainTests: XCTestCase {
             notation: "",
             timestamp: Date(),
             isCheck: false,
-            isCheckmate: false
+            isCheckmate: false, halfmoveClock: 0
         )
 
         // FENRebuilder 使用 board.piece(at: gm.from) ?? gm.piece
@@ -241,7 +241,7 @@ final class V370Phase2FENChainTests: XCTestCase {
             notation: "",
             timestamp: Date(),
             isCheck: false,
-            isCheckmate: false
+            isCheckmate: false, halfmoveClock: 0
         )
 
         // 不传 gameMoves → fenList 只有初始 FEN

@@ -341,7 +341,8 @@ struct PGNImporter {
                 notation: "",  // 导入时不生成中文棋谱
                 timestamp: Date(),
                 isCheck: false,
-                isCheckmate: false
+                isCheckmate: false,
+                halfmoveClock: 0  // 导入时无历史信息，默认 0
             )
             gameMoves.append(gameMove)
         }

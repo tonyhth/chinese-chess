@@ -417,12 +417,12 @@ struct GameViewModelPhase3Tests {
         let redPiece = vm.board.piece(at: Position(row: 6, col: 4))!
         let redMove = Move(piece: redPiece, from: redPiece.position, to: Position(row: 5, col: 4), captured: nil)
         vm.board.execute(redMove)
-        vm.gameMoves.append(GameMove(id: UUID(), piece: redPiece, from: redPiece.position, to: Position(row: 5, col: 4), captured: nil, turnNumber: 1, notation: "兵五进一", timestamp: Date(), isCheck: false, isCheckmate: false))
+        vm.gameMoves.append(GameMove(id: UUID(), piece: redPiece, from: redPiece.position, to: Position(row: 5, col: 4), captured: nil, turnNumber: 1, notation: "兵五进一", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0))
 
         // 模拟 AI 走了一步
         let blackPiece = vm.board.piece(at: Position(row: 3, col: 4))!
         vm.board.execute(Move(piece: blackPiece, from: blackPiece.position, to: Position(row: 4, col: 4), captured: nil))
-        vm.gameMoves.append(GameMove(id: UUID(), piece: blackPiece, from: blackPiece.position, to: Position(row: 4, col: 4), captured: nil, turnNumber: 1, notation: "卒5进1", timestamp: Date(), isCheck: false, isCheckmate: false))
+        vm.gameMoves.append(GameMove(id: UUID(), piece: blackPiece, from: blackPiece.position, to: Position(row: 4, col: 4), captured: nil, turnNumber: 1, notation: "卒5进1", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0))
 
         #expect(vm.gameMoves.count == 2)
         #expect(vm.board.moveHistory.count == 2)

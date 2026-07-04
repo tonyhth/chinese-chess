@@ -148,7 +148,8 @@ struct GameMoveTests {
             notation: "炮二平五",
             timestamp: Date(),
             isCheck: false,
-            isCheckmate: false
+            isCheckmate: false,
+            halfmoveClock: 0
         )
 
         #expect(move.piece.kind == .cannon)
@@ -176,7 +177,8 @@ struct GameMoveTests {
             notation: "車九进二",
             timestamp: Date(),
             isCheck: true,
-            isCheckmate: false
+            isCheckmate: false,
+            halfmoveClock: 0
         )
 
         #expect(move.captured != nil)
@@ -198,7 +200,8 @@ struct GameMoveTests {
             notation: "車五进一",
             timestamp: Date(),
             isCheck: true,
-            isCheckmate: true
+            isCheckmate: true,
+            halfmoveClock: 0
         )
 
         #expect(move.isCheckmate == true)

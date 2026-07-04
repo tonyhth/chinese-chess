@@ -28,13 +28,14 @@ enum AchievementRarity: String, Codable, CaseIterable {
         }
     }
 
-    var localizedName: String {
+    /// 稀有度显示名称的 L10n key
+    var localizedKey: String {
         switch self {
-        case .bronze: return L10n.shared.t("rarity.bronze")
-        case .silver: return L10n.shared.t("rarity.silver")
-        case .gold: return L10n.shared.t("rarity.gold")
-        case .diamond: return L10n.shared.t("rarity.diamond")
-        case .hidden: return L10n.shared.t("rarity.hidden")
+        case .bronze: return "rarity.bronze"
+        case .silver: return "rarity.silver"
+        case .gold: return "rarity.gold"
+        case .diamond: return "rarity.diamond"
+        case .hidden: return "rarity.hidden"
         }
     }
 
@@ -65,13 +66,10 @@ struct Achievement: Identifiable, Codable, Equatable {
         self.available = available
     }
 
-    // 隐藏成就的描述在解锁前显示为 ????
-    var displayDescription: String {
-        rarity == .hidden ? "?????" : L10n.shared.t(descriptionKey)
-    }
-    var displayName: String {
-        rarity == .hidden ? "?????" : L10n.shared.t(nameKey)
-    }
+    /// 显示名称的 L10n key
+    var nameL10nKey: String { nameKey }
+    /// 描述的 L10n key
+    var descriptionL10nKey: String { descriptionKey }
 }
 
 // MARK: - 成就库（34 个）

@@ -44,11 +44,11 @@ struct V360FullTests {
 
     // MARK: - 2. Q2 段位升级奖励展示
 
-    @Test("UnlockedFeature 有 iconName 和 localizedName")
+    @Test("UnlockedFeature 有 iconName 和 localizedKey")
     func unlockedFeatureProperties() {
         for feature in UnlockedFeature.allCases {
             #expect(!feature.iconName.isEmpty)
-            #expect(!feature.localizedName.isEmpty)
+            #expect(!feature.localizedKey.isEmpty)
         }
     }
 

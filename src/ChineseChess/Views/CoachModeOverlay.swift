@@ -105,6 +105,7 @@ struct CoachModeOverlay: View {
 /// 对局结束后的复盘统计卡片
 struct ReviewCardView: View {
     let card: GameReviewCard
+    var onViewDetail: (() -> Void)? = nil
     let onClose: () -> Void
 
     private let l10n = L10n.shared
@@ -146,7 +147,7 @@ struct ReviewCardView: View {
                             Image(systemName: quality.symbolName)
                                 .foregroundColor(qualityColor(quality))
                                 .frame(width: 16)
-                            Text(quality.localizedLabel())
+                            Text(L10n.shared.t(quality.l10nKey))
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.8))
                             Spacer()
@@ -177,6 +178,19 @@ struct ReviewCardView: View {
                 .padding(.vertical, 6)
                 .background(Color.blue.opacity(0.1))
                 .cornerRadius(6)
+
+            // 查看详情按钮（仅当提供了回调时显示）
+            if let onViewDetail = onViewDetail {
+                Button {
+                    onClose()
+                    onViewDetail()
+                } label: {
+                    Label(l10n.t("coach.review.viewDetail"), systemImage: "graduationcap.fill")
+                        .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .tint(.accentColor)
+            }
         }
         .padding(16)
         .background(

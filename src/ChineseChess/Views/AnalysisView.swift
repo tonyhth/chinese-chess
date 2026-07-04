@@ -301,17 +301,8 @@ struct AnalysisView: View {
     // MARK: - 分析启动
 
     private func startAnalysis() async {
-        let fileChars = Array("abcdefghi")
         let gameMoves = replayVM.record.moves
-
-        // v3.7.0 Phase 2 修复：ICCS 行号映射用 9 - row（不是 10 - row）
-        let moves = gameMoves.map { move -> String in
-            let fromFile = String(fileChars[move.from.col])
-            let fromRank = String(9 - move.from.row)
-            let toFile = String(fileChars[move.to.col])
-            let toRank = String(9 - move.to.row)
-            return fromFile + fromRank + toFile + toRank
-        }
+        let moves = gameMoves.uciMoves
 
         let fen = replayVM.record.initialFEN ?? FENParser.standardInitial
         // v3.7.0 Phase 2: 传入 gameMoves 用于 FEN 精确推算

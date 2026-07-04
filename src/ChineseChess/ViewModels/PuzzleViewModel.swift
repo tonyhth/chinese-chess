@@ -61,7 +61,8 @@ class PuzzleViewModel {
     /// 切换模式时保存的 solutionStepIndex（从 freePlay 切回 guided 时恢复）
     private var savedSolutionStepIndex: Int = 0
 
-    private let aiEngine = AIEngine()
+    // #8: TT 内存优化 — 使用 EngineRouter 共享实例
+    // private let aiEngine = AIEngine() — 已删除，改为从 EngineRouter 获取
     private var puzzleVersion: Int = 0
     private var cachedSolutionRecord: GameRecord?
 
@@ -171,7 +172,7 @@ class PuzzleViewModel {
         let gameMove = GameMove(
             id: UUID(), piece: piece, from: from, to: to, captured: captured,
             turnNumber: turnNumber, notation: notation, timestamp: Date(),
-            isCheck: isCheck, isCheckmate: false
+            isCheck: isCheck, isCheckmate: false, halfmoveClock: 0
         )
         gameMoves.append(gameMove)
 
@@ -343,7 +344,7 @@ class PuzzleViewModel {
                 let gameMove = GameMove(
                     id: UUID(), piece: move.piece, from: move.from, to: move.to,
                     captured: captured, turnNumber: turnNumber, notation: notation,
-                    timestamp: Date(), isCheck: isCheck, isCheckmate: false
+                    timestamp: Date(), isCheck: isCheck, isCheckmate: false, halfmoveClock: 0
                 )
                 self.gameMoves.append(gameMove)
 
@@ -423,10 +424,12 @@ class PuzzleViewModel {
 
         // 0.2: freePlay 模式优先用 EngineRouter（可能是 Pikafish）
         let useEngineRouter = playMode == .freePlay
-        let nativeEngine = self.aiEngine
+        // #8: nativeEngine 改为在 Task 内获取，避免 MainActor 同步调用问题
         let boardSnapshot = board.snapshot()
         let currentFEN = FENParser.generate(board: board)
         Task.detached {
+            // #8: 从 EngineRouter 获取共享实例，避免独立 TT
+            let nativeEngine = await MainActor.run { EngineRouter.shared.getNativeEngine() }
             var move: Move?
             if useEngineRouter {
                 let engine = await MainActor.run { EngineRouter.shared.activeEngine() }
@@ -465,7 +468,7 @@ class PuzzleViewModel {
                         let gameMove = GameMove(
                             id: UUID(), piece: mainPiece, from: aiMove.from, to: aiMove.to,
                             captured: captured, turnNumber: turnNumber, notation: notation,
-                            timestamp: Date(), isCheck: isCheck, isCheckmate: false
+                            timestamp: Date(), isCheck: isCheck, isCheckmate: false, halfmoveClock: 0
                         )
                         self.gameMoves.append(gameMove)
 
@@ -905,7 +908,7 @@ class PuzzleViewModel {
             let gameMove = GameMove(
                 id: UUID(), piece: move.piece, from: move.from, to: move.to,
                 captured: captured, turnNumber: i / 2 + 1, notation: notation,
-                timestamp: Date(), isCheck: isCheck, isCheckmate: isCheckmate
+                timestamp: Date(), isCheck: isCheck, isCheckmate: isCheckmate, halfmoveClock: 0
             )
             moves.append(gameMove)
             if isCheckmate { break }

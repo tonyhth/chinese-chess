@@ -1,5 +1,4 @@
 import Foundation
-import Pikafish
 
 // MARK: - v3.6.0 Phase 1: 走法质量分级
 
@@ -22,11 +21,6 @@ enum MoveQuality: Int, CaseIterable, Codable {
         case .blunder:   return "move.quality.blunder"
         case .losing:    return "move.quality.losing"
         }
-    }
-
-    /// 显示标签（通过 L10n）
-    func localizedLabel() -> String {
-        L10n.shared.t(l10nKey)
     }
 
     /// SF Symbol 名称
@@ -77,17 +71,21 @@ struct MoveAnalysis: Codable {
 
 /// 局面分析器（actor，线程安全）
 ///
-/// 引擎实例策略：直接调用 C API（pikafish_eval / pikafish_multi_pv），
-/// 复用 EmbeddedPikafishEngine 已初始化的全局引擎状态。
-/// 分析请求通过 actor 串行化，避免与对弈的 bestMove 并发冲突。
+/// 引擎实例策略：通过 EngineRouter.shared 获取共享 EmbeddedPikafishEngine 实例，
+/// 不再直接调用 C API。所有 C API 调用通过 EmbeddedPikafishEngine 的串行队列串行化。
 actor PositionAnalyzer {
 
     static let shared = PositionAnalyzer()
 
-    /// 通过 EngineRouter 确保嵌入式引擎已启动（含 NNUE 加载）
-    /// 避免直接调 pikafish_init() 绕过 EmbeddedPikafishEngine
-    private func ensureEngineReady() async {
-        _ = await EngineRouter.shared.switchEngineIfNeeded()
+    /// 通过 EngineRouter 获取共享 EmbeddedPikafishEngine 实例
+    /// 如果当前引擎不是 EmbeddedPikafishEngine（如使用自研引擎），返回 nil
+    private func getEngine() async -> EmbeddedPikafishEngine? {
+        let engine = await EngineRouter.shared.switchEngineIfNeeded()
+        guard let emb = engine as? EmbeddedPikafishEngine else {
+            NSLog("[PositionAnalyzer] Engine is not EmbeddedPikafishEngine, analysis disabled")
+            return nil
+        }
+        return emb
     }
 
     // MARK: - 分析参数
@@ -103,66 +101,21 @@ actor PositionAnalyzer {
 
     /// 评估当前局面（单 PV）
     func evaluate(fen: String, moveHistory: [String] = []) async -> AnalysisLine? {
-        await ensureEngineReady()
-        let movesStr = moveHistory.joined(separator: " ")
-        return await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                let result = UnsafeMutablePointer<PikafishEvalResult>.allocate(capacity: 1)
-                memset(result, 0, MemoryLayout<PikafishEvalResult>.size)
-                defer { result.deallocate() }
-                let ok = fen.withCString { fenCStr in
-                    movesStr.withCString { movesCStr in
-                        pikafish_eval(fenCStr, movesCStr, 0, 0, result)
-                    }
-                }
-                if ok == 0 {
-                    let bestMove = String(cString: UnsafeRawPointer(result).advanced(by: 8).assumingMemoryBound(to: CChar.self))
-                    let pv = String(cString: UnsafeRawPointer(result).advanced(by: 24).assumingMemoryBound(to: CChar.self))
-                    continuation.resume(returning: AnalysisLine(
-                        scoreCp: Int(result.pointee.score_cp),
-                        depth: Int(result.pointee.depth),
-                        bestMove: bestMove,
-                        pv: pv
-                    ))
-                } else {
-                    continuation.resume(returning: nil)
-                }
-            }
-        }
+        guard let engine = await getEngine() else { return nil }
+        return await engine.evaluate(
+            fen: fen, moveHistory: moveHistory,
+            depth: analysisDepth, timeMs: analysisTimeMs
+        )
     }
 
     /// 获取多条候选走法（MultiPV）
     func topMoves(fen: String, moveHistory: [String] = [], count: Int = 3) async -> [AnalysisLine] {
-        await ensureEngineReady()
-        let movesStr = moveHistory.joined(separator: " ")
+        guard let engine = await getEngine() else { return [] }
         let n = min(count, multiPVCount)
-        return await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                let results = UnsafeMutablePointer<PikafishEvalResult>.allocate(capacity: n)
-                // Zero-initialize via memset
-                memset(results, 0, MemoryLayout<PikafishEvalResult>.size * n)
-                defer { results.deallocate() }
-                let actualCount = fen.withCString { fenCStr in
-                    movesStr.withCString { movesCStr in
-                        pikafish_multi_pv(fenCStr, movesCStr, Int32(n), 0, 0, results, Int32(n))
-                    }
-                }
-                var lines: [AnalysisLine] = []
-                let safeCount = max(0, Int(actualCount))
-                for i in 0..<safeCount {
-                    let basePtr = UnsafeRawPointer(results).advanced(by: MemoryLayout<PikafishEvalResult>.stride * i)
-                    let bestMove = String(cString: basePtr.advanced(by: 8).assumingMemoryBound(to: CChar.self))
-                    let pv = String(cString: basePtr.advanced(by: 24).assumingMemoryBound(to: CChar.self))
-                    lines.append(AnalysisLine(
-                        scoreCp: Int(results[i].score_cp),
-                        depth: Int(results[i].depth),
-                        bestMove: bestMove,
-                        pv: pv
-                    ))
-                }
-                continuation.resume(returning: lines)
-            }
-        }
+        return await engine.multiPV(
+            fen: fen, moveHistory: moveHistory,
+            count: n, depth: analysisDepth, timeMs: analysisTimeMs
+        )
     }
 
     // MARK: - 走法分类

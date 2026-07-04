@@ -150,7 +150,7 @@ struct IOSToolbarAdaptationV31Tests {
         vm.isThinking = true
         vm.gameState = .redWon
         vm.capturedPieces = (red: [testPiece], black: [])
-        vm.gameMoves = [GameMove(id: UUID(), piece: testPiece, from: Position(row: 0, col: 0), to: Position(row: 1, col: 0), captured: nil, turnNumber: 1, notation: "車九平八", timestamp: Date(), isCheck: false, isCheckmate: false)]
+        vm.gameMoves = [GameMove(id: UUID(), piece: testPiece, from: Position(row: 0, col: 0), to: Position(row: 1, col: 0), captured: nil, turnNumber: 1, notation: "車九平八", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0)]
         vm.hintMove = (from: Position(row: 0, col: 0), to: Position(row: 1, col: 0))
         vm.selectedPosition = Position(row: 5, col: 5)
         vm.legalMovesForSelected = [Position(row: 0, col: 0)]

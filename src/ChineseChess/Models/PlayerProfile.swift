@@ -29,15 +29,16 @@ enum Rank: String, Codable, CaseIterable, Comparable {
         }
     }
 
-    var localizedTitle: String {
+    /// 段位显示名称的 L10n key
+    var localizedTitleKey: String {
         switch self {
-        case .student: return L10n.shared.t("rank.student")
-        case .scholar: return L10n.shared.t("rank.scholar")
-        case .juren: return L10n.shared.t("rank.juren")
-        case .jinshi: return L10n.shared.t("rank.jinshi")
-        case .hanlin: return L10n.shared.t("rank.hanlin")
-        case .master: return L10n.shared.t("rank.master")
-        case .sage: return L10n.shared.t("rank.sage")
+        case .student: return "rank.student"
+        case .scholar: return "rank.scholar"
+        case .juren: return "rank.juren"
+        case .jinshi: return "rank.jinshi"
+        case .hanlin: return "rank.hanlin"
+        case .master: return "rank.master"
+        case .sage: return "rank.sage"
         }
     }
 
@@ -233,6 +234,10 @@ struct PlayerProfile: Codable, Equatable {
     }
 }
 
+extension Notification.Name {
+    static let profileReset = Notification.Name("com.chinesechess.profileReset")
+}
+
 // MARK: - 玩家档案存储
 
 final class PlayerProfileStore {
@@ -267,8 +272,8 @@ final class PlayerProfileStore {
 
     func reset() {
         defaults.removeObject(forKey: key)
-        // 段位重置后当前主题可能不再解锁，回退到默认
-        ThemeManager.shared.ensureValidTheme()
+        // 通知 Services 层段位已重置（ThemeManager 等监听此通知）
+        NotificationCenter.default.post(name: .profileReset, object: nil)
     }
 }
 

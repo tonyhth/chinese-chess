@@ -540,7 +540,8 @@ struct V2215Tests {
                 notation: notation,
                 timestamp: Date(),
                 isCheck: isCheck,
-                isCheckmate: false
+                isCheckmate: false,
+                halfmoveClock: 0
                 ))
                 }
                 gameMoves = m

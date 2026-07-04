@@ -250,22 +250,22 @@ struct PuzzleModelExtendedTests6 {
         let checkmate = Puzzle(id: "t1", name: "", category: "", difficulty: 1, stars: 1,
                                description: "", playerSide: "red", initialFEN: "",
                                solution: [], hints: nil, maxMoves: 10, solutionType: "checkmate")
-        #expect(checkmate.typeLabel == L10n.shared.t("puzzle.type.checkmate"))
+        #expect(checkmate.typeLabelKey == "puzzle.type.checkmate")
 
         let sequence = Puzzle(id: "t2", name: "", category: "", difficulty: 1, stars: 1,
                               description: "", playerSide: "red", initialFEN: "",
                               solution: [], hints: nil, maxMoves: 10, solutionType: "sequence")
-        #expect(sequence.typeLabel == L10n.shared.t("puzzle.type.sequence"))
+        #expect(sequence.typeLabelKey == "puzzle.type.sequence")
 
         let hint = Puzzle(id: "t3", name: "", category: "", difficulty: 1, stars: 1,
                           description: "", playerSide: "red", initialFEN: "",
                           solution: [], hints: nil, maxMoves: 10, solutionType: "hint")
-        #expect(hint.typeLabel == L10n.shared.t("puzzle.type.hint"))
+        #expect(hint.typeLabelKey == "puzzle.type.hint")
 
         let unknown = Puzzle(id: "t4", name: "", category: "", difficulty: 1, stars: 1,
                              description: "", playerSide: "red", initialFEN: "",
                              solution: [], hints: nil, maxMoves: 10, solutionType: "other")
-        #expect(unknown.typeLabel == "")
+        #expect(unknown.typeLabelKey == "")
     }
 
     @Test("Puzzle side 属性")
@@ -1028,7 +1028,8 @@ struct GameMoveExtendedTests6 {
             notation: "車九进四",
             timestamp: Date(),
             isCheck: false,
-            isCheckmate: false
+            isCheckmate: false,
+            halfmoveClock: 0
         )
         #expect(move.piece.kind == .chariot)
         #expect(move.turnNumber == 1)
@@ -1050,7 +1051,8 @@ struct GameMoveExtendedTests6 {
             notation: "車九进四",
             timestamp: Date(),
             isCheck: true,
-            isCheckmate: false
+            isCheckmate: false,
+            halfmoveClock: 0
         )
         let data = try JSONEncoder().encode(move)
         let decoded = try JSONDecoder().decode(GameMove.self, from: data)
@@ -1073,7 +1075,8 @@ struct GameMoveExtendedTests6 {
             notation: "車九进四",
             timestamp: Date(),
             isCheck: true,
-            isCheckmate: true
+            isCheckmate: true,
+            halfmoveClock: 0
         )
         let data = try JSONEncoder().encode(move)
         let decoded = try JSONDecoder().decode(GameMove.self, from: data)

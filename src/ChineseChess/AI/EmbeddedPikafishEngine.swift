@@ -25,6 +25,11 @@ actor EmbeddedPikafishEngine: ChessEngine {
     // 在途搜索计数（actor 上下文内安全操作）
     private var activeSearchCount = 0
 
+    // C API 调用专用串行队列——保证同一时间只有一个线程进入 C 层
+    // actor 的 withCheckedContinuation 在 suspend 点释放锁，DispatchQueue.global() 会导致
+    // evaluate 和 bestMove 并发进入 C 层全局单例 g_engine。串行队列物理上阻止并发。
+    private nonisolated let cApiQueue = DispatchQueue(label: "com.chinesechess.pikafish.capi")
+
     // MARK: - Lifecycle
 
     func start() async throws {
@@ -103,7 +108,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
 
         // 闭包不捕获 self，只捕获局部值类型（fen/movesStr/depth/timeMs/buffer）
         return await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
+            cApiQueue.async {
                 var buffer = [CChar](repeating: 0, count: 64)
                 let result = fen.withCString { fenCStr in
                     movesStr.withCString { movesCStr in
@@ -178,6 +183,95 @@ actor EmbeddedPikafishEngine: ChessEngine {
         #endif
 
         let _ = pikafish_set_option("Hash", String(ttSizeMB))
+    }
+
+    // MARK: - Analysis (for PositionAnalyzer)
+
+    /// 评估当前局面（单 PV）
+    func evaluate(fen: String, moveHistory: [String], depth: Int, timeMs: Int) async -> AnalysisLine? {
+        guard isReady else {
+            NSLog("[EmbeddedPikafishEngine] evaluate called before start(), returning nil")
+            return nil
+        }
+
+        let movesStr = moveHistory.joined(separator: " ")
+        activeSearchCount += 1
+        defer { activeSearchCount -= 1 }
+
+        return await withCheckedContinuation { (continuation: CheckedContinuation<AnalysisLine?, Never>) in
+            cApiQueue.async {
+                let result = UnsafeMutablePointer<PikafishEvalResult>.allocate(capacity: 1)
+                memset(result, 0, MemoryLayout<PikafishEvalResult>.size)
+                defer { result.deallocate() }
+
+                let ok = fen.withCString { fenCStr in
+                    movesStr.withCString { movesCStr in
+                        pikafish_eval(fenCStr, movesCStr, Int32(depth), Int32(timeMs), result)
+                    }
+                }
+
+                if ok == 0 {
+                    let bestMove = withUnsafePointer(to: result.pointee.best_move) {
+                        $0.withMemoryRebound(to: CChar.self, capacity: 16) { String(cString: $0) }
+                    }
+                    let pv = withUnsafePointer(to: result.pointee.pv) {
+                        $0.withMemoryRebound(to: CChar.self, capacity: 256) { String(cString: $0) }
+                    }
+                    continuation.resume(returning: AnalysisLine(
+                        scoreCp: Int(result.pointee.score_cp),
+                        depth: Int(result.pointee.depth),
+                        bestMove: bestMove,
+                        pv: pv
+                    ))
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
+    /// 获取多条候选走法（MultiPV）
+    func multiPV(fen: String, moveHistory: [String], count: Int, depth: Int, timeMs: Int) async -> [AnalysisLine] {
+        guard isReady else {
+            NSLog("[EmbeddedPikafishEngine] multiPV called before start(), returning []")
+            return []
+        }
+
+        let movesStr = moveHistory.joined(separator: " ")
+        activeSearchCount += 1
+        defer { activeSearchCount -= 1 }
+
+        return await withCheckedContinuation { (continuation: CheckedContinuation<[AnalysisLine], Never>) in
+            cApiQueue.async {
+                let results = UnsafeMutablePointer<PikafishEvalResult>.allocate(capacity: count)
+                memset(results, 0, MemoryLayout<PikafishEvalResult>.size * count)
+                defer { results.deallocate() }
+
+                let actualCount = fen.withCString { fenCStr in
+                    movesStr.withCString { movesCStr in
+                        pikafish_multi_pv(fenCStr, movesCStr, Int32(count), Int32(depth), Int32(timeMs), results, Int32(count))
+                    }
+                }
+
+                var lines: [AnalysisLine] = []
+                let safeCount = max(0, Int(actualCount))
+                for i in 0..<safeCount {
+                    let bestMove = withUnsafePointer(to: results[i].best_move) {
+                        $0.withMemoryRebound(to: CChar.self, capacity: 16) { String(cString: $0) }
+                    }
+                    let pv = withUnsafePointer(to: results[i].pv) {
+                        $0.withMemoryRebound(to: CChar.self, capacity: 256) { String(cString: $0) }
+                    }
+                    lines.append(AnalysisLine(
+                        scoreCp: Int(results[i].score_cp),
+                        depth: Int(results[i].depth),
+                        bestMove: bestMove,
+                        pv: pv
+                    ))
+                }
+                continuation.resume(returning: lines)
+            }
+        }
     }
 
     // MARK: - Difficulty Mapping

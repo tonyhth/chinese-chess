@@ -50,6 +50,15 @@ if [[ ! -d "$XC_APP" ]]; then
     exit 1
 fi
 echo "   ✅ 构建成功"
+
+# Bundle ID 校验
+ACTUAL_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$XC_APP/Contents/Info.plist")
+EXPECTED_ID="com.chinesechess.app"
+if [ "$ACTUAL_ID" != "$EXPECTED_ID" ]; then
+    echo "❌ Bundle ID mismatch: expected $EXPECTED_ID, got $ACTUAL_ID"
+    exit 1
+fi
+echo "   ✅ Bundle ID 校验通过 ($EXPECTED_ID)"
 echo ""
 
 # ============ 2. 资源完整性验证 ============

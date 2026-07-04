@@ -109,6 +109,12 @@ class GameViewModel {
     }()
     var hintMove: (from: Position, to: Position)? = nil
 
+    // 和棋检测：重复局面 fingerprint 计数
+    private var halfmoveClock: Int = 0
+    private var positionFingerprints: [String: Int] = [:]
+    /// 长将判负：连续将军步数（设计文档建议 N=6，3 个完整回合）
+    private let perpetualCheckThreshold = 6
+
     // P1-2: 外部引擎 fallback 提示（非 nil 时 UI 弹 alert）
     var engineFallbackMessage: String? = nil
 
@@ -196,6 +202,14 @@ class GameViewModel {
 
         board.execute(move)
 
+        // #3 halfmoveClock 更新（吃子或兵移动时重置，否则递增）
+        let isPawn = piece.kind == .soldier
+        if captured != nil || isPawn {
+            halfmoveClock = 0
+        } else {
+            halfmoveClock += 1
+        }
+
         // Phase 3: 记录 GameMove
         let turnNumber = (gameMoves.count / 2) + 1
         let opponent = (piece.side == .red) ? Side.black : Side.red
@@ -211,7 +225,8 @@ class GameViewModel {
             notation: notation,
             timestamp: Date(),
             isCheck: isCheck,
-            isCheckmate: false   // 将在 checkGameState 后更新
+            isCheckmate: false,   // 将在 checkGameState 后更新
+            halfmoveClock: halfmoveClock
         )
         gameMoves.append(gameMove)
 
@@ -230,6 +245,8 @@ class GameViewModel {
         selectedPosition = nil
         legalMovesForSelected = []
 
+        // P0-1: 走棋后记录局面 fingerprint（在 checkGameState 之前，确保检测时计数已更新）
+        recordPositionFingerprint()
         checkGameState()
 
         // P1: MaterialTracker 更新
@@ -267,6 +284,13 @@ class GameViewModel {
         if let playerMove = board.undoLastMove() {
             removeCapturedRecord(for: playerMove)
             if !gameMoves.isEmpty { gameMoves.removeLast() }
+        }
+
+        // #3: 恢复 halfmoveClock（从最后一条 GameMove 或初始值 0）
+        if let lastMove = gameMoves.last {
+            halfmoveClock = lastMove.halfmoveClock
+        } else {
+            halfmoveClock = 0
         }
 
         // P1: 同步棋钟 — 先保存当前时段，再回退到玩家方计时
@@ -309,7 +333,11 @@ class GameViewModel {
         hintMove = nil
         isBlitzMode = false
         isMasterChallenge = false
+        positionFingerprints.removeAll()
+        halfmoveClock = 0
         resetClock()
+        // 记录初始局面 fingerprint
+        recordPositionFingerprint()
 
         // Phase 3.4: 教练难度自动调节（段位+1）
         // 仅当用户未手动选过难度时才用段位推荐
@@ -445,9 +473,17 @@ class GameViewModel {
 
                         self.board.execute(aiMove)
 
+                        // #3 halfmoveClock 更新（AI 走棋）
+                        let isPawn = mainPiece.kind == .soldier
+                        if captured != nil || isPawn {
+                            self.halfmoveClock = 0
+                        } else {
+                            self.halfmoveClock += 1
+                        }
+
                         // 记录 AI 的 GameMove
                         let turnNumber = (self.gameMoves.count / 2) + 1
-                        let isCheck = MoveValidator.isInCheck(humanSide, on: self.board)
+                        let isCheck = MoveValidator.isInCheck(self.humanSide, on: self.board)
 
                         let gameMove = GameMove(
                             id: UUID(),
@@ -459,7 +495,8 @@ class GameViewModel {
                             notation: notation,
                             timestamp: Date(),
                             isCheck: isCheck,
-                            isCheckmate: false
+                            isCheckmate: false,
+                            halfmoveClock: self.halfmoveClock
                         )
                         self.gameMoves.append(gameMove)
 
@@ -489,6 +526,8 @@ class GameViewModel {
             }
             
             self.stopThinking()
+            // P0-1: AI 走棋后记录局面 fingerprint
+            self.recordPositionFingerprint()
             self.checkGameState()
 
             // P1: MaterialTracker 更新（AI 走棋后）
@@ -524,12 +563,76 @@ class GameViewModel {
         } else if MoveValidator.isStalemate(currentSide, on: board) {
             gameState = .draw
             isInCheck = false
-        } else if MoveValidator.isInCheck(currentSide, on: board) {
-            isInCheck = true
-            SoundEngine.shared.playCheck()
         } else {
-            isInCheck = false
+            // #3: 50 回合规则（100 半回合无吃子/无兵移动判和）
+            if halfmoveClock >= 100 {
+                gameState = .draw
+                isInCheck = false
+                return
+            }
+
+            // P0-2: 三次重复局面判和
+            let count = positionFingerprints[boardFingerprint(), default: 0]
+            if count >= 3 {
+                gameState = .draw
+                isInCheck = false
+                return
+            }
+
+            // P0-3: 长将判负（中国象棋规则：连续将军判将军方负）
+            if detectPerpetualCheck() {
+                // currentSide = 长将方（被将军方走完最后一步应将后 turn 切换回来）
+                // 长将方判负 → 对手赢
+                gameState = (currentSide == .red) ? .blackWon : .redWon
+                isInCheck = false
+                if gameState == .redWon {
+                    SoundEngine.shared.playVictory()
+                } else {
+                    SoundEngine.shared.playDefeat()
+                }
+                return
+            }
+
+            if MoveValidator.isInCheck(currentSide, on: board) {
+                isInCheck = true
+                SoundEngine.shared.playCheck()
+            } else {
+                isInCheck = false
+            }
         }
+    }
+
+    // MARK: - 和棋检测辅助
+
+    /// P0-1: 生成局面 fingerprint（完整 FEN，含走子方）
+    /// 同一棋盘布局但不同走子方 = 不同 fingerprint
+    private func boardFingerprint() -> String {
+        return FENParser.generate(board: board)
+    }
+
+    /// 记录当前局面 fingerprint（每步走棋后调用）
+    private func recordPositionFingerprint() {
+        let fp = boardFingerprint()
+        positionFingerprints[fp, default: 0] += 1
+    }
+
+    /// P0-3: 长将检测 — 同一方连续将军
+    /// 中国象棋规则：同一方连续 3 次将军（3 个完整回合）→ 判将军方负
+    private func detectPerpetualCheck() -> Bool {
+        guard gameMoves.count >= perpetualCheckThreshold else { return false }
+
+        let recentMoves = Array(gameMoves.suffix(perpetualCheckThreshold))
+
+        // 按走子方分组，检查是否有一方连续 3+ 步全部将军
+        let sides = Set(recentMoves.map { $0.piece.side })
+        for side in sides {
+            let sideMoves = recentMoves.filter { $0.piece.side == side }
+            // 同一方在最近 6 步中至少 3 步，且全部将军
+            if sideMoves.count >= 3 && sideMoves.allSatisfy({ $0.isCheck }) {
+                return true
+            }
+        }
+        return false
     }
 
     // MARK: - 统计记录

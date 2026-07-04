@@ -8,7 +8,6 @@ import SwiftUI
 struct ChapterSelectView: View {
     @StateObject private var store = ChapterStore.shared
 
-    @State private var selectedChapter: PuzzleChapter?
     @State private var lockedChapterInfo: PuzzleChapter?
 
     var body: some View {
@@ -20,16 +19,19 @@ struct ChapterSelectView: View {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     ForEach(store.chapters) { chapter in
-                        ChapterCard(
-                            chapter: chapter,
-                            onTap: {
-                                if chapter.isUnlocked {
-                                    selectedChapter = chapter
-                                } else {
+                        if chapter.isUnlocked {
+                            NavigationLink(value: chapter) {
+                                ChapterCard(chapter: chapter)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            ChapterCard(
+                                chapter: chapter,
+                                onTap: {
                                     lockedChapterInfo = chapter
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
                 .padding(.horizontal)
@@ -37,10 +39,8 @@ struct ChapterSelectView: View {
             }
         }
         .navigationTitle(L10n.shared.t("chapter.select.title"))
-        .sheet(item: $selectedChapter) { chapter in
-            NavigationStack {
-                PuzzleSelectView(chapter: chapter)
-            }
+        .navigationDestination(for: PuzzleChapter.self) { chapter in
+            PuzzleSelectView(chapter: chapter)
         }
         .alert(
             L10n.shared.t("chapter.locked.title"),
@@ -98,11 +98,24 @@ private struct TotalProgressHeader: View {
 
 private struct ChapterCard: View {
     let chapter: PuzzleChapter
-    let onTap: () -> Void
+    var onTap: (() -> Void)? = nil
 
     var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 16) {
+        Group {
+            if let onTap = onTap {
+                Button(action: onTap) {
+                    cardContent
+                }
+                .buttonStyle(.plain)
+                .disabled(chapter.config.displayNumber > 1 && !chapter.isUnlocked)
+            } else {
+                cardContent
+            }
+        }
+    }
+
+    private var cardContent: some View {
+        HStack(spacing: 16) {
                 // 章节编号
                 ZStack {
                     Circle()
@@ -116,7 +129,7 @@ private struct ChapterCard: View {
 
                 // 章节信息
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(chapter.title)
+                    Text(L10n.shared.t(chapter.titleKey))
                         .font(.headline)
                         .foregroundColor(chapter.isUnlocked ? .primary : .secondary)
 
@@ -125,7 +138,7 @@ private struct ChapterCard: View {
                             .font(.caption)
                             .foregroundColor(.orange)
                     } else {
-                        Text(chapter.subtitle)
+                        Text(L10n.shared.t(chapter.subtitleKey))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -166,8 +179,5 @@ private struct ChapterCard: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(chapter.isUnlocked ? Color.clear : Color.gray.opacity(0.2), lineWidth: 1)
             )
-        }
-        .buttonStyle(.plain)
-        .disabled(chapter.config.displayNumber > 1 && !chapter.isUnlocked)
     }
 }

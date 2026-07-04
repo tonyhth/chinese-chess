@@ -126,6 +126,19 @@ struct SettingsView: View {
                         }
                     }
                 }
+
+                #if DEBUG
+                // 开发者模式
+                Section("开发者模式") {
+                    Toggle("绕过段位门禁", isOn: Binding(
+                        get: { DeveloperMode.isEnabled },
+                        set: { DeveloperMode.isEnabled = $0 }
+                    ))
+                    Text("开启后所有功能解锁，方便测试")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                #endif
             }
         .formStyle(.grouped)
         .navigationTitle(l10n.t("settings.title"))

@@ -43,7 +43,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
             return true   // v3.7.0 Phase 2: 已实现
         case .aiCoach, .openingTreeBrowse,
              .openingTreeFavorite, .customTheme:
-            return false  // 待 Phase 2/3 实现
+            return true   // v3.7.2: 已实现
         }
     }
 
@@ -63,19 +63,19 @@ enum UnlockedFeature: String, Codable, CaseIterable {
         }
     }
 
-    /// 段位升级弹窗功能名称
-    var localizedName: String {
+    /// 段位升级弹窗功能名称的 L10n key
+    var localizedKey: String {
         switch self {
-        case .chapter2Early:       return L10n.shared.t("feature.chapter2Early")
-        case .chapter3Early:       return L10n.shared.t("feature.chapter3Early")
-        case .freePlayPuzzles:     return L10n.shared.t("feature.freePlayPuzzles")
-        case .engineAnalysis:      return L10n.shared.t("feature.engineAnalysis")
-        case .aiCoach:             return L10n.shared.t("feature.aiCoach")
-        case .openingTreeBrowse:   return L10n.shared.t("feature.openingTreeBrowse")
-        case .openingTreeFavorite: return L10n.shared.t("feature.openingTreeFavorite")
-        case .gameRecordExport:    return L10n.shared.t("feature.gameRecordExport")
-        case .gameRecordImport:    return L10n.shared.t("feature.gameRecordImport")
-        case .customTheme:         return L10n.shared.t("feature.customTheme")
+        case .chapter2Early:       return "feature.chapter2Early"
+        case .chapter3Early:       return "feature.chapter3Early"
+        case .freePlayPuzzles:     return "feature.freePlayPuzzles"
+        case .engineAnalysis:      return "feature.engineAnalysis"
+        case .aiCoach:             return "feature.aiCoach"
+        case .openingTreeBrowse:   return "feature.openingTreeBrowse"
+        case .openingTreeFavorite: return "feature.openingTreeFavorite"
+        case .gameRecordExport:    return "feature.gameRecordExport"
+        case .gameRecordImport:    return "feature.gameRecordImport"
+        case .customTheme:         return "feature.customTheme"
         }
     }
 }
@@ -85,6 +85,9 @@ enum UnlockedFeature: String, Codable, CaseIterable {
 extension PlayerProfile {
     /// 检查功能是否已解锁（基于当前段位）
     func isFeatureUnlocked(_ feature: UnlockedFeature) -> Bool {
-        rank >= feature.requiredRank
+        #if DEBUG
+        if DeveloperMode.isEnabled { return true }
+        #endif
+        return rank >= feature.requiredRank
     }
 }

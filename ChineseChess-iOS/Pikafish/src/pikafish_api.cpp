@@ -266,7 +266,24 @@ int pikafish_best_move(const char* fen, const char* moves,
     // This allows stop/quit/new_game to acquire mutex during search.
     {
         std::unique_lock<std::mutex> lock(g_mutex);
-        g_search_cv.wait(lock, [] { return !g_searching; });
+
+        // v3.7.2 P1 fix: 只在无限制搜索时加兜底超时（正常对弈/分析有 depth/time_ms 限制，不会无限等）
+        if (depth <= 0 && time_ms <= 0) {
+            bool completed = g_search_cv.wait_for(lock, std::chrono::seconds(60),
+                [] { return !g_searching; });
+            if (!completed) {
+                // 超时：请求停止搜索
+                g_stopping = true;
+                if (g_engine) { g_engine->stop(); }
+                // 等 2 秒让引擎清理（不强制设 g_searching=false，避免竞态）
+                g_search_cv.wait_for(lock, std::chrono::seconds(2),
+                    [] { return !g_searching; });
+                return -1;
+            }
+        } else {
+            // 正常搜索：有 depth 或 time_ms 限制，继续用无限等待
+            g_search_cv.wait(lock, [] { return !g_searching; });
+        }
 
         // Search complete — read result under mutex
         if (g_bestmove_result[0] == '\0') {
@@ -311,16 +328,24 @@ void pikafish_quit(void) {
         g_search_cv.wait(lock, [] { return !g_searching; });
     }
 
-    // Step 3: Safe to delete engine — no callback will fire after this
+    // Step 3: Explicitly wait for ALL engine threads to finish before delete.
+    // ~Engine() only calls wait_for_search_finished() (main_thread join),
+    // which may leave worker threads running. These zombie workers can interfere
+    // with condition variables when a new engine is created via pikafish_init().
     {
         std::lock_guard<std::mutex> lock(g_mutex);
         if (g_engine != nullptr) {
+            g_engine->wait_for_search_finished();
             delete g_engine;
             g_engine = nullptr;
         }
     }
 
+    // Step 4: Reset ALL global state to ensure clean slate for next pikafish_init()
     g_stopping = false;
+    g_searching = false;
+    g_bestmove_result[0] = '\0';
+    g_multi_pv_results.clear();
     g_engine_info.clear();
     g_last_eval = 0;
     g_last_pv.clear();

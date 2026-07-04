@@ -254,7 +254,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
 
         let result = FENRebuilder.computeFEN(initialFEN: initialFEN, moves: [move], before: 1)
@@ -283,7 +283,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
 
         let fens = FENRebuilder.computeAllFENs(initialFEN: initialFEN, moves: [move1])
@@ -362,7 +362,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
         let record = sample(moves: [move])
         let pgn = PGNExporter.export(record)
@@ -377,7 +377,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 9, col: 0),
             to: Position(row: 5, col: 0),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
         let record = sample(moves: [move])
         let pgn = PGNExporter.export(record)
@@ -673,7 +673,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
         let move2 = GameMove(
             id: UUID(),
@@ -681,7 +681,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 0, col: 1),
             to: Position(row: 2, col: 2),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
 
         let original = sample(moves: [move1, move2])
@@ -900,7 +900,7 @@ final class V370Phase1Tests: XCTestCase {
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
-            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false
+            turnNumber: 1, notation: "", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0
         )]
     }
 

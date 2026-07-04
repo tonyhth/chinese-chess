@@ -39,7 +39,7 @@ final class V370Phase2SupplementTests: XCTestCase {
         let gameMove = GameMove(
             id: UUID(), piece: piece, from: from, to: to, captured: nil,
             turnNumber: 1, notation: "炮二平五", timestamp: Date(),
-            isCheck: false, isCheckmate: false
+            isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
         vm.gameMoves.append(gameMove)
 
@@ -72,7 +72,7 @@ final class V370Phase2SupplementTests: XCTestCase {
         let gameMove = GameMove(
             id: UUID(), piece: piece, from: from, to: to, captured: nil,
             turnNumber: 1, notation: "炮二平五", timestamp: Date(),
-            isCheck: false, isCheckmate: false
+            isCheck: false, isCheckmate: false, halfmoveClock: 0
         )
         vm.gameMoves.append(gameMove)
 
@@ -167,7 +167,7 @@ final class V370Phase2SupplementTests: XCTestCase {
         vm.gameMoves.append(GameMove(
             id: UUID(), piece: piece, from: from, to: to, captured: nil,
             turnNumber: 1, notation: "炮二平五", timestamp: Date(),
-            isCheck: false, isCheckmate: false
+            isCheck: false, isCheckmate: false, halfmoveClock: 0
         ))
 
         guard let record = vm.buildGameRecord() else {

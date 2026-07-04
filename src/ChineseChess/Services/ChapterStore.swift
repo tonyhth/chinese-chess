@@ -94,7 +94,7 @@ final class ChapterStore: ObservableObject {
             return String(format: l.t("chapter.unlock.completePrev"),
                           l.t(chapterTitle), count)
         case .rank(let rank):
-            return String(format: l.t("chapter.unlock.rank"), rank.localizedTitle)
+            return String(format: l.t("chapter.unlock.rank"), L10n.shared.t(rank.localizedTitleKey))
         case .and(let conditions):
             return conditions.map { unlockDescription(for: $0) }.joined(separator: " + ")
         case .or(let conditions):

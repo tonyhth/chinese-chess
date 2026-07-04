@@ -31,7 +31,7 @@ struct RankUpView: View {
                     .font(.title2.weight(.bold))
                     .foregroundColor(.white)
 
-                Text(newRank.localizedTitle)
+                Text(L10n.shared.t(newRank.localizedTitleKey))
                     .font(.title3)
                     .foregroundColor(.yellow)
             }
@@ -48,7 +48,7 @@ struct RankUpView: View {
                             Image(systemName: feature.iconName)
                                 .foregroundColor(.green)
                                 .frame(width: 20)
-                            Text(feature.localizedName)
+                            Text(L10n.shared.t(feature.localizedKey))
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.9))
                         }

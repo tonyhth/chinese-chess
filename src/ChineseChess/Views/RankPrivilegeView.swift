@@ -40,7 +40,7 @@ private struct RankPrivilegeRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(rank.localizedTitle)
+                Text(L10n.shared.t(rank.localizedTitleKey))
                     .font(.headline)
                     .foregroundColor(isUnlocked ? .primary : .secondary)
 

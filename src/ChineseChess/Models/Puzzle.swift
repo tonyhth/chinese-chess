@@ -92,12 +92,12 @@ struct Puzzle: Identifiable, Codable {
         playerSide == "red" ? .red : .black
     }
 
-    /// solutionType 显示标签
-    var typeLabel: String {
+    /// solutionType 显示标签的 L10n key
+    var typeLabelKey: String {
         switch solutionType {
-        case "checkmate": return L10n.shared.t("puzzle.type.checkmate")
-        case "sequence": return L10n.shared.t("puzzle.type.sequence")
-        case "hint": return L10n.shared.t("puzzle.type.hint")
+        case "checkmate": return "puzzle.type.checkmate"
+        case "sequence": return "puzzle.type.sequence"
+        case "hint": return "puzzle.type.hint"
         default: return ""
         }
     }

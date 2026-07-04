@@ -16,7 +16,7 @@ struct Phase7Tests {
     func challengeModeMetadata() {
         for mode in DailyChallengeMode.allCases {
             #expect(!mode.icon.isEmpty, "\(mode.rawValue) 应有图标")
-            #expect(!mode.localizedDesc.isEmpty, "\(mode.rawValue) 应有描述")
+            #expect(!mode.localizedDescKey.isEmpty, "\(mode.rawValue) 应有描述")
         }
     }
 
@@ -24,7 +24,7 @@ struct Phase7Tests {
     func todayChallengeGeneration() {
         let suite = UserDefaults(suiteName: "test_daily_\(UUID().uuidString)")!
         let manager = DailyChallengeManager(defaults: suite)
-        let challenge = manager.todayChallenge()
+        let challenge = manager.todayChallenge(puzzles: [])
         #expect(challenge.date == manager.todayString)
         #expect(challenge.completed == false)
         #expect(challenge.score == 0)
@@ -34,9 +34,9 @@ struct Phase7Tests {
     func completeDailyChallenge() {
         let suite = UserDefaults(suiteName: "test_complete_\(UUID().uuidString)")!
         let manager = DailyChallengeManager(defaults: suite)
-        _ = manager.todayChallenge()
-        manager.completeChallenge(score: 100)
-        #expect(manager.isTodayCompleted == true)
+        _ = manager.todayChallenge(puzzles: [])
+        manager.completeChallenge(score: 100, puzzles: [])
+        #expect(manager.isTodayCompleted(puzzles: []) == true)
     }
 
     @Test("每日挑战模式按日期哈希确定")
@@ -73,7 +73,7 @@ struct Phase7Tests {
         #expect(DailyStreakReward.allCases.count == 8)
         #expect(DailyStreakReward.day3.rawValue == 3)
         #expect(DailyStreakReward.day100.rawValue == 100)
-        #expect(!DailyStreakReward.day3.localizedReward.isEmpty)
+        #expect(!DailyStreakReward.day3.localizedRewardKey.isEmpty)
     }
 
     @Test("日期回拨不增加连续天数")

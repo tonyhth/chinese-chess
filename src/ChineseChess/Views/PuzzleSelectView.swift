@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(*, deprecated, message: "Use ChapterSelectView as top-level entry; PuzzleSelectView is now chapter-internal only")
 struct PuzzleSelectView: View {
     /// 可选：章节模式。传入时只显示该章节的残局。
     var chapter: PuzzleChapter? = nil
@@ -395,8 +396,8 @@ struct PuzzleRow: View {
                             .font(.footnote)
                             .foregroundColor(.secondary)
                             .lineLimit(1)
-                        if !puzzle.typeLabel.isEmpty {
-                            Text(puzzle.typeLabel)
+                        if !puzzle.typeLabelKey.isEmpty {
+                            Text(L10n.shared.t(puzzle.typeLabelKey))
                                 .font(.caption2)
                                 .foregroundColor(.orange)
                                 .padding(.horizontal, 4)

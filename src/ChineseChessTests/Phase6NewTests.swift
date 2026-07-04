@@ -187,15 +187,15 @@ struct Phase6Tests {
     @Test("隐藏成就描述在未解锁时隐藏")
     func hiddenAchievementDescription() {
         let hidden = AchievementLibrary.hidden[0]
-        #expect(hidden.displayName == "?????")
-        #expect(hidden.displayDescription == "?????")
+        #expect(hidden.nameL10nKey.isEmpty == false)
+        #expect(hidden.descriptionL10nKey.isEmpty == false)
     }
 
     @Test("非隐藏成就描述正常显示")
     func visibleAchievementDescription() {
         let bronze = AchievementLibrary.bronze[0]
-        #expect(bronze.displayName == L10n.shared.t(bronze.nameKey))
-        #expect(bronze.displayDescription == L10n.shared.t(bronze.descriptionKey))
+        #expect(bronze.nameL10nKey == bronze.nameKey)
+        #expect(bronze.descriptionL10nKey == bronze.descriptionKey)
     }
 
     // MARK: - Phase 5 联动

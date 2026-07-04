@@ -50,7 +50,7 @@ struct DailyChallengeView: View {
                                 Image(systemName: mode.icon)
                                     .foregroundColor(.secondary)
                                     .font(.caption)
-                                Text(mode.localizedTitle)
+                                Text(L10n.shared.t(mode.localizedTitleKey))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -80,7 +80,7 @@ struct DailyChallengeView: View {
                         Spacer()
 
                         if let reward = streakReward {
-                            Text("🏅 \(reward.localizedReward)")
+                            Text("🏅 \(L10n.shared.t(reward.localizedRewardKey))")
                                 .font(.caption)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -101,7 +101,7 @@ struct DailyChallengeView: View {
                                     .foregroundColor(.secondary)
                                     // v3.0 gap fix: 显示解锁内容简述
                                     if streak >= reward.rawValue {
-                                        Text(reward.localizedDesc)
+                                        Text(L10n.shared.t(reward.localizedDescKey))
                                             .font(.caption2)
                                             .foregroundColor(.accentColor)
                                             .lineLimit(1)
@@ -118,7 +118,7 @@ struct DailyChallengeView: View {
 
                 // 最近挑战
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("最近挑战")
+                    Text(L10n.shared.t("daily.view.recent"))
                         .font(.headline)
 
                     let recent = manager.recentChallenges(days: 7)
@@ -131,7 +131,7 @@ struct DailyChallengeView: View {
                             HStack {
                                 Image(systemName: challenge.mode.icon)
                                     .foregroundColor(.secondary)
-                                Text(challenge.mode.localizedTitle)
+                                Text(L10n.shared.t(challenge.mode.localizedTitleKey))
                                     .font(.caption)
                                 Spacer()
                                 if challenge.completed {
@@ -155,20 +155,20 @@ struct DailyChallengeView: View {
         .onAppear {
             todayMode = manager.todayChallengeMode()
             todayDiff = manager.todayDifficulty()
-            isCompleted = manager.isTodayCompleted
+            isCompleted = manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles)
             streak = manager.checkDailyLogin()
             streakReward = manager.checkStreakReward()
-            dailyPuzzleId = manager.dailyPuzzleId()
+            dailyPuzzleId = manager.dailyPuzzleId(puzzles: PuzzleStore.shared.puzzles)
             // v3.0 gap fix: 自动领取待领取的连续登录奖励
             _ = manager.claimPendingRewards()
         }
         .sheet(isPresented: $showPuzzle) {
-            if let puzzle = manager.dailyPuzzle() {
+            if let puzzle = manager.dailyPuzzle(puzzles: PuzzleStore.shared.puzzles) {
                 NavigationStack {
                     PuzzlePlayView(puzzle: puzzle)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") { showPuzzle = false }
+                                Button(L10n.shared.t("common.done")) { showPuzzle = false }
                             }
                         }
                 }
@@ -195,7 +195,7 @@ struct DailyChallengeView: View {
                 }())
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("完成") { showBlitzGame = false }
+                        Button(L10n.shared.t("common.done")) { showBlitzGame = false }
                     }
                 }
             }
@@ -210,7 +210,7 @@ struct DailyChallengeView: View {
                 }())
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("完成") { showMasterGame = false }
+                        Button(L10n.shared.t("common.done")) { showMasterGame = false }
                     }
                 }
             }
@@ -227,9 +227,9 @@ struct DailyChallengeView: View {
                 .foregroundColor(.accentColor)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(mode.localizedTitle)
+                Text(L10n.shared.t(mode.localizedTitleKey))
                     .font(.headline)
-                Text(mode.localizedDesc)
+                Text(L10n.shared.t(mode.localizedDescKey))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(2)

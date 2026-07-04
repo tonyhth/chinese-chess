@@ -20,4 +20,5 @@ enum AppLog {
     static let resourceBundle = logger("ResourceBundle")
     static let puzzleStore = logger("PuzzleStore")
     static let soundEngine = logger("SoundEngine")
+    static let preferences = logger("PreferencesMigration")
 }

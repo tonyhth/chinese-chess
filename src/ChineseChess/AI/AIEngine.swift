@@ -115,19 +115,21 @@ actor AIEngine: AIEngineProtocol {
                             searchConfig: AISearchConfig? = nil,
                             timeManager: TimeManager? = nil) -> Move? {
         let side = board.currentTurn
+        // #7: 入口处计算初始哈希（全量，只算一次）
+        let hash = ZobristHash.hash(board: board)
+
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
         guard !moves.isEmpty else { return nil }
 
         let orderedMoves: [Move]
         if useMoveOrder {
-            let hash = ZobristHash.hash(board: board)
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
             orderedMoves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth)
         } else {
             orderedMoves = orderMovesSimple(moves)
         }
 
-        let hash = ZobristHash.hash(board: board)
+        // #7: hash 已在入口计算，不再重复
         let origAlpha = -100_000_000
         var bestMove: Move? = nil
         var bestScore = origAlpha
@@ -138,27 +140,36 @@ actor AIEngine: AIEngineProtocol {
         for (moveIndex, move) in orderedMoves.enumerated() {
             if let tm = timeManager, tm.shouldStop { break }
 
+            // #7: 走法执行前增量计算子局面哈希
+            let childHash = ZobristHash.update(hash: hash, piece: move.piece,
+                                              from: move.from, to: move.to,
+                                              captured: move.captured)
+
             board.execute(move)
 
             let score: Int
             if usePVS && moveIndex > 0 {
                 let nullWindowScore: Int
                 if let sc = searchConfig {
-                    nullWindowScore = -negamax(board: board, depth: depth - 1, alpha: -alpha - 1, beta: -alpha,
+                    nullWindowScore = -negamax(board: board, depth: depth - 1,
+                                               alpha: -alpha - 1, beta: -alpha, hash: childHash,
                                                useTT: useTT, useMoveOrder: useMoveOrder,
                                                searchConfig: sc)
                 } else {
-                    nullWindowScore = -negamax(board: board, depth: depth - 1, alpha: -alpha - 1, beta: -alpha,
+                    nullWindowScore = -negamax(board: board, depth: depth - 1,
+                                               alpha: -alpha - 1, beta: -alpha, hash: childHash,
                                                useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
                 }
 
                 if nullWindowScore > alpha && nullWindowScore < beta {
                     if let sc = searchConfig {
-                        score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                        score = -negamax(board: board, depth: depth - 1,
+                                         alpha: -beta, beta: -alpha, hash: childHash,
                                          useTT: useTT, useMoveOrder: useMoveOrder,
                                          searchConfig: sc)
                     } else {
-                        score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                        score = -negamax(board: board, depth: depth - 1,
+                                         alpha: -beta, beta: -alpha, hash: childHash,
                                          useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
                     }
                 } else {
@@ -166,11 +177,13 @@ actor AIEngine: AIEngineProtocol {
                 }
             } else {
                 if let sc = searchConfig {
-                    score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                    score = -negamax(board: board, depth: depth - 1,
+                                     alpha: -beta, beta: -alpha, hash: childHash,
                                      useTT: useTT, useMoveOrder: useMoveOrder,
                                      searchConfig: sc)
                 } else {
-                    score = -negamax(board: board, depth: depth - 1, alpha: -beta, beta: -alpha,
+                    score = -negamax(board: board, depth: depth - 1,
+                                     alpha: -beta, beta: -alpha, hash: childHash,
                                      useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
                 }
             }
@@ -304,10 +317,12 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - Negamax + Alpha-Beta 核心
 
     private func negamax(board: Board, depth: Int, alpha: Int, beta: Int,
+                         hash: UInt64,  // #7: 增量哈希参数
                          useTT: Bool, useMoveOrder: Bool, evalConfig: AIEvalConfig = .basic,
                          extensions: Int = 0, searchConfig: AISearchConfig = .default) -> Int {
         let side = board.currentTurn
-        let hash = ZobristHash.hash(board: board)
+        // #7: 使用传入的 hash，不再全量重算
+        // let hash = ZobristHash.hash(board: board)  ← 移除
         let evalCfg = searchConfig.evalConfig
 
         if useTT {
@@ -323,7 +338,8 @@ actor AIEngine: AIEngineProtocol {
             if staticEval + razorMargin <= alpha {
                 let qsScore: Int
                 if searchConfig.enableQuiescence {
-                    qsScore = quiescenceSearch(board: board, alpha: alpha, beta: beta,
+                    qsScore = quiescenceSearch(board: board, hash: hash,
+                                                alpha: alpha, beta: beta,
                                                 qDepth: searchConfig.maxQSDepth,
                                                 searchConfig: searchConfig)
                 } else {
@@ -339,7 +355,8 @@ actor AIEngine: AIEngineProtocol {
 
         if depth <= 0 {
             if searchConfig.enableQuiescence {
-                return quiescenceSearch(board: board, alpha: alpha, beta: beta,
+                return quiescenceSearch(board: board, hash: hash,
+                                         alpha: alpha, beta: beta,
                                          qDepth: searchConfig.maxQSDepth,
                                          searchConfig: searchConfig)
             } else {
@@ -364,8 +381,10 @@ actor AIEngine: AIEngineProtocol {
                 else { R = 3 }
 
                 board.toggleTurn()
+                // #7: toggleTurn 改变哈希，翻转 sideHash
+                let nullHash = hash ^ ZobristHash.sideHash
                 let nullScore = -negamax(board: board, depth: depth - 1 - R,
-                                          alpha: -beta, beta: -beta + 1,
+                                          alpha: -beta, beta: -beta + 1, hash: nullHash,
                                           useTT: false, useMoveOrder: useMoveOrder,
                                           evalConfig: evalCfg, extensions: 0,
                                           searchConfig: searchConfig)
@@ -389,7 +408,7 @@ actor AIEngine: AIEngineProtocol {
             let ttBestProbe = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
             if ttBestProbe == nil {
                 _ = negamax(board: board, depth: depth - 2,
-                            alpha: alpha, beta: beta,
+                            alpha: alpha, beta: beta, hash: hash,
                             useTT: useTT, useMoveOrder: useMoveOrder,
                             evalConfig: evalCfg, extensions: extensions,
                             searchConfig: searchConfig)
@@ -432,6 +451,11 @@ actor AIEngine: AIEngineProtocol {
                 && !isCapture && !selfInCheck && !isKiller
                 && moveIndex >= 3 && depth >= 4
 
+            // #7: 走法执行前增量计算子局面哈希
+            let childHash = ZobristHash.update(hash: hash, piece: move.piece,
+                                              from: move.from, to: move.to,
+                                              captured: move.captured)
+
             board.execute(move)
 
             let givesCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
@@ -449,13 +473,13 @@ actor AIEngine: AIEngineProtocol {
             if shouldReduce {
                 let reduction = lmrReduction(depth: depth, moveIndex: moveIndex)
                 let reducedScore = -negamax(board: board, depth: newDepth - reduction,
-                                              alpha: -beta, beta: -alpha,
+                                              alpha: -beta, beta: -alpha, hash: childHash,
                                               useTT: false, useMoveOrder: useMoveOrder,
                                               evalConfig: evalCfg, extensions: newExtensions,
                                               searchConfig: searchConfig)
                 if reducedScore > alpha {
                     score = -negamax(board: board, depth: newDepth,
-                                      alpha: -beta, beta: -a,
+                                      alpha: -beta, beta: -a, hash: childHash,
                                       useTT: useTT, useMoveOrder: useMoveOrder,
                                       evalConfig: evalCfg, extensions: newExtensions,
                                       searchConfig: searchConfig)
@@ -464,13 +488,13 @@ actor AIEngine: AIEngineProtocol {
                 }
             } else if searchConfig.enablePVS && moveIndex > 0 {
                 let nullWindowScore = -negamax(board: board, depth: newDepth,
-                                                alpha: -a - 1, beta: -a,
+                                                alpha: -a - 1, beta: -a, hash: childHash,
                                                 useTT: useTT, useMoveOrder: useMoveOrder,
                                                 evalConfig: evalCfg, extensions: newExtensions,
                                                 searchConfig: searchConfig)
                 if nullWindowScore > a && nullWindowScore < beta {
                     score = -negamax(board: board, depth: newDepth,
-                                      alpha: -beta, beta: -a,
+                                      alpha: -beta, beta: -a, hash: childHash,
                                       useTT: useTT, useMoveOrder: useMoveOrder,
                                       evalConfig: evalCfg, extensions: newExtensions,
                                       searchConfig: searchConfig)
@@ -479,7 +503,7 @@ actor AIEngine: AIEngineProtocol {
                 }
             } else {
                 score = -negamax(board: board, depth: newDepth,
-                                  alpha: -beta, beta: -a,
+                                  alpha: -beta, beta: -a, hash: childHash,
                                   useTT: useTT, useMoveOrder: useMoveOrder,
                                   evalConfig: evalCfg, extensions: newExtensions,
                                   searchConfig: searchConfig)
@@ -517,6 +541,7 @@ actor AIEngine: AIEngineProtocol {
 
     private func quiescenceSearch(
         board: Board,
+        hash: UInt64,  // #7: 增量哈希参数
         alpha: Int, beta: Int,
         qDepth: Int,
         searchConfig: AISearchConfig
@@ -547,8 +572,14 @@ actor AIEngine: AIEngineProtocol {
                 if standPat + captured.baseValue + 200 < alpha { continue }
             }
 
+            // #7: 增量计算子局面哈希
+            let childHash = ZobristHash.update(hash: hash, piece: move.piece,
+                                              from: move.from, to: move.to,
+                                              captured: move.captured)
+
             board.execute(move)
-            let score = -quiescenceSearch(board: board, alpha: -beta, beta: -alpha,
+            let score = -quiescenceSearch(board: board, hash: childHash,
+                                           alpha: -beta, beta: -alpha,
                                            qDepth: qDepth - 1, searchConfig: searchConfig)
             _ = board.undoLastMove()
 

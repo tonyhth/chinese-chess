@@ -14,7 +14,7 @@ struct BugFixV3Tests {
     @Test("dailyPuzzleId 返回有效 ID（非 nil）")
     func dailyPuzzleIdReturnsValidId() {
         let manager = DailyChallengeManager.shared
-        let puzzleId = manager.dailyPuzzleId()
+        let puzzleId = manager.dailyPuzzleId(puzzles: [])
         #expect(puzzleId != nil, "dailyPuzzleId 不应返回 nil")
         #expect(!puzzleId!.isEmpty, "puzzleId 不应为空字符串")
     }
@@ -22,7 +22,7 @@ struct BugFixV3Tests {
     @Test("dailyPuzzle 返回有效 Puzzle 对象")
     func dailyPuzzleReturnsValidObject() {
         let manager = DailyChallengeManager.shared
-        guard let puzzle = manager.dailyPuzzle() else {
+        guard let puzzle = manager.dailyPuzzle(puzzles: []) else {
             Issue.record("dailyPuzzle 不应返回 nil")
             return
         }
@@ -33,15 +33,15 @@ struct BugFixV3Tests {
     @Test("dailyPuzzleId 确定性：同一天多次调用返回相同 ID")
     func dailyPuzzleIdDeterministicSameDay() {
         let manager = DailyChallengeManager.shared
-        let id1 = manager.dailyPuzzleId()
-        let id2 = manager.dailyPuzzleId()
+        let id1 = manager.dailyPuzzleId(puzzles: [])
+        let id2 = manager.dailyPuzzleId(puzzles: [])
         #expect(id1 == id2, "同一天多次调用应返回相同 ID")
     }
 
     @Test("dailyPuzzleId 来自 PuzzleStore 已有残局")
     func dailyPuzzleIdFromStore() {
         let manager = DailyChallengeManager.shared
-        guard let id = manager.dailyPuzzleId() else {
+        guard let id = manager.dailyPuzzleId(puzzles: []) else {
             Issue.record("dailyPuzzleId 返回 nil")
             return
         }
@@ -53,7 +53,7 @@ struct BugFixV3Tests {
     func todayChallengeHasPuzzleId() {
         let suite = UserDefaults(suiteName: "test_daily_challenge_\(UUID().uuidString)")!
         // DailyChallengeManager.shared 用 standard defaults，我们测 shared 实例
-        let challenge = DailyChallengeManager.shared.todayChallenge()
+        let challenge = DailyChallengeManager.shared.todayChallenge(puzzles: [])
         #expect(challenge.puzzleId != nil, "今日挑战应有 puzzleId")
         #expect(challenge.puzzleId?.isEmpty == false)
     }
@@ -285,8 +285,8 @@ struct BugFixV3Tests {
     @Test("DailyStreakReward 文案与实际效果匹配")
     func streakRewardDescriptionMatches() {
         for reward in DailyStreakReward.allCases {
-            let desc = reward.localizedDesc
-            let rewardText = reward.localizedReward
+            let desc = reward.localizedDescKey
+            let rewardText = reward.localizedRewardKey
             #expect(!desc.isEmpty, "\(reward) 应有描述")
             #expect(!rewardText.isEmpty, "\(reward) 应有奖励文案")
             // 验证 rewardType 与预期一致（确保文案映射正确）
@@ -393,10 +393,10 @@ struct BugFixV3Tests {
         // 如果 puzzles 为空，应返回 nil 而非崩溃
         let puzzles = PuzzleStore.shared.puzzles
         if puzzles.isEmpty {
-            #expect(DailyChallengeManager.shared.dailyPuzzleId() == nil)
-            #expect(DailyChallengeManager.shared.dailyPuzzle() == nil)
+            #expect(DailyChallengeManager.shared.dailyPuzzleId(puzzles: []) == nil)
+            #expect(DailyChallengeManager.shared.dailyPuzzle(puzzles: []) == nil)
         } else {
-            #expect(DailyChallengeManager.shared.dailyPuzzleId() != nil)
+            #expect(DailyChallengeManager.shared.dailyPuzzleId(puzzles: []) != nil)
         }
     }
 

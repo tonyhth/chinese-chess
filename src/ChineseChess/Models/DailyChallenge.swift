@@ -35,12 +35,14 @@ enum DailyChallengeMode: String, Codable, CaseIterable {
         }
     }
 
-    var localizedTitle: String {
-        L10n.shared.t("daily.type.\(rawValue).title")
+    /// 标题的 L10n key
+    var localizedTitleKey: String {
+        "daily.type.\(rawValue).title"
     }
 
-    var localizedDesc: String {
-        L10n.shared.t("daily.type.\(rawValue).desc")
+    /// 描述的 L10n key
+    var localizedDescKey: String {
+        "daily.type.\(rawValue).desc"
     }
 
     var icon: String {
@@ -80,13 +82,14 @@ enum DailyStreakReward: Int, CaseIterable {
     case day70 = 70
     case day100 = 100
 
-    var localizedReward: String {
-        L10n.shared.t("daily.streak.day\(rawValue).reward")
+    /// 奖励显示文本的 L10n key
+    var localizedRewardKey: String {
+        "daily.streak.day\(rawValue).reward"
     }
 
-    // v3.0 gap fix: 实际解锁内容描述
-    var localizedDesc: String {
-        L10n.shared.t("daily.streak.day\(rawValue).desc")
+    // v3.0 gap fix: 实际解锁内容描述的 L10n key
+    var localizedDescKey: String {
+        "daily.streak.day\(rawValue).desc"
     }
 
     // Q4: 奖励类型标识（更新后）
@@ -148,17 +151,16 @@ final class DailyChallengeManager {
     }
 
     /// v3.0 gap fix: 从残局库按日期哈希选取今日残局 ID
-    func dailyPuzzleId() -> String? {
-        let puzzles = PuzzleStore.shared.puzzles
+    func dailyPuzzleId(puzzles: [Puzzle]) -> String? {
         guard !puzzles.isEmpty else { return nil }
         let hash = Self.deterministicHash(todayString)
         return puzzles[hash % puzzles.count].id
     }
 
     /// v3.0 gap fix: 获取今日残局数据
-    func dailyPuzzle() -> Puzzle? {
-        guard let id = dailyPuzzleId() else { return nil }
-        return PuzzleStore.shared.puzzles.first { $0.id == id }
+    func dailyPuzzle(puzzles: [Puzzle]) -> Puzzle? {
+        guard let id = dailyPuzzleId(puzzles: puzzles) else { return nil }
+        return puzzles.first { $0.id == id }
     }
 
     /// 确定性字符串哈希（djb2 算法），跨启动结果一致
@@ -171,14 +173,14 @@ final class DailyChallengeManager {
     }
 
     /// 生成今日挑战
-    func todayChallenge() -> DailyChallenge {
+    func todayChallenge(puzzles: [Puzzle]) -> DailyChallenge {
         // 检查是否已存在
         if let existing = getChallenge(for: todayString) {
             return existing
         }
 
         // v3.0 gap fix: 从残局库按日期哈希选取真实 puzzleId
-        let puzzleId = dailyPuzzleId()
+        let puzzleId = dailyPuzzleId(puzzles: puzzles)
 
         let challenge = DailyChallenge(
             date: todayString,
@@ -194,8 +196,8 @@ final class DailyChallengeManager {
 
     // MARK: - 挑战完成
 
-    func completeChallenge(score: Int) {
-        var challenge = todayChallenge()
+    func completeChallenge(score: Int, puzzles: [Puzzle]) {
+        var challenge = todayChallenge(puzzles: puzzles)
         // Q4 P2: bonusDoubleScore — 每日挑战双倍积分
         let finalScore = PlayerProfileStore.shared.profile.bonusDoubleScore ? score * 2 : score
         challenge = DailyChallenge(
@@ -209,8 +211,8 @@ final class DailyChallengeManager {
         saveChallenge(challenge)
     }
 
-    var isTodayCompleted: Bool {
-        todayChallenge().completed
+    func isTodayCompleted(puzzles: [Puzzle]) -> Bool {
+        todayChallenge(puzzles: puzzles).completed
     }
 
     // MARK: - 连续登录

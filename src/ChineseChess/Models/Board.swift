@@ -116,9 +116,7 @@ class Board {
 
     /// 从 FEN 初始化。解析失败时 fallback 到标准开局。
     convenience init(fen: String) {
-        // FENParser.parse 返回解析结果，init 内部直接构建 self
-        let parsed = FENParser.parse(fen: fen)
-        if let parsed = parsed {
+        if let parsed = FENDecoder.parse(fen: fen) {
             self.init(pieces: parsed.pieces)
             self.currentTurn = parsed.currentTurn
         } else {
