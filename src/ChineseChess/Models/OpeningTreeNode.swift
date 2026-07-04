@@ -24,10 +24,17 @@ class OpeningTreeNode: Identifiable {
 /// 开局树构建器（从 openings.json 构建树结构）
 struct OpeningTreeBuilder {
 
+    /// 可变中间结构（构建树时用，构建完 freeze 为 OpeningTreeNode）
+    private struct MutableNode {
+        var move: String
+        var moveName: String
+        var weight: Int
+        var children: [String: MutableNode] = [:]
+    }
+
     /// 从 openings.json 的 v1 格式构建树
     static func buildFromV1(_ entries: [OpeningV1Entry]) -> [OpeningTreeNode] {
-        // 根节点：每个开局名称的第一步
-        var rootMoves: [String: OpeningTreeNode] = [:]
+        var rootMoves: [String: MutableNode] = [:]
 
         for entry in entries {
             for variation in entry.variations {
@@ -37,41 +44,55 @@ struct OpeningTreeBuilder {
                 let firstName = moveName(for: firstMove)
 
                 if rootMoves[firstMove] == nil {
-                    rootMoves[firstMove] = OpeningTreeNode(
-                        move: firstMove,
-                        moveName: firstName,
-                        weight: 1,
-                        children: []
-                    )
-                } else {
-                    // 同一走法出现多次，增加权重
-                    // （不可变，需要重建）
+                    rootMoves[firstMove] = MutableNode(move: firstMove, moveName: firstName, weight: 0)
                 }
+                rootMoves[firstMove]!.weight += 1
 
                 // 递归构建子树
                 if variation.count > 1 {
                     let remaining = Array(variation[1...])
-                    addChild(remaining, to: rootMoves[firstMove]!, depth: 1)
+                    addMutableChild(remaining, to: &rootMoves[firstMove]!, depth: 1)
                 }
             }
         }
 
-        return Array(rootMoves.values).sorted { $0.weight > $1.weight }
+        return rootMoves.values
+            .sorted { $0.weight > $1.weight }
+            .map { freeze($0) }
     }
 
-    /// 递归添加子节点
-    private static func addChild(_ moves: [String], to parent: OpeningTreeNode, depth: Int) {
+    /// 将可变节点递归冻结为不可变 OpeningTreeNode
+    private static func freeze(_ node: MutableNode) -> OpeningTreeNode {
+        let children = node.children.values
+            .sorted { $0.weight > $1.weight }
+            .map { freeze($0) }
+        return OpeningTreeNode(
+            move: node.move,
+            moveName: node.moveName,
+            weight: node.weight,
+            children: children
+        )
+    }
+
+    /// 递归添加子节点（可变版本）
+    private static func addMutableChild(_ moves: [String], to parent: inout MutableNode, depth: Int) {
         guard !moves.isEmpty else { return }
-        // 限制树深度（最多 10 层）
         guard depth < 10 else { return }
 
         let move = moves[0]
         let name = moveName(for: move)
 
-        // 查找是否已有该走法的子节点
-        // （OpeningTreeNode.children 是 let，无法修改——简化处理：只构建首次出现的路径）
-        // 实际项目中应该用可变结构构建完再 freeze
+        if parent.children[move] == nil {
+            parent.children[move] = MutableNode(move: move, moveName: name, weight: 0)
+        }
+        parent.children[move]!.weight += 1
+
+        if moves.count > 1 {
+            let remaining = Array(moves[1...])
+            addMutableChild(remaining, to: &parent.children[move]!, depth: depth + 1)
+        }
     }
+
 
     /// UCI → 中文走法名（简化映射）
     static func moveName(for uci: String) -> String {
