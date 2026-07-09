@@ -10,10 +10,30 @@ struct ToolbarView: View {
     @State private var toastMessage = ""
     // v3.7.1 P2-3: 执边切换确认
     @State private var showSideSwitchConfirm = false
+    // AI 思考视觉指示
+    @State private var showThinkingIndicator = false
+    @State private var thinkingTask: Task<Void, Never>? = nil
 
     var body: some View {
         ZStack {
             toolbarContent
+
+            // AI 思考指示器
+            if showThinkingIndicator {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text(l10n.t("game.thinking"))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Color.black.opacity(0.6))
+                .cornerRadius(8)
+                .allowsHitTesting(false)
+                .transition(.opacity)
+            }
 
             // Toast overlay（allowsHitTesting(false) 不拦截下方按钮）
             if showToast {
@@ -46,6 +66,28 @@ struct ToolbarView: View {
                 viewModel.engineFallbackMessage = nil
             }
         }
+        .onChange(of: viewModel.isThinking) {
+            thinkingTask?.cancel()
+            if viewModel.isThinking {
+                thinkingTask = Task {
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    guard !Task.isCancelled else { return }
+                    withAnimation { showThinkingIndicator = true }
+                }
+            } else {
+                withAnimation { showThinkingIndicator = false }
+            }
+        }
+        .alert(l10n.t("game.resignConfirm"), isPresented: Binding(
+            get: { viewModel.showResignConfirm },
+            set: { if !$0 { viewModel.cancelResign() } }
+        )) {
+            Button(l10n.t("common.cancel"), role: .cancel) { viewModel.cancelResign() }
+            Button(l10n.t("game.resign"), role: .destructive) { viewModel.confirmResign() }
+        } message: {
+            Text(l10n.t("game.resignConfirmMessage"))
+        }
+
     }
 
     @ViewBuilder
@@ -75,6 +117,17 @@ struct ToolbarView: View {
                 .tint(.brown)
                 .accessibilityLabel(l10n.t("game.hint"))
                 .accessibilityHint(l10n.t("accessibility.hintActionHint"))
+
+                // 认输按钮
+                Button(action: { viewModel.requestResign() }) {
+                    Image(systemName: "flag.fill")
+                        .font(.title3)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+                .tint(.red)
+                .accessibilityLabel(l10n.t("game.resign"))
             }
 
             Spacer()
@@ -199,6 +252,18 @@ struct ToolbarView: View {
                 .buttonStyle(.bordered)
                 .tint(.brown)
                 .accessibilityHint(l10n.t("accessibility.hintActionHint"))
+
+                Button(action: { viewModel.requestResign() }) {
+                    Label(l10n.t("game.resign"), systemImage: "flag.fill")
+                }
+                #if os(macOS)
+                .keyboardShortcut("r", modifiers: [.command, .shift])
+                .controlSize(.small)
+                .help(l10n.t("game.resign"))
+                #endif
+                .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+                .buttonStyle(.bordered)
+                .tint(.red)
             }
 
             // 自然分隔（替换 Divider）

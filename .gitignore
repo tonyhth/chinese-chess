@@ -62,3 +62,4 @@ selfplay-results/
 
 # Pikafish 编译中间产物
 src/ChineseChess/Pikafish/build_test.sh
+.build_release/

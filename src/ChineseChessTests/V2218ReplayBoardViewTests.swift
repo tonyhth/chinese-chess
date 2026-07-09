@@ -149,7 +149,7 @@ struct V2218ReplayBoardViewTests {
         guard let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift") else {
             Issue.record("无法读取 ReplayView.swift"); return
         }
-        #expect(content.contains("ReplayControlView(viewModel: viewModel)"))
+        #expect(content.contains("ReplayControlView(viewModel:"))
     }
 
     @Test("ReplayView 无 minHeight 硬编码")
@@ -323,11 +323,11 @@ struct V2218ReplayBoardViewTests {
 
     private static func makeTestMoves() -> [GameMove] {
         [
-            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 13),
                      from: Position(row: 6, col: 4), to: Position(row: 5, col: 4),
                      captured: nil, turnNumber: 1, notation: "兵七进一",
                      timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
-            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4), id: 29),
                      from: Position(row: 3, col: 4), to: Position(row: 4, col: 4),
                      captured: nil, turnNumber: 1, notation: "卒4进1",
                      timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),

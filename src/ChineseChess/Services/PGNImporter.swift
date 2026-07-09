@@ -327,6 +327,9 @@ struct PGNImporter {
             let captured = board.piece(at: toPos)
             let move = Move(piece: piece, from: fromPos, to: toPos, captured: captured)
 
+            // 在 execute 之前用当前 board 状态生成中文棋谱（导入场景强制中文格式，不受用户偏好影响）
+            let notation = NotationGenerator.chineseNotation(for: move, on: board)
+
             // 执行走法
             board.execute(move)
 
@@ -338,7 +341,7 @@ struct PGNImporter {
                 to: toPos,
                 captured: captured,
                 turnNumber: (index / 2) + 1,
-                notation: "",  // 导入时不生成中文棋谱
+                notation: notation,
                 timestamp: Date(),
                 isCheck: false,
                 isCheckmate: false,

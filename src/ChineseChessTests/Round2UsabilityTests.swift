@@ -163,13 +163,13 @@ struct Round2UsabilityTests {
 @Test("U-P1-03: ReplayViewModel jumpTo 棋盘同步更新")
     func testUP103JumpToSyncsBoard() {
         let moves = [
-            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 13),
                      from: Position(row: 6, col: 4), to: Position(row: 5, col: 4), captured: nil,
                      turnNumber: 1, notation: "兵五进一", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
-            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4), id: 29),
                      from: Position(row: 3, col: 4), to: Position(row: 4, col: 4), captured: nil,
                      turnNumber: 1, notation: "卒5进1", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
-            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)),
+            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
                      from: Position(row: 9, col: 0), to: Position(row: 9, col: 4), captured: nil,
                      turnNumber: 2, notation: "车九平五", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
         ]

@@ -250,7 +250,7 @@ final class V370Phase1Tests: XCTestCase {
         let initialFEN = FENParser.standardInitial
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
@@ -279,7 +279,7 @@ final class V370Phase1Tests: XCTestCase {
         let initialFEN = FENParser.standardInitial
         let move1 = GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
@@ -358,7 +358,7 @@ final class V370Phase1Tests: XCTestCase {
     func testPGNExport_ICCSMapping() {
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
@@ -373,7 +373,7 @@ final class V370Phase1Tests: XCTestCase {
     func testPGNExport_ICCSMapping_Row0AndRow9() {
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)),
+            piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
             from: Position(row: 9, col: 0),
             to: Position(row: 5, col: 0),
             captured: nil,
@@ -669,7 +669,7 @@ final class V370Phase1Tests: XCTestCase {
     func testPGNRoundTrip_WithMoves() {
         let move1 = GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
@@ -677,7 +677,7 @@ final class V370Phase1Tests: XCTestCase {
         )
         let move2 = GameMove(
             id: UUID(),
-            piece: Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1)),
+            piece: Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1), id: 18),
             from: Position(row: 0, col: 1),
             to: Position(row: 2, col: 2),
             captured: nil,
@@ -896,7 +896,7 @@ final class V370Phase1Tests: XCTestCase {
     private func oneMoveList() -> [GameMove] {
         [GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,

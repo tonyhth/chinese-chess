@@ -222,7 +222,7 @@ struct DrawDetectionTests {
     /// 将 MockMove 转成测试用 GameMove（只关心 piece.side 和 isCheck）
     private func createMockMove(side: Side, isCheck: Bool) -> MockMove {
         MockMove(
-            piece: Piece(kind: .cannon, side: side, position: Position(row: 5, col: 5)),
+            piece: Piece(kind: .cannon, side: side, position: Position(row: 5, col: 5), id: 150),
             isCheck: isCheck
         )
     }

@@ -62,26 +62,26 @@ struct Phase3DrawTests {
     @Test("长将检测：同一方连续 3 次将军判该方负")
     func perpetualCheckDetection() {
         // 构造 GameMove 序列：红方连续 3 次将军
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
+        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 1, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 0, col: 4), to: Position(row: 1, col: 4),
                      captured: nil, turnNumber: 2, notation: "车一退一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 3),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24),
                      from: Position(row: 0, col: 3), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 2, notation: "将4平5", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 4),
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 3, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 5),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 3, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 6),
@@ -108,27 +108,27 @@ struct Phase3DrawTests {
 
     @Test("长将检测：不足 3 次将军不触发")
     func perpetualCheckNotTriggeredWithTwoChecks() {
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
+        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
         // 只有 2 次将军
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 1, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 0, col: 4), to: Position(row: 1, col: 4),
                      captured: nil, turnNumber: 2, notation: "车一退一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 3),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24),
                      from: Position(row: 0, col: 3), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 2, notation: "将4平5", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 4),
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 1, col: 5),
                      captured: nil, turnNumber: 3, notation: "车五平六", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 5),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 3, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 6),
@@ -150,20 +150,20 @@ struct Phase3DrawTests {
 
     @Test("长将检测：不足 6 步不触发")
     func perpetualCheckNotTriggeredBelowThreshold() {
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
+        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
         // 只有 4 步（不足 threshold=6）
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 1, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 0, col: 4), to: Position(row: 1, col: 4),
                      captured: nil, turnNumber: 2, notation: "车一退一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 3),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 4)),
+            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24),
                      from: Position(row: 0, col: 3), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 2, notation: "将4平5", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 4),
@@ -176,8 +176,8 @@ struct Phase3DrawTests {
     @Test("长将检测：黑白双方各有将军不判长将")
     func perpetualCheckBothSidesCheck() {
         // 双方交替将军 → 不属于"同一方连续将军"
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
-        let blackPiece = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 4))
+        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
+        let blackPiece = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 4), id: 284)
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "红将", timestamp: Date(),
@@ -223,8 +223,8 @@ struct Phase3DrawTests {
     @Test("halfmoveClock: 吃子时重置为 0")
     func halfmoveClockResetOnCapture() {
         let board = Board()
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
-        let captured = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
+        let captured = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)
 
         // 模拟 halfmoveClock 更新逻辑
         var halfmoveClock = 50  // 假设已经 50 步
@@ -241,7 +241,7 @@ struct Phase3DrawTests {
 
     @Test("halfmoveClock: 兵移动时重置为 0")
     func halfmoveClockResetOnPawnMove() {
-        let piece = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4))
+        let piece = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 13)
 
         var halfmoveClock = 50
         let isCapture = false
@@ -257,7 +257,7 @@ struct Phase3DrawTests {
 
     @Test("halfmoveClock: 普通走子时递增")
     func halfmoveClockIncrementOnNormalMove() {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
 
         var halfmoveClock = 50
         let isCapture = false
@@ -276,7 +276,7 @@ struct Phase3DrawTests {
         let clock = 42
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)),
+            piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
             from: Position(row: 9, col: 0),
             to: Position(row: 5, col: 0),
             captured: nil,
@@ -309,7 +309,7 @@ struct Phase3DrawTests {
     func gameMoveCodableWithHalfmoveClock() throws {
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9),
             from: Position(row: 7, col: 1),
             to: Position(row: 7, col: 4),
             captured: nil,

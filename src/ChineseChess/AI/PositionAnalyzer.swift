@@ -65,27 +65,82 @@ struct MoveAnalysis: Codable {
     let playerEval: Int          // 玩家走法后的评估值（cp）
     let evalDelta: Int           // 评估损失（bestEval - playerEval，正数=损失）
     let alternatives: [AnalysisLine]  // 候选走法（multiPV）
+    let isQuickResult: Bool      // v4.0 Phase 3 #8: true=预筛快速分析(单PV精度), false=完整 multiPV
+
+    // Codable 兼容：旧存档无 isQuickResult 字段时默认 false
+    enum CodingKeys: String, CodingKey {
+        case playerMove, quality, bestMove, bestEval, playerEval, evalDelta
+        case alternatives, isQuickResult
+    }
+
+    init(playerMove: String, quality: MoveQuality, bestMove: String,
+         bestEval: Int, playerEval: Int, evalDelta: Int,
+         alternatives: [AnalysisLine], isQuickResult: Bool = false) {
+        self.playerMove = playerMove
+        self.quality = quality
+        self.bestMove = bestMove
+        self.bestEval = bestEval
+        self.playerEval = playerEval
+        self.evalDelta = evalDelta
+        self.alternatives = alternatives
+        self.isQuickResult = isQuickResult
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        playerMove = try c.decode(String.self, forKey: .playerMove)
+        quality = try c.decode(MoveQuality.self, forKey: .quality)
+        bestMove = try c.decode(String.self, forKey: .bestMove)
+        bestEval = try c.decode(Int.self, forKey: .bestEval)
+        playerEval = try c.decode(Int.self, forKey: .playerEval)
+        evalDelta = try c.decode(Int.self, forKey: .evalDelta)
+        alternatives = try c.decodeIfPresent([AnalysisLine].self, forKey: .alternatives) ?? []
+        isQuickResult = try c.decodeIfPresent(Bool.self, forKey: .isQuickResult) ?? false
+    }
 }
 
 // MARK: - PositionAnalyzer
 
 /// 局面分析器（actor，线程安全）
 ///
-/// 引擎实例策略：通过 EngineRouter.shared 获取共享 EmbeddedPikafishEngine 实例，
-/// 不再直接调用 C API。所有 C API 调用通过 EmbeddedPikafishEngine 的串行队列串行化。
+/// 引擎实例策略（v4.1 Phase 7.3）：持有独立的 EmbeddedPikafishEngine 实例，
+/// 不再通过 EngineRouter.shared 获取共享实例。
+/// 原因：避免测试间 quit/init 循环导致全局 C 引擎搜索线程挂死。
+/// 内存代价：测试期间两份引擎实例（pikafish + NNUE 约 50MB+），
+/// 仅测试环境影响，打包 App 只有一个引擎实例。
 actor PositionAnalyzer {
 
     static let shared = PositionAnalyzer()
 
-    /// 通过 EngineRouter 获取共享 EmbeddedPikafishEngine 实例
-    /// 如果当前引擎不是 EmbeddedPikafishEngine（如使用自研引擎），返回 nil
+    /// 独立引擎实例（lazy 初始化）
+    /// 不走 EngineRouter，避免与游戏对弈引擎共享全局 C 状态
+    private var _engine: EmbeddedPikafishEngine?
+    private var _engineStarted = false
+
+    /// 获取或初始化独立引擎实例
+    /// 如果 EngineConfigStore 未启用嵌入式引擎，返回 nil
     private func getEngine() async -> EmbeddedPikafishEngine? {
-        let engine = await EngineRouter.shared.switchEngineIfNeeded()
-        guard let emb = engine as? EmbeddedPikafishEngine else {
-            NSLog("[PositionAnalyzer] Engine is not EmbeddedPikafishEngine, analysis disabled")
+        // 先检查配置：未启用嵌入式引擎时不初始化
+        let useEmbedded = await EngineConfigStore.shared.useEmbeddedEngine
+        guard useEmbedded else {
+            NSLog("[PositionAnalyzer] Embedded engine disabled in config, analysis disabled")
             return nil
         }
-        return emb
+
+        if _engine == nil {
+            _engine = EmbeddedPikafishEngine()
+        }
+        if !_engineStarted {
+            do {
+                try await _engine?.start()
+                _engineStarted = true
+            } catch {
+                NSLog("[PositionAnalyzer] Failed to start engine: \(error)")
+                _engine = nil
+                return nil
+            }
+        }
+        return _engine
     }
 
     // MARK: - 分析参数
@@ -148,9 +203,75 @@ actor PositionAnalyzer {
         }
     }
 
+    // MARK: - v4.0 Phase 3 #8: 快速预筛
+
+    /// 预筛结果（携带中间值，避免重复引擎调用）
+    /// 注意：evalDelta/bestEval 基于单 PV 评估，精度低于完整 multiPV 分析。
+    /// 预筛命中（isQuickResult=true）的 evalDelta 可能在 UI 上与完整分析结果有细微差异。
+    struct QuickClassifyResult {
+        let quality: MoveQuality
+        let bestMove: String
+        let bestEval: Int
+        let adjustedPlayerEval: Int
+        let evalDelta: Int
+        let needFullAnalysis: Bool
+    }
+
+    /// 快速评估走法质量（单 PV，用于预筛）
+    /// 返回: QuickClassifyResult（通过 needFullAnalysis 区分是否需要补 multiPV）
+    func quickClassify(
+        fenBefore: String,
+        playerMove: String,
+        moveHistory: [String] = []
+    ) async -> QuickClassifyResult? {
+        // 1. 评估走棋前局面
+        guard let beforeLine = await evaluate(
+            fen: fenBefore, moveHistory: moveHistory
+        ) else { return nil }
+
+        let bestMove = beforeLine.bestMove
+        let bestEval = beforeLine.scoreCp
+
+        // 2. 评估玩家走法后局面
+        let afterHistory = moveHistory + [playerMove]
+        guard let afterLine = await evaluate(
+            fen: fenBefore, moveHistory: afterHistory
+        ) else { return nil }
+
+        let adjustedPlayerEval = -afterLine.scoreCp
+        let delta = abs(bestEval - adjustedPlayerEval)
+
+        // 3. 分类（与 classifyMove 阈值对齐）
+        if playerMove == bestMove || delta <= 10 {
+            // brilliant：预筛命中
+            return QuickClassifyResult(
+                quality: .brilliant, bestMove: bestMove, bestEval: bestEval,
+                adjustedPlayerEval: adjustedPlayerEval, evalDelta: delta,
+                needFullAnalysis: false
+            )
+        } else if delta < 30 {
+            // good：预筛命中
+            return QuickClassifyResult(
+                quality: .good, bestMove: bestMove, bestEval: bestEval,
+                adjustedPlayerEval: adjustedPlayerEval, evalDelta: delta,
+                needFullAnalysis: false
+            )
+        }
+
+        // delta >= 30cp：需要完整 multiPV
+        return QuickClassifyResult(
+            quality: .normal,  // 临时值，完整分析会覆盖
+            bestMove: bestMove, bestEval: bestEval,
+            adjustedPlayerEval: adjustedPlayerEval, evalDelta: delta,
+            needFullAnalysis: true
+        )
+    }
+
     // MARK: - 完整单步分析
 
     /// 分析单步走法：局面 → 玩家走 → 结果
+    ///
+    /// v4.0 Phase 3 #8: 先快速预筛，好棋直接返回；需完整分析才补 multiPV
     ///
     /// - Parameters:
     ///   - fenBefore: 走棋前的局面 FEN
@@ -162,24 +283,48 @@ actor PositionAnalyzer {
         playerMove: String,
         moveHistory: [String] = []
     ) async -> MoveAnalysis? {
-        // 1. 分析走棋前的局面（获取最佳走法 + multiPV）
-        let lines = await topMoves(fen: fenBefore, moveHistory: moveHistory, count: multiPVCount)
-        guard let bestLine = lines.first else { return nil }
+        // === 第一步：快速预筛（2 次 evaluate）===
+        guard let pre = await quickClassify(
+            fenBefore: fenBefore,
+            playerMove: playerMove,
+            moveHistory: moveHistory
+        ) else { return nil }
 
+        // 预筛命中：直接返回（不再调引擎）
+        if !pre.needFullAnalysis {
+            return MoveAnalysis(
+                playerMove: playerMove,
+                quality: pre.quality,
+                bestMove: pre.bestMove,
+                bestEval: pre.bestEval,
+                playerEval: pre.adjustedPlayerEval,
+                evalDelta: pre.evalDelta,
+                alternatives: [],
+                isQuickResult: true
+            )
+        }
+
+        // === 第二步：需要完整分析，补一次 multiPV（复用预筛的 adjustedPlayerEval）===
+        let lines = await topMoves(fen: fenBefore, moveHistory: moveHistory, count: multiPVCount)
+
+        // V-B7: multiPV 返回空时降级为预筛结果
+        guard let bestLine = lines.first else {
+            return MoveAnalysis(
+                playerMove: playerMove,
+                quality: pre.quality,
+                bestMove: pre.bestMove,
+                bestEval: pre.bestEval,
+                playerEval: pre.adjustedPlayerEval,
+                evalDelta: pre.evalDelta,
+                alternatives: [],
+                isQuickResult: true
+            )
+        }
+
+        // multiPV 成功：用更深搜索的 bestEval，复用预筛的 playerEval
         let bestMove = bestLine.bestMove
         let bestEval = bestLine.scoreCp
-
-        // 2. 分析玩家走法后的局面
-        let afterHistory = moveHistory + [playerMove]
-        // 走棋后的 FEN 需要引擎计算（我们通过 eval 获取）
-        let playerLine = await evaluate(fen: fenBefore, moveHistory: afterHistory)
-        // playerEval：走棋后对方视角的评估（需要取反，因为 FEN 评估是当前行棋方）
-        // 但实际上，pikafish_eval 返回的是走完后的局面评估，已自动切换视角
-        // 这里用 before + afterHistory 的评估来推算
-        let playerEval = playerLine?.scoreCp ?? bestEval
-
-        // P0: playerEval 是走完后的局面评估，视角已翻转到对手，需要取反
-        let adjustedPlayerEval = -playerEval
+        let adjustedPlayerEval = pre.adjustedPlayerEval
 
         let quality = classifyMove(
             playerMove: playerMove,
@@ -195,7 +340,8 @@ actor PositionAnalyzer {
             bestEval: bestEval,
             playerEval: adjustedPlayerEval,
             evalDelta: abs(bestEval - adjustedPlayerEval),
-            alternatives: lines
+            alternatives: lines,
+            isQuickResult: false
         )
     }
 }

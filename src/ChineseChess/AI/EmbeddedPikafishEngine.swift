@@ -156,7 +156,11 @@ actor EmbeddedPikafishEngine: ChessEngine {
     }
 
     func newGame() {
-        pikafish_new_game()
+        // v4.1 Bug 1 fix: 通过 cApiQueue 串行化，避免与正在进行的 bestMove/evaluate 并发
+        // pikafish_new_game() 如果与 pikafish_best_move 并发执行，会导致 C 引擎内部状态混乱
+        cApiQueue.sync {
+            pikafish_new_game()
+        }
     }
 
     var version: String { cachedVersion }

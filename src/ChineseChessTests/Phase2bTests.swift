@@ -10,9 +10,9 @@ struct CheckmateSearchTests {
     @Test("单车将杀：车 vs 空防线")
     func singleChariotCheckmate() {
         // 红车在 (5,0)，黑将在 (0,3)，红帅在 (9,4)
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 3))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 3))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 3), id: 153)
         let board = Board(pieces: [rg, bg, rc])
         board.setCurrentTurn(.red)
 
@@ -25,10 +25,10 @@ struct CheckmateSearchTests {
 
     @Test("双车将杀")
     func doubleChariotCheckmate() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc1 = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4))
-        let rc2 = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc1 = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4), id: 154)
+        let rc2 = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 0), id: 140)
         let board = Board(pieces: [rg, bg, rc1, rc2])
         board.setCurrentTurn(.red)
 
@@ -64,9 +64,9 @@ struct PatternRecognizerTests {
 
     @Test("铁门栓：车在将正前方无阻挡")
     func ironGatePattern() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4), id: 154)
         let board = Board(pieces: [rg, bg, rc])
 
         let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
@@ -76,9 +76,9 @@ struct PatternRecognizerTests {
 
     @Test("单车胜：车 vs 无防守子")
     func singleChariotWinPattern() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
         let board = Board(pieces: [rg, bg, rc])
 
         let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
@@ -98,10 +98,10 @@ struct PatternRecognizerTests {
 
     @Test("双车错加分")
     func doubleChariotPattern() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc1 = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
-        let rc2 = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 5))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc1 = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let rc2 = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 5), id: 145)
         let board = Board(pieces: [rg, bg, rc1, rc2])
 
         let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
@@ -114,9 +114,9 @@ struct EndgameEvaluatorTests {
 
     @Test("单车 vs 空：红方大优势")
     func singleChariotVsEmpty() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
         let board = Board(pieces: [rg, bg, rc])
 
         let score = EndgameEvaluator.evaluate(board: board, for: .red)
@@ -126,9 +126,9 @@ struct EndgameEvaluatorTests {
 
     @Test("单车 vs 空：黑方视角为负")
     func singleChariotVsEmptyBlackView() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
         let board = Board(pieces: [rg, bg, rc])
 
         let score = EndgameEvaluator.evaluate(board: board, for: .black)
@@ -145,11 +145,11 @@ struct EndgameEvaluatorTests {
 
     @Test("马炮 vs 马：红方优势")
     func horseCannonVsHorse() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rh = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 0))
-        let rc = Piece(kind: .cannon, side: .red, position: Position(row: 4, col: 5))
-        let bh = Piece(kind: .horse, side: .black, position: Position(row: 3, col: 2))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rh = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let rc = Piece(kind: .cannon, side: .red, position: Position(row: 4, col: 5), id: 145)
+        let bh = Piece(kind: .horse, side: .black, position: Position(row: 3, col: 2), id: 232)
         let board = Board(pieces: [rg, bg, rh, rc, bh])
 
         let score = EndgameEvaluator.evaluate(board: board, for: .red)
@@ -159,11 +159,11 @@ struct EndgameEvaluatorTests {
 
     @Test("单车 vs 士象：红方优势但较小")
     func chariotVsAdvisorElephant() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
-        let ba = Piece(kind: .advisor, side: .black, position: Position(row: 1, col: 5))
-        let be = Piece(kind: .elephant, side: .black, position: Position(row: 2, col: 4))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let ba = Piece(kind: .advisor, side: .black, position: Position(row: 1, col: 5), id: 215)
+        let be = Piece(kind: .elephant, side: .black, position: Position(row: 2, col: 4), id: 224)
         let board = Board(pieces: [rg, bg, rc, ba, be])
 
         let score = EndgameEvaluator.evaluate(board: board, for: .red)
@@ -218,9 +218,9 @@ struct Phase2bIntegrationTests {
     @Test("高级 AI 能找到杀法（简单残局）")
     func hardAIFindsCheckmate() async {
         // 红车底线，黑将无防守
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 1, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 4))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 1, col: 4), id: 214)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 4), id: 184)
         let board = Board(pieces: [rg, bg, rc])
         board.setCurrentTurn(.red)
 
@@ -233,9 +233,9 @@ struct Phase2bIntegrationTests {
     @Test("大师 AI 残局估值合理")
     func masterAIEndgameReasonable() async {
         // 残局 ≤6 子，大师级应使用 EndgameEvaluator
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
         let board = Board(pieces: [rg, bg, rc])
         board.setCurrentTurn(.black)
 
@@ -248,10 +248,10 @@ struct Phase2bIntegrationTests {
     @Test("5 级 AI 全部能完成残局对局")
     func allDifficultyCompleteEndgame() async {
         let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
-        let bh = Piece(kind: .horse, side: .black, position: Position(row: 3, col: 2))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let bh = Piece(kind: .horse, side: .black, position: Position(row: 3, col: 2), id: 232)
         let board = Board(pieces: [rg, bg, rc, bh])
 
         let engine = AIEngine()

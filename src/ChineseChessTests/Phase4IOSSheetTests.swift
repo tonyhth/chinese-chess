@@ -247,7 +247,7 @@ struct Phase4IOSSheetTests {
     @Test("Toolbar replay: 有走棋记录时按钮可用")
     func toolbarReplayEnabledWhenHasMoves() {
         let gameMoves: [GameMove] = [
-            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)),
+            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
                      from: Position(row: 9, col: 0), to: Position(row: 8, col: 0), captured: nil,
                      turnNumber: 1, notation: "车九进一", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 1),

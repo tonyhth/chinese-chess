@@ -4,7 +4,8 @@ import Foundation
 
 /// 管理经典开局变化，中级及以上难度使用。
 /// 优先加载 v2 格式（hash 直查），fallback 到 v1 格式（树状 JSON）。
-struct OpeningBook {
+final class OpeningBook {
+    static let shared = OpeningBook()
 
     // MARK: - v2 格式类型
 
@@ -33,7 +34,7 @@ struct OpeningBook {
 
     // MARK: - 初始化
 
-    init() {
+    private init() {
         var idx: [UInt64: [(move: String, weight: Int)]] = [:]
 
         // 优先尝试加载 v2 格式（subdirectory → 根目录 fallback）

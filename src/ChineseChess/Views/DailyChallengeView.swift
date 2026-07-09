@@ -12,14 +12,15 @@ struct DailyChallengeView: View {
     @State private var showPuzzle = false
     @State private var showBlitzGame = false
     @State private var showMasterGame = false
+    @State private var showEndgameStart = false
+    @State private var showSolveMate = false
+    @State private var showCannonOnly = false
     @State private var dailyPuzzleId: String? = nil
 
-    /// Q4: 可玩模式
-    private let playableModes: [DailyChallengeMode] = [.endgamePuzzle, .timeBlitz, .masterChallenge]
-    /// Q4: 敬请期待模式
-    private let comingSoonModes: [DailyChallengeMode] = [
-        .materialAdvantage, .endgameStart, .solveMate,
-        .defendChallenge, .comboKill, .cannonOnly, .horseOnly
+    /// Q4: 可玩模式 + v4.0 Phase 5 新增
+    private let playableModes: [DailyChallengeMode] = [
+        .endgamePuzzle, .timeBlitz, .masterChallenge,
+        .endgameStart, .solveMate, .cannonOnly
     ]
 
     var body: some View {
@@ -38,33 +39,12 @@ struct DailyChallengeView: View {
                 .background(Color.controlBackground)
                 .cornerRadius(12)
 
-                // Q4: 敬请期待模式
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(L10n.shared.t("daily.view.comingSoon"))
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                        ForEach(comingSoonModes, id: \.self) { mode in
-                            HStack(spacing: 6) {
-                                Image(systemName: mode.icon)
-                                    .foregroundColor(.secondary)
-                                    .font(.caption)
-                                Text(L10n.shared.t(mode.localizedTitleKey))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.secondary.opacity(0.05))
-                            .cornerRadius(8)
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.secondary.opacity(0.15), lineWidth: 1))
-                        }
-                    }
-                }
-                .padding()
-                .background(Color.controlBackground)
-                .cornerRadius(12)
+                // v4.0: 敬请期待 — 单行文案
+                Text(L10n.shared.t("daily.view.moreModesComingSoon"))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 4)
 
                 // 连续登录
                 VStack(alignment: .leading, spacing: 8) {
@@ -215,6 +195,53 @@ struct DailyChallengeView: View {
                 }
             }
         }
+        // v4.0 Phase 5: endgameStart
+        .sheet(isPresented: $showEndgameStart) {
+            NavigationStack {
+                BoardView(viewModel: {
+                    let vm = GameViewModel()
+                    let puzzle = manager.endgameStartPuzzle(puzzles: PuzzleStore.shared.puzzles)
+                    vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: todayDiff)
+                    return vm
+                }())
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.shared.t("common.done")) { showEndgameStart = false }
+                    }
+                }
+            }
+        }
+        // v4.0 Phase 5: solveMate
+        .sheet(isPresented: $showSolveMate) {
+            NavigationStack {
+                BoardView(viewModel: {
+                    let vm = GameViewModel()
+                    let puzzle = manager.solveMatePuzzle(puzzles: PuzzleStore.shared.puzzles)
+                    vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: todayDiff)
+                    return vm
+                }())
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.shared.t("common.done")) { showSolveMate = false }
+                    }
+                }
+            }
+        }
+        // v4.0 Phase 5: cannonOnly
+        .sheet(isPresented: $showCannonOnly) {
+            NavigationStack {
+                BoardView(viewModel: {
+                    let vm = GameViewModel()
+                    vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: todayDiff)
+                    return vm
+                }())
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.shared.t("common.done")) { showCannonOnly = false }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Q4: 挑战卡片
@@ -253,6 +280,12 @@ struct DailyChallengeView: View {
                 showBlitzGame = true
             case .masterChallenge:
                 showMasterGame = true
+            case .endgameStart:
+                showEndgameStart = true
+            case .solveMate:
+                showSolveMate = true
+            case .cannonOnly:
+                showCannonOnly = true
             default:
                 break
             }

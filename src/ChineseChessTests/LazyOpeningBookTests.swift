@@ -106,12 +106,12 @@ struct LazyOpeningBookTests {
     func hardMidGame_skipsOpeningBook_searchWorks() async {
         // 构造一个 moveHistory >= 6 的中局
         let board = Board(pieces: [
-            Piece(kind: .general, side: .red, position: Position(row: 9, col: 4)),
-            Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0)),
-            Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1)),
-            Piece(kind: .general, side: .black, position: Position(row: 0, col: 5)),
-            Piece(kind: .chariot, side: .black, position: Position(row: 1, col: 0)),
-            Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 1))
+            Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8),
+            Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0), id: 180),
+            Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9),
+            Piece(kind: .general, side: .black, position: Position(row: 0, col: 5), id: 205),
+            Piece(kind: .chariot, side: .black, position: Position(row: 1, col: 0), id: 210),
+            Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 1), id: 25)
         ])
         // 手动添加 6 步 moveHistory 以跳过开局库
         let p1 = board.piece(at: Position(row: 8, col: 0))!
@@ -137,10 +137,10 @@ struct LazyOpeningBookTests {
     @Test("大师难度中局（moveHistory >= 6）跳过开局库，搜索引擎正常")
     func masterMidGame_skipsOpeningBook_searchWorks() async {
         let board = Board(pieces: [
-            Piece(kind: .general, side: .red, position: Position(row: 9, col: 4)),
-            Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0)),
-            Piece(kind: .general, side: .black, position: Position(row: 0, col: 5)),
-            Piece(kind: .chariot, side: .black, position: Position(row: 1, col: 0))
+            Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8),
+            Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0), id: 180),
+            Piece(kind: .general, side: .black, position: Position(row: 0, col: 5), id: 205),
+            Piece(kind: .chariot, side: .black, position: Position(row: 1, col: 0), id: 210)
         ])
         // 简单走 6 步
         let p1 = board.piece(at: Position(row: 8, col: 0))!

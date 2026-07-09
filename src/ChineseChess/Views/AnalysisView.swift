@@ -34,6 +34,7 @@ struct AnalysisView: View {
                 lockedView
             } else {
                 ReplayBoardView(viewModel: replayVM)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .layoutPriority(1)
 
                 analysisControls
@@ -129,9 +130,18 @@ struct AnalysisView: View {
             if analysisVM.isAnalyzing {
                 ProgressView()
                     .scaleEffect(0.8)
-                Text("\(analysisVM.analysisProgress.done)/\(analysisVM.analysisProgress.total)")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(analysisVM.analysisProgress.done)/\(analysisVM.analysisProgress.total)")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Text(l10n.t("analysis.analyzingPlayerMoves"))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            } else if let msg = analysisVM.analysisUnavailableMessage {
+                Text(msg)
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.orange)
             } else {
                 Text(l10n.t("analysis.completed"))
                     .font(.caption)
@@ -191,6 +201,11 @@ struct AnalysisView: View {
                 Image(systemName: a.quality.symbolName)
                     .font(.system(size: 14))
                     .foregroundColor(qualityColor(a.quality))
+            } else if !analysisVM.isPlayerMove(at: index) {
+                // v4.0 Phase 3 #8: AI 走法步显示灰色 AI 标签
+                Text(l10n.t("analysis.aiMove"))
+                    .font(.system(size: 8))
+                    .foregroundColor(.gray.opacity(0.6))
             } else {
                 Circle()
                     .fill(Color.gray.opacity(0.3))

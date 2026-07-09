@@ -109,6 +109,29 @@ final class V370Phase3Tests: XCTestCase {
         XCTAssertTrue(result.isSuccess)
     }
 
+    /// Bug #C: PGN 导入后走法名应显示中文棋谱（如「炮二平五」）
+    func testPGNImport_NotationGenerated() {
+        let pgn = """
+        [Event "测试"]
+        [Red "红方"]
+        [Black "黑方"]
+        [Result "1-0"]
+
+        1. h2e2 h9g7 2. i0i1 1-0
+        """
+        let result = PGNImporter.parse(pgn)
+        XCTAssertEqual(result.records.count, 1, "应解析出 1 局")
+        let record = result.records.first!
+        XCTAssertFalse(record.moves.isEmpty, "应有走法")
+        // 验证每个走法都有 notation
+        for (idx, move) in record.moves.enumerated() {
+            XCTAssertFalse(move.notation.isEmpty, "第 \(idx+1) 步 notation 不应为空")
+            // 验证 notation 包含中文棋子名（繁简皆可：炮/炮、马/馬、车/車、兵/兵、卒/卒等）
+            let hasChinesePiece = move.notation.contains("炮") || move.notation.contains("马") || move.notation.contains("馬") || move.notation.contains("车") || move.notation.contains("車") || move.notation.contains("兵") || move.notation.contains("卒") || move.notation.contains("相") || move.notation.contains("象") || move.notation.contains("仕") || move.notation.contains("士") || move.notation.contains("帅") || move.notation.contains("将") || move.notation.contains("将") || move.notation.contains("將")
+            XCTAssertTrue(hasChinesePiece, "第 \(idx+1) 步 notation 应包含中文棋子名: \(move.notation)")
+        }
+    }
+
     /// 多局 PGN 全部成功
     func testPGNImport_MultiGame_AllSuccess() {
         let result = PGNImporter.parse(multiGamePGN)

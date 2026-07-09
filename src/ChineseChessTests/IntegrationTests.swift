@@ -128,10 +128,10 @@ struct IntegrationTests {
     @Test("残局 AI 高级难度能走")
     func hardEndgameCompletes() async {
         // 简单残局：黑方车马 vs 红方帅
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
-        let bh = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let bh = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1), id: 18)
         let board = Board(pieces: [rg, bg, bc, bh])
         let engine = AIEngine()
 

@@ -275,7 +275,7 @@ struct CoachSessionViewIntegrationTests {
     func testUciNotation() {
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
             from: Position(row: 7, col: 7),
             to: Position(row: 7, col: 4),
             captured: nil,
@@ -292,7 +292,7 @@ struct CoachSessionViewIntegrationTests {
     func testUciNotationHorse() {
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .horse, side: .red, position: Position(row: 0, col: 7)),
+            piece: Piece(kind: .horse, side: .red, position: Position(row: 0, col: 7), id: 107),
             from: Position(row: 0, col: 7),
             to: Position(row: 2, col: 6),
             captured: nil,
@@ -308,12 +308,12 @@ struct CoachSessionViewIntegrationTests {
     @Test("Array<GameMove>.uciMoves 批量转换")
     func testUciMovesBatch() {
         let moves = [
-            GameMove(id: UUID(), piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7)),
+            GameMove(id: UUID(), piece: Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 7), id: 10),
                      from: Position(row: 7, col: 7), to: Position(row: 7, col: 4),
                      captured: nil, turnNumber: 1, notation: "炮二平五",
                      timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
             // 黑方马：row=0 → rank=9, row=2 → rank=7
-            GameMove(id: UUID(), piece: Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1)),
+            GameMove(id: UUID(), piece: Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1), id: 18),
                      from: Position(row: 0, col: 1), to: Position(row: 2, col: 2),
                      captured: nil, turnNumber: 2, notation: "马8进7",
                      timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0),
@@ -373,6 +373,10 @@ struct OpeningTreeFavoriteTests {
         #expect(UnlockedFeature.openingTreeFavorite.requiredRank == .sage)
     }
 
+    // v5.0: OpeningTreeStore 已被移除，收藏功能待 v5.x 重新实现
+    // 旧测试已归档到 _archive_v4/
+
+    /*
     @Test("OpeningTreeStore: toggleFavorite 添加和移除")
     func testToggleFavoriteAdd() {
         let store = OpeningTreeStore.shared
@@ -447,6 +451,7 @@ struct OpeningTreeFavoriteTests {
         // 清理
         store.toggleFavorite(nonEmptyPath)
     }
+    */
 
     @Test("openingTreeBrowse 也标记为已实现")
     func testOpeningTreeBrowseIsImplemented() {

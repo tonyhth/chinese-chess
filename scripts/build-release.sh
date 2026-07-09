@@ -10,6 +10,18 @@
 
 set -euo pipefail
 
+# ============ 并发构建锁 ============
+# 避免 Xcode build DB 锁冲突：同一时间只允许一个 build-release.sh 运行
+# macOS 没有 flock，使用 mkdir 作为锁（原子操作）
+LOCK_DIR="/tmp/chinesechess-build-release.lock"
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+    echo "❌ 另一个 build-release.sh 正在运行（build DB 锁冲突防护）"
+    echo "   如需强制释放: rm -rf $LOCK_DIR"
+    exit 1
+fi
+trap 'rm -rf "$LOCK_DIR"' EXIT  # 脚本退出时自动释放锁
+echo "🔒 已获取构建锁"
+
 # ============ 参数校验 ============
 VERSION="${1:-}"
 if [[ -z "$VERSION" ]]; then

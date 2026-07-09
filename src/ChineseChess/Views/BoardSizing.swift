@@ -41,17 +41,24 @@ enum BoardSizing {
         let availableHeight = height
         #endif
 
+        // 防止容器尺寸为 0 或负数导致除零/负值
+        let safeWidth = max(availableWidth, 50)
+        let safeHeight = max(availableHeight, 50)
+
         // padding 和 cellSize 循环依赖：一步迭代收敛
-        let basePadding = min(availableWidth, availableHeight) * 0.04
-        let cellSizeEst = min((availableWidth - basePadding * 2) / CGFloat(gridCols),
-                              (availableHeight - basePadding * 2) / CGFloat(gridRows),
+        let basePadding = min(safeWidth, safeHeight) * 0.04
+        let cellSizeEst = min((safeWidth - basePadding * 2) / CGFloat(gridCols),
+                              (safeHeight - basePadding * 2) / CGFloat(gridRows),
                               maxCellSize)
-        // padding 至少等于棋子半径，防止边缘棋子被裁
-        let padding = max(basePadding, cellSizeEst * 0.45)
-        // 用最终 padding 重算 cellSize，补偿 padding 增加占用的空间
-        let cellSize = min((availableWidth - padding * 2) / CGFloat(gridCols),
-                           (availableHeight - padding * 2) / CGFloat(gridRows),
-                           maxCellSize)
+        // 初始 padding 估算
+        let paddingEst = max(basePadding, cellSizeEst * 0.45)
+        // 用 padding 估算重算 cellSize，补偿 padding 增加占用的空间
+        let cellSize = max(min((safeWidth - paddingEst * 2) / CGFloat(gridCols),
+                           (safeHeight - paddingEst * 2) / CGFloat(gridRows),
+                           maxCellSize), 8)
+        // P1 fix: cellSize clamp 后可能比 cellSizeEst 大，需用最终 cellSize 重算 padding
+        // 确保边缘棋子不被裁切（padding >= 棋子半径 = cellSize * 0.45）
+        let padding = max(basePadding, cellSize * 0.45)
         let boardWidth = cellSize * CGFloat(gridCols) + padding * 2
         let boardHeight = cellSize * CGFloat(gridRows) + padding * 2
 

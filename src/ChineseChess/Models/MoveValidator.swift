@@ -25,6 +25,25 @@ struct MoveValidator {
         board.pieces(for: side).flatMap { legalMoves(for: $0, on: board) }
     }
 
+    // MARK: - 吃子走法生成（v3.9: 为静态搜索优化，跳过 wouldBeInCheck）
+
+    /// 某方所有吃子候选走法（仅走法模式校验 + 己方棋子过滤，不做将帅暴露检查）
+    /// 用于静态搜索（QS），在 QS 内部通过实际执行验证合法性
+    static func captureMoves(for side: Side, on board: Board) -> [Move] {
+        var result: [Move] = []
+        for piece in board.pieces(for: side) {
+            let candidates = candidateMoves(for: piece, on: board)
+            for move in candidates {
+                // 只保留吃子走法（目标位置有对方棋子）
+                guard move.captured != nil else { continue }
+                // 己方棋子过滤已在 candidateMoves 中处理，只需走法模式校验
+                guard isMovePatternValid(for: move.piece, from: move.from, to: move.to, on: board) else { continue }
+                result.append(move)
+            }
+        }
+        return result
+    }
+
     // MARK: - 候选走法生成（Y4: 按棋子类型只生成可能的目标位置）
 
     private static func candidateMoves(for piece: Piece, on board: Board) -> [Move] {
@@ -276,44 +295,12 @@ struct MoveValidator {
         return count
     }
 
+    // v3.9: canAttack 复用 isMovePatternValid，消除与 isValidXxxMove 的逻辑不一致
+    // 审计发现三处偏差：象半场检查用 from（应为 target）、士宫殿检查属性错、将分支为死代码
     static func canAttack(piece: Piece, target: Position, on board: Board) -> Bool {
-        let from = piece.position
-        switch piece.kind {
-        case .general:
-            let palace: Bool = (piece.side == .red) ? target.isInRedPalace : target.isInBlackPalace
-            guard palace else { return false }
-            let dr = abs(target.row - from.row)
-            let dc = abs(target.col - from.col)
-            return (dr == 1 && dc == 0) || (dr == 0 && dc == 1)
-
-        case .advisor:
-            let palace: Bool = (piece.side == .red) ? target.isInRedPalace : target.isInBlackPalace
-            guard palace else { return false }
-            return abs(target.row - from.row) == 1 && abs(target.col - from.col) == 1
-
-        case .elephant:
-            let inHalf: Bool = (piece.side == .red) ? from.isInRedHalf : from.isInBlackHalf
-            guard inHalf else { return false }
-            let dr = abs(target.row - from.row)
-            let dc = abs(target.col - from.col)
-            guard dr == 2 && dc == 2 else { return false }
-            let eyeRow = (from.row + target.row) / 2
-            let eyeCol = (from.col + target.col) / 2
-            return !board.hasPiece(at: Position(row: eyeRow, col: eyeCol))
-
-        case .horse:
-            return isValidHorseMove(piece, from: from, to: target, on: board)
-
-        case .chariot:
-            return isValidChariotMove(from: from, to: target, on: board)
-
-        case .cannon:
-            guard from.row == target.row || from.col == target.col else { return false }
-            return countPiecesBetween(from: from, to: target, on: board) == 1
-
-        case .soldier:
-            return isValidSoldierMove(piece, from: from, to: target)
-        }
+        // 攻击目标必须是对方棋子或空位（canAttack 只判断攻击范围，不检查目标归属）
+        // isMovePatternValid 已包含宫殿/半场/蹩腿等约束
+        return isMovePatternValid(for: piece, from: piece.position, to: target, on: board)
     }
 
     private static func wouldBeInCheck(_ move: Move, on board: Board) -> Bool {

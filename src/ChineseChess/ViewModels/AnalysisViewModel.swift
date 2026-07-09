@@ -24,13 +24,45 @@ final class AnalysisViewModel {
     var isAnalyzing: Bool = false
     /// 分析进度（已完成 / 总数）
     var analysisProgress: (done: Int, total: Int) = (0, 0)
+    /// 分析不可用提示（自研引擎回退时）
+    var analysisUnavailableMessage: String? = nil
+
+    // v4.0 Phase 3 #8: 玩家方判断（策略 B）
+    /// 先手方颜色（从 FEN 推断，固定值）
+    private(set) var firstMoverColor: Side = .red
+    /// 玩家方颜色（默认等于先手方，可被 override 覆盖）
+    private(set) var playerColor: Side = .red
+
+    /// 玩家是否为先手方
+    private var playerIsFirstMover: Bool {
+        playerColor == firstMoverColor
+    }
+
+    /// 判断某步是否是玩家走法
+    /// 先手方的走法总在偶数 index（0, 2, 4…）
+    func isPlayerMove(at index: Int) -> Bool {
+        let isFirstMoverStep = (index % 2 == 0)
+        return playerIsFirstMover ? isFirstMoverStep : !isFirstMoverStep
+    }
 
     /// 初始化分析会话（v3.7.0: 新增 gameMoves 参数用于 FEN 推算）
-    func load(moves: [String], initialFEN: String, gameMoves: [GameMove] = []) {
+    /// v4.0 Phase 3 #8: 新增 playerColorOverride 参数
+    func load(moves: [String], initialFEN: String, gameMoves: [GameMove] = [], playerColorOverride: Side? = nil) {
         self.moves = moves
         self.initialFEN = initialFEN
         self.analyses = Array(repeating: nil, count: moves.count)
         self.currentIndex = 0
+
+        // v4.0 Phase 3 #8: 从 FEN 解析先手方
+        let fenParts = initialFEN.split(separator: " ")
+        firstMoverColor = (fenParts.count >= 2 && fenParts[1] == "b") ? .black : .red
+
+        // 玩家方 = 默认等于先手方，可被调用方覆盖
+        if let override = playerColorOverride {
+            self.playerColor = override
+        } else {
+            self.playerColor = firstMoverColor
+        }
 
         // v3.7.0 Phase 2: 预计算 FEN 列表（200+ 步 ≈ 20ms）
         if !gameMoves.isEmpty {
@@ -41,14 +73,29 @@ final class AnalysisViewModel {
     }
 
     /// 执行完整分析（逐步）
+    /// v4.0 Phase 3 #8: 只分析玩家方走法（策略 B）
     func analyzeAll() async {
         guard !moves.isEmpty else { return }
 
-        isAnalyzing = true
-        analysisProgress = (0, moves.count)
+        // 检查引擎是否可用
+        let engine = await EngineRouter.shared.switchEngineIfNeeded()
+        if engine as? EmbeddedPikafishEngine == nil {
+            analysisUnavailableMessage = L10n.shared.t("analysis.engineUnavailable")
+            isAnalyzing = false
+            return
+        }
 
+        isAnalyzing = true
+
+        // v4.0 Phase 3 #8: 进度总数改为玩家走法数
+        let playerMoveCount = moves.indices.filter { isPlayerMove(at: $0) }.count
+        analysisProgress = (0, playerMoveCount)
+
+        var done = 0
         for (index, move) in moves.enumerated() {
-            // 计算走棋前的 FEN + moveHistory
+            // 跳过非玩家走法
+            guard isPlayerMove(at: index) else { continue }
+
             let moveHistory = Array(moves[0..<index])
             let fenBefore = computeFEN(before: index)
 
@@ -58,16 +105,25 @@ final class AnalysisViewModel {
                 moveHistory: moveHistory
             )
             analyses[index] = analysis
-            analysisProgress = (index + 1, moves.count)
+            done += 1
+            analysisProgress = (done, playerMoveCount)
+        }
+
+        // Bug 1 fix: 引擎存在但分析全 nil（NNUE 未加载成功等），设置不可用提示
+        if analyses.allSatisfy({ $0 == nil }) {
+            analysisUnavailableMessage = L10n.shared.t("analysis.engineUnavailable")
         }
 
         isAnalyzing = false
     }
 
     /// 分析单步（按需分析）
-    func analyzeStep(_ index: Int) async {
+    /// v4.0 Phase 3 #8: 默认跳过 AI 走法（策略 B 一致性）
+    /// - Parameter force: true 时强制分析（用于用户主动点击 AI 走法步）
+    func analyzeStep(_ index: Int, force: Bool = false) async {
         guard index >= 0 && index < moves.count else { return }
         guard analyses[index] == nil else { return }
+        if !force && !isPlayerMove(at: index) { return }
 
         let moveHistory = Array(moves[0..<index])
         let fenBefore = computeFEN(before: index)

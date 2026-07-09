@@ -8,9 +8,9 @@ struct AIAdvancedTests {
 
     @Test("初级 AI 从残局返回合法走法")
     func easyFromEndgame() async {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
@@ -23,9 +23,9 @@ struct AIAdvancedTests {
 
     @Test("中级 AI 从残局返回合法走法")
     func mediumFromEndgame() async {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
@@ -38,9 +38,9 @@ struct AIAdvancedTests {
 
     @Test("高级 AI 从残局返回合法走法")
     func hardFromEndgame() async {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
@@ -56,11 +56,11 @@ struct AIAdvancedTests {
     @Test("高级 AI 不送车")
     func hardDoesNotBlunderChariot() async {
         // 黑方有车，红方有炮（可吃黑车）
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
-        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1))
-        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0))  // 炮架
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9)
+        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0), id: 11)  // 炮架
         let board = Board(pieces: [rg, bg, blackChariot, redCannon, redSoldier])
         board.setCurrentTurn(.black)
         let engine = AIEngine()

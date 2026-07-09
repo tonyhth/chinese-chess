@@ -146,7 +146,7 @@ struct IOSToolbarAdaptationV31Tests {
         defer { UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide") }
 
         let vm = GameViewModel()
-        let testPiece = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
+        let testPiece = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100)
         vm.isThinking = true
         vm.gameState = .redWon
         vm.capturedPieces = (red: [testPiece], black: [])

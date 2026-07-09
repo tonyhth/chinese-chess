@@ -7,12 +7,14 @@ struct ThemePickerView: View {
         let profile = PlayerProfileStore.shared.profile
         let available = Set(themeManager.availableThemes(profile: profile))
 
-        HStack(spacing: 16) {
-            ForEach(BoardTheme.allCases, id: \.self) { theme in
-                themeButton(for: theme, unlocked: available.contains(theme))
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 16) {
+                ForEach(BoardTheme.allCases, id: \.self) { theme in
+                    themeButton(for: theme, unlocked: available.contains(theme))
+                }
             }
+            .padding(12)
         }
-        .padding(12)
         .background(Color.black.opacity(0.3))
         .cornerRadius(8)
     }

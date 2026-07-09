@@ -107,47 +107,47 @@ struct FontTests {
     @Test("棋子显示名称包含中文字符")
     func pieceDisplayNamesAreChinese() {
         // 检查红方棋子
-        let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 0, col: 0))
+        let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redGeneral.displayName == "帅")
 
-        let redAdvisor = Piece(kind: .advisor, side: .red, position: Position(row: 0, col: 0))
+        let redAdvisor = Piece(kind: .advisor, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redAdvisor.displayName == "仕")
 
-        let redElephant = Piece(kind: .elephant, side: .red, position: Position(row: 0, col: 0))
+        let redElephant = Piece(kind: .elephant, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redElephant.displayName == "相")
 
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 0, col: 0))
+        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redHorse.displayName == "馬")
 
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
+        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redChariot.displayName == "車")
 
-        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 0, col: 0))
+        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redCannon.displayName == "炮")
 
-        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 0, col: 0))
+        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 0, col: 0), id: 100)
         #expect(redSoldier.displayName == "兵")
 
         // 检查黑方棋子
-        let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 0))
+        let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 0), id: 200)
         #expect(blackGeneral.displayName == "将")
 
-        let blackAdvisor = Piece(kind: .advisor, side: .black, position: Position(row: 0, col: 0))
+        let blackAdvisor = Piece(kind: .advisor, side: .black, position: Position(row: 0, col: 0), id: 200)
         #expect(blackAdvisor.displayName == "士")
 
-        let blackElephant = Piece(kind: .elephant, side: .black, position: Position(row: 0, col: 0))
+        let blackElephant = Piece(kind: .elephant, side: .black, position: Position(row: 0, col: 0), id: 200)
         #expect(blackElephant.displayName == "象")
 
-        let blackHorse = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 0))
+        let blackHorse = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 0), id: 200)
         #expect(blackHorse.displayName == "馬")
 
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0))
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16)
         #expect(blackChariot.displayName == "車")
 
-        let blackCannon = Piece(kind: .cannon, side: .black, position: Position(row: 0, col: 0))
+        let blackCannon = Piece(kind: .cannon, side: .black, position: Position(row: 0, col: 0), id: 200)
         #expect(blackCannon.displayName == "砲")
 
-        let blackSoldier = Piece(kind: .soldier, side: .black, position: Position(row: 0, col: 0))
+        let blackSoldier = Piece(kind: .soldier, side: .black, position: Position(row: 0, col: 0), id: 200)
         #expect(blackSoldier.displayName == "卒")
     }
 
@@ -158,7 +158,7 @@ struct FontTests {
 
         for kind in kinds {
             for side in sides {
-                let piece = Piece(kind: kind, side: side, position: Position(row: 0, col: 0))
+                let piece = Piece(kind: kind, side: side, position: Position(row: 0, col: 0), id: 100)
                 #expect(!piece.displayName.isEmpty, "\(side) \(kind) displayName 不应为空")
             }
         }

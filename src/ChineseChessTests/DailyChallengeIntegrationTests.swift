@@ -9,22 +9,27 @@ struct DailyChallengeIntegrationTests {
 
     // MARK: - 1. 三种可玩模式
 
-    @Test("可玩模式: 3 种 (endgamePuzzle / timeBlitz / masterChallenge)")
+    @Test("可玩模式: 6 种 (endgamePuzzle / timeBlitz / masterChallenge / endgameStart / solveMate / cannonOnly)")
     func playableModesCount() {
-        let playable: [DailyChallengeMode] = [.endgamePuzzle, .timeBlitz, .masterChallenge]
-        #expect(playable.count == 3)
+        let playable: [DailyChallengeMode] = [
+            .endgamePuzzle, .timeBlitz, .masterChallenge,
+            .endgameStart, .solveMate, .cannonOnly
+        ]
+        #expect(playable.count == 6)
         #expect(playable.contains(.endgamePuzzle))
         #expect(playable.contains(.timeBlitz))
         #expect(playable.contains(.masterChallenge))
+        #expect(playable.contains(.endgameStart))
+        #expect(playable.contains(.solveMate))
+        #expect(playable.contains(.cannonOnly))
     }
 
-    @Test("敬请期待模式: 7 种")
+    @Test("敬请期待模式: 4 种 (v4.0 后)")
     func comingSoonModesCount() {
         let comingSoon: [DailyChallengeMode] = [
-            .materialAdvantage, .endgameStart, .solveMate,
-            .defendChallenge, .comboKill, .cannonOnly, .horseOnly
+            .materialAdvantage, .defendChallenge, .comboKill, .horseOnly
         ]
-        #expect(comingSoon.count == 7)
+        #expect(comingSoon.count == 4)
     }
 
     @Test("所有模式: 可玩 + 敬请期待 = 10 种")
@@ -75,12 +80,13 @@ struct DailyChallengeIntegrationTests {
         #expect(puzzles.contains { $0.id == id }, "返回的 id 应在 puzzles 列表中")
     }
 
-    @Test("endgamePuzzle: dailyPuzzleId 空 puzzles 返回 nil")
+    @Test("endgamePuzzle: dailyPuzzleId 空 puzzles 回退到 PuzzleStore")
     func dailyPuzzleIdEmpty() {
         let suite = UserDefaults(suiteName: "test_empty_\(UUID().uuidString)")!
         let manager = DailyChallengeManager(defaults: suite)
         let id = manager.dailyPuzzleId(puzzles: [])
-        #expect(id == nil, "空 puzzles 应返回 nil")
+        // 空数组回退到 PuzzleStore.shared.puzzles，不应返回 nil
+        #expect(id != nil, "空 puzzles 应回退到 PuzzleStore，不应返回 nil")
     }
 
     @Test("endgamePuzzle: dailyPuzzle 返回正确的 Puzzle")

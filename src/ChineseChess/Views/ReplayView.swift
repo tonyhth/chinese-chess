@@ -6,6 +6,8 @@ struct ReplayView: View {
     @State private var isRenaming = false
     @State private var newTitle = ""
     @State private var showFEN = false
+    @State private var showAnalysis = false
+    @State private var showCoach = false
     var onClose: (() -> Void)? = nil
 
     private let l10n = L10n.shared
@@ -63,7 +65,9 @@ struct ReplayView: View {
                 }
                 .frame(maxWidth: .infinity)
 
-                // 右侧：分享按钮
+                // 右侧：分析 + 教练 + 分享按钮
+                analysisButton
+                coachButton
                 shareMenu
             }
             .padding(.horizontal, 16)
@@ -79,6 +83,7 @@ struct ReplayView: View {
                 Spacer()
             } else {
                 ReplayBoardView(viewModel: viewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .layoutPriority(1)
             }
 
@@ -98,6 +103,27 @@ struct ReplayView: View {
             }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
+        // v4.0 Phase 4 Batch 2: Analysis + Coach 入口
+        .sheet(isPresented: $showAnalysis) {
+            AnalysisView(record: viewModel.record)
+                #if os(macOS)
+                .frame(minWidth: 600, minHeight: 700)
+                #endif
+        }
+        .sheet(isPresented: $showCoach) {
+            NavigationStack {
+                CoachSessionView(record: viewModel.record)
+                    .navigationTitle(l10n.t("coach.title"))
+                    #if os(iOS)
+                    .navigationBarTitleDisplayMode(.inline)
+                    #endif
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button(l10n.t("common.done")) { showCoach = false }
+                        }
+                    }
+            }
+        }
         .alert(l10n.t("history.rename"), isPresented: $isRenaming) {
             TextField(l10n.t("history.newTitle"), text: $newTitle)
             Button(l10n.t("common.ok")) {
@@ -107,6 +133,30 @@ struct ReplayView: View {
             }
             Button(l10n.t("common.cancel"), role: .cancel) {}
         }
+    }
+
+    // MARK: - 分析入口
+
+    private var analysisButton: some View {
+        Button {
+            showAnalysis = true
+        } label: {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+                .foregroundColor(.white)
+        }
+        .disabled(viewModel.record.moves.isEmpty)
+    }
+
+    // MARK: - 教练入口
+
+    private var coachButton: some View {
+        Button {
+            showCoach = true
+        } label: {
+            Image(systemName: "graduationcap.fill")
+                .foregroundColor(.white)
+        }
+        .disabled(viewModel.record.moves.isEmpty)
     }
 
     // MARK: - 分享菜单

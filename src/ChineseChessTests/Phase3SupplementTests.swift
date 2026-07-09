@@ -121,18 +121,18 @@ struct Phase3SupplementTests {
     @Test("ZobristHash: pieceIndex 映射正确")
     func zobristPieceIndexMapping() {
         // 红方 0-6
-        #expect(ZobristHash.pieceIndex(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))) == 0)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3))) == 1)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .elephant, side: .red, position: Position(row: 9, col: 2))) == 2)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .horse, side: .red, position: Position(row: 9, col: 1))) == 3)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))) == 4)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1))) == 5)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0))) == 6)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)) == 0)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3), id: 6)) == 1)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .elephant, side: .red, position: Position(row: 9, col: 2), id: 4)) == 2)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .horse, side: .red, position: Position(row: 9, col: 1), id: 2)) == 3)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)) == 4)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9)) == 5)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0), id: 11)) == 6)
 
         // 黑方 7-13
-        #expect(ZobristHash.pieceIndex(Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))) == 7)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 1))) == 12)
-        #expect(ZobristHash.pieceIndex(Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0))) == 13)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)) == 7)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 1), id: 25)) == 12)
+        #expect(ZobristHash.pieceIndex(Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)) == 13)
     }
 
     @Test("ZobristHash: 走棋再悔棋哈希恢复")
@@ -217,17 +217,17 @@ struct Phase3SupplementTests {
     @Test("halfmoveClock: GameMove 数组可以追踪完整 halfmoveClock 历史")
     func halfmoveClockHistoryTracking() {
         let moves: [GameMove] = [
-            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)),
+            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
                      from: Position(row: 9, col: 0), to: Position(row: 8, col: 0), captured: nil,
                      turnNumber: 1, notation: "车九进一", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 7)),
+            GameMove(id: UUID(), piece: Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 7), id: 26),
                      from: Position(row: 2, col: 7), to: Position(row: 2, col: 4), captured: nil,
                      turnNumber: 1, notation: "砲8平5", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
             // 红车吃子
-            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0)),
-                     from: Position(row: 8, col: 0), to: Position(row: 5, col: 0), captured: Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0)),
+            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0), id: 180),
+                     from: Position(row: 8, col: 0), to: Position(row: 5, col: 0), captured: Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 250),
                      turnNumber: 2, notation: "车九进三", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 0),
         ]
@@ -240,7 +240,7 @@ struct Phase3SupplementTests {
     @Test("halfmoveClock: 从 GameMove 恢复 lastMove.halfmoveClock")
     func halfmoveClockRestoreFromGameMove() {
         let lastMove = GameMove(
-            id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)),
+            id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
             from: Position(row: 9, col: 0), to: Position(row: 5, col: 0),
             captured: nil, turnNumber: 10, notation: "车九进四",
             timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 42

@@ -128,13 +128,13 @@ struct SettingsView: View {
                 }
 
                 #if DEBUG
-                // 开发者模式
-                Section("开发者模式") {
-                    Toggle("绕过段位门禁", isOn: Binding(
+                // Developer mode
+                Section(l10n.t("settings.devMode")) {
+                    Toggle(l10n.t("settings.devBypassRank"), isOn: Binding(
                         get: { DeveloperMode.isEnabled },
                         set: { DeveloperMode.isEnabled = $0 }
                     ))
-                    Text("开启后所有功能解锁，方便测试")
+                    Text(l10n.t("settings.devBypassRankDesc"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -157,10 +157,20 @@ struct SettingsView: View {
     private func themeRow(for theme: BoardTheme) -> some View {
         let profile = PlayerProfileStore.shared.profile
         let unlocked = themeManager.isThemeUnlocked(theme, profile: profile)
+        let colors = ThemeColors.forTheme(theme)
         HStack {
-            Image(systemName: unlocked ? theme.icon : "lock")
-                .foregroundColor(unlocked ? .brown : .gray)
-                .frame(width: 24)
+            // 色块预览
+            RoundedRectangle(cornerRadius: 3)
+                .fill(
+                    LinearGradient(
+                        colors: colors.boardBackground,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 20, height: 20)
+                .overlay(RoundedRectangle(cornerRadius: 3).stroke(Color.secondary.opacity(0.3), lineWidth: 0.5))
+
             Text(theme.displayName)
                 .foregroundColor(unlocked ? .primary : .secondary)
             Spacer()

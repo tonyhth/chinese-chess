@@ -114,8 +114,41 @@ struct BoardSizingTests {
     func outOfBounds() {
         let cellSize: CGFloat = 50
         let padding: CGFloat = 20
-        // 点击 padding 外侧
-        let outside = CGPoint(x: 5, y: 5)
+        // 点击 padding 外侧（超过半格容差）
+        let outside = CGPoint(x: -10, y: -10)
         #expect(BoardSizing.cgPointToPos(outside, cellSize: cellSize, padding: padding) == nil)
+    }
+
+    // MARK: - Bug 4: 防御性下限测试
+
+    @Test("零尺寸容器不崩溃且返回有效下限")
+    func zeroSizeContainer() {
+        let sizing = BoardSizing.calculate(width: 0, height: 0)
+        #expect(sizing.cellSize >= 8, "cellSize 应有下限 8")
+        #expect(sizing.boardWidth > 0, "boardWidth 应大于 0")
+        #expect(sizing.boardHeight > 0, "boardHeight 应大于 0")
+    }
+
+    @Test("负尺寸容器不崩溃")
+    func negativeSizeContainer() {
+        let sizing = BoardSizing.calculate(width: -100, height: -100)
+        #expect(sizing.cellSize >= 8, "cellSize 应有下限 8")
+        #expect(sizing.boardWidth > 0)
+        #expect(sizing.boardHeight > 0)
+    }
+
+    @Test("极小尺寸容器（1x1）不崩溃")
+    func tinyOneByOne() {
+        let sizing = BoardSizing.calculate(width: 1, height: 1)
+        #expect(sizing.cellSize >= 8)
+        #expect(sizing.boardWidth > 0)
+        #expect(sizing.boardHeight > 0)
+    }
+
+    @Test("cellSize 下限为 8")
+    func cellSizeFloor() {
+        // 即使容器很小，cellSize 也不应低于 8
+        let sizing = BoardSizing.calculate(width: 10, height: 10)
+        #expect(sizing.cellSize >= 8)
     }
 }

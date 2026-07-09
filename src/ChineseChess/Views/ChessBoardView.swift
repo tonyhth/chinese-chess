@@ -13,8 +13,11 @@ enum BoardMode {
 /// 三种模式共享渲染逻辑，交互根据 mode 分发
 struct ChessBoardView: View {
     let mode: BoardMode
-    var theme: ThemeColors = ThemeManager.shared.colors
+    var overrideTheme: ThemeColors? = nil
     var isFlipped: Bool = false
+
+    /// P1 fix L2-9: theme 从 ThemeManager 实时读取（computed property），响应运行时切换
+    private var theme: ThemeColors { overrideTheme ?? ThemeManager.shared.colors }
 
     // MARK: - 拖拽状态
 
@@ -129,6 +132,13 @@ struct ChessBoardView: View {
         }
     }
 
+    private var hintText: String? {
+        switch mode {
+        case .playGame(let vm): return vm.hintText
+        case .playPuzzle: return nil
+        }
+    }
+
     private var isInCheck: Bool {
         switch mode {
         case .playGame(let vm): return vm.isInCheck
@@ -228,6 +238,22 @@ struct ChessBoardView: View {
                     .frame(width: cellSize * 0.35, height: cellSize * 0.35)
                     .position(posToCGPoint(hint.to, cellSize: cellSize, padding: padding))
             }
+        }
+
+        // v3.9.1: Hint 文字提示（场景标题）
+        if let hint = hintMove, let text = hintText {
+            Text(text)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.blue.opacity(0.85))
+                .cornerRadius(6)
+                .position(x: posToCGPoint(hint.to, cellSize: cellSize, padding: padding).x,
+                          y: posToCGPoint(hint.to, cellSize: cellSize, padding: padding).y + (hint.to.row == 0 ? cellSize * 0.6 : -cellSize * 0.6))
+                .transition(.opacity)
+                .animation(.easeOut(duration: 0.2), value: text)
         }
 
         // 非法走法提示：红色圆圈 + 叉号

@@ -54,8 +54,8 @@ struct Phase2aTests {
     func zobristPieceIndexCoverage() {
         let kinds: [PieceKind] = [.general, .advisor, .elephant, .horse, .chariot, .cannon, .soldier]
         for kind in kinds {
-            let redIdx = ZobristHash.pieceIndex(Piece(kind: kind, side: .red, position: Position(row: 0, col: 0)))
-            let blackIdx = ZobristHash.pieceIndex(Piece(kind: kind, side: .black, position: Position(row: 0, col: 0)))
+            let redIdx = ZobristHash.pieceIndex(Piece(kind: kind, side: .red, position: Position(row: 0, col: 0), id: 100))
+            let blackIdx = ZobristHash.pieceIndex(Piece(kind: kind, side: .black, position: Position(row: 0, col: 0), id: 200))
             #expect(redIdx >= 0 && redIdx < 7)
             #expect(blackIdx >= 7 && blackIdx < 14)
             #expect(redIdx != blackIdx)
@@ -69,7 +69,7 @@ struct Phase2aTests {
     func ttStoreAndLookup() {
         let tt = TranspositionTable()
         let hash: UInt64 = 12345
-        let move = Move(piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0)),
+        let move = Move(piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16),
                         from: Position(row: 0, col: 0), to: Position(row: 1, col: 0), captured: nil)
         tt.store(hash: hash, depth: 4, score: 100, flag: .exact, bestMove: move)
 
@@ -177,10 +177,10 @@ struct Phase2aTests {
     func moveOrdererCaptureFirst() {
         let board = Board()
         // 构造一个有吃子走法的局面
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 1))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 1), id: 151)
         let board2 = Board(pieces: [rg, bg, blackChariot, redHorse])
         board2.setCurrentTurn(.black)
 
@@ -220,7 +220,7 @@ struct Phase2aTests {
     @MainActor
 @Test("开局库：初始局面有推荐走法")
     func openingBookInitialPosition() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         // 初始局面，红方走完后查黑方走法
         // 先执行一步红方走法
@@ -242,7 +242,7 @@ struct Phase2aTests {
 @Test("开局库：parseICCSMove 正确解析")
     func openingBookParseICCS() {
         let board = Board()
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         // 红方炮二平五 = h2e2 (col7,row7 → col4,row7)
         let move = book.parseICCSMove("h2e2", on: board)
         #expect(move != nil)
@@ -255,7 +255,7 @@ struct Phase2aTests {
 @Test("开局库：非法 ICCS 返回 nil")
     func openingBookInvalidICCS() {
         let board = Board()
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         #expect(book.parseICCSMove("z9z9", on: board) == nil)  // 无效列
         #expect(book.parseICCSMove("ab", on: board) == nil)    // 长度不对
     }
@@ -264,7 +264,7 @@ struct Phase2aTests {
 @Test("开局库：ICCS 行号映射正确（行 0 = 红方底线 = row 9）")
     func openingBookICCSRowMapping() {
         let board = Board()
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         // a0 = col0, row9（红方底线最左 = 红车位置）
         let move = book.parseICCSMove("a0a1", on: board)
         #expect(move != nil)
@@ -291,11 +291,11 @@ struct Phase2aTests {
     @MainActor
 @Test("新手 AI 不送大子（多次采样）")
     func beginnerDoesNotBlunderBigPieces() async {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0))
-        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1))
-        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0))
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9)
+        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0), id: 11)
 
         var blunders = 0
         for _ in 0..<10 {
@@ -394,7 +394,7 @@ struct Phase2aUCITests {
                 Issue.record("解析失败: \(uci)")
                 continue
             }
-            let dummyPiece = Piece(kind: .chariot, side: .red, position: from)
+            let dummyPiece = Piece(kind: .chariot, side: .red, position: from, id: 0)
             let move = Move(piece: dummyPiece, from: from, to: to, captured: nil)
             let roundTrip = UCIMoveConverter.uciString(from: move)
             #expect(roundTrip == uci, "往返转换不匹配: \(uci) → \(roundTrip)")

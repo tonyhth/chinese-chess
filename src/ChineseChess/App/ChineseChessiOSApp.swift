@@ -7,6 +7,9 @@ struct ChineseChessiOSApp: App {
         FontRegistry.registerFonts()
         // v3.7.0 Phase 4: UserDefaults 历史数据迁移到 JSON 文件
         DataMigration.migrateGameHistoryToFiles()
+
+        // P0-1 fix: 首次启动引导标志读取（在 onAppear 中触发弹窗）
+        _firstLaunchNeeded = State(initialValue: !UserDefaults.standard.bool(forKey: "chinesechess.firstLaunchDialogShown"))
     }
 
     // v3.8.0 Phase 4 #4: 统一 sheet 管理（与 macOS 对齐）
@@ -20,6 +23,7 @@ struct ChineseChessiOSApp: App {
         case dailyChallenge
         case achievements
         case rankPrivilege
+        case openingExplorer
 
         var id: String {
             switch self {
@@ -32,11 +36,24 @@ struct ChineseChessiOSApp: App {
             case .dailyChallenge: return "dailyChallenge"
             case .achievements: return "achievements"
             case .rankPrivilege: return "rankPrivilege"
+            case .openingExplorer: return "openingExplorer"
             }
         }
     }
 
     @State private var activeSheet: SheetDestination?
+
+    // v4.0 Phase 4: RankUp + ReviewCard sheet 状态
+    @State private var showRankUpSheet = false
+    @State private var rankUpRank: Rank = .student
+    @State private var showReviewCardSheet = false
+    @State private var reviewCardData: GameReviewCard?
+    @State private var reviewCardRecord: GameRecord?
+    @State private var pendingReviewRecord: GameRecord?
+    // v4.1 Bug 3: 引擎不可用时的复盘提示
+    @State private var reviewCardUnavailableMessage: String? = nil
+    // Bug 3 fix: CoachSession 入口状态
+    @State private var coachSessionRecord: GameRecord?
 
     @State private var gameViewModel = GameViewModel()
     @State private var toolbarReplayRecord: GameRecord?
@@ -44,6 +61,9 @@ struct ChineseChessiOSApp: App {
     @State private var historyReplayRecord: GameRecord?
     @State private var showImportFailAlert = false
     @State private var importFailMessage = ""
+    @State private var showFirstLaunchDialog = false
+    @State private var showTutorialSheet = false
+    @State private var firstLaunchNeeded = false
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -72,6 +92,26 @@ struct ChineseChessiOSApp: App {
                             gameViewModel.newGame()
                         }
                     }
+
+                    // P0-1 fix: 首次启动引导弹窗
+                    if showFirstLaunchDialog {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                        FirstLaunchDialog(
+                            isPresented: $showFirstLaunchDialog,
+                            onShowTutorial: {
+                                UserDefaults.standard.set(true, forKey: "chinesechess.firstLaunchDialogShown")
+                                showFirstLaunchDialog = false
+                                showTutorialSheet = true
+                            },
+                            onSkip: {
+                                UserDefaults.standard.set(true, forKey: "chinesechess.firstLaunchDialogShown")
+                                TutorialViewModel.markTutorialCompleted()
+                                showFirstLaunchDialog = false
+                            }
+                        )
+                        .frame(maxWidth: 400)
+                    }
                 }
                 .navigationTitle(L10n.shared.t("app.title"))
                 .navigationBarTitleDisplayMode(.inline)
@@ -86,6 +126,30 @@ struct ChineseChessiOSApp: App {
                     Button(L10n.shared.t("common.ok")) { gameViewModel.engineFallbackMessage = nil }
                 } message: {
                     Text(gameViewModel.engineFallbackMessage ?? "")
+                }
+                // P0-1 fix: 长将判负首次触发解释弹窗
+                .alert(
+                    L10n.shared.t("game.perpetualCheckTitle"),
+                    isPresented: Binding(
+                        get: { gameViewModel.perpetualCheckMessage != nil },
+                        set: { if !$0 { gameViewModel.perpetualCheckMessage = nil } }
+                    )
+                ) {
+                    Button(L10n.shared.t("common.gotIt")) { gameViewModel.perpetualCheckMessage = nil }
+                } message: {
+                    Text(gameViewModel.perpetualCheckMessage ?? "")
+                }
+                // v4.0 Phase 6: 长捉判负提示
+                .alert(
+                    L10n.shared.t("game.perpetualChaseTitle"),
+                    isPresented: Binding(
+                        get: { gameViewModel.perpetualChaseMessage != nil },
+                        set: { if !$0 { gameViewModel.perpetualChaseMessage = nil } }
+                    )
+                ) {
+                    Button(L10n.shared.t("common.gotIt")) { gameViewModel.perpetualChaseMessage = nil }
+                } message: {
+                    Text(gameViewModel.perpetualChaseMessage ?? "")
                 }
                 .toolbar {
                     ToolbarItemGroup(placement: .bottomBar) {
@@ -104,24 +168,7 @@ struct ChineseChessiOSApp: App {
 
                         Spacer()
 
-                        // 难度快捷入口
-                        Menu {
-                            Button(L10n.shared.t("difficulty.beginner")) { gameViewModel.setDifficulty(.beginner) }
-                            Button(L10n.shared.t("difficulty.easy")) { gameViewModel.setDifficulty(.easy) }
-                            Button(L10n.shared.t("difficulty.medium")) { gameViewModel.setDifficulty(.medium) }
-                            Button(L10n.shared.t("difficulty.hard")) { gameViewModel.setDifficulty(.hard) }
-                            Button(L10n.shared.t("difficulty.master")) { gameViewModel.setDifficulty(.master) }
-                        } label: {
-                            VStack(spacing: 2) {
-                                Image(systemName: "gauge.with.dots.needle.bottom.50percent")
-                                Text(gameViewModel.difficulty.displayName)
-                                    .font(.system(size: 9))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.8)
-                            }
-                        }
-
-                        // 更多菜单：低频操作
+                        // Bug 5 fix: 删除底部难度 Menu（与顶部 ToolbarView 重复），保留更多菜单
                         Menu {
                             Button(action: { activeSheet = (activeSheet == .stats) ? nil : .stats }) {
                                 Label(L10n.shared.t("toolbar.stats"), systemImage: "chart.bar")
@@ -141,6 +188,9 @@ struct ChineseChessiOSApp: App {
                             }
                             Button(action: { activeSheet = .rankPrivilege }) {
                                 Label(L10n.shared.t("toolbar.rankPrivilege"), systemImage: "medal")
+                            }
+                            Button(action: { activeSheet = .openingExplorer }) {
+                                Label(L10n.shared.t("toolbar.openingExplorer"), systemImage: "book")
                             }
                             Divider()
                             Button(action: { activeSheet = .settings }) {
@@ -264,6 +314,18 @@ struct ChineseChessiOSApp: App {
                                     }
                                 }
                         }
+
+                    case .openingExplorer:
+                        NavigationStack {
+                            OpeningExplorerView()
+                                .navigationTitle(L10n.shared.t("opening.title"))
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar {
+                                    ToolbarItem(placement: .confirmationAction) {
+                                        Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                    }
+                                }
+                        }
                     }
                 }
                 .fullScreenCover(item: $toolbarReplayRecord) { record in
@@ -272,9 +334,101 @@ struct ChineseChessiOSApp: App {
                 .fullScreenCover(item: $historyReplayRecord) { record in
                     ReplayView(record: record)
                 }
+                // P0-1 fix: 教程 sheet
+                .sheet(isPresented: $showTutorialSheet) {
+                    TutorialView(onComplete: { showTutorialSheet = false })
+                }
+                // v4.0 Phase 4: RankUp sheet
+                .sheet(isPresented: $showRankUpSheet) {
+                    RankUpView(newRank: rankUpRank) {
+                        showRankUpSheet = false
+                        // 竟态防护：RankUpView dismiss 后检查 pending review card
+                        if let record = pendingReviewRecord {
+                            pendingReviewRecord = nil
+                            reviewCardRecord = record
+                            showReviewCardSheet = true
+                        }
+                    }
+                }
+                // v4.0 Phase 4: ReviewCard sheet
+                .sheet(isPresented: $showReviewCardSheet) {
+                    if let card = reviewCardData {
+                        NavigationStack {
+                            ReviewCardView(
+                                card: card,
+                                onViewDetail: {
+                                    showReviewCardSheet = false
+                                    // Bug 3 fix: 关闭 ReviewCard 后打开 CoachSessionView
+                                    if let record = reviewCardRecord {
+                                        coachSessionRecord = record
+                                    }
+                                },
+                                onClose: {
+                                    showReviewCardSheet = false
+                                }
+                            )
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { showReviewCardSheet = false }
+                                }
+                            }
+                        }
+                    } else {
+                        // Bug 1 fix: reviewCardData 为 nil 时显示提示而非空白
+                        VStack(spacing: 16) {
+                            Text(L10n.shared.t("analysis.engineUnavailable"))
+                                .foregroundColor(.secondary)
+                            Button(L10n.shared.t("common.done")) { showReviewCardSheet = false }
+                                .buttonStyle(.bordered)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+                // v4.1 Bug 3: 引擎不可用时不弹空复盘卡片
+                .alert(reviewCardUnavailableMessage ?? "", isPresented: Binding(
+                    get: { reviewCardUnavailableMessage != nil },
+                    set: { if !$0 { reviewCardUnavailableMessage = nil } }
+                )) {
+                    Button(L10n.shared.t("common.ok"), role: .cancel) {}
+                }
+                // Bug 3 fix: CoachSessionView sheet（从 ReviewCard "查看详情" 进入）
+                .sheet(item: $coachSessionRecord) { record in
+                    CoachSessionView(record: record)
+                }
+                // v4.0 Phase 4: 监听段位升级
+                .onReceive(NotificationCenter.default.publisher(for: .rankPromoted)) { notification in
+                    if let newRank = notification.object as? Rank {
+                        rankUpRank = newRank
+                        // 竟态防护：段位升级优先，暂停 review card
+                        showReviewCardSheet = false
+                        if let record = reviewCardRecord {
+                            pendingReviewRecord = record
+                        }
+                        showRankUpSheet = true
+                    }
+                }
+                // v4.0 Phase 4: 对弈结束触发复盘卡片
+                .onChange(of: gameViewModel.gameState) { _, newState in
+                    if newState != .playing {
+                        generateReviewCard()
+                    } else {
+                        reviewCardTask?.cancel()
+                        showReviewCardSheet = false
+                        reviewCardRecord = nil
+                        reviewCardData = nil
+                        pendingReviewRecord = nil
+                    }
+                }
                 .preferredColorScheme(.dark)
+                .onAppear {
+                    TutorialViewModel.markLaunched()
+                    if firstLaunchNeeded {
+                        showFirstLaunchDialog = true
+                    }
+                }
                 .onChange(of: scenePhase) { _, newPhase in
                     if newPhase == .background {
+                        SoundEngine.shared.deactivateAudioSession()
                         Task { await EngineRouter.shared.shutdown() }
                     }
                 }
@@ -296,6 +450,64 @@ struct ChineseChessiOSApp: App {
     private func copyRecordToClipboard(_ record: GameRecord) {
         let pgn = PGNExporter.export(record)
         UIPasteboard.general.string = pgn
+    }
+
+    // MARK: - v4.0 Phase 4: 复盘卡片生成
+
+    /// v4.0 Phase 4: 复盘卡片生成 Task（用于取消）
+    @State private var reviewCardTask: Task<Void, Never>?
+
+    private func generateReviewCard() {
+        guard let record = gameViewModel.buildGameRecord() else { return }
+        guard !record.moves.isEmpty else { return }
+
+        reviewCardRecord = record
+
+        reviewCardTask?.cancel()
+        reviewCardTask = Task {
+            let uciMoves = record.moves.uciMoves
+            let fen = record.initialFEN ?? FENParser.standardInitial
+            let analysisVM = AnalysisViewModel()
+            analysisVM.load(moves: uciMoves, initialFEN: fen, gameMoves: record.moves)
+            await analysisVM.analyzeAll()
+
+            // v4.1 Bug 3 fix: 引擎不可用时不弹空复盘卡片，改为提示
+            if let unavailableMsg = await analysisVM.analysisUnavailableMessage {
+                await MainActor.run {
+                    guard reviewCardRecord?.id == record.id else { return }
+                    reviewCardData = nil
+                    reviewCardRecord = nil
+                    reviewCardUnavailableMessage = unavailableMsg
+                }
+                return
+            }
+
+            let card = await CoachExplainer.shared.generateReviewCard(analyses: analysisVM.analyses)
+
+            // Bug 1 fix: 空卡片防护 — 全部分析为 nil 时不弹 sheet
+            if card.totalMoves == 0 {
+                await MainActor.run {
+                    guard reviewCardRecord?.id == record.id else { return }
+                    reviewCardData = nil
+                    reviewCardRecord = nil
+                    reviewCardUnavailableMessage = L10n.shared.t("analysis.engineUnavailable")
+                }
+                return
+            }
+
+            // 竞态防护：如果 Task 被取消或 record 已被清理，不更新 UI
+            guard !Task.isCancelled else { return }
+
+            await MainActor.run {
+                guard reviewCardRecord?.id == record.id else { return }
+                reviewCardData = card
+                if showRankUpSheet {
+                    pendingReviewRecord = record
+                } else {
+                    showReviewCardSheet = true
+                }
+            }
+        }
     }
 
     // MARK: - v3.7.0 Phase 3: 打开 .pgn 文件

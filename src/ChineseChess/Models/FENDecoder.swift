@@ -48,25 +48,85 @@ enum FENDecoder {
         guard rows.count == 10 else { return nil }
 
         var pieces: [Piece] = []
+        var fallbackCounter = 100  // P1-1: 非开局位置的棋子用 100+ 后备 ID
 
         for (rowIndex, rowStr) in rows.enumerated() {
             var col = 0
             for char in rowStr {
                 if let num = char.wholeNumberValue {
-                    guard num > 0 else { return nil }  // FEN 中 0 不合法，1-9 有效
+                    guard num > 0 else { return nil }
                     col += num
-                } else if let piece = fenCharToPiece(char, row: rowIndex, col: col) {
+                } else if let piece = fenCharToPiece(char, row: rowIndex, col: col, fallbackCounter: &fallbackCounter) {
                     pieces.append(piece)
                     col += 1
                 } else {
-                    return nil  // 非法字符
+                    return nil
                 }
-                guard col <= 9 else { return nil }  // 列溢出
+                guard col <= 9 else { return nil }
             }
-            guard col == 9 else { return nil }  // 每行必须 9 列
+            guard col == 9 else { return nil }
         }
 
+        // v4.0: 棋子数量校验
+        guard validatePieceCounts(pieces) else { return nil }
+
         return FENParseResult(pieces: pieces, currentTurn: currentTurn)
+    }
+
+    // MARK: - 棋子数量校验
+
+    /// 校验棋子数量是否合法
+    private static func validatePieceCounts(_ pieces: [Piece]) -> Bool {
+        // 总数不超过 32
+        guard pieces.count <= 32 else { return false }
+
+        var redCounts: [PieceKind: Int] = [:]
+        var blackCounts: [PieceKind: Int] = [:]
+
+        for piece in pieces {
+            if piece.side == .red {
+                redCounts[piece.kind, default: 0] += 1
+            } else {
+                blackCounts[piece.kind, default: 0] += 1
+            }
+        }
+
+        // 每方将/帅恰好 1 个
+        guard redCounts[.general, default: 0] == 1 else { return false }
+        guard blackCounts[.general, default: 0] == 1 else { return false }
+
+        // 各兵种上限
+        let limits: [PieceKind: Int] = [
+            .advisor: 2, .elephant: 2, .horse: 2,
+            .chariot: 2, .cannon: 2, .soldier: 5
+        ]
+        for (kind, limit) in limits {
+            guard redCounts[kind, default: 0] <= limit else { return false }
+            guard blackCounts[kind, default: 0] <= limit else { return false }
+        }
+
+        // 兵/卒不在底线（row 0 = 黑方底线，row 9 = 红方底线）
+        for piece in pieces {
+            if piece.kind == .soldier {
+                if piece.side == .black && piece.position.row == 0 { return false }
+                if piece.side == .red && piece.position.row == 9 { return false }
+            }
+        }
+
+        // 将/帅必须在九宫内
+        for piece in pieces {
+            if piece.kind == .general {
+                let row = piece.position.row
+                let col = piece.position.col
+                if piece.side == .black {
+                    guard row >= 0 && row <= 2 && col >= 3 && col <= 5 else { return false }
+                } else {
+                    guard row >= 7 && row <= 9 && col >= 3 && col <= 5 else { return false }
+                }
+            }
+        }
+
+        return true
     }
 
     // MARK: - 序列化
@@ -111,26 +171,38 @@ enum FENDecoder {
 
     // MARK: - 辅助
 
-    private static func fenCharToPiece(_ char: Character, row: Int, col: Int) -> Piece? {
+    private static func fenCharToPiece(_ char: Character, row: Int, col: Int, fallbackCounter: inout Int) -> Piece? {
+        let kind: PieceKind
+        let side: Side
+
         switch char {
         // 红方（大写）
-        case "K": return Piece(kind: .general,  side: .red, position: Position(row: row, col: col))
-        case "A": return Piece(kind: .advisor,  side: .red, position: Position(row: row, col: col))
-        case "B": return Piece(kind: .elephant, side: .red, position: Position(row: row, col: col))
-        case "N": return Piece(kind: .horse,    side: .red, position: Position(row: row, col: col))
-        case "R": return Piece(kind: .chariot,  side: .red, position: Position(row: row, col: col))
-        case "C": return Piece(kind: .cannon,   side: .red, position: Position(row: row, col: col))
-        case "P": return Piece(kind: .soldier,  side: .red, position: Position(row: row, col: col))
+        case "K": kind = .general;  side = .red
+        case "A": kind = .advisor;  side = .red
+        case "B": kind = .elephant; side = .red
+        case "N": kind = .horse;    side = .red
+        case "R": kind = .chariot;  side = .red
+        case "C": kind = .cannon;   side = .red
+        case "P": kind = .soldier;  side = .red
         // 黑方（小写）
-        case "k": return Piece(kind: .general,  side: .black, position: Position(row: row, col: col))
-        case "a": return Piece(kind: .advisor,  side: .black, position: Position(row: row, col: col))
-        case "b": return Piece(kind: .elephant, side: .black, position: Position(row: row, col: col))
-        case "n": return Piece(kind: .horse,    side: .black, position: Position(row: row, col: col))
-        case "r": return Piece(kind: .chariot,  side: .black, position: Position(row: row, col: col))
-        case "c": return Piece(kind: .cannon,   side: .black, position: Position(row: row, col: col))
-        case "p": return Piece(kind: .soldier,  side: .black, position: Position(row: row, col: col))
+        case "k": kind = .general;  side = .black
+        case "a": kind = .advisor;  side = .black
+        case "b": kind = .elephant; side = .black
+        case "n": kind = .horse;    side = .black
+        case "r": kind = .chariot;  side = .black
+        case "c": kind = .cannon;   side = .black
+        case "p": kind = .soldier;  side = .black
         default:  return nil
         }
+
+        let pos = Position(row: row, col: col)
+        // P1-1: 用确定性 ID（与 initialPieces 一致），非开局位置用后备 ID
+        var id = Piece.fallbackId(kind: kind, side: side, position: pos)
+        if id < 0 {
+            id = fallbackCounter
+            fallbackCounter += 1
+        }
+        return Piece(kind: kind, side: side, position: pos, id: id)
     }
 
     private static func pieceToFENChar(_ piece: Piece) -> String {

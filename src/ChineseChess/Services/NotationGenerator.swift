@@ -28,8 +28,8 @@ struct NotationGenerator {
         return chineseNotation(for: move, on: board)
     }
 
-    /// 生成一步棋的中文坐标法描述
-    private static func chineseNotation(for move: Move, on board: Board) -> String {
+    /// 生成一步棋的中文坐标法描述（internal：开局库等场景强制中文格式）
+    static func chineseNotation(for move: Move, on board: Board) -> String {
         let piece = move.piece
         let from = move.from
         let to = move.to

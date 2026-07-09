@@ -211,9 +211,9 @@ struct CoachSessionView: View {
         let fen = record.initialFEN ?? FENParser.standardInitial
         analysisVM.load(moves: uciMoves, initialFEN: fen, gameMoves: gameMoves)
 
-        // 逐步分析
+        // 逐步分析（Bug 3 fix: force: true 强制分析包括 AI 走法的所有步骤）
         for i in 0..<uciMoves.count {
-            await analysisVM.analyzeStep(i)
+            await analysisVM.analyzeStep(i, force: true)
             analyzedSteps = i + 1
         }
 

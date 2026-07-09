@@ -24,17 +24,24 @@ struct GameMove: Identifiable, Codable {
     var isCheckmate: Bool     // 是否将死（走棋后延迟标记）
     let halfmoveClock: Int    // #3: 走棋后的 halfmoveClock 快照，悔棋时恢复
 
+    // v4.0 Phase 6: 长捉检测（P0-1 修正：使用 Piece.id Int）
+    var isChase: Bool = false           // 是否"捉"（攻击对方有价值棋子）
+    var chaseAttackerId: Int? = nil     // 捉的攻击棋子 ID（Piece.id）
+    var chaseTargetId: Int? = nil       // 捉的目标棋子 ID（Piece.id）
+
     // P1 fix: 自定义 CodingKeys + decodeIfPresent 保证旧数据兼容
     enum CodingKeys: String, CodingKey {
         case id, piece, from, to, captured
         case turnNumber, notation, timestamp
         case isCheck, isCheckmate, halfmoveClock
+        case isChase, chaseAttackerId, chaseTargetId
     }
 
     // Memberwise initializer（自定义 init(from:) 后需显式提供）
     init(id: UUID, piece: Piece, from: Position, to: Position, captured: Piece?,
          turnNumber: Int, notation: String, timestamp: Date,
-         isCheck: Bool, isCheckmate: Bool, halfmoveClock: Int) {
+         isCheck: Bool, isCheckmate: Bool, halfmoveClock: Int,
+         isChase: Bool = false, chaseAttackerId: Int? = nil, chaseTargetId: Int? = nil) {
         self.id = id
         self.piece = piece
         self.from = from
@@ -46,6 +53,9 @@ struct GameMove: Identifiable, Codable {
         self.isCheck = isCheck
         self.isCheckmate = isCheckmate
         self.halfmoveClock = halfmoveClock
+        self.isChase = isChase
+        self.chaseAttackerId = chaseAttackerId
+        self.chaseTargetId = chaseTargetId
     }
 
     init(from decoder: Decoder) throws {
@@ -61,6 +71,10 @@ struct GameMove: Identifiable, Codable {
         isCheck = try c.decode(Bool.self, forKey: .isCheck)
         isCheckmate = try c.decode(Bool.self, forKey: .isCheckmate)
         halfmoveClock = try c.decodeIfPresent(Int.self, forKey: .halfmoveClock) ?? 0
+        // v4.0 Phase 6: 长捉字段兼容旧存档（P0-1 修正：Int 类型）
+        isChase = try c.decodeIfPresent(Bool.self, forKey: .isChase) ?? false
+        chaseAttackerId = try c.decodeIfPresent(Int.self, forKey: .chaseAttackerId)
+        chaseTargetId = try c.decodeIfPresent(Int.self, forKey: .chaseTargetId)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -76,6 +90,10 @@ struct GameMove: Identifiable, Codable {
         try c.encode(isCheck, forKey: .isCheck)
         try c.encode(isCheckmate, forKey: .isCheckmate)
         try c.encode(halfmoveClock, forKey: .halfmoveClock)
+        // v4.0 Phase 6: 长捉字段编码
+        try c.encode(isChase, forKey: .isChase)
+        try c.encodeIfPresent(chaseAttackerId, forKey: .chaseAttackerId)
+        try c.encodeIfPresent(chaseTargetId, forKey: .chaseTargetId)
     }
 }
 

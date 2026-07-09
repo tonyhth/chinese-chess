@@ -2,6 +2,21 @@ import Foundation
 
 // MARK: - v3.0 Phase 7: 每日挑战
 
+/// v4.0 Phase 5: 挑战结果
+enum ChallengeResult: String, Codable {
+    case success
+    case failure
+    case inProgress
+}
+
+/// v4.0 Phase 5: 模式类型分类
+enum ChallengeModeType {
+    case puzzle      // 解题模式
+    case game        // 对弈模式
+    case timed       // 限时模式
+    case difficulty  // 难度挑战
+}
+
 /// 每日挑战模式
 enum DailyChallengeMode: String, Codable, CaseIterable {
     case endgamePuzzle       // 残局挑战
@@ -59,13 +74,56 @@ enum DailyChallengeMode: String, Codable, CaseIterable {
         case .horseOnly: return "figure.equestrian.sports"
         }
     }
+
+    // MARK: - v4.0 Phase 5: 模式分类
+
+    /// 是否已实现
+    var isImplemented: Bool {
+        switch self {
+        case .endgamePuzzle, .timeBlitz, .masterChallenge:
+            return true  // 已有实现
+        case .endgameStart, .solveMate, .cannonOnly:
+            return true  // v4.0 新增
+        case .horseOnly:
+            return false // v4.1 待实现
+        default:
+            return false // v4.1 待实现
+        }
+    }
+
+    /// 需要 Puzzle 数据的模式
+    var needsPuzzle: Bool {
+        switch self {
+        case .endgamePuzzle, .endgameStart, .solveMate:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// 模式类型
+    var modeType: ChallengeModeType {
+        switch self {
+        case .endgamePuzzle, .solveMate:
+            return .puzzle
+        case .endgameStart, .cannonOnly, .horseOnly:
+            return .game
+        case .timeBlitz:
+            return .timed
+        case .masterChallenge:
+            return .difficulty
+        default:
+            return .game
+        }
+    }
 }
 
 /// 每日挑战数据
 struct DailyChallenge: Codable, Equatable {
     let date: String           // YYYY-MM-DD
     let mode: DailyChallengeMode
-    let puzzleId: String?      // 关联的残局 ID（如有）
+    // puzzleId: nil for rule-variant modes (cannonOnly), non-nil for puzzle-based modes (endgameStart, solveMate)
+    let puzzleId: String?
     let targetDifficulty: AIDifficulty
     let completed: Bool
     let score: Int             // 完成得分
@@ -161,6 +219,28 @@ final class DailyChallengeManager {
     func dailyPuzzle(puzzles: [Puzzle]) -> Puzzle? {
         guard let id = dailyPuzzleId(puzzles: puzzles) else { return nil }
         return puzzles.first { $0.id == id }
+    }
+
+    // MARK: - v4.0 Phase 5: 新模式 Puzzle 选取
+
+    /// 选取 endgameStart 残局（difficulty=1）
+    func endgameStartPuzzle(puzzles: [Puzzle]) -> Puzzle? {
+        let candidates = puzzles.filter { $0.difficulty == 1 }
+        guard !candidates.isEmpty else { return nil }
+        let sorted = candidates.sorted { $0.id < $1.id }
+        let hash = Self.deterministicHash(todayString + "_endgameStart")
+        return sorted[hash % sorted.count]
+    }
+
+    /// 选取 solveMate 残局（一步杀：solutionType=checkmate 且 solution.count==1）
+    func solveMatePuzzle(puzzles: [Puzzle]) -> Puzzle? {
+        let candidates = puzzles.filter { p in
+            p.solutionType == "checkmate" && p.solution.count == 1
+        }
+        guard !candidates.isEmpty else { return nil }
+        let sorted = candidates.sorted { $0.id < $1.id }
+        let hash = Self.deterministicHash(todayString + "_solveMate")
+        return sorted[hash % sorted.count]
     }
 
     /// 确定性字符串哈希（djb2 算法），跨启动结果一致

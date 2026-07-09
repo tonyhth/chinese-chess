@@ -46,6 +46,10 @@ class PuzzleViewModel {
     /// 提示高亮的起止位置(from, to),供 ChessBoardView 蓝色高亮显示
     var hintMove: (from: Position, to: Position)?
 
+    /// v4.0 Phase 3 #7: 残局三级渐进提示
+    /// 0=无提示, 1=方向提示文字, 2=关键棋子提示文字, 3=完整走法+高亮
+    var hintLevel: Int = 0
+
     /// solution 步序指针(独立于 gameMoves.count)
     /// 每次走对 +1,undo -1
     var solutionStepIndex: Int = 0
@@ -212,6 +216,7 @@ class PuzzleViewModel {
         // === freePlay 模式:保持现有逻辑 ===
 
         hintOffsetInSession = 0
+        hintLevel = 0
 
         // 实时解法提示:检查是否走了推荐走法
         let playerMoveIndex = gameMoves.filter { $0.piece.side == playerSide }.count - 1
@@ -278,6 +283,7 @@ class PuzzleViewModel {
         // 推进 solution 指针（玩家步也推进）
         solutionStepIndex += 1
         hintOffsetInSession = 0
+        hintLevel = 0
 
         // 检查是否将死对方(提前通关)
         let defenderSide: Side = (playerSide == .red) ? .black : .red
@@ -409,6 +415,7 @@ class PuzzleViewModel {
                 self.isInCheck = MoveValidator.isInCheck(self.board.currentTurn, on: self.board)
                 self.isProcessingWrongMove = false
                 self.hintOffsetInSession = 0
+                self.hintLevel = 0
                 self.gameState = .playing
             }
         }
@@ -537,6 +544,7 @@ class PuzzleViewModel {
         let currentFp = boardFingerprint()
         let count = positionHistory.filter { $0 == currentFp }.count
         if count >= 3 { return true }
+        // 50 回合规则（100 半回合无吃子/无兵移动判和）
         if halfmoveClock >= 100 { return true }
         let offensiveKinds: Set<PieceKind> = [.chariot, .horse, .cannon, .soldier]
         let hasOffensive = board.pieces.contains { offensiveKinds.contains($0.kind) }
@@ -625,6 +633,7 @@ class PuzzleViewModel {
         solutionHint = nil
         hintMove = nil
         hintOffsetInSession = 0
+        hintLevel = 0
         isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
         gameState = .playing
     }
@@ -632,7 +641,7 @@ class PuzzleViewModel {
     // MARK: - 提示
 
     func showHint() {
-        // Phase 3.5: hint 类型显示文字提示(无 solution 的纯提示局)
+        // Phase 3.5: hint 类型(无 solution 的纯提示局)保持原有行为
         if puzzle.solutionType == "hint" {
             if let hints = puzzle.hints, !hints.isEmpty {
                 currentHint = hints[min(hintIndex, hints.count - 1)]
@@ -644,22 +653,113 @@ class PuzzleViewModel {
             return
         }
 
-        // checkmate/sequence:优先显示 hints 文字提示,用完后再显示 step-by-step
-        if let hints = puzzle.hints, !hints.isEmpty, hintIndex < hints.count {
-            currentHint = hints[hintIndex]
-            hintIndex += 1
+        // v4.0 Phase 3 #7: 三级渐进提示
+        // hintLevel: 0→1→2→3（到 3 不再增加）
+        if hintLevel < 3 { hintLevel += 1 }
+
+        switch hintLevel {
+        case 1:
+            // Level 1: 方向提示文字，不设 hintMove
+            currentHint = generateDirectionHint()
+            hintMove = nil
             gameState = .showingHint
-            return
+        case 2:
+            // Level 2: 关键棋子提示文字，不设 hintMove
+            currentHint = generatePieceHint()
+            hintMove = nil
+            gameState = .showingHint
+        default:
+            // Level 3: 完整走法 + 高亮（原有 step-by-step 逻辑）
+            showFullMoveHint()
+        }
+    }
+
+    // MARK: - v4.0 Phase 3 #7: 渐进提示生成
+
+    /// Level 1: 生成方向性提示文字
+    /// 优先使用 puzzle.hints[0]，无则从当前 solution 步自动生成
+    private func generateDirectionHint() -> String {
+        // 优先使用 puzzle.hints 第一条
+        if let hints = puzzle.hints, hints.count >= 1 {
+            return hints[0]
         }
 
-        // hints 用完或不存在:显示 step-by-step solution
+        // 从当前 solution 步自动生成
+        guard let currentMove = getCurrentSolutionMove() else {
+            return L10n.shared.t("puzzle.noMoreHints")
+        }
+
+        // 判断是否将军：推演到当前步执行后检查对方是否被将军
+        let opponent: Side = (playerSide == .red) ? .black : .red
+        // 推演到当前步之前的局面
+        var pushBoard = Board(fen: puzzle.initialFEN)
+        let curStep = currentSolutionStep()
+        for i in 0..<curStep {
+            if let m = ICCSParser.parse(puzzle.solution[i], on: pushBoard) {
+                pushBoard.execute(m)
+            }
+        }
+        pushBoard.execute(currentMove)
+        let isCheckMove = MoveValidator.isInCheck(opponent, on: pushBoard)
+
+        if isCheckMove {
+            return L10n.shared.t("puzzle.hint.direction.check")
+        }
+
+        // 判断方向：以棋盘列分左中右
+        let toCol = currentMove.to.col
+        let fromCol = currentMove.from.col
+        // 判断是否向前推进
+        let isAdvancing = (playerSide == .red) ? currentMove.to.row < currentMove.from.row : currentMove.to.row > currentMove.from.row
+        if abs(toCol - fromCol) <= 1 && isAdvancing {
+            return L10n.shared.t("puzzle.hint.direction.advance")
+        }
+        if toCol <= 2 {
+            return L10n.shared.t("puzzle.hint.direction.leftFlank")
+        } else if toCol >= 6 {
+            return L10n.shared.t("puzzle.hint.direction.rightFlank")
+        } else {
+            return L10n.shared.t("puzzle.hint.direction.center")
+        }
+    }
+
+    /// Level 2: 生成关键棋子提示文字
+    /// 优先使用 puzzle.hints[1]，无则从当前 solution 步提取棋子类型
+    /// 注：三级渐进提示设计只消费 hints 前 2 条，第 3 条+ 不展示
+    private func generatePieceHint() -> String {
+        // 优先使用 puzzle.hints 第二条
+        if let hints = puzzle.hints, hints.count >= 2 {
+            return hints[1]
+        }
+
+        // 从当前 solution 步提取棋子类型
+        guard let currentMove = getCurrentSolutionMove() else {
+            return L10n.shared.t("puzzle.noMoreHints")
+        }
+
+        let kind = currentMove.piece.kind
+        let key: String
+        switch kind {
+        case .chariot:  key = "puzzle.hint.piece.chariot"
+        case .cannon:   key = "puzzle.hint.piece.cannon"
+        case .horse:    key = "puzzle.hint.piece.horse"
+        case .soldier:  key = "puzzle.hint.piece.soldier"
+        case .general:  key = "puzzle.hint.piece.general"
+        case .advisor:  key = "puzzle.hint.piece.advisor"
+        case .elephant: key = "puzzle.hint.piece.elephant"
+        }
+        return L10n.shared.t(key)
+    }
+
+    /// Level 3: 完整走法 + 高亮（原有 step-by-step 逻辑）
+    private func showFullMoveHint() {
         if puzzle.solution.isEmpty {
             currentHint = L10n.shared.t("puzzle.noMoreHints")
+            hintMove = nil
             gameState = .showingHint
             return
         }
 
-        // 计算当前应提示的 solution 步序号(基于实际游戏进度)
         let baseStep = currentSolutionStep()
         let solIdx = baseStep + hintOffsetInSession
 
@@ -677,6 +777,21 @@ class PuzzleViewModel {
             hintMove = nil
         }
         gameState = .showingHint
+    }
+
+    /// 获取当前 solution 步的 Move 信息（从初始局面推演到当前步）
+    private func getCurrentSolutionMove() -> Move? {
+        let step = currentSolutionStep()
+        guard step < puzzle.solution.count else { return nil }
+        var tempBoard = Board(fen: puzzle.initialFEN)
+        for (i, iccs) in puzzle.solution.enumerated() {
+            guard let move = ICCSParser.parse(iccs, on: tempBoard) else { return nil }
+            if i == step {
+                return move
+            }
+            tempBoard.execute(move)
+        }
+        return nil
     }
 
     // MARK: - Solution 推演辅助
@@ -856,6 +971,22 @@ class PuzzleViewModel {
                 GameRecordStore.shared.addRecord(record)
             }
         }
+
+        // P0-2 fix: 调用 AchievementChecker.checkAfterPuzzle 检查残局相关成就
+        let store = PuzzleStore.shared
+        let profile = PlayerProfileStore.shared.profile
+        let puzzleType = puzzle.solutionType
+        let chapterId = puzzle.category
+        let newAchievements = AchievementChecker.checkAfterPuzzle(
+            puzzleType: puzzleType,
+            chapterId: chapterId,
+            allPuzzleCount: store.totalPuzzles,
+            completedCount: store.completedCount,
+            profile: profile
+        )
+        for achievementId in newAchievements {
+            AchievementManager.shared.unlock(achievementId)
+        }
     }
 
     // MARK: - 重置(puzzleVersion 防护)
@@ -874,6 +1005,7 @@ class PuzzleViewModel {
         gameMoves = []
         gameState = .playing
         hintIndex = 0
+        hintLevel = 0
         currentHint = nil
         solutionHint = nil
         hintMove = nil

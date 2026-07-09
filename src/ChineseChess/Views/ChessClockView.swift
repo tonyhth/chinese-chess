@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - Phase 2.3: 棋钟视图（对局双方用时）
 
@@ -6,7 +7,9 @@ struct ChessClockView: View {
     let viewModel: GameViewModel
     @State private var displayRedSeconds: Int = 0
     @State private var displayBlackSeconds: Int = 0
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    // Timer 只在游戏进行中连接，结束后自动断开
+    @State private var timerCancellable: Cancellable?
+    private let timerPublisher = Timer.publish(every: 1, on: .main, in: .common)
 
     private let l10n = L10n.shared
 
@@ -32,12 +35,31 @@ struct ChessClockView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
-        .onReceive(timer) { _ in
+        .onReceive(timerPublisher) { _ in
             updateDisplay()
+        }
+        .onChange(of: viewModel.gameState) { _, newState in
+            if newState == .playing {
+                // 游戏开始时连接 timer
+                timerCancellable = timerPublisher.connect()
+            } else {
+                // 游戏结束后立即断开 timer，不等到 deinit
+                timerCancellable?.cancel()
+                timerCancellable = nil
+            }
         }
         .onChange(of: viewModel.redClockSeconds) { _, _ in updateDisplay() }
         .onChange(of: viewModel.blackClockSeconds) { _, _ in updateDisplay() }
-        .onAppear { updateDisplay() }
+        .onAppear {
+            updateDisplay()
+            if viewModel.gameState == .playing {
+                timerCancellable = timerPublisher.connect()
+            }
+        }
+        .onDisappear {
+            timerCancellable?.cancel()
+            timerCancellable = nil
+        }
     }
 
     private func clockCell(side: Side, seconds: Int, isRunning: Bool, label: String) -> some View {

@@ -9,6 +9,7 @@ import SwiftUI
 struct ReplayBoardView: View {
     let viewModel: ReplayViewModel
     var theme: ThemeColors = ThemeManager.shared.colors
+    var isFlipped: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -43,6 +44,7 @@ struct ReplayBoardView: View {
                 renderOverlays(cellSize: cellSize, padding: padding)
             }
             .frame(width: boardWidth, height: boardHeight)
+            .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isFlipped)
             .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
     }
@@ -77,7 +79,7 @@ struct ReplayBoardView: View {
     // MARK: - 坐标映射
 
     private func posToCGPoint(_ pos: Position, cellSize: CGFloat, padding: CGFloat) -> CGPoint {
-        BoardSizing.posToCGPoint(pos, cellSize: cellSize, padding: padding)
+        BoardSizing.posToCGPoint(pos, cellSize: cellSize, padding: padding, flipped: isFlipped)
     }
 
     // MARK: - 棋盘线条

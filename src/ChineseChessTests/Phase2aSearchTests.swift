@@ -52,13 +52,13 @@ struct Phase2aSearchTests {
     func countermoveRecordAndGet() {
         var orderer = MoveOrderer()
         let opponentMove = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
+            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
         )
         let response = Move(
-            piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0)),
+            piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16),
             from: Position(row: 0, col: 0),
             to: Position(row: 4, col: 0),
             captured: opponentMove.piece
@@ -81,7 +81,7 @@ struct Phase2aSearchTests {
     func countermoveNilOpponent() {
         var orderer = MoveOrderer()
         let move = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
+            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
@@ -95,13 +95,13 @@ struct Phase2aSearchTests {
     func countermoveClear() {
         var orderer = MoveOrderer()
         let opponentMove = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
+            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
         )
         let response = Move(
-            piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0)),
+            piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16),
             from: Position(row: 0, col: 0),
             to: Position(row: 4, col: 0),
             captured: opponentMove.piece
@@ -117,13 +117,13 @@ struct Phase2aSearchTests {
         var orderer = MoveOrderer()
         let board = Board()
         let opponentMove = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
+            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
         )
         let cmMove = Move(
-            piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0)),
+            piece: Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16),
             from: Position(row: 0, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil

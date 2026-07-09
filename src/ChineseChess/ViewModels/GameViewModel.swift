@@ -18,6 +18,7 @@ class GameViewModel {
     var capturedPieces: (red: [Piece], black: [Piece]) = (red: [], black: [])
     var gameState: GameState = .playing
     var isThinking: Bool = false
+    var showResignConfirm: Bool = false
     
     // Phase 2.1: AI 思考计时器
     var thinkingStartTime: Date? = nil
@@ -108,15 +109,23 @@ class GameViewModel {
         return saved == "black" ? .black : .red
     }()
     var hintMove: (from: Position, to: Position)? = nil
+    var hintText: String? = nil
 
     // 和棋检测：重复局面 fingerprint 计数
     private var halfmoveClock: Int = 0
     private var positionFingerprints: [String: Int] = [:]
     /// 长将判负：连续将军步数（设计文档建议 N=6，3 个完整回合）
     private let perpetualCheckThreshold = 6
+    /// v4.0 Phase 6: 长捉判负阈值（与长将一致）
+    private let perpetualChaseThreshold = 6
 
     // P1-2: 外部引擎 fallback 提示（非 nil 时 UI 弹 alert）
     var engineFallbackMessage: String? = nil
+
+    // P0-1 fix: 长将判负首次触发弹窗（非 nil 时 UI 弹 alert）
+    var perpetualCheckMessage: String? = nil
+    /// v4.0 Phase 6: 长捉判负提示
+    var perpetualChaseMessage: String? = nil
 
     // Q4: 闪电局模式
     var isBlitzMode: Bool = false
@@ -124,6 +133,20 @@ class GameViewModel {
 
     // Q4: 大师挑战模式（输了不扣统计）
     var isMasterChallenge: Bool = false
+
+    // v4.0 Phase 5: 每日挑战模式扩展
+    /// 当前挑战模式（nil = 正常对弈）
+    var challengeMode: DailyChallengeMode? = nil
+    /// 当前挑战的 puzzle（供 recordGameResult 调用 completeChallenge）
+    private var challengePuzzle: Puzzle? = nil
+    /// 一步杀模式标记
+    var isOneStepMateMode: Bool = false
+    /// 挑战结果
+    var challengeResult: ChallengeResult? = nil
+    /// 走法违反提示
+    var showChallengeRuleViolation: Bool = false
+    /// Puzzle 候选为空提示（V-C5）
+    var showChallengeUnavailable: Bool = false
 
     // P2 修复：持有 observer token，deinit 时移除
     @ObservationIgnored nonisolated(unsafe) private var fallbackObserver: NSObjectProtocol?
@@ -197,6 +220,12 @@ class GameViewModel {
 
         guard MoveValidator.isLegal(move, on: board) else { return }
 
+        // v4.0 Phase 5: 挑战模式走法限制
+        if !isChallengeMoveLegal(move) {
+            showChallengeRuleViolation = true
+            return
+        }
+
         // Phase 3: 生成棋谱（在 execute 之前，需要走前的 board 状态）
         let notation = NotationGenerator.notation(for: move, on: board)
 
@@ -215,6 +244,11 @@ class GameViewModel {
         let opponent = (piece.side == .red) ? Side.black : Side.red
         let isCheck = MoveValidator.isInCheck(opponent, on: board)
 
+        // v4.0 Phase 6: 捉判断（P0-2 修正：只检查移动棋子本身）
+        let (isChase, chaseTarget) = Self.isChasing(move, on: board)
+        let chaseAttackerId = isChase ? piece.id : nil       // P0-1 修正：使用 Piece.id
+        let chaseTargetId = isChase ? chaseTarget?.id : nil  // P0-1 修正：使用 Piece.id
+
         let gameMove = GameMove(
             id: UUID(),
             piece: piece,
@@ -226,7 +260,10 @@ class GameViewModel {
             timestamp: Date(),
             isCheck: isCheck,
             isCheckmate: false,   // 将在 checkGameState 后更新
-            halfmoveClock: halfmoveClock
+            halfmoveClock: halfmoveClock,
+            isChase: isChase,
+            chaseAttackerId: chaseAttackerId,
+            chaseTargetId: chaseTargetId
         )
         gameMoves.append(gameMove)
 
@@ -257,6 +294,20 @@ class GameViewModel {
             gameMoves[gameMoves.count - 1].isCheckmate = true
         }
 
+        // v4.0 Phase 5: 一步杀模式判定（V-C2: isCheckmate 标记已更新）
+        if isOneStepMateMode && gameMoves.count == 1 {
+            if gameState != .playing {
+                // 将死 → 成功
+                challengeResult = .success
+            } else {
+                // 不是杀棋 → 失败
+                challengeResult = .failure
+                gameState = humanSide == .red ? .blackWon : .redWon
+                recordGameResult()
+                stopClock()
+            }
+        }
+
         // Phase 3: 记录统计
         if gameState != .playing {
             recordGameResult()
@@ -265,6 +316,7 @@ class GameViewModel {
 
         if gameState == .playing {
             hintMove = nil
+            hintText = nil
             switchClock()
             triggerAIMove()
         }
@@ -277,13 +329,26 @@ class GameViewModel {
 
         // 撤销一对（玩家+AI）
         guard board.moveHistory.count >= 2 else { return }
+
+        // 在 undo 之前记录当前局面的 fingerprint，undo 后减去对应计数
+        let fpBeforeUndo1 = boardFingerprint()
         if let aiMove = board.undoLastMove() {
             removeCapturedRecord(for: aiMove)
             if !gameMoves.isEmpty { gameMoves.removeLast() }
+            positionFingerprints[fpBeforeUndo1, default: 0] -= 1
+            if positionFingerprints[fpBeforeUndo1] ?? 0 <= 0 {
+                positionFingerprints.removeValue(forKey: fpBeforeUndo1)
+            }
         }
+
+        let fpBeforeUndo2 = boardFingerprint()
         if let playerMove = board.undoLastMove() {
             removeCapturedRecord(for: playerMove)
             if !gameMoves.isEmpty { gameMoves.removeLast() }
+            positionFingerprints[fpBeforeUndo2, default: 0] -= 1
+            if positionFingerprints[fpBeforeUndo2] ?? 0 <= 0 {
+                positionFingerprints.removeValue(forKey: fpBeforeUndo2)
+            }
         }
 
         // #3: 恢复 halfmoveClock（从最后一条 GameMove 或初始值 0）
@@ -301,7 +366,29 @@ class GameViewModel {
         selectedPosition = nil
         legalMovesForSelected = []
         hintMove = nil
+        hintText = nil
         isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+    }
+
+    // MARK: - 认输
+
+    func requestResign() {
+        guard gameState == .playing, !isThinking else { return }
+        showResignConfirm = true
+    }
+
+    func confirmResign() {
+        showResignConfirm = false
+        stopThinking()
+        // 当前走方认输
+        gameState = (board.currentTurn == .red) ? .blackWon : .redWon
+        recordGameResult()
+        stopClock()
+        SoundEngine.shared.playDefeat()
+    }
+
+    func cancelResign() {
+        showResignConfirm = false
     }
 
     /// 从 capturedPieces 中移除与 move.captured 匹配的记录（按 id 匹配而非 removeLast）
@@ -331,8 +418,16 @@ class GameViewModel {
         gameMoves = []
         materialTracker = MaterialTracker()
         hintMove = nil
+        hintText = nil
         isBlitzMode = false
         isMasterChallenge = false
+        // v4.0 Phase 5: 重置挑战模式状态
+        challengeMode = nil
+        challengePuzzle = nil
+        isOneStepMateMode = false
+        challengeResult = nil
+        showChallengeRuleViolation = false
+        showChallengeUnavailable = false
         positionFingerprints.removeAll()
         halfmoveClock = 0
         resetClock()
@@ -346,6 +441,11 @@ class GameViewModel {
         }
 
         // v3.1 Phase 2c: 引擎切换 + newGame
+        // v4.1 Bug 1 fix: 先停止在途搜索，再 newGame
+        // stopSearchImmediate 是 nonisolated，可同步调用，pikafish_stop() 是原子 flag 设置
+        if let emb = EngineRouter.shared.activeEngine() as? EmbeddedPikafishEngine {
+            emb.stopSearchImmediate()
+        }
         EngineRouter.shared.newGame()
 
         // v3.0 Phase 5: 玩家执黑时 AI（红方）先行
@@ -383,9 +483,13 @@ class GameViewModel {
         // v3.1 Phase 2c: 使用 ChessEngine 协议
         Task { [weak self] in
             guard let self else { return }
+            defer { self.stopThinking() }
             
             // 确保引擎切换完成
             _ = await EngineRouter.shared.switchEngineIfNeeded()
+            
+            // P0 修复：gameVersion 检查
+            guard self.gameVersion == currentVersion else { return }
             
             let engine = EngineRouter.shared.activeEngine()
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
@@ -399,17 +503,21 @@ class GameViewModel {
             )
             
             guard self.gameVersion == currentVersion else {
-                self.stopThinking()
                 return
             }
             
             if let uciMove = uciMove,
                let move = UCIMoveConverter.move(from: uciMove, on: self.board) {
                 self.hintMove = (from: move.from, to: move.to)
+                // v3.9.1: 教练整合 hint，生成场景标题
+                let hintExplanation = await CoachExplainer.shared.explainHint(
+                    fen: fen,
+                    bestMove: uciMove
+                )
+                self.hintText = hintExplanation.title
             } else {
                 self.engineFallbackMessage = L10n.shared.t("engine.hintFailed")
             }
-            self.stopThinking()
         }
     }
 
@@ -427,15 +535,18 @@ class GameViewModel {
             guard let self else {
                 return
             }
+            defer { self.stopThinking() }
             
             // P0 修复：确保是 AI 的回合（不是玩家的回合）
             guard self.board.currentTurn != humanSide else {
-                self.stopThinking()
                 return
             }
             
             // 确保引擎切换完成
             _ = await EngineRouter.shared.switchEngineIfNeeded()
+            
+            // P0 修复：gameVersion 检查 — 新对局可能已开始
+            guard self.gameVersion == currentVersion else { return }
             
             let engine = EngineRouter.shared.activeEngine()
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
@@ -450,7 +561,6 @@ class GameViewModel {
             
             guard self.gameVersion == currentVersion else {
                 // gameVersion 不匹配——新对局已开始
-                self.stopThinking()
                 return
             }
             
@@ -461,7 +571,6 @@ class GameViewModel {
                         // P0 修复：验证 AI 返回的走法是 AI 的棋（不是玩家的棋）
                         guard mainPiece.side == self.board.currentTurn else {
                             // 外部引擎返回了错误的走法（走的是玩家的棋）
-                            self.stopThinking()
                             return
                         }
 
@@ -525,7 +634,7 @@ class GameViewModel {
                 self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
             }
             
-            self.stopThinking()
+            // P0 修复：stopThinking 由 defer 保证，无需手动调用
             // P0-1: AI 走棋后记录局面 fingerprint
             self.recordPositionFingerprint()
             self.checkGameState()
@@ -561,17 +670,46 @@ class GameViewModel {
                 SoundEngine.shared.playDefeat()
             }
         } else if MoveValidator.isStalemate(currentSide, on: board) {
-            gameState = .draw
+            // 困毙判负（中国象棋规则：无子可动方判负，不是和棋）
+            gameState = (currentSide == .red) ? .blackWon : .redWon
             isInCheck = false
         } else {
-            // #3: 50 回合规则（100 半回合无吃子/无兵移动判和）
-            if halfmoveClock >= 100 {
-                gameState = .draw
+            // 长将判负（中国象棋规则：连续将军+局面循环判将军方负）
+            // 优先于三次重复判和：同一循环既是长将又是三次重复时，应判长将负
+            if detectPerpetualCheck() {
+                // currentSide = 长将方（被将军方走完最后一步应将后 turn 切换回来）
+                // 长将方判负 → 对手赢
+                gameState = (currentSide == .red) ? .blackWon : .redWon
                 isInCheck = false
+
+                // 首次触发长将判负时弹出解释弹窗
+                if !UserDefaults.standard.bool(forKey: "chinesechess.perpetualCheckExplained") {
+                    perpetualCheckMessage = L10n.shared.t("game.perpetualCheckMessage")
+                    UserDefaults.standard.set(true, forKey: "chinesechess.perpetualCheckExplained")
+                }
+
+                if gameState == .redWon {
+                    SoundEngine.shared.playVictory()
+                } else {
+                    SoundEngine.shared.playDefeat()
+                }
                 return
             }
 
-            // P0-2: 三次重复局面判和
+            // v4.0 Phase 6: 长捉判负（优先于三次重复判和）
+            if detectPerpetualChase() {
+                gameState = (currentSide == .red) ? .blackWon : .redWon
+                isInCheck = false
+                perpetualChaseMessage = L10n.shared.t("game.perpetualChaseMessage")
+                if gameState == .redWon {
+                    SoundEngine.shared.playVictory()
+                } else {
+                    SoundEngine.shared.playDefeat()
+                }
+                return
+            }
+
+            // 三次重复局面判和
             let count = positionFingerprints[boardFingerprint(), default: 0]
             if count >= 3 {
                 gameState = .draw
@@ -579,17 +717,10 @@ class GameViewModel {
                 return
             }
 
-            // P0-3: 长将判负（中国象棋规则：连续将军判将军方负）
-            if detectPerpetualCheck() {
-                // currentSide = 长将方（被将军方走完最后一步应将后 turn 切换回来）
-                // 长将方判负 → 对手赢
-                gameState = (currentSide == .red) ? .blackWon : .redWon
+            // 50 回合规则（100 半回合无吃子/无兵移动判和）
+            if halfmoveClock >= 100 {
+                gameState = .draw
                 isInCheck = false
-                if gameState == .redWon {
-                    SoundEngine.shared.playVictory()
-                } else {
-                    SoundEngine.shared.playDefeat()
-                }
                 return
             }
 
@@ -600,6 +731,7 @@ class GameViewModel {
                 isInCheck = false
             }
         }
+
     }
 
     // MARK: - 和棋检测辅助
@@ -616,8 +748,11 @@ class GameViewModel {
         positionFingerprints[fp, default: 0] += 1
     }
 
-    /// P0-3: 长将检测 — 同一方连续将军
-    /// 中国象棋规则：同一方连续 3 次将军（3 个完整回合）→ 判将军方负
+    /// 长将检测 — 同一方连续将军 + 局面重复
+    /// 中国象棋规则：同一方连续将军且局面循环 → 判将军方负
+    /// 必须同时满足：
+    ///   1. 同一方最近 6 步中 ≥3 步将军
+    ///   2. 当前局面重复 ≥3 次（排除合法连将杀战术）
     private func detectPerpetualCheck() -> Bool {
         guard gameMoves.count >= perpetualCheckThreshold else { return false }
 
@@ -627,12 +762,70 @@ class GameViewModel {
         let sides = Set(recentMoves.map { $0.piece.side })
         for side in sides {
             let sideMoves = recentMoves.filter { $0.piece.side == side }
-            // 同一方在最近 6 步中至少 3 步，且全部将军
-            if sideMoves.count >= 3 && sideMoves.allSatisfy({ $0.isCheck }) {
+            // 条件1：同一方在最近 6 步中至少 3 步，且全部将军
+            guard sideMoves.count >= 3 && sideMoves.allSatisfy({ $0.isCheck }) else { continue }
+
+            // 条件2：当前局面重复 ≥3 次（说明是循环将军，非连将杀战术）
+            let currentFP = boardFingerprint()
+            if positionFingerprints[currentFP, default: 0] >= 3 {
                 return true
             }
         }
         return false
+    }
+
+    // MARK: - v4.0 Phase 6: 长捉检测
+
+    /// 长捉检测 — 同一攻击者连续捉同一目标 + 局面循环
+    private func detectPerpetualChase() -> Bool {
+        guard gameMoves.count >= perpetualChaseThreshold else { return false }
+
+        let recentMoves = Array(gameMoves.suffix(perpetualChaseThreshold))
+
+        // 按走子方分组，检查是否有一方连续捉
+        let sides = Set(recentMoves.map { $0.piece.side })
+        for side in sides {
+            let sideChaseMoves = recentMoves.filter { $0.piece.side == side && $0.isChase }
+
+            // 条件1：同一方在最近 6 步中至少 3 步是捉
+            guard sideChaseMoves.count >= 3 else { continue }
+
+            // 条件2：攻击者是同一枚（chaseAttackerId 相同）
+            let attackerIds = sideChaseMoves.compactMap { $0.chaseAttackerId }
+            guard Set(attackerIds).count == 1 else { continue }
+
+            // 条件3：目标是同一枚（chaseTargetId 相同）
+            let targetIds = sideChaseMoves.compactMap { $0.chaseTargetId }
+            guard Set(targetIds).count == 1 else { continue }
+
+            // 条件4：当前局面重复 ≥3 次
+            let currentFP = boardFingerprint()
+            if positionFingerprints[currentFP, default: 0] >= 3 {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// 判断走法是否"捉"对方有价值棋子（P0-2 修正：只检查移动棋子本身）
+    /// 返回 (isChase, target) — 攻击者就是移动棋子本身
+    private static func isChasing(_ move: Move, on board: Board) -> (Bool, Piece?) {
+        let snapshot = board.snapshot()
+        snapshot.execute(move)
+
+        // P0-2 修正：只检查移动后的棋子本身
+        guard let movedPiece = snapshot.piece(at: move.to) else { return (false, nil) }
+
+        let opponent: Side = (move.piece.side == .red) ? .black : .red
+        let valuableTargets: [PieceKind] = [.chariot, .cannon, .horse]
+
+        for target in snapshot.pieces(for: opponent) {
+            guard valuableTargets.contains(target.kind) else { continue }
+            if MoveValidator.canAttack(piece: movedPiece, target: target.position, on: snapshot) {
+                return (true, target)
+            }
+        }
+        return (false, nil)
     }
 
     // MARK: - 统计记录
@@ -714,6 +907,98 @@ class GameViewModel {
         // Phase 4: 自动保存历史对局
         if gameState != .playing, let record = buildGameRecord() {
             GameRecordStore.shared.addRecord(record)
+        }
+
+        // P1: 每日挑战完成通知
+        if challengeMode != nil && gameState != .playing {
+            let playerWon = (humanSide == .red && gameState == .redWon) || (humanSide == .black && gameState == .blackWon)
+            // v4.1 Phase 2: 补全 endgameStart 和 cannonOnly 的 challengeResult 赋值
+            // solveMate 的 challengeResult 在 executeMove 中已赋值，此处不覆盖
+            if challengeResult == nil {
+                challengeResult = playerWon ? .success : .failure
+            }
+            let puzzles: [Puzzle] = challengePuzzle.map { [$0] } ?? []
+            DailyChallengeManager.shared.completeChallenge(score: playerWon ? 100 : 0, puzzles: puzzles)
+        }
+    }
+
+    // MARK: - v4.0 Phase 5: 挑战模式加载
+
+    /// 加载挑战模式游戏
+    func loadChallenge(mode: DailyChallengeMode, puzzle: Puzzle?, difficulty: AIDifficulty) {
+        // 重置状态
+        newGame()
+        challengeMode = mode
+        challengePuzzle = puzzle
+        challengeResult = nil
+        showChallengeUnavailable = false
+        showChallengeRuleViolation = false
+        isOneStepMateMode = false
+
+        switch mode {
+        case .endgameStart:
+            guard let puzzle = puzzle else {
+                showChallengeUnavailable = true
+                return
+            }
+            board = Board(fen: puzzle.initialFEN)
+            humanSide = puzzle.side
+            self.difficulty = difficulty
+            isBlitzMode = false
+            isMasterChallenge = false
+            isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+
+        case .solveMate:
+            guard let puzzle = puzzle else {
+                showChallengeUnavailable = true
+                return
+            }
+            board = Board(fen: puzzle.initialFEN)
+            humanSide = puzzle.side
+            self.difficulty = difficulty
+            isOneStepMateMode = true
+            isBlitzMode = true
+            blitzTimeLimitSeconds = 60
+            isMasterChallenge = false
+            isInCheck = MoveValidator.isInCheck(board.currentTurn, on: board)
+
+        case .cannonOnly:
+            // 标准初始局面
+            self.difficulty = difficulty
+            isBlitzMode = false
+            isMasterChallenge = false
+
+        default:
+            // 其他模式不走此入口
+            break
+        }
+    }
+
+    // MARK: - v4.0 Phase 5: 走法限制
+
+    /// 挑战模式走法合法性检查
+    func isChallengeMoveLegal(_ move: Move) -> Bool {
+        guard let mode = challengeMode else { return true }
+
+        switch mode {
+        case .cannonOnly:
+            // 设计意图：炮为主力进攻，车/马限制为防守或跨区吃子
+            // 兵/将/士/相保持正常走法（设计文档定义）
+            let piece = move.piece
+            // 炮无限制
+            if piece.kind == .cannon { return true }
+            // 车/马限制：只能己方半场移动或跨区吃子
+            if piece.kind == .chariot || piece.kind == .horse {
+                let toRow = move.to.row
+                let isOwnHalf = piece.side == .red ? (toRow >= 5) : (toRow <= 4)
+                let isCapturing = move.captured != nil
+                return isOwnHalf || isCapturing
+            }
+            // 兵/将/士/相正常走法
+            return true
+
+        default:
+            return true
         }
     }
 

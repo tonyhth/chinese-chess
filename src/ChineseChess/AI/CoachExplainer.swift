@@ -248,6 +248,59 @@ actor CoachExplainer {
         let toCol = move[move.index(move.startIndex, offsetBy: 2)]
         return toCol == "d" || toCol == "e" || toCol == "f"
     }
+
+    // MARK: - v3.9.1: Hint 教练整合
+
+    /// Hint 场景类型（正向描述推荐走法，不同于复盘的“错过”场景）
+    enum HintScenario {
+        case check          // 将军
+        case capture        // 吃子
+        case develop        // 展开子力
+        case defend         // 防守
+        case centerControl  // 控制中线
+        case suggested      // 通用推荐
+    }
+
+    /// Hint 讲解结果
+    struct HintExplanation {
+        let scenario: HintScenario
+        let title: String   // ≤20 字
+    }
+
+    /// 轻量级 hint 讲解：只需 FEN + bestMove，无需完整 MoveAnalysis
+    /// 生成 1 句话正向描述，说明推荐走法为什么好
+    func explainHint(fen: String, bestMove: String) -> HintExplanation {
+        let scenario = classifyHintScenario(fen: fen, bestMove: bestMove)
+        let title = hintTitleFor(scenario: scenario)
+        return HintExplanation(scenario: scenario, title: title)
+    }
+
+    private func classifyHintScenario(fen: String, bestMove: String) -> HintScenario {
+        // 将军走法优先级最高
+        if isCheckingMove(bestMove, fen: fen) { return .check }
+        // 安全吃子
+        if isSafeCapture(bestMove, fen: fen) { return .capture }
+        // 中线控制
+        if isCenterControlMove(bestMove, fen: fen) { return .centerControl }
+        // 展开子力
+        if isDevelopmentMove(bestMove, fen: fen) { return .develop }
+        // 防守（简化：FEN 中己方被将军时）
+        let board = Board(fen: fen)
+        if MoveValidator.isInCheck(board.currentTurn, on: board) { return .defend }
+
+        return .suggested
+    }
+
+    private func hintTitleFor(scenario: HintScenario) -> String {
+        switch scenario {
+        case .check:         return l10n.t("hint.check")
+        case .capture:       return l10n.t("hint.capture")
+        case .develop:       return l10n.t("hint.develop")
+        case .defend:        return l10n.t("hint.defend")
+        case .centerControl: return l10n.t("hint.centerControl")
+        case .suggested:     return l10n.t("hint.suggested")
+        }
+    }
 }
 
 // MARK: - v3.6.0 Phase 3.3: 复盘卡片

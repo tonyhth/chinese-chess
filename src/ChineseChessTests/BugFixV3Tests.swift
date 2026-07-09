@@ -8,13 +8,32 @@ import Foundation
 struct BugFixV3Tests {
 
     // ============================
+    // MARK: - Mock Puzzles helper
+    // ============================
+
+    /// 构造 mock puzzles 用于 dailyPuzzle 测试
+    private func mockPuzzles() -> [Puzzle] {
+        [
+            Puzzle(id: "mock_1", name: "测试残局1", category: "test", difficulty: 1, stars: 3,
+                   description: "test", playerSide: "red", initialFEN: "3ak4/9/9/9/9/9/9/9/9/4K4 w",
+                   solution: ["e0d0"], hints: nil, maxMoves: 5),
+            Puzzle(id: "mock_2", name: "测试残局2", category: "test", difficulty: 2, stars: 4,
+                   description: "test", playerSide: "red", initialFEN: "3ak4/9/9/9/9/9/9/9/9/4K4 w",
+                   solution: ["e0d0"], hints: nil, maxMoves: 5),
+            Puzzle(id: "mock_3", name: "测试残局3", category: "test", difficulty: 3, stars: 5,
+                   description: "test", playerSide: "black", initialFEN: "4K4/9/9/9/9/9/9/9/9/3ak4 b",
+                   solution: ["d0e0"], hints: nil, maxMoves: 5),
+        ]
+    }
+
+    // ============================
     // MARK: - Bug 1: 每日残局接入真实残局库
     // ============================
 
     @Test("dailyPuzzleId 返回有效 ID（非 nil）")
     func dailyPuzzleIdReturnsValidId() {
         let manager = DailyChallengeManager.shared
-        let puzzleId = manager.dailyPuzzleId(puzzles: [])
+        let puzzleId = manager.dailyPuzzleId(puzzles: mockPuzzles())
         #expect(puzzleId != nil, "dailyPuzzleId 不应返回 nil")
         #expect(!puzzleId!.isEmpty, "puzzleId 不应为空字符串")
     }
@@ -22,7 +41,7 @@ struct BugFixV3Tests {
     @Test("dailyPuzzle 返回有效 Puzzle 对象")
     func dailyPuzzleReturnsValidObject() {
         let manager = DailyChallengeManager.shared
-        guard let puzzle = manager.dailyPuzzle(puzzles: []) else {
+        guard let puzzle = manager.dailyPuzzle(puzzles: mockPuzzles()) else {
             Issue.record("dailyPuzzle 不应返回 nil")
             return
         }
@@ -33,27 +52,29 @@ struct BugFixV3Tests {
     @Test("dailyPuzzleId 确定性：同一天多次调用返回相同 ID")
     func dailyPuzzleIdDeterministicSameDay() {
         let manager = DailyChallengeManager.shared
-        let id1 = manager.dailyPuzzleId(puzzles: [])
-        let id2 = manager.dailyPuzzleId(puzzles: [])
+        let id1 = manager.dailyPuzzleId(puzzles: mockPuzzles())
+        let id2 = manager.dailyPuzzleId(puzzles: mockPuzzles())
         #expect(id1 == id2, "同一天多次调用应返回相同 ID")
     }
 
-    @Test("dailyPuzzleId 来自 PuzzleStore 已有残局")
+    @Test("dailyPuzzleId 来自 mockPuzzles 验证选取逻辑")
     func dailyPuzzleIdFromStore() {
         let manager = DailyChallengeManager.shared
-        guard let id = manager.dailyPuzzleId(puzzles: []) else {
+        let puzzles = mockPuzzles()
+        guard let id = manager.dailyPuzzleId(puzzles: puzzles) else {
             Issue.record("dailyPuzzleId 返回 nil")
             return
         }
-        let exists = PuzzleStore.shared.puzzles.contains { $0.id == id }
-        #expect(exists, "dailyPuzzleId 必须来自 PuzzleStore 的真实残局")
+        let exists = puzzles.contains { $0.id == id }
+        #expect(exists, "dailyPuzzleId 必须来自传入的 puzzles 列表")
     }
 
     @Test("todayChallenge 的 puzzleId 非空")
     func todayChallengeHasPuzzleId() {
-        let suite = UserDefaults(suiteName: "test_daily_challenge_\(UUID().uuidString)")!
-        // DailyChallengeManager.shared 用 standard defaults，我们测 shared 实例
-        let challenge = DailyChallengeManager.shared.todayChallenge(puzzles: [])
+        // 使用独立 suite 避免其他测试缓存的 challenge 干扰
+        let suite = UserDefaults(suiteName: "test_today_challenge_\(UUID().uuidString)")!
+        let manager = DailyChallengeManager(defaults: suite)
+        let challenge = manager.todayChallenge(puzzles: mockPuzzles())
         #expect(challenge.puzzleId != nil, "今日挑战应有 puzzleId")
         #expect(challenge.puzzleId?.isEmpty == false)
     }
@@ -291,11 +312,14 @@ struct BugFixV3Tests {
             #expect(!rewardText.isEmpty, "\(reward) 应有奖励文案")
             // 验证 rewardType 与预期一致（确保文案映射正确）
             switch reward {
-            case .day3, .day45: #expect(reward.rewardType == "puzzle_unlock")
-            case .day7, .day30, .day60: #expect(reward.rewardType == "theme_unlock")
+            case .day3: #expect(reward.rewardType == "puzzle_progress_boost")
+            case .day7: #expect(reward.rewardType == "extra_hints")
             case .day14: #expect(reward.rewardType == "piece_style")
-            case .day70: #expect(reward.rewardType == "puzzle_unlock_all")
-            case .day100: #expect(reward.rewardType == "theme_special")
+            case .day30: #expect(reward.rewardType == "blitz_time_bonus")
+            case .day45: #expect(reward.rewardType == "double_score")
+            case .day60: #expect(reward.rewardType == "master_no_penalty")
+            case .day70: #expect(reward.rewardType == "chapter7_early_unlock")
+            case .day100: #expect(reward.rewardType == "custom_board_theme")
             }
         }
     }
@@ -388,16 +412,9 @@ struct BugFixV3Tests {
 
     @Test("DailyChallengeManager 空残局库保护")
     func dailyChallengeEmptyPuzzleStore() {
-        // PuzzleStore.shared.puzzles 在测试环境应该有数据
-        // 但 dailyPuzzleId 内部有 guard !puzzles.isEmpty else { return nil }
-        // 如果 puzzles 为空，应返回 nil 而非崩溃
-        let puzzles = PuzzleStore.shared.puzzles
-        if puzzles.isEmpty {
-            #expect(DailyChallengeManager.shared.dailyPuzzleId(puzzles: []) == nil)
-            #expect(DailyChallengeManager.shared.dailyPuzzle(puzzles: []) == nil)
-        } else {
-            #expect(DailyChallengeManager.shared.dailyPuzzleId(puzzles: []) != nil)
-        }
+        // dailyPuzzleId 空数组时返回 nil 是正确行为
+        #expect(DailyChallengeManager.shared.dailyPuzzleId(puzzles: []) == nil,
+                "空残局数组应返回 nil")
     }
 
     @Test("ThemeManager switchTheme 未解锁返回 false")

@@ -182,7 +182,7 @@ struct P1aLegacyFixTests {
 
     @Test("OpeningBook v2 加载：初始局面有开局建议")
     func openingBookV2InitialPosition() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         let move = book.lookup(zobristHash: hash)
@@ -191,7 +191,7 @@ struct P1aLegacyFixTests {
 
     @Test("OpeningBook v2：lookupAll 按权重降序")
     func openingBookV2LookupAllSorted() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         guard let entries = book.lookupAll(zobristHash: hash) else {
@@ -207,7 +207,7 @@ struct P1aLegacyFixTests {
 
     @Test("OpeningBook v2：lookupWeightedRandom 多样性")
     func openingBookV2WeightedRandomVariety() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         guard let entries = book.lookupAll(zobristHash: hash), entries.count > 1 else { return }
@@ -224,7 +224,7 @@ struct P1aLegacyFixTests {
 
     @Test("OpeningBook v2：单 entry 局面 lookupWeightedRandom 返回唯一走法")
     func openingBookV2SingleEntryAlwaysSame() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         // 走一步后检查是否有单 entry 局面
         let hash0 = ZobristHash.hash(board: board)
@@ -248,7 +248,7 @@ struct P1aLegacyFixTests {
 
     @Test("OpeningBook v2：parseICCSMove 合法走法有效")
     func openingBookV2ParseValidMove() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         guard let iccs = book.lookup(zobristHash: hash) else { return }
@@ -353,7 +353,7 @@ struct P1aLegacyFixTests {
     @Test("opening_book_v2.json 已加载到 OpeningBook 中")
     func openingBookV2Loaded() {
         // 间接验证：OpeningBook 初始化成功且初始局面有数据
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         #expect(book.lookup(zobristHash: hash) != nil, "开局库加载失败或初始局面无数据")
@@ -420,7 +420,7 @@ struct P1aLegacyFixTests {
 
     @Test("开局库 v2 比 v1 有更多局面覆盖")
     func openingBookV2MorePositions() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         let entries = book.lookupAll(zobristHash: hash)

@@ -55,16 +55,21 @@ struct AISearchConfig {
         maxCheckExtensions: 8
     )
 
-    /// 中级配置
+    /// 中级配置（v4.0: 启用 QS + advanced eval + LMR + futility，渐进过渡到 hard）
     static let medium = AISearchConfig(
-        enableQuiescence: false,
+        enableQuiescence: true,
         enableKillerMove: true,
-        enableCheckExtension: false,
+        enableCheckExtension: true,
         enableNullMoveFix: false,
-        enableLMR: false,
+        enableLMR: true,
         enableSmartTime: false,
-        evalConfig: .basic,
-        maxQSDepth: 4,
+        enablePVS: false,
+        enableCountermove: false,
+        enableFutility: true,
+        enableRazoring: false,
+        enableIID: false,
+        evalConfig: .advanced,
+        maxQSDepth: 2,
         maxCheckExtensions: 8
     )
 

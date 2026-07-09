@@ -55,10 +55,10 @@ struct AIEngineTests {
 
     @Test("无合法走法时返回 nil")
     func noLegalMovesReturnsNil() async {
-        let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4))
-        let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4))
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 3))
-        let blackChariot2 = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 5))
+        let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 3), id: 283)
+        let blackChariot2 = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 5), id: 285)
         // 黑方有合法走法，让黑方走
         let board = Board(pieces: [redGeneral, blackGeneral, blackChariot, blackChariot2])
         board.setCurrentTurn(.black)

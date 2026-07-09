@@ -140,7 +140,12 @@ class ReplayViewModel {
 
     private func rebuildBoard(upTo index: Int) {
         // 找到最近的快照（snapshot[K] = 执行完 move[K] 后的棋盘状态）
-        let snapIdx = (index / snapshotInterval) * snapshotInterval
+        var snapIdx = (index / snapshotInterval) * snapshotInterval
+        // 关键修正：当 index 正好是 snapshotInterval 的倍数时，退回前一个快照
+        // 因为 snapshot[K] 包含了 move[K] 的执行结果（K+1 步），snapIdx==index 时棋盘多一步
+        if snapIdx == index && snapIdx > 0 {
+            snapIdx -= snapshotInterval
+        }
         var startIndex: Int
         let startBoard: Board
 

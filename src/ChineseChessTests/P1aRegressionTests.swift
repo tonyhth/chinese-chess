@@ -107,7 +107,7 @@ struct P1aRegressionTests {
 
     @Test("开局库 v2 加载 4,602 个局面")
     func openingBookV2PositionCount() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         #expect(book.lookup(zobristHash: hash) != nil, "初始局面不在开局库中")
@@ -115,7 +115,7 @@ struct P1aRegressionTests {
 
     @Test("开局库 v2：初始局面有多个候选走法（中炮等）")
     func openingBookV2InitialMultipleCandidates() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         guard let entries = book.lookupAll(zobristHash: hash) else {
@@ -129,7 +129,7 @@ struct P1aRegressionTests {
 
     @Test("开局库 v2：走一步后仍有开局建议")
     func openingBookV2AfterFirstMove() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         guard let move = book.parseICCSMove("h2e2", on: board) else {
             Issue.record("h2e2 解析失败")
@@ -144,7 +144,7 @@ struct P1aRegressionTests {
 
     @Test("开局库 v2：多个初始走法都是合法的")
     func openingBookV2AllInitialMovesLegal() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         guard let entries = book.lookupAll(zobristHash: hash) else {
@@ -164,7 +164,7 @@ struct P1aRegressionTests {
 
     @Test("开局库 v2：权重值均为正整数")
     func openingBookV2WeightsPositive() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         guard let entries = book.lookupAll(zobristHash: hash) else { return }
@@ -327,7 +327,7 @@ struct P1aRegressionTests {
     @Test("ZobristHash：开局库走法后 hash 一致")
     func zobristHashConsistencyAfterBookMove() {
         let board = Board()
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let hash0 = ZobristHash.hash(board: board)
 
         guard let iccs = book.lookup(zobristHash: hash0) else { return }

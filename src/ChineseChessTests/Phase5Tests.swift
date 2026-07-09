@@ -18,11 +18,11 @@ struct Phase5Tests {
 @Test("课程标题正确")
     func lessonTitlesCorrect() {
         let vm = TutorialViewModel()
-        #expect(vm.lessons[0].title == L10n.shared.t("tutorial.0.title"))
-        #expect(vm.lessons[1].title == L10n.shared.t("tutorial.1.title"))
-        #expect(vm.lessons[2].title == L10n.shared.t("tutorial.2.title"))
-        #expect(vm.lessons[3].title == L10n.shared.t("tutorial.3.title"))
-        #expect(vm.lessons[4].title == L10n.shared.t("tutorial.4.title"))
+        #expect(vm.lessons[0].titleKey == "tutorial.0.title")
+        #expect(vm.lessons[1].titleKey == "tutorial.1.title")
+        #expect(vm.lessons[2].titleKey == "tutorial.2.title")
+        #expect(vm.lessons[3].titleKey == "tutorial.3.title")
+        #expect(vm.lessons[4].titleKey == "tutorial.4.title")
     }
 
     @MainActor
@@ -77,8 +77,8 @@ struct Phase5Tests {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
         // 验证 lesson 3 对应 tutorial.3 description key
-        #expect(lesson.description == L10n.shared.t("tutorial.3.description"))
-        #expect(lesson.title == L10n.shared.t("tutorial.3.title"))
+        #expect(lesson.descriptionKey == "tutorial.3.description")
+        #expect(lesson.titleKey == "tutorial.3.title")
     }
 
     @MainActor
@@ -87,7 +87,7 @@ struct Phase5Tests {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
         // 验证 lesson 3 subtitle 和 title 正确对应特殊规则主题
-        #expect(lesson.subtitle == L10n.shared.t("tutorial.3.subtitle"))
+        #expect(lesson.subtitleKey == "tutorial.3.subtitle")
         #expect(lesson.icon == "book")
     }
 

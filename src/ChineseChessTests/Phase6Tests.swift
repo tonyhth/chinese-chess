@@ -74,53 +74,53 @@ struct PieceTests6 {
 
     @Test("红方棋子显示名完整")
     func testRedDisplayNames() {
-        #expect(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4)).displayName == "帅")
-        #expect(Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3)).displayName == "仕")
-        #expect(Piece(kind: .elephant, side: .red, position: Position(row: 9, col: 2)).displayName == "相")
-        #expect(Piece(kind: .horse, side: .red, position: Position(row: 9, col: 1)).displayName == "馬")
-        #expect(Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)).displayName == "車")
-        #expect(Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1)).displayName == "炮")
-        #expect(Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0)).displayName == "兵")
+        #expect(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8).displayName == "帅")
+        #expect(Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3), id: 6).displayName == "仕")
+        #expect(Piece(kind: .elephant, side: .red, position: Position(row: 9, col: 2), id: 4).displayName == "相")
+        #expect(Piece(kind: .horse, side: .red, position: Position(row: 9, col: 1), id: 2).displayName == "馬")
+        #expect(Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0).displayName == "車")
+        #expect(Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9).displayName == "炮")
+        #expect(Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0), id: 11).displayName == "兵")
     }
 
     @Test("黑方棋子显示名完整")
     func testBlackDisplayNames() {
-        #expect(Piece(kind: .general, side: .black, position: Position(row: 0, col: 4)).displayName == "将")
-        #expect(Piece(kind: .advisor, side: .black, position: Position(row: 0, col: 3)).displayName == "士")
-        #expect(Piece(kind: .elephant, side: .black, position: Position(row: 0, col: 2)).displayName == "象")
-        #expect(Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1)).displayName == "馬")
-        #expect(Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0)).displayName == "車")
-        #expect(Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 1)).displayName == "砲")
-        #expect(Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0)).displayName == "卒")
+        #expect(Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24).displayName == "将")
+        #expect(Piece(kind: .advisor, side: .black, position: Position(row: 0, col: 3), id: 22).displayName == "士")
+        #expect(Piece(kind: .elephant, side: .black, position: Position(row: 0, col: 2), id: 20).displayName == "象")
+        #expect(Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1), id: 18).displayName == "馬")
+        #expect(Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16).displayName == "車")
+        #expect(Piece(kind: .cannon, side: .black, position: Position(row: 2, col: 1), id: 25).displayName == "砲")
+        #expect(Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27).displayName == "卒")
     }
 
     @Test("子力基础价值：非兵棋子")
     func testBaseValuesNonSoldier() {
-        #expect(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4)).baseValue == 10000)
-        #expect(Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0)).baseValue == 900)
-        #expect(Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1)).baseValue == 450)
-        #expect(Piece(kind: .horse, side: .red, position: Position(row: 9, col: 1)).baseValue == 400)
-        #expect(Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3)).baseValue == 200)
-        #expect(Piece(kind: .elephant, side: .red, position: Position(row: 9, col: 2)).baseValue == 200)
+        #expect(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8).baseValue == 10000)
+        #expect(Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0).baseValue == 900)
+        #expect(Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9).baseValue == 450)
+        #expect(Piece(kind: .horse, side: .red, position: Position(row: 9, col: 1), id: 2).baseValue == 400)
+        #expect(Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3), id: 6).baseValue == 200)
+        #expect(Piece(kind: .elephant, side: .red, position: Position(row: 9, col: 2), id: 4).baseValue == 200)
     }
 
     @Test("兵过河前 100，过河后 200")
     func testSoldierBaseValue() {
-        let redHome = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4))
-        let redCrossed = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4))
+        let redHome = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 13)
+        let redCrossed = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4), id: 144)
         #expect(redHome.baseValue == 100)
         #expect(redCrossed.baseValue == 200)
 
-        let blackHome = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4))
-        let blackCrossed = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 4))
+        let blackHome = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4), id: 29)
+        let blackCrossed = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 4), id: 254)
         #expect(blackHome.baseValue == 100)
         #expect(blackCrossed.baseValue == 200)
     }
 
     @Test("Piece Identifiable：每个实例 id 唯一")
     func testPieceIdentifiable() {
-        let a = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
-        let b = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
+        let a = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
+        let b = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
         #expect(a.id != b.id)
     }
 
@@ -181,7 +181,7 @@ struct MoveTests6 {
 
     @Test("Move 不带吃子")
     func testMoveWithoutCapture() {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
         let move = Move(piece: piece, from: Position(row: 9, col: 0), to: Position(row: 8, col: 0), captured: nil)
         #expect(move.captured == nil)
         #expect(move.from == Position(row: 9, col: 0))
@@ -190,15 +190,15 @@ struct MoveTests6 {
 
     @Test("Move 带吃子")
     func testMoveWithCapture() {
-        let red = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
-        let black = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0))
+        let red = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
+        let black = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 250)
         let move = Move(piece: red, from: Position(row: 9, col: 0), to: Position(row: 5, col: 0), captured: black)
         #expect(move.captured?.side == .black)
     }
 
     @Test("Move Equatable")
     func testMoveEquality() {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
         let a = Move(piece: piece, from: Position(row: 9, col: 0), to: Position(row: 5, col: 0), captured: nil)
         let b = Move(piece: piece, from: Position(row: 9, col: 0), to: Position(row: 5, col: 0), captured: nil)
         #expect(a == b)
@@ -821,7 +821,7 @@ struct ZobristHashExtendedTests6 {
     func testPieceIndexCoverage() {
         for side in [Side.red, .black] {
             for kind in PieceKind.allCases {
-                let piece = Piece(kind: kind, side: side, position: Position(row: 5, col: 4))
+                let piece = Piece(kind: kind, side: side, position: Position(row: 5, col: 4), id: 154)
                 let idx = ZobristHash.pieceIndex(piece)
                 #expect(idx >= 0)
                 #expect(idx < 14)
@@ -969,7 +969,7 @@ struct OpeningBookExtendedTests6 {
 
     @Test("初始局面有推荐走法")
     func testInitialPositionHasMoves() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board()
         let hash = ZobristHash.hash(board: board)
         let result = book.lookup(zobristHash: hash)
@@ -979,7 +979,7 @@ struct OpeningBookExtendedTests6 {
 
     @Test("残局局面无开局库推荐")
     func testEndgameNoBookMoves() {
-        let book = OpeningBook()
+        let book = OpeningBook.shared
         let board = Board(fen: "4k4/9/9/9/9/9/9/9/4R4/4K4 w")
         let hash = ZobristHash.hash(board: board)
         let result = book.lookup(zobristHash: hash)
@@ -1017,7 +1017,7 @@ struct GameMoveExtendedTests6 {
 
     @Test("GameMove 所有属性正确")
     func testGameMoveProperties() {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
         let move = GameMove(
             id: UUID(),
             piece: piece,
@@ -1040,7 +1040,7 @@ struct GameMoveExtendedTests6 {
 
     @Test("GameMove Codable roundtrip")
     func testGameMoveCodable() throws {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
         let move = GameMove(
             id: UUID(),
             piece: piece,
@@ -1063,8 +1063,8 @@ struct GameMoveExtendedTests6 {
 
     @Test("GameMove 带吃子 Codable")
     func testGameMoveWithCaptureCodable() throws {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0))
-        let captured = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0))
+        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
+        let captured = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 250)
         let move = GameMove(
             id: UUID(),
             piece: piece,

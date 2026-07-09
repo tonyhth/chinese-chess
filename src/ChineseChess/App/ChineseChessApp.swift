@@ -62,6 +62,9 @@ struct ChineseChessApp: App {
 
         // v3.7.0 Phase 4: UserDefaults 历史数据迁移到 JSON 文件
         DataMigration.migrateGameHistoryToFiles()
+
+        // P0-1 fix: 首次启动引导标志读取（在 onAppear 中触发弹窗）
+        _firstLaunchNeeded = State(initialValue: !UserDefaults.standard.bool(forKey: "chinesechess.firstLaunchDialogShown"))
     }
 
     // v3.7.1 P0: 统一 sheet 管理 — 解决多 .sheet 串联导致 sheet 弹不出的 bug
@@ -83,6 +86,7 @@ struct ChineseChessApp: App {
         case analysis(GameRecord)
         case coach(GameRecord)
         case openingExplorer
+        case tutorial
 
         var id: String {
             switch self {
@@ -101,6 +105,7 @@ struct ChineseChessApp: App {
             case .analysis: return "analysis"
             case .coach: return "coach"
             case .openingExplorer: return "openingExplorer"
+            case .tutorial: return "tutorial"
             }
         }
     }
@@ -111,6 +116,8 @@ struct ChineseChessApp: App {
     @State private var showImportFailAlert = false
     @State private var importFailMessage = ""
     @State private var rankUpRank: Rank?
+    @State private var showFirstLaunchDialog = false
+    @State private var firstLaunchNeeded = false
 
     // v3.7.2 Phase 4: 对弈结束复盘卡片
     @State private var showReviewCard = false
@@ -301,6 +308,26 @@ struct ChineseChessApp: App {
                     .animation(.easeInOut(duration: 0.3), value: showReviewCard)
                 }
 
+                // P0-1 fix: 首次启动引导弹窗
+                if showFirstLaunchDialog {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                    FirstLaunchDialog(
+                        isPresented: $showFirstLaunchDialog,
+                        onShowTutorial: {
+                            UserDefaults.standard.set(true, forKey: "chinesechess.firstLaunchDialogShown")
+                            showFirstLaunchDialog = false
+                            activeSheet = .tutorial
+                        },
+                        onSkip: {
+                            UserDefaults.standard.set(true, forKey: "chinesechess.firstLaunchDialogShown")
+                            TutorialViewModel.markTutorialCompleted()
+                            showFirstLaunchDialog = false
+                        }
+                    )
+                    .frame(maxWidth: 500)
+                }
+
             }
             // Q2: 监听段位升级通知
             .onReceive(NotificationCenter.default.publisher(for: .rankPromoted)) { notification in
@@ -327,6 +354,12 @@ struct ChineseChessApp: App {
                 }
             }
             .frame(minWidth: 600, minHeight: 700)
+            .onAppear {
+                TutorialViewModel.markLaunched()
+                if firstLaunchNeeded {
+                    showFirstLaunchDialog = true
+                }
+            }
             .preferredColorScheme(.dark)
             // P1-2: 外部引擎 fallback 提示
             .alert(
@@ -339,6 +372,30 @@ struct ChineseChessApp: App {
                 Button(L10n.shared.t("common.ok")) { viewModel.engineFallbackMessage = nil }
             } message: {
                 Text(viewModel.engineFallbackMessage ?? "")
+            }
+            // P0-1 fix: 长将判负首次触发解释弹窗
+            .alert(
+                L10n.shared.t("game.perpetualCheckTitle"),
+                isPresented: Binding(
+                    get: { viewModel.perpetualCheckMessage != nil },
+                    set: { if !$0 { viewModel.perpetualCheckMessage = nil } }
+                )
+            ) {
+                Button(L10n.shared.t("common.gotIt")) { viewModel.perpetualCheckMessage = nil }
+            } message: {
+                Text(viewModel.perpetualCheckMessage ?? "")
+            }
+            // v4.0 Phase 6: 长捉判负提示
+            .alert(
+                L10n.shared.t("game.perpetualChaseTitle"),
+                isPresented: Binding(
+                    get: { viewModel.perpetualChaseMessage != nil },
+                    set: { if !$0 { viewModel.perpetualChaseMessage = nil } }
+                )
+            ) {
+                Button(L10n.shared.t("common.gotIt")) { viewModel.perpetualChaseMessage = nil }
+            } message: {
+                Text(viewModel.perpetualChaseMessage ?? "")
             }
             // v3.7.1 P0: 统一 sheet — 解决多 .sheet 串联导致弹不出的 bug
             .sheet(item: $activeSheet) { destination in
@@ -489,6 +546,10 @@ struct ChineseChessApp: App {
                             }
                     }
                     .frame(minWidth: 500, minHeight: 600)
+
+                case .tutorial:
+                    TutorialView(onComplete: { activeSheet = nil })
+                        .frame(minWidth: 400, minHeight: 400)
                 }
             }
             // v3.7.0 Phase 3: 打开 .pgn 文件
@@ -507,6 +568,9 @@ struct ChineseChessApp: App {
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {
                 Task { await EngineRouter.shared.shutdown() }
+            } else if newPhase == .active {
+                // P1 fix L2-10: 后台 shutdown 后回到前台需要重新启动引擎
+                Task { await EngineRouter.shared.switchEngineIfNeeded() }
             }
         }
         .commands {
