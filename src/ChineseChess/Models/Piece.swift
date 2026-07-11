@@ -110,24 +110,23 @@ struct Piece: Equatable, Identifiable, Codable {
             }
         }
 
-        // 非开局位置：用确定性哈希生成唯一 ID（32-999 范围，避免与开局 ID 0-31 碰撞）
-        // 使用乘法+加法链式组合，避免 XOR 碰撞和 hashValue 跨进程不确定问题
-        return 32 + deterministicHash(kind: kind, side: side, position: position) % 968
-    }
-
-    /// 确定性哈希：基于 kind+side+position 生成跨进程稳定的哈希值
-    /// 不使用 Swift hashValue（per-process seed 导致跨进程不确定）
-    private static func deterministicHash(kind: PieceKind, side: Side, position: Position) -> Int {
-        // PieceKind.allCases 顺序：general, advisor, elephant, horse, chariot, cannon, soldier
-        let kindIndex = PieceKind.allCases.firstIndex(of: kind) ?? 0
-        let sideBit = side == .red ? 1 : 0
-        // 乘法+加法链式哈希，&* 溢出截断保证确定性
-        var h = 0
-        h = h &* 31 &+ kindIndex
-        h = h &* 31 &+ sideBit
-        h = h &* 31 &+ position.row
-        h = h &* 31 &+ position.col
-        return h < 0 ? ~h : h  // 避免负数，不用 abs() 防止 Int.min 溢出
+        // 非开局位置：直接编码，零碰撞
+        // 10000 + kindIndex*1000 + sideBit*100 + row*10 + col
+        // kindIndex: general=0, advisor=1, elephant=2, horse=3, chariot=4, cannon=5, soldier=6
+        // sideBit: 红=0, 黑=1 | row: 0-9 | col: 0-8
+        // ID 范围 10000-16198，与开局 ID 0-31 完全隔离，天然唯一
+        let kindIndex: Int
+        switch kind {
+        case .general:  kindIndex = 0
+        case .advisor:  kindIndex = 1
+        case .elephant: kindIndex = 2
+        case .horse:    kindIndex = 3
+        case .chariot:  kindIndex = 4
+        case .cannon:   kindIndex = 5
+        case .soldier:  kindIndex = 6
+        }
+        let sideBit = side == .red ? 0 : 1
+        return 10000 + kindIndex * 1000 + sideBit * 100 + position.row * 10 + position.col
     }
 
     // MARK: - Codable 兼容（处理旧存档）
