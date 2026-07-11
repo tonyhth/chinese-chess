@@ -60,7 +60,7 @@ struct Piece: Equatable, Identifiable, Codable {
     // MARK: - P0-1 修正：fallback ID 推算（旧存档兼容）
 
     /// 根据棋子类型、方、位置推算 ID（用于旧存档兼容）
-    /// 开局初始位置返回确定性 ID（0-31），其他位置返回基于哈希的唯一 ID（32-999）
+    /// 开局初始位置返回确定性 ID（0-31），其他位置返回基于确定性哈希的唯一 ID（32-999）
     /// ID 方案与 Board.initialPieces() 完全一致
     static func fallbackId(kind: PieceKind, side: Side, position: Position) -> Int {
         let baseId = side == .red ? 0 : 16
@@ -68,7 +68,7 @@ struct Piece: Equatable, Identifiable, Codable {
         switch kind {
         case .general:
             let generalRow = side == .red ? 9 : 0
-            if position.row == generalRow && (position.col == 4) {
+            if position.row == generalRow && position.col == 4 {
                 return baseId + 8
             }
         case .chariot:
@@ -111,7 +111,23 @@ struct Piece: Equatable, Identifiable, Codable {
         }
 
         // 非开局位置：用确定性哈希生成唯一 ID（32-999 范围，避免与开局 ID 0-31 碰撞）
-        return 32 + abs(kind.hashValue ^ side.hashValue ^ position.row.hashValue ^ position.col.hashValue) % 968
+        // 使用乘法+加法链式组合，避免 XOR 碰撞和 hashValue 跨进程不确定问题
+        return 32 + deterministicHash(kind: kind, side: side, position: position) % 968
+    }
+
+    /// 确定性哈希：基于 kind+side+position 生成跨进程稳定的哈希值
+    /// 不使用 Swift hashValue（per-process seed 导致跨进程不确定）
+    private static func deterministicHash(kind: PieceKind, side: Side, position: Position) -> Int {
+        // PieceKind.allCases 顺序：general, advisor, elephant, horse, chariot, cannon, soldier
+        let kindIndex = PieceKind.allCases.firstIndex(of: kind) ?? 0
+        let sideBit = side == .red ? 1 : 0
+        // 乘法+加法链式哈希，&* 溢出截断保证确定性
+        var h = 0
+        h = h &* 31 &+ kindIndex
+        h = h &* 31 &+ sideBit
+        h = h &* 31 &+ position.row
+        h = h &* 31 &+ position.col
+        return h < 0 ? ~h : h  // 避免负数，不用 abs() 防止 Int.min 溢出
     }
 
     // MARK: - Codable 兼容（处理旧存档）
