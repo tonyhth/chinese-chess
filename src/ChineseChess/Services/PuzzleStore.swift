@@ -69,6 +69,23 @@ final class PuzzleStore {
         Array(Set(puzzles.map { $0.category })).sorted()
     }
 
+    // MARK: - 演示模式查询（Phase 1）
+
+    /// 有 solution 的残局（过滤 freePlay 无 solution 的 17 局）
+    var demoPuzzles: [Puzzle] {
+        puzzles.filter { !$0.solution.isEmpty }
+    }
+
+    /// 演示分类（只包含有 solution 的残局的分类）
+    var demoCategories: [String] {
+        Array(Set(demoPuzzles.map { $0.category })).sorted()
+    }
+
+    /// 演示模式：按分类查询（只返回有 solution 的）
+    func demoPuzzles(byCategory category: String) -> [Puzzle] {
+        demoPuzzles.filter { $0.category == category }
+    }
+
     // MARK: - v2.2.6 新增查询
 
     /// 按难度筛选
