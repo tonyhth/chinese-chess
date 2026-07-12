@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("AI 引擎改进 P0 + P1-a")
+@Suite("AI 引擎改进 P0 + P1-a", .serialized)
 struct AIEngineImprovementTests {
 
     // MARK: - P0：新手级平滑过渡

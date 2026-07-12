@@ -192,28 +192,28 @@ struct CompleteChallengeIntegrationTests {
 @Suite("P1 completeChallenge 调用 — fallbackId P0 回归", .serialized)
 struct FallbackIdP0RegressionTests {
 
-    @Test("fallbackId 非开局位置返回 -1（车在 row 5）")
+    @Test("fallbackId 非开局位置返回确定性 ID >= 10000（车在 row 5）")
     func fallbackIdNonStartRow() {
         let id = Piece.fallbackId(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
-        #expect(id == -1, "红车在 (5,0) 非开局位置应返回 -1")
+        #expect(id >= 10000, "红车在 (5,0) 非开局位置应返回确定性 ID >= 10000，实际: \(id)")
     }
 
-    @Test("fallbackId 非开局位置返回 -1（马在 row 5）")
+    @Test("fallbackId 非开局位置返回确定性 ID >= 10000（马在 row 5）")
     func fallbackIdHorseNonStartRow() {
         let id = Piece.fallbackId(kind: .horse, side: .red, position: Position(row: 5, col: 1))
-        #expect(id == -1, "红马在 (5,1) 非开局位置应返回 -1")
+        #expect(id >= 10000, "红马在 (5,1) 非开局位置应返回确定性 ID >= 10000，实际: \(id)")
     }
 
-    @Test("fallbackId 非开局位置返回 -1（炮在 row 5）")
+    @Test("fallbackId 非开局位置返回确定性 ID >= 10000（炮在 row 5）")
     func fallbackIdCannonNonStartRow() {
         let id = Piece.fallbackId(kind: .cannon, side: .red, position: Position(row: 5, col: 1))
-        #expect(id == -1, "红炮在 (5,1) 非开局位置应返回 -1")
+        #expect(id >= 10000, "红炮在 (5,1) 非开局位置应返回确定性 ID >= 10000，实际: \(id)")
     }
 
-    @Test("fallbackId 非开局位置返回 -1（将不在底线）")
+    @Test("fallbackId 非开局位置返回确定性 ID >= 10000（将不在底线）")
     func fallbackIdGeneralNonStartRow() {
         let id = Piece.fallbackId(kind: .general, side: .red, position: Position(row: 5, col: 4))
-        #expect(id == -1, "红帅在 (5,4) 非开局位置应返回 -1")
+        #expect(id >= 10000, "红帅在 (5,4) 非开局位置应返回确定性 ID >= 10000，实际: \(id)")
     }
 
     @Test("fallbackId 开局位置返回正确 ID")

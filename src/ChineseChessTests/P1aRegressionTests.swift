@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("P1-a 回归测试：攻击线阻挡 + 开局库重建")
+@Suite("P1-a 回归测试：攻击线阻挡 + 开局库重建", .serialized)
 struct P1aRegressionTests {
 
     // MARK: - 1. CheckmateSearch moveScore 攻击线阻挡评分

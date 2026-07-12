@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("Phase 3a 搜索优化核心改进")
+@Suite("Phase 3a 搜索优化核心改进", .serialized)
 struct Phase3aSearchOptimizationTests {
 
     // MARK: - SearchConfig 配置验证

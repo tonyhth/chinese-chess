@@ -106,11 +106,11 @@ struct PieceIdStabilityTests {
         #expect(redRight == 3, "红右马 ID 应为 3")
     }
 
-    @Test("Piece.fallbackId 非开局位置返回 -1")
+    @Test("Piece.fallbackId 非开局位置返回确定性 ID >= 10000")
     func fallbackIdInvalidPosition() {
-        // 车在非开局位置（col=5）应返回 -1
+        // 车在非开局位置（col=5）应返回确定性 ID >= 10000
         let invalid = Piece.fallbackId(kind: .chariot, side: .red, position: Position(row: 5, col: 5))
-        #expect(invalid == -1, "非开局位置应返回 -1")
+        #expect(invalid >= 10000, "非开局位置应返回确定性 ID >= 10000，实际: \(invalid)")
     }
 }
 

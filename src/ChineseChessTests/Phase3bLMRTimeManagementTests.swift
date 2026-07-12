@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("Phase 3b LMR + 时间管理智能化")
+@Suite("Phase 3b LMR + 时间管理智能化", .serialized)
 struct Phase3bLMRTimeManagementTests {
 
     // MARK: - SearchConfig LMR/SmartTime 配置

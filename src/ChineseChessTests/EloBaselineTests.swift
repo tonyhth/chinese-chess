@@ -2,7 +2,7 @@ import Testing
 import Foundation
 @testable import ChineseChess
 
-@Suite("v3.0 Elo 基线测量", .disabled(if: ProcessInfo.processInfo.environment["SKIP_ELO"] != nil))
+@Suite("v3.0 Elo 基线测量", .serialized, .disabled(if: ProcessInfo.processInfo.environment["SKIP_ELO"] != nil))
 struct EloBaselineTests {
 
     // MARK: - 共用输出格式
