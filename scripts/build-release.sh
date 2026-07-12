@@ -183,6 +183,26 @@ if [[ -x "$LSREGISTER" ]]; then
     echo "   ✅ LaunchServices 已刷新"
 fi
 
+# ============ 7. Git Tag ============
+echo ""
+echo "📌 [7/6] Git tag..."
+
+# 检查 working tree
+if git status --short | grep -q .; then
+    echo "   ⚠️  working tree 有未提交文件，tag 可能不完整"
+fi
+
+# 检查 tag 是否已存在
+if git tag -l "v$VERSION_NUM" | grep -q .; then
+    echo "   ⏩  git tag v$VERSION_NUM 已存在，跳过"
+else
+    if git tag "v$VERSION_NUM" 2>/dev/null; then
+        echo "   📌 已创建 git tag v$VERSION_NUM，记得推送到远程（git push origin v$VERSION_NUM）"
+    else
+        echo "   ⚠️  git tag 创建失败，但不阻塞打包"
+    fi
+fi
+
 # 汇总
 echo ""
 echo "=========================================="
