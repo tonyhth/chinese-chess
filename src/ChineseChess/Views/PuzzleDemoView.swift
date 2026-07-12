@@ -110,24 +110,37 @@ struct PuzzleDemoView: View {
 
     // MARK: - 主内容区
 
+    @ViewBuilder
     private var mainContent: some View {
-        VStack(spacing: 0) {
-            // 信息栏
-            DemoInfoBar(puzzle: viewModel.puzzle, viewModel: viewModel)
-
-            // 棋盘 + 点评覆盖
-            ZStack(alignment: .top) {
-                DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.puzzle.side == .black)
-
-                // 点评气泡
-                if let commentary = viewModel.currentCommentary {
-                    CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
-                        .padding(.top, 8)
-                }
+        if filteredPuzzles.isEmpty {
+            VStack(spacing: 12) {
+                Image(systemName: "puzzlepiece.extension")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.secondary)
+                Text("暂无残局数据")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            VStack(spacing: 0) {
+                // 信息栏
+                DemoInfoBar(puzzle: viewModel.puzzle, viewModel: viewModel)
 
-            // 控制栏
-            controlBar
+                // 棋盘 + 点评覆盖
+                ZStack(alignment: .top) {
+                    DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.puzzle.side == .black)
+
+                    // 点评气泡
+                    if let commentary = viewModel.currentCommentary {
+                        CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
+                            .padding(.top, 8)
+                    }
+                }
+
+                // 控制栏
+                controlBar
+            }
         }
     }
 
