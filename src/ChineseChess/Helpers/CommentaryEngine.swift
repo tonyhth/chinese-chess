@@ -42,15 +42,6 @@ struct CommentaryItem: Identifiable {
         case .keyMove: return "star.fill"
         }
     }
-
-    /// 颜色主题
-    var tint: String {
-        switch type {
-        case .check: return "orange"
-        case .checkmate: return "red"
-        case .keyMove: return "blue"
-        }
-    }
 }
 
 // MARK: - CommentaryEngine

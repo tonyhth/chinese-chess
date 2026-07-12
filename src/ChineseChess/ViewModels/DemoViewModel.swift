@@ -113,8 +113,9 @@ class DemoViewModel {
 
     func play() {
         guard canGoForward else {
-            // 已到末尾，重新开始
+            // 已到末尾，重新开始并自动播放
             resetToStart()
+            play()
             return
         }
         playState = .playing
@@ -137,6 +138,8 @@ class DemoViewModel {
 
     func stepForward() {
         guard canGoForward else { return }
+        stopAutoPlay()
+        playState = .idle
         executeCurrentMove()
     }
 
@@ -199,13 +202,11 @@ class DemoViewModel {
 
     private func onPuzzleComplete() {
         // 展示最后一步点评（将死/关键步）
-        if let checkSide = detectCheck() {
-            if MoveValidator.isCheckmate(checkSide, on: board) {
-                showCommentary(CommentaryItem(type: .checkmate(side: checkSide)))
-                return
-            }
+        let lastMoveIndex = moves.count - 1
+        let lastMove = moves[lastMoveIndex]
+        if let item = CommentaryEngine.evaluate(move: lastMove, on: board, moveIndex: lastMoveIndex, totalMoves: moves.count) {
+            showCommentary(item)
         }
-        showCommentary(CommentaryItem(type: .keyMove))
 
         // 连播：3 秒后自动进入下一局
         if isAutoAdvance {
@@ -221,32 +222,9 @@ class DemoViewModel {
     // MARK: - 点评
 
     private func updateCommentary(for move: Move, moveIndex: Int) {
-        // 检查将军
-        if let checkSide = detectCheck() {
-            // 将军：检查是否将死
-            if MoveValidator.isCheckmate(checkSide, on: board) {
-                showCommentary(CommentaryItem(type: .checkmate(side: checkSide)))
-            } else {
-                showCommentary(CommentaryItem(type: .check(side: checkSide)))
-            }
-            return
+        if let item = CommentaryEngine.evaluate(move: move, on: board, moveIndex: moveIndex, totalMoves: moves.count) {
+            showCommentary(item)
         }
-
-        // 最后一步（非将死）
-        if moveIndex == moves.count - 1 {
-            showCommentary(CommentaryItem(type: .keyMove))
-        }
-    }
-
-    private func detectCheck() -> Side? {
-        // 走棋后，检查对方是否被将军
-        // 刚走完 currentIndex 步，当前该对方走
-        let currentSide = board.currentTurn
-        // currentSide 是下一步要走的一方，被将军的是 currentSide
-        if MoveValidator.isInCheck(currentSide, on: board) {
-            return currentSide
-        }
-        return nil
     }
 
     private func showCommentary(_ item: CommentaryItem) {

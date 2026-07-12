@@ -49,6 +49,12 @@ struct PuzzleDemoView: View {
             mainContent
         }
         .frame(minWidth: 720, minHeight: 520)
+        .onChange(of: selectedCategory) { _, _ in
+            puzzleIndex = 0
+            if let first = filteredPuzzles.first {
+                switchToPuzzle(first)
+            }
+        }
     }
 
     // MARK: - iOS 布局
@@ -57,6 +63,12 @@ struct PuzzleDemoView: View {
         VStack(spacing: 0) {
             categoryPicker
             mainContent
+        }
+        .onChange(of: selectedCategory) { _, _ in
+            puzzleIndex = 0
+            if let first = filteredPuzzles.first {
+                switchToPuzzle(first)
+            }
         }
     }
 
