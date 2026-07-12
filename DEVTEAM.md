@@ -7,6 +7,26 @@
 
 ## Git 规范
 
+### ⚠️ Phase 完成必须提交（铁律，零例外）
+
+**每个 Phase 代码定稿后，Cody 必须 commit + tag。不允许攒多个 Phase 一起提交。**
+
+- Cody 完成编码 → Ruby 审查 → Tina 测试 → **Luke 验收时确认 git 有新 commit**
+- commit message 格式：`feat(phase-X): <描述>` 或 `fix(phase-X): <描述>`
+- 版本发布时打 tag：`v<major>.<minor>.<patch>`
+- 打包前必须确认版本号与最新 tag 匹配
+
+**为什么这是铁律**：v3.8.2→v5.0.1 的 86 个文件变更全部未提交，导致：
+1. 无法 git diff / git bisect 定位回归 bug
+2. 无法回退到已知正常版本
+3. 代码变更与版本号无法对应
+
+**Luke 验收检查清单增加**：
+```
+git log --oneline -3   # 确认 Phase commit 存在
+git diff --stat        # 确认 working tree 干净
+```
+
 ### 提交粒度
 - 按**功能模块**拆分 commit，不混合无关改动
 - commit message 格式：`<type>(<scope>): <描述>`
