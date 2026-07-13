@@ -45,6 +45,14 @@ targets:
         excludes:
           - "Assets.xcassets"
       - path: src/ChineseChess/Resources/Assets.xcassets
+      # Phase 2: 大师对局数据资源
+      - path: data/pgn-extracted
+        type: folder
+        buildPhase: resources
+      - path: data/master-game-index.json
+        buildPhase: resources
+      - path: data/master-stats.json
+        buildPhase: resources
     settings:
       base:
         GENERATE_INFOPLIST_FILE: NO

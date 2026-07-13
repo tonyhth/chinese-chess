@@ -33,6 +33,7 @@ struct CommentaryOverlay: View {
         switch commentary.type {
         case .check: return .orange
         case .checkmate: return .red
+        case .sacrifice: return .purple
         case .keyMove: return .blue
         }
     }

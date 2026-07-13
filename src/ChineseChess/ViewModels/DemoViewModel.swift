@@ -71,6 +71,9 @@ class DemoViewModel {
     private(set) var currentCommentary: CommentaryItem?
     private var commentaryHideTask: Task<Void, Never>?
 
+    // 弃子点评（Phase 2：预计算）
+    private var sacrificeCommentaries: [Int: CommentaryItem] = [:]
+
     // MARK: - 计算属性
 
     var totalSteps: Int { moves.count }
@@ -91,6 +94,10 @@ class DemoViewModel {
         self.puzzle = puzzle
         self.board = Board(fen: puzzle.initialFEN)
         self.moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+        // Phase 2：预计算弃子点评
+        self.sacrificeCommentaries = CommentaryEngine.generateSacrificeCommentaries(
+            moves: self.moves, initialFEN: puzzle.initialFEN
+        )
     }
 
     // MARK: - 播放控制
@@ -222,6 +229,12 @@ class DemoViewModel {
     // MARK: - 点评
 
     private func updateCommentary(for move: Move, moveIndex: Int) {
+        // Phase 2：弃子点评优先（预计算，O(1) 查找）
+        if let sacrificeItem = sacrificeCommentaries[moveIndex] {
+            showCommentary(sacrificeItem)
+            return
+        }
+        // Phase 1：规则推断（将军/将死/最后一步）
         if let item = CommentaryEngine.evaluate(move: move, on: board, moveIndex: moveIndex, totalMoves: moves.count) {
             showCommentary(item)
         }
