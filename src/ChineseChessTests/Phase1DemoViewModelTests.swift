@@ -3,6 +3,7 @@ import Testing
 
 // MARK: - DemoViewModel 核心逻辑测试
 
+@MainActor
 @Suite("Phase 1 Demo Auto-play", .serialized)
 struct DemoViewModelTests {
 

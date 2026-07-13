@@ -4,6 +4,7 @@ import XCTest
 // MARK: - Phase 1 棋谱自动演示测试
 
 /// 覆盖 DemoViewModel、DemoMoveConverter、CommentaryEngine、PuzzleStore.demoPuzzles、DemoSpeed
+@MainActor
 final class Phase1DemoTests: XCTestCase {
 
     // MARK: - 辅助：构造有 solution 的 Puzzle
