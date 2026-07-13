@@ -46,6 +46,7 @@ enum DemoPlayState {
 /// 残局自动演示 ViewModel
 /// 内部独立实现播放逻辑，不抽取 BoardPlayer
 /// 用 `// ReplayViewModel-sync` 标记与 ReplayViewModel 共享的逻辑点
+@MainActor
 @Observable
 class DemoViewModel {
     let puzzle: Puzzle

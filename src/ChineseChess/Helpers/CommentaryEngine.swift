@@ -137,6 +137,7 @@ struct CommentaryEngine {
     }
 
     /// 对完整走法序列批量生成弃子点评
+    /// 使用单次前向遍历，维护当前棋盘状态，每步只做增量 execute，O(moves)
     /// - Parameters:
     ///   - moves: 完整走法序列
     ///   - initialFEN: 初始 FEN
@@ -145,9 +146,37 @@ struct CommentaryEngine {
         var result: [Int: CommentaryItem] = [:]
         guard !moves.isEmpty else { return result }
 
+        // 单次前向遍历，维护棋盘状态
+        var boardStates: [Board] = []  // 保存每步执行后的棋盘，用于前瞻
+        var currentBoard = Board(fen: initialFEN)
+        boardStates.append(currentBoard.snapshot())  // index 0 = 初始局面
+
+        for move in moves {
+            currentBoard.execute(move)
+            boardStates.append(currentBoard.snapshot())
+        }
+        // boardStates[i] = 执行完第 i 步后的棋盘（boardStates[0] = 初始局面）
+
         for i in 0..<moves.count {
-            if let item = detectSacrifice(moves: moves, initialFEN: initialFEN, moveIndex: i) {
-                result[i] = item
+            let move = moves[i]
+            let movingSide = move.piece.side
+
+            // 执行前子力
+            let materialBefore = materialValue(for: movingSide, on: boardStates[i])
+            // 执行后子力
+            let materialAfter = materialValue(for: movingSide, on: boardStates[i + 1])
+
+            let delta = materialAfter - materialBefore
+            guard delta <= -sacrificeMinDelta else { continue }
+
+            // 前瞻确认：看未来 N 步内己方子力是否恢复
+            let lookaheadEnd = min(i + sacrificeLookahead, moves.count - 1)
+            for j in (i + 1)...lookaheadEnd {
+                let futureMaterial = materialValue(for: movingSide, on: boardStates[j + 1])
+                if futureMaterial >= materialBefore {
+                    result[i] = CommentaryItem(type: .sacrifice(side: movingSide, delta: -delta))
+                    break
+                }
             }
         }
 

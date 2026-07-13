@@ -7,7 +7,7 @@ struct OpeningSubcategory: Identifiable, Sendable {
     let id: String               // "zhong_pao_pingfengma"
     let name: String             // "中炮对屏风马"
     let firstMoves: [String]     // 前 N 步走法序列（用于匹配）
-    let gameCount: Int
+    var gameCount: Int
 }
 
 /// 一级开局分类（基于红方第一步走法）
@@ -15,7 +15,7 @@ struct OpeningCategory: Identifiable, Sendable {
     let id: String               // "zhong_pao" 等
     let name: String             // "中炮"
     let firstMove: String        // "h2e2"
-    let gameCount: Int           // 该开局下的对局数
+    var gameCount: Int           // 该开局下的对局数
     let description: String      // "炮二平五，最常见开局"
     let subcategories: [OpeningSubcategory]
 }

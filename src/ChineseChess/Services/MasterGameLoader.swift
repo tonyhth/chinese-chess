@@ -33,7 +33,16 @@ struct MasterGameLoader {
         defer { try? fileHandle.close() }
 
         // 定位到偏移量并读取指定长度
-        try? fileHandle.seek(toOffset: UInt64(index.pgnOffset))
+        do {
+            try fileHandle.seek(toOffset: UInt64(index.pgnOffset))
+        } catch {
+            return ImportResult(
+                records: [],
+                warnings: ["对局 #\(index.id) PGN seek 失败：\(error.localizedDescription)"],
+                skippedCount: 1,
+                totalGames: 1
+            )
+        }
         let data = fileHandle.readData(ofLength: index.pgnLength)
 
         guard let pgnText = String(data: data, encoding: .utf8) else {

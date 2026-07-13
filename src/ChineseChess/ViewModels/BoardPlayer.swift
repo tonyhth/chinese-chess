@@ -4,6 +4,7 @@ import Foundation
 
 /// 从 DemoViewModel 和 ReplayViewModel 抽取的通用播放逻辑
 /// Phase 2：消除重复代码，统一播放控制
+@MainActor
 @Observable
 class BoardPlayer {
     // MARK: - 核心状态
@@ -28,6 +29,7 @@ class BoardPlayer {
 
     private var snapshots: [Int: Board] = [:]
     private let snapshotInterval = 20
+    private let maxSnapshotCount = 20
     private var useSnapshots: Bool = false
 
     // MARK: - 计算属性
@@ -91,6 +93,10 @@ class BoardPlayer {
         rebuildBoard(upTo: target)
         currentIndex = target
         lastMove = target > 0 ? moveSource.lastMovePosition(at: target - 1) : nil
+        // 拍快照，方便后续 stepBackward
+        if useSnapshots {
+            takeSnapshotIfNeeded(at: target)
+        }
     }
 
     func stepForward() {
@@ -219,6 +225,10 @@ class BoardPlayer {
 
     private func takeSnapshotIfNeeded(at index: Int) {
         if index % snapshotInterval == 0 && index > 0 {
+            // 淘汰旧快照，保持上限
+            if snapshots.count >= maxSnapshotCount, let farthest = snapshots.keys.min(by: { abs($0 - index) > abs($1 - index) }) {
+                snapshots.removeValue(forKey: farthest)
+            }
             snapshots[index] = board.snapshot()
         }
     }

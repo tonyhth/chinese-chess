@@ -63,8 +63,7 @@ class MasterGameStore: ObservableObject {
         ) else { return }
 
         guard let pgnData = try? Data(contentsOf: pgnURL, options: .mappedIfSafe) else { return }
-        let head = pgnData.prefix(1024)
-        let hash = SHA256.hash(data: head).compactMap { String(format: "%02x", $0) }.joined()
+        let hash = SHA256.hash(data: pgnData).compactMap { String(format: "%02x", $0) }.joined()
         if hash != expected {
             #if DEBUG
             AppLog.puzzleStore.warning("PGN hash mismatch: index=\(expected.prefix(8))... actual=\(hash.prefix(8))...")
@@ -80,9 +79,8 @@ class MasterGameStore: ObservableObject {
             playerIndex[game.redNameCN, default: []].append(game)
             if game.redNameCN != game.blackNameCN {
                 playerIndex[game.blackNameCN, default: []].append(game)
-            } else {
-                playerIndex[game.blackNameCN, default: []].append(game)
             }
+            // 同名时已在上面 append 过，不重复
             // 按赛事
             eventIndex[game.event, default: []].append(game)
             // 按开局
