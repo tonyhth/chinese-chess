@@ -60,7 +60,8 @@ struct Piece: Equatable, Identifiable, Codable {
     // MARK: - P0-1 修正：fallback ID 推算（旧存档兼容）
 
     /// 根据棋子类型、方、位置推算 ID（用于旧存档兼容）
-    /// 开局初始位置返回确定性 ID（0-31），其他位置返回基于确定性哈希的唯一 ID（32-999）
+    /// 开局初始位置返回确定性 ID（0-31），其他位置返回直接编码 ID（10000-16198）
+    /// 直接编码：10000 + kindIndex*1000 + sideBit*100 + row*10 + col，数学上零碰撞
     /// ID 方案与 Board.initialPieces() 完全一致
     static func fallbackId(kind: PieceKind, side: Side, position: Position) -> Int {
         let baseId = side == .red ? 0 : 16
@@ -112,9 +113,12 @@ struct Piece: Equatable, Identifiable, Codable {
 
         // 非开局位置：直接编码，零碰撞
         // 10000 + kindIndex*1000 + sideBit*100 + row*10 + col
-        // kindIndex: general=0, advisor=1, elephant=2, horse=3, chariot=4, cannon=5, soldier=6
-        // sideBit: 红=0, 黑=1 | row: 0-9 | col: 0-8
         // ID 范围 10000-16198，与开局 ID 0-31 完全隔离，天然唯一
+        // 不变量：PieceKind ≤ 9 种，sideBit ≤ 1，row ≤ 9，col ≤ 8
+        //   → sideBit*100 + row*10 + col ≤ 198 < 1000（kindIndex 间无交叉）
+        //   → row*10 + col ≤ 98 < 100（sideBit 间无交叉）
+        //   → col ≤ 8 < 10（row 间无交叉）
+        assert(PieceKind.allCases.count <= 9, "PieceKind 数量超出直接编码不变量，需要重新设计 ID 方案")
         let kindIndex: Int
         switch kind {
         case .general:  kindIndex = 0

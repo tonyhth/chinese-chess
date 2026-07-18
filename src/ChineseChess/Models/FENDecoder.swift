@@ -48,7 +48,6 @@ enum FENDecoder {
         guard rows.count == 10 else { return nil }
 
         var pieces: [Piece] = []
-        var fallbackCounter = 100  // P1-1: 非开局位置的棋子用 100+ 后备 ID
 
         for (rowIndex, rowStr) in rows.enumerated() {
             var col = 0
@@ -56,7 +55,7 @@ enum FENDecoder {
                 if let num = char.wholeNumberValue {
                     guard num > 0 else { return nil }
                     col += num
-                } else if let piece = fenCharToPiece(char, row: rowIndex, col: col, fallbackCounter: &fallbackCounter) {
+                } else if let piece = fenCharToPiece(char, row: rowIndex, col: col) {
                     pieces.append(piece)
                     col += 1
                 } else {
@@ -171,7 +170,7 @@ enum FENDecoder {
 
     // MARK: - 辅助
 
-    private static func fenCharToPiece(_ char: Character, row: Int, col: Int, fallbackCounter: inout Int) -> Piece? {
+    private static func fenCharToPiece(_ char: Character, row: Int, col: Int) -> Piece? {
         let kind: PieceKind
         let side: Side
 
@@ -196,12 +195,7 @@ enum FENDecoder {
         }
 
         let pos = Position(row: row, col: col)
-        // P1-1: 用确定性 ID（与 initialPieces 一致），非开局位置用后备 ID
-        var id = Piece.fallbackId(kind: kind, side: side, position: pos)
-        if id < 0 {
-            id = fallbackCounter
-            fallbackCounter += 1
-        }
+        let id = Piece.fallbackId(kind: kind, side: side, position: pos)
         return Piece(kind: kind, side: side, position: pos, id: id)
     }
 
