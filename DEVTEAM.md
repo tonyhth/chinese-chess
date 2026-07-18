@@ -130,3 +130,28 @@ docs/
 - 主版本号：`v<major>.<minor>.<patch>`（如 v3.4.0）
 - Phase 完成后由洪涛决定是否升级版本号
 - 打包前确认 `Info.plist` 中的 `CFBundleShortVersionString` 和 `CFBundleVersion` 一致
+
+### 版本边界记录
+
+v3.8.2 之前的版本边界可通过 commit hash 定位（无需补打 tag）：
+
+| 版本 | Commit | 依据 |
+|------|--------|------|
+| v3.0.0 | 20f5d91 | Phase 8 P2最后修复 |
+| v3.1.0 | cbcb481 | Phase 2c P1返工完成 |
+| v3.5.0 | 7a83e84 | v3.5.0 最后提交 |
+| v3.6.0 | 532e332 | bump version to 3.6.0 |
+| v3.7.1 | a422afc | v3.7.1 最后提交 |
+| v3.8.1 | bedac52 | 标注 v3.8.1 |
+| v3.8.2 | 24edac1 | 标注 v3.8.2 |
+
+**⚠️ v4.0.0 ~ v5.0.0 边界合并说明**：这三个版本的代码变更合并于 commit ccacebe (2026-07-11)，版本间差异无法通过 git diff 追溯，需参考 docs/ 下的设计文档。
+
+### 丹妮 Phase 验收门禁
+
+验收 Phase 时额外检查：
+```
+git log --oneline -3   # 确认 Phase commit 存在
+git diff --stat        # 确认 working tree 干净
+```
+working tree 不为空 → 不算验收通过。
