@@ -123,6 +123,8 @@ struct DailyChallenge: Codable, Equatable {
     let date: String           // YYYY-MM-DD
     let mode: DailyChallengeMode
     // puzzleId: nil for rule-variant modes (cannonOnly), non-nil for puzzle-based modes (endgameStart, solveMate)
+    // Design intent: cannonOnly uses standard initial position with no puzzle association;
+    // endgameStart/solveMate always have puzzleId set (loadChallenge guards puzzle != nil, else showChallengeUnavailable)
     let puzzleId: String?
     let targetDifficulty: AIDifficulty
     let completed: Bool
