@@ -3970,6 +3970,22 @@
         }
       }
     },
+    "demo.noData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No puzzle data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无残局数据"
+          }
+        }
+      }
+    },
     "difficulty.beginner": {
       "localizations": {
         "en": {

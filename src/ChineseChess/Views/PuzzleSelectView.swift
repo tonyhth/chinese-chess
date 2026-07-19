@@ -243,8 +243,10 @@ struct PuzzleSelectView: View {
         .fullScreenCover(item: $selectedPuzzle) { puzzle in
             PuzzlePlayView(puzzle: puzzle, onShowDemo: { demoPuzzle in
                 selectedPuzzle = nil
-                demoTargetPuzzle = demoPuzzle
-                showPuzzleDemo = true
+                DispatchQueue.main.async {
+                    demoTargetPuzzle = demoPuzzle
+                    showPuzzleDemo = true
+                }
             })
         }
         .fullScreenCover(isPresented: $showPuzzleDemo) {
@@ -766,7 +768,7 @@ struct PuzzlePlayView: View {
                         .tint(.brown)
 
                         // 观看演示按钮（仅当残局有演示数据时）
-                        if PuzzleStore.shared.demoPuzzles.contains(where: { $0.id == puzzle.id }) {
+                        if PuzzleStore.shared.demoPuzzleIds.contains(puzzle.id) {
                             Button(l10n.t("puzzle.watchDemo")) {
                                 onShowDemo?(puzzle)
                             }

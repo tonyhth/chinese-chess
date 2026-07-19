@@ -6,6 +6,7 @@ struct PuzzleDemoView: View {
     @State private var viewModel: DemoViewModel?
     @Environment(\.dismiss) private var dismiss
 
+    // TODO: 后续迭代统一传入参数或用 @Environment 注入，解除 PuzzleStore.shared 硬依赖
     /// 当前分类过滤
     @State private var selectedCategory: String = PuzzleStore.shared.demoCategories.first ?? ""
 
@@ -59,7 +60,7 @@ struct PuzzleDemoView: View {
                     Image(systemName: "puzzlepiece.extension")
                         .font(.system(size: 40))
                         .foregroundStyle(.secondary)
-                    Text("暂无残局数据")
+                    Text(L10n.shared.t("demo.noData"))
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
@@ -163,7 +164,7 @@ struct PuzzleDemoView: View {
                 Image(systemName: "puzzlepiece.extension")
                     .font(.system(size: 40))
                     .foregroundStyle(.secondary)
-                Text("暂无残局数据")
+                Text(L10n.shared.t("demo.noData"))
                     .font(.title3)
                     .foregroundStyle(.secondary)
             }

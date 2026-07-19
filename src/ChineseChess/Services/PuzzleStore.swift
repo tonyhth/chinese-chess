@@ -76,6 +76,11 @@ final class PuzzleStore {
         puzzles.filter { !$0.solution.isEmpty }
     }
 
+    /// 演示残局 ID 集合（O(1) 查询，避免 demoPuzzles.contains 线性扫描）
+    lazy var demoPuzzleIds: Set<String> = {
+        Set(demoPuzzles.map { $0.id })
+    }()
+
     /// 演示分类（只包含有 solution 的残局的分类）
     var demoCategories: [String] {
         Array(Set(demoPuzzles.map { $0.category })).sorted()
