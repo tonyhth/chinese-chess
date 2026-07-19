@@ -4082,6 +4082,22 @@
         }
       }
     },
+    "demo.moveCount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d moves"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 步"
+          }
+        }
+      }
+    },
     "demo.noData": {
       "localizations": {
         "en": {

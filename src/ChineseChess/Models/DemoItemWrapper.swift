@@ -4,9 +4,22 @@ import Foundation
 
 /// 演示条目包装（编译期类型安全，自动 Equatable/Hashable）
 /// 替代 any DemoItem 协议，避免 Existential Container 开销和 Equatable 问题
-enum DemoItemWrapper: Identifiable {
+enum DemoItemWrapper: Identifiable, Equatable {
     case puzzle(Puzzle)
     case masterGame(MasterGameDemoItem)
+
+    // MARK: - Equatable（手动实现，因为 Puzzle 不符合 Equatable）
+
+    static func == (lhs: DemoItemWrapper, rhs: DemoItemWrapper) -> Bool {
+        switch (lhs, rhs) {
+        case (.puzzle(let a), .puzzle(let b)):
+            return a.id == b.id
+        case (.masterGame(let a), .masterGame(let b)):
+            return a == b
+        default:
+            return false
+        }
+    }
 
     var id: String {
         switch self {

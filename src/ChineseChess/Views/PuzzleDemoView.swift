@@ -19,62 +19,19 @@ struct PuzzleDemoView: View {
     @State private var currentPage: Int = 1
     private let pageSize = 30
 
+    /// [P0 fix] 缓存列表条目，切分类时重建，避免 computed property 重复计算
+    @State private var cachedListItems: [DemoItemWrapper] = []
+    @State private var cachedTotalCount: Int = 0
+
     /// 加载状态
     @State private var loadingGame = false
     @State private var loadError: String? = nil
+    @State private var showLoadError = false
     @State private var showIncompleteWarning = false
-
-    /// 当前分类下的列表条目（列表模式，轻量）
-    private var currentListItems: [DemoItemWrapper] {
-        guard let cat = selectedCategory else { return [] }
-        switch cat {
-        case .puzzles(let name):
-            return PuzzleStore.shared.demoPuzzles(byCategory: name).map { .puzzle($0) }
-        case .opening(let opening):
-            let indices = masterStore.byOpening(opening.firstMove)
-            // 分页：每次加载 pageSize * currentPage 条
-            let page = indices.prefix(pageSize * currentPage)
-            return page.map { .masterGame(MasterGameDemoItem(index: $0, fen: FENParser.standardInitial)) }
-        case .player:
-            return []
-        }
-    }
-
-    /// 当前分类总数
-    private var totalItemCount: Int {
-        guard let cat = selectedCategory else { return 0 }
-        switch cat {
-        case .puzzles(let name):
-            return PuzzleStore.shared.demoPuzzles(byCategory: name).count
-        case .opening(let opening):
-            return masterStore.byOpening(opening.firstMove).count
-        case .player:
-            return 0
-        }
-    }
 
     /// 是否有更多数据可加载
     private var hasMoreItems: Bool {
-        currentListItems.count < totalItemCount
-    }
-
-    /// 所有演示分类
-    private var allCategories: [DemoCategory] {
-        var result: [DemoCategory] = []
-        // 残局分类
-        for cat in PuzzleStore.shared.demoCategories {
-            result.append(.puzzles(cat))
-        }
-        // 大师棋谱开局分类（仅加载索引后显示）
-        if masterStore.isLoaded {
-            for opening in OpeningCategories.categories {
-                let count = masterStore.byOpening(opening.firstMove).count
-                if count > 0 {
-                    result.append(.opening(opening))
-                }
-            }
-        }
-        return result
+        cachedListItems.count < cachedTotalCount
     }
 
     /// 无参初始化：显示分类浏览视图，用户选择后进入演示
@@ -98,6 +55,31 @@ struct PuzzleDemoView: View {
         } else {
             // 无选中残局 → 显示列表模式
             listLayout
+        }
+    }
+
+    // MARK: - 列表缓存重建
+
+    /// 切分类或翻页时重建缓存
+    private func rebuildListCache() {
+        guard let cat = selectedCategory else {
+            cachedListItems = []
+            cachedTotalCount = 0
+            return
+        }
+        switch cat {
+        case .puzzles(let name):
+            let puzzles = PuzzleStore.shared.demoPuzzles(byCategory: name)
+            cachedTotalCount = puzzles.count
+            cachedListItems = puzzles.map { .puzzle($0) }
+        case .opening(let opening):
+            let indices = masterStore.byOpening(opening.firstMove)
+            cachedTotalCount = indices.count
+            let page = indices.prefix(pageSize * currentPage)
+            cachedListItems = page.map { .masterGame(MasterGameDemoItem(index: $0, fen: FENParser.standardInitial)) }
+        case .player:
+            cachedListItems = []
+            cachedTotalCount = 0
         }
     }
 
@@ -245,7 +227,7 @@ struct PuzzleDemoView: View {
                     #endif
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if currentListItems.isEmpty {
+            } else if cachedListItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
                         .font(.system(size: 40))
@@ -257,7 +239,7 @@ struct PuzzleDemoView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
-                    ForEach(currentListItems) { wrapper in
+                    ForEach(cachedListItems) { wrapper in
                         Button(action: { playItem(wrapper) }) {
                             demoItemRow(wrapper)
                         }
@@ -268,8 +250,9 @@ struct PuzzleDemoView: View {
                     if hasMoreItems {
                         HStack {
                             Spacer()
-                            Button(String(format: L10n.shared.t("demo.loadMore"), currentListItems.count, totalItemCount)) {
+                            Button(String(format: L10n.shared.t("demo.loadMore"), cachedListItems.count, cachedTotalCount)) {
                                 currentPage += 1
+                                rebuildListCache()
                             }
                             .buttonStyle(.bordered)
                             .tint(.brown)
@@ -283,7 +266,8 @@ struct PuzzleDemoView: View {
                         ProgressView()
                     }
                 }
-                .alert(L10n.shared.t("demo.loadError"), isPresented: .constant(loadError != nil)) {
+                // [P2 fix] 标准化 alert 绑定：用 @State Bool 控制显示
+                .alert(L10n.shared.t("demo.loadError"), isPresented: $showLoadError) {
                     Button("OK") { loadError = nil }
                 } message: {
                     Text(loadError ?? "")
@@ -297,6 +281,7 @@ struct PuzzleDemoView: View {
         }
         .onChange(of: selectedCategory) { _, _ in
             currentPage = 1
+            rebuildListCache()
         }
     }
 
@@ -346,7 +331,8 @@ struct PuzzleDemoView: View {
                     }
                 }
                 Spacer()
-                Text("\(demoItem.index.moveCount) 步")
+                // [P2 fix] 步数国际化
+                Text(String(format: L10n.shared.t("demo.moveCount"), demoItem.index.moveCount))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -363,15 +349,16 @@ struct PuzzleDemoView: View {
             viewModel = DemoViewModel(item: wrapper, moves: moves)
 
         case .masterGame(let demoItem):
-            // 大师棋谱：按需加载 PGN → GameRecord → 走法转换
+            // [P1 fix] 大师棋谱：先设 loading，再切后台线程执行 I/O
             loadingGame = true
             loadError = nil
-            Task {
+            Task.detached {
                 let result = MasterGameLoader.loadGame(demoItem.index)
                 guard let record = result.records.first else {
                     await MainActor.run {
                         loadingGame = false
                         loadError = L10n.shared.t("demo.loadGameFail")
+                        showLoadError = true
                     }
                     return
                 }
@@ -382,6 +369,7 @@ struct PuzzleDemoView: View {
                     loadingGame = false
                     if convertResult.moves.isEmpty {
                         loadError = L10n.shared.t("demo.parseGameFail")
+                        showLoadError = true
                     } else {
                         // 用实际 FEN 替换 MasterGameDemoItem 中的默认 FEN
                         let updatedItem = MasterGameDemoItem(index: demoItem.index, fen: fen)
@@ -526,5 +514,6 @@ struct PuzzleDemoView: View {
     private func backToList() {
         viewModel?.pause()
         viewModel = nil
+        rebuildListCache()
     }
 }
