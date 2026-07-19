@@ -28,6 +28,7 @@ struct PuzzleDemoView: View {
     @State private var loadError: String? = nil
     @State private var showLoadError = false
     @State private var showIncompleteWarning = false
+    @State private var showMasterLoadError = false
 
     /// 是否有更多数据可加载
     private var hasMoreItems: Bool {
@@ -279,6 +280,12 @@ struct PuzzleDemoView: View {
                 }
             }
         }
+        // 大师棋谱索引加载失败提示
+        .alert(L10n.shared.t("demo.loadError"), isPresented: $showMasterLoadError) {
+            Button("OK") {}
+        } message: {
+            Text(masterStore.loadError ?? "")
+        }
         .onChange(of: selectedCategory) { _, _ in
             currentPage = 1
             rebuildListCache()
@@ -393,6 +400,9 @@ struct PuzzleDemoView: View {
             await masterStore.loadIfNeeded()
             await MainActor.run {
                 isLoadingMasterIndex = false
+                if masterStore.loadError != nil {
+                    showMasterLoadError = true
+                }
             }
         }
     }
