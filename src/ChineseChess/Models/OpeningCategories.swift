@@ -3,7 +3,7 @@ import Foundation
 // MARK: - 开局分类
 
 /// 二级开局分类（基于红方前 2-3 步 + 黑方应手）
-struct OpeningSubcategory: Identifiable, Sendable {
+struct OpeningSubcategory: Identifiable, Sendable, Equatable, Hashable {
     let id: String               // "zhong_pao_pingfengma"
     let name: String             // "中炮对屏风马"
     let firstMoves: [String]     // 前 N 步走法序列（用于匹配）
@@ -11,7 +11,7 @@ struct OpeningSubcategory: Identifiable, Sendable {
 }
 
 /// 一级开局分类（基于红方第一步走法）
-struct OpeningCategory: Identifiable, Sendable {
+struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable {
     let id: String               // "zhong_pao" 等
     let name: String             // "中炮"
     let firstMove: String        // "h2e2"

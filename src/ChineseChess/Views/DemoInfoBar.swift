@@ -2,23 +2,23 @@ import SwiftUI
 
 // MARK: - 对局信息栏
 
-/// 漋示模式对局信息展示
-/// 含步数进度 "第 3/7 步"
+/// 演示模式对局信息展示
+/// 支持 DemoItemWrapper（残局 + 大师棋谱）
 struct DemoInfoBar: View {
-    let puzzle: Puzzle
+    let item: DemoItemWrapper
     let viewModel: DemoViewModel
 
     var body: some View {
         VStack(spacing: 4) {
-            // 残局名称 + 分类
+            // 标题 + 分类
             HStack {
-                Text(puzzle.name)
+                Text(item.demoTitle)
                     .font(.headline)
                     .lineLimit(1)
 
                 Spacer()
 
-                Text(puzzle.category)
+                Text(item.demoCategory)
                     .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
@@ -26,22 +26,19 @@ struct DemoInfoBar: View {
                     .clipShape(Capsule())
             }
 
-            // 步数进度
+            // 副标题 + 步数进度
             HStack {
-                Text(viewModel.progressText)
+                Text(item.demoSubtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
 
                 Spacer()
 
-                // 难度星级
-                HStack(spacing: 2) {
-                    ForEach(0..<puzzle.stars, id: \.self) { _ in
-                        Image(systemName: "star.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.yellow)
-                    }
-                }
+                Text(viewModel.progressText)
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(.horizontal, 12)

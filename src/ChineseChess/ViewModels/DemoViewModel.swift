@@ -43,13 +43,13 @@ enum DemoPlayState {
 
 // MARK: - DemoViewModel
 
-/// 残局自动演示 ViewModel
+/// 演示 ViewModel（残局 + 大师棋谱通用）
 /// 内部独立实现播放逻辑，不抽取 BoardPlayer
 /// 用 `// ReplayViewModel-sync` 标记与 ReplayViewModel 共享的逻辑点
 @MainActor
 @Observable
 class DemoViewModel {
-    let puzzle: Puzzle
+    let item: DemoItemWrapper
     private(set) var board: Board
     private(set) var currentIndex: Int = 0  // 当前步数索引（0 = 初始局面）
     var lastMove: (from: Position, to: Position)? = nil
@@ -64,6 +64,9 @@ class DemoViewModel {
 
     // 解析后的走法
     private let moves: [Move]  // 内部用 Move 执行
+
+    // 初始 FEN（保存独立引用，避免从 item 反复取）
+    private let initialFEN: String
 
     // 自动播放
     private var autoPlayTask: Task<Void, Never>?
@@ -91,14 +94,22 @@ class DemoViewModel {
 
     // MARK: - Init
 
-    init(puzzle: Puzzle) {
-        self.puzzle = puzzle
-        self.board = Board(fen: puzzle.initialFEN)
-        self.moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+    /// 通用初始化：接收 DemoItemWrapper + 预计算的 Move 列表
+    init(item: DemoItemWrapper, moves: [Move]) {
+        self.item = item
+        self.initialFEN = item.initialFEN
+        self.board = Board(fen: initialFEN)
+        self.moves = moves
         // Phase 2：预计算弃子点评
         self.sacrificeCommentaries = CommentaryEngine.generateSacrificeCommentaries(
-            moves: self.moves, initialFEN: puzzle.initialFEN
+            moves: self.moves, initialFEN: initialFEN
         )
+    }
+
+    /// 便利初始化：从 Puzzle 创建（向后兼容）
+    convenience init(puzzle: Puzzle) {
+        let moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+        self.init(item: .puzzle(puzzle), moves: moves)
     }
 
     // MARK: - 播放控制
@@ -138,7 +149,7 @@ class DemoViewModel {
     func resetToStart() {
         stopAutoPlay()
         currentIndex = 0
-        board = Board(fen: puzzle.initialFEN)
+        board = Board(fen: initialFEN)
         lastMove = nil
         playState = .idle
         currentCommentary = nil
@@ -216,11 +227,12 @@ class DemoViewModel {
             showCommentary(item)
         }
 
-        // 连播：3 秒后自动进入下一局
+        // 连播：残局 3 秒 / 大师棋谱 8 秒
         if isAutoAdvance {
+            let delay = item.autoAdvanceDelay
             resultDisplayTimer = Task { @MainActor in
                 do {
-                    try await Task.sleep(for: .seconds(3.0))
+                    try await Task.sleep(for: .seconds(delay))
                     playState = .transitioning
                 } catch {}
             }
@@ -258,7 +270,7 @@ class DemoViewModel {
 
     // ReplayViewModel-sync: 与 ReplayViewModel.rebuildBoard 逻辑相同
     private func rebuildBoard(upTo index: Int) {
-        board = Board(fen: puzzle.initialFEN)
+        board = Board(fen: initialFEN)
         for i in 0..<index {
             guard i < moves.count else { break }
             board.execute(moves[i])

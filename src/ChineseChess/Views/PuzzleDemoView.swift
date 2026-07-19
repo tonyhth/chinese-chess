@@ -7,21 +7,75 @@ struct PuzzleDemoView: View {
     @Environment(\.dismiss) private var dismiss
 
     // TODO: 后续迭代统一传入参数或用 @Environment 注入，解除 PuzzleStore.shared 硬依赖
-    /// 当前分类过滤
-    @State private var selectedCategory: String = PuzzleStore.shared.demoCategories.first ?? ""
 
-    /// 所有分类（过滤掉 freePlay 无 solution 的局）
-    private var categories: [String] {
-        PuzzleStore.shared.demoCategories
+    /// 当前选中的演示分类
+    @State private var selectedCategory: DemoCategory? = nil
+
+    /// MasterGameStore 懒加载
+    @State private var masterStore = MasterGameStore.shared
+    @State private var isLoadingMasterIndex = false
+
+    /// 列表模式：分页
+    @State private var currentPage: Int = 1
+    private let pageSize = 30
+
+    /// 加载状态
+    @State private var loadingGame = false
+    @State private var loadError: String? = nil
+    @State private var showIncompleteWarning = false
+
+    /// 当前分类下的列表条目（列表模式，轻量）
+    private var currentListItems: [DemoItemWrapper] {
+        guard let cat = selectedCategory else { return [] }
+        switch cat {
+        case .puzzles(let name):
+            return PuzzleStore.shared.demoPuzzles(byCategory: name).map { .puzzle($0) }
+        case .opening(let opening):
+            let indices = masterStore.byOpening(opening.firstMove)
+            // 分页：每次加载 pageSize * currentPage 条
+            let page = indices.prefix(pageSize * currentPage)
+            return page.map { .masterGame(MasterGameDemoItem(index: $0, fen: FENParser.standardInitial)) }
+        case .player:
+            return []
+        }
     }
 
-    /// 当前分类下的残局列表（只包含有 solution 的）
-    private var filteredPuzzles: [Puzzle] {
-        PuzzleStore.shared.demoPuzzles(byCategory: selectedCategory)
+    /// 当前分类总数
+    private var totalItemCount: Int {
+        guard let cat = selectedCategory else { return 0 }
+        switch cat {
+        case .puzzles(let name):
+            return PuzzleStore.shared.demoPuzzles(byCategory: name).count
+        case .opening(let opening):
+            return masterStore.byOpening(opening.firstMove).count
+        case .player:
+            return 0
+        }
     }
 
-    /// 当前残局在列表中的索引
-    @State private var puzzleIndex: Int = 0
+    /// 是否有更多数据可加载
+    private var hasMoreItems: Bool {
+        currentListItems.count < totalItemCount
+    }
+
+    /// 所有演示分类
+    private var allCategories: [DemoCategory] {
+        var result: [DemoCategory] = []
+        // 残局分类
+        for cat in PuzzleStore.shared.demoCategories {
+            result.append(.puzzles(cat))
+        }
+        // 大师棋谱开局分类（仅加载索引后显示）
+        if masterStore.isLoaded {
+            for opening in OpeningCategories.categories {
+                let count = masterStore.byOpening(opening.firstMove).count
+                if count > 0 {
+                    result.append(.opening(opening))
+                }
+            }
+        }
+        return result
+    }
 
     /// 无参初始化：显示分类浏览视图，用户选择后进入演示
     init() {
@@ -42,20 +96,156 @@ struct PuzzleDemoView: View {
             macosLayout(viewModel: vm)
             #endif
         } else {
-            // 无选中残局 → 显示分类浏览视图
-            categoryBrowseView
+            // 无选中残局 → 显示列表模式
+            listLayout
         }
     }
 
-    // MARK: - 分类浏览视图（viewModel 为 nil 时显示）
+    // MARK: - 列表模式（未选中具体对局时显示）
 
-    private var categoryBrowseView: some View {
+    private var listLayout: some View {
+        #if os(macOS)
+        HStack(spacing: 0) {
+            sidebar
+                .frame(width: 200)
+
+            Divider()
+
+            listContent
+        }
+        .frame(minWidth: 720, minHeight: 520)
+        #else
         VStack(spacing: 0) {
-            Text(L10n.shared.t("demo.browseTitle"))
-                .font(.headline)
-                .padding()
+            categoryPicker
+            listContent
+        }
+        #endif
+    }
 
-            if categories.isEmpty {
+    // MARK: - 分类侧边栏 (macOS)
+    #if os(macOS)
+    private var sidebar: some View {
+        List(selection: $selectedCategory) {
+            // 残局 Section
+            Section(L10n.shared.t("demo.sectionPuzzles")) {
+                ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
+                    let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
+                    HStack {
+                        Text(cat)
+                            .font(.subheadline)
+                        Spacer()
+                        Text("\(count)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.secondary.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+                    .tag(DemoCategory.puzzles(cat))
+                }
+            }
+
+            // 大师棋谱 Section
+            if masterStore.isLoaded {
+                Section(L10n.shared.t("demo.sectionMasterGames")) {
+                    ForEach(OpeningCategories.categories.filter { opening in
+                        masterStore.byOpening(opening.firstMove).count > 0
+                    }) { opening in
+                        let count = masterStore.byOpening(opening.firstMove).count
+                        HStack {
+                            Text(opening.name)
+                                .font(.subheadline)
+                            Spacer()
+                            Text("\(count)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.secondary.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                        .tag(DemoCategory.opening(opening))
+                    }
+                }
+            } else {
+                Section(L10n.shared.t("demo.sectionMasterGames")) {
+                    Button(action: loadMasterIndex) {
+                        HStack {
+                            if isLoadingMasterIndex {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                            } else {
+                                Image(systemName: "arrow.down.circle")
+                                    .foregroundColor(.accentColor)
+                            }
+                            Text(L10n.shared.t("demo.loadMasterIndex"))
+                                .font(.subheadline)
+                        }
+                    }
+                }
+            }
+        }
+        .listStyle(.sidebar)
+    }
+    #endif
+
+    // MARK: - 分类 Picker (iOS)
+
+    private var categoryPicker: some View {
+        Picker(L10n.shared.t("demo.category"), selection: $selectedCategory) {
+            // 残局
+            ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
+                let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
+                Text("\(cat) (\(count))").tag(DemoCategory.puzzles(cat))
+            }
+            // 大师棋谱
+            if masterStore.isLoaded {
+                ForEach(OpeningCategories.categories.filter { opening in
+                    masterStore.byOpening(opening.firstMove).count > 0
+                }) { opening in
+                    let count = masterStore.byOpening(opening.firstMove).count
+                    Text("\(opening.name) (\(count))").tag(DemoCategory.opening(opening))
+                }
+            }
+        }
+        .pickerStyle(.menu)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+    }
+
+    // MARK: - 列表内容区
+
+    private var listContent: some View {
+        Group {
+            if selectedCategory == nil {
+                // 未选择分类
+                VStack(spacing: 12) {
+                    Image(systemName: "square.grid.2x2")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
+                    Text(L10n.shared.t("demo.selectCategory"))
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+
+                    // iOS 上如果大师棋谱未加载，显示加载按钮
+                    #if os(iOS)
+                    if !masterStore.isLoaded {
+                        Button(action: loadMasterIndex) {
+                            if isLoadingMasterIndex {
+                                ProgressView()
+                            } else {
+                                Label(L10n.shared.t("demo.loadMasterIndex"), systemImage: "arrow.down.circle")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.accentColor)
+                        .padding(.top, 8)
+                    }
+                    #endif
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if currentListItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
                         .font(.system(size: 40))
@@ -67,17 +257,154 @@ struct PuzzleDemoView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
-                    ForEach(categories, id: \.self) { cat in
-                        Section(cat) {
-                            let puzzles = PuzzleStore.shared.demoPuzzles(byCategory: cat)
-                            ForEach(puzzles) { puzzle in
-                                Button(puzzle.name) {
-                                    viewModel = DemoViewModel(puzzle: puzzle)
-                                }
+                    ForEach(currentListItems) { wrapper in
+                        Button(action: { playItem(wrapper) }) {
+                            demoItemRow(wrapper)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    // 加载更多按钮
+                    if hasMoreItems {
+                        HStack {
+                            Spacer()
+                            Button(String(format: L10n.shared.t("demo.loadMore"), currentListItems.count, totalItemCount)) {
+                                currentPage += 1
                             }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                            Spacer()
+                        }
+                        .padding(.vertical, 12)
+                    }
+                }
+                .overlay {
+                    if loadingGame {
+                        ProgressView()
+                    }
+                }
+                .alert(L10n.shared.t("demo.loadError"), isPresented: .constant(loadError != nil)) {
+                    Button("OK") { loadError = nil }
+                } message: {
+                    Text(loadError ?? "")
+                }
+                .alert(L10n.shared.t("demo.incompleteWarning"), isPresented: $showIncompleteWarning) {
+                    Button("OK") {}
+                } message: {
+                    Text(L10n.shared.t("demo.incompleteMessage"))
+                }
+            }
+        }
+        .onChange(of: selectedCategory) { _, _ in
+            currentPage = 1
+        }
+    }
+
+    // MARK: - 列表项行视图
+
+    @ViewBuilder
+    private func demoItemRow(_ wrapper: DemoItemWrapper) -> some View {
+        switch wrapper {
+        case .puzzle(let puzzle):
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(puzzle.name)
+                        .font(.subheadline.weight(.medium))
+                        .lineLimit(1)
+                    Text(puzzle.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer()
+                // 难度星级
+                HStack(spacing: 1) {
+                    ForEach(0..<puzzle.stars, id: \.self) { _ in
+                        Image(systemName: "star.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.yellow)
+                    }
+                }
+            }
+
+        case .masterGame(let demoItem):
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(demoItem.index.redNameCN) vs \(demoItem.index.blackNameCN)")
+                        .font(.subheadline.weight(.medium))
+                        .lineLimit(1)
+                    HStack(spacing: 4) {
+                        if let year = demoItem.index.year {
+                            Text("\(year)")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+                        Text(demoItem.index.event)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                Spacer()
+                Text("\(demoItem.index.moveCount) 步")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    // MARK: - 播放条目
+
+    private func playItem(_ wrapper: DemoItemWrapper) {
+        switch wrapper {
+        case .puzzle(let puzzle):
+            // 残局：走法从 solution 直接解析
+            let moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+            viewModel = DemoViewModel(item: wrapper, moves: moves)
+
+        case .masterGame(let demoItem):
+            // 大师棋谱：按需加载 PGN → GameRecord → 走法转换
+            loadingGame = true
+            loadError = nil
+            Task {
+                let result = MasterGameLoader.loadGame(demoItem.index)
+                guard let record = result.records.first else {
+                    await MainActor.run {
+                        loadingGame = false
+                        loadError = L10n.shared.t("demo.loadGameFail")
+                    }
+                    return
+                }
+                let fen = record.initialFEN ?? FENParser.standardInitial
+                let convertResult = DemoMoveConverter.convertGameMoves(record.moves, initialFEN: fen)
+
+                await MainActor.run {
+                    loadingGame = false
+                    if convertResult.moves.isEmpty {
+                        loadError = L10n.shared.t("demo.parseGameFail")
+                    } else {
+                        // 用实际 FEN 替换 MasterGameDemoItem 中的默认 FEN
+                        let updatedItem = MasterGameDemoItem(index: demoItem.index, fen: fen)
+                        viewModel = DemoViewModel(item: .masterGame(updatedItem), moves: convertResult.moves)
+
+                        if !convertResult.isComplete {
+                            showIncompleteWarning = true
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // MARK: - 大师棋谱索引懒加载
+
+    private func loadMasterIndex() {
+        guard !isLoadingMasterIndex else { return }
+        isLoadingMasterIndex = true
+        Task {
+            await masterStore.loadIfNeeded()
+            await MainActor.run {
+                isLoadingMasterIndex = false
             }
         }
     }
@@ -87,19 +414,13 @@ struct PuzzleDemoView: View {
     private func macosLayout(viewModel vm: DemoViewModel) -> some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 160)
+                .frame(width: 200)
 
             Divider()
 
             mainContent(viewModel: vm)
         }
         .frame(minWidth: 720, minHeight: 520)
-        .onChange(of: selectedCategory) { _, _ in
-            puzzleIndex = 0
-            if let first = filteredPuzzles.first {
-                switchToPuzzle(first)
-            }
-        }
     }
     #endif
 
@@ -107,87 +428,31 @@ struct PuzzleDemoView: View {
 
     private func iosLayout(viewModel vm: DemoViewModel) -> some View {
         VStack(spacing: 0) {
-            categoryPicker
             mainContent(viewModel: vm)
         }
-        .onChange(of: selectedCategory) { _, _ in
-            puzzleIndex = 0
-            if let first = filteredPuzzles.first {
-                switchToPuzzle(first)
-            }
-        }
     }
 
-    // MARK: - 分类侧边栏 (macOS)
-    #if os(macOS)
-    private var sidebar: some View {
-        List(categories, id: \.self, selection: $selectedCategory) { cat in
-            let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-            HStack {
-                Text(cat)
-                    .font(.subheadline)
-                Spacer()
-                Text("\(count)")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.1))
-                    .clipShape(Capsule())
-            }
-            .tag(cat)
-        }
-        .listStyle(.sidebar)
-    }
-    #endif
-
-    // MARK: - 分类 Picker (iOS)
-
-    private var categoryPicker: some View {
-        Picker(L10n.shared.t("demo.category"), selection: $selectedCategory) {
-            ForEach(categories, id: \.self) { cat in
-                let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-                Text("\(cat) (\(count))").tag(cat)
-            }
-        }
-        .pickerStyle(.menu)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
-    }
-
-    // MARK: - 主内容区
+    // MARK: - 主内容区（播放模式）
 
     @ViewBuilder
     private func mainContent(viewModel: DemoViewModel) -> some View {
-        if filteredPuzzles.isEmpty {
-            VStack(spacing: 12) {
-                Image(systemName: "puzzlepiece.extension")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.secondary)
-                Text(L10n.shared.t("demo.noData"))
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            VStack(spacing: 0) {
-                // 信息栏
-                DemoInfoBar(puzzle: viewModel.puzzle, viewModel: viewModel)
+        VStack(spacing: 0) {
+            // 信息栏
+            DemoInfoBar(item: viewModel.item, viewModel: viewModel)
 
-                // 棋盘 + 点评覆盖
-                ZStack(alignment: .top) {
-                    DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.puzzle.side == .black)
+            // 棋盘 + 点评覆盖
+            ZStack(alignment: .top) {
+                DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
 
-                    // 点评气泡
-                    if let commentary = viewModel.currentCommentary {
-                        CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
-                            .padding(.top, 8)
-                    }
+                // 点评气泡
+                if let commentary = viewModel.currentCommentary {
+                    CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
+                        .padding(.top, 8)
                 }
-
-                // 控制栏
-                controlBar(viewModel: viewModel)
             }
+
+            // 控制栏
+            controlBar(viewModel: viewModel)
         }
     }
 
@@ -245,16 +510,10 @@ struct PuzzleDemoView: View {
 
                 Spacer()
 
-                // 上一局 / 下一局
-                Button(action: previousPuzzle) {
-                    Image(systemName: "chevron.up")
+                // 返回列表
+                Button(action: { backToList() }) {
+                    Image(systemName: "list.bullet")
                 }
-                .disabled(puzzleIndex <= 0)
-
-                Button(action: nextPuzzle) {
-                    Image(systemName: "chevron.down")
-                }
-                .disabled(puzzleIndex >= filteredPuzzles.count - 1)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -262,21 +521,10 @@ struct PuzzleDemoView: View {
         .background(.bar)
     }
 
-    // MARK: - 残局切换
+    // MARK: - 返回列表
 
-    private func nextPuzzle() {
-        guard puzzleIndex < filteredPuzzles.count - 1 else { return }
-        puzzleIndex += 1
-        switchToPuzzle(filteredPuzzles[puzzleIndex])
-    }
-
-    private func previousPuzzle() {
-        guard puzzleIndex > 0 else { return }
-        puzzleIndex -= 1
-        switchToPuzzle(filteredPuzzles[puzzleIndex])
-    }
-
-    private func switchToPuzzle(_ puzzle: Puzzle) {
-        viewModel = DemoViewModel(puzzle: puzzle)
+    private func backToList() {
+        viewModel?.pause()
+        viewModel = nil
     }
 }

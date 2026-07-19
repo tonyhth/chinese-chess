@@ -3,7 +3,7 @@ import Foundation
 // MARK: - 大师对局索引条目
 
 /// 大师对局的索引条目（离线预生成，不包含走法数据）
-struct MasterGameIndex: Codable, Identifiable, Sendable {
+struct MasterGameIndex: Codable, Identifiable, Sendable, Equatable {
     let id: Int                  // 全局序号（0-based）
     let event: String            // 赛事名称（PGN 原始值，英文）
     let redName: String          // 红方姓名（归一化后）

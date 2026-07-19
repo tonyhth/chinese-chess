@@ -6,6 +6,8 @@ import CryptoKit
 /// 大师对局索引加载 + 倒排索引 + 按需解析
 @MainActor
 class MasterGameStore: ObservableObject {
+    static let shared = MasterGameStore()
+
     private(set) var allGames: [MasterGameIndex] = []
     private(set) var stats: MasterStatsFile?
     private(set) var isLoaded = false
