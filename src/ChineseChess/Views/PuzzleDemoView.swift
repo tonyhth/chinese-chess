@@ -144,7 +144,7 @@ struct PuzzleDemoView: View {
     // MARK: - 分类 Picker (iOS)
 
     private var categoryPicker: some View {
-        Picker("分类", selection: $selectedCategory) {
+        Picker(L10n.shared.t("demo.category"), selection: $selectedCategory) {
             ForEach(categories, id: \.self) { cat in
                 let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
                 Text("\(cat) (\(count))").tag(cat)
@@ -220,7 +220,7 @@ struct PuzzleDemoView: View {
                     .frame(height: 24)
 
                 // 速度选择
-                Picker("速度", selection: Binding(
+                Picker(L10n.shared.t("demo.speed"), selection: Binding(
                     get: { viewModel.speed },
                     set: { viewModel.speed = $0 }
                 )) {

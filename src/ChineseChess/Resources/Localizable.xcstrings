@@ -3906,6 +3906,22 @@
         }
       }
     },
+    "demo.category": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分类"
+          }
+        }
+      }
+    },
     "demo.comingSoon": {
       "localizations": {
         "en": {
@@ -3982,6 +3998,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "暂无残局数据"
+          }
+        }
+      }
+    },
+    "demo.speed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "速度"
           }
         }
       }
