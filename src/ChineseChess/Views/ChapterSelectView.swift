@@ -10,17 +10,36 @@ struct ChapterSelectView: View {
 
     @State private var lockedChapterInfo: PuzzleChapter?
 
+    private var demoPuzzleCount: Int {
+        PuzzleStore.shared.demoPuzzles.count
+    }
+    private var demoCategoryCount: Int {
+        PuzzleStore.shared.demoCategories.count
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // 总进度概览
             TotalProgressHeader()
+
+            // 演示入口卡片（ScrollView 外，始终可见）
+            if demoPuzzleCount > 0 {
+                NavigationLink(value: NavigationRoute.puzzleDemo) {
+                    DemoEntryCard(demoCount: demoPuzzleCount, categoryCount: demoCategoryCount)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal)
+            } else {
+                DemoEntryCard(demoCount: 0, categoryCount: 0)
+                    .padding(.horizontal)
+            }
 
             // 章节卡片列表
             ScrollView {
                 LazyVStack(spacing: 16) {
                     ForEach(store.chapters) { chapter in
                         if chapter.isUnlocked {
-                            NavigationLink(value: chapter) {
+                            NavigationLink(value: NavigationRoute.chapter(chapter)) {
                                 ChapterCard(chapter: chapter)
                             }
                             .buttonStyle(.plain)
@@ -39,8 +58,13 @@ struct ChapterSelectView: View {
             }
         }
         .navigationTitle(L10n.shared.t("chapter.select.title"))
-        .navigationDestination(for: PuzzleChapter.self) { chapter in
-            PuzzleSelectView(chapter: chapter)
+        .navigationDestination(for: NavigationRoute.self) { route in
+            switch route {
+            case .chapter(let chapter):
+                PuzzleSelectView(chapter: chapter)
+            case .puzzleDemo:
+                PuzzleDemoView()
+            }
         }
         .alert(
             L10n.shared.t("chapter.locked.title"),

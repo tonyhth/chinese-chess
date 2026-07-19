@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - 残局自动演示主视图
 
 struct PuzzleDemoView: View {
-    @State private var viewModel: DemoViewModel
+    @State private var viewModel: DemoViewModel?
     @Environment(\.dismiss) private var dismiss
 
     /// 当前分类过滤
@@ -22,31 +22,75 @@ struct PuzzleDemoView: View {
     /// 当前残局在列表中的索引
     @State private var puzzleIndex: Int = 0
 
-    var onClose: (() -> Void)? = nil
+    /// 无参初始化：显示分类浏览视图，用户选择后进入演示
+    init() {
+        self._viewModel = State(initialValue: nil)
+    }
 
-    init(puzzle: Puzzle, onClose: (() -> Void)? = nil) {
-        self._viewModel = State(initialValue: DemoViewModel(puzzle: puzzle))
-        self.onClose = onClose
+    /// 指定残局初始化：直接进入该残局的演示
+    init(initialPuzzle: Puzzle) {
+        self._viewModel = State(initialValue: DemoViewModel(puzzle: initialPuzzle))
     }
 
     var body: some View {
-        #if os(iOS)
-        iosLayout
-        #else
-        macosLayout
-        #endif
+        if let vm = viewModel {
+            // 有选中残局 → 显示演示
+            #if os(iOS)
+            iosLayout(viewModel: vm)
+            #else
+            macosLayout(viewModel: vm)
+            #endif
+        } else {
+            // 无选中残局 → 显示分类浏览视图
+            categoryBrowseView
+        }
+    }
+
+    // MARK: - 分类浏览视图（viewModel 为 nil 时显示）
+
+    private var categoryBrowseView: some View {
+        VStack(spacing: 0) {
+            Text(L10n.shared.t("demo.browseTitle"))
+                .font(.headline)
+                .padding()
+
+            if categories.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "puzzlepiece.extension")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
+                    Text("暂无残局数据")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+                    ForEach(categories, id: \.self) { cat in
+                        Section(cat) {
+                            let puzzles = PuzzleStore.shared.demoPuzzles(byCategory: cat)
+                            ForEach(puzzles) { puzzle in
+                                Button(puzzle.name) {
+                                    viewModel = DemoViewModel(puzzle: puzzle)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - macOS 布局
     #if os(macOS)
-    private var macosLayout: some View {
+    private func macosLayout(viewModel vm: DemoViewModel) -> some View {
         HStack(spacing: 0) {
             sidebar
                 .frame(width: 160)
 
             Divider()
 
-            mainContent
+            mainContent(viewModel: vm)
         }
         .frame(minWidth: 720, minHeight: 520)
         .onChange(of: selectedCategory) { _, _ in
@@ -60,10 +104,10 @@ struct PuzzleDemoView: View {
 
     // MARK: - iOS 布局
 
-    private var iosLayout: some View {
+    private func iosLayout(viewModel vm: DemoViewModel) -> some View {
         VStack(spacing: 0) {
             categoryPicker
-            mainContent
+            mainContent(viewModel: vm)
         }
         .onChange(of: selectedCategory) { _, _ in
             puzzleIndex = 0
@@ -113,7 +157,7 @@ struct PuzzleDemoView: View {
     // MARK: - 主内容区
 
     @ViewBuilder
-    private var mainContent: some View {
+    private func mainContent(viewModel: DemoViewModel) -> some View {
         if filteredPuzzles.isEmpty {
             VStack(spacing: 12) {
                 Image(systemName: "puzzlepiece.extension")
@@ -141,14 +185,14 @@ struct PuzzleDemoView: View {
                 }
 
                 // 控制栏
-                controlBar
+                controlBar(viewModel: viewModel)
             }
         }
     }
 
     // MARK: - 控制栏
 
-    private var controlBar: some View {
+    private func controlBar(viewModel: DemoViewModel) -> some View {
         VStack(spacing: 8) {
             // 进度条
             ProgressView(value: Double(viewModel.currentIndex), total: Double(max(viewModel.totalSteps, 1)))
@@ -175,7 +219,10 @@ struct PuzzleDemoView: View {
                     .frame(height: 24)
 
                 // 速度选择
-                Picker("速度", selection: $viewModel.speed) {
+                Picker("速度", selection: Binding(
+                    get: { viewModel.speed },
+                    set: { viewModel.speed = $0 }
+                )) {
                     ForEach(DemoSpeed.allCases) { speed in
                         Text(speed.label).tag(speed)
                     }

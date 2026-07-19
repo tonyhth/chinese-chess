@@ -12,6 +12,8 @@ struct PuzzleSelectView: View {
     @State private var isSearching = false
     @State private var debouncedSearchText = ""
     @State private var completionFilter: CompletionFilter = .all
+    @State private var showPuzzleDemo = false
+    @State private var demoTargetPuzzle: Puzzle?
 
     enum CompletionFilter: String, CaseIterable {
         case all, completed, uncompleted
@@ -239,12 +241,33 @@ struct PuzzleSelectView: View {
         .cornerRadius(8)
         #if os(iOS)
         .fullScreenCover(item: $selectedPuzzle) { puzzle in
-            PuzzlePlayView(puzzle: puzzle)
+            PuzzlePlayView(puzzle: puzzle, onShowDemo: { demoPuzzle in
+                selectedPuzzle = nil
+                demoTargetPuzzle = demoPuzzle
+                showPuzzleDemo = true
+            })
+        }
+        .fullScreenCover(isPresented: $showPuzzleDemo) {
+            if let puzzle = demoTargetPuzzle {
+                PuzzleDemoView(initialPuzzle: puzzle)
+            }
         }
         #else
         .sheet(item: $selectedPuzzle) { puzzle in
-            PuzzlePlayView(puzzle: puzzle)
-                .frame(minWidth: 600, minHeight: 700)
+            PuzzlePlayView(puzzle: puzzle, onShowDemo: { demoPuzzle in
+                selectedPuzzle = nil
+                DispatchQueue.main.async {
+                    demoTargetPuzzle = demoPuzzle
+                    showPuzzleDemo = true
+                }
+            })
+            .frame(minWidth: 600, minHeight: 700)
+        }
+        .sheet(isPresented: $showPuzzleDemo) {
+            if let puzzle = demoTargetPuzzle {
+                PuzzleDemoView(initialPuzzle: puzzle)
+                    .frame(minWidth: 720, minHeight: 520)
+            }
         }
         #endif
     }
@@ -470,6 +493,7 @@ struct PuzzleRow: View {
 
 struct PuzzlePlayView: View {
     let puzzle: Puzzle
+    var onShowDemo: ((Puzzle) -> Void)? = nil
     @State private var viewModel: PuzzleViewModel
     @State private var showSolutionReplay = false
     @Environment(\.dismiss) private var dismiss
@@ -494,8 +518,9 @@ struct PuzzlePlayView: View {
         #endif
     }
 
-    init(puzzle: Puzzle) {
+    init(puzzle: Puzzle, onShowDemo: ((Puzzle) -> Void)? = nil) {
         self.puzzle = puzzle
+        self.onShowDemo = onShowDemo
         self._viewModel = State(initialValue: PuzzleViewModel(puzzle: puzzle))
     }
 
@@ -739,6 +764,15 @@ struct PuzzlePlayView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.brown)
+
+                        // 观看演示按钮（仅当残局有演示数据时）
+                        if PuzzleStore.shared.demoPuzzles.contains(where: { $0.id == puzzle.id }) {
+                            Button(l10n.t("puzzle.watchDemo")) {
+                                onShowDemo?(puzzle)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.orange)
+                        }
 
                         Button(l10n.t("common.back")) { dismiss() }
                             .buttonStyle(.bordered)
