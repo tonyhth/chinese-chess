@@ -38,7 +38,7 @@ struct PuzzleDemoView: View {
     }
 
     // MARK: - macOS 布局
-
+    #if os(macOS)
     private var macosLayout: some View {
         HStack(spacing: 0) {
             sidebar
@@ -56,6 +56,7 @@ struct PuzzleDemoView: View {
             }
         }
     }
+    #endif
 
     // MARK: - iOS 布局
 
@@ -73,7 +74,7 @@ struct PuzzleDemoView: View {
     }
 
     // MARK: - 分类侧边栏 (macOS)
-
+    #if os(macOS)
     private var sidebar: some View {
         List(categories, id: \.self, selection: $selectedCategory) { cat in
             let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
@@ -93,6 +94,7 @@ struct PuzzleDemoView: View {
         }
         .listStyle(.sidebar)
     }
+    #endif
 
     // MARK: - 分类 Picker (iOS)
 
