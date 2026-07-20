@@ -18,6 +18,11 @@ class BoardPlayer {
     /// 走法提供者（抽象：DemoViewModel 用 Move[]，ReplayViewModel 用 GameRecord.moves）
     let moveSource: BoardPlayerMoveSource
 
+    // MARK: - 闭包回调（供 ViewModel 使用，无需子类化）
+
+    var onMoveExecutedHandler: ((Move, Int) -> Void)?
+    var onPlaybackCompleteHandler: (() -> Void)?
+
     // MARK: - 播放状态
 
     private(set) var isPlaying: Bool = false
@@ -89,6 +94,7 @@ class BoardPlayer {
 
     func goToEnd() {
         stopAutoPlay()
+        isPlaying = false
         let target = moveSource.totalMoves
         rebuildBoard(upTo: target)
         currentIndex = target
@@ -172,11 +178,13 @@ class BoardPlayer {
         onMoveExecuted(move: move, index: index)
     }
 
-    /// 走法执行后回调（子类可覆写）
-    func onMoveExecuted(move: Move, index: Int) {}
+    func onMoveExecuted(move: Move, index: Int) {
+        onMoveExecutedHandler?(move, index)
+    }
 
-    /// 播放完成回调（子类可覆写）
-    func onPlaybackComplete() {}
+    func onPlaybackComplete() {
+        onPlaybackCompleteHandler?()
+    }
 
     // MARK: - 局面重建
 

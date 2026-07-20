@@ -44,66 +44,84 @@ enum DemoPlayState {
 // MARK: - DemoViewModel
 
 /// 演示 ViewModel（残局 + 大师棋谱通用）
-/// 内部独立实现播放逻辑，不抽取 BoardPlayer
-/// 用 `// ReplayViewModel-sync` 标记与 ReplayViewModel 共享的逻辑点
+/// 播放逻辑委托给 BoardPlayer，本类保留 Demo 特有状态
 @MainActor
 @Observable
 class DemoViewModel {
     let item: DemoItemWrapper
-    private(set) var board: Board
-    private(set) var currentIndex: Int = 0  // 当前步数索引（0 = 初始局面）
-    var lastMove: (from: Position, to: Position)? = nil
 
-    // 播放状态
-    private(set) var playState: DemoPlayState = .idle
-    var speed: DemoSpeed = .normal
+    // MARK: - BoardPlayer 委托
 
-    // 连播
-    private(set) var isAutoAdvance: Bool = true
-    private(set) var resultDisplayTimer: Task<Void, Never>?
+    let boardPlayer: BoardPlayer
 
-    // 解析后的走法
-    private let moves: [Move]  // 内部用 Move 执行
+    // MARK: - 转发属性（公开 API 不变）
 
-    // 初始 FEN（保存独立引用，避免从 item 反复取）
-    private let initialFEN: String
+    var board: Board { boardPlayer.board }
+    var currentIndex: Int { boardPlayer.currentIndex }
+    var lastMove: (from: Position, to: Position)? {
+        get { boardPlayer.lastMove }
+        set { boardPlayer.lastMove = newValue }
+    }
 
-    // 自动播放
-    private var autoPlayTask: Task<Void, Never>?
-
-    // 点评
-    private(set) var currentCommentary: CommentaryItem?
-    private var commentaryHideTask: Task<Void, Never>?
-
-    // 弃子点评（Phase 2：预计算）
-    private var sacrificeCommentaries: [Int: CommentaryItem] = [:]
-
-    // MARK: - 计算属性
-
-    var totalSteps: Int { moves.count }
-    var canGoForward: Bool { currentIndex < moves.count }
-    var canGoBack: Bool { currentIndex > 0 }
+    var totalSteps: Int { boardPlayer.totalSteps }
+    var canGoForward: Bool { boardPlayer.canGoForward }
+    var canGoBack: Bool { boardPlayer.canGoBack }
     var isPlaying: Bool { playState == .playing }
 
     var progressText: String {
         String(localized: "第 \(currentIndex)/\(totalSteps) 步")
     }
 
-    /// 解析后的有效步数（可能 < puzzle.solution.count，如果有解析失败）
-    var validStepCount: Int { moves.count }
+    /// 解析后的有效步数
+    var validStepCount: Int { boardPlayer.totalSteps }
+
+    // MARK: - Demo 特有状态
+
+    private(set) var playState: DemoPlayState = .idle
+    var speed: DemoSpeed = .normal {
+        didSet { boardPlayer.speed = speed.rawValue }
+    }
+
+    // 连播
+    private(set) var isAutoAdvance: Bool = true
+    private(set) var resultDisplayTimer: Task<Void, Never>?
+
+    // 点评
+    private(set) var currentCommentary: CommentaryItem?
+    private var commentaryHideTask: Task<Void, Never>?
+
+    // 弃子点评（预计算）
+    private var sacrificeCommentaries: [Int: CommentaryItem] = [:]
+
+    // 内部引用 moves 用于点评
+    private let moves: [Move]
 
     // MARK: - Init
 
     /// 通用初始化：接收 DemoItemWrapper + 预计算的 Move 列表
     init(item: DemoItemWrapper, moves: [Move]) {
         self.item = item
-        self.initialFEN = item.initialFEN
-        self.board = Board(fen: initialFEN)
         self.moves = moves
+        let moveSource = DemoMoveSource(moves: moves, initialFEN: item.initialFEN)
+        self.boardPlayer = BoardPlayer(moveSource: moveSource, initialFEN: item.initialFEN)
+
         // Phase 2：预计算弃子点评
         self.sacrificeCommentaries = CommentaryEngine.generateSacrificeCommentaries(
-            moves: self.moves, initialFEN: initialFEN
+            moves: moves, initialFEN: item.initialFEN
         )
+
+        // 桥接速度
+        self.boardPlayer.speed = speed.rawValue
+
+        // 走法执行回调 → 点评
+        self.boardPlayer.onMoveExecutedHandler = { [weak self] move, moveIndex in
+            self?.handleMoveExecuted(move: move, moveIndex: moveIndex)
+        }
+
+        // 播放完成回调
+        self.boardPlayer.onPlaybackCompleteHandler = { [weak self] in
+            self?.handlePlaybackComplete()
+        }
     }
 
     /// 便利初始化：从 Puzzle 创建（向后兼容）
@@ -123,7 +141,6 @@ class DemoViewModel {
                 play()
             }
         case .showingResult:
-            // 结果展示中，点击进入下一局
             break
         case .transitioning:
             break
@@ -132,89 +149,44 @@ class DemoViewModel {
 
     func play() {
         guard canGoForward else {
-            // 已到末尾，重新开始并自动播放
             resetToStart()
             play()
             return
         }
         playState = .playing
-        startAutoPlay()
+        boardPlayer.play()
     }
 
     func pause() {
         playState = .idle
-        stopAutoPlay()
+        boardPlayer.pause()
     }
 
     func resetToStart() {
-        stopAutoPlay()
-        currentIndex = 0
-        board = Board(fen: initialFEN)
-        lastMove = nil
+        boardPlayer.resetToStart()
         playState = .idle
         currentCommentary = nil
     }
 
     func stepForward() {
-        guard canGoForward else { return }
-        stopAutoPlay()
+        boardPlayer.stepForward()
         playState = .idle
-        executeCurrentMove()
     }
 
     func stepBackward() {
-        guard canGoBack else { return }
-        stopAutoPlay()
+        boardPlayer.stepBackward()
         playState = .idle
-        currentIndex -= 1
-        rebuildBoard(upTo: currentIndex)
-        lastMove = currentIndex > 0 ? (from: moves[currentIndex - 1].from, to: moves[currentIndex - 1].to) : nil
     }
 
-    // MARK: - 自动播放
+    // MARK: - BoardPlayer 回调
 
-    // ReplayViewModel-sync: 与 ReplayViewModel.startAutoPlay 逻辑相同
-    private func startAutoPlay() {
-        autoPlayTask = Task { @MainActor in
-            while canGoForward && !Task.isCancelled {
-                executeCurrentMove()
-
-                if currentIndex >= moves.count {
-                    // 棋局播放完毕
-                    playState = .showingResult
-                    onPuzzleComplete()
-                    break
-                }
-
-                do {
-                    try await Task.sleep(for: .seconds(speed.stepInterval))
-                } catch {
-                    break
-                }
-            }
-            if playState == .playing {
-                playState = .idle
-            }
-        }
+    private func handleMoveExecuted(move: Move, moveIndex: Int) {
+        updateCommentary(for: move, moveIndex: moveIndex)
     }
 
-    private func stopAutoPlay() {
-        autoPlayTask?.cancel()
-        autoPlayTask = nil
-    }
-
-    // MARK: - 走法执行
-
-    // ReplayViewModel-sync: 与 ReplayViewModel.goForward 逻辑相同
-    private func executeCurrentMove() {
-        guard currentIndex < moves.count else { return }
-        let move = moves[currentIndex]
-        board.execute(move)
-        lastMove = (from: move.from, to: move.to)
-        currentIndex += 1
-
-        // 点评推断
-        updateCommentary(for: move, moveIndex: currentIndex - 1)
+    private func handlePlaybackComplete() {
+        playState = .showingResult
+        onPuzzleComplete()
     }
 
     // MARK: - 棋局完成
@@ -263,17 +235,6 @@ class DemoViewModel {
                     currentCommentary = nil
                 }
             } catch {}
-        }
-    }
-
-    // MARK: - 局面重建
-
-    // ReplayViewModel-sync: 与 ReplayViewModel.rebuildBoard 逻辑相同
-    private func rebuildBoard(upTo index: Int) {
-        board = Board(fen: initialFEN)
-        for i in 0..<index {
-            guard i < moves.count else { break }
-            board.execute(moves[i])
         }
     }
 
