@@ -11,7 +11,7 @@ class BoardPlayer {
 
     private(set) var board: Board
     private(set) var currentIndex: Int = 0  // 当前步数索引（0 = 初始局面）
-    var lastMove: (from: Position, to: Position)? = nil
+    private(set) var lastMove: (from: Position, to: Position)? = nil
 
     // MARK: - 走法源
 
@@ -27,6 +27,9 @@ class BoardPlayer {
 
     private(set) var isPlaying: Bool = false
     var speed: Double = 1.0  // 速度倍率
+
+    /// 是否在末尾按播放时自动从头重放（DemoViewModel=true，ReplayViewModel=false）
+    var autoRestart: Bool = true
 
     private var autoPlayTask: Task<Void, Never>?
 
@@ -61,6 +64,7 @@ class BoardPlayer {
 
     func play() {
         guard canGoForward else {
+            guard autoRestart else { return }
             // 已到末尾，重新开始并自动播放
             resetToStart()
             play()
@@ -178,11 +182,11 @@ class BoardPlayer {
         onMoveExecuted(move: move, index: index)
     }
 
-    func onMoveExecuted(move: Move, index: Int) {
+    private func onMoveExecuted(move: Move, index: Int) {
         onMoveExecutedHandler?(move, index)
     }
 
-    func onPlaybackComplete() {
+    private func onPlaybackComplete() {
         onPlaybackCompleteHandler?()
     }
 

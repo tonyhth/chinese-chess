@@ -58,10 +58,7 @@ class DemoViewModel {
 
     var board: Board { boardPlayer.board }
     var currentIndex: Int { boardPlayer.currentIndex }
-    var lastMove: (from: Position, to: Position)? {
-        get { boardPlayer.lastMove }
-        set { boardPlayer.lastMove = newValue }
-    }
+    var lastMove: (from: Position, to: Position)? { boardPlayer.lastMove }
 
     var totalSteps: Int { boardPlayer.totalSteps }
     var canGoForward: Bool { boardPlayer.canGoForward }
@@ -104,6 +101,7 @@ class DemoViewModel {
         self.moves = moves
         let moveSource = DemoMoveSource(moves: moves, initialFEN: item.initialFEN)
         self.boardPlayer = BoardPlayer(moveSource: moveSource, initialFEN: item.initialFEN)
+        self.boardPlayer.autoRestart = true
 
         // Phase 2：预计算弃子点评
         self.sacrificeCommentaries = CommentaryEngine.generateSacrificeCommentaries(
@@ -148,11 +146,6 @@ class DemoViewModel {
     }
 
     func play() {
-        guard canGoForward else {
-            resetToStart()
-            play()
-            return
-        }
         playState = .playing
         boardPlayer.play()
     }

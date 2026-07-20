@@ -14,18 +14,12 @@ class ReplayViewModel {
 
     var board: Board { boardPlayer.board }
     var currentIndex: Int { boardPlayer.currentIndex }
-    var lastMove: (from: Position, to: Position)? {
-        get { boardPlayer.lastMove }
-        set { boardPlayer.lastMove = newValue }
-    }
+    var lastMove: (from: Position, to: Position)? { boardPlayer.lastMove }
 
     var canGoBack: Bool { boardPlayer.canGoBack }
     var canGoForward: Bool { boardPlayer.canGoForward }
 
-    var isAutoPlaying: Bool {
-        get { boardPlayer.isPlaying }
-        set { /* 观察者兼容，实际由 boardPlayer 驱动 */ }
-    }
+    var isAutoPlaying: Bool { boardPlayer.isPlaying }
 
     var autoPlaySpeed: Double {
         get { boardPlayer.speed }
@@ -40,6 +34,7 @@ class ReplayViewModel {
         let initialFEN = record.initialFEN ?? FENParser.standardInitial
         let moveSource = ReplayMoveSource(gameMoves: record.moves, initialFEN: initialFEN)
         self.boardPlayer = BoardPlayer(moveSource: moveSource, initialFEN: initialFEN, useSnapshots: true)
+        self.boardPlayer.autoRestart = false
     }
 
     // MARK: - 重命名（C4）
