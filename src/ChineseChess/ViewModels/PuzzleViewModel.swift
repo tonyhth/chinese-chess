@@ -87,11 +87,15 @@ class PuzzleViewModel {
         case wrongMove       // guided 模式走错(短暂状态,0.8s 自动回退后回到 playing)
     }
 
-    init(puzzle: Puzzle) {
+    /// 是否为每日挑战模式（由 DailyChallengeView 传入）
+    var isDailyChallenge: Bool = false
+
+    init(puzzle: Puzzle, isDailyChallenge: Bool = false) {
         self.puzzle = puzzle
         self.playerSide = puzzle.side
         self.board = Board(fen: puzzle.initialFEN)
         self.playMode = (puzzle.effectiveMode == .guided) ? .guided : .freePlay
+        self.isDailyChallenge = isDailyChallenge
         self.positionHistory = [boardFingerprint()]
     }
 
@@ -986,6 +990,14 @@ class PuzzleViewModel {
         )
         for achievementId in newAchievements {
             AchievementManager.shared.unlock(achievementId)
+        }
+
+        // P0 fix: 每日挑战模式下补调 completeChallenge
+        if isDailyChallenge {
+            DailyChallengeManager.shared.completeChallenge(
+                score: completionRating,
+                puzzles: [puzzle]
+            )
         }
     }
 

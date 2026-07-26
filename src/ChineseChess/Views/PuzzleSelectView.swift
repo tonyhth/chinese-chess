@@ -495,6 +495,7 @@ struct PuzzleRow: View {
 
 struct PuzzlePlayView: View {
     let puzzle: Puzzle
+    var isDailyChallenge: Bool = false
     var onShowDemo: ((Puzzle) -> Void)? = nil
     @State private var viewModel: PuzzleViewModel
     @State private var showSolutionReplay = false
@@ -520,10 +521,11 @@ struct PuzzlePlayView: View {
         #endif
     }
 
-    init(puzzle: Puzzle, onShowDemo: ((Puzzle) -> Void)? = nil) {
+    init(puzzle: Puzzle, isDailyChallenge: Bool = false, onShowDemo: ((Puzzle) -> Void)? = nil) {
         self.puzzle = puzzle
+        self.isDailyChallenge = isDailyChallenge
         self.onShowDemo = onShowDemo
-        self._viewModel = State(initialValue: PuzzleViewModel(puzzle: puzzle))
+        self._viewModel = State(initialValue: PuzzleViewModel(puzzle: puzzle, isDailyChallenge: isDailyChallenge))
     }
 
     var body: some View {

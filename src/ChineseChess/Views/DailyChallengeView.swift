@@ -145,7 +145,7 @@ struct DailyChallengeView: View {
         .sheet(isPresented: $showPuzzle) {
             if let puzzle = manager.dailyPuzzle(puzzles: PuzzleStore.shared.puzzles) {
                 NavigationStack {
-                    PuzzlePlayView(puzzle: puzzle)
+                    PuzzlePlayView(puzzle: puzzle, isDailyChallenge: true)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button(L10n.shared.t("common.done")) { showPuzzle = false }
@@ -169,6 +169,7 @@ struct DailyChallengeView: View {
                     let vm = GameViewModel()
                     vm.difficulty = todayDiff
                     vm.isBlitzMode = true
+                    vm.challengeMode = .timeBlitz
                     let profile = PlayerProfileStore.shared.profile
                     vm.blitzTimeLimitSeconds = 300 + profile.bonusBlitzTimeBonus
                     return vm
@@ -186,6 +187,7 @@ struct DailyChallengeView: View {
                     let vm = GameViewModel()
                     vm.difficulty = .master
                     vm.isMasterChallenge = true
+                    vm.challengeMode = .masterChallenge
                     return vm
                 }())
                 .toolbar {
