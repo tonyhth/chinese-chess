@@ -3,6 +3,7 @@ import XCTest
 
 // MARK: - v3.7.1 Tests: 8 项修复验证
 
+@MainActor
 final class V371Tests: XCTestCase {
 
     // 临时 Store 工厂

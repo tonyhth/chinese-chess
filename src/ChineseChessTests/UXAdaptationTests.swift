@@ -5,6 +5,7 @@ import Testing
 // MARK: - UX 适配测试：LanguageManager + i18n 完整性 + 英文 UI + 中文回归
 
 @Suite("UX 适配测试", .serialized)
+@MainActor
 struct UXAdaptationTests {
 
     // MARK: - 1. LanguageManager 核心功能

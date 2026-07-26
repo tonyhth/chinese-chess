@@ -3,6 +3,7 @@ import Testing
 @testable import ChineseChess
 
 @Suite("v2.2.20 最终版本综合测试", .serialized)
+@MainActor
 struct V2220FinalTests {
 
     let homeDir: String = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()

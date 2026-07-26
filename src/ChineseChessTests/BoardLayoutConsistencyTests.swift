@@ -7,6 +7,7 @@ import Testing
 // 与对弈页面对齐。验证布局变更不影响功能逻辑。
 
 @Suite("棋盘布局一致化测试")
+@MainActor
 struct BoardLayoutConsistencyTests {
 
     // MARK: - 1. 源码一致性：三个页面棋盘 modifier 对齐验证

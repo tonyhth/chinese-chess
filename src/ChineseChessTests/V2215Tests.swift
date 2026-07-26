@@ -5,6 +5,7 @@ import Testing
 // MARK: - v2.2.15 测试：macOS英文布局 + VoiceOver + 动态字体
 
 @Suite("v2.2.15: macOS英文布局 + VoiceOver + 动态字体", .serialized)
+@MainActor
 struct V2215Tests {
 
     // MARK: - 1. xcstrings 翻译完整性（151 key）

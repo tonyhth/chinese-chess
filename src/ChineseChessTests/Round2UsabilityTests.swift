@@ -5,6 +5,7 @@ import Foundation
 // MARK: - Round 2 操作易用性测试
 
 @Suite("Round 2 操作易用性测试")
+@MainActor
 struct Round2UsabilityTests {
 
     // MARK: - U-P0-01: 残局空状态

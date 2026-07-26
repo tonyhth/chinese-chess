@@ -5,6 +5,7 @@ import Foundation
 // MARK: - Round 2 审查修复验证
 
 @Suite("Round 2 审查修复验证")
+@MainActor
 struct Round2ReviewTests {
 
     // MARK: - P0-1: PuzzleSelectView 空状态提示

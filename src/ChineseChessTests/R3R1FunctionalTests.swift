@@ -5,6 +5,7 @@ import Foundation
 // MARK: - R3-07 R1 功能完整性测试
 
 @Suite("R1 功能完整性", .serialized)
+@MainActor
 struct R3R1FunctionalTests {
 
     // ============================================================

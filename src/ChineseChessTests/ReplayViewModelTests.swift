@@ -8,6 +8,7 @@ import XCTest
 // 2. Board.execute id 匹配问题验证（P0 回归）
 // 3. goForward / goToEnd / jumpTo / goBack 一致性
 
+@MainActor
 final class ReplayBoardRebuildTests: XCTestCase {
 
     // ============================================================

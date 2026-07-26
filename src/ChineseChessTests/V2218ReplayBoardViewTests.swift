@@ -3,6 +3,7 @@ import Testing
 @testable import ChineseChess
 
 @Suite("v2.2.18 方案B: ReplayBoardView 独立回放棋盘测试", .serialized)
+@MainActor
 struct V2218ReplayBoardViewTests {
 
     let homeDir: String = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()

@@ -3,6 +3,7 @@ import Testing
 @testable import ChineseChess
 
 @Suite("UI Bug 修复 + i18n 国际化测试")
+@MainActor
 struct UIBugI18nTests {
 
     // MARK: - 1. GameOverOverlay allowsHitTesting 修复验证

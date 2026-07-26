@@ -5,6 +5,7 @@ import Foundation
 // MARK: - PuzzleStore / Puzzle 数据测试
 
 @Suite("PuzzleStore Tests", .serialized)
+@MainActor
 struct PuzzleStoreTests {
 
     @Test("残局数据加载")
@@ -62,6 +63,7 @@ struct PuzzleStoreTests {
 // MARK: - PuzzleViewModel 测试
 
 @Suite("PuzzleViewModel Tests", .serialized)
+@MainActor
 struct PuzzleViewModelTests {
 
     @Test("残局初始化状态正确")
@@ -118,6 +120,7 @@ struct PuzzleViewModelTests {
 // MARK: - ReplayViewModel 测试
 
 @Suite("ReplayViewModel Tests", .serialized)
+@MainActor
 struct ReplayViewModelTests {
 
     private func makeTestRecord() -> GameRecord {
@@ -272,6 +275,7 @@ struct ReplayViewModelTests {
 // MARK: - FEN + Puzzle 集成测试
 
 @Suite("Puzzle FEN Integration Tests", .serialized)
+@MainActor
 struct PuzzleFENIntegrationTests {
 
     @Test("每个残局 FEN 生成有效棋盘")
@@ -352,6 +356,7 @@ struct PuzzleFENIntegrationTests {
 // MARK: - Phase 3 审查修复验证
 
 @Suite("Phase 3 Tests", .serialized)
+@MainActor
 struct Phase3Tests {
 
     @Test("puzzles.json 200 局（100 原有 + 100 适情雅趣）")
@@ -467,6 +472,7 @@ struct Phase3Tests {
 // MARK: - Phase 3.5 审查修复验证
 
 @Suite("Phase 3.5 Tests", .serialized)
+@MainActor
 struct Phase35Tests {
 
     // P0/P4: solution 索引模型验证 — solution 是完整棋谱
