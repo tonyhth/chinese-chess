@@ -59,10 +59,17 @@ enum DemoItemWrapper: Identifiable, Equatable {
     }
 
     /// 初始 FEN
+    /// - .puzzle: 始终可用
+    /// - .masterGame: 仅播放时可用（fen 非 nil），列表阶段为 nil 时断言
     var initialFEN: String {
         switch self {
         case .puzzle(let p): return p.initialFEN
-        case .masterGame(let m): return m.fen
+        case .masterGame(let m):
+            guard let fen = m.fen else {
+                assertionFailure("DemoItemWrapper.initialFEN: masterGame.fen 为 nil，列表阶段不应访问此属性")
+                return FENParser.standardInitial  // fallback
+            }
+            return fen
         }
     }
 
@@ -87,9 +94,14 @@ enum DemoItemWrapper: Identifiable, Equatable {
 
 /// 大师棋谱演示条目（列表展示用，不含走法数据）
 /// 走法在用户点击播放时按需加载
+///
+/// fen 在列表阶段为 nil（FEN 需从 PGN 加载后才可知），
+/// 播放时由 PuzzleDemoView 用实际 FEN 构造新的 MasterGameDemoItem。
+/// DemoItemWrapper.initialFEN 对 .masterGame 分支在 fen==nil 时断言，
+/// 防止列表阶段误用不可信的 FEN。
 struct MasterGameDemoItem: Equatable {
     let index: MasterGameIndex
-    let fen: String    // 初始 FEN（标准开局或 GameRecord.initialFEN）
+    let fen: String?    // nil = 列表阶段尚未加载，播放时由实际 GameRecord.initialFEN 填充
 }
 
 // MARK: - 演示分类

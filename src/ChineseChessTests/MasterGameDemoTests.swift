@@ -376,9 +376,9 @@ final class MasterGameDemoTests: XCTestCase {
 
     func testDemoViewModelFromDemoItemWrapper() {
         let puzzle = makePuzzle(solution: ["h2e2"])
-        let moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+        let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
         let wrapper = DemoItemWrapper.puzzle(puzzle)
-        let vm = DemoViewModel(item: wrapper, moves: moves)
+        let vm = DemoViewModel(item: wrapper, moves: convertResult.moves)
 
         XCTAssertEqual(vm.currentIndex, 0)
         XCTAssertEqual(vm.totalSteps, 1)

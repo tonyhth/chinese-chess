@@ -77,7 +77,7 @@ struct PuzzleDemoView: View {
             let indices = masterStore.byOpening(opening.firstMove)
             cachedTotalCount = indices.count
             let page = indices.prefix(pageSize * currentPage)
-            cachedListItems = page.map { .masterGame(MasterGameDemoItem(index: $0, fen: FENParser.standardInitial)) }
+            cachedListItems = page.map { .masterGame(MasterGameDemoItem(index: $0, fen: nil)) }
         case .player:
             cachedListItems = []
             cachedTotalCount = 0
@@ -352,8 +352,8 @@ struct PuzzleDemoView: View {
         switch wrapper {
         case .puzzle(let puzzle):
             // 残局：走法从 solution 直接解析
-            let moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-            viewModel = DemoViewModel(item: wrapper, moves: moves)
+            let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+            viewModel = DemoViewModel(item: wrapper, moves: convertResult.moves)
 
         case .masterGame(let demoItem):
             // [P1 fix] 大师棋谱：先设 loading，再切后台线程执行 I/O

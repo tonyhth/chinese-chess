@@ -262,21 +262,25 @@ struct DemoMoveConverterTests {
     func convert_validICCS_success() {
         let board = Board()
         let result = DemoMoveConverter.convert(solution: ["h2e2"], on: board)
-        #expect(result.count == 1)
+        #expect(result.moves.count == 1)
+        #expect(result.isComplete == true)
     }
 
-    @Test("Invalid ICCS skipped without crash")
-    func convert_invalidICCS_skipped() {
+    @Test("Invalid ICCS stops conversion immediately")
+    func convert_invalidICCS_stops() {
         let board = Board()
         let result = DemoMoveConverter.convert(solution: ["zz99", "h2e2"], on: board)
-        #expect(result.count == 1)
+        #expect(result.moves.count == 0, "失败应立即终止，不保留任何有效步")
+        #expect(result.isComplete == false)
+        #expect(result.failedSteps == 2)
     }
 
-    @Test("Empty solution returns empty array")
+    @Test("Empty solution returns empty result")
     func convert_emptySolution_emptyResult() {
         let board = Board()
         let result = DemoMoveConverter.convert(solution: [], on: board)
-        #expect(result.isEmpty)
+        #expect(result.moves.isEmpty)
+        #expect(result.isComplete == true)
     }
 }
 

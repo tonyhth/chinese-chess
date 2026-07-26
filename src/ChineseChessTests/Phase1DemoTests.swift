@@ -59,21 +59,25 @@ final class Phase1DemoTests: XCTestCase {
 
     func testDemoMoveConverterParsesValidICCS() {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
-        let moves = DemoMoveConverter.convert(solution: ["h2e2"], on: board)
-        XCTAssertEqual(moves.count, 1, "应解析出 1 步")
+        let result = DemoMoveConverter.convert(solution: ["h2e2"], on: board)
+        XCTAssertEqual(result.moves.count, 1, "应解析出 1 步")
+        XCTAssertTrue(result.isComplete, "全部成功应标记为完整")
     }
 
-    func testDemoMoveConverterSkipsInvalidICCS() {
+    func testDemoMoveConverterStopsOnInvalidICCS() {
         let board = Board(fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1")
-        // "zz99" 是无效 ICCS，应跳过
-        let moves = DemoMoveConverter.convert(solution: ["h2e2", "zz99", "b0c2"], on: board)
-        XCTAssertEqual(moves.count, 2, "跳过无效步后应剩 2 步")
+        // "zz99" 是无效 ICCS，失败立即终止
+        let result = DemoMoveConverter.convert(solution: ["h2e2", "zz99", "b0c2"], on: board)
+        XCTAssertEqual(result.moves.count, 1, "失败后应只保留 1 步")
+        XCTAssertFalse(result.isComplete, "有失败步应标记为不完整")
+        XCTAssertEqual(result.failedSteps, 2, "应有 2 步失败")
     }
 
     func testDemoMoveConverterEmptySolution() {
         let board = Board()
-        let moves = DemoMoveConverter.convert(solution: [], on: board)
-        XCTAssertTrue(moves.isEmpty, "空 solution 应返回空数组")
+        let result = DemoMoveConverter.convert(solution: [], on: board)
+        XCTAssertTrue(result.moves.isEmpty, "空 solution 应返回空数组")
+        XCTAssertTrue(result.isComplete, "空 solution 应标记为完整")
     }
 
     // MARK: - DemoViewModel 基本状态

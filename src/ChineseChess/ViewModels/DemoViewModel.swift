@@ -124,8 +124,8 @@ class DemoViewModel {
 
     /// 便利初始化：从 Puzzle 创建（向后兼容）
     convenience init(puzzle: Puzzle) {
-        let moves = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-        self.init(item: .puzzle(puzzle), moves: moves)
+        let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
+        self.init(item: .puzzle(puzzle), moves: convertResult.moves)
     }
 
     // MARK: - 播放控制
