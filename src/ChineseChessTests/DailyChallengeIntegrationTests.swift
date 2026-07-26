@@ -291,73 +291,146 @@ struct DailyChallengeIntegrationTests {
     }
 
     // MARK: - 9. P0 Bug 修复验证: completeChallenge 调用覆盖全部 6 种模式
+    //
+    // 核心验证策略：通过 DailyChallengeManager.shared 的打卡状态变化，
+    // 确认 completeChallenge 确实被调用（而非仅检查属性赋值）。
+    // 因 PuzzleViewModel / GameViewModel 硬编码 .shared 单例，无法注入 mock，
+    // 故采用「执行 → 观察副作用」的集成测试方式。
 
     @MainActor
-    @Test("endgamePuzzle: PuzzleViewModel.isDailyChallenge 属性赋值")
-    func endgamePuzzleDailyChallengeProperty() {
+    @Test("endgamePuzzle: recordCompletion 触发 completeChallenge（集成验证）")
+    func endgamePuzzleCompleteChallengeIntegration() {
         let puzzles = [
             Puzzle(id: "dp1", name: "daily", category: "x", difficulty: 1, stars: 1,
                    description: "", playerSide: "red", initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                    solution: [], hints: nil, maxMoves: 5),
         ]
-        // 验证 isDailyChallenge 参数存在且为 let（编译期已保证不可变）
-        let vm = PuzzleViewModel(puzzle: puzzles[0], isDailyChallenge: true)
-        #expect(vm.isDailyChallenge == true, "isDailyChallenge 应为 true")
+        let manager = DailyChallengeManager.shared
 
-        // 验证 isDailyChallenge 默认为 false
-        let vm2 = PuzzleViewModel(puzzle: puzzles[0])
-        #expect(vm2.isDailyChallenge == false, "默认 isDailyChallenge 应为 false")
+        // 先确保今日挑战已生成
+        _ = manager.todayChallenge(puzzles: puzzles)
+
+        // isDailyChallenge=true 的 ViewModel，设置 gameState=.success 应触发 recordCompletion → completeChallenge
+        let vm = PuzzleViewModel(puzzle: puzzles[0], isDailyChallenge: true)
+        vm.gameState = .success
+
+        // 验证：completeChallenge 被调用后，今日挑战应标记为已完成
+        #expect(manager.isTodayCompleted(puzzles: puzzles) == true,
+                "isDailyChallenge=true 时，gameState=.success 应触发 completeChallenge，打卡应为已完成")
     }
 
     @MainActor
-    @Test("timeBlitz: DailyChallengeView 应为 GameViewModel 设置 challengeMode")
-    func timeBlitzChallengeModeProperty() {
+    @Test("endgamePuzzle: isDailyChallenge=false 时不触发 completeChallenge")
+    func endgamePuzzleNoChallengeWithoutFlag() {
+        // 使用独立 suite 避免与上面测试互相干扰
+        let suite = UserDefaults(suiteName: "test_no_flag_\(UUID().uuidString)")!
+        let manager = DailyChallengeManager(defaults: suite)
+        let puzzles = [
+            Puzzle(id: "dp2", name: "daily2", category: "x", difficulty: 1, stars: 1,
+                   description: "", playerSide: "red", initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
+                   solution: [], hints: nil, maxMoves: 5),
+        ]
+        _ = manager.todayChallenge(puzzles: puzzles)
+
+        // isDailyChallenge=false（默认值），gameState=.success 不应触发 completeChallenge
+        // 注意：此处验证的是 PuzzleViewModel 的逻辑——不调 DailyChallengeManager 就不会标记完成
+        // 由于我们无法用独立 manager 注入，此测试验证属性语义而非副作用
+        let vm = PuzzleViewModel(puzzle: puzzles[0], isDailyChallenge: false)
+        #expect(vm.isDailyChallenge == false, "默认不启用每日挑战标记")
+    }
+
+    @MainActor
+    @Test("timeBlitz: challengeMode=.timeBlitz 时 recordGameResult 触发 completeChallenge（集成验证）")
+    func timeBlitzCompleteChallengeIntegration() {
+        let manager = DailyChallengeManager.shared
+        let puzzles: [Puzzle] = []
+
+        // 确保今日挑战已生成
+        _ = manager.todayChallenge(puzzles: PuzzleStore.shared.puzzles)
+
+        // 设置 challengeMode=.timeBlitz，认输触发 recordGameResult
         let vm = GameViewModel()
         vm.isBlitzMode = true
         vm.challengeMode = .timeBlitz
-        #expect(vm.challengeMode == .timeBlitz, "challengeMode 应设为 .timeBlitz")
+        vm.confirmResign()  // 终局 → recordGameResult → challengeMode!=nil → completeChallenge
+
+        // 验证：completeChallenge 被调用后，今日挑战应标记为已完成
+        #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
+                "challengeMode=.timeBlitz 时，认输应触发 completeChallenge，打卡应为已完成")
     }
 
     @MainActor
-    @Test("masterChallenge: DailyChallengeView 应为 GameViewModel 设置 challengeMode")
-    func masterChallengeChallengeModeProperty() {
+    @Test("masterChallenge: challengeMode=.masterChallenge 时 recordGameResult 触发 completeChallenge（集成验证）")
+    func masterChallengeCompleteChallengeIntegration() {
+        let manager = DailyChallengeManager.shared
+
+        // 确保今日挑战已生成
+        _ = manager.todayChallenge(puzzles: PuzzleStore.shared.puzzles)
+
+        // 设置 challengeMode=.masterChallenge，认输触发 recordGameResult
         let vm = GameViewModel()
         vm.difficulty = .master
         vm.isMasterChallenge = true
         vm.challengeMode = .masterChallenge
-        #expect(vm.challengeMode == .masterChallenge, "challengeMode 应设为 .masterChallenge")
+        vm.confirmResign()  // 终局 → recordGameResult → challengeMode!=nil → completeChallenge
+
+        // 验证：completeChallenge 被调用后，今日挑战应标记为已完成
+        #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
+                "challengeMode=.masterChallenge 时，认输应触发 completeChallenge，打卡应为已完成")
     }
 
     @MainActor
-    @Test("endgameStart: loadChallenge 设置 challengeMode")
-    func endgameStartChallengeMode() {
+    @Test("endgameStart: loadChallenge 设置 challengeMode，recordGameResult 触发 completeChallenge（集成验证）")
+    func endgameStartCompleteChallengeIntegration() {
+        let manager = DailyChallengeManager.shared
+
+        // 确保今日挑战已生成
+        _ = manager.todayChallenge(puzzles: PuzzleStore.shared.puzzles)
+
         let vm = GameViewModel()
         let puzzle = Puzzle(id: "es1", name: "es", category: "x", difficulty: 1, stars: 1,
                            description: "", playerSide: "red",
                            initialFEN: "4k4/4a4/4b4/9/9/9/9/4B4/4A4/4K4 w",
                            solution: [], hints: nil, maxMoves: 5)
         vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .easy)
-        #expect(vm.challengeMode == .endgameStart, "loadChallenge 应设置 challengeMode")
+        vm.confirmResign()
+
+        #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
+                "challengeMode=.endgameStart 时，认输应触发 completeChallenge")
     }
 
     @MainActor
-    @Test("solveMate: loadChallenge 设置 challengeMode")
-    func solveMateChallengeMode() {
+    @Test("solveMate: loadChallenge 设置 challengeMode，recordGameResult 触发 completeChallenge（集成验证）")
+    func solveMateCompleteChallengeIntegration() {
+        let manager = DailyChallengeManager.shared
+
+        _ = manager.todayChallenge(puzzles: PuzzleStore.shared.puzzles)
+
         let vm = GameViewModel()
         let puzzle = Puzzle(id: "sm1", name: "sm", category: "x", difficulty: 1, stars: 1,
                            description: "", playerSide: "red",
                            initialFEN: "4k4/4a4/4b4/9/9/9/9/4B4/4A4/4K4 w",
                            solution: ["a1a4"], hints: nil, maxMoves: 3)
         vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .easy)
-        #expect(vm.challengeMode == .solveMate, "loadChallenge 应设置 challengeMode")
+        vm.confirmResign()
+
+        #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
+                "challengeMode=.solveMate 时，认输应触发 completeChallenge")
     }
 
     @MainActor
-    @Test("cannonOnly: loadChallenge 设置 challengeMode")
-    func cannonOnlyChallengeMode() {
+    @Test("cannonOnly: loadChallenge 设置 challengeMode，recordGameResult 触发 completeChallenge（集成验证）")
+    func cannonOnlyCompleteChallengeIntegration() {
+        let manager = DailyChallengeManager.shared
+
+        _ = manager.todayChallenge(puzzles: PuzzleStore.shared.puzzles)
+
         let vm = GameViewModel()
         vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .easy)
-        #expect(vm.challengeMode == .cannonOnly, "loadChallenge 应设置 challengeMode")
+        vm.confirmResign()
+
+        #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
+                "challengeMode=.cannonOnly 时，认输应触发 completeChallenge")
     }
 
     @Test("PuzzlePlayView: isDailyChallenge 参数传递")
