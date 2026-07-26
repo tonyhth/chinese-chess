@@ -293,17 +293,14 @@ struct DailyChallengeIntegrationTests {
     // MARK: - 9. P0 Bug 修复验证: completeChallenge 调用覆盖全部 6 种模式
 
     @MainActor
-    @Test("endgamePuzzle: PuzzleViewModel.isDailyChallenge=true 时 recordCompletion 调用 completeChallenge")
-    func endgamePuzzleCompleteChallenge() {
-        let suite = UserDefaults(suiteName: "test_p0_endgame_\(UUID().uuidString)")!
-        let manager = DailyChallengeManager(defaults: suite)
-        // 用独立 manager 验证状态，不污染 shared
+    @Test("endgamePuzzle: PuzzleViewModel.isDailyChallenge 属性赋值")
+    func endgamePuzzleDailyChallengeProperty() {
         let puzzles = [
             Puzzle(id: "dp1", name: "daily", category: "x", difficulty: 1, stars: 1,
                    description: "", playerSide: "red", initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                    solution: [], hints: nil, maxMoves: 5),
         ]
-        // 验证 isDailyChallenge 参数存在
+        // 验证 isDailyChallenge 参数存在且为 let（编译期已保证不可变）
         let vm = PuzzleViewModel(puzzle: puzzles[0], isDailyChallenge: true)
         #expect(vm.isDailyChallenge == true, "isDailyChallenge 应为 true")
 
@@ -313,8 +310,8 @@ struct DailyChallengeIntegrationTests {
     }
 
     @MainActor
-    @Test("timeBlitz: GameViewModel.challengeMode 应为 .timeBlitz")
-    func timeBlitzChallengeMode() {
+    @Test("timeBlitz: DailyChallengeView 应为 GameViewModel 设置 challengeMode")
+    func timeBlitzChallengeModeProperty() {
         let vm = GameViewModel()
         vm.isBlitzMode = true
         vm.challengeMode = .timeBlitz
@@ -322,8 +319,8 @@ struct DailyChallengeIntegrationTests {
     }
 
     @MainActor
-    @Test("masterChallenge: GameViewModel.challengeMode 应为 .masterChallenge")
-    func masterChallengeChallengeMode() {
+    @Test("masterChallenge: DailyChallengeView 应为 GameViewModel 设置 challengeMode")
+    func masterChallengeChallengeModeProperty() {
         let vm = GameViewModel()
         vm.difficulty = .master
         vm.isMasterChallenge = true

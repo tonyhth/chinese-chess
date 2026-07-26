@@ -88,7 +88,7 @@ class PuzzleViewModel {
     }
 
     /// 是否为每日挑战模式（由 DailyChallengeView 传入）
-    var isDailyChallenge: Bool = false
+    let isDailyChallenge: Bool
 
     init(puzzle: Puzzle, isDailyChallenge: Bool = false) {
         self.puzzle = puzzle
