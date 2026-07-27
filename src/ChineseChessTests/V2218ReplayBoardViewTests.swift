@@ -91,24 +91,36 @@ struct V2218ReplayBoardViewTests {
                "ReplayBoardView 不应使用 @Environment(L10n.self)，避免 sheet 中 environment 断裂")
     }
 
-    @Test("ReplayBoardView 渲染棋盘背景、线条、棋子、上一步高亮")
+    @Test("ReplayBoardView 渲染棋盘背景、线条、棋子、上一步高亮（委托 BoardCanvasView）")
     func replayBoardViewRendersComponents() {
-        guard let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayBoardView.swift") else {
+        // ReplayBoardView 是薄壳，渲染委托给 BoardCanvasView
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
+
+        // 检查 ReplayBoardView 引用 BoardCanvasView
+        guard let replayContent = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayBoardView.swift") else {
             Issue.record("无法读取 ReplayBoardView.swift"); return
         }
-        #expect(content.contains("Rectangle") || content.contains("LinearGradient"), "应有棋盘背景")
-        #expect(content.contains("drawBoardLines"), "应绘制棋盘线条")
-        #expect(content.contains("PieceView"), "应渲染棋子")
-        #expect(content.contains("lastMove"), "应高亮上一步")
+        #expect(replayContent.contains("BoardCanvasView"),
+               "ReplayBoardView 应委托 BoardCanvasView 渲染")
+
+        // 检查 BoardCanvasView 包含完整渲染组件
+        guard let canvasContent = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardCanvasView.swift") else {
+            Issue.record("无法读取 BoardCanvasView.swift"); return
+        }
+        #expect(canvasContent.contains("Rectangle") || canvasContent.contains("LinearGradient"), "应有棋盘背景")
+        #expect(canvasContent.contains("drawBoardLines"), "应绘制棋盘线条")
+        #expect(canvasContent.contains("PieceView"), "应渲染棋子")
+        #expect(canvasContent.contains("lastMove"), "应高亮上一步")
     }
 
-    @Test("ReplayBoardView 是只读的（allowsHitTesting(false) 或无交互）")
+    @Test("ReplayBoardView 是只读的（渲染委托 BoardCanvasView，allowsHitTesting 在 BoardCanvasView 内）")
     func replayBoardViewIsReadOnly() {
-        guard let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayBoardView.swift") else {
-            Issue.record("无法读取 ReplayBoardView.swift"); return
+        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
+        guard let canvasContent = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardCanvasView.swift") else {
+            Issue.record("无法读取 BoardCanvasView.swift"); return
         }
-        #expect(content.contains("allowsHitTesting(false)") || content.contains("allowsHitTesting"),
-               "ReplayBoardView 棋子应设置 allowsHitTesting(false) 禁用交互")
+        #expect(canvasContent.contains("allowsHitTesting(false)"),
+               "BoardCanvasView 棋子应设置 allowsHitTesting(false) 禁用交互")
     }
 
     @Test("ReplayBoardView 不引用 BoardMode")

@@ -236,17 +236,17 @@ struct BoardLayoutConsistencyTests {
     @MainActor
 @Test("棋盘布局策略一致性")
     func boardLayoutStrategyConsistency() {
-        // ChessBoardView 使用 .aspectRatio，ReplayBoardView 使用 .position 居中
+        // ChessBoardView 使用 .aspectRatio，ReplayBoardView 委托 BoardCanvasView 使用 .position 居中
         let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
 
-        // ReplayBoardView 应使用 .position 居中
-        let replayPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayBoardView.swift"
-        guard let replayContent = try? String(contentsOfFile: replayPath) else {
-            Issue.record("无法读取 ReplayBoardView.swift")
+        // BoardCanvasView（ReplayBoardView 的渲染委托）应使用 .position 居中
+        let canvasPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/BoardCanvasView.swift"
+        guard let canvasContent = try? String(contentsOfFile: canvasPath) else {
+            Issue.record("无法读取 BoardCanvasView.swift")
             return
         }
-        #expect(replayContent.contains(".position"),
-                "ReplayBoardView 应使用 .position 居中")
+        #expect(canvasContent.contains(".position"),
+                "BoardCanvasView 应使用 .position 居中")
 
         // ChessBoardView 应有 aspectRatio
         let chessPath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ChessBoardView.swift"
