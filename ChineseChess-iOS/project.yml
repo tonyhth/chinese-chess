@@ -1,0 +1,92 @@
+name: ChineseChess
+options:
+  bundleIdPrefix: com.chinesechess
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    PRODUCT_BUNDLE_IDENTIFIER: com.tonyhuang.chinesechess
+    MARKETING_VERSION: "5.2.1"
+    CURRENT_PROJECT_VERSION: "5.2.1"
+    DEVELOPMENT_TEAM: "Q86QW2K44W"
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  ChineseChess:
+    type: application
+    platform: iOS
+    sources:
+      - path: ../src/ChineseChess/AI
+        type: group
+      - path: ../src/ChineseChess/Accessibility
+        type: group
+      - path: ../src/ChineseChess/App
+        excludes:
+          - "**/ChineseChessApp.swift"
+        type: group
+      - path: ../src/ChineseChess/Helpers
+        type: group
+      - path: ../src/ChineseChess/Models
+        type: group
+      - path: ../src/ChineseChess/Services
+        type: group
+      - path: ../src/ChineseChess/Utils
+        type: group
+      - path: ../src/ChineseChess/ViewModels
+        type: group
+      - path: ../src/ChineseChess/Views
+        type: group
+      - path: ../src/ChineseChess/Resources
+        excludes:
+          - "Info.plist"
+        type: group
+      - path: Pikafish/src/external/decompress/huf_decompress_amd64.S
+      # Phase 2: 大师对局数据资源
+      - path: ../data/pgn-extracted
+        type: folder
+        buildPhase: resources
+      - path: ../data/master-game-index.json
+        buildPhase: resources
+      - path: ../data/master-stats.json
+        buildPhase: resources
+
+    settings:
+      base:
+        INFOPLIST_FILE: Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_CFBundleDisplayName: 中国象棋
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        HEADER_SEARCH_PATHS:
+          - $(SRCROOT)/Pikafish/src
+          - $(PROJECT_DIR)/../src/ChineseChess/Pikafish/include
+        LIBRARY_SEARCH_PATHS:
+          - $(PROJECT_DIR)/../src/ChineseChess/Pikafish/lib/ios
+        OTHER_LDFLAGS:
+          - -lpikafish
+          - -lc++
+        CLANG_CXX_LANGUAGE_STANDARD: c++17
+        SWIFT_INCLUDE_PATHS: $(PROJECT_DIR)/../src/ChineseChess/Pikafish/include
+        DEFINES_MODULE: YES
+        MODULEMAP_FILE: $(PROJECT_DIR)/../src/ChineseChess/Pikafish/include/module.modulemap
+
+  ChineseChessUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    dependencies:
+      - target: ChineseChess
+    sources:
+      - path: UITests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_INCLUDE_PATHS: $(PROJECT_DIR)/../src/ChineseChess/Pikafish/include
+        HEADER_SEARCH_PATHS:
+          - $(PROJECT_DIR)/../src/ChineseChess/Pikafish/include
