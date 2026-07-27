@@ -2391,13 +2391,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Complete %d puzzles in %@"
+            "value": "Complete %1$d puzzles in %2$@"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "通关%@ %d 局"
+            "value": "通关%1$@ %2$d 局"
           }
         }
       }
