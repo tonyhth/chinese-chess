@@ -67,6 +67,7 @@ class BoardPlayer {
             guard autoRestart else { return }
             // 已到末尾，重新开始并自动播放
             resetToStart()
+            guard canGoForward else { return }  // 空棋谱防守
             play()
             return
         }
