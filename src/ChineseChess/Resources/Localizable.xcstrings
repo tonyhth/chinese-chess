@@ -2391,7 +2391,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Complete %1$d puzzles in %2$@"
+            "value": "Complete %1$@ puzzles in %2$d"
           }
         },
         "zh-Hans": {
