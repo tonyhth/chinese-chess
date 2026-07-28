@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - 迁移引导气泡
 
 /// 升级后一次性引导气泡："残局和开局探索已移至'学棋'"
-/// 首次打开时显示，点击或 3s 后消失
+/// 自动显示，点击或 3s 后消失
 struct MigrationTooltip: View {
     let text: String
     let onDismiss: () -> Void
@@ -11,8 +11,8 @@ struct MigrationTooltip: View {
     @State private var isVisible = false
 
     var body: some View {
-        if isVisible {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
+            if isVisible {
                 Text(text)
                     .font(.subheadline)
                     .foregroundStyle(.white)
@@ -20,7 +20,6 @@ struct MigrationTooltip: View {
                     .padding(.vertical, 8)
                     .background(Color.accentColor)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    // 小三角箭头
                     .overlay(alignment: .bottom) {
                         Triangle()
                             .fill(Color.accentColor)
@@ -29,24 +28,23 @@ struct MigrationTooltip: View {
                     }
                     .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
                     .onTapGesture { dismiss() }
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
-            .offset(y: -8)
-            .transition(.opacity.combined(with: .move(edge: .bottom)))
         }
-    }
-
-    func appear() {
-        withAnimation(.easeOut(duration: 0.3)) {
-            isVisible = true
-        }
-        // 3 秒后自动消失
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(3))
-            dismiss()
+        .onAppear {
+            // 自驱动：出现后自动展示气泡
+            withAnimation(.easeOut(duration: 0.3)) {
+                isVisible = true
+            }
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(3))
+                dismiss()
+            }
         }
     }
 
     private func dismiss() {
+        guard isVisible else { return }
         withAnimation(.easeIn(duration: 0.2)) {
             isVisible = false
         }
@@ -68,16 +66,13 @@ private struct Triangle: Shape {
 
 // MARK: - 迁移气泡管理器
 
-/// 管理一次性迁移引导气泡的显示状态
 enum MigrationTooltipManager {
     private static let tooltipKey = "chinesechess.studyHubTooltipShown"
 
-    /// 是否需要显示迁移气泡
     static var shouldShow: Bool {
         !UserDefaults.standard.bool(forKey: tooltipKey)
     }
 
-    /// 标记气泡已显示
     static func markShown() {
         UserDefaults.standard.set(true, forKey: tooltipKey)
     }

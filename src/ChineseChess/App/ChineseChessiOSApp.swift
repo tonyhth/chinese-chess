@@ -210,14 +210,11 @@ struct ChineseChessiOSApp: App {
                                 Label(L10n.shared.t("toolbar.puzzleLegacy"), systemImage: "puzzlepiece")
                             }
                             Button(action: {
-                                // 开局探索已归入学棋，此为过渡期快捷入口
+                                // 开局探索已归入学棋，关闭更多菜单让用户看到学棋按钮
                                 activeSheet = nil
-                                // 直接 push 到 StudyHubView 中的开局探索
-                                // 用户也可通过 toolbar [学棋] → 开局探索 进入
                             }) {
                                 Label(L10n.shared.t("toolbar.openingExplorerLegacy"), systemImage: "book")
                             }
-                            .disabled(true)  // iOS 底部 toolbar 无法直接 push，引导用户走学棋入口
                             Divider()
                             Button(action: { activeSheet = .settings }) {
                                 Label(L10n.shared.t("toolbar.settings"), systemImage: "gearshape")
