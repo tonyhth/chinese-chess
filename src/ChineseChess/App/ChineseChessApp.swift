@@ -85,7 +85,7 @@ struct ChineseChessApp: App {
         // ✅ v3.7.2: 新增 3 个 UI 入口
         case analysis(GameRecord)
         case coach(GameRecord)
-        case openingExplorer
+        case studyHub
         case tutorial
 
         var id: String {
@@ -104,7 +104,7 @@ struct ChineseChessApp: App {
             case .historyReplay: return "historyReplay"
             case .analysis: return "analysis"
             case .coach: return "coach"
-            case .openingExplorer: return "openingExplorer"
+            case .studyHub: return "studyHub"
             case .tutorial: return "tutorial"
             }
         }
@@ -221,14 +221,14 @@ struct ChineseChessApp: App {
                         .keyboardShortcut("t", modifiers: [.command, .shift])
 
                         Button(action: {
-                            activeSheet = .openingExplorer
+                            activeSheet = .studyHub
                         }) {
-                            Image(systemName: "book.fill")
+                            Image(systemName: "graduationcap.fill")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(L10n.shared.t("toolbar.openingExplorer"))
-                        .keyboardShortcut("o", modifiers: [.command, .shift])
+                        .help(L10n.shared.t("toolbar.study"))
+                        .keyboardShortcut("s", modifiers: [.command, .shift])
 
                         Spacer()
 
@@ -535,10 +535,9 @@ struct ChineseChessApp: App {
                     }
                     .frame(minWidth: 500, minHeight: 600)
 
-                case .openingExplorer:
+                case .studyHub:
                     NavigationStack {
-                        OpeningExplorerView()
-                            .navigationTitle(L10n.shared.t("opening.title"))
+                        StudyHubView()
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
                                     Button(L10n.shared.t("common.done")) { activeSheet = nil }

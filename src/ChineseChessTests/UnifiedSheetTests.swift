@@ -48,11 +48,10 @@ final class UnifiedSheetTests: XCTestCase {
                 difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )).id,
-            ChineseChessApp.SheetDestination.openingExplorer.id,
         ]
         let uniqueIds = Set(ids)
-        XCTAssertEqual(ids.count, 15, "应有 15 种 SheetDestination")
-        XCTAssertEqual(uniqueIds.count, 15, "所有 id 应唯一")
+        XCTAssertEqual(ids.count, 14, "应有 14 种 SheetDestination（.openingExplorer 已移除）")
+        XCTAssertEqual(uniqueIds.count, 14, "所有 id 应唯一")
     }
 
     /// Identifiable: 每个 case 有唯一 String id

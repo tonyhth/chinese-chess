@@ -108,25 +108,20 @@ struct MasterGameDemoItem: Equatable, Identifiable {
 
 // MARK: - 演示分类
 
-/// 演示分类（结构化关联值，无需字符串反查）
+/// 漋局演示分类（仅残局分类）
+/// 大师棋谱已迁至 MasterGameBrowserView，开局分类不再属于 DemoCategory
 enum DemoCategory: Identifiable, Hashable {
     case puzzles(String)                  // 残局分类名
-    case opening(OpeningCategory)         // 开局分类对象（含 firstMove、subcategories）
-    case player(String)                   // 棋手名（后续扩展）
 
     var id: String {
         switch self {
         case .puzzles(let name): return "puzzle_\(name)"
-        case .opening(let cat): return "opening_\(cat.id)"
-        case .player(let name): return "player_\(name)"
         }
     }
 
     var displayName: String {
         switch self {
         case .puzzles(let name): return name
-        case .opening(let cat): return cat.name
-        case .player(let name): return name
         }
     }
 }

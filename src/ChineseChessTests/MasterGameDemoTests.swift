@@ -216,32 +216,11 @@ final class MasterGameDemoTests: XCTestCase {
         XCTAssertEqual(cat.id, "puzzle_适情雅趣")
     }
 
-    func testDemoCategoryOpeningId() {
-        let opening = OpeningCategory(
-            id: "zhong_pao", name: "中炮", firstMove: "h2e2",
-            gameCount: 100, description: "炮二平五",
-            subcategories: []
-        )
-        let cat = DemoCategory.opening(opening)
-        XCTAssertEqual(cat.id, "opening_zhong_pao")
-    }
-
-    func testDemoCategoryPlayerId() {
-        let cat = DemoCategory.player("许银川")
-        XCTAssertEqual(cat.id, "player_许银川")
-    }
+    // .opening 和 .player 已在 B1 Step 2 中从 DemoCategory 移除
+    // 开局探索走 NavigationRoute.openingExplorer，棋手在 MasterGameBrowserView
 
     func testDemoCategoryDisplayName() {
         XCTAssertEqual(DemoCategory.puzzles("适情雅趣").displayName, "适情雅趣")
-
-        let opening = OpeningCategory(
-            id: "zhong_pao", name: "中炮", firstMove: "h2e2",
-            gameCount: 100, description: "炮二平五",
-            subcategories: []
-        )
-        XCTAssertEqual(DemoCategory.opening(opening).displayName, "中炮")
-
-        XCTAssertEqual(DemoCategory.player("许银川").displayName, "许银川")
     }
 
     func testDemoCategoryHashable() {

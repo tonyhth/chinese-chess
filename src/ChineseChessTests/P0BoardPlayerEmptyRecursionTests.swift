@@ -37,7 +37,7 @@ struct P0BoardPlayerEmptyRecursionTests {
             result: .redWon,
             totalMoves: 0,
             moves: [],
-            initialFEN: FENParser.standardInitial,
+            initialFEN: nil,
             source: .versusAI
         )
         let source = ReplayMoveSource(gameMoves: record.moves, initialFEN: record.initialFEN ?? FENParser.standardInitial)
