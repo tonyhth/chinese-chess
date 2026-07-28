@@ -188,7 +188,11 @@ struct PuzzleDemoView: View {
                 ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
                     let category = DemoCategory.puzzles(cat)
                     let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-                    Button(action: { selectedCategory = category }) {
+                    Button(action: {
+                        selectedCategory = category
+                        currentPage = 1
+                        rebuildListCache()
+                    }) {
                         categoryRow(name: category.displayName, count: count)
                     }
                     .buttonStyle(.plain)
@@ -205,7 +209,11 @@ struct PuzzleDemoView: View {
                     }) { opening in
                         let category = DemoCategory.opening(opening)
                         let count = masterStore.byOpening(opening.firstMove).count
-                        Button(action: { selectedCategory = category }) {
+                        Button(action: {
+                            selectedCategory = category
+                            currentPage = 1
+                            rebuildListCache()
+                        }) {
                             categoryRow(name: category.displayName, count: count)
                         }
                         .buttonStyle(.plain)
@@ -245,6 +253,7 @@ struct PuzzleDemoView: View {
             .font(.subheadline)
             .foregroundStyle(.accentColor)
         }
+        .accessibilityLabel("返回分类列表")
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -268,31 +277,6 @@ struct PuzzleDemoView: View {
                 .background(Color.secondary.opacity(0.12))
                 .clipShape(Capsule())
         }
-    }
-
-    // MARK: - 分类 Picker (iOS) — 已废弃，由 categoryList 替代
-
-    // categoryPicker 保留为兼容入口，实际 iOS 已改用全屏列表
-    private var categoryPicker: some View {
-        Picker(L10n.shared.t("demo.category"), selection: $selectedCategory) {
-            // 残局
-            ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
-                let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-                Text("\(cat) (\(count))").tag(DemoCategory.puzzles(cat))
-            }
-            // 大师棋谱
-            if masterStore.isLoaded {
-                ForEach(OpeningCategories.categories.filter { opening in
-                    masterStore.byOpening(opening.firstMove).count > 0
-                }) { opening in
-                    let count = masterStore.byOpening(opening.firstMove).count
-                    Text("\(opening.name) (\(count))").tag(DemoCategory.opening(opening))
-                }
-            }
-        }
-        .pickerStyle(.menu)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
     }
 
     // MARK: - 列表内容区
