@@ -168,20 +168,6 @@ struct ChineseChessApp: App {
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.record"))
 
-                        Button(action: { activeSheet = (activeSheet?.id == "stats") ? nil : .stats }) {
-                            Image(systemName: "chart.bar")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.stats"))
-
-                        Button(action: { activeSheet = .puzzles }) {
-                            Image(systemName: "puzzlepiece")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.puzzle"))
-
                         Button(action: {
                             if let record = viewModel.buildGameRecord() {
                                 activeSheet = .toolbarReplay(record)
@@ -212,13 +198,24 @@ struct ChineseChessApp: App {
                                 activeSheet = .coach(record)
                             }
                         }) {
-                            Image(systemName: "graduationcap.fill")
+                            Image(systemName: "brain.head.profile")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
                         .disabled(viewModel.gameMoves.isEmpty)
                         .help(L10n.shared.t("toolbar.coach"))
                         .keyboardShortcut("t", modifiers: [.command, .shift])
+
+                        Divider().frame(height: 24)
+
+                        // 学棋组
+                        Button(action: { activeSheet = .puzzles }) {
+                            Image(systemName: "puzzlepiece")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .help(L10n.shared.t("toolbar.puzzle"))
+                        .keyboardShortcut("p", modifiers: [.command, .shift])
 
                         Button(action: {
                             activeSheet = .studyHub
@@ -230,14 +227,22 @@ struct ChineseChessApp: App {
                         .help(L10n.shared.t("toolbar.study"))
                         .keyboardShortcut("s", modifiers: [.command, .shift])
 
-                        Spacer()
-
-                        Button(action: { activeSheet = .themePicker }) {
-                            Image(systemName: "paintpalette")
+                        Button(action: { activeSheet = .dailyChallenge }) {
+                            Image(systemName: "calendar.badge.clock")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(L10n.shared.t("toolbar.theme"))
+                        .help(L10n.shared.t("toolbar.dailyChallenge"))
+
+                        Divider().frame(height: 24)
+
+                        // 设置组
+                        Button(action: { activeSheet = (activeSheet?.id == "stats") ? nil : .stats }) {
+                            Image(systemName: "chart.bar")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        .help(L10n.shared.t("toolbar.stats"))
 
                         Button(action: { activeSheet = .history }) {
                             Image(systemName: "clock.arrow.circlepath")
@@ -246,12 +251,12 @@ struct ChineseChessApp: App {
                         .tint(.brown)
                         .help(L10n.shared.t("toolbar.history"))
 
-                        Button(action: { activeSheet = .dailyChallenge }) {
-                            Image(systemName: "calendar.badge.clock")
+                        Button(action: { activeSheet = .themePicker }) {
+                            Image(systemName: "paintpalette")
                         }
                         .buttonStyle(.bordered)
                         .tint(.brown)
-                        .help(L10n.shared.t("toolbar.dailyChallenge"))
+                        .help(L10n.shared.t("toolbar.theme"))
 
                         Button(action: { activeSheet = .achievements }) {
                             Image(systemName: "trophy")
