@@ -91,6 +91,24 @@ final class PuzzleStore {
         demoPuzzles.filter { $0.category == category }
     }
 
+    // MARK: - 战术子分类查询（Phase A2）
+
+    /// 返回该分类下所有非 nil 的 tacticalGroup 值（去重排序）
+    func demoTacticalGroups(forCategory category: String) -> [String] {
+        let groups = Set(demoPuzzles(byCategory: category).compactMap { $0.tacticalGroup })
+        return groups.sorted()
+    }
+
+    /// 演示模式：按分类+战术子分类查询
+    func demoPuzzles(byCategory category: String, tacticalGroup: String) -> [Puzzle] {
+        demoPuzzles(byCategory: category).filter { $0.tacticalGroup == tacticalGroup }
+    }
+
+    /// 该分类是否有战术子分类（tacticalGroup 非空）
+    func hasTacticalGroups(forCategory category: String) -> Bool {
+        !demoTacticalGroups(forCategory: category).isEmpty
+    }
+
     // MARK: - v2.2.6 新增查询
 
     /// 按难度筛选

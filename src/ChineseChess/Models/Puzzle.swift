@@ -30,12 +30,14 @@ struct Puzzle: Identifiable, Codable {
     // v2.2.6 新增字段
     var solutionMode: SolutionMode  // 默认 .guided
     var subcategory: String?        // 难度标签（"入门"/"简单"/"中等"/"困难"/"大师"）
+    var tacticalGroup: String?     // 战术子分类（"杀势"/"困毙"/"催杀"/"弃子攻杀"/"其他"），车马炮类专用
 
     init(id: String, name: String, category: String, difficulty: Int, stars: Int,
          description: String, playerSide: String, initialFEN: String,
          solution: [String], hints: [String]?, maxMoves: Int, source: String? = nil,
          solutionType: String = "checkmate", endDescription: String? = nil,
-         solutionMode: SolutionMode = .guided, subcategory: String? = nil) {
+         solutionMode: SolutionMode = .guided, subcategory: String? = nil,
+         tacticalGroup: String? = nil) {
         self.id = id
         self.name = name
         self.category = category
@@ -52,6 +54,7 @@ struct Puzzle: Identifiable, Codable {
         self.endDescription = endDescription
         self.solutionMode = solutionMode
         self.subcategory = subcategory
+        self.tacticalGroup = tacticalGroup
     }
 
     /// 计算属性：solution 非空→guided，否则→freePlay
@@ -65,7 +68,7 @@ struct Puzzle: Identifiable, Codable {
         case id, name, category, difficulty, stars, description
         case playerSide, initialFEN, solution, hints, maxMoves, source
         case solutionType, endDescription
-        case solutionMode, subcategory
+        case solutionMode, subcategory, tacticalGroup
     }
 
     init(from decoder: Decoder) throws {
@@ -86,6 +89,7 @@ struct Puzzle: Identifiable, Codable {
         endDescription = try c.decodeIfPresent(String.self, forKey: .endDescription)
         solutionMode = (try? c.decode(SolutionMode.self, forKey: .solutionMode)) ?? .guided
         subcategory = try c.decodeIfPresent(String.self, forKey: .subcategory)
+        tacticalGroup = try c.decodeIfPresent(String.self, forKey: .tacticalGroup)
     }
 
     var side: Side {

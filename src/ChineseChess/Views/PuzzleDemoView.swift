@@ -11,6 +11,9 @@ struct PuzzleDemoView: View {
     /// 当前选中的演示分类
     @State private var selectedCategory: DemoCategory? = nil
 
+    /// 当前选中的战术子分类（车马炮类专用）
+    @State private var selectedTacticalGroup: String? = nil
+
     /// MasterGameStore 懒加载
     @State private var masterStore = MasterGameStore.shared
     @State private var isLoadingMasterIndex = false
@@ -70,7 +73,12 @@ struct PuzzleDemoView: View {
         }
         switch cat {
         case .puzzles(let name):
-            let puzzles = PuzzleStore.shared.demoPuzzles(byCategory: name)
+            let puzzles: [Puzzle]
+            if let group = selectedTacticalGroup {
+                puzzles = PuzzleStore.shared.demoPuzzles(byCategory: name, tacticalGroup: group)
+            } else {
+                puzzles = PuzzleStore.shared.demoPuzzles(byCategory: name)
+            }
             cachedTotalCount = puzzles.count
             cachedListItems = puzzles.map { .puzzle($0) }
         case .opening(let opening):
@@ -84,6 +92,12 @@ struct PuzzleDemoView: View {
         }
     }
 
+    /// 当前选中分类是否有战术子分类
+    private var selectedCategoryHasTacticalGroups: Bool {
+        guard let cat = selectedCategory, case .puzzles(let name) = cat else { return false }
+        return PuzzleStore.shared.hasTacticalGroups(forCategory: name)
+    }
+
     // MARK: - 列表模式（未选中具体对局时显示）
 
     private var listLayout: some View {
@@ -94,16 +108,21 @@ struct PuzzleDemoView: View {
 
             Divider()
 
-            listContent
+            VStack(spacing: 0) {
+                tacticalGroupFilterBar
+                listContent
+            }
         }
         .frame(minWidth: 720, minHeight: 520)
         #else
-        // iOS：未选分类时显示全屏分类列表，已选时显示条目列表+返回按钮
+        // iOS 三级导航：分类列表 → 子分类列表（如有）→ 条目列表
         if selectedCategory == nil {
             categoryList
+        } else if selectedCategoryHasTacticalGroups && selectedTacticalGroup == nil {
+            tacticalGroupList
         } else {
             VStack(spacing: 0) {
-                categoryBackBar
+                iosBackBar
                 listContent
             }
         }
@@ -259,6 +278,72 @@ struct PuzzleDemoView: View {
         .padding(.vertical, 8)
         .background(.bar)
     }
+
+    /// iOS 智能返回栏：有子分类时返回子分类列表，否则返回分类列表
+    private var iosBackBar: some View {
+        Button(action: {
+            if selectedCategoryHasTacticalGroups {
+                selectedTacticalGroup = nil
+                rebuildListCache()
+            } else {
+                selectedCategory = nil
+            }
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                if selectedCategoryHasTacticalGroups {
+                    Text(selectedCategory?.displayName ?? L10n.shared.t("demo.category"))
+                } else {
+                    Text(L10n.shared.t("demo.category"))
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(.accentColor)
+        }
+        .accessibilityLabel(selectedCategoryHasTacticalGroups ? "返回子分类列表" : "返回分类列表")
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(.bar)
+    }
+
+    // MARK: - 战术子分类列表 (iOS)
+
+    #if os(iOS)
+    private var tacticalGroupList: some View {
+        List {
+            if case .puzzles(let name) = selectedCategory {
+                // "全部"选项
+                let allCount = PuzzleStore.shared.demoPuzzles(byCategory: name).count
+                Button(action: {
+                    selectedTacticalGroup = nil
+                    currentPage = 1
+                    rebuildListCache()
+                }) {
+                    categoryRow(name: "全部", count: allCount)
+                }
+                .buttonStyle(.plain)
+
+                // 各战术子分类
+                ForEach(PuzzleStore.shared.demoTacticalGroups(forCategory: name), id: \.self) { group in
+                    let count = PuzzleStore.shared.demoPuzzles(byCategory: name, tacticalGroup: group).count
+                    Button(action: {
+                        selectedTacticalGroup = group
+                        currentPage = 1
+                        rebuildListCache()
+                    }) {
+                        categoryRow(name: group, count: count)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .safeAreaInset(edge: .top) {
+            categoryBackBar
+        }
+    }
+    #endif
     #endif
 
     // MARK: - 分类行视图（displayName + badge 计数）
@@ -278,6 +363,54 @@ struct PuzzleDemoView: View {
                 .clipShape(Capsule())
         }
     }
+
+    // MARK: - macOS 子分类过滤栏
+
+    #if os(macOS)
+    /// macOS：选中分类有战术子分类时，在列表内容上方显示过滤栏
+    private var tacticalGroupFilterBar: some View {
+        Group {
+            if selectedCategoryHasTacticalGroups,
+               case .puzzles(let name) = selectedCategory {
+                let groups = PuzzleStore.shared.demoTacticalGroups(forCategory: name)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        // "全部"
+                        tacticalGroupFilterButton(title: "全部", isSelected: selectedTacticalGroup == nil) {
+                            selectedTacticalGroup = nil
+                            currentPage = 1
+                            rebuildListCache()
+                        }
+                        // 各子分类
+                        ForEach(groups, id: \.self) { group in
+                            tacticalGroupFilterButton(title: group, isSelected: selectedTacticalGroup == group) {
+                                selectedTacticalGroup = group
+                                currentPage = 1
+                                rebuildListCache()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                }
+                .background(.bar)
+            }
+        }
+    }
+
+    private func tacticalGroupFilterButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(isSelected ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.08))
+                .foregroundStyle(isSelected ? .primary : .secondary)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+        .buttonStyle(.plain)
+    }
+    #endif
 
     // MARK: - 列表内容区
 
@@ -369,6 +502,7 @@ struct PuzzleDemoView: View {
             Text(masterStore.loadError ?? "")
         }
         .onChange(of: selectedCategory) { _, _ in
+            selectedTacticalGroup = nil
             currentPage = 1
             rebuildListCache()
         }
