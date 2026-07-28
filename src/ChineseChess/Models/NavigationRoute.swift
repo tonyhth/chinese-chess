@@ -5,6 +5,6 @@ import Foundation
 enum NavigationRoute: Hashable {
     case chapter(PuzzleChapter)
     case puzzleDemo
-    case masterGame     // Step 2: MasterGameBrowserView 启用
+    case masterGame     // StudyHubView → MasterGameBrowserView
     case openingExplorer  // Step 2 后续: StudyHubView 内部走 NavigationLink(value:) 时启用
 }

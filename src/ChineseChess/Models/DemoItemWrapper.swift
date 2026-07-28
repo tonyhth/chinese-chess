@@ -99,9 +99,11 @@ enum DemoItemWrapper: Identifiable, Equatable {
 /// 播放时由 PuzzleDemoView 用实际 FEN 构造新的 MasterGameDemoItem。
 /// DemoItemWrapper.initialFEN 对 .masterGame 分支在 fen==nil 时断言，
 /// 防止列表阶段误用不可信的 FEN。
-struct MasterGameDemoItem: Equatable {
+struct MasterGameDemoItem: Equatable, Identifiable {
     let index: MasterGameIndex
     let fen: String?    // nil = 列表阶段尚未加载，播放时由实际 GameRecord.initialFEN 填充
+
+    var id: Int { index.id }
 }
 
 // MARK: - 演示分类

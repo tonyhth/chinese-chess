@@ -17,7 +17,7 @@ struct StudyHubView: View {
                     title: L10n.shared.t("study.masterGame"),
                     icon: "crown",
                     color: .purple,
-                    destination: MasterGamePlaceholderView()
+                    destination: MasterGameBrowserView()
                 )
                 studyCard(
                     title: L10n.shared.t("study.openingExplorer"),
@@ -63,19 +63,3 @@ struct StudyHubView: View {
     }
 }
 
-// MARK: - 大师棋谱占位视图（Step 2 创建 MasterGameBrowserView 后替换）
-
-struct MasterGamePlaceholderView: View {
-    var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "crown")
-                .font(.system(size: 48))
-                .foregroundStyle(.purple)
-            Text(L10n.shared.t("study.masterGame"))
-                .font(.title2)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle(L10n.shared.t("study.masterGame"))
-    }
-}

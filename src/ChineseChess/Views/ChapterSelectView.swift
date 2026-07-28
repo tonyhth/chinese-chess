@@ -65,7 +65,7 @@ struct ChapterSelectView: View {
             case .puzzleDemo:
                 PuzzleDemoView()
             case .masterGame:
-                MasterGamePlaceholderView()
+                MasterGameBrowserView()
             case .openingExplorer:
                 OpeningExplorerView()
             }
