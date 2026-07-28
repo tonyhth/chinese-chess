@@ -156,8 +156,10 @@ struct ChineseChessiOSApp: App {
                         Button(action: { activeSheet = (activeSheet == .record) ? nil : .record }) {
                             Label(L10n.shared.t("toolbar.record"), systemImage: "doc.text")
                         }
-                        Button(action: { activeSheet = .puzzles }) {
-                            Label(L10n.shared.t("toolbar.puzzle"), systemImage: "puzzlepiece")
+                        NavigationLink {
+                            StudyHubView()
+                        } label: {
+                            Label(L10n.shared.t("toolbar.study"), systemImage: "graduationcap")
                         }
                         Button(action: {
                             toolbarReplayRecord = gameViewModel.buildGameRecord()
@@ -189,9 +191,7 @@ struct ChineseChessiOSApp: App {
                             Button(action: { activeSheet = .rankPrivilege }) {
                                 Label(L10n.shared.t("toolbar.rankPrivilege"), systemImage: "medal")
                             }
-                            Button(action: { activeSheet = .openingExplorer }) {
-                                Label(L10n.shared.t("toolbar.openingExplorer"), systemImage: "book")
-                            }
+                            // 开局探索已归入学棋，从更多菜单移除
                             Divider()
                             Button(action: { activeSheet = .settings }) {
                                 Label(L10n.shared.t("toolbar.settings"), systemImage: "gearshape")
