@@ -23,7 +23,7 @@ struct ChineseChessiOSApp: App {
         case dailyChallenge
         case achievements
         case rankPrivilege
-        case openingExplorer
+        // .openingExplorer 已移至 StudyHubView，不再通过 sheet 触发
 
         var id: String {
             switch self {
@@ -36,7 +36,6 @@ struct ChineseChessiOSApp: App {
             case .dailyChallenge: return "dailyChallenge"
             case .achievements: return "achievements"
             case .rankPrivilege: return "rankPrivilege"
-            case .openingExplorer: return "openingExplorer"
             }
         }
     }
@@ -307,18 +306,6 @@ struct ChineseChessiOSApp: App {
                         NavigationStack {
                             RankPrivilegeView(profile: PlayerProfileStore.shared.profile)
                                 .navigationTitle(L10n.shared.t("toolbar.rankPrivilege"))
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    ToolbarItem(placement: .confirmationAction) {
-                                        Button(L10n.shared.t("common.done")) { activeSheet = nil }
-                                    }
-                                }
-                        }
-
-                    case .openingExplorer:
-                        NavigationStack {
-                            OpeningExplorerView()
-                                .navigationTitle(L10n.shared.t("opening.title"))
                                 .navigationBarTitleDisplayMode(.inline)
                                 .toolbar {
                                     ToolbarItem(placement: .confirmationAction) {

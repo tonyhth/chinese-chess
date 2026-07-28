@@ -34,7 +34,7 @@ struct StudyHubView: View {
             }
             .padding(16)
         }
-        .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
+        .background(Color.controlBackground)
         .navigationTitle(L10n.shared.t("study.title"))
     }
 
@@ -56,7 +56,7 @@ struct StudyHubView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 20)
             .padding(.horizontal, 12)
-            .background(Color(nsColor: .textBackgroundColor))
+            .background(Color.controlBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
