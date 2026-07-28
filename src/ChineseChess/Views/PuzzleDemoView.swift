@@ -91,7 +91,8 @@ struct PuzzleDemoView: View {
         }
         .frame(minWidth: 720, minHeight: 520)
         #else
-        // iOS 三级导航：分类列表 → 子分类列表（如有）→ 条目列表
+        Group {
+        // iOS 三级导航：分类列表 → 子分类列表（如有） → 条目列表
         if selectedCategory == nil {
             categoryList
         } else if selectedCategoryHasTacticalGroups && selectedTacticalGroup == nil {
@@ -101,6 +102,7 @@ struct PuzzleDemoView: View {
                 iosBackBar
                 listContent
             }
+        }
         }
         #endif
     }
@@ -165,7 +167,7 @@ struct PuzzleDemoView: View {
                 Text(L10n.shared.t("demo.category"))
             }
             .font(.subheadline)
-            .foregroundStyle(.accentColor)
+            .foregroundStyle(Color.accentColor)
         }
         .accessibilityLabel("返回分类列表")
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -193,7 +195,7 @@ struct PuzzleDemoView: View {
                 }
             }
             .font(.subheadline)
-            .foregroundStyle(.accentColor)
+            .foregroundStyle(Color.accentColor)
         }
         .accessibilityLabel(selectedCategoryHasTacticalGroups ? "返回子分类列表" : "返回分类列表")
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -165,7 +165,7 @@ struct MasterGameBrowserView: View {
                 Text(L10n.shared.t("study.masterGame"))
             }
             .font(.subheadline)
-            .foregroundStyle(.accentColor)
+            .foregroundStyle(Color.accentColor)
         }
         .accessibilityLabel("返回开局分类列表")
         .frame(maxWidth: .infinity, alignment: .leading)
