@@ -10,6 +10,7 @@ struct ChineseChessiOSApp: App {
 
         // P0-1 fix: 首次启动引导标志读取（在 onAppear 中触发弹窗）
         _firstLaunchNeeded = State(initialValue: !UserDefaults.standard.bool(forKey: "chinesechess.firstLaunchDialogShown"))
+        _showStudyHubTooltip = State(initialValue: MigrationTooltipManager.shouldShow)
     }
 
     // v3.8.0 Phase 4 #4: 统一 sheet 管理（与 macOS 对齐）
@@ -63,6 +64,7 @@ struct ChineseChessiOSApp: App {
     @State private var showFirstLaunchDialog = false
     @State private var showTutorialSheet = false
     @State private var firstLaunchNeeded = false
+    @State private var showStudyHubTooltip = false
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -155,10 +157,22 @@ struct ChineseChessiOSApp: App {
                         Button(action: { activeSheet = (activeSheet == .record) ? nil : .record }) {
                             Label(L10n.shared.t("toolbar.record"), systemImage: "doc.text")
                         }
-                        NavigationLink {
-                            StudyHubView()
-                        } label: {
-                            Label(L10n.shared.t("toolbar.study"), systemImage: "graduationcap")
+                        ZStack(alignment: .top) {
+                            NavigationLink {
+                                StudyHubView()
+                            } label: {
+                                Label(L10n.shared.t("toolbar.study"), systemImage: "graduationcap")
+                            }
+                            if showStudyHubTooltip {
+                                MigrationTooltip(
+                                    text: L10n.shared.t("migration.studyHub"),
+                                    onDismiss: {
+                                        showStudyHubTooltip = false
+                                        MigrationTooltipManager.markShown()
+                                    }
+                                )
+                                .offset(y: -32)
+                            }
                         }
                         Button(action: {
                             toolbarReplayRecord = gameViewModel.buildGameRecord()
@@ -190,7 +204,20 @@ struct ChineseChessiOSApp: App {
                             Button(action: { activeSheet = .rankPrivilege }) {
                                 Label(L10n.shared.t("toolbar.rankPrivilege"), systemImage: "medal")
                             }
-                            // 开局探索已归入学棋，从更多菜单移除
+                            Divider()
+                            // 过渡期旧入口（下个版本移除）
+                            Button(action: { activeSheet = .puzzles }) {
+                                Label(L10n.shared.t("toolbar.puzzleLegacy"), systemImage: "puzzlepiece")
+                            }
+                            Button(action: {
+                                // 开局探索已归入学棋，此为过渡期快捷入口
+                                activeSheet = nil
+                                // 直接 push 到 StudyHubView 中的开局探索
+                                // 用户也可通过 toolbar [学棋] → 开局探索 进入
+                            }) {
+                                Label(L10n.shared.t("toolbar.openingExplorerLegacy"), systemImage: "book")
+                            }
+                            .disabled(true)  // iOS 底部 toolbar 无法直接 push，引导用户走学棋入口
                             Divider()
                             Button(action: { activeSheet = .settings }) {
                                 Label(L10n.shared.t("toolbar.settings"), systemImage: "gearshape")

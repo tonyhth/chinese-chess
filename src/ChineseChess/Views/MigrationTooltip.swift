@@ -1,0 +1,84 @@
+import SwiftUI
+
+// MARK: - 迁移引导气泡
+
+/// 升级后一次性引导气泡："残局和开局探索已移至'学棋'"
+/// 首次打开时显示，点击或 3s 后消失
+struct MigrationTooltip: View {
+    let text: String
+    let onDismiss: () -> Void
+
+    @State private var isVisible = false
+
+    var body: some View {
+        if isVisible {
+            VStack(spacing: 0) {
+                Text(text)
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.accentColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    // 小三角箭头
+                    .overlay(alignment: .bottom) {
+                        Triangle()
+                            .fill(Color.accentColor)
+                            .frame(width: 10, height: 6)
+                            .offset(y: 6)
+                    }
+                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                    .onTapGesture { dismiss() }
+            }
+            .offset(y: -8)
+            .transition(.opacity.combined(with: .move(edge: .bottom)))
+        }
+    }
+
+    func appear() {
+        withAnimation(.easeOut(duration: 0.3)) {
+            isVisible = true
+        }
+        // 3 秒后自动消失
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(3))
+            dismiss()
+        }
+    }
+
+    private func dismiss() {
+        withAnimation(.easeIn(duration: 0.2)) {
+            isVisible = false
+        }
+        onDismiss()
+    }
+}
+
+/// 向下小三角
+private struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - 迁移气泡管理器
+
+/// 管理一次性迁移引导气泡的显示状态
+enum MigrationTooltipManager {
+    private static let tooltipKey = "chinesechess.studyHubTooltipShown"
+
+    /// 是否需要显示迁移气泡
+    static var shouldShow: Bool {
+        !UserDefaults.standard.bool(forKey: tooltipKey)
+    }
+
+    /// 标记气泡已显示
+    static func markShown() {
+        UserDefaults.standard.set(true, forKey: tooltipKey)
+    }
+}

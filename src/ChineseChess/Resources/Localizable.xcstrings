@@ -10083,6 +10083,54 @@
           }
         }
       }
+    },
+    "migration.studyHub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzles & Openings moved to Study"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局和开局探索已移至「学棋」"
+          }
+        }
+      }
+    },
+    "toolbar.puzzleLegacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzles (legacy)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局（旧入口）"
+          }
+        }
+      }
+    },
+    "toolbar.openingExplorerLegacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Explorer (legacy)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开局探索（旧入口）"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
