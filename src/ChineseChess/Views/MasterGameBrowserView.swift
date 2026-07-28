@@ -282,6 +282,9 @@ struct MasterGameBrowserView: View {
             currentPage = 1
             rebuildCache()
         }
+        .onChange(of: selectedOpening) { _, _ in
+            rebuildCache()
+        }
         .onAppear {
             if !masterStore.isLoaded { loadIndex() }
         }
