@@ -320,7 +320,7 @@ struct PuzzleDemoView: View {
                     currentPage = 1
                     rebuildListCache()
                 }) {
-                    categoryRow(name: "全部", count: allCount)
+                    categoryRow(name: L10n.shared.t("puzzle.all"), count: allCount)
                 }
                 .buttonStyle(.plain)
 
@@ -376,7 +376,7 @@ struct PuzzleDemoView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         // "全部"
-                        tacticalGroupFilterButton(title: "全部", isSelected: selectedTacticalGroup == nil) {
+                        tacticalGroupFilterButton(title: L10n.shared.t("puzzle.all"), isSelected: selectedTacticalGroup == nil) {
                             selectedTacticalGroup = nil
                             currentPage = 1
                             rebuildListCache()

@@ -93,10 +93,16 @@ final class PuzzleStore {
 
     // MARK: - 战术子分类查询（Phase A2）
 
-    /// 返回该分类下所有非 nil 的 tacticalGroup 值（去重排序）
+    /// 返回该分类下所有非 nil 的 tacticalGroup 值（按预设顺序排列）
     func demoTacticalGroups(forCategory category: String) -> [String] {
         let groups = Set(demoPuzzles(byCategory: category).compactMap { $0.tacticalGroup })
-        return groups.sorted()
+        // 预设顺序：杀势→弃子攻杀→催杀→困毙→其他，未在预设中的排末尾
+        let preferredOrder = ["杀势", "弃子攻杀", "催杀", "困毙", "其他"]
+        return groups.sorted { a, b in
+            let ia = preferredOrder.firstIndex(of: a) ?? Int.max
+            let ib = preferredOrder.firstIndex(of: b) ?? Int.max
+            return ia < ib
+        }
     }
 
     /// 演示模式：按分类+战术子分类查询
