@@ -98,9 +98,14 @@ struct PuzzleDemoView: View {
         }
         .frame(minWidth: 720, minHeight: 520)
         #else
-        VStack(spacing: 0) {
-            categoryPicker
-            listContent
+        // iOS：未选分类时显示全屏分类列表，已选时显示条目列表+返回按钮
+        if selectedCategory == nil {
+            categoryList
+        } else {
+            VStack(spacing: 0) {
+                categoryBackBar
+                listContent
+            }
         }
         #endif
     }
@@ -114,7 +119,7 @@ struct PuzzleDemoView: View {
                 ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
                     let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
                     HStack {
-                        Text(cat)
+                        Text(DemoCategory.puzzles(cat).displayName)
                             .font(.subheadline)
                         Spacer()
                         Text("\(count)")
@@ -137,7 +142,7 @@ struct PuzzleDemoView: View {
                     }) { opening in
                         let count = masterStore.byOpening(opening.firstMove).count
                         HStack {
-                            Text(opening.name)
+                            Text(DemoCategory.opening(opening).displayName)
                                 .font(.subheadline)
                             Spacer()
                             Text("\(count)")
@@ -173,8 +178,101 @@ struct PuzzleDemoView: View {
     }
     #endif
 
-    // MARK: - 分类 Picker (iOS)
+    // MARK: - 分类全屏列表 (iOS)
 
+    #if os(iOS)
+    private var categoryList: some View {
+        List {
+            // 残局 Section
+            Section {
+                ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
+                    let category = DemoCategory.puzzles(cat)
+                    let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
+                    Button(action: { selectedCategory = category }) {
+                        categoryRow(name: category.displayName, count: count)
+                    }
+                    .buttonStyle(.plain)
+                }
+            } header: {
+                Text(L10n.shared.t("demo.sectionPuzzles"))
+            }
+
+            // 大师棋谱 Section
+            if masterStore.isLoaded {
+                Section {
+                    ForEach(OpeningCategories.categories.filter { opening in
+                        masterStore.byOpening(opening.firstMove).count > 0
+                    }) { opening in
+                        let category = DemoCategory.opening(opening)
+                        let count = masterStore.byOpening(opening.firstMove).count
+                        Button(action: { selectedCategory = category }) {
+                            categoryRow(name: category.displayName, count: count)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } header: {
+                    Text(L10n.shared.t("demo.sectionMasterGames"))
+                }
+            } else {
+                Section {
+                    Button(action: loadMasterIndex) {
+                        HStack {
+                            if isLoadingMasterIndex {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                            } else {
+                                Image(systemName: "arrow.down.circle")
+                                    .foregroundColor(.accentColor)
+                            }
+                            Text(L10n.shared.t("demo.loadMasterIndex"))
+                        }
+                    }
+                } header: {
+                    Text(L10n.shared.t("demo.sectionMasterGames"))
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+    }
+
+    /// 返回分类列表的顶栏按钮
+    private var categoryBackBar: some View {
+        Button(action: { selectedCategory = nil }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                Text(L10n.shared.t("demo.category"))
+            }
+            .font(.subheadline)
+            .foregroundStyle(.accentColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(.bar)
+    }
+    #endif
+
+    // MARK: - 分类行视图（displayName + badge 计数）
+
+    @ViewBuilder
+    private func categoryRow(name: String, count: Int) -> some View {
+        HStack {
+            Text(name)
+                .font(.body)
+            Spacer()
+            Text("\(count)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.secondary.opacity(0.12))
+                .clipShape(Capsule())
+        }
+    }
+
+    // MARK: - 分类 Picker (iOS) — 已废弃，由 categoryList 替代
+
+    // categoryPicker 保留为兼容入口，实际 iOS 已改用全屏列表
     private var categoryPicker: some View {
         Picker(L10n.shared.t("demo.category"), selection: $selectedCategory) {
             // 残局
