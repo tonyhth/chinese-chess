@@ -41,6 +41,9 @@ struct MasterStatsFile: Codable, Sendable {
         let name: String
         let nameCN: String
         let count: Int
+
+        /// 稳定 ID，避免同名不同人导致 ForEach id 冲突
+        var stableId: String { "\(name)|\(nameCN)" }
     }
 
     struct EventStat: Codable, Sendable, Hashable {
@@ -48,5 +51,8 @@ struct MasterStatsFile: Codable, Sendable {
         let nameCN: String
         let year: Int?
         let count: Int
+
+        /// 稳定 ID，避免同名不同赛事导致 ForEach id 冲突
+        var stableId: String { "\(name)|\(nameCN)|\(year ?? -1)" }
     }
 }

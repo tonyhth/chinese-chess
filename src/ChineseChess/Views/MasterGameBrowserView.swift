@@ -18,6 +18,15 @@ enum MasterGameBrowseMode: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Sidebar 统一选中类型
+
+/// 包装三种 sidebar 选中类型，供 macOS List(selection:) 使用
+enum SidebarSelection: Hashable {
+    case opening(OpeningCategory)
+    case player(MasterStatsFile.PlayerStat)
+    case event(MasterStatsFile.EventStat)
+}
+
 // MARK: - 大师棋谱浏览器
 
 /// 独立的大师棋谱浏览视图（从 PuzzleDemoView 拆出）
@@ -32,6 +41,9 @@ struct MasterGameBrowserView: View {
 
     /// 浏览模式
     @State private var browseMode: MasterGameBrowseMode = .opening
+
+    /// macOS sidebar 统一选中
+    @State private var sidebarSelection: SidebarSelection? = nil
 
     /// 当前选中的开局分类
     @State private var selectedOpening: OpeningCategory? = nil
@@ -89,6 +101,11 @@ struct MasterGameBrowserView: View {
             listContent
         }
         .frame(minWidth: 720, minHeight: 520)
+        .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
+            Button("OK") {}
+        } message: {
+            Text(L10n.shared.t("master.statsUnavailable"))
+        }
         #else
         Group {
             if !masterStore.isLoaded {
@@ -105,6 +122,11 @@ struct MasterGameBrowserView: View {
                     listContent
                 }
             }
+        }
+        .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
+            Button("OK") {}
+        } message: {
+            Text(L10n.shared.t("master.statsUnavailable"))
         }
         #endif
     }
@@ -127,7 +149,7 @@ struct MasterGameBrowserView: View {
 
     #if os(macOS)
     private var sidebar: some View {
-        List {
+        List(selection: $sidebarSelection) {
             Section {
                 modePicker
                     .listRowSeparator(.hidden)
@@ -160,6 +182,25 @@ struct MasterGameBrowserView: View {
             }
         }
         .listStyle(.sidebar)
+        .onChange(of: sidebarSelection) { _, newSelection in
+            guard let sel = newSelection else { return }
+            currentPage = 1
+            switch sel {
+            case .opening(let opening):
+                selectedOpening = opening
+                selectedPlayer = nil
+                selectedEvent = nil
+            case .player(let player):
+                selectedPlayer = player
+                selectedOpening = nil
+                selectedEvent = nil
+            case .event(let event):
+                selectedEvent = event
+                selectedOpening = nil
+                selectedPlayer = nil
+            }
+            rebuildCache()
+        }
     }
 
     private var openingSidebarContent: some View {
@@ -174,8 +215,8 @@ struct MasterGameBrowserView: View {
                     Spacer()
                     countBadge(count)
                 }
-                .tag(opening)
-        }
+                .tag(SidebarSelection.opening(opening))
+            }
         }
     }
 
@@ -184,14 +225,14 @@ struct MasterGameBrowserView: View {
             if let players = masterStore.stats?.players {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
-                ForEach(visible, id: \.name) { player in
+                ForEach(visible, id: \.stableId) { player in
                     HStack {
                         Text(player.nameCN)
                             .font(.subheadline)
                         Spacer()
                         countBadge(player.count)
                     }
-                    .tag(player)
+                    .tag(SidebarSelection.player(player))
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -216,7 +257,7 @@ struct MasterGameBrowserView: View {
             if let events = masterStore.stats?.events {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
-                ForEach(visible, id: \.name) { event in
+                ForEach(visible, id: \.stableId) { event in
                     HStack {
                         Text(event.nameCN)
                             .font(.subheadline)
@@ -228,7 +269,7 @@ struct MasterGameBrowserView: View {
                         Spacer()
                         countBadge(event.count)
                     }
-                    .tag(event)
+                    .tag(SidebarSelection.event(event))
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -306,7 +347,7 @@ struct MasterGameBrowserView: View {
             if let players = masterStore.stats?.players {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
-                ForEach(visible, id: \.name) { player in
+                ForEach(visible, id: \.stableId) { player in
                     Button(action: {
                         selectedPlayer = player
                         currentPage = 1
@@ -358,7 +399,7 @@ struct MasterGameBrowserView: View {
             if let events = masterStore.stats?.events {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
-                ForEach(visible, id: \.name) { event in
+                ForEach(visible, id: \.stableId) { event in
                     Button(action: {
                         selectedEvent = event
                         currentPage = 1
@@ -542,6 +583,18 @@ struct MasterGameBrowserView: View {
         } message: {
             Text(masterStore.loadError ?? "")
         }
+        .onChange(of: selectedOpening) { _, _ in
+            currentPage = 1
+            rebuildCache()
+        }
+        .onChange(of: selectedPlayer) { _, _ in
+            currentPage = 1
+            rebuildCache()
+        }
+        .onChange(of: selectedEvent) { _, _ in
+            currentPage = 1
+            rebuildCache()
+        }
         .onAppear {
             if !masterStore.isLoaded { loadIndex() }
         }
@@ -614,6 +667,7 @@ struct MasterGameBrowserView: View {
         selectedOpening = nil
         selectedPlayer = nil
         selectedEvent = nil
+        sidebarSelection = nil
         cachedItems = []
         cachedTotalCount = 0
         currentPage = 1
