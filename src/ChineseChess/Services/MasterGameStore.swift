@@ -49,9 +49,6 @@ class MasterGameStore: ObservableObject {
             buildInvertedIndices()
             buildSubcategoryIndices()
 
-            // 填充开局分类 gameCount
-            populateGameCounts()
-
             self.isLoaded = true
         } catch {
             loadError = "索引加载失败：\(error.localizedDescription)"
@@ -110,22 +107,19 @@ class MasterGameStore: ObservableObject {
         }
     }
 
-    // MARK: - gameCount 填充
+    // MARK: - gameCount 查询
 
-    /// 加载后一次性填充 OpeningCategories 的 gameCount
-    private func populateGameCounts() {
-        for i in OpeningCategories.categories.indices {
-            let cat = OpeningCategories.categories[i]
-            let count = cat.firstMove.isEmpty
-                ? byOpening("").count
-                : (openingIndex[cat.firstMove]?.count ?? 0)
-            OpeningCategories.categories[i].gameCount = count
-
-            for j in cat.subcategories.indices {
-                let sub = cat.subcategories[j]
-                OpeningCategories.categories[i].subcategories[j].gameCount = subcategoryIndex[sub.id]?.count ?? 0
-            }
+    /// 查询开局分类的对局数
+    func gameCount(for opening: OpeningCategory) -> Int {
+        if opening.firstMove.isEmpty {
+            return byOpening("").count
         }
+        return openingIndex[opening.firstMove]?.count ?? 0
+    }
+
+    /// 查询子分类的对局数
+    func gameCount(for subcategory: OpeningSubcategory) -> Int {
+        return subcategoryIndex[subcategory.id]?.count ?? 0
     }
 
     // MARK: - O(1) 查询

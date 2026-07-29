@@ -229,7 +229,7 @@ struct MasterGameBrowserView: View {
                         Text(opening.name)
                             .font(.subheadline)
                         Spacer()
-                        countBadge(opening.gameCount)
+                        countBadge(masterStore.gameCount(for: opening))
                     }
                     .tag(SidebarSelection.opening(opening))
                 } else {
@@ -240,7 +240,7 @@ struct MasterGameBrowserView: View {
                                 Text(sub.name)
                                     .font(.subheadline)
                                 Spacer()
-                                countBadge(sub.gameCount)
+                                countBadge(masterStore.gameCount(for: sub))
                             }
                             .tag(SidebarSelection.subcategory(sub))
                         }
@@ -249,7 +249,7 @@ struct MasterGameBrowserView: View {
                             Text(opening.name)
                                 .font(.subheadline)
                             Spacer()
-                            countBadge(opening.gameCount)
+                            countBadge(masterStore.gameCount(for: opening))
                         }
                         .tag(SidebarSelection.opening(opening))
                     }
@@ -358,15 +358,13 @@ struct MasterGameBrowserView: View {
                     } else {
                         // 无子分类：直接进入对局列表
                         selectedOpening = opening
-                        currentPage = 1
-                        rebuildCache()
                     }
                 }) {
                     HStack {
                         Text(opening.name)
                             .font(.body)
                         Spacer()
-                        Text("\(opening.gameCount)")
+                        Text("\(masterStore.gameCount(for: opening))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 8)
@@ -399,8 +397,6 @@ struct MasterGameBrowserView: View {
                 ForEach(visible, id: \.stableId) { player in
                     Button(action: {
                         selectedPlayer = player
-                        currentPage = 1
-                        rebuildCache()
                     }) {
                         HStack {
                             Text(player.nameCN)
@@ -451,8 +447,6 @@ struct MasterGameBrowserView: View {
                 ForEach(visible, id: \.stableId) { event in
                     Button(action: {
                         selectedEvent = event
-                        currentPage = 1
-                        rebuildCache()
                     }) {
                         HStack {
                             Text(event.nameCN)
@@ -504,8 +498,6 @@ struct MasterGameBrowserView: View {
                     selectedOpening = parent
                     selectedSubcategory = nil
                     showSubcategoryList = false
-                    currentPage = 1
-                    rebuildCache()
                 }) {
                     HStack {
                         Text(L10n.shared.t("master.mode.opening"))
@@ -514,7 +506,7 @@ struct MasterGameBrowserView: View {
                             .font(.body)
                             .foregroundStyle(.secondary)
                         Spacer()
-                        Text("\(parent.gameCount)")
+                        Text("\(masterStore.gameCount(for: parent))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 8)
@@ -530,14 +522,12 @@ struct MasterGameBrowserView: View {
                         selectedSubcategory = sub
                         selectedOpening = nil
                         showSubcategoryList = false
-                        currentPage = 1
-                        rebuildCache()
                     }) {
                         HStack {
                             Text(sub.name)
                                 .font(.body)
                             Spacer()
-                            Text("\(sub.gameCount)")
+                            Text("\(masterStore.gameCount(for: sub))")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal, 8)
