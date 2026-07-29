@@ -133,7 +133,7 @@ final class v3_8_0_InterimTests: XCTestCase {
         let oldJSON = """
         {
             "id": "12345678-1234-1234-1234-123456789abc",
-            "piece": {"id": "11111111-1111-1111-1111-111111111111", "kind": "chariot", "side": "red", "position": {"row": 9, "col": 0}},
+            "piece": {"id": 1, "kind": "chariot", "side": "red", "position": {"row": 9, "col": 0}},
             "from": {"row": 9, "col": 0},
             "to": {"row": 7, "col": 0},
             "captured": null,
