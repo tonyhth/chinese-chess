@@ -17,7 +17,7 @@ struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable {
     let firstMove: String        // "h2e2"
     var gameCount: Int           // 该开局下的对局数
     let description: String      // "炮二平五，最常见开局"
-    let subcategories: [OpeningSubcategory]
+    var subcategories: [OpeningSubcategory]
 }
 
 // MARK: - 预定义开局分类
@@ -26,7 +26,7 @@ struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable {
 /// gameCount 由构建脚本统计后写入 master-stats.json，运行时从统计结果填充
 /// 此处硬编码的 gameCount 为初始默认值，运行时由 MasterGameStore 加载后覆盖
 enum OpeningCategories {
-    static let categories: [OpeningCategory] = [
+    static var categories: [OpeningCategory] = [
         OpeningCategory(
             id: "zhong_pao", name: "中炮", firstMove: "h2e2",
             gameCount: 0, description: "炮二平五，最常见开局",

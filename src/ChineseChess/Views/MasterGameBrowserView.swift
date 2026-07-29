@@ -20,9 +20,10 @@ enum MasterGameBrowseMode: String, CaseIterable, Identifiable {
 
 // MARK: - Sidebar 统一选中类型
 
-/// 包装三种 sidebar 选中类型，供 macOS List(selection:) 使用
+/// 包装四种 sidebar 选中类型，供 macOS List(selection:) 使用
 enum SidebarSelection: Hashable {
     case opening(OpeningCategory)
+    case subcategory(OpeningSubcategory)
     case player(MasterStatsFile.PlayerStat)
     case event(MasterStatsFile.EventStat)
 }
@@ -47,10 +48,16 @@ struct MasterGameBrowserView: View {
 
     /// 当前选中的开局分类
     @State private var selectedOpening: OpeningCategory? = nil
+    /// 当前选中的子分类
+    @State private var selectedSubcategory: OpeningSubcategory? = nil
     /// 当前选中的棋手
     @State private var selectedPlayer: MasterStatsFile.PlayerStat? = nil
     /// 当前选中的赛事
     @State private var selectedEvent: MasterStatsFile.EventStat? = nil
+
+    /// iOS 子分类列表状态
+    @State private var showSubcategoryList = false
+    @State private var subcategoryParent: OpeningCategory? = nil
 
     /// 列表分页
     @State private var currentPage: Int = 1
@@ -110,8 +117,10 @@ struct MasterGameBrowserView: View {
         Group {
             if !masterStore.isLoaded {
                 loadingView
-            } else if browseMode == .opening && selectedOpening == nil {
+            } else if browseMode == .opening && selectedOpening == nil && !showSubcategoryList {
                 iosCategoryList
+            } else if browseMode == .opening && showSubcategoryList {
+                iosSubcategoryList
             } else if browseMode == .player && selectedPlayer == nil {
                 iosPlayerList
             } else if browseMode == .event && selectedEvent == nil {
@@ -188,6 +197,12 @@ struct MasterGameBrowserView: View {
             switch sel {
             case .opening(let opening):
                 selectedOpening = opening
+                selectedSubcategory = nil
+                selectedPlayer = nil
+                selectedEvent = nil
+            case .subcategory(let sub):
+                selectedSubcategory = sub
+                selectedOpening = nil
                 selectedPlayer = nil
                 selectedEvent = nil
             case .player(let player):
@@ -206,16 +221,39 @@ struct MasterGameBrowserView: View {
     private var openingSidebarContent: some View {
         Section(L10n.shared.t("demo.sectionMasterGames")) {
             ForEach(OpeningCategories.categories.filter { opening in
-                masterStore.byOpening(opening.firstMove).count > 0
+                opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
             }) { opening in
-                let count = masterStore.byOpening(opening.firstMove).count
-                HStack {
-                    Text(opening.name)
-                        .font(.subheadline)
-                    Spacer()
-                    countBadge(count)
+                if opening.subcategories.isEmpty {
+                    // 无子分类：直接选择
+                    HStack {
+                        Text(opening.name)
+                            .font(.subheadline)
+                        Spacer()
+                        countBadge(opening.gameCount)
+                    }
+                    .tag(SidebarSelection.opening(opening))
+                } else {
+                    // 有子分类：DisclosureGroup 展开
+                    DisclosureGroup {
+                        ForEach(opening.subcategories) { sub in
+                            HStack {
+                                Text(sub.name)
+                                    .font(.subheadline)
+                                Spacer()
+                                countBadge(sub.gameCount)
+                            }
+                            .tag(SidebarSelection.subcategory(sub))
+                        }
+                    } label: {
+                        HStack {
+                            Text(opening.name)
+                                .font(.subheadline)
+                            Spacer()
+                            countBadge(opening.gameCount)
+                        }
+                        .tag(SidebarSelection.opening(opening))
+                    }
                 }
-                .tag(SidebarSelection.opening(opening))
             }
         }
     }
@@ -310,25 +348,36 @@ struct MasterGameBrowserView: View {
             }
 
             ForEach(OpeningCategories.categories.filter { opening in
-                masterStore.byOpening(opening.firstMove).count > 0
+                opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
             }) { opening in
-                let count = masterStore.byOpening(opening.firstMove).count
                 Button(action: {
-                    selectedOpening = opening
-                    currentPage = 1
-                    rebuildCache()
+                    if !opening.subcategories.isEmpty {
+                        // 有子分类：进入子分类列表
+                        subcategoryParent = opening
+                        showSubcategoryList = true
+                    } else {
+                        // 无子分类：直接进入对局列表
+                        selectedOpening = opening
+                        currentPage = 1
+                        rebuildCache()
+                    }
                 }) {
                     HStack {
                         Text(opening.name)
                             .font(.body)
                         Spacer()
-                        Text("\(count)")
+                        Text("\(opening.gameCount)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
                             .background(Color.secondary.opacity(0.12))
                             .clipShape(Capsule())
+                        if !opening.subcategories.isEmpty {
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
                     }
                 }
                 .buttonStyle(.plain)
@@ -447,10 +496,92 @@ struct MasterGameBrowserView: View {
         .navigationTitle(L10n.shared.t("study.masterGame"))
     }
 
+    private var iosSubcategoryList: some View {
+        List {
+            // "全部"选项
+            if let parent = subcategoryParent {
+                Button(action: {
+                    selectedOpening = parent
+                    selectedSubcategory = nil
+                    showSubcategoryList = false
+                    currentPage = 1
+                    rebuildCache()
+                }) {
+                    HStack {
+                        Text(L10n.shared.t("master.mode.opening"))
+                            .font(.body)
+                        Text("— \(parent.name)")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text("\(parent.gameCount)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.secondary.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                }
+                .buttonStyle(.plain)
+
+                ForEach(parent.subcategories) { sub in
+                    Button(action: {
+                        selectedSubcategory = sub
+                        selectedOpening = nil
+                        showSubcategoryList = false
+                        currentPage = 1
+                        rebuildCache()
+                    }) {
+                        HStack {
+                            Text(sub.name)
+                                .font(.body)
+                            Spacer()
+                            Text("\(sub.gameCount)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.secondary.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(subcategoryParent?.name ?? "")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    showSubcategoryList = false
+                    subcategoryParent = nil
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text(L10n.shared.t("study.masterGame"))
+                    }
+                }
+            }
+        }
+    }
+
     private var iosBackBar: some View {
         Button(action: {
             switch browseMode {
-            case .opening: selectedOpening = nil
+            case .opening:
+                if selectedSubcategory != nil {
+                    showSubcategoryList = true
+                    selectedSubcategory = nil
+                } else if selectedOpening != nil && subcategoryParent != nil {
+                    showSubcategoryList = true
+                    selectedOpening = nil
+                } else {
+                    selectedOpening = nil
+                    showSubcategoryList = false
+                    subcategoryParent = nil
+                }
             case .player:  selectedPlayer = nil
             case .event:   selectedEvent = nil
             }
@@ -473,7 +604,12 @@ struct MasterGameBrowserView: View {
 
     private var backBarTitle: some View {
         switch browseMode {
-        case .opening: return Text(L10n.shared.t("master.mode.opening"))
+        case .opening:
+            if selectedSubcategory != nil {
+                return Text(subcategoryParent?.name ?? L10n.shared.t("master.mode.opening"))
+            } else {
+                return Text(L10n.shared.t("master.mode.opening"))
+            }
         case .player:  return Text(L10n.shared.t("master.mode.player"))
         case .event:   return Text(L10n.shared.t("master.mode.event"))
         }
@@ -587,6 +723,10 @@ struct MasterGameBrowserView: View {
             currentPage = 1
             rebuildCache()
         }
+        .onChange(of: selectedSubcategory) { _, _ in
+            currentPage = 1
+            rebuildCache()
+        }
         .onChange(of: selectedPlayer) { _, _ in
             currentPage = 1
             rebuildCache()
@@ -632,28 +772,31 @@ struct MasterGameBrowserView: View {
 
     private func rebuildCache() {
         let indices: [MasterGameIndex]
-        switch browseMode {
-        case .opening:
-            guard let opening = selectedOpening else {
-                cachedItems = []
-                cachedTotalCount = 0
-                return
-            }
+        if let sub = selectedSubcategory {
+            indices = masterStore.bySubcategory(sub.id)
+        } else if let opening = selectedOpening {
             indices = masterStore.byOpening(opening.firstMove)
-        case .player:
-            guard let player = selectedPlayer else {
+        } else {
+            switch browseMode {
+            case .opening:
                 cachedItems = []
                 cachedTotalCount = 0
                 return
+            case .player:
+                guard let player = selectedPlayer else {
+                    cachedItems = []
+                    cachedTotalCount = 0
+                    return
+                }
+                indices = masterStore.byPlayer(player.name)
+            case .event:
+                guard let event = selectedEvent else {
+                    cachedItems = []
+                    cachedTotalCount = 0
+                    return
+                }
+                indices = masterStore.byEvent(event.name)
             }
-            indices = masterStore.byPlayer(player.name)
-        case .event:
-            guard let event = selectedEvent else {
-                cachedItems = []
-                cachedTotalCount = 0
-                return
-            }
-            indices = masterStore.byEvent(event.name)
         }
         cachedTotalCount = indices.count
         let page = indices.prefix(gamePageSize * currentPage)
@@ -665,9 +808,12 @@ struct MasterGameBrowserView: View {
     private func switchToMode(_ mode: MasterGameBrowseMode) {
         // 清空所有选中状态
         selectedOpening = nil
+        selectedSubcategory = nil
         selectedPlayer = nil
         selectedEvent = nil
         sidebarSelection = nil
+        showSubcategoryList = false
+        subcategoryParent = nil
         cachedItems = []
         cachedTotalCount = 0
         currentPage = 1
