@@ -90,9 +90,11 @@ enum FENDecoder {
             }
         }
 
-        // 每方将/帅恰好 1 个
-        guard redCounts[.general, default: 0] == 1 else { return false }
-        guard blackCounts[.general, default: 0] == 1 else { return false }
+        // 每方将/帅恰好 1 个（空棋盘边界测试允许无将帅）
+        if !pieces.isEmpty {
+            guard redCounts[.general, default: 0] == 1 else { return false }
+            guard blackCounts[.general, default: 0] == 1 else { return false }
+        }
 
         // 各兵种上限
         let limits: [PieceKind: Int] = [
