@@ -1,9 +1,27 @@
 import SwiftUI
 
+// MARK: - 浏览模式枚举
+
+enum MasterGameBrowseMode: String, CaseIterable, Identifiable {
+    case opening   // 按开局
+    case player    // 按棋手
+    case event     // 按赛事
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .opening: return L10n.shared.t("master.mode.opening")
+        case .player:  return L10n.shared.t("master.mode.player")
+        case .event:   return L10n.shared.t("master.mode.event")
+        }
+    }
+}
+
 // MARK: - 大师棋谱浏览器
 
 /// 独立的大师棋谱浏览视图（从 PuzzleDemoView 拆出）
-/// macOS：sidebar（按开局分类）+ 列表 + 棋谱播放
+/// macOS：sidebar（按开局/棋手/赛事分类）+ 列表 + 棋谱播放
 /// iOS：全屏列表 → 棋谱播放
 struct MasterGameBrowserView: View {
     @State private var viewModel: DemoViewModel?
@@ -12,12 +30,23 @@ struct MasterGameBrowserView: View {
     @State private var masterStore = MasterGameStore.shared
     @State private var isLoadingIndex = false
 
+    /// 浏览模式
+    @State private var browseMode: MasterGameBrowseMode = .opening
+
     /// 当前选中的开局分类
     @State private var selectedOpening: OpeningCategory? = nil
+    /// 当前选中的棋手
+    @State private var selectedPlayer: MasterStatsFile.PlayerStat? = nil
+    /// 当前选中的赛事
+    @State private var selectedEvent: MasterStatsFile.EventStat? = nil
 
     /// 列表分页
     @State private var currentPage: Int = 1
-    private let pageSize = 30
+    private let gamePageSize = 200
+    private let categoryPageSize = 50
+
+    /// 分类/棋手/赛事列表分段加载
+    @State private var categoryDisplayCount: Int = 50
 
     /// 列表缓存
     @State private var cachedItems: [MasterGameDemoItem] = []
@@ -29,6 +58,9 @@ struct MasterGameBrowserView: View {
     @State private var showLoadError = false
     @State private var showIncompleteWarning = false
     @State private var showMasterLoadError = false
+
+    /// 统计不可用提示
+    @State private var showStatsUnavailable = false
 
     private var hasMoreItems: Bool {
         cachedItems.count < cachedTotalCount
@@ -59,45 +91,56 @@ struct MasterGameBrowserView: View {
         .frame(minWidth: 720, minHeight: 520)
         #else
         Group {
-            if selectedOpening == nil && masterStore.isLoaded {
-                openingList
-            } else if masterStore.isLoaded {
+            if !masterStore.isLoaded {
+                loadingView
+            } else if browseMode == .opening && selectedOpening == nil {
+                iosCategoryList
+            } else if browseMode == .player && selectedPlayer == nil {
+                iosPlayerList
+            } else if browseMode == .event && selectedEvent == nil {
+                iosEventList
+            } else {
                 VStack(spacing: 0) {
                     iosBackBar
                     listContent
                 }
-            } else {
-                loadingView
             }
         }
         #endif
+    }
+
+    // MARK: - 模式 Picker
+
+    private var modePicker: some View {
+        Picker("", selection: $browseMode) {
+            ForEach(MasterGameBrowseMode.allCases) { mode in
+                Text(mode.label).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+        .onChange(of: browseMode) { _, newMode in
+            switchToMode(newMode)
+        }
     }
 
     // MARK: - macOS Sidebar
 
     #if os(macOS)
     private var sidebar: some View {
-        List(selection: $selectedOpening) {
+        List {
+            Section {
+                modePicker
+                    .listRowSeparator(.hidden)
+            }
+
             if masterStore.isLoaded {
-                Section(L10n.shared.t("demo.sectionMasterGames")) {
-                    ForEach(OpeningCategories.categories.filter { opening in
-                        masterStore.byOpening(opening.firstMove).count > 0
-                    }) { opening in
-                        let count = masterStore.byOpening(opening.firstMove).count
-                        HStack {
-                            Text(opening.name)
-                                .font(.subheadline)
-                            Spacer()
-                            Text("\(count)")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.1))
-                                .clipShape(Capsule())
-                        }
-                        .tag(opening)
-                    }
+                switch browseMode {
+                case .opening:
+                    openingSidebarContent
+                case .player:
+                    playerSidebarContent
+                case .event:
+                    eventSidebarContent
                 }
             } else {
                 Section(L10n.shared.t("demo.sectionMasterGames")) {
@@ -118,13 +161,113 @@ struct MasterGameBrowserView: View {
         }
         .listStyle(.sidebar)
     }
+
+    private var openingSidebarContent: some View {
+        Section(L10n.shared.t("demo.sectionMasterGames")) {
+            ForEach(OpeningCategories.categories.filter { opening in
+                masterStore.byOpening(opening.firstMove).count > 0
+            }) { opening in
+                let count = masterStore.byOpening(opening.firstMove).count
+                HStack {
+                    Text(opening.name)
+                        .font(.subheadline)
+                    Spacer()
+                    countBadge(count)
+                }
+                .tag(opening)
+        }
+        }
+    }
+
+    private var playerSidebarContent: some View {
+        Section(L10n.shared.t("master.mode.player")) {
+            if let players = masterStore.stats?.players {
+                let sorted = players.sorted { $0.count > $1.count }
+                let visible = Array(sorted.prefix(categoryDisplayCount))
+                ForEach(visible, id: \.name) { player in
+                    HStack {
+                        Text(player.nameCN)
+                            .font(.subheadline)
+                        Spacer()
+                        countBadge(player.count)
+                    }
+                    .tag(player)
+                }
+                if visible.count < sorted.count {
+                    HStack {
+                        Spacer()
+                        Button(String(format: L10n.shared.t("master.loadMorePlayers"), visible.count, sorted.count)) {
+                            categoryDisplayCount += categoryPageSize
+                        }
+                        .font(.caption)
+                        Spacer()
+                    }
+                }
+            } else {
+                Text(L10n.shared.t("master.statsUnavailable"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var eventSidebarContent: some View {
+        Section(L10n.shared.t("master.mode.event")) {
+            if let events = masterStore.stats?.events {
+                let sorted = events.sorted { $0.count > $1.count }
+                let visible = Array(sorted.prefix(categoryDisplayCount))
+                ForEach(visible, id: \.name) { event in
+                    HStack {
+                        Text(event.nameCN)
+                            .font(.subheadline)
+                        if let year = event.year {
+                            Text("\(year)")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+                        Spacer()
+                        countBadge(event.count)
+                    }
+                    .tag(event)
+                }
+                if visible.count < sorted.count {
+                    HStack {
+                        Spacer()
+                        Button(String(format: L10n.shared.t("master.loadMoreEvents"), visible.count, sorted.count)) {
+                            categoryDisplayCount += categoryPageSize
+                        }
+                        .font(.caption)
+                        Spacer()
+                    }
+                }
+            } else {
+                Text(L10n.shared.t("master.statsUnavailable"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func countBadge(_ count: Int) -> some View {
+        Text("\(count)")
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color.secondary.opacity(0.1))
+            .clipShape(Capsule())
+    }
     #endif
 
-    // MARK: - iOS 开局分类列表
+    // MARK: - iOS 分类列表
 
     #if os(iOS)
-    private var openingList: some View {
+    private var iosCategoryList: some View {
         List {
+            Section {
+                modePicker
+            }
+
             ForEach(OpeningCategories.categories.filter { opening in
                 masterStore.byOpening(opening.firstMove).count > 0
             }) { opening in
@@ -154,24 +297,145 @@ struct MasterGameBrowserView: View {
         .navigationTitle(L10n.shared.t("study.masterGame"))
     }
 
+    private var iosPlayerList: some View {
+        List {
+            Section {
+                modePicker
+            }
+
+            if let players = masterStore.stats?.players {
+                let sorted = players.sorted { $0.count > $1.count }
+                let visible = Array(sorted.prefix(categoryDisplayCount))
+                ForEach(visible, id: \.name) { player in
+                    Button(action: {
+                        selectedPlayer = player
+                        currentPage = 1
+                        rebuildCache()
+                    }) {
+                        HStack {
+                            Text(player.nameCN)
+                                .font(.body)
+                            Spacer()
+                            Text("\(player.count)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.secondary.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                if visible.count < sorted.count {
+                    HStack {
+                        Spacer()
+                        Button(String(format: L10n.shared.t("master.loadMorePlayers"), visible.count, sorted.count)) {
+                            categoryDisplayCount += categoryPageSize
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+                }
+            } else {
+                Text(L10n.shared.t("master.statsUnavailable"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(L10n.shared.t("study.masterGame"))
+    }
+
+    private var iosEventList: some View {
+        List {
+            Section {
+                modePicker
+            }
+
+            if let events = masterStore.stats?.events {
+                let sorted = events.sorted { $0.count > $1.count }
+                let visible = Array(sorted.prefix(categoryDisplayCount))
+                ForEach(visible, id: \.name) { event in
+                    Button(action: {
+                        selectedEvent = event
+                        currentPage = 1
+                        rebuildCache()
+                    }) {
+                        HStack {
+                            Text(event.nameCN)
+                                .font(.body)
+                            if let year = event.year {
+                                Text("\(year)")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                            Spacer()
+                            Text("\(event.count)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.secondary.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                if visible.count < sorted.count {
+                    HStack {
+                        Spacer()
+                        Button(String(format: L10n.shared.t("master.loadMoreEvents"), visible.count, sorted.count)) {
+                            categoryDisplayCount += categoryPageSize
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.brown)
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+                }
+            } else {
+                Text(L10n.shared.t("master.statsUnavailable"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(L10n.shared.t("study.masterGame"))
+    }
+
     private var iosBackBar: some View {
         Button(action: {
-            selectedOpening = nil
+            switch browseMode {
+            case .opening: selectedOpening = nil
+            case .player:  selectedPlayer = nil
+            case .event:   selectedEvent = nil
+            }
             cachedItems = []
             cachedTotalCount = 0
         }) {
             HStack(spacing: 4) {
                 Image(systemName: "chevron.left")
-                Text(L10n.shared.t("study.masterGame"))
+                backBarTitle
             }
             .font(.subheadline)
             .foregroundStyle(Color.accentColor)
         }
-        .accessibilityLabel("返回开局分类列表")
+        .accessibilityLabel("返回分类列表")
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(.bar)
+    }
+
+    private var backBarTitle: some View {
+        switch browseMode {
+        case .opening: return Text(L10n.shared.t("master.mode.opening"))
+        case .player:  return Text(L10n.shared.t("master.mode.player"))
+        case .event:   return Text(L10n.shared.t("master.mode.event"))
+        }
     }
 
     private var loadingView: some View {
@@ -278,13 +542,6 @@ struct MasterGameBrowserView: View {
         } message: {
             Text(masterStore.loadError ?? "")
         }
-        .onChange(of: selectedOpening) { _, _ in
-            currentPage = 1
-            rebuildCache()
-        }
-        .onChange(of: selectedOpening) { _, _ in
-            rebuildCache()
-        }
         .onAppear {
             if !masterStore.isLoaded { loadIndex() }
         }
@@ -321,15 +578,52 @@ struct MasterGameBrowserView: View {
     // MARK: - 缓存重建
 
     private func rebuildCache() {
-        guard let opening = selectedOpening else {
-            cachedItems = []
-            cachedTotalCount = 0
-            return
+        let indices: [MasterGameIndex]
+        switch browseMode {
+        case .opening:
+            guard let opening = selectedOpening else {
+                cachedItems = []
+                cachedTotalCount = 0
+                return
+            }
+            indices = masterStore.byOpening(opening.firstMove)
+        case .player:
+            guard let player = selectedPlayer else {
+                cachedItems = []
+                cachedTotalCount = 0
+                return
+            }
+            indices = masterStore.byPlayer(player.name)
+        case .event:
+            guard let event = selectedEvent else {
+                cachedItems = []
+                cachedTotalCount = 0
+                return
+            }
+            indices = masterStore.byEvent(event.name)
         }
-        let indices = masterStore.byOpening(opening.firstMove)
         cachedTotalCount = indices.count
-        let page = indices.prefix(pageSize * currentPage)
+        let page = indices.prefix(gamePageSize * currentPage)
         cachedItems = page.map { MasterGameDemoItem(index: $0, fen: nil) }
+    }
+
+    // MARK: - 模式切换
+
+    private func switchToMode(_ mode: MasterGameBrowseMode) {
+        // 清空所有选中状态
+        selectedOpening = nil
+        selectedPlayer = nil
+        selectedEvent = nil
+        cachedItems = []
+        cachedTotalCount = 0
+        currentPage = 1
+        categoryDisplayCount = categoryPageSize
+
+        // 统计不可用时回退到开局模式
+        if mode != .opening && masterStore.stats == nil {
+            browseMode = .opening
+            showStatsUnavailable = true
+        }
     }
 
     // MARK: - 播放对局

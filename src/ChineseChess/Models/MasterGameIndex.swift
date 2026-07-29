@@ -37,13 +37,13 @@ struct MasterStatsFile: Codable, Sendable {
     let events: [EventStat]
     let openingDistribution: [String: Int]
 
-    struct PlayerStat: Codable, Sendable {
+    struct PlayerStat: Codable, Sendable, Hashable {
         let name: String
         let nameCN: String
         let count: Int
     }
 
-    struct EventStat: Codable, Sendable {
+    struct EventStat: Codable, Sendable, Hashable {
         let name: String
         let nameCN: String
         let year: Int?

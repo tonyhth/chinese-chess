@@ -10131,6 +10131,102 @@
           }
         }
       }
+    },
+    "master.mode.opening": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按开局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Opening"
+          }
+        }
+      }
+    },
+    "master.mode.player": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按棋手"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Player"
+          }
+        }
+      }
+    },
+    "master.mode.event": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按赛事"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Event"
+          }
+        }
+      }
+    },
+    "master.statsUnavailable": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "统计数据不可用，已回退按开局模式"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stats unavailable, fell back to by-opening mode"
+          }
+        }
+      }
+    },
+    "master.loadMorePlayers": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示更多棋手（%d/%d）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more players (%d/%d)"
+          }
+        }
+      }
+    },
+    "master.loadMoreEvents": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示更多赛事（%d/%d）"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more events (%d/%d)"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
