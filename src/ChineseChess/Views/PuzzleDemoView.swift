@@ -385,13 +385,38 @@ struct PuzzleDemoView: View {
     // MARK: - 播放条目
 
     private func playItem(_ wrapper: DemoItemWrapper) {
+        // P0-4: 连播替换 ViewModel 前安全清理旧对象
+        cleanupViewModel()
+
         switch wrapper {
         case .puzzle(let puzzle):
             let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-            viewModel = DemoViewModel(item: wrapper, moves: convertResult.moves)
+            let newVM = DemoViewModel(item: wrapper, moves: convertResult.moves)
+                    newVM.onAutoAdvanceHandler = {
+                        self.loadNextPuzzle(after: wrapper)
+                    }
+                    viewModel = newVM
         case .masterGame:
             break
         }
+    }
+
+    /// 加载下一局残局
+    private func loadNextPuzzle(after current: DemoItemWrapper) {
+        if let currentIndex = cachedListItems.firstIndex(where: { $0.id == current.id }),
+           currentIndex + 1 < cachedListItems.count {
+            playItem(cachedListItems[currentIndex + 1])
+        } else if !cachedListItems.isEmpty {
+            playItem(cachedListItems[0])  // 循环回第一局
+        }
+    }
+
+    /// 安全清理旧 ViewModel（P0-4: 防止回调竞态）
+    private func cleanupViewModel() {
+        guard let vm = viewModel else { return }
+        vm.pause()                       // 停止播放 + 取消 autoPlayTask
+        vm.resultDisplayTimer?.cancel()   // 取消结果展示定时器
+        vm.onAutoAdvanceHandler = nil     // 断开回调，防止旧对象触发
     }
 
     // MARK: - macOS 布局
@@ -431,6 +456,13 @@ struct PuzzleDemoView: View {
                     CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
                         .padding(.top, 8)
                 }
+
+                // P1-2: 连播过渡 UI — 半透明 loading overlay
+                if viewModel.playState == .transitioning {
+                    Color.black.opacity(0.3)
+                    ProgressView()
+                        .scaleEffect(1.2)
+                }
             }
 
             DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
@@ -440,7 +472,7 @@ struct PuzzleDemoView: View {
     // MARK: - 返回列表
 
     private func backToList() {
-        viewModel?.pause()
+        cleanupViewModel()
         viewModel = nil
         rebuildListCache()
     }

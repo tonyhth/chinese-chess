@@ -148,17 +148,6 @@ final class MasterGameDemoTests: XCTestCase {
         XCTAssertEqual(wrapper.demoCategory, "其他开局")
     }
 
-    func testDemoItemWrapperAutoAdvanceDelay() {
-        let puzzle = makePuzzle(id: "p1", solution: ["h2e2"])
-        let puzzleWrapper = DemoItemWrapper.puzzle(puzzle)
-        XCTAssertEqual(puzzleWrapper.autoAdvanceDelay, 3.0, "残局连播延迟应为 3 秒")
-
-        let index = makeMasterGameIndex()
-        let masterItem = MasterGameDemoItem(index: index, fen: FENParser.standardInitial)
-        let masterWrapper = DemoItemWrapper.masterGame(masterItem)
-        XCTAssertEqual(masterWrapper.autoAdvanceDelay, 8.0, "大师棋谱连播延迟应为 8 秒")
-    }
-
     func testDemoItemWrapperShouldFlipBoard() {
         // 红方残局不翻转
         let puzzleRed = makePuzzle(id: "p1", solution: ["h2e2"])
@@ -378,20 +367,6 @@ final class MasterGameDemoTests: XCTestCase {
         } else {
             XCTFail("DemoViewModel.item 应为 .masterGame")
         }
-    }
-
-    func testDemoViewModelAutoAdvanceDelayRespected() {
-        // 残局：3 秒延迟
-        let puzzle = makePuzzle(solution: ["h2e2"])
-        let vmPuzzle = DemoViewModel(puzzle: puzzle)
-        XCTAssertEqual(vmPuzzle.item.autoAdvanceDelay, 3.0)
-
-        // 大师棋谱：8 秒延迟
-        let index = makeMasterGameIndex()
-        let masterItem = MasterGameDemoItem(index: index, fen: FENParser.standardInitial)
-        let wrapper = DemoItemWrapper.masterGame(masterItem)
-        let vmMaster = DemoViewModel(item: wrapper, moves: [])
-        XCTAssertEqual(vmMaster.item.autoAdvanceDelay, 8.0)
     }
 
     // MARK: - 6. MasterGameIndex Equatable

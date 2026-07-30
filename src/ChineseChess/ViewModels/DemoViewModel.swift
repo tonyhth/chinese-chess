@@ -83,6 +83,10 @@ class DemoViewModel {
     private(set) var isAutoAdvance: Bool = true
     private(set) var resultDisplayTimer: Task<Void, Never>?
 
+    /// 连播回调：通知父视图加载下一局
+    /// 设计决策：使用回调驱动而非 onChange 监听，因为 playItem() 替换 viewModel 后 onChange 绑定失效
+    var onAutoAdvanceHandler: (() -> Void)?
+
     // 点评
     private(set) var currentCommentary: CommentaryItem?
     private var commentaryHideTask: Task<Void, Never>?
@@ -192,13 +196,14 @@ class DemoViewModel {
             showCommentary(item)
         }
 
-        // 连播：残局 3 秒 / 大师棋谱 8 秒
+        // 连播：3 秒结果展示后自动加载下一局（P0-3: 统一 3 秒）
         if isAutoAdvance {
-            let delay = item.autoAdvanceDelay
+            let delay = 3.0
             resultDisplayTimer = Task { @MainActor in
                 do {
                     try await Task.sleep(for: .seconds(delay))
                     playState = .transitioning
+                    onAutoAdvanceHandler?()  // 通知父视图加载下一局
                 } catch {}
             }
         }

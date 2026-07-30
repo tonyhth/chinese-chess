@@ -73,14 +73,6 @@ enum DemoItemWrapper: Identifiable, Equatable {
         }
     }
 
-    /// 连播等待时间（秒）
-    var autoAdvanceDelay: Double {
-        switch self {
-        case .puzzle: return 3.0           // 残局短，3 秒够消化
-        case .masterGame: return 8.0       // 大师棋谱长，8 秒让用户思考
-        }
-    }
-
     /// 棋盘是否翻转（黑方先行时翻转）
     var shouldFlipBoard: Bool {
         switch self {
