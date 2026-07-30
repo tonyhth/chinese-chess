@@ -63,8 +63,9 @@ final class ReplayBoardRebuildTests: XCTestCase {
     // P0: Board.execute id 匹配验证
     // ============================================================
 
-    /// 验证核心问题：从 FEN 创建的两个 Board 实例，相同位置棋子的 UUID 不同
-    /// 这导致 GameMove.piece.id 与 ReplayViewModel 内部 Board 的棋子 id 不匹配
+    /// v3.9 修正：Piece.id 已从 UUID 改为稳定 Int（0-31），
+    /// 同一 FEN 创建的 Board 实例，相同位置棋子 id 应相同。
+    /// 此测试验证 ID 稳定性（之前断言 UUID 不同已过时）。
     func testBoard_FENDifferentUUIDs() {
         let fen = FENParser.standardInitial
         let board1 = Board(fen: fen)
@@ -75,12 +76,13 @@ final class ReplayBoardRebuildTests: XCTestCase {
         let p1 = board1.piece(at: pos)!
         let p2 = board2.piece(at: pos)!
 
-        XCTAssertNotEqual(p1.id, p2.id,
-                          "从同一 FEN 创建的不同 Board 实例，棋子 UUID 应不同")
+        // v3.9: Piece.id 是稳定 Int，同一位置应相同
+        XCTAssertEqual(p1.id, p2.id,
+                       "从同一 FEN 创建的不同 Board 实例，相同位置棋子 id 应相同（稳定 Int）")
     }
 
-    /// 验证 Board.execute 在 id 不匹配时不会移动棋子
-    /// 这是 v3.7.5 修复引入的 P0 回归根因
+    /// v3.9 修正：Piece.id 是稳定 Int，不同 Board 实例同一位置棋子 id 匹配。
+    /// execute 应正确执行走法。此测试验证 ID 稳定性修复。
     func testBoard_Execute_RequiresMatchingID() {
         let board1 = Board(fen: FENParser.standardInitial)
         let board2 = Board(fen: FENParser.standardInitial)
@@ -94,17 +96,17 @@ final class ReplayBoardRebuildTests: XCTestCase {
 
         // 在 board2 上执行这个走法（piece.id 来自 board1）
         let moveForBoard2 = Move(
-            piece: mv.piece,        // id 来自 board1
+            piece: mv.piece,        // id 来自 board1，但同一位置 id 相同
             from: mv.from,
             to: mv.to,
             captured: mv.captured   // id 来自 board1（如有）
         )
         board2.execute(moveForBoard2)
 
-        // 检查 board2 上 from 位置是否还有棋子
-        let pieceStillAtFrom = board2.piece(at: mv.from)
-        XCTAssertNotNil(pieceStillAtFrom,
-                        "id 不匹配时 execute 未移动棋子，from 位置仍有棋子 — P0 回归根因")
+        // v3.9: id 是稳定 Int，应该匹配，execute 应成功执行
+        let pieceMoved = board2.piece(at: mv.from)
+        XCTAssertNil(pieceMoved,
+                     "id 匹配时 execute 应正确移动棋子，from 位置应为空")
     }
 
     // ============================================================

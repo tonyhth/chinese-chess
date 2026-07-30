@@ -134,17 +134,28 @@ struct CaptureMovesTests {
         #expect(nonGeneralCaptures.isEmpty)
     }
 
-    @Test("captureMoves 与 allLegalMoves 的吃子子集一致")
+    /// v3.9 设计：captureMoves 跳过 wouldBeInCheck 检查，可能包含更多走法。
+    /// QS 内部通过实际执行验证合法性。
+    /// 参考：AIEngine.swift quiescenceSearch 注释
+    @Test("captureMoves 可能包含更多走法（跳过 wouldBeInCheck）")
     func captureMovesConsistentWithAllLegal() {
         let board = Board()
         let allRed = MoveValidator.allLegalMoves(for: .red, on: board)
         let captureRed = MoveValidator.captureMoves(for: .red, on: board)
         let allCaptures = allRed.filter { $0.captured != nil }
 
-        #expect(captureRed.count == allCaptures.count, "captureMoves 应与 allLegalMoves 中的吃子走法数量一致")
+        // captureMoves 跳过 wouldBeInCheck 检查，可能包含更多走法
+        #expect(captureRed.count >= allCaptures.count,
+                "captureMoves 应 >= allLegalMoves 吃子数（不做 wouldBeInCheck 过滤）")
+        // 所有返回的走法都应该是吃子走法
+        #expect(captureRed.allSatisfy { $0.captured != nil },
+                "captureMoves 只返回吃子走法")
     }
 
-    @Test("captureMoves 不返回送将走法")
+    /// v3.9 设计：captureMoves 跳过 wouldBeInCheck 检查，可能返回送将走法。
+    /// QS 内部通过实际执行验证合法性，送将走法会被过滤。
+    /// 此测试验证设计行为：captureMoves 不做 wouldBeInCheck 过滤。
+    @Test("captureMoves 可能包含送将走法（设计预期）")
     func captureMovesFiltersSelfCheck() {
         // 红车阻隔将帅对面，离开后送将
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
@@ -155,7 +166,10 @@ struct CaptureMovesTests {
 
         let captures = MoveValidator.captureMoves(for: .red, on: board)
         let movesToBC = captures.filter { $0.to == Position(row: 8, col: 0) }
-        #expect(movesToBC.isEmpty, "吃子导致将帅对面应被过滤")
+        // captureMoves 跳过 wouldBeInCheck 检查，可能包含送将走法
+        // 这是设计预期，QS 内部会通过实际执行过滤
+        #expect(!movesToBC.isEmpty,
+                "captureMoves 跳过 wouldBeInCheck 检查，可能包含送将走法（设计预期）")
     }
 
     @Test("captureMoves 对黑方有效")
