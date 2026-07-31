@@ -9,11 +9,9 @@ import Foundation
 /// 2. N 步之后、仍有书谱候选：从 OpeningBook 候选中选招（按权重随机）
 /// 3. 无书谱候选：回退正常 AI
 ///
-/// ⚠️ 步数计数器契约：
-/// - AI 走棋 → nextAIMove() 内部自动递增 totalStepIndex
-/// - 用户走棋 → 外部必须调用 advanceStep() 递增
-/// 两边各走一步后计数器才能正确同步。漏调 advanceStep() 会导致 AI 在
-/// 错误的 firstMoves 索引上找走法。
+/// 步数计数器由 nextAIMove() 内部统一管理，调用方无需手动递增：
+/// - 每次调用 nextAIMove() 时，自动计入用户的前置走法 + AI 的走法
+/// - 唯一例外：AI 先手时（用户执黑），首次调用不计算前置用户走法
 final class OpeningCoachStrategy {
 
     /// 目标开局子分类
@@ -21,11 +19,9 @@ final class OpeningCoachStrategy {
     /// 开局库
     let book: OpeningBook
     /// 用户执哪方
-
     let playerSide: Side
 
     /// 总步数计数器（双方合计），用于跟踪 firstMoves 的进度
-    /// 由外部在每次走棋（用户+AI）后通过 advanceStep() 递增
     private var totalStepIndex = 0
 
     /// 最大开局步数（超过则判定开局结束）
@@ -41,24 +37,31 @@ final class OpeningCoachStrategy {
 
     /// 获取 AI 应走的走法
     ///
+    /// 步数计数器内部统一管理：
+    /// - 用户执红时：每次调用先计入用户的前置走法（+1），再计入 AI 走法（+1）
+    /// - 用户执黑时：首次调用 AI 先手，无前置用户走法，只计入 AI 走法（+1）
+    /// - 后续调用均计入前置用户走法 + AI 走法
+    ///
     /// firstMoves 索引映射：
     ///   index 0 = 红第1步, 1 = 黑第1步, 2 = 红第2步, 3 = 黑第2步, ...
-    /// AI 执黑时走 index 1,3,5...；AI 执红时走 index 0,2,4...
-    ///
-    /// ⚠️ 步数契约：此方法内部会自动递增 totalStepIndex（AI 走棋），
-    /// 但用户走棋的步数需要外部调 advanceStep() 补充。
     ///
     /// - Parameter currentFEN: 当前局面 FEN
     /// - Returns: AI 应走的走法（ICCS），nil 表示开局结束
     func nextAIMove(currentFEN: String) -> String? {
-        // 超过最大步数，开局结束
-        guard totalStepIndex < maxSteps else { return nil }
+        // 计入用户的前置走法
+        // 唯一例外：用户执黑时首次调用（AI 先手），totalStepIndex==0 且用户还没走
+        if !(totalStepIndex == 0 && playerSide == .black) {
+            totalStepIndex += 1
+        }
 
-        let currentStepIndex = totalStepIndex
+        let aiStepIndex = totalStepIndex
+
+        // 超过最大步数，开局结束
+        guard aiStepIndex < maxSteps else { return nil }
 
         // 策略 1：firstMoves 覆盖范围内，严格按序列走
-        if currentStepIndex < targetSubcategory.firstMoves.count {
-            let move = targetSubcategory.firstMoves[currentStepIndex]
+        if aiStepIndex < targetSubcategory.firstMoves.count {
+            let move = targetSubcategory.firstMoves[aiStepIndex]
             // 合法性校验：如果 firstMoves 中的走法在当前局面不合法，回退到策略 2
             if isLegalMove(move, in: currentFEN) {
                 totalStepIndex += 1
@@ -80,15 +83,6 @@ final class OpeningCoachStrategy {
         return nil
     }
 
-    /// 用户走棋后递增步数计数器
-    ///
-    /// ⚠️ 必须在用户每走一步后调用此方法。
-    /// nextAIMove() 只递增 AI 走棋的步数，用户走棋的步数由此方法补充。
-    /// 两边各走一步后 totalStepIndex 才能正确同步。
-    func advanceStep() {
-        totalStepIndex += 1
-    }
-
     /// 当前是否仍在 firstMoves 覆盖范围内
     var isInFirstMovesRange: Bool {
         totalStepIndex < targetSubcategory.firstMoves.count
@@ -100,7 +94,6 @@ final class OpeningCoachStrategy {
     private func isLegalMove(_ move: String, in fen: String) -> Bool {
         guard let board = FENParser.parse(fen: fen) else { return false }
         guard let parsedMove = ICCSParser.parse(move, on: board) else { return false }
-        // 用 MoveValidator 替代不存在的 board.isLegalMove
         let legalMoves = MoveValidator.legalMoves(for: parsedMove.piece, on: board)
         return legalMoves.contains(where: { $0.from == parsedMove.from && $0.to == parsedMove.to })
     }
