@@ -8,7 +8,13 @@ import Foundation
 /// 1. 前 N 步（firstMoves 覆盖范围内）：严格按 firstMoves 序列走
 /// 2. N 步之后、仍有书谱候选：从 OpeningBook 候选中选招（按权重随机）
 /// 3. 无书谱候选：回退正常 AI
-struct OpeningCoachStrategy {
+///
+/// ⚠️ 步数计数器契约：
+/// - AI 走棋 → nextAIMove() 内部自动递增 totalStepIndex
+/// - 用户走棋 → 外部必须调用 advanceStep() 递增
+/// 两边各走一步后计数器才能正确同步。漏调 advanceStep() 会导致 AI 在
+/// 错误的 firstMoves 索引上找走法。
+final class OpeningCoachStrategy {
 
     /// 目标开局子分类
     let targetSubcategory: OpeningSubcategory
@@ -39,9 +45,12 @@ struct OpeningCoachStrategy {
     ///   index 0 = 红第1步, 1 = 黑第1步, 2 = 红第2步, 3 = 黑第2步, ...
     /// AI 执黑时走 index 1,3,5...；AI 执红时走 index 0,2,4...
     ///
+    /// ⚠️ 步数契约：此方法内部会自动递增 totalStepIndex（AI 走棋），
+    /// 但用户走棋的步数需要外部调 advanceStep() 补充。
+    ///
     /// - Parameter currentFEN: 当前局面 FEN
     /// - Returns: AI 应走的走法（ICCS），nil 表示开局结束
-    mutating func nextAIMove(currentFEN: String) -> String? {
+    func nextAIMove(currentFEN: String) -> String? {
         // 超过最大步数，开局结束
         guard totalStepIndex < maxSteps else { return nil }
 
@@ -72,8 +81,11 @@ struct OpeningCoachStrategy {
     }
 
     /// 用户走棋后递增步数计数器
-    /// 外部在用户走完一步后调用，确保 totalStepIndex 与实际步数同步
-    mutating func advanceStep() {
+    ///
+    /// ⚠️ 必须在用户每走一步后调用此方法。
+    /// nextAIMove() 只递增 AI 走棋的步数，用户走棋的步数由此方法补充。
+    /// 两边各走一步后 totalStepIndex 才能正确同步。
+    func advanceStep() {
         totalStepIndex += 1
     }
 
