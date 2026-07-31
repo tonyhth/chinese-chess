@@ -908,7 +908,7 @@ struct MasterGameBrowserView: View {
     @ViewBuilder
     private func playContent(viewModel: DemoViewModel) -> some View {
         VStack(spacing: 0) {
-            DemoInfoBar(item: viewModel.item, viewModel: viewModel)
+            DemoInfoBar(item: viewModel.item, viewModel: viewModel, onBackToList: { backToList() })
 
             ZStack(alignment: .top) {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
