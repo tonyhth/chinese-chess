@@ -36,6 +36,7 @@ enum SidebarSelection: Hashable {
 struct MasterGameBrowserView: View {
     @State private var viewModel: DemoViewModel?
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var isDemoFocused: Bool
 
     @State private var masterStore = MasterGameStore.shared
     @State private var isLoadingIndex = false
@@ -912,7 +913,7 @@ struct MasterGameBrowserView: View {
 
             ZStack(alignment: .top) {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
-                if let commentary = viewModel.currentCommentary {
+                if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
                     CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
                         .padding(.top, 8)
                 }
@@ -926,6 +927,42 @@ struct MasterGameBrowserView: View {
             }
 
             DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
+        }
+        #if os(macOS)
+        .focused($isDemoFocused)
+        .onAppear { isDemoFocused = true }
+        // ⌘→ 下一局
+        .background {
+            Button("") { loadNextGameShortcut() }
+                .keyboardShortcut(.rightArrow, modifiers: .command)
+            Button("") { loadPrevGameShortcut() }
+                .keyboardShortcut(.leftArrow, modifiers: .command)
+        }
+        #endif
+    }
+
+    // MARK: - 连播快捷键
+
+    private func loadNextGameShortcut() {
+        guard let vm = viewModel else { return }
+        // 从 viewModel 的 masterGame item 中获取 index id
+        guard case .masterGame(let currentItem) = vm.item else { return }
+        if let currentIndex = cachedItems.firstIndex(where: { $0.index.id == currentItem.index.id }),
+           currentIndex + 1 < cachedItems.count {
+            playGame(cachedItems[currentIndex + 1])
+        } else if !cachedItems.isEmpty {
+            playGame(cachedItems[0])
+        }
+    }
+
+    private func loadPrevGameShortcut() {
+        guard let vm = viewModel else { return }
+        guard case .masterGame(let currentItem) = vm.item else { return }
+        if let currentIndex = cachedItems.firstIndex(where: { $0.index.id == currentItem.index.id }),
+           currentIndex > 0 {
+            playGame(cachedItems[currentIndex - 1])
+        } else if !cachedItems.isEmpty {
+            playGame(cachedItems[cachedItems.count - 1])
         }
     }
 

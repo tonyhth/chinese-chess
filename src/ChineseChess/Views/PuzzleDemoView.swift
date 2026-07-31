@@ -5,6 +5,7 @@ import SwiftUI
 struct PuzzleDemoView: View {
     @State private var viewModel: DemoViewModel?
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var isDemoFocused: Bool
 
     // TODO: 后续迭代统一传入参数或用 @Environment 注入，解除 PuzzleStore.shared 硬依赖
 
@@ -452,7 +453,7 @@ struct PuzzleDemoView: View {
             ZStack(alignment: .top) {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
 
-                if let commentary = viewModel.currentCommentary {
+                if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
                     CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
                         .padding(.top, 8)
                 }
@@ -466,6 +467,39 @@ struct PuzzleDemoView: View {
             }
 
             DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
+        }
+        #if os(macOS)
+        .focused($isDemoFocused)
+        .onAppear { isDemoFocused = true }
+        // ⌘→ 下一局（隐藏按钮 + keyboardShortcut，比 onKeyPress 更可靠）
+        .background {
+            Button("") { loadNextPuzzleShortcut() }
+                .keyboardShortcut(.rightArrow, modifiers: .command)
+            Button("") { loadPrevPuzzleShortcut() }
+                .keyboardShortcut(.leftArrow, modifiers: .command)
+        }
+        #endif
+    }
+
+    // MARK: - 连播快捷键
+
+    private func loadNextPuzzleShortcut() {
+        guard let vm = viewModel else { return }
+        if let currentIndex = cachedListItems.firstIndex(where: { $0.id == vm.item.id }),
+           currentIndex + 1 < cachedListItems.count {
+            playItem(cachedListItems[currentIndex + 1])
+        } else if !cachedListItems.isEmpty {
+            playItem(cachedListItems[0])
+        }
+    }
+
+    private func loadPrevPuzzleShortcut() {
+        guard let vm = viewModel else { return }
+        if let currentIndex = cachedListItems.firstIndex(where: { $0.id == vm.item.id }),
+           currentIndex > 0 {
+            playItem(cachedListItems[currentIndex - 1])
+        } else if !cachedListItems.isEmpty {
+            playItem(cachedListItems[cachedListItems.count - 1])
         }
     }
 

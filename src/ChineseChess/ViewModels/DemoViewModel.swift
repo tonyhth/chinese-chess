@@ -80,7 +80,7 @@ class DemoViewModel {
     }
 
     // 连播
-    private(set) var isAutoAdvance: Bool = true
+    var isAutoAdvance: Bool = true
     private(set) var resultDisplayTimer: Task<Void, Never>?
 
     /// 连播回调：通知父视图加载下一局
@@ -93,6 +93,15 @@ class DemoViewModel {
 
     // 弃子点评（预计算）
     private var sacrificeCommentaries: [Int: CommentaryItem] = [:]
+
+    // DemoConfig 集成
+    /// 点评时暂停播放（仅 checkmate 和 sacrifice 暂停，check/keyMove 不暂停）
+    var pauseOnCommentary: Bool = true
+    /// 是否显示点评气泡
+    var showCommentary: Bool = true
+
+    // pauseOnCommentary 暂停恢复状态
+    private var wasPausedByCommentary: Bool = false
 
     // 内部引用 moves 用于点评
     private let moves: [Move]
@@ -124,6 +133,13 @@ class DemoViewModel {
         self.boardPlayer.onPlaybackCompleteHandler = { [weak self] in
             self?.handlePlaybackComplete()
         }
+
+        // 读取 DemoConfig
+        let config = DemoConfig.load()
+        self.speed = config.demoSpeed
+        self.isAutoAdvance = config.autoNextPuzzle
+        self.pauseOnCommentary = config.pauseOnCommentary
+        self.showCommentary = config.showCommentary
     }
 
     /// 便利初始化：从 Puzzle 创建（向后兼容）
@@ -212,6 +228,9 @@ class DemoViewModel {
     // MARK: - 点评
 
     private func updateCommentary(for move: Move, moveIndex: Int) {
+        // showCommentary=false 时不生成点评
+        guard showCommentary else { return }
+
         // Phase 2：弃子点评优先（预计算，O(1) 查找）
         if let sacrificeItem = sacrificeCommentaries[moveIndex] {
             showCommentary(sacrificeItem)
@@ -224,13 +243,37 @@ class DemoViewModel {
     }
 
     private func showCommentary(_ item: CommentaryItem) {
+        // showCommentary=false 时不显示
+        guard showCommentary else { return }
+
         currentCommentary = item
+
+        // pauseOnCommentary：仅 checkmate 和 sacrifice 暂停播放
+        // P0-5: check/keyMove 不暂停，避免连播时频繁暂停
+        if pauseOnCommentary && playState == .playing {
+            switch item.type {
+            case .checkmate, .sacrifice:
+                pause()
+                wasPausedByCommentary = true
+            case .check, .keyMove:
+                break  // 不暂停
+            }
+        }
+
         commentaryHideTask?.cancel()
         commentaryHideTask = Task { @MainActor in
             do {
                 try await Task.sleep(for: .seconds(speed.commentaryDuration))
                 if !Task.isCancelled {
                     currentCommentary = nil
+                    // pauseOnCommentary: 点评消失后恢复播放
+                    if wasPausedByCommentary {
+                        wasPausedByCommentary = false
+                        // 仅在连播/播放状态下恢复，用户手动暂停的不恢复
+                        if isAutoAdvance {
+                            play()
+                        }
+                    }
                 }
             } catch {}
         }
