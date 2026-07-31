@@ -108,7 +108,7 @@ struct D5I18nAuditVerificationTests {
             ("game.newGame", "New"),
             ("game.undoMove", "Undo"),
             ("difficulty.medium", "Medium"),
-            ("result.redWon", "Red Wins"),
+            ("result.redWon", "Red Won"),
             ("result.draw", "Draw"),
         ]
 

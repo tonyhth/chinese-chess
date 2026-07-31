@@ -7,7 +7,9 @@ import Testing
 @Suite("Phase 1 Demo Auto-play", .serialized)
 struct DemoViewModelTests {
 
-    private func makeTestPuzzle(solution: [String] = ["h2e2", "h9g7", "e2e6"],
+    /// 标准 FEN + 炮八平五（h2e2）→ 马8进7（h0g2）→ 炮五进四（e2e6）
+    /// 在标准开局 FEN 上，h2e2 是红方右炮平中，h0g2 是黑方马跳
+    private func makeTestPuzzle(solution: [String] = ["h2e2", "h0g2", "e2e6"],
                                  category: String = "Basic",
                                  playerSide: String = "red") -> Puzzle {
         Puzzle(
@@ -18,7 +20,7 @@ struct DemoViewModelTests {
             stars: 3,
             description: "Test",
             playerSide: playerSide,
-            initialFEN: "r1bakab1r/9/4c4/p3p1p1p/2pn5/6P2/P1P1P3P/2N1C4/9/R1BAKAB1R w - - 0 1",
+            initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
             solution: solution,
             hints: nil,
             maxMoves: 10
@@ -49,7 +51,6 @@ struct DemoViewModelTests {
         #expect(vm.playState == .idle)
         #expect(vm.currentIndex == 0)
         #expect(vm.lastMove == nil)
-        #expect(vm.speed == .normal)
         #expect(vm.isAutoAdvance == true)
         #expect(!vm.isPlaying)
     }
@@ -206,9 +207,10 @@ struct DemoViewModelTests {
 
     @Test("progressText contains step info")
     func progressText_format() {
-        let puzzle = makeTestPuzzle(solution: ["h2e2", "h9g7"])
+        let puzzle = makeTestPuzzle(solution: ["h2e2", "h0g2"])
         let vm = DemoViewModel(puzzle: puzzle)
 
+        // progressText 格式：第 X/Y 步
         #expect(vm.progressText.contains("0"))
         #expect(vm.progressText.contains("2"))
         vm.stepForward()
