@@ -37,6 +37,8 @@ struct SearchBoard: BoardReadable {
     // MARK: - 初始化
 
     /// 从 Board 创建（AI 入口唯一转换点）
+    /// ⚠️ 依赖 board.pieces 返回 [Piece] 数组。如果 Board 将来改 pieces 存储结构（如字典），
+    /// 需同步更新此处映射逻辑。
     init(from board: Board) {
         self.pieces = board.pieces.map {
             Piece(kind: $0.kind, side: $0.side, position: $0.position, id: $0.id)

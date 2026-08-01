@@ -356,7 +356,7 @@ actor AIEngine: AIEngineProtocol {
             if staticEval + razorMargin <= alpha {
                 let qsScore: Int
                 if searchConfig.enableQuiescence {
-                    qsScore = quiescenceSearch(board: board, hash: hash,
+                    qsScore = quiescenceSearch(board: &board, hash: hash,
                                                 alpha: alpha, beta: beta,
                                                 qDepth: searchConfig.maxQSDepth,
                                                 searchConfig: searchConfig)
@@ -373,7 +373,7 @@ actor AIEngine: AIEngineProtocol {
 
         if depth <= 0 {
             if searchConfig.enableQuiescence {
-                return quiescenceSearch(board: board, hash: hash,
+                return quiescenceSearch(board: &board, hash: hash,
                                          alpha: alpha, beta: beta,
                                          qDepth: searchConfig.maxQSDepth,
                                          searchConfig: searchConfig)
@@ -558,7 +558,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - 静态搜索（Quiescence Search）
 
     private func quiescenceSearch(
-        board: SearchBoard,
+        board: inout SearchBoard,
         hash: UInt64,  // #7: 增量哈希参数
         alpha: Int, beta: Int,
         qDepth: Int,
@@ -591,11 +591,11 @@ actor AIEngine: AIEngineProtocol {
                                               from: move.from, to: move.to,
                                               captured: move.captured)
 
-            var workBoard = board
-            workBoard.execute(move)
-            let score = -quiescenceSearch(board: workBoard, hash: childHash,
+            board.execute(move)
+            let score = -quiescenceSearch(board: &board, hash: childHash,
                                            alpha: -beta, beta: -alpha,
                                            qDepth: qDepth - 1, searchConfig: searchConfig)
+            board.undoLastMove()
 
             if score >= beta { return beta }
             if score > alpha { alpha = score }
