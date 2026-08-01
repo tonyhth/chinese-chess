@@ -2642,6 +2642,246 @@
         }
       }
     },
+    "coach.exit.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit coach mode?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认退出教练模式？"
+          }
+        }
+      }
+    },
+    "coach.exit.confirm.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current practice progress will not be saved"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前练习进度将不会保存"
+          }
+        }
+      }
+    },
+    "coach.explain.blunder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blunder — recommended: %@, eval gap %@cp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失误 — 推荐走法：%@，评估差距 %@cp"
+          }
+        }
+      }
+    },
+    "coach.explain.blunder.noAlt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blunder — eval gap %@cp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失误 — 评估差距 %@cp"
+          }
+        }
+      }
+    },
+    "coach.explain.bookMove": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book move"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "书谱走法"
+          }
+        }
+      }
+    },
+    "coach.explain.brilliant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good move, comparable to book"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好棋，与书谱效果相当"
+          }
+        }
+      }
+    },
+    "coach.explain.doubtful": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doubtful — recommended: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "疑问手 — 推荐走法：%@"
+          }
+        }
+      }
+    },
+    "coach.explain.doubtful.noAlt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doubtful move"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "疑问手"
+          }
+        }
+      }
+    },
+    "coach.explain.good": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good move"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好棋"
+          }
+        }
+      }
+    },
+    "coach.explain.losing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Losing — recommended: %@, eval gap %@cp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "败着 — 推荐走法：%@，评估差距 %@cp"
+          }
+        }
+      }
+    },
+    "coach.explain.losing.noAlt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Losing — eval gap %@cp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "败着 — 评估差距 %@cp"
+          }
+        }
+      }
+    },
+    "coach.game.accuracy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accuracy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准确率"
+          }
+        }
+      }
+    },
+    "coach.game.evaluating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evaluating…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "评估中…"
+          }
+        }
+      }
+    },
+    "coach.game.exit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出"
+          }
+        }
+      }
+    },
+    "coach.game.stepFormat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move %d / ~15"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第%d步/约15步"
+          }
+        }
+      }
+    },
     "coach.generic.detail": {
       "localizations": {
         "en": {
@@ -2786,6 +3026,150 @@
         }
       }
     },
+    "coach.quality.book": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "书谱"
+          }
+        }
+      }
+    },
+    "coach.result.accuracy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accuracy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准确率"
+          }
+        }
+      }
+    },
+    "coach.result.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回"
+          }
+        }
+      }
+    },
+    "coach.result.continue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue Game"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续对弈"
+          }
+        }
+      }
+    },
+    "coach.result.recommendFormat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → Recommended: %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → 推荐：%@"
+          }
+        }
+      }
+    },
+    "coach.result.repractice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice Again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新练习"
+          }
+        }
+      }
+    },
+    "coach.result.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Practice Complete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开局练习完成"
+          }
+        }
+      }
+    },
+    "coach.result.totalMoves": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total Moves"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "总步数"
+          }
+        }
+      }
+    },
+    "coach.result.worstMove": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs most improvement: Move %d"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最需要改进：第%d步"
+          }
+        }
+      }
+    },
     "coach.review.biggestBlunder": {
       "localizations": {
         "en": {
@@ -2914,6 +3298,118 @@
         }
       }
     },
+    "coach.select.difficulty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Difficulty"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "难度"
+          }
+        }
+      }
+    },
+    "coach.select.noCoach": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach mode not available"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持教练模式"
+          }
+        }
+      }
+    },
+    "coach.select.noCoach.toast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This opening has no detailed line data. Please select one with subcategories."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该开局暂无详细线路数据，请选择有子分类的开局"
+          }
+        }
+      }
+    },
+    "coach.select.playerSide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play Red"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "执红"
+          }
+        }
+      }
+    },
+    "coach.select.playerSideBlack": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play Black"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "执黑"
+          }
+        }
+      }
+    },
+    "coach.select.start": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Practice"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始练习"
+          }
+        }
+      }
+    },
+    "coach.select.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select Opening"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择开局"
+          }
+        }
+      }
+    },
     "coach.title": {
       "localizations": {
         "en": {
@@ -3006,6 +3502,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "关闭"
+          }
+        }
+      }
+    },
+    "common.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认"
           }
         }
       }
@@ -5938,6 +6450,182 @@
         }
       }
     },
+    "master.loadMoreEvents": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more events (%d/%d)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示更多赛事（%d/%d）"
+          }
+        }
+      }
+    },
+    "master.loadMorePlayers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more players (%d/%d)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示更多棋手（%d/%d）"
+          }
+        }
+      }
+    },
+    "master.mode.event": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Event"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按赛事"
+          }
+        }
+      }
+    },
+    "master.mode.opening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Opening"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按开局"
+          }
+        }
+      }
+    },
+    "master.mode.player": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By Player"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按棋手"
+          }
+        }
+      }
+    },
+    "master.search.noResult": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No results found"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到结果"
+          }
+        }
+      }
+    },
+    "master.search.placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search player/event"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索棋手/赛事"
+          }
+        }
+      }
+    },
+    "master.search.results": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Results"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索结果"
+          }
+        }
+      }
+    },
+    "master.search.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索"
+          }
+        }
+      }
+    },
+    "master.statsUnavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stats unavailable, fell back to by-opening mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "统计数据不可用，已回退按开局模式"
+          }
+        }
+      }
+    },
+    "migration.studyHub": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzles & Openings moved to Study"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局和开局探索已移至「学棋」"
+          }
+        }
+      }
+    },
     "move.quality.blunder": {
       "localizations": {
         "en": {
@@ -8852,6 +9540,150 @@
         }
       }
     },
+    "study.dailyChallenge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Challenge"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每日挑战"
+          }
+        }
+      }
+    },
+    "study.masterGame": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master Games"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大师棋谱"
+          }
+        }
+      }
+    },
+    "study.openingCoach": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Coach"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开局教练"
+          }
+        }
+      }
+    },
+    "study.openingCoach.desc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice openings with instant feedback"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "练习开局，即时反馈"
+          }
+        }
+      }
+    },
+    "study.openingCoach.noRecord": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start your first opening training"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始你的第一次开局训练"
+          }
+        }
+      }
+    },
+    "study.openingCoach.stats": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accuracy: %d%%  Practiced: %d"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准确率: %d%%  已练: %d 局"
+          }
+        }
+      }
+    },
+    "study.openingExplorer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Explorer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开局探索"
+          }
+        }
+      }
+    },
+    "study.puzzle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzle Challenges"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局闯关"
+          }
+        }
+      }
+    },
+    "study.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Study"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学棋"
+          }
+        }
+      }
+    },
     "theme.classicWood": {
       "localizations": {
         "en": {
@@ -9012,6 +9844,22 @@
         }
       }
     },
+    "toolbar.openingExplorerLegacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening Explorer (legacy)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开局探索（旧入口）"
+          }
+        }
+      }
+    },
     "toolbar.puzzle": {
       "localizations": {
         "en": {
@@ -9024,6 +9872,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "残局"
+          }
+        }
+      }
+    },
+    "toolbar.puzzleLegacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puzzles (legacy)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "残局（旧入口）"
           }
         }
       }
@@ -9104,6 +9968,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "统计"
+          }
+        }
+      }
+    },
+    "toolbar.study": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Study"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "学棋"
           }
         }
       }
@@ -9984,822 +10864,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "走法合法，但试试更好的选择"
-          }
-        }
-      }
-    },
-    "toolbar.study": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Study"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "学棋"
-          }
-        }
-      }
-    },
-    "study.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Study"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "学棋"
-          }
-        }
-      }
-    },
-    "study.puzzle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puzzle Challenges"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "残局闯关"
-          }
-        }
-      }
-    },
-    "study.masterGame": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Master Games"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "大师棋谱"
-          }
-        }
-      }
-    },
-    "study.openingExplorer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opening Explorer"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开局探索"
-          }
-        }
-      }
-    },
-    "study.dailyChallenge": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily Challenge"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "每日挑战"
-          }
-        }
-      }
-    },
-    "migration.studyHub": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puzzles & Openings moved to Study"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "残局和开局探索已移至「学棋」"
-          }
-        }
-      }
-    },
-    "toolbar.puzzleLegacy": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puzzles (legacy)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "残局（旧入口）"
-          }
-        }
-      }
-    },
-    "toolbar.openingExplorerLegacy": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opening Explorer (legacy)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开局探索（旧入口）"
-          }
-        }
-      }
-    },
-    "master.mode.opening": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按开局"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "By Opening"
-          }
-        }
-      }
-    },
-    "master.mode.player": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按棋手"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "By Player"
-          }
-        }
-      }
-    },
-    "master.mode.event": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按赛事"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "By Event"
-          }
-        }
-      }
-    },
-    "master.statsUnavailable": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "统计数据不可用，已回退按开局模式"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stats unavailable, fell back to by-opening mode"
-          }
-        }
-      }
-    },
-    "master.loadMorePlayers": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "显示更多棋手（%d/%d）"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show more players (%d/%d)"
-          }
-        }
-      }
-    },
-    "master.loadMoreEvents": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "显示更多赛事（%d/%d）"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show more events (%d/%d)"
-          }
-        }
-      }
-    },
-    "study.openingCoach": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开局教练"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opening Coach"
-          }
-        }
-      }
-    },
-    "study.openingCoach.desc": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "练习开局，即时反馈"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Practice openings with instant feedback"
-          }
-        }
-      }
-    },
-    "study.openingCoach.noRecord": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开始你的第一次开局训练"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start your first opening training"
-          }
-        }
-      }
-    },
-    "study.openingCoach.stats": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "准确率: %d%%  已练: %d 局"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accuracy: %d%%  Practiced: %d"
-          }
-        }
-      }
-    },
-    "coach.quality.book": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "书谱"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Book"
-          }
-        }
-      }
-    },
-    "coach.explain.bookMove": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "书谱走法"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Book move"
-          }
-        }
-      }
-    },
-    "coach.explain.brilliant": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好棋，与书谱效果相当"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Good move, comparable to book"
-          }
-        }
-      }
-    },
-    "coach.explain.good": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "好棋"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Good move"
-          }
-        }
-      }
-    },
-    "coach.explain.doubtful": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "疑问手 — 推荐走法：%@"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Doubtful — recommended: %@"
-          }
-        }
-      }
-    },
-    "coach.explain.doubtful.noAlt": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "疑问手"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Doubtful move"
-          }
-        }
-      }
-    },
-    "coach.explain.blunder": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "失误 — 推荐走法：%@，评估差距 %@cp"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blunder — recommended: %@, eval gap %@cp"
-          }
-        }
-      }
-    },
-    "coach.explain.blunder.noAlt": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "失误 — 评估差距 %@cp"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blunder — eval gap %@cp"
-          }
-        }
-      }
-    },
-    "coach.explain.losing": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "败着 — 推荐走法：%@，评估差距 %@cp"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Losing — recommended: %@, eval gap %@cp"
-          }
-        }
-      }
-    },
-    "coach.explain.losing.noAlt": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "败着 — 评估差距 %@cp"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Losing — eval gap %@cp"
-          }
-        }
-      }
-    },
-    "coach.select.title": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选择开局"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select Opening"
-          }
-        }
-      }
-    },
-    "coach.select.playerSide": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "执红"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play Red"
-          }
-        }
-      }
-    },
-    "coach.select.playerSideBlack": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "执黑"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Play Black"
-          }
-        }
-      }
-    },
-    "coach.select.start": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开始练习"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start Practice"
-          }
-        }
-      }
-    },
-    "coach.select.noCoach": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂不支持教练模式"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coach mode not available"
-          }
-        }
-      }
-    },
-    "coach.select.noCoach.toast": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "该开局暂无详细线路数据，请选择有子分类的开局"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This opening has no detailed line data. Please select one with subcategories."
-          }
-        }
-      }
-    },
-    "coach.select.difficulty": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "难度"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Difficulty"
-          }
-        }
-      }
-    },
-    "coach.game.exit": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "退出"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exit"
-          }
-        }
-      }
-    },
-    "coach.game.stepFormat": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "第%d步/约15步"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move %d / ~15"
-          }
-        }
-      }
-    },
-    "coach.game.evaluating": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "评估中…"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Evaluating…"
-          }
-        }
-      }
-    },
-    "coach.game.accuracy": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "准确率"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accuracy"
-          }
-        }
-      }
-    },
-    "coach.result.title": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开局练习完成"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opening Practice Complete"
-          }
-        }
-      }
-    },
-    "coach.result.totalMoves": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "总步数"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Total Moves"
-          }
-        }
-      }
-    },
-    "coach.result.repractice": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新练习"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Practice Again"
-          }
-        }
-      }
-    },
-    "coach.result.continue": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "继续对弈"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue Game"
-          }
-        }
-      }
-    },
-    "coach.result.back": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "返回"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Back"
-          }
-        }
-      }
-    },
-    "coach.result.worstMove": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最需要改进：第%d步"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Needs most improvement: Move %d"
-          }
-        }
-      }
-    },
-    "coach.result.recommendFormat": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ → 推荐：%@"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ → Recommended: %@"
-          }
-        }
-      }
-    },
-    "coach.result.accuracy": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "准确率"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accuracy"
-          }
-        }
-      }
-    },
-    "coach.exit.confirm": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认退出教练模式？"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exit coach mode?"
-          }
-        }
-      }
-    },
-    "coach.exit.confirm.detail": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "当前练习进度将不会保存"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Current practice progress will not be saved"
-          }
-        }
-      }
-    },
-    "common.confirm": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm"
           }
         }
       }

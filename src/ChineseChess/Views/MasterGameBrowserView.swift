@@ -56,6 +56,12 @@ struct MasterGameBrowserView: View {
     /// 当前选中的赛事
     @State private var selectedEvent: MasterStatsFile.EventStat? = nil
 
+    /// 搜索状态
+    @State private var searchText = ""
+    @State private var searchResults: [MasterSearchResult] = []
+    @State private var isSearchActive = false
+    @State private var searchDebounceTask: Task<Void, Never>? = nil
+
     /// iOS 子分类列表状态
     @State private var showSubcategoryList = false
     @State private var subcategoryParent: OpeningCategory? = nil
@@ -84,6 +90,16 @@ struct MasterGameBrowserView: View {
 
     private var hasMoreItems: Bool {
         cachedItems.count < cachedTotalCount
+    }
+
+    /// 搜索器（懒初始化）
+    private var searcher: MasterGameSearch {
+        MasterGameSearch(store: masterStore)
+    }
+
+    /// 是否正在搜索（搜索框非空且有结果/正在输入）
+    private var isSearching: Bool {
+        isSearchActive && !searchText.isEmpty
     }
 
     var body: some View {
@@ -138,6 +154,9 @@ struct MasterGameBrowserView: View {
         } message: {
             Text(L10n.shared.t("master.statsUnavailable"))
         }
+        .sheet(isPresented: $isSearchActive) {
+            iosSearchSheet
+        }
         #endif
     }
 
@@ -163,9 +182,15 @@ struct MasterGameBrowserView: View {
             Section {
                 modePicker
                     .listRowSeparator(.hidden)
+
+                // Phase B3 Step 4: macOS 搜索框
+                searchField
+                    .listRowSeparator(.hidden)
             }
 
-            if masterStore.isLoaded {
+            if isSearching {
+                searchResultSection
+            } else if masterStore.isLoaded {
                 switch browseMode {
                 case .opening:
                     openingSidebarContent
@@ -337,6 +362,183 @@ struct MasterGameBrowserView: View {
             .background(Color.secondary.opacity(0.1))
             .clipShape(Capsule())
     }
+
+    // MARK: - 搜索 UI 组件
+
+    /// macOS/iOS 共用搜索框
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            TextField(L10n.shared.t("master.search.placeholder"), text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.subheadline)
+                .onChange(of: searchText) { _, newValue in
+                    debounceSearch(query: newValue)
+                }
+            if !searchText.isEmpty {
+                Button(action: {
+                    searchText = ""
+                    searchResults = []
+                    isSearchActive = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(6)
+    }
+
+    /// macOS sidebar 搜索结果
+    private var searchResultSection: some View {
+        Section(L10n.shared.t("master.search.results")) {
+            if searchResults.isEmpty {
+                Text(L10n.shared.t("master.search.noResult"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(searchResults) { result in
+                    Button(action: { selectSearchResult(result) }) {
+                        HStack {
+                            Image(systemName: resultIcon(result))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 14)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(result.displayName)
+                                    .font(.subheadline)
+                                if let sub = result.subtitle {
+                                    Text(sub)
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                            Spacer()
+                            countBadge(result.count)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    /// iOS 搜索 Sheet
+    #if os(iOS)
+    private var iosSearchSheet: some View {
+        NavigationStack {
+            List {
+                searchField
+                    .listRowSeparator(.hidden)
+
+                if !searchText.isEmpty {
+                    if searchResults.isEmpty {
+                        ContentUnavailableView(
+                            L10n.shared.t("master.search.noResult"),
+                            systemImage: "magnifyingglass"
+                        )
+                    } else {
+                        ForEach(searchResults) { result in
+                            Button(action: {
+                                selectSearchResult(result)
+                                searchText = ""
+                                searchResults = []
+                                isSearchActive = false
+                            }) {
+                                HStack {
+                                    Image(systemName: resultIcon(result))
+                                        .foregroundStyle(.secondary)
+                                        .frame(width: 20)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(result.displayName)
+                                            .font(.body)
+                                        if let sub = result.subtitle {
+                                            Text(sub)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    Text("\(result.count)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(L10n.shared.t("master.search.title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.shared.t("common.cancel")) {
+                        searchText = ""
+                        searchResults = []
+                        isSearchActive = false
+                    }
+                }
+            }
+        }
+    }
+    #endif
+
+    private func resultIcon(_ result: MasterSearchResult) -> String {
+        switch result {
+        case .player: return "person.fill"
+        case .event:  return "trophy.fill"
+        }
+    }
+
+    // MARK: - 搜索逻辑
+
+    /// 300ms 防抖搜索
+    private func debounceSearch(query: String) {
+        searchDebounceTask?.cancel()
+        if query.isEmpty {
+            searchResults = []
+            isSearchActive = false
+            return
+        }
+        isSearchActive = true
+        searchDebounceTask = Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            searchResults = searcher.search(query: query)
+        }
+    }
+
+    /// 选中搜索结果 → 复用 B2 的 byPlayer()/byEvent() 过滤
+    private func selectSearchResult(_ result: MasterSearchResult) {
+        switch result {
+        case .player(let player, _):
+            selectedPlayer = player
+            selectedOpening = nil
+            selectedSubcategory = nil
+            selectedEvent = nil
+            sidebarSelection = .player(player)
+        case .event(let event, _):
+            selectedEvent = event
+            selectedOpening = nil
+            selectedSubcategory = nil
+            selectedPlayer = nil
+            sidebarSelection = .event(event)
+        }
+        // 清空搜索
+        searchText = ""
+        searchResults = []
+        isSearchActive = false
+        currentPage = 1
+        rebuildCache()
+    }
     #endif
 
     // MARK: - iOS 分类列表
@@ -384,6 +586,13 @@ struct MasterGameBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.shared.t("study.masterGame"))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { isSearchActive = true }) {
+                    Image(systemName: "magnifyingglass")
+                }
+            }
+        }
     }
 
     private var iosPlayerList: some View {
@@ -434,6 +643,13 @@ struct MasterGameBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.shared.t("study.masterGame"))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { isSearchActive = true }) {
+                    Image(systemName: "magnifyingglass")
+                }
+            }
+        }
     }
 
     private var iosEventList: some View {
@@ -489,6 +705,13 @@ struct MasterGameBrowserView: View {
         }
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.shared.t("study.masterGame"))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { isSearchActive = true }) {
+                    Image(systemName: "magnifyingglass")
+                }
+            }
+        }
     }
 
     private var iosSubcategoryList: some View {

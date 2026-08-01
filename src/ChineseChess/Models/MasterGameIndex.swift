@@ -42,8 +42,31 @@ struct MasterStatsFile: Codable, Sendable {
         let nameCN: String
         let count: Int
 
+        /// 拼音搜索预留（Phase B3 Step 4）
+        /// 当前为 nil，后续版本填充拼音数据后搜索逻辑加一行 pinyin?.hasPrefix(query) 即可
+        let pinyin: String?
+
         /// 稳定 ID，避免同名不同人导致 ForEach id 冲突
         var stableId: String { "\(name)|\(nameCN)" }
+
+        enum CodingKeys: String, CodingKey {
+            case name, nameCN, count, pinyin
+        }
+
+        init(name: String, nameCN: String, count: Int, pinyin: String? = nil) {
+            self.name = name
+            self.nameCN = nameCN
+            self.count = count
+            self.pinyin = pinyin
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            name = try c.decode(String.self, forKey: .name)
+            nameCN = try c.decode(String.self, forKey: .nameCN)
+            count = try c.decode(Int.self, forKey: .count)
+            pinyin = try c.decodeIfPresent(String.self, forKey: .pinyin) // schema 演进容错
+        }
     }
 
     struct EventStat: Codable, Sendable, Hashable {
