@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - PuzzleChapter 模块单元测试
 
-@Suite("PuzzleChapter 模块测试")
+@Suite("PuzzleChapter 模块测试", .serialized)
 struct PuzzleChapterTests {
 
     // MARK: - 1. PuzzleChapter 数据模型测试

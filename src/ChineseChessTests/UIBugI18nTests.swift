@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("UI Bug 修复 + i18n 国际化测试")
+@Suite("UI Bug 修复 + i18n 国际化测试", .serialized)
 @MainActor
 struct UIBugI18nTests {
 

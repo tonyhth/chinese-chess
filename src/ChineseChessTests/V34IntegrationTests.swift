@@ -4,7 +4,7 @@ import Testing
 
 // MARK: - v3.4.0 Phase C 集成测试（适配简化版 EngineConfigStore）
 
-@Suite("v3.4 Phase C: EngineRouter 统一")
+@Suite("v3.4 Phase C: EngineRouter 统一", .serialized)
 struct V34EngineRouterTests {
 
     @MainActor
@@ -49,7 +49,7 @@ struct V34EngineRouterTests {
     }
 }
 
-@Suite("v3.4 Phase C: EngineConfigStore 简化版")
+@Suite("v3.4 Phase C: EngineConfigStore 简化版", .serialized)
 struct V34EngineConfigStoreTests {
 
     @MainActor
@@ -87,7 +87,7 @@ struct V34EngineConfigStoreTests {
     }
 }
 
-@Suite("v3.4 Phase C: GameViewModel 通知监听")
+@Suite("v3.4 Phase C: GameViewModel 通知监听", .serialized)
 struct V34GameViewModelNotificationTests {
 
     @MainActor
@@ -117,7 +117,7 @@ struct V34GameViewModelNotificationTests {
     }
 }
 
-@Suite("v3.4 Phase C: EmbeddedPikafishEngine")
+@Suite("v3.4 Phase C: EmbeddedPikafishEngine", .serialized)
 struct V34EmbeddedPikafishEngineTests {
 
     @Test("EmbeddedPikafishEngine 实现 ChessEngine 协议")
@@ -179,7 +179,7 @@ struct V34EmbeddedPikafishEngineTests {
     }
 }
 
-@Suite("v3.4 Phase C: EngineError")
+@Suite("v3.4 Phase C: EngineError", .serialized)
 struct V34EngineErrorTests {
 
     @Test("EngineError.startFailed 有错误描述")
@@ -193,7 +193,7 @@ struct V34EngineErrorTests {
     }
 }
 
-@Suite("v3.4 Phase C: CMAESIndividual 有序字段映射")
+@Suite("v3.4 Phase C: CMAESIndividual 有序字段映射", .serialized)
 struct V34CMAESIndividualTests {
 
     @Test("CMAESIndividual.from(weights) 参数顺序一致")

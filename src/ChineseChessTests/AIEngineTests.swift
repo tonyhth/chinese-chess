@@ -1,7 +1,7 @@
 import Testing
 @testable import ChineseChess
 
-@Suite("AIEngine Tests")
+@Suite("AIEngine Tests", .serialized)
 struct AIEngineTests {
 
     @Test("初级难度返回合法走法")

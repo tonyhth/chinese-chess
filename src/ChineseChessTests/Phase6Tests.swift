@@ -5,7 +5,7 @@ import Foundation
 
 // MARK: - Position Tests
 
-@Suite("Phase6: Position Tests")
+@Suite("Phase6: Position Tests", .serialized)
 struct PositionTests6 {
 
     @Test("有效位置：边界值")
@@ -69,7 +69,7 @@ struct PositionTests6 {
 
 // MARK: - Piece Tests
 
-@Suite("Phase6: Piece Tests")
+@Suite("Phase6: Piece Tests", .serialized)
 struct PieceTests6 {
 
     @Test("红方棋子显示名完整")
@@ -132,7 +132,7 @@ struct PieceTests6 {
 
 // MARK: - Side & GameState Tests
 
-@Suite("Phase6: Enum Tests")
+@Suite("Phase6: Enum Tests", .serialized)
 struct EnumTests6 {
 
     @Test("Side rawValue")
@@ -176,7 +176,7 @@ struct EnumTests6 {
 
 // MARK: - Move Tests
 
-@Suite("Phase6: Move Tests")
+@Suite("Phase6: Move Tests", .serialized)
 struct MoveTests6 {
 
     @Test("Move 不带吃子")
@@ -207,7 +207,7 @@ struct MoveTests6 {
 
 // MARK: - PuzzleProgress & Puzzle Model Tests
 
-@Suite("Phase6: PuzzleProgress Tests")
+@Suite("Phase6: PuzzleProgress Tests", .serialized)
 struct PuzzleProgressTests6 {
 
     @Test("PuzzleProgress Codable roundtrip")
@@ -242,7 +242,7 @@ struct PuzzleProgressTests6 {
     }
 }
 
-@Suite("Phase6: Puzzle Model Extended Tests")
+@Suite("Phase6: Puzzle Model Extended Tests", .serialized)
 struct PuzzleModelExtendedTests6 {
 
     @Test("Puzzle typeLabel 映射完整")
@@ -406,7 +406,7 @@ struct PuzzleStoreCacheTests {
 
 // MARK: - GameHistoryStore Extended Tests
 
-@Suite("Phase6: GameHistoryStore Extended Tests")
+@Suite("Phase6: GameHistoryStore Extended Tests", .serialized)
 struct GameHistoryStoreExtendedTests6 {
 
     private func makeTestStore() -> GameHistoryStore {
@@ -528,7 +528,7 @@ struct GameHistoryStoreExtendedTests6 {
 
 // MARK: - ICCS Parser Tests
 
-@Suite("Phase6: ICCS Parser Tests")
+@Suite("Phase6: ICCS Parser Tests", .serialized)
 struct ICCSParserTests6 {
 
     @Test("parse 有效 ICCS 坐标")
@@ -577,7 +577,7 @@ struct ICCSParserTests6 {
 
 // MARK: - MoveValidator Extended Tests
 
-@Suite("Phase6: MoveValidator Extended Tests")
+@Suite("Phase6: MoveValidator Extended Tests", .serialized)
 struct MoveValidatorExtendedTests6 {
 
     @Test("初始局面红方有合法走法")
@@ -597,7 +597,7 @@ struct MoveValidatorExtendedTests6 {
 
 // MARK: - EndgameEvaluator Extended Tests
 
-@Suite("Phase6: EndgameEvaluator Extended Tests")
+@Suite("Phase6: EndgameEvaluator Extended Tests", .serialized)
 struct EndgameEvaluatorExtendedTests6 {
 
     @Test("单车 vs 单将：红方大优")
@@ -644,7 +644,7 @@ struct EndgameEvaluatorExtendedTests6 {
 
 // MARK: - PuzzleViewModel Extended Tests
 
-@Suite("Phase6: PuzzleViewModel Extended Tests")
+@Suite("Phase6: PuzzleViewModel Extended Tests", .serialized)
 struct PuzzleViewModelExtendedTests6 {
 
     @Test("sequence 局初始化状态正确")
@@ -794,7 +794,7 @@ struct PuzzleViewModelExtendedTests6 {
 
 // MARK: - ZobristHash Extended Tests
 
-@Suite("Phase6: ZobristHash Extended Tests")
+@Suite("Phase6: ZobristHash Extended Tests", .serialized)
 struct ZobristHashExtendedTests6 {
 
     @Test("相同局面哈希一致")
@@ -832,7 +832,7 @@ struct ZobristHashExtendedTests6 {
 
 // MARK: - Board Snapshot & Undo Extended Tests
 
-@Suite("Phase6: Board Snapshot & Undo Tests")
+@Suite("Phase6: Board Snapshot & Undo Tests", .serialized)
 struct BoardSnapshotExtendedTests6 {
 
     @Test("snapshot 后原棋盘修改不影响快照")
@@ -894,7 +894,7 @@ struct BoardSnapshotExtendedTests6 {
 
 // MARK: - StatsManager Extended Tests
 
-@Suite("Phase6: StatsManager Extended Tests")
+@Suite("Phase6: StatsManager Extended Tests", .serialized)
 struct StatsManagerExtendedTests6 {
 
     @Test("记录多局胜利后统计正确")
@@ -964,7 +964,7 @@ struct StatsManagerExtendedTests6 {
 
 // MARK: - OpeningBook Extended Tests
 
-@Suite("Phase6: OpeningBook Extended Tests")
+@Suite("Phase6: OpeningBook Extended Tests", .serialized)
 struct OpeningBookExtendedTests6 {
 
     @Test("初始局面有推荐走法")
@@ -989,7 +989,7 @@ struct OpeningBookExtendedTests6 {
 
 // MARK: - PatternRecognizer Extended Tests
 
-@Suite("Phase6: PatternRecognizer Extended Tests")
+@Suite("Phase6: PatternRecognizer Extended Tests", .serialized)
 struct PatternRecognizerExtendedTests6 {
 
     @Test("双车有棋型加分")
@@ -1012,7 +1012,7 @@ struct PatternRecognizerExtendedTests6 {
 
 // MARK: - GameMove Extended Tests
 
-@Suite("Phase6: GameMove Extended Tests")
+@Suite("Phase6: GameMove Extended Tests", .serialized)
 struct GameMoveExtendedTests6 {
 
     @Test("GameMove 所有属性正确")
@@ -1088,7 +1088,7 @@ struct GameMoveExtendedTests6 {
 
 // MARK: - WinLossDraw Tests
 
-@Suite("Phase6: WinLossDraw Tests")
+@Suite("Phase6: WinLossDraw Tests", .serialized)
 struct WinLossDrawTests6 {
 
     @Test("WinLossDraw 计算正确")
@@ -1129,7 +1129,7 @@ struct WinLossDrawTests6 {
 
 // MARK: - FEN Extended Tests
 
-@Suite("Phase6: FEN Extended Tests")
+@Suite("Phase6: FEN Extended Tests", .serialized)
 struct FENExtendedTests6 {
 
     @Test("残局 FEN 生成有效棋盘")

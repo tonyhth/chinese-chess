@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("AI 引擎改进 P1-b + P2-a + P2-b")
+@Suite("AI 引擎改进 P1-b + P2-a + P2-b", .serialized)
 struct AIEngineP1bP2Tests {
 
     // MARK: - P1-b：棋子价值动态调整

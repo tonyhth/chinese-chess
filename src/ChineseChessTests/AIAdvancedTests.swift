@@ -1,7 +1,7 @@
 import Testing
 @testable import ChineseChess
 
-@Suite("AI 引擎深度测试")
+@Suite("AI 引擎深度测试", .serialized)
 struct AIAdvancedTests {
 
     // MARK: - 三个难度都返回合法走法

@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - v3.1 Phase 1 权重参数化测试
 
-@Suite("v3.1 Phase 1: 评估权重参数化")
+@Suite("v3.1 Phase 1: 评估权重参数化", .serialized)
 struct EvalWeightsTests {
 
     // ============================

@@ -1,7 +1,7 @@
 import Testing
 @testable import ChineseChess
 
-@Suite("Phase 2a: AI 基础设施")
+@Suite("Phase 2a: AI 基础设施", .serialized)
 struct Phase2aTests {
 
     // MARK: - ZobristHash 测试
@@ -360,7 +360,7 @@ struct Phase2aTests {
 
 // MARK: - Phase 2a 新增：UCI 走法转换 + ChessEngine 协议测试
 
-@Suite("Phase 2a: UCIMoveConverter + ChessEngine")
+@Suite("Phase 2a: UCIMoveConverter + ChessEngine", .serialized)
 struct Phase2aUCITests {
 
     // MARK: - uciString (Move → UCI)

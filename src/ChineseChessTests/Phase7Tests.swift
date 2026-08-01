@@ -2,7 +2,7 @@ import Testing
 import Foundation
 @testable import ChineseChess
 
-@Suite("Phase 7 每日挑战 + 残局库扩展测试")
+@Suite("Phase 7 每日挑战 + 残局库扩展测试", .serialized)
 struct Phase7Tests {
 
     // MARK: - 7.1 每日挑战

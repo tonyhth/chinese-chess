@@ -8,7 +8,7 @@ import Foundation
 // - 纯逻辑测试（classifyMove）：无需引擎，直接测试分级算法
 // - C API 集成测试：需要引擎初始化，使用 ensureEngineReady()
 
-@Suite("PositionAnalyzer 走法质量分级")
+@Suite("PositionAnalyzer 走法质量分级", .serialized)
 struct PositionAnalyzerTests {
 
     // MARK: - classifyMove 纯逻辑测试（无需引擎）

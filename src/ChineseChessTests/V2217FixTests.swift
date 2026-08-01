@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - v2.2.17 iOS 6 Bug 修复验证
 
-@Suite("v2.2.17 Bug 修复验证")
+@Suite("v2.2.17 Bug 修复验证", .serialized)
 struct V2217FixTests {
 
     // MARK: - 辅助方法
@@ -27,7 +27,7 @@ struct V2217FixTests {
 
     // MARK: - Bug 1：残局失败后重试无法走子 【P0】
 
-    @Suite("Bug 1：残局失败后重试无法走子")
+    @Suite("Bug 1：残局失败后重试无法走子", .serialized)
     struct Bug1PuzzleRetryTests {
 
         @MainActor
@@ -143,7 +143,7 @@ struct V2217FixTests {
 
     // MARK: - Bug 2：设置页面进入后没内容 【P0】
 
-    @Suite("Bug 2：设置页面 ScrollView 移除")
+    @Suite("Bug 2：设置页面 ScrollView 移除", .serialized)
     struct Bug2SettingsViewTests {
 
         @MainActor
@@ -211,7 +211,7 @@ struct V2217FixTests {
 
     // MARK: - Bug 3：历史对局选中后不显示 【P0】
 
-    @Suite("Bug 3：历史对局选中后不显示")
+    @Suite("Bug 3：历史对局选中后不显示", .serialized)
     struct Bug3HistoryReplayTests {
 
         @MainActor
@@ -290,7 +290,7 @@ struct V2217FixTests {
 
     // MARK: - Bug 4：中级AI思考时间太长 【P1】
 
-    @Suite("Bug 4：中级AI思考时间优化")
+    @Suite("Bug 4：中级AI思考时间优化", .serialized)
     struct Bug4MediumAITimeTests {
 
         @MainActor
@@ -408,7 +408,7 @@ struct V2217FixTests {
 
     // MARK: - Bug 5：缺少当前难度展示 【P1】
 
-    @Suite("Bug 5：当前难度展示")
+    @Suite("Bug 5：当前难度展示", .serialized)
     struct Bug5DifficultyDisplayTests {
 
         @MainActor
@@ -468,7 +468,7 @@ struct V2217FixTests {
 
     // MARK: - Bug 6：棋谱记录不工作 【P0】
 
-    @Suite("Bug 6：棋谱记录实时更新")
+    @Suite("Bug 6：棋谱记录实时更新", .serialized)
     struct Bug6RecordPanelTests {
 
         @MainActor
@@ -559,7 +559,7 @@ struct V2217FixTests {
 
     // MARK: - 追加测试：PuzzleRow VoiceOver accessibilityLabel
 
-    @Suite("追加：PuzzleRow VoiceOver accessibilityLabel")
+    @Suite("追加：PuzzleRow VoiceOver accessibilityLabel", .serialized)
     struct PuzzleRowAccessibilityTests {
 
         @MainActor
@@ -662,7 +662,7 @@ struct V2217FixTests {
 
     // MARK: - 跨平台回归测试
 
-    @Suite("跨平台回归：Bug 3/5/6 涉及改动")
+    @Suite("跨平台回归：Bug 3/5/6 涉及改动", .serialized)
     struct CrossPlatformRegressionTests {
 
         @MainActor

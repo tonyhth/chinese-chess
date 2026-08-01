@@ -1,7 +1,7 @@
 import Testing
 @testable import ChineseChess
 
-@Suite("Phase 3a 评估函数深度调优测试")
+@Suite("Phase 3a 评估函数深度调优测试", .serialized)
 struct Phase3aEvaluationTests {
 
     // MARK: - 棋型识别扩展测试

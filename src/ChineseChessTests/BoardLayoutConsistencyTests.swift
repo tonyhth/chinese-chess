@@ -6,7 +6,7 @@ import Testing
 // 变更：PuzzleSelectView 和 ReplayView 删除 .frame(minHeight: 280) 和 .padding()，
 // 与对弈页面对齐。验证布局变更不影响功能逻辑。
 
-@Suite("棋盘布局一致化测试")
+@Suite("棋盘布局一致化测试", .serialized)
 @MainActor
 struct BoardLayoutConsistencyTests {
 

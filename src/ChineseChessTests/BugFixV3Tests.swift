@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - Bug 1-4 + P1 返工 功能验证测试
 
-@Suite("Bug 1-4 + P1 返工验证")
+@Suite("Bug 1-4 + P1 返工验证", .serialized)
 struct BugFixV3Tests {
 
     // ============================

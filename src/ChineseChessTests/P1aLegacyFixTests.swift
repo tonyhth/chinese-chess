@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("P1-a 遗留修复 + 开局库重建")
+@Suite("P1-a 遗留修复 + 开局库重建", .serialized)
 struct P1aLegacyFixTests {
 
     // MARK: - CheckmateSearch.moveScore 增强

@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import ChineseChess
 
-@Suite("UI 棋盘布局优化测试")
+@Suite("UI 棋盘布局优化测试", .serialized)
 @MainActor
 struct UILayoutOptTests {
 

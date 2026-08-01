@@ -1,7 +1,7 @@
 import Testing
 @testable import ChineseChess
 
-@Suite("Phase 2a 搜索算法升级测试")
+@Suite("Phase 2a 搜索算法升级测试", .serialized)
 struct Phase2aSearchTests {
 
     // MARK: - PVS 测试

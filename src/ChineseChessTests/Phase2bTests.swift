@@ -4,7 +4,7 @@ import Testing
 
 // MARK: - Phase 2b: AI 高级算法测试
 
-@Suite("Phase 2b: 杀法搜索")
+@Suite("Phase 2b: 杀法搜索", .serialized)
 struct CheckmateSearchTests {
 
     @Test("单车将杀：车 vs 空防线")
@@ -59,7 +59,7 @@ struct CheckmateSearchTests {
     }
 }
 
-@Suite("Phase 2b: 棋型识别")
+@Suite("Phase 2b: 棋型识别", .serialized)
 struct PatternRecognizerTests {
 
     @Test("铁门栓：车在将正前方无阻挡")
@@ -109,7 +109,7 @@ struct PatternRecognizerTests {
     }
 }
 
-@Suite("Phase 2b: 残局精确估值")
+@Suite("Phase 2b: 残局精确估值", .serialized)
 struct EndgameEvaluatorTests {
 
     @Test("单车 vs 空：红方大优势")
@@ -172,7 +172,7 @@ struct EndgameEvaluatorTests {
     }
 }
 
-@Suite("Phase 2b: 时间管理")
+@Suite("Phase 2b: 时间管理", .serialized)
 struct TimeManagerTests {
 
     @Test("创建后不超时")
@@ -212,7 +212,7 @@ struct TimeManagerTests {
     }
 }
 
-@Suite("Phase 2b: AI 集成验证")
+@Suite("Phase 2b: AI 集成验证", .serialized)
 struct Phase2bIntegrationTests {
 
     @Test("高级 AI 能找到杀法（简单残局）")

@@ -15,7 +15,7 @@ import Testing
 
 // MARK: - Phase A: 静态库 + modulemap 验证
 
-@Suite("Phase A: 静态库 + modulemap")
+@Suite("Phase A: 静态库 + modulemap", .serialized)
 struct PhaseATests {
 
     @Test("import Pikafish 编译通过（此文件能编译即验证）")
@@ -75,7 +75,7 @@ struct PhaseATests {
 
 // MARK: - Phase B: EmbeddedPikafishEngine
 
-@Suite("Phase B: EmbeddedPikafishEngine")
+@Suite("Phase B: EmbeddedPikafishEngine", .serialized)
 struct PhaseBEngineTests {
 
     @Test("EmbeddedPikafishEngine 属性正确")
@@ -254,7 +254,7 @@ struct PhaseBEngineTests {
 
 // MARK: - Phase B: 难度映射
 
-@Suite("Phase B: 难度映射")
+@Suite("Phase B: 难度映射", .serialized)
 struct PhaseBDifficultyTests {
 
     @Test("AIDifficulty 有 5 个等级")
@@ -272,7 +272,7 @@ struct PhaseBDifficultyTests {
 
 // MARK: - Phase B: TT Size 动态计算
 
-@Suite("Phase B: macOS TT Size")
+@Suite("Phase B: macOS TT Size", .serialized)
 struct PhaseBTTSizeTests {
 
     @Test("物理内存 > 4GB (macOS)")
@@ -293,7 +293,7 @@ struct PhaseBTTSizeTests {
 
 // MARK: - Phase C: EngineRouter
 
-@Suite("Phase C: EngineRouter 引擎切换")
+@Suite("Phase C: EngineRouter 引擎切换", .serialized)
 struct PhaseCEngineRouterTests {
 
     @MainActor
@@ -382,7 +382,7 @@ struct PhaseCEngineRouterTests {
 
 // MARK: - Phase C: EngineConfigStore
 
-@Suite("Phase C: EngineConfigStore")
+@Suite("Phase C: EngineConfigStore", .serialized)
 struct PhaseCConfigStoreTests {
 
     @MainActor
@@ -430,7 +430,7 @@ struct PhaseCConfigStoreTests {
 
 // MARK: - Phase C: EngineError
 
-@Suite("Phase C: EngineError")
+@Suite("Phase C: EngineError", .serialized)
 struct PhaseCEngineErrorTests {
 
     @Test("EngineError.startFailed 有描述")

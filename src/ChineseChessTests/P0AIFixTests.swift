@@ -4,7 +4,7 @@ import Testing
 
 // MARK: - P0 紧急修复：FEN+moveHistory 重复执行导致 AI 不工作
 
-@Suite("P0: AI 不工作修复验证")
+@Suite("P0: AI 不工作修复验证", .serialized)
 struct P0AIFixTests {
 
     // ============================
@@ -167,7 +167,7 @@ struct P0AIFixTests {
 
 // MARK: - P0 修复：hint 功能验证
 
-@Suite("P0: hint 功能修复验证")
+@Suite("P0: hint 功能修复验证", .serialized)
 struct P0HintTests {
 
     @MainActor
@@ -210,7 +210,7 @@ struct P0HintTests {
 
 // MARK: - P0 修复：UCIMoveConverter 行为验证
 
-@Suite("P0: UCIMoveConverter 空历史验证")
+@Suite("P0: UCIMoveConverter 空历史验证", .serialized)
 struct P0UCIMoveConverterTests {
 
     @Test("UCIMoveConverter.board(fen: moves: []) 成功构建")

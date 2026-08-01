@@ -1,7 +1,7 @@
 import Testing
 @testable import ChineseChess
 
-@Suite("集成测试：完整对局流程")
+@Suite("集成测试：完整对局流程", .serialized)
 struct IntegrationTests {
 
     @Test("开局走法合法性验证")
