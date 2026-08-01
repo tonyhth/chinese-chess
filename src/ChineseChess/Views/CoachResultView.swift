@@ -156,7 +156,7 @@ struct CoachResultView: View {
                     Capsule()
                         .fill(Color.white.opacity(0.1))
                     Capsule()
-                        .fill(qualityColor(quality))
+                        .fill(quality.color)
                         .frame(width: geo.size.width * ratio)
                 }
             }
@@ -168,35 +168,5 @@ struct CoachResultView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(quality.label): \(count) moves, \(Int(ratio * 100)) percent")
-    }
-
-    // MARK: - 辅助
-
-    private func qualityColor(_ quality: OpeningMoveQuality) -> Color {
-        switch quality {
-        case .book:      return .green
-        case .brilliant: return .green
-        case .good:      return .blue
-        case .normal:    return .gray
-        case .doubtful:  return .yellow
-        case .blunder:   return .orange
-        case .losing:    return .red
-        }
-    }
-}
-
-// MARK: - OpeningMoveQuality emoji 扩展
-
-extension OpeningMoveQuality {
-    var emoji: String {
-        switch self {
-        case .book:      return "✅"
-        case .brilliant: return "⭐"
-        case .good:      return "👍"
-        case .normal:    return "⚪"
-        case .doubtful:  return "⚠️"
-        case .blunder:   return "❌"
-        case .losing:    return "💀"
-        }
     }
 }

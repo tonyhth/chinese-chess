@@ -144,7 +144,7 @@ struct CoachGameView: View {
     @ViewBuilder
     private var glowOverlay: some View {
         if let quality = glowQuality {
-            let color = qualityColor(quality)
+            let color = quality.color
             Rectangle()
                 .fill(color.opacity(0.15))
                 .ignoresSafeArea()
@@ -255,7 +255,7 @@ struct CoachGameView: View {
                         if count > 0 {
                             let ratio = CGFloat(count) / CGFloat(total)
                             Rectangle()
-                                .fill(qualityColor(quality))
+                                .fill(quality.color)
                                 .frame(width: max(2, geo.size.width * ratio - 1))
                         }
                     }
@@ -355,8 +355,10 @@ struct CoachGameView: View {
 
     private func evaluateUserMove(_ gameMove: GameMove) {
         let iccsMove = ICCSParser.iccsString(from: gameMove.from, to: gameMove.to)
+        // P0-1 修正：FEN 是用户走棋后的当前局面（棋盘已更新）
+        // 引擎评估用用户走棋前的 FEN，moveHistory 传 []
+        // 因为 fen 已是完整局面，不需要回放 moveHistory
         let fen = FENParser.generate(board: viewModel.board)
-        let moveHistory = coachSession.moves.map { $0.move }
 
         // 双阶段评估
         // 阶段 1：书谱匹配（同步，零延迟）
@@ -368,7 +370,7 @@ struct CoachGameView: View {
                 title: bookResult.quality.label,
                 detail: bookResult.explanation,
                 icon: "checkmark.circle.fill",
-                color: qualityColor(bookResult.quality)
+                color: bookResult.quality.color
             )
             showGlow(bookResult.quality)
 
@@ -383,8 +385,8 @@ struct CoachGameView: View {
 
         Task { @MainActor in
             guard let evaluator else { return }
-            // 使用走法前的 FEN（即用户走棋前的局面）
-            // 需要重建：走法前的棋盘
+            // P0-1 修正：重建用户走棋前的局面
+            // fenBeforeMove 已是完整局面，moveHistory 传 []
             let boardBeforeMove = Board()
             for prevMove in viewModel.gameMoves.dropLast() {
                 guard let m = ICCSParser.parse(
@@ -398,7 +400,7 @@ struct CoachGameView: View {
             let result = await evaluator.evaluateEngine(
                 userMove: iccsMove,
                 fen: fenBeforeMove,
-                moveHistory: moveHistory
+                moveHistory: []  // P0-1 修正：fen 已是完整局面，不需要回放
             )
             coachSession.appendMove(result)
             isEvaluating = false
@@ -407,7 +409,7 @@ struct CoachGameView: View {
                 title: result.quality.label,
                 detail: result.explanation,
                 icon: feedbackIcon(result.quality),
-                color: qualityColor(result.quality)
+                color: result.quality.color
             )
             showGlow(result.quality)
 
@@ -439,13 +441,14 @@ struct CoachGameView: View {
         let fen = FENParser.generate(board: viewModel.board)
 
         if let aiMove = coachStrategy.nextAIMove(currentFEN: fen) {
-            // 通过 GameViewModel 的正常走子流程执行 AI 走法
+            // P1-2 修正：通过 GameViewModel 正常走子流程执行 AI 走法
+            // coachConfig != nil 已阻止 movePiece 触发 AI
             if let move = ICCSParser.parse(aiMove, on: viewModel.board) {
-                // 不通过 selectPiece + movePiece（那会触发 AI 自动走法），
-                // 而是直接执行走子（类似 GameViewModel 中 AI 的做法）
-                executeCoachAIMove(move)
+                viewModel.selectPiece(at: move.from)
+                viewModel.movePiece(from: move.from, to: move.to)
+                isProcessingAI = false
             } else {
-                // 走法解析失败，尝试正常 AI
+                // 走法解析失败
                 isProcessingAI = false
                 finishCoachSession(reason: .naturalEnd)
             }
@@ -454,61 +457,6 @@ struct CoachGameView: View {
             isProcessingAI = false
             finishCoachSession(reason: .naturalEnd)
         }
-    }
-
-    /// 执行教练 AI 走法（不走 GameViewModel 的 triggerAIMove）
-    private func executeCoachAIMove(_ move: Move) {
-        let piece = move.piece
-        let captured = viewModel.board.piece(at: move.to)
-        let aiMove = Move(piece: piece, from: move.from, to: move.to, captured: captured)
-        let notation = NotationGenerator.notation(for: aiMove, on: viewModel.board)
-
-        viewModel.board.execute(aiMove)
-
-        // 更新 GameViewModel 状态
-        let turnNumber = (viewModel.gameMoves.count / 2) + 1
-        let isCheck = MoveValidator.isInCheck(playerSide, on: viewModel.board)
-
-        let gameMove = GameMove(
-            id: UUID(),
-            piece: piece,
-            from: aiMove.from,
-            to: aiMove.to,
-            captured: captured,
-            turnNumber: turnNumber,
-            notation: notation,
-            timestamp: Date(),
-            isCheck: isCheck,
-            isCheckmate: false,
-            halfmoveClock: 0
-        )
-        viewModel.gameMoves.append(gameMove)
-
-        if let captured = captured {
-            if captured.side == .red {
-                viewModel.capturedPieces.red.append(captured)
-            } else {
-                viewModel.capturedPieces.black.append(captured)
-            }
-            SoundEngine.shared.playCapture()
-        } else {
-            SoundEngine.shared.playMove()
-        }
-
-        viewModel.selectedPosition = nil
-        viewModel.legalMovesForSelected = []
-        viewModel.isInCheck = isCheck
-
-        // 检查游戏状态
-        let currentSide = viewModel.board.currentTurn
-        if MoveValidator.isCheckmate(currentSide, on: viewModel.board) {
-            viewModel.gameState = (currentSide == .red) ? .blackWon : .redWon
-            viewModel.isInCheck = false
-        } else if isCheck {
-            SoundEngine.shared.playCheck()
-        }
-
-        isProcessingAI = false
     }
 
     // MARK: - 开局结束
@@ -561,18 +509,6 @@ struct CoachGameView: View {
         case .doubtful:  return "exclamationmark.triangle.fill"
         case .blunder:   return "xmark.circle.fill"
         case .losing:    return "xmark.octagon.fill"
-        }
-    }
-
-    private func qualityColor(_ quality: OpeningMoveQuality) -> Color {
-        switch quality {
-        case .book:      return .green
-        case .brilliant: return .green
-        case .good:      return .blue
-        case .normal:    return .gray
-        case .doubtful:  return .yellow
-        case .blunder:   return .orange
-        case .losing:    return .red
         }
     }
 }

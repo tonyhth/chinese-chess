@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 // MARK: - Phase B3 Step 1: 开局教练走法质量等级
 
@@ -51,6 +51,32 @@ enum OpeningMoveQuality: Int, CaseIterable, Codable {
         case .doubtful:  return "yellow"
         case .blunder:   return "orange"
         case .losing:    return "red"
+        }
+    }
+
+    /// SwiftUI Color（用于 UI 标注，P1-3 修正：统一提取避免重复定义）
+    var color: Color {
+        switch self {
+        case .book:      return .green
+        case .brilliant: return .green
+        case .good:      return .blue
+        case .normal:    return .gray
+        case .doubtful:  return .yellow
+        case .blunder:   return .orange
+        case .losing:    return .red
+        }
+    }
+
+    /// Emoji（用于结果卡片，P1-4 修正：从 CoachResultView 移至此处）
+    var emoji: String {
+        switch self {
+        case .book:      return "✅"
+        case .brilliant: return "⭐"
+        case .good:      return "👍"
+        case .normal:    return "⚪"
+        case .doubtful:  return "⚠️"
+        case .blunder:   return "❌"
+        case .losing:    return "💀"
         }
     }
 }
