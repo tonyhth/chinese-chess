@@ -5,7 +5,7 @@ struct MoveValidator {
     // MARK: - 主入口
 
     /// 判断走法是否合法
-    static func isLegal(_ move: Move, on board: Board) -> Bool {
+    static func isLegal<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
         let piece = move.piece
         guard Position.isValid(move.to) else { return false }
         if let target = board.piece(at: move.to), target.side == piece.side { return false }
@@ -15,13 +15,13 @@ struct MoveValidator {
     }
 
     /// 某棋子所有合法走法（按棋子类型生成候选位置，避免 90 格全遍历）
-    static func legalMoves(for piece: Piece, on board: Board) -> [Move] {
+    static func legalMoves<T: BoardReadable>(for piece: Piece, on board: T) -> [Move] {
         let candidates = candidateMoves(for: piece, on: board)
         return candidates.filter { isLegal($0, on: board) }
     }
 
     /// 某方所有合法走法
-    static func allLegalMoves(for side: Side, on board: Board) -> [Move] {
+    static func allLegalMoves<T: BoardReadable>(for side: Side, on board: T) -> [Move] {
         board.pieces(for: side).flatMap { legalMoves(for: $0, on: board) }
     }
 
@@ -29,7 +29,7 @@ struct MoveValidator {
 
     /// 某方所有吃子候选走法（仅走法模式校验 + 己方棋子过滤，不做将帅暴露检查）
     /// 用于静态搜索（QS），在 QS 内部通过实际执行验证合法性
-    static func captureMoves(for side: Side, on board: Board) -> [Move] {
+    static func captureMoves<T: BoardReadable>(for side: Side, on board: T) -> [Move] {
         var result: [Move] = []
         for piece in board.pieces(for: side) {
             let candidates = candidateMoves(for: piece, on: board)
@@ -46,7 +46,7 @@ struct MoveValidator {
 
     // MARK: - 候选走法生成（Y4: 按棋子类型只生成可能的目标位置）
 
-    private static func candidateMoves(for piece: Piece, on board: Board) -> [Move] {
+    private static func candidateMoves<T: BoardReadable>(for piece: Piece, on board: T) -> [Move] {
         let from = piece.position
         var targets: [Position] = []
 
@@ -139,7 +139,7 @@ struct MoveValidator {
     // MARK: - 将军 / 将死 / 困毙
 
     /// 某方是否被将军（含将帅对面）
-    static func isInCheck(_ side: Side, on board: Board) -> Bool {
+    static func isInCheck<T: BoardReadable>(_ side: Side, on board: T) -> Bool {
         guard let generalPos = board.generalPosition(of: side) else { return true }
 
         let opponent: Side = (side == .red) ? .black : .red
@@ -168,17 +168,17 @@ struct MoveValidator {
         return false
     }
 
-    static func isCheckmate(_ side: Side, on board: Board) -> Bool {
+    static func isCheckmate<T: BoardReadable>(_ side: Side, on board: T) -> Bool {
         isInCheck(side, on: board) && allLegalMoves(for: side, on: board).isEmpty
     }
 
-    static func isStalemate(_ side: Side, on board: Board) -> Bool {
+    static func isStalemate<T: BoardReadable>(_ side: Side, on board: T) -> Bool {
         !isInCheck(side, on: board) && allLegalMoves(for: side, on: board).isEmpty
     }
 
     // MARK: - 移动模式校验
 
-    private static func isMovePatternValid(for piece: Piece, from: Position, to: Position, on board: Board) -> Bool {
+    private static func isMovePatternValid<T: BoardReadable>(for piece: Piece, from: Position, to: Position, on board: T) -> Bool {
         switch piece.kind {
         case .general:  return isValidGeneralMove(piece, from: from, to: to)
         case .advisor:  return isValidAdvisorMove(piece, from: from, to: to)
@@ -209,7 +209,7 @@ struct MoveValidator {
     }
 
     // MARK: 象/相
-    private static func isValidElephantMove(_ piece: Piece, from: Position, to: Position, on board: Board) -> Bool {
+    private static func isValidElephantMove<T: BoardReadable>(_ piece: Piece, from: Position, to: Position, on board: T) -> Bool {
         let inHalf: Bool = (piece.side == .red) ? to.isInRedHalf : to.isInBlackHalf
         guard inHalf else { return false }
         let dr = abs(to.row - from.row)
@@ -221,7 +221,7 @@ struct MoveValidator {
     }
 
     // MARK: 马
-    private static func isValidHorseMove(_ piece: Piece, from: Position, to: Position, on board: Board) -> Bool {
+    private static func isValidHorseMove<T: BoardReadable>(_ piece: Piece, from: Position, to: Position, on board: T) -> Bool {
         let dr = to.row - from.row
         let dc = to.col - from.col
         let adr = abs(dr)
@@ -241,13 +241,13 @@ struct MoveValidator {
     }
 
     // MARK: 车
-    private static func isValidChariotMove(from: Position, to: Position, on board: Board) -> Bool {
+    private static func isValidChariotMove<T: BoardReadable>(from: Position, to: Position, on board: T) -> Bool {
         guard from.row == to.row || from.col == to.col else { return false }
         return countPiecesBetween(from: from, to: to, on: board) == 0
     }
 
     // MARK: 炮
-    private static func isValidCannonMove(_ piece: Piece, from: Position, to: Position, on board: Board) -> Bool {
+    private static func isValidCannonMove<T: BoardReadable>(_ piece: Piece, from: Position, to: Position, on board: T) -> Bool {
         guard from.row == to.row || from.col == to.col else { return false }
         let between = countPiecesBetween(from: from, to: to, on: board)
         let target = board.piece(at: to)
@@ -277,7 +277,7 @@ struct MoveValidator {
 
     // MARK: - 辅助方法
 
-    private static func countPiecesBetween(from: Position, to: Position, on board: Board) -> Int {
+    private static func countPiecesBetween<T: BoardReadable>(from: Position, to: Position, on board: T) -> Int {
         var count = 0
         if from.row == to.row {
             let minC = min(from.col, to.col)
@@ -297,15 +297,15 @@ struct MoveValidator {
 
     // v3.9: canAttack 复用 isMovePatternValid，消除与 isValidXxxMove 的逻辑不一致
     // 审计发现三处偏差：象半场检查用 from（应为 target）、士宫殿检查属性错、将分支为死代码
-    static func canAttack(piece: Piece, target: Position, on board: Board) -> Bool {
+    static func canAttack<T: BoardReadable>(piece: Piece, target: Position, on board: T) -> Bool {
         // 攻击目标必须是对方棋子或空位（canAttack 只判断攻击范围，不检查目标归属）
         // isMovePatternValid 已包含宫殿/半场/蹩腿等约束
         return isMovePatternValid(for: piece, from: piece.position, to: target, on: board)
     }
 
-    private static func wouldBeInCheck(_ move: Move, on board: Board) -> Bool {
-        let snapshot = board.snapshot()
-        snapshot.execute(move)
-        return isInCheck(move.piece.side, on: snapshot)
+    private static func wouldBeInCheck<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
+        var workBoard = board.makeSearchBoard()
+        workBoard.execute(move)
+        return isInCheck(move.piece.side, on: workBoard)
     }
 }

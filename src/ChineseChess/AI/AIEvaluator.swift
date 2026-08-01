@@ -13,7 +13,7 @@ struct AIEvaluator {
     }
 
     /// 返回当前行走方视角的评估分数（正值 = 当前行有利）。
-    func evaluate(_ board: Board, config: AIEvalConfig = .basic) -> Int {
+    func evaluate<T: BoardReadable>(_ board: T, config: AIEvalConfig = .basic) -> Int {
         let side = board.currentTurn
 
         // 残局精确估值（≤6 子）

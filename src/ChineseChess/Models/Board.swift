@@ -137,6 +137,10 @@ class Board {
 
     // MARK: - 深拷贝（AI 搜索用）
 
+    /// ⚠️ 已废弃：返回 @Observable 副本，AI 引擎不应使用。
+    /// AI 引擎请使用 SearchBoard(from: board)。
+    /// UI 层仍可使用（主线程安全），但建议迁移到值类型方案。
+    @available(*, deprecated, message: "AI 引擎请使用 SearchBoard(from: board)")
     func snapshot() -> Board {
         let copy = Board(pieces: pieces.map { Piece(kind: $0.kind, side: $0.side, position: $0.position, id: $0.id) })
         copy.moveHistory = moveHistory

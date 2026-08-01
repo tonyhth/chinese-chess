@@ -32,7 +32,7 @@ struct ZobristHash {
     // MARK: - 完整哈希计算
 
     /// 计算棋盘的完整 Zobrist 哈希
-    static func hash(board: Board) -> UInt64 {
+    static func hash<T: BoardReadable>(board: T) -> UInt64 {
         var h: UInt64 = 0
         for piece in board.pieces {
             let pi = pieceIndex(piece)

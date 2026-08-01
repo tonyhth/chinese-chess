@@ -1,9 +1,9 @@
-13:50:57.028 xcodebuild[98022:71547762] Requesting a socket for communication with testmanagerd.
-13:50:57.033 xcodebuild[98022:71547763] Got socket for DTX-layer communication.
-13:50:57.033 xcodebuild[98022:71547763] Initiating control session with IDE capabilities: <XCTCapabilities: 0x600001f29c20>: {
+17:22:26.428 xcodebuild[28204:71924218] Requesting a socket for communication with testmanagerd.
+17:22:26.448 xcodebuild[28204:71924229] Got socket for DTX-layer communication.
+17:22:26.448 xcodebuild[28204:71924229] Initiating control session with IDE capabilities: <XCTCapabilities: 0x60000282b930>: {
 }
-13:50:57.034 xcodebuild[98022:71547763] XPC connection for control was invalidated.
-13:50:57.061 xcodebuild[98022:71547763] Got reply to control session initiation request (result:error): <XCTCapabilities: 0x600001f20970>: {
+17:22:26.449 xcodebuild[28204:71924229] XPC connection for control was invalidated.
+17:22:26.468 xcodebuild[28204:71924229] Got reply to control session initiation request (result:error): <XCTCapabilities: 0x60000282b8d0>: {
     "authorize test session capability" = 1;
     "automation mode" = 1;
     "daemon container sandbox extension" = 1;
@@ -16,8 +16,8 @@
     "request tailspin capability" = 1;
     "supports delayed attachment transfers" = 1;
 }: (null)
-13:50:57.062 xcodebuild[98022:71547770] Got reply to daemon container sandbox extension request (result:error): 6906c0d96a1abeea01d5fc40e9cf9058a82b7fd15c833354deb8d5ffe7d49012;00;00000000;00000000;00000000;000000000000001a;com.apple.app-sandbox.read;01;01000007;00000000134a8f40;3f;/users/hth/library/daemon containers/f46414c6-2a39-427b-add8-f605adeb0984/data: (null)
-13:50:57.312 xcodebuild[98022:71547762] Requesting crash report collection for process names: WindowServer, ChineseChess, xctest, ChineseChessTests, DTServiceHub, testmanagerd, debugserver
-13:50:57.329 xcodebuild[98022:71547723] Got reply to crash report collection request (error: (null))
-13:50:59.764 xcodebuild[98022:71547763] Requesting authorization for pid 98029
-13:50:59.764 xcodebuild[98022:71547724] Got reply to authorization request for pid 98029 (result:error): 1: (null)
+17:22:26.471 xcodebuild[28204:71924218] Got reply to daemon container sandbox extension request (result:error): 6906c0d96a1abeea01d5fc40e9cf9058a82b7fd15c833354deb8d5ffe7d49012;00;00000000;00000000;00000000;000000000000001a;com.apple.app-sandbox.read;01;01000007;00000000134a8f40;3f;/users/hth/library/daemon containers/f46414c6-2a39-427b-add8-f605adeb0984/data: (null)
+17:22:27.371 xcodebuild[28204:71924162] Requesting crash report collection for process names: DTServiceHub, debugserver, ChineseChess, WindowServer, ChineseChessTests, testmanagerd, xctest
+17:22:27.416 xcodebuild[28204:71924162] Got reply to crash report collection request (error: (null))
+17:22:30.654 xcodebuild[28204:71924229] Requesting authorization for pid 28228
+17:22:30.668 xcodebuild[28204:71924229] Got reply to authorization request for pid 28228 (result:error): 1: (null)

@@ -82,7 +82,7 @@ struct MoveOrderer {
     ///   - ttBestMove: 置换表中的最佳走法（如有）
     ///   - checkLegal: 是否启用将军排序（depth >= 3 时启用，低深度开销大）
     ///   - countermove: 对手上一走法的 countermove（如有）
-    func order(_ moves: [Move], on board: Board, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermove: Move? = nil) -> [Move] {
+    func order<T: BoardReadable>(_ moves: [Move], on board: T, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermove: Move? = nil) -> [Move] {
         let ttMove = ttBestMove
         let cmMove = countermove
 
@@ -130,18 +130,18 @@ struct MoveOrderer {
 
     /// 判断走法是否会导致将军。
     /// 在原 board 上 execute/undo，避免 snapshot 深拷贝开销。
-    private func givesCheck(_ move: Move, on board: Board) -> Bool {
-        board.execute(move)
+    private func givesCheck<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
+        var workBoard = board.makeSearchBoard()
+        workBoard.execute(move)
         let opponentSide: Side = (move.piece.side == .red) ? .black : .red
-        let inCheck = MoveValidator.isInCheck(opponentSide, on: board)
-        _ = board.undoLastMove()
+        let inCheck = MoveValidator.isInCheck(opponentSide, on: workBoard)
         return inCheck
     }
 
     // MARK: - 威胁子力加分
 
     /// 走到目标位置后能威胁对方高价值棋子的加分
-    private func threatBonus(for move: Move, on board: Board) -> Int {
+    private func threatBonus<T: BoardReadable>(for move: Move, on board: T) -> Int {
         let opponentSide: Side = (move.piece.side == .red) ? .black : .red
         let opponentPieces = board.pieces.filter { $0.side == opponentSide && $0.kind != .general }
 

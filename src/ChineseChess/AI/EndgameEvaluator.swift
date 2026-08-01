@@ -145,14 +145,14 @@ struct EndgameEvaluator {
 
     /// 残局精确评估。返回相对于 side 的分数（正值 = side 方优势）。
     /// 如果子力 > 6 或无匹配规则，返回 nil（使用通用评估）。
-    static func evaluate(board: Board, for side: Side) -> Int? {
+    static func evaluate<T: BoardReadable>(board: T, for side: Side) -> Int? {
         let totalPieces = board.pieces.count
         guard totalPieces <= 6 else { return nil }
 
         let redPieces = classifyPieces(board.pieces(for: .red))
         let blackPieces = classifyPieces(board.pieces(for: .black))
 
-        return lookupScore(red: redPieces, black: blackPieces, board: board, for: side)
+        return lookupScore(red: redPieces, black: blackPieces, for: side)
     }
 
     /// 将一方的棋子分类（排除将/帅，只保留种类列表）
@@ -175,7 +175,7 @@ struct EndgameEvaluator {
 
     /// 在规则表中查找匹配的分数
     private static func lookupScore(red: [PieceKind], black: [PieceKind],
-                                     board: Board, for side: Side) -> Int? {
+                                     for side: Side) -> Int? {
         for rule in endgameRules {
             if matchPattern(red, rule.redPattern) && matchPattern(black, rule.blackPattern) {
                 let raw = rule.redScore

@@ -9,7 +9,7 @@ struct KingSafetyEvaluator {
     /// 开销极小（约 8 次检查），所有难度启用
     /// v3.0 Phase 3b: 将帅安全评估增强
     /// 开局侧重防守子力完整性，残局侧重将的机动性
-    static func kingSafetyScore(for side: Side, on board: Board, weights: EvalWeights) -> Int {
+    static func kingSafetyScore<T: BoardReadable>(for side: Side, on board: T, weights: EvalWeights) -> Int {
         guard let kingPos = board.generalPosition(of: side) else { return -50000 }
         let w = weights
         var score = 0
@@ -60,7 +60,7 @@ struct KingSafetyEvaluator {
     }
 
     /// v3.0 Phase 3a: 机动性评估重写
-    static func simplifiedMobilityScore(for side: Side, on board: Board, weights: EvalWeights) -> Int {
+    static func simplifiedMobilityScore<T: BoardReadable>(for side: Side, on board: T, weights: EvalWeights) -> Int {
         let w = weights
         var score = 0
         let totalPieces = board.pieces.count
@@ -117,7 +117,7 @@ struct KingSafetyEvaluator {
 
     // MARK: - 辅助方法
 
-    static func isAttackingPosition(_ piece: Piece, target: Position, on board: Board) -> Bool {
+    static func isAttackingPosition<T: BoardReadable>(_ piece: Piece, target: Position, on board: T) -> Bool {
         let pr = piece.position.row, pc = piece.position.col
         let tr = target.row, tc = target.col
 
@@ -161,7 +161,7 @@ struct KingSafetyEvaluator {
     }
 
     /// 马从指定位置可跳的日字目标（含蹩脚检测和己方占位检查）
-    static func horseJumpTargets(from pos: Position, for side: Side, on board: Board) -> [Position] {
+    static func horseJumpTargets<T: BoardReadable>(from pos: Position, for side: Side, on board: T) -> [Position] {
         let r = pos.row, c = pos.col
         let targets = [(r+2,c+1),(r+2,c-1),(r-2,c+1),(r-2,c-1),
                        (r+1,c+2),(r+1,c-2),(r-1,c+2),(r-1,c-2)]
@@ -179,7 +179,7 @@ struct KingSafetyEvaluator {
     }
 
     /// 评估对方马对己方九宫的威胁程度
-    static func horsePalaceThreat(_ horse: Piece, kingPos: Position, on board: Board, weights: EvalWeights) -> Int {
+    static func horsePalaceThreat<T: BoardReadable>(_ horse: Piece, kingPos: Position, on board: T, weights: EvalWeights) -> Int {
         let jumps = horseJumpTargets(from: horse.position, for: horse.side, on: board)
         for jump in jumps {
             if jump.row == kingPos.row && jump.col == kingPos.col {
@@ -194,7 +194,7 @@ struct KingSafetyEvaluator {
         return 0
     }
 
-    static func countEmptyInRow(_ row: Int, on board: Board) -> Int {
+    static func countEmptyInRow<T: BoardReadable>(_ row: Int, on board: T) -> Int {
         var count = 0
         for col in 0...8 {
             if board.piece(at: Position(row: row, col: col)) == nil { count += 1 }
@@ -202,7 +202,7 @@ struct KingSafetyEvaluator {
         return count
     }
 
-    static func countEmptyInCol(_ col: Int, on board: Board) -> Int {
+    static func countEmptyInCol<T: BoardReadable>(_ col: Int, on board: T) -> Int {
         var count = 0
         for row in 0...9 {
             if board.piece(at: Position(row: row, col: col)) == nil { count += 1 }
@@ -210,7 +210,7 @@ struct KingSafetyEvaluator {
         return count
     }
 
-    static func countCannonTargets(_ piece: Piece, on board: Board) -> Int {
+    static func countCannonTargets<T: BoardReadable>(_ piece: Piece, on board: T) -> Int {
         var targets = 0
         let pr = piece.position.row, pc = piece.position.col
         let directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]

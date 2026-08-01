@@ -13,10 +13,11 @@ struct CheckmateSearch {
     ///   - maxDepth: 最大搜索深度（半步数）
     ///   - timeLimitMs: 超时毫秒数，nil 表示不限制
     /// - Returns: 杀法走法序列，从进攻方的第一步将军开始
-    static func search(board: Board, for side: Side, maxDepth: Int, timeLimitMs: Int? = nil) -> [Move]? {
+    static func search(board: SearchBoard, for side: Side, maxDepth: Int, timeLimitMs: Int? = nil) -> [Move]? {
+        var mutableBoard = board
         let startTime = Date()
         var path: [Move] = []
-        if dfs(board: board, side: side, depth: 0, maxDepth: maxDepth, path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
+        if dfs(board: &mutableBoard, side: side, depth: 0, maxDepth: maxDepth, path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
             return path
         }
         return nil
@@ -26,8 +27,11 @@ struct CheckmateSearch {
     /// 逻辑：对 side 的每个将军走法，执行后检查对方是否被将死。
     /// 如果对方无合法走法 → 将死，返回成功。
     /// 如果对方有合法走法 → 必须所有应将走法后我方都能赢，才算强制将杀。
+    ///
+    /// ⚠️ 不用 defer：for 循环中 defer 延迟到函数退出，不在迭代结束时触发。
+    /// 每个分支必须手动 board.undoLastMove()。
     private static func dfs(
-        board: Board, side: Side, depth: Int, maxDepth: Int,
+        board: inout SearchBoard, side: Side, depth: Int, maxDepth: Int,
         path: inout [Move], startTime: Date, timeLimitMs: Int?
     ) -> Bool {
         // 超时检查
@@ -46,28 +50,23 @@ struct CheckmateSearch {
         let checkMoves = moves.filter { move in
             board.execute(move)
             let inCheck = MoveValidator.isInCheck(opponent, on: board)
-            _ = board.undoLastMove()
+            board.undoLastMove()
             return inCheck
         }
 
         for move in checkMoves {
-            path.append(move)
             board.execute(move)
 
             // 检查对方是否被将死
             let opponentMoves = MoveValidator.allLegalMoves(for: opponent, on: board)
             if opponentMoves.isEmpty {
                 // 对方无合法走法 = 将死（因为对方正在被将军）
-                _ = board.undoLastMove()
+                path.append(move)
+                board.undoLastMove()
                 return true
             }
 
             // 对方有应将走法：必须验证所有应将后我方都能赢，才是强制将杀
-            // ⚠️ 剪枝：走法超过 8 个时，按 moveScore 排序后只验证前 8 个。
-            // 注意：此剪枝可能导致假阳性——声称找到将杀，但对方可能存在第 9+ 个走法
-            // 能逃脱。这是速度与正确性的权衡，标准象棋引擎的常见做法。
-            // moveScore 的评分维度（吃子、靠近将帅、阻挡攻击线）与"能否逃脱"无必然关联，
-            // 但实际对局中被将时超过 8 个应将走法极少见（残局排局等复杂场景除外）。
             let maxResponses = 8
             let opponentMovesToCheck: [Move]
             if opponentMoves.count > maxResponses {
@@ -79,32 +78,29 @@ struct CheckmateSearch {
             var allResponsesWin = true
             for response in opponentMovesToCheck {
                 board.execute(response)
-                if !dfs(board: board, side: side, depth: depth + 2, maxDepth: maxDepth,
+                if !dfs(board: &board, side: side, depth: depth + 2, maxDepth: maxDepth,
                          path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
                     allResponsesWin = false
-                    _ = board.undoLastMove()
+                    board.undoLastMove()
                     break
                 }
-                _ = board.undoLastMove()
+                board.undoLastMove()
             }
 
             if allResponsesWin {
-                _ = board.undoLastMove()
+                path.append(move)
+                board.undoLastMove()
                 return true
             }
 
-            _ = board.undoLastMove()
-            path.removeLast()
+            board.undoLastMove()
         }
 
         return false
     }
 
     /// 应将走法简单排序评分：吃子优先、走向己方九宫附近优先、阻挡攻击线加分。
-    ///
-    /// 注意：调用时 board 已执行进攻方将军走法，因此评估的是将军后局面中
-    /// 对手对己方将帅的攻击威胁，而非将军前的局面。进攻方棋子位置可能已变化。
-    private static func moveScore(_ move: Move, on board: Board) -> Int {
+    private static func moveScore(_ move: Move, on board: SearchBoard) -> Int {
         var score = 0
         // 吃子加分
         if let captured = move.captured {
@@ -129,10 +125,8 @@ struct CheckmateSearch {
                 // 统计攻击者与将帅之间的棋子数
                 let betweenCount = countPiecesBetween(ap, gp, on: board)
                 if attacker.kind == .chariot && betweenCount == 0 {
-                    // 車直线攻击无阻挡，挡住加高分
                     score += 60
                 } else if attacker.kind == .cannon && betweenCount == 1 {
-                    // 炮隔一子攻击，挡住加中分
                     score += 30
                 }
             }
@@ -155,7 +149,7 @@ struct CheckmateSearch {
     }
 
     /// 计算两个位置之间（不含两端）的棋子数量（仅限同行或同列）
-    private static func countPiecesBetween(_ a: Position, _ b: Position, on board: Board) -> Int {
+    private static func countPiecesBetween(_ a: Position, _ b: Position, on board: SearchBoard) -> Int {
         var count = 0
         if a.row == b.row {
             let minCol = min(a.col, b.col) + 1

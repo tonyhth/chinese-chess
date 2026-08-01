@@ -55,7 +55,7 @@ struct TimeManager {
     /// 局面复杂度评分（0-100）
     /// 评分规则：阶梯式加权（子力/吃子/将军/活跃子力），每项独立贡献
     /// 调用频率：每次 bestMove 调用一次，不在搜索内部调用
-    static func positionComplexity(board: Board) -> Int {
+    static func positionComplexity<T: BoardReadable>(board: T) -> Int {
         var complexity = 0
 
         let totalPieces = board.pieces.count
@@ -93,8 +93,8 @@ struct TimeManager {
     /// beginner/easy/medium 无时间限制，返回 nil
     /// isIOS: iOS 降时避免主线程阻塞被系统 kill
     /// board: 可选，传入时根据局面复杂度动态调整时间
-    static func forDifficulty(_ difficulty: AIDifficulty, isIOS: Bool = false,
-                              board: Board? = nil) -> TimeManager? {
+    static func forDifficulty<T: BoardReadable>(_ difficulty: AIDifficulty, isIOS: Bool = false,
+                              board: T? = nil) -> TimeManager? {
         let baseTimeMs: Int
         switch difficulty {
         case .beginner, .easy:

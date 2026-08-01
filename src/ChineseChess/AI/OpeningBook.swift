@@ -105,7 +105,7 @@ final class OpeningBook {
     }
 
     /// 将 ICCS 格式走法解析为 Move（供 AIEngine 使用）
-    func parseICCSMove(_ iccs: String, on board: Board) -> Move? {
+    func parseICCSMove<T: BoardReadable>(_ iccs: String, on board: T) -> Move? {
         ICCSParser.parse(iccs, on: board)
     }
 

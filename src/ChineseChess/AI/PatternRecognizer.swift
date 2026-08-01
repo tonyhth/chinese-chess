@@ -51,7 +51,7 @@ struct PatternRecognizer {
 
     /// 识别当前局面中 side 方的棋型，返回加分。
     /// 加分相对于 side 方：正值 = side 方优势。
-    static func bonusPatterns(on board: Board, for side: Side, weights: EvalWeights = EvalConfigManager.shared.weights) -> Int {
+    static func bonusPatterns<T: BoardReadable>(on board: T, for side: Side, weights: EvalWeights = EvalConfigManager.shared.weights) -> Int {
         var bonus = 0
         let w = weights
 
@@ -281,7 +281,7 @@ struct PatternRecognizer {
         return (rowDiff == 1 && colDiff == 2) || (rowDiff == 2 && colDiff == 1)
     }
 
-    private static func isIronGate(chariot: Piece, general: Position, on board: Board) -> Bool {
+    private static func isIronGate<T: BoardReadable>(chariot: Piece, general: Position, on board: T) -> Bool {
         guard chariot.position.col == general.col else { return false }
         let minRow = min(chariot.position.row, general.row) + 1
         let maxRow = max(chariot.position.row, general.row)
