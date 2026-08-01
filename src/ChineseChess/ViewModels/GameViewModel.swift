@@ -151,6 +151,10 @@ class GameViewModel {
     // P2 修复：持有 observer token，deinit 时移除
     @ObservationIgnored nonisolated(unsafe) private var fallbackObserver: NSObjectProtocol?
 
+    // Phase B3 Step 3: 开局教练模式配置
+    // 非nil时，GameViewModel 不自动触发AI走法，由外部（CoachGameView）控制AI走法
+    var coachConfig: CoachConfig? = nil
+
     private var gameVersion: Int = 0
     private var materialTracker = MaterialTracker()
     var moveHistory: [Move] {
@@ -318,7 +322,10 @@ class GameViewModel {
             hintMove = nil
             hintText = nil
             switchClock()
-            triggerAIMove()
+            // Phase B3 Step 3: 开局教练模式下不自动触发AI走法，由 CoachGameView 控制
+            if coachConfig == nil {
+                triggerAIMove()
+            }
         }
     }
 
@@ -421,6 +428,7 @@ class GameViewModel {
         hintText = nil
         isBlitzMode = false
         isMasterChallenge = false
+        coachConfig = nil
         // v4.0 Phase 5: 重置挑战模式状态
         challengeMode = nil
         challengePuzzle = nil
@@ -450,7 +458,8 @@ class GameViewModel {
 
         // v3.0 Phase 5: 玩家执黑时 AI（红方）先行
         // 注意：switchEngineIfNeeded 在 triggerAIMove 中调用，确保引擎准备好再求走法
-        if humanSide == .black {
+        // Phase B3 Step 3: 开局教练模式下由 CoachGameView 控制 AI 先行
+        if humanSide == .black && coachConfig == nil {
             triggerAIMove()
         }
     }
