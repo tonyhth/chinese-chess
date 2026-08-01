@@ -43,7 +43,7 @@ struct EloBaselineTests {
 
     // MARK: - Test 1: easy vs medium
 
-    @Test("easyVsMedium — easy vs medium 1局")
+    @Test("easyVsMedium — easy vs medium 1局", .timeLimit(.minutes(10)))
     func easyVsMedium() async {
         let config = SelfPlayConfig(
             red: .easy, black: .medium,
@@ -62,7 +62,7 @@ struct EloBaselineTests {
 
     // MARK: - Test 2: medium vs hard
 
-    @Test("mediumVsHard — medium vs hard 1局")
+    @Test("mediumVsHard — medium vs hard 1局", .timeLimit(.minutes(15)))
     func mediumVsHard() async {
         let config = SelfPlayConfig(
             red: .medium, black: .hard,
@@ -81,7 +81,7 @@ struct EloBaselineTests {
 
     // MARK: - Test 3: hard vs master
 
-    @Test("hardVsMaster — hard vs master 1局")
+    @Test("hardVsMaster — hard vs master 1局", .timeLimit(.minutes(30)))
     func hardVsMaster() async {
         let config = SelfPlayConfig(
             red: .hard, black: .master,
@@ -100,7 +100,7 @@ struct EloBaselineTests {
 
     // MARK: - Test 4: master vs master
 
-    @Test("masterVsMaster — master vs master 1局")
+    @Test("masterVsMaster — master vs master 1局", .timeLimit(.minutes(60)))
     func masterVsMaster() async {
         let config = SelfPlayConfig(
             red: .master, black: .master,

@@ -152,7 +152,7 @@ struct Phase7Tests {
         }
     }
 
-    @Test("自对弈正常完成")
+    @Test("自对弈正常完成", .timeLimit(.minutes(5)))
     func selfPlayIntegration() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)

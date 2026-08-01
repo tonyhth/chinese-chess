@@ -94,7 +94,7 @@ struct Phase3bEvaluationTests {
 
     // MARK: - 集成验证
 
-    @Test("Phase 3b 全部启用：beginner vs beginner 2局")
+    @Test("Phase 3b 全部启用：beginner vs beginner 2局", .timeLimit(.minutes(5)))
     func selfPlayPhase3b() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)

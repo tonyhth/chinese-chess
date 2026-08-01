@@ -184,7 +184,7 @@ struct Phase2bOptimizationTests {
 
     // MARK: - 自对弈集成验证
 
-    @Test("Phase 2b 全部启用：beginner vs beginner 2局正常完成")
+    @Test("Phase 2b 全部启用：beginner vs beginner 2局正常完成", .timeLimit(.minutes(5)))
     func selfPlayWithPhase2b() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(

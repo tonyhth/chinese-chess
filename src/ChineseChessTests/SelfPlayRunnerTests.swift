@@ -7,7 +7,7 @@ struct SelfPlayRunnerTests {
 
     // MARK: - 基础功能测试
 
-    @Test("SelfPlayRunner 快速对弈：beginner vs beginner 2局")
+    @Test("SelfPlayRunner 快速对弈：beginner vs beginner 2局", .timeLimit(.minutes(5)))
     func quickSelfPlay() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
@@ -25,7 +25,7 @@ struct SelfPlayRunnerTests {
         #expect(result.durationSeconds >= 0, "耗时不应为负")
     }
 
-    @Test("SelfPlayRunner 先后手交换")
+    @Test("SelfPlayRunner 先后手交换", .timeLimit(.minutes(5)))
     func sideSwap() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
@@ -47,7 +47,7 @@ struct SelfPlayRunnerTests {
         #expect(result.games[1].blackDifficulty == .beginner)
     }
 
-    @Test("SelfPlayRunner 不交换先后手")
+    @Test("SelfPlayRunner 不交换先后手", .timeLimit(.minutes(5)))
     func noSideSwap() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
@@ -66,7 +66,7 @@ struct SelfPlayRunnerTests {
         }
     }
 
-    @Test("SelfPlayRunner 步数上限判和")
+    @Test("SelfPlayRunner 步数上限判和", .timeLimit(.minutes(5)))
     func moveLimit() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
@@ -87,7 +87,7 @@ struct SelfPlayRunnerTests {
         #expect(game.totalMoves <= 10, "步数不应超过上限")
     }
 
-    @Test("SelfPlayRunner 结果摘要格式")
+    @Test("SelfPlayRunner 结果摘要格式", .timeLimit(.minutes(5)))
     func summaryFormat() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
