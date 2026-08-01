@@ -92,10 +92,8 @@ struct MasterGameBrowserView: View {
         cachedItems.count < cachedTotalCount
     }
 
-    /// 搜索器（懒初始化）
-    private var searcher: MasterGameSearch {
-        MasterGameSearch(store: masterStore)
-    }
+    /// 搜索器（@State 避免每次重建）
+    @State private var searcher: MasterGameSearch = MasterGameSearch(store: MasterGameStore.shared)
 
     /// 是否正在搜索（搜索框非空且有结果/正在输入）
     private var isSearching: Bool {
@@ -392,7 +390,7 @@ struct MasterGameBrowserView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(Color.primary.opacity(0.06))
         .cornerRadius(6)
     }
 
