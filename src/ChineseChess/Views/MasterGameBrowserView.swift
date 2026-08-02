@@ -946,10 +946,12 @@ struct MasterGameBrowserView: View {
             Text(masterStore.loadError ?? "")
         }
         .onChange(of: selectedOpening) { _, _ in
+            useMoveSequenceFilter = false  // Phase D fix: 退出联动
             currentPage = 1
             rebuildCache()
         }
         .onChange(of: selectedSubcategory) { _, _ in
+            useMoveSequenceFilter = false  // Phase D fix: 退出联动
             currentPage = 1
             rebuildCache()
         }
