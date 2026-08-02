@@ -142,6 +142,12 @@ struct PuzzleDemoView: View {
             }
         }
         .listStyle(.sidebar)
+        .onAppear {
+            #if DEBUG
+            print("[PuzzleDemo] demoCategories = \(PuzzleStore.shared.demoCategories)")
+            print("[PuzzleDemo] puzzles count = \(PuzzleStore.shared.puzzles.count)")
+            #endif
+        }
     }
     #endif
 

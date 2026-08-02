@@ -9844,22 +9844,6 @@
         }
       }
     },
-    "toolbar.openingExplorerLegacy": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opening Explorer (legacy)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开局探索（旧入口）"
-          }
-        }
-      }
-    },
     "toolbar.puzzle": {
       "localizations": {
         "en": {
@@ -9872,22 +9856,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "残局"
-          }
-        }
-      }
-    },
-    "toolbar.puzzleLegacy": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Puzzles (legacy)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "残局（旧入口）"
           }
         }
       }

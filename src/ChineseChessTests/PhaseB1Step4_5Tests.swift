@@ -142,32 +142,7 @@ final class PhaseB1Step4_5Tests: XCTestCase {
         UserDefaults.standard.removeObject(forKey: testKey)
     }
 
-    // MARK: - 4. iOS 更多菜单旧入口
-
-    /// 验证旧入口 L10n key 存在
-    func testLegacyL10nKeys() {
-        let keys = [
-            "toolbar.puzzleLegacy",
-            "toolbar.openingExplorerLegacy",
-        ]
-        for key in keys {
-            let text = L10n.shared.t(key)
-            XCTAssertFalse(text.isEmpty, "\(key) 不应为空")
-            XCTAssertNotEqual(text, key, "\(key) 应有翻译")
-        }
-    }
-
-    /// 验证旧入口标记（zh-Hans 应包含"旧入口"/"legacy"字样）
-    func testLegacyLabelsContainLegacyMarker() {
-        let puzzleText = L10n.shared.t("toolbar.puzzleLegacy")
-        let openingText = L10n.shared.t("toolbar.openingExplorerLegacy")
-        // 中文应包含"旧入口"，英文应包含 "legacy"
-        let hasLegacy = puzzleText.contains("旧入口") || puzzleText.lowercased().contains("legacy")
-        XCTAssertTrue(hasLegacy, "puzzleLegacy 标签应包含'旧入口'或'legacy'")
-
-        let hasLegacy2 = openingText.contains("旧入口") || openingText.lowercased().contains("legacy")
-        XCTAssertTrue(hasLegacy2, "openingExplorerLegacy 标签应包含'旧入口'或'legacy'")
-    }
+    // v5.5.1: 旧入口已删除，相关测试移除
 
     /// 验证 P1 修复：开局探索旧入口不再 disabled，改为关闭更多菜单
     func testP1OpeningExplorerLegacyNotDisabled() {
