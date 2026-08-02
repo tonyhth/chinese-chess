@@ -8,6 +8,19 @@ struct OpeningSubcategory: Identifiable, Sendable, Equatable, Hashable, Codable 
     let name: String             // "中炮对屏风马"
     let firstMoves: [String]     // 前 N 步走法序列（用于匹配）
     var gameCount: Int
+
+    // 自定义解码：gameCount 缺失时默认 0（向后兼容旧 JSON）
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        firstMoves = try c.decode([String].self, forKey: .firstMoves)
+        gameCount = try c.decodeIfPresent(Int.self, forKey: .gameCount) ?? 0
+    }
+
+    init(id: String, name: String, firstMoves: [String], gameCount: Int) {
+        self.id = id; self.name = name; self.firstMoves = firstMoves; self.gameCount = gameCount
+    }
 }
 
 /// 一级开局分类（基于红方第一步走法）
@@ -18,6 +31,24 @@ struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable, Codable {
     var gameCount: Int           // 该开局下的对局数
     let description: String      // "炮二平五，最常见开局"
     let subcategories: [OpeningSubcategory]
+
+    // 自定义解码：gameCount 缺失时默认 0（向后兼容旧 JSON）
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        firstMove = try c.decode(String.self, forKey: .firstMove)
+        gameCount = try c.decodeIfPresent(Int.self, forKey: .gameCount) ?? 0
+        description = try c.decodeIfPresent(String.self, forKey: .description) ?? ""
+        subcategories = try c.decodeIfPresent([OpeningSubcategory].self, forKey: .subcategories) ?? []
+    }
+
+    init(id: String, name: String, firstMove: String, gameCount: Int,
+         description: String, subcategories: [OpeningSubcategory]) {
+        self.id = id; self.name = name; self.firstMove = firstMove
+        self.gameCount = gameCount; self.description = description
+        self.subcategories = subcategories
+    }
 }
 
 // MARK: - 开局分类管理
@@ -33,7 +64,6 @@ enum OpeningCategories {
 
     /// 从 Bundle 加载 opening-categories.json，失败时 fallback 到硬编码默认值
     private static func loadCategories() -> [OpeningCategory] {
-        // 尝试从 Bundle 加载
         if let url = ResourceBundle.url(forResource: "opening-categories", withExtension: "json") {
             if let data = try? Data(contentsOf: url) {
                 let decoder = JSONDecoder()
@@ -75,12 +105,19 @@ enum OpeningCategories {
             subcategories: [
                 OpeningSubcategory(id: "xianren_zhilu_zudipao", name: "仙人指路对卒底炮",
                                    firstMoves: ["c3c4", "b7b3"], gameCount: 0),
+                OpeningSubcategory(id: "xianren_zhilu_duima", name: "仙人指路对起马",
+                                   firstMoves: ["c3c4", "b9c7"], gameCount: 0),
             ]
         ),
         OpeningCategory(
             id: "fei_xiang", name: "飞相", firstMove: "g0e2",
             gameCount: 0, description: "相三进五，稳健开局",
-            subcategories: []
+            subcategories: [
+                OpeningSubcategory(id: "fei_xiang_duima", name: "飞相对起马",
+                                   firstMoves: ["g0e2", "b9c7"], gameCount: 0),
+                OpeningSubcategory(id: "fei_xiang_duipao", name: "飞相对左炮",
+                                   firstMoves: ["g0e2", "b7c7"], gameCount: 0),
+            ]
         ),
         OpeningCategory(
             id: "qi_ma", name: "起马", firstMove: "b0c2",
@@ -93,13 +130,41 @@ enum OpeningCategories {
             subcategories: []
         ),
         OpeningCategory(
-            id: "shijiao_pao", name: "士角炮", firstMove: "h2d2",
-            gameCount: 0, description: "炮二平四，中路威胁",
+            id: "guo_gong_pao", name: "过宫炮", firstMove: "h2d2",
+            gameCount: 0, description: "炮二平六，集中火力",
             subcategories: []
         ),
         OpeningCategory(
-            id: "guo_gong_pao", name: "过宫炮", firstMove: "h2f2",
-            gameCount: 0, description: "炮二平六，集中火力",
+            id: "zuo_zhong_pao", name: "左中炮", firstMove: "b2e2",
+            gameCount: 0, description: "炮八平五，反手中炮",
+            subcategories: []
+        ),
+        OpeningCategory(
+            id: "you_ma", name: "右马", firstMove: "h0g2",
+            gameCount: 0, description: "马二进三，快速出马",
+            subcategories: []
+        ),
+        OpeningCategory(
+            id: "shijiao_pao", name: "士角炮", firstMove: "h2f2",
+            gameCount: 0, description: "炮二平四，士角位置",
+            subcategories: [
+                OpeningSubcategory(id: "shijiao_pao_zhi_ma", name: "士角炮对起马",
+                                   firstMoves: ["h2f2", "b9c7"], gameCount: 0),
+            ]
+        ),
+        OpeningCategory(
+            id: "zuo_fei_xiang", name: "左飞相", firstMove: "c0e2",
+            gameCount: 0, description: "相七进五，稳健",
+            subcategories: []
+        ),
+        OpeningCategory(
+            id: "bian_ma", name: "边马", firstMove: "b0a2",
+            gameCount: 0, description: "马八进九，边马出奇",
+            subcategories: []
+        ),
+        OpeningCategory(
+            id: "zuo_guo_gong_pao", name: "左过宫炮", firstMove: "b2f2",
+            gameCount: 0, description: "炮八平四，集中火力",
             subcategories: []
         ),
         OpeningCategory(
