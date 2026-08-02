@@ -137,12 +137,12 @@ struct P1aLegacyFixTests {
 
     @Test("horsePalaceThreat：马远离将帅不产生虚高威胁")
     func horseFarFromKingNoThreat() async {
-        // 黑马在角落 a0，红帅在 e9
-        let fen = "4K4/9/9/9/9/9/9/9/9/n3k4 b - - 0 1"
-        guard let board = FENParser.parse(fen: fen) else {
-            Issue.record("FEN 解析失败")
-            return
-        }
+        // 黑马在角落，红帅在远处——直接构造棋盘避免 FEN 方向问题
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
+        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
+        let blackHorse = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 0), id: 100)
+        let board = Board(pieces: [rg, bg, blackHorse])
+        board.setCurrentTurn(.black)
         let engine = AIEngine()
         let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
         // 只要不 crash

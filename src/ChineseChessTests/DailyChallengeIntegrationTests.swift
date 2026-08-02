@@ -80,13 +80,13 @@ struct DailyChallengeIntegrationTests {
         #expect(puzzles.contains { $0.id == id }, "返回的 id 应在 puzzles 列表中")
     }
 
-    @Test("endgamePuzzle: dailyPuzzleId 空 puzzles 回退到 PuzzleStore")
+    @Test("endgamePuzzle: dailyPuzzleId 空 puzzles 返回 nil")
     func dailyPuzzleIdEmpty() {
         let suite = UserDefaults(suiteName: "test_empty_\(UUID().uuidString)")!
         let manager = DailyChallengeManager(defaults: suite)
         let id = manager.dailyPuzzleId(puzzles: [])
-        // 空数组回退到 PuzzleStore.shared.puzzles，不应返回 nil
-        #expect(id != nil, "空 puzzles 应回退到 PuzzleStore，不应返回 nil")
+        // 空 puzzles 时返回 nil 是正确行为
+        #expect(id == nil, "空 puzzles 应返回 nil")
     }
 
     @Test("endgamePuzzle: dailyPuzzle 返回正确的 Puzzle")

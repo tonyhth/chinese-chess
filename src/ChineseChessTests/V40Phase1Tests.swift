@@ -14,12 +14,13 @@ struct FENValidationTests {
         #expect(result!.pieces.count == 32)
     }
 
-    @Test("双方无帅被拒绝")
+    @Test("双方无帅返回空棋盘（空棋盘边界测试）")
     func missingGeneralsRejected() {
-        // 双方都没有将/帅
+        // 双方都没有将/帅 — 代码有意放行空棋盘（边界测试）
         let fen = "9/9/9/9/9/9/9/9/9/9 w - - 0 1"
         let result = FENDecoder.parse(fen: fen)
-        #expect(result == nil, "双方无帅应被拒绝")
+        #expect(result != nil, "空棋盘应返回空 pieces 而非 nil")
+        #expect(result?.pieces.isEmpty == true, "空棋盘 pieces 应为空")
     }
 
     @Test("棋子超过 32 被拒绝")

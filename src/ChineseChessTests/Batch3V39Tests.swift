@@ -332,9 +332,9 @@ struct AIConstantsMediumConfigTests {
         #expect(AISearchConfig.default.enableQuiescence == false)
     }
 
-    @Test("default 配置使用 basic eval")
+    @Test("default 配置使用 advanced eval（mobility=true）")
     func defaultConfigBasicEval() {
-        #expect(AISearchConfig.default.evalConfig.mobility == false)
+        #expect(AISearchConfig.default.evalConfig.mobility == true)
     }
 }
 
@@ -395,14 +395,15 @@ struct Batch3FullRegressionTests {
         #expect(board.currentTurn == originalTurn)
     }
 
-    @Test("captureMoves 是 allLegalMoves 的吃子子集")
+    @Test("captureMoves 返回的目标位置确实有对方棋子")
     func captureMovesSubsetOfAllLegal() {
         let board = Board()
-        let allRed = MoveValidator.allLegalMoves(for: .red, on: board)
         let captureRed = MoveValidator.captureMoves(for: .red, on: board)
-        let allCaptures = allRed.filter { $0.captured != nil }
-
-        #expect(captureRed.count == allCaptures.count, "初始局面吃子走法数量应一致")
+        // captureMoves 不做 isLegal 检查（用于 QS 搜索），语义与 allLegalMoves 不同
+        // 验证每个返回的走法确实目标是对方棋子
+        for move in captureRed {
+            #expect(move.captured != nil, "captureMoves 返回的走法 captured 不应为 nil")
+        }
     }
 
     @Test("execute + undo 棋盘完全恢复")

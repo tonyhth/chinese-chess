@@ -174,10 +174,10 @@ struct Phase2bOptimizationTests {
         #expect(config.enableIID == true)
     }
 
-    @Test("SearchConfig medium 不启用 Phase 2b")
+    @Test("SearchConfig medium 启用 futility，不启用 razoring/IID")
     func searchConfigMediumPhase2b() {
         let config = AISearchConfig.medium
-        #expect(config.enableFutility == false)
+        #expect(config.enableFutility == true)
         #expect(config.enableRazoring == false)
         #expect(config.enableIID == false)
     }

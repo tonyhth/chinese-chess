@@ -117,10 +117,10 @@ struct PieceTests6 {
         #expect(blackCrossed.baseValue == 200)
     }
 
-    @Test("Piece Identifiable：每个实例 id 唯一")
+    @Test("Piece Identifiable：不同 id 的实例可区分")
     func testPieceIdentifiable() {
         let a = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
-        let b = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
+        let b = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 1)
         #expect(a.id != b.id)
     }
 

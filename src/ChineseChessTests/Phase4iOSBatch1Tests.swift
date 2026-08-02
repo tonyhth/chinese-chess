@@ -322,10 +322,10 @@ struct ReplayViewEntryTests {
         let masterRank = Rank.master
 
         // 秀才 >= 秀才 → 可分析
-        #expect(scholarRank.rawValue >= Rank.scholar.rawValue, "秀才可使用分析")
+        #expect(scholarRank >= Rank.scholar, "秀才可使用分析")
         // 学童 < 秀才 → 不可分析
-        #expect(studentRank.rawValue < Rank.scholar.rawValue, "学童不可使用分析")
+        #expect(studentRank < Rank.scholar, "学童不可使用分析")
         // 大师 >= 大师 → 可教练
-        #expect(masterRank.rawValue >= Rank.master.rawValue, "大师可使用教练")
+        #expect(masterRank >= Rank.master, "大师可使用教练")
     }
 }
