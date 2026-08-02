@@ -10899,6 +10899,22 @@
           }
         }
       }
+    },
+    "record.scrollForMore": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↓ 向下滚动查看更多"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "↓ Scroll for more"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

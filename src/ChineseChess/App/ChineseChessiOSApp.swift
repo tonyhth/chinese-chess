@@ -242,6 +242,8 @@ struct ChineseChessiOSApp: App {
                                     }
                                 }
                         }
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.visible)
 
                     case .stats:
                         NavigationStack {

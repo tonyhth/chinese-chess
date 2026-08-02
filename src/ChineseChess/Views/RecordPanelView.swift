@@ -54,6 +54,14 @@ struct RecordPanelView: View {
                                 roundRow(pair)
                                     .id(pair.id)
                             }
+                            // P1-4: 棋步数 > 20 时显示滚动提示
+                            if pairs.count > 20 {
+                                Text(l10n.t("record.scrollForMore"))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .padding(.top, 4)
+                            }
                         }
                         .padding(.vertical, 4)
                     }

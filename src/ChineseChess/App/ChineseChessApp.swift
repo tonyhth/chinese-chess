@@ -517,7 +517,7 @@ struct ChineseChessApp: App {
                             copyRecordToClipboard(record)
                         }
                     })
-                    .frame(minWidth: 280, minHeight: 250, maxHeight: 400)
+                    .frame(minWidth: 280, minHeight: 250, maxHeight: 600)
 
                 case .stats:
                     StatsPanelView()
