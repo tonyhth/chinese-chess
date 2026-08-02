@@ -539,7 +539,7 @@ struct R3R1FunctionalTests {
         let board = Board(pieces: [redChariot, redHorse, redGeneral, blackGeneral, blackAdvisor])
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 8, timeLimitMs: 5000)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8, timeLimitMs: 5000)
         #expect(result != nil, "CheckmateSearch 应能找到连将杀路线")
 
         // 备选验证：如果上述局面过于复杂，验证模块本身可正常工作
@@ -553,7 +553,7 @@ struct R3R1FunctionalTests {
             ])
             board2.setCurrentTurn(.red)
             // 红车(1,0)走到(0,0)将军，黑将被将杀
-            let result2 = CheckmateSearch.search(board: board2, for: .red, maxDepth: 4)
+            let result2 = CheckmateSearch.search(board: SearchBoard(from: board2), for: .red, maxDepth: 4)
             #expect(result2 != nil, "单步将杀也应被 CheckmateSearch 找到")
         }
     }

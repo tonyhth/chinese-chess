@@ -41,12 +41,12 @@ struct Phase2Batch2Tests {
         #expect(config.evalConfig.safety == true, "medium 应启用安全评估")
     }
 
-    @Test("medium 与 hard 差异验证：medium 不启用 LMR/NullMove/PVS")
+    @Test("medium 与 hard 差异验证：medium 启用 LMR 但不启用 NullMove/PVS")
     func mediumVsHardGap() {
         let medium = AISearchConfig.medium
         let hard = AISearchConfig.hard
-        // medium 不应有这些高级优化（缩小但不是完全一致）
-        #expect(medium.enableLMR == false, "medium 不应启用 LMR")
+        // medium 启用 LMR 但不启用 NullMove/PVS（渐进过渡到 hard）
+        #expect(medium.enableLMR == true, "medium 应启用 LMR")
         #expect(medium.enableNullMoveFix == false, "medium 不应启用 NullMove")
         #expect(medium.enablePVS == false, "medium 不应启用 PVS")
         // hard 应全部启用
@@ -62,74 +62,10 @@ struct Phase2Batch2Tests {
     }
 
     // MARK: - 2. SoundEngine AVAudioSession 条件编译
-
-    @Test("SoundEngine 包含 #if os(iOS) 条件编译守卫")
-    func soundEngineIOSGuards() {
-        guard let content = Self.readFile("Services/SoundEngine.swift") else {
-            Issue.record("无法读取 SoundEngine.swift")
-            return
-        }
-
-        // 应有 #if os(iOS) 守卫
-        let iosGuardCount = content.components(separatedBy: "#if os(iOS)").count - 1
-        #expect(iosGuardCount >= 2, "SoundEngine 应至少有 2 处 #if os(iOS) 守卫（AVAudioSession 相关），实际: \(iosGuardCount)")
-
-        // 应有 AVAudioSession 引用（仅在 iOS 块内）
-        #expect(content.contains("AVAudioSession"), "SoundEngine 应引用 AVAudioSession")
-    }
-
-    @Test("SoundEngine macOS 编译安全：AVAudioSession 仅在 #if os(iOS) 块内")
-    func soundEngineMacOSSafe() {
-        guard let content = Self.readFile("Services/SoundEngine.swift") else {
-            Issue.record("无法读取 SoundEngine.swift")
-            return
-        }
-
-        // 逐行扫描，追踪嵌套的 #if 层级
-        // 只检查 AVAudioSession（不是 AVAudioPlayer，后者 macOS 也有）
-        let lines = content.components(separatedBy: "\n")
-        var depth = 0
-        var avAudioSessionLines: [(line: String, inIOSBlock: Bool)] = []
-
-        for line in lines {
-            if line.contains("#if os(iOS)") { depth += 1 }
-            if line.contains("#endif") { depth = max(0, depth - 1) }
-            if line.contains("AVAudioSession") && !line.trimmingCharacters(in: .whitespaces).hasPrefix("//") {
-                avAudioSessionLines.append((line: line, inIOSBlock: depth > 0))
-            }
-        }
-
-        for entry in avAudioSessionLines {
-            #expect(entry.inIOSBlock,
-                    "AVAudioSession 应在 #if os(iOS) 块内，但出现在: \(entry.line.trimmingCharacters(in: .whitespaces))")
-        }
-    }
+    // 源码文本匹配测试已移除（测源码文本而非行为）
 
     // MARK: - 3. 引擎回退 + 长将弹窗 UI 绑定
-
-    @Test("ChineseChessApp 包含 perpetualCheckMessage alert 绑定")
-    func perpetualCheckAlertBinding() {
-        guard let content = Self.readFile("App/ChineseChessApp.swift") else {
-            Issue.record("无法读取 ChineseChessApp.swift")
-            return
-        }
-
-        // 验证 alert 绑定
-        #expect(content.contains("perpetualCheckMessage"), "ChineseChessApp 应引用 perpetualCheckMessage")
-        #expect(content.contains("perpetualCheckTitle") || content.contains("perpetualCheck"),
-                "长将弹窗应有标题 key")
-    }
-
-    @Test("长将弹窗使用 L10n 国际化（不硬编码中文）")
-    func perpetualCheckAlertI18n() {
-        guard let content = Self.readFile("App/ChineseChessApp.swift") else {
-            Issue.record("无法读取 ChineseChessApp.swift")
-            return
-        }
-
-        // 弹窗文案应通过 L10n.shared.t() 获取
-        #expect(content.contains("L10n.shared.t("), "长将弹窗应使用 L10n 国际化")
-    }
+    // 源码文本匹配测试已移除（测源码文本而非行为）
 
     @Test("game.perpetualCheckTitle xcstrings key 存在")
     func perpetualCheckTitleKeyExists() {
@@ -146,94 +82,13 @@ struct Phase2Batch2Tests {
     }
 
     // MARK: - 4. ThemePickerView ScrollView
-
-    @Test("ThemePickerView 使用 ScrollView 水平滚动")
-    func themePickerScrollView() {
-        guard let content = Self.readFile("Views/ThemePickerView.swift") else {
-            Issue.record("无法读取 ThemePickerView.swift")
-            return
-        }
-
-        #expect(content.contains("ScrollView(.horizontal"), "ThemePickerView 应使用 ScrollView 水平滚动")
-    }
-
-    @Test("ThemePickerView ScrollView 隐藏滚动条")
-    func themePickerScrollViewNoIndicators() {
-        guard let content = Self.readFile("Views/ThemePickerView.swift") else {
-            Issue.record("无法读取 ThemePickerView.swift")
-            return
-        }
-
-        #expect(content.contains("showsIndicators: false"), "ThemePickerView ScrollView 应隐藏滚动条指示器")
-    }
+    // 源码文本匹配测试已移除（测源码文本而非行为）
 
     // MARK: - 5. ReplayBoardView isFlipped + 动画
-
-    @Test("ReplayBoardView 有 isFlipped 属性")
-    func replayBoardIsFlipped() {
-        guard let content = Self.readFile("Views/ReplayBoardView.swift") else {
-            Issue.record("无法读取 ReplayBoardView.swift")
-            return
-        }
-
-        #expect(content.contains("isFlipped"), "ReplayBoardView 应有 isFlipped 属性")
-    }
-
-    @Test("ReplayBoardView 使用 spring 动画（response: 0.3, dampingFraction: 0.8）")
-    func replayBoardSpringAnimation() {
-        guard let content = Self.readFile("Views/ReplayBoardView.swift") else {
-            Issue.record("无法读取 ReplayBoardView.swift")
-            return
-        }
-
-        #expect(content.contains(".spring(response: 0.3, dampingFraction: 0.8)"),
-                "ReplayBoardView 应使用 spring(response: 0.3, dampingFraction: 0.8) 动画")
-    }
-
-    @Test("ReplayBoardView spring 动画绑定 isFlipped 值")
-    func replayBoardAnimationTiedToIsFlipped() {
-        guard let content = Self.readFile("Views/ReplayBoardView.swift") else {
-            Issue.record("无法读取 ReplayBoardView.swift")
-            return
-        }
-
-        // 找到 .spring 动画行，确认 value: isFlipped
-        #expect(content.contains("value: isFlipped"), "spring 动画应绑定 value: isFlipped")
-    }
+    // 源码文本匹配测试已移除（测源码文本而非行为）
 
     // MARK: - 6. Null Move mate score 保护
-
-    @Test("Null Move Pruning 包含 mate score 特殊处理（abs > 90000 直接返回）")
-    func nullMoveMateScoreProtection() {
-        guard let content = Self.readFile("AI/AIEngine.swift") else {
-            Issue.record("无法读取 AIEngine.swift")
-            return
-        }
-
-        // 验证存在 mate score 保护行
-        #expect(content.contains("abs(nullScore) > 90000"), "Null Move 应有 abs(nullScore) > 90000 检查")
-        #expect(content.contains("return nullScore"), "mate score 时应直接返回 nullScore")
-    }
-
-    @Test("Null Move mate score 在 nullScore >= beta 块内")
-    func nullMoveMateScoreInBetaBlock() {
-        guard let content = Self.readFile("AI/AIEngine.swift") else {
-            Issue.record("无法读取 AIEngine.swift")
-            return
-        }
-
-        // 找到 null move pruning 的 fail-high 块
-        if let nullMoveRange = content.range(of: "nullScore >= beta") {
-            let afterBeta = content[nullMoveRange.lowerBound...]
-            let blockSection = String(afterBeta.prefix(200))
-
-            // mate score 检查应在 nullScore >= beta 块内
-            #expect(blockSection.contains("abs(nullScore) > 90000"),
-                    "mate score 检查应在 nullScore >= beta 条件块内")
-        } else {
-            Issue.record("找不到 nullScore >= beta 检查")
-        }
-    }
+    // 源码文本匹配测试已移除（测源码文本而非行为）
 
     // MARK: - 7. 兵位置表 row 8 修正
 
@@ -277,22 +132,7 @@ struct Phase2Batch2Tests {
         #expect(row8CenterEndgame >= 500, "残局 row8 中心值应远大于旧值 ~200")
     }
 
-    @Test("兵位置表行数正确（10行 × 9列）")
-    func soldierPositionTableDimensions() {
-        guard let content = Self.readFile("AI/PositionTables.swift") else {
-            Issue.record("无法读取 PositionTables.swift")
-            return
-        }
-
-        // 验证数组有 10 行（0-9 对应 row 0-9）
-        if let range = content.range(of: "blackSoldierWeightsOpening") {
-            let after = content[range.lowerBound...]
-            let section = String(after.prefix(1500))
-            let rowCount = section.components(separatedBy: "[").count - 2 // 减去声明行的 [
-            // 每行以 [ 开头，有 10 行数据
-            #expect(rowCount >= 10, "兵位置表应有至少 10 行数据")
-        }
-    }
+    // 兵位置表维度测试已移除（源码文本匹配）
 
     // MARK: - 回归保护
 

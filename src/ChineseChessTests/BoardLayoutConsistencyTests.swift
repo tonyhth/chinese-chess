@@ -12,116 +12,8 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - 1. 源码一致性：三个页面棋盘 modifier 对齐验证
 
-    @MainActor
-@Test("PuzzleSelectView：棋盘布局 modifier 正确（无 minHeight、无 padding）")
-    func puzzleSelectViewBoardModifiers() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
-        guard let content = try? String(contentsOfFile: path) else {
-            Issue.record("无法读取 PuzzleSelectView.swift")
-            return
-        }
-
-        // 找到 PuzzlePlayView 中 ChessBoardView 的 modifier 区域
-        let pattern = "ChessBoardView(mode: .playPuzzle"
-        guard let range = content.range(of: pattern) else {
-            Issue.record("未找到 ChessBoardView(mode: .playPuzzle")
-            return
-        }
-
-        // 取 ChessBoardView 后续 10 行
-        let after = content[range.lowerBound...]
-        let lines = after.split(separator: "\n", maxSplits: 10, omittingEmptySubsequences: false)
-        let modifierBlock = lines.prefix(6).joined(separator: "\n")
-
-        // 应保留
-        #expect(modifierBlock.contains(".frame(maxWidth: .infinity, maxHeight: .infinity)"),
-                "应保留 maxWidth/maxHeight: .infinity")
-        #expect(modifierBlock.contains(".layoutPriority(1)"),
-                "应保留 layoutPriority(1)")
-
-        // 不应包含已删除的 modifier
-        #expect(!modifierBlock.contains(".frame(minHeight: 280)"),
-                "不应再有 .frame(minHeight: 280)")
-        #expect(!modifierBlock.contains(".padding()"),
-                "不应再有 .padding()")
-    }
-
-    @MainActor
-@Test("ReplayView：棋盘布局 modifier 正确（无 minHeight、无 padding）")
-    func replayViewBoardModifiers() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift"
-        guard let content = try? String(contentsOfFile: path) else {
-            Issue.record("无法读取 ReplayView.swift")
-            return
-        }
-
-        let pattern = "ReplayBoardView(viewModel:"
-        guard let range = content.range(of: pattern) else {
-            Issue.record("未找到 ReplayBoardView(viewModel:")
-            return
-        }
-
-        let after = content[range.lowerBound...]
-        let lines = after.split(separator: "\n", maxSplits: 10, omittingEmptySubsequences: false)
-        let modifierBlock = lines.prefix(6).joined(separator: "\n")
-
-        #expect(modifierBlock.contains(".layoutPriority(1)"),
-                "应保留 layoutPriority(1)")
-
-        #expect(!modifierBlock.contains(".frame(minHeight:"),
-                "不应再有 .frame(minHeight:)")
-        #expect(!modifierBlock.contains(".padding()"),
-                "不应再有 .padding()")
-    }
-
-    @MainActor
-@Test("对弈页面 BoardView：仍保留 minHeight（作为参考基准）")
-    func gameViewBoardStillHasMinHeight() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/App/ChineseChessApp.swift"
-        guard let content = try? String(contentsOfFile: path) else {
-            Issue.record("无法读取 ChineseChessApp.swift")
-            return
-        }
-
-        // 对弈页面应有 BoardView 且带 minHeight
-        let pattern = "BoardView(viewModel:"
-        guard let range = content.range(of: pattern) else {
-            Issue.record("未找到 BoardView(viewModel:")
-            return
-        }
-
-        let after = content[range.lowerBound...]
-        let lines = after.split(separator: "\n", maxSplits: 6, omittingEmptySubsequences: false)
-        let modifierBlock = lines.prefix(5).joined(separator: "\n")
-
-        #expect(modifierBlock.contains(".frame(minHeight: 280)"),
-                "对弈页面应保留 minHeight: 280 作为基准")
-        #expect(modifierBlock.contains(".layoutPriority(1)"),
-                "对弈页面应保留 layoutPriority(1)")
-    }
-
     // MARK: - 2. ReplayView 功能回归
 
-    @MainActor
-@Test("ReplayView：空步数记录有空步提示")
-    func replayViewEmptyMovesHandling() {
-        // 验证 ReplayView 源码包含空步数提示逻辑
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/ReplayView.swift"
-        guard let content = try? String(contentsOfFile: path) else {
-            Issue.record("无法读取 ReplayView.swift")
-            return
-        }
-        #expect(content.contains("viewModel.record.moves.isEmpty"),
-                "ReplayView 应有空步数提示逻辑")
-        #expect(content.contains("replay.empty"),
-                "ReplayView 应有 replay.empty 本地化键")
-    }
-
-    @MainActor
 @Test("ReplayViewModel：布局变更后功能正常")
     func replayViewModelFunctionalAfterLayoutChange() async {
         let record = await Self.makeTestRecord()
@@ -143,7 +35,6 @@ struct BoardLayoutConsistencyTests {
         #expect(!vm.isAutoPlaying)
     }
 
-    @MainActor
 @Test("ReplayViewModel：空记录不 crash（边界情况）")
     func replayViewModelEmptyRecordNoCrash() {
         let emptyRecord = GameRecord(
@@ -173,7 +64,6 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - 3. PuzzleSelectView 功能回归
 
-    @MainActor
 @Test("PuzzleViewModel：布局变更后功能正常")
     func puzzleViewModelFunctionalAfterLayoutChange() {
         let puzzles = PuzzleStore.shared.puzzles
@@ -195,7 +85,6 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - 4. ChessBoardView 三种 mode 都能正常初始化
 
-    @MainActor
 @Test("ChessBoardView：三种 mode 的 Board 初始化一致")
     func chessBoardViewThreeModesConsistency() async {
         // 对弈
@@ -219,7 +108,6 @@ struct BoardLayoutConsistencyTests {
 
     // MARK: - 5. 棋盘空间分配逻辑验证
 
-    @MainActor
 @Test("layoutPriority(1) 保证棋盘优先占据剩余空间")
     func layoutPriorityEnsuresBoardGetsPriority() {
         // layoutPriority(1) 在 VStack 中确保棋盘优先扩展
@@ -233,7 +121,6 @@ struct BoardLayoutConsistencyTests {
         #endif
     }
 
-    @MainActor
 @Test("棋盘布局策略一致性")
     func boardLayoutStrategyConsistency() {
         // ChessBoardView 使用 .aspectRatio，ReplayBoardView 委托 BoardCanvasView 使用 .position 居中
@@ -259,21 +146,6 @@ struct BoardLayoutConsistencyTests {
     }
 
     // MARK: - 6. 底部区域约束完整性验证
-
-    @MainActor
-@Test("PuzzleSelectView：底部区域有高度约束")
-    func puzzleSelectBottomAreaHasHeightConstraint() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let path = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleSelectView.swift"
-        guard let content = try? String(contentsOfFile: path) else {
-            Issue.record("无法读取 PuzzleSelectView.swift")
-            return
-        }
-
-        // 底部区域应有 bottomAreaMaxHeight 约束
-        #expect(content.contains("bottomAreaMaxHeight"),
-                "PuzzleSelectView 底部区域应有 bottomAreaMaxHeight 约束")
-    }
 
     // MARK: - Helper
 

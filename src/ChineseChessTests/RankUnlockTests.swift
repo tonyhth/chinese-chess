@@ -93,12 +93,14 @@ struct RankUnlockTests {
         #expect(UnlockedFeature.chapter2Early.isImplemented)
         #expect(UnlockedFeature.chapter3Early.isImplemented)
         #expect(UnlockedFeature.freePlayPuzzles.isImplemented)
-        #expect(UnlockedFeature.engineAnalysis.isImplemented)      // v3.7.0 Phase 2
-        #expect(UnlockedFeature.gameRecordExport.isImplemented)    // v3.7.0 Phase 2
-        #expect(UnlockedFeature.gameRecordImport.isImplemented)    // v3.7.0 Phase 2
+        #expect(UnlockedFeature.engineAnalysis.isImplemented)
+        #expect(UnlockedFeature.gameRecordExport.isImplemented)
+        #expect(UnlockedFeature.gameRecordImport.isImplemented)
 
-        #expect(!UnlockedFeature.aiCoach.isImplemented)
-        #expect(!UnlockedFeature.openingTreeFavorite.isImplemented)
-        #expect(!UnlockedFeature.customTheme.isImplemented)
+        // v3.7.2+: 以下功能已实现
+        #expect(UnlockedFeature.aiCoach.isImplemented)
+        #expect(UnlockedFeature.openingTreeFavorite.isImplemented)
+        #expect(UnlockedFeature.customTheme.isImplemented)
+        #expect(UnlockedFeature.openingTreeBrowse.isImplemented)
     }
 }

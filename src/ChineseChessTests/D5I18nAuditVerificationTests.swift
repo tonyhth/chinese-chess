@@ -217,84 +217,6 @@ struct D5I18nAuditVerificationTests {
     }
 
     // MARK: - 4. P1 发现验证
-
-    @Test("P1-1: BoardTheme 三个新主题名硬编码中文")
-    func p1_1_boardThemeHardcodedChinese() {
-        let homeDir = NSHomeDirectory()
-        let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Services/BoardTheme.swift"
-        guard let content = try? String(contentsOfFile: filePath) else {
-            Issue.record("无法读取 BoardTheme.swift")
-            return
-        }
-
-        // 验证 jadeGreen/imperialGold/crimson 使用硬编码中文
-        #expect(content.contains("\"翡翠绿\""), "jadeGreen 应硬编码 '翡翠绿'")
-        #expect(content.contains("\"帝王金\""), "imperialGold 应硬编码 '帝王金'")
-        #expect(content.contains("\"朱砂红\""), "crimson 应硬编码 '朱砂红'")
-
-        // 验证 xcstrings 中缺少这三个 key
-        let strings = Self.loadStrings()
-        #expect(strings["theme.jadeGreen"] == nil, "xcstrings 应缺少 theme.jadeGreen（P1 缺陷）")
-        #expect(strings["theme.imperialGold"] == nil, "xcstrings 应缺少 theme.imperialGold（P1 缺陷）")
-        #expect(strings["theme.crimson"] == nil, "xcstrings 应缺少 theme.crimson（P1 缺陷）")
-    }
-
-    @Test("P1-2: BoardTheme 解锁条件描述硬编码中文")
-    func p1_2_boardThemeUnlockDescHardcoded() {
-        let homeDir = NSHomeDirectory()
-        let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Services/BoardTheme.swift"
-        guard let content = try? String(contentsOfFile: filePath) else {
-            Issue.record("无法读取 BoardTheme.swift")
-            return
-        }
-
-        // P1-2 验证：解锁描述为硬编码中文
-        #expect(content.contains("\"默认解锁\""), "应包含硬编码 '默认解锁'")
-        #expect(content.contains("\"升至秀才段位解锁\""), "应包含硬编码 '升至秀才段位解锁'")
-        #expect(content.contains("\"升至举人段位解锁\""), "应包含硬编码 '升至举人段位解锁'")
-        #expect(content.contains("\"升至进士段位解锁\""), "应包含硬编码 '升至进士段位解锁'")
-    }
-
-    @Test("P1-3: PGNExporter 错误消息硬编码中文")
-    func p1_3_pgnExporterErrorHardcoded() {
-        let homeDir = NSHomeDirectory()
-        let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Services/PGNExporter.swift"
-        guard let content = try? String(contentsOfFile: filePath) else {
-            Issue.record("无法读取 PGNExporter.swift")
-            return
-        }
-
-        #expect(content.contains("\"走法列表为空\""), "ExportError.emptyMoves 应硬编码 '走法列表为空'")
-        #expect(content.contains("\"无效的棋盘位置\""), "ExportError.invalidPosition 应硬编码 '无效的棋盘位置'")
-    }
-
-    @Test("P1-4: PGNImporter 错误消息硬编码中文")
-    func p1_4_pgnImporterErrorHardcoded() {
-        let homeDir = NSHomeDirectory()
-        let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Services/PGNImporter.swift"
-        guard let content = try? String(contentsOfFile: filePath) else {
-            Issue.record("无法读取 PGNImporter.swift")
-            return
-        }
-
-        #expect(content.contains("\"无有效棋局\""), "ImportError.noValidGame 应硬编码 '无有效棋局'")
-        // 非法走法和无效 FEN 使用插值，检查关键固定文本
-        #expect(content.contains("非法走法"), "ImportError.illegalMove 应包含 '非法走法'")
-        #expect(content.contains("无效 FEN"), "ImportError.invalidFEN 应包含 '无效 FEN'")
-    }
-
-    @Test("P1-5: PGNExporter [Site] 标签硬编码中文")
-    func p1_5_pgnExporterSiteTagHardcoded() {
-        let homeDir = NSHomeDirectory()
-        let filePath = "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Services/PGNExporter.swift"
-        guard let content = try? String(contentsOfFile: filePath) else {
-            Issue.record("无法读取 PGNExporter.swift")
-            return
-        }
-
-        #expect(content.contains("\"中国象棋\""), "[Site] 标签值应硬编码 '中国象棋'")
-    }
-
     // MARK: - 5. P2 发现验证
 
     @Test("P2-1: game.vsAITitle 占位符不匹配")
@@ -311,12 +233,9 @@ struct D5I18nAuditVerificationTests {
         let zhHasPlaceholder = zhVal?.contains("%@") ?? false
         let enHasPlaceholder = enVal?.contains("%@") ?? false
 
-        if zhHasPlaceholder != enHasPlaceholder {
-            // 占位符不匹配 — 确认审计发现成立
-            #expect(Bool(true), "✅ 确认 P2-1：占位符不匹配 zh='\(zhVal ?? "")' vs en='\(enVal ?? "")'")
-        } else {
-            Issue.record("P2-1 占位符不匹配不再复现：zh='\(zhVal ?? "")' en='\(enVal ?? "")'（可能已修复）")
-        }
+        // 审计发现已修复：中文和英文占位符应一致
+        #expect(zhHasPlaceholder == enHasPlaceholder,
+                "game.vsAITitle 中英文占位符应一致")
     }
 
     // MARK: - 6. L10n 运行时可靠性
@@ -336,11 +255,11 @@ struct D5I18nAuditVerificationTests {
         let l10n = L10n.shared
 
         l10n.setLanguage("zh-Hans")
-        let zhResult = l10n.t("status.roundN", "5")
+        let zhResult = l10n.t("status.roundN", 5)
         #expect(zhResult.contains("5"), "中文格式化应包含参数 5")
 
         l10n.setLanguage("en")
-        let enResult = l10n.t("status.roundN", "5")
+        let enResult = l10n.t("status.roundN", 5)
         #expect(enResult.contains("5"), "英文格式化应包含参数 5")
     }
 

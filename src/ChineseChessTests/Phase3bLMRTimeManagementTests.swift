@@ -177,11 +177,11 @@ struct Phase3bLMRTimeManagementTests {
 
     @Test("forDifficulty：不传 board 时用基础时间")
     func timeManagerDefaultTime() {
-        let hardTm = TimeManager.forDifficulty(.hard, isIOS: false)
+        let hardTm = TimeManager.forDifficulty(.hard, isIOS: false, board: nil as Board?)
         #expect(hardTm != nil)
         #expect(hardTm!.timeLimitMs == 5000)
 
-        let masterTm = TimeManager.forDifficulty(.master, isIOS: false)
+        let masterTm = TimeManager.forDifficulty(.master, isIOS: false, board: nil as Board?)
         #expect(masterTm != nil)
         #expect(masterTm!.timeLimitMs == 10000)
     }
@@ -198,18 +198,18 @@ struct Phase3bLMRTimeManagementTests {
 
     @Test("forDifficulty：iOS 时间低于 macOS")
     func timeManagerIOSLessTime() {
-        let macTm = TimeManager.forDifficulty(.master, isIOS: false)!
-        let iosTm = TimeManager.forDifficulty(.master, isIOS: true)!
+        let macTm = TimeManager.forDifficulty(.master, isIOS: false, board: nil as Board?)!
+        let iosTm = TimeManager.forDifficulty(.master, isIOS: true, board: nil as Board?)!
         #expect(iosTm.timeLimitMs <= macTm.timeLimitMs,
                "iOS 时间应 ≤ macOS: iOS=\(iosTm.timeLimitMs), macOS=\(macTm.timeLimitMs)")
     }
 
     @Test("forDifficulty：beginner/easy 返回 nil（无时间限制）；medium 有时间限制（v2.2.17 Bug4 修复）")
     func timeManagerNoTimeLimit() {
-        #expect(TimeManager.forDifficulty(.beginner) == nil)
-        #expect(TimeManager.forDifficulty(.easy) == nil)
-        #expect(TimeManager.forDifficulty(.medium) != nil)
-        #expect(TimeManager.forDifficulty(.medium)!.timeLimitMs == 3000)
+        #expect(TimeManager.forDifficulty(.beginner, board: nil as Board?) == nil)
+        #expect(TimeManager.forDifficulty(.easy, board: nil as Board?) == nil)
+        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?) != nil)
+        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?)!.timeLimitMs == 3000)
     }
 
     // MARK: - SmartTime 仅 master 启用

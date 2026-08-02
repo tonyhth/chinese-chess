@@ -16,7 +16,7 @@ struct P1aRegressionTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 12, timeLimitMs: 5000)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 12, timeLimitMs: 5000)
         // 如果找到将杀，验证走法序列合法性
         if let moves = result, !moves.isEmpty {
             let firstMove = moves[0]
@@ -35,7 +35,7 @@ struct P1aRegressionTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 10, timeLimitMs: 5000)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 10, timeLimitMs: 5000)
         // 深度 10 可能不够双車杀将，但至少不 crash
         if let moves = result, !moves.isEmpty {
             let firstMove = moves[0]
@@ -52,7 +52,7 @@ struct P1aRegressionTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 12, timeLimitMs: 5000)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 12, timeLimitMs: 5000)
         // 車炮杀可能需要较长序列，至少不应 crash
         _ = result
     }
@@ -66,7 +66,7 @@ struct P1aRegressionTests {
             Issue.record("FEN 解析失败")
             return
         }
-        guard let moves = CheckmateSearch.search(board: board, for: .red, maxDepth: 8, timeLimitMs: 3000) else {
+        guard let moves = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8, timeLimitMs: 3000) else {
             Issue.record("車帅 vs 单将未找到将杀")
             return
         }

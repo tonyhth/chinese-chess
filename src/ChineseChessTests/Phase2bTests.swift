@@ -16,7 +16,7 @@ struct CheckmateSearchTests {
         let board = Board(pieces: [rg, bg, rc])
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 8)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8)
         #expect(result != nil)
         if let moves = result {
             #expect(!moves.isEmpty)
@@ -32,7 +32,7 @@ struct CheckmateSearchTests {
         let board = Board(pieces: [rg, bg, rc1, rc2])
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 8)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8)
         #expect(result != nil)
     }
 
@@ -42,7 +42,7 @@ struct CheckmateSearchTests {
         let board = Board()
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 4)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 4)
         // 初始局面 depth=4 内不太可能有连将杀
         // 不做严格断言，只验证不崩溃
         _ = result
@@ -53,7 +53,7 @@ struct CheckmateSearchTests {
         let board = Board()
         board.setCurrentTurn(.red)
         // 极短超时
-        let result = CheckmateSearch.search(board: board, for: .red, maxDepth: 12, timeLimitMs: 1)
+        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 12, timeLimitMs: 1)
         // 超时应安全退出
         _ = result
     }
@@ -191,22 +191,22 @@ struct TimeManagerTests {
 
     @Test("beginner/easy 无时间管理；medium 有时间限制（v2.2.17 Bug4 修复）")
     func noTimeManagerForLowerDifficulty() {
-        #expect(TimeManager.forDifficulty(.beginner) == nil)
-        #expect(TimeManager.forDifficulty(.easy) == nil)
-        #expect(TimeManager.forDifficulty(.medium) != nil)
-        #expect(TimeManager.forDifficulty(.medium)!.timeLimitMs == 3000)
+        #expect(TimeManager.forDifficulty(.beginner, board: nil as Board?) == nil)
+        #expect(TimeManager.forDifficulty(.easy, board: nil as Board?) == nil)
+        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?) != nil)
+        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?)!.timeLimitMs == 3000)
     }
 
     @Test("hard 有 5 秒限制")
     func hardTimeLimit() {
-        let tm = TimeManager.forDifficulty(.hard)
+        let tm = TimeManager.forDifficulty(.hard, board: nil as Board?)
         #expect(tm != nil)
         #expect(tm!.timeLimitMs == 5000)
     }
 
     @Test("master 有 10 秒限制")
     func masterTimeLimit() {
-        let tm = TimeManager.forDifficulty(.master)
+        let tm = TimeManager.forDifficulty(.master, board: nil as Board?)
         #expect(tm != nil)
         #expect(tm!.timeLimitMs == 10000)
     }

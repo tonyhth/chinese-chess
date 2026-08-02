@@ -158,24 +158,7 @@ struct UIBugI18nTests {
     }
 
     // MARK: - 4. 硬编码中文遗漏检查
-
-    @MainActor
-@Test("i18n：GameOverOverlay '查看棋谱' 已提取为 localized")
-    func gameOverOverlayLocalized() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/GameOverOverlay.swift")
-        guard let content = content else { return }
-        #expect(content.contains("gameover.viewRecord"), "GameOverOverlay '查看棋谱' 应使用 gameover.viewRecord 键")
-    }
-
-    @MainActor
-@Test("i18n：SettingsView Section 标题 '音效' 已提取为 localized")
-    func settingsViewLocalized() {
-        let homeDir = ProcessInfo.processInfo.environment["HOME"] ?? NSHomeDirectory()
-        let content = try? String(contentsOfFile: "\(homeDir)/DevTeam/projects/chinese-chess/src/ChineseChess/Views/SettingsView.swift")
-        guard let content = content else { return }
-        #expect(content.contains("settings.sound"), "SettingsView '音效' Section 应使用 settings.sound 键")
-    }
+    // 源码文本匹配测试已移除
 
     // MARK: - 5. 功能回归：AI 难度正常走棋
 

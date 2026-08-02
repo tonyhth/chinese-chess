@@ -8,21 +8,21 @@ struct Phase5Tests {
     // MARK: - TutorialViewModel 测试
 
     @MainActor
-@Test("教程包含 5 步课程")
+@Test("教程包含 9 步课程")
     func tutorialHasFiveLessons() {
         let vm = TutorialViewModel()
-        #expect(vm.lessons.count == 5, "应有 5 步教程")
+        #expect(vm.lessons.count == 9, "应有 9 步教程")
     }
 
     @MainActor
 @Test("课程标题正确")
     func lessonTitlesCorrect() {
         let vm = TutorialViewModel()
-        #expect(vm.lessons[0].titleKey == "tutorial.0.title")
-        #expect(vm.lessons[1].titleKey == "tutorial.1.title")
-        #expect(vm.lessons[2].titleKey == "tutorial.2.title")
-        #expect(vm.lessons[3].titleKey == "tutorial.3.title")
-        #expect(vm.lessons[4].titleKey == "tutorial.4.title")
+        #expect(vm.lessons[0].titleKey == "tutorial.lesson0.title")
+        #expect(vm.lessons[1].titleKey == "tutorial.lesson1.title")
+        #expect(vm.lessons[2].titleKey == "tutorial.lesson2.title")
+        #expect(vm.lessons[3].titleKey == "tutorial.lesson3.title")
+        #expect(vm.lessons[4].titleKey == "tutorial.lesson4.title")
     }
 
     @MainActor
@@ -57,9 +57,9 @@ struct Phase5Tests {
 @Test("下一课不越界（最后一课不能再进）")
     func nextLessonAtLast() {
         let vm = TutorialViewModel()
-        vm.currentLesson = 4
+        vm.currentLesson = vm.lessons.count - 1
         vm.nextLesson()
-        #expect(vm.currentLesson == 4)
+        #expect(vm.currentLesson == vm.lessons.count - 1)
     }
 
     @MainActor
@@ -67,7 +67,7 @@ struct Phase5Tests {
     func isLastLesson() {
         let vm = TutorialViewModel()
         #expect(vm.isLastLesson == false)
-        vm.currentLesson = 4
+        vm.currentLesson = vm.lessons.count - 1
         #expect(vm.isLastLesson == true)
     }
 
@@ -76,9 +76,9 @@ struct Phase5Tests {
     func specialRulesMentionStalemate() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
-        // 验证 lesson 3 对应 tutorial.3 description key
-        #expect(lesson.descriptionKey == "tutorial.3.description")
-        #expect(lesson.titleKey == "tutorial.3.title")
+        // lesson 3 现在是走子练习
+        #expect(lesson.descriptionKey == "tutorial.lesson3.description")
+        #expect(lesson.titleKey == "tutorial.lesson3.title")
     }
 
     @MainActor
@@ -87,8 +87,8 @@ struct Phase5Tests {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
         // 验证 lesson 3 subtitle 和 title 正确对应特殊规则主题
-        #expect(lesson.subtitleKey == "tutorial.3.subtitle")
-        #expect(lesson.icon == "book")
+        #expect(lesson.subtitleKey == "tutorial.lesson3.subtitle")
+        #expect(lesson.icon == "arrow.up.arrow.down")
     }
 
     // MARK: - 教程完成状态
