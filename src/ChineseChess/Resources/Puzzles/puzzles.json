@@ -581,7 +581,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_016",
@@ -613,7 +614,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_017",
@@ -637,7 +639,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_018",
@@ -683,7 +686,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_019",
@@ -948,7 +952,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_026",
@@ -1016,7 +1021,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_028",
@@ -1404,7 +1410,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_039",
@@ -1457,7 +1464,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_041",
@@ -1860,7 +1868,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_054",
@@ -1956,7 +1965,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_057",
@@ -2009,7 +2019,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_059",
@@ -2192,7 +2203,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_065",
@@ -2515,7 +2527,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_075",
@@ -2541,7 +2554,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_076",
@@ -2625,7 +2639,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_078",
@@ -2754,7 +2769,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_081",
@@ -2957,7 +2973,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_088",
@@ -2999,7 +3016,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_089",
@@ -3331,7 +3349,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_100",
@@ -3384,7 +3403,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_102",
@@ -3412,7 +3432,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_103",
@@ -3637,7 +3658,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_110",
@@ -3896,7 +3918,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_118",
@@ -4586,7 +4609,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_142",
@@ -4641,7 +4665,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_144",
@@ -4807,7 +4832,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_149",
@@ -5326,7 +5352,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_166",
@@ -5583,7 +5610,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_175",
@@ -5684,7 +5712,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_178",
@@ -5706,7 +5735,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_179",
@@ -5848,7 +5878,8 @@
       "hints": null,
       "maxMoves": 25,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_184",
@@ -6004,7 +6035,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_189",
@@ -6341,7 +6373,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_202",
@@ -6455,7 +6488,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_205",
@@ -6857,7 +6891,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_217",
@@ -6895,7 +6930,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_218",
@@ -6921,7 +6957,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_219",
@@ -7073,7 +7110,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_224",
@@ -7216,7 +7254,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_229",
@@ -7406,7 +7445,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_236",
@@ -7451,7 +7491,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_238",
@@ -7590,7 +7631,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_243",
@@ -7618,7 +7660,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_244",
@@ -7646,7 +7689,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_245",
@@ -7662,7 +7706,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_246",
@@ -7692,7 +7737,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_247",
@@ -7744,7 +7790,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_249",
@@ -7983,7 +8030,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_257",
@@ -8015,7 +8063,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_258",
@@ -8083,7 +8132,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_261",
@@ -8158,7 +8208,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_264",
@@ -8293,7 +8344,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_269",
@@ -8319,7 +8371,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_270",
@@ -8602,7 +8655,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_280",
@@ -8897,7 +8951,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_292",
@@ -8951,7 +9006,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_294",
@@ -9071,7 +9127,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_298",
@@ -9156,7 +9213,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_301",
@@ -9180,7 +9238,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_302",
@@ -9206,7 +9265,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_303",
@@ -9647,7 +9707,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_318",
@@ -9695,7 +9756,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_319",
@@ -9746,7 +9808,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_321",
@@ -9974,7 +10037,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_329",
@@ -10060,7 +10124,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_332",
@@ -10179,7 +10244,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_336",
@@ -10370,7 +10436,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_343",
@@ -10420,7 +10487,8 @@
       "hints": null,
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_345",
@@ -10518,7 +10586,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_348",
@@ -10748,7 +10817,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_354",
@@ -10778,7 +10848,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_355",
@@ -11056,7 +11127,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_364",
@@ -11080,7 +11152,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_365",
@@ -11104,7 +11177,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_366",
@@ -11128,7 +11202,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_367",
@@ -11296,7 +11371,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_373",
@@ -11318,7 +11394,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_374",
@@ -11474,7 +11551,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_379",
@@ -11568,7 +11646,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_383",
@@ -11657,7 +11736,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_386",
@@ -11735,7 +11815,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_388",
@@ -11973,7 +12054,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_394",
@@ -13974,7 +14056,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_462",
@@ -14192,7 +14275,8 @@
       "hints": null,
       "maxMoves": 30,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "弃子攻杀"
     },
     {
       "id": "sqyq_469",
@@ -14382,7 +14466,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_476",
@@ -14583,7 +14668,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "杀势"
     },
     {
       "id": "sqyq_484",
@@ -14601,7 +14687,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_485",
@@ -15474,7 +15561,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "tacticalGroup": "困毙"
     },
     {
       "id": "sqyq_527",
