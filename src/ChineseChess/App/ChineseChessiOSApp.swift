@@ -257,8 +257,7 @@ struct ChineseChessiOSApp: App {
 
                     case .puzzles:
                         NavigationStack {
-                            PuzzleSelectView()
-                                .navigationTitle(L10n.shared.t("puzzle.title"))
+                            ChapterSelectView()
                                 .navigationBarTitleDisplayMode(.inline)
                                 .toolbar {
                                     ToolbarItem(placement: .confirmationAction) {
