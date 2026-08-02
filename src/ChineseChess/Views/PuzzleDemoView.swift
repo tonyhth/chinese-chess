@@ -442,10 +442,72 @@ struct PuzzleDemoView: View {
 
     // MARK: - iOS 布局
 
+    /// iOS 棋谱面板展开状态
+    @State private var showIOSRecordPanel: Bool = false
+
     private func iosLayout(viewModel vm: DemoViewModel) -> some View {
         VStack(spacing: 0) {
             mainContent(viewModel: vm)
+            
+            // Phase D: iOS 棋谱回放面板（可折叠）
+            iosRecordPanel(viewModel: vm)
         }
+    }
+
+    // MARK: - iOS 棋谱面板（Phase D）
+
+    @ViewBuilder
+    private func iosRecordPanel(viewModel: DemoViewModel) -> some View {
+        VStack(spacing: 0) {
+            Divider()
+            iosRecordHeader(viewModel: viewModel)
+            if showIOSRecordPanel {
+                iosRecordContent(viewModel: viewModel)
+            }
+        }
+    }
+
+    private func iosRecordHeader(viewModel: DemoViewModel) -> some View {
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                showIOSRecordPanel.toggle()
+            }
+        }) {
+            HStack {
+                Image(systemName: showIOSRecordPanel ? "chevron.down" : "chevron.up")
+                    .font(.caption2)
+                Text(L10n.shared.t("demo.recordPanel"))
+                    .font(.caption)
+                Spacer()
+                Text("\(viewModel.currentIndex + 1)/\(viewModel.totalSteps)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(.bar)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func iosRecordContent(viewModel: DemoViewModel) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(Array(viewModel.moveNotations.enumerated()), id: \.offset) { idx, notation in
+                    HStack(spacing: 8) {
+                        Text("\(idx / 2 + 1).")
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.secondary)
+                            .frame(width: 24, alignment: .trailing)
+                        Text(notation)
+                            .font(.caption)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+        }
+        .frame(maxHeight: 200)
     }
 
     // MARK: - 主内容区（播放模式）

@@ -72,6 +72,15 @@ class DemoViewModel {
     /// 解析后的有效步数
     var validStepCount: Int { boardPlayer.totalSteps }
 
+    /// Phase D: 走法文本列表（用于 iOS 棋谱面板）
+    var moveNotations: [String] {
+        moves.enumerated().map { idx, move in
+            // 使用 ICCS 格式（列字母+行号）
+            let side = move.piece.side == .red ? "红" : "黑"
+            return "\(side)\(UCIMoveConverter.uciString(from: move))"
+        }
+    }
+
     // MARK: - Demo 特有状态
 
     private(set) var playState: DemoPlayState = .idle
