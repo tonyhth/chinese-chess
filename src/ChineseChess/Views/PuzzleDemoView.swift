@@ -91,6 +91,11 @@ struct PuzzleDemoView: View {
             }
         }
         .frame(minWidth: 720, minHeight: 520)
+        .onChange(of: selectedCategory) { _, _ in
+            selectedTacticalGroup = nil
+            currentPage = 1
+            rebuildListCache()
+        }
         #else
         Group {
         // iOS 三级导航：分类列表 → 子分类列表（如有） → 条目列表
@@ -344,11 +349,6 @@ struct PuzzleDemoView: View {
                     }
                 }
             }
-        }
-        .onChange(of: selectedCategory) { _, _ in
-            selectedTacticalGroup = nil
-            currentPage = 1
-            rebuildListCache()
         }
     }
 
