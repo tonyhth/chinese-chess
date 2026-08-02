@@ -45,17 +45,17 @@ final class PhaseA2TacticalGroupTests: XCTestCase {
         }
     }
 
-    /// 验证 puzzles.json 中非车马炮类条目 tacticalGroup 为 nil
+    /// 验证 puzzles.json 中非车马炮类/车炮类条目 tacticalGroup 为 nil
     func testPuzzlesJsonNoTacticalGroupForOtherCategories() {
         let store = PuzzleStore.shared
-        let categoriesWithTacticalGroup = ["车马炮类"]
+        let categoriesWithTacticalGroup: Set<String> = ["车马炮类", "车炮类"]
 
         for cat in store.demoCategories {
-            guard !categoriesWithTacticalGroup.contains(cat) else { continue }
+            guard !categoriesWithTacticalGroup.contains(cat) else { continue }  // 车马炮类+车炮类有标注
             let puzzles = store.demoPuzzles(byCategory: cat)
             for puzzle in puzzles {
                 XCTAssertNil(puzzle.tacticalGroup,
-                             "非车马炮类 '\(cat)' 的残局 '\(puzzle.id)' tacticalGroup 应为 nil")
+                             "非车马炮类/车炮类 '\(cat)' 的残局 '\(puzzle.id)' tacticalGroup 应为 nil")
             }
         }
     }
@@ -146,14 +146,15 @@ final class PhaseA2TacticalGroupTests: XCTestCase {
                        "车马炮类应包含所有 5 个战术子分类，实际: \(groups)")
     }
 
-    /// 验证非车马炮类无战术子分类
+    /// 验证非车马炮类/车炮类无战术子分类
     func testDemoTacticalGroupsEmptyForOtherCategories() {
         let store = PuzzleStore.shared
+        let categoriesWithTacticalGroup: Set<String> = ["车马炮类", "车炮类"]
         for cat in store.demoCategories {
-            guard cat != "车马炮类" else { continue }
+            guard !categoriesWithTacticalGroup.contains(cat) else { continue }
             let groups = store.demoTacticalGroups(forCategory: cat)
             XCTAssertTrue(groups.isEmpty,
-                           "非车马炮类 '\(cat)' 不应有战术子分类")
+                           "非车马炮类/车炮类 '\(cat)' 不应有战术子分类")
         }
     }
 
@@ -214,11 +215,14 @@ final class PhaseA2TacticalGroupTests: XCTestCase {
         let store = PuzzleStore.shared
         XCTAssertTrue(store.hasTacticalGroups(forCategory: "车马炮类"),
                        "车马炮类 hasTacticalGroups 应为 true")
+        XCTAssertTrue(store.hasTacticalGroups(forCategory: "车炮类"),
+                       "车炮类 hasTacticalGroups 应为 true")
 
+        let categoriesWithTacticalGroup: Set<String> = ["车马炮类", "车炮类"]
         for cat in store.demoCategories {
-            guard cat != "车马炮类" else { continue }
+            guard !categoriesWithTacticalGroup.contains(cat) else { continue }
             XCTAssertFalse(store.hasTacticalGroups(forCategory: cat),
-                           "非车马炮类 '\(cat)' hasTacticalGroups 应为 false")
+                           "非车马炮类/车炮类 '\(cat)' hasTacticalGroups 应为 false")
         }
     }
 
@@ -294,10 +298,11 @@ final class PhaseA2TacticalGroupTests: XCTestCase {
     /// 验证其他分类 tacticalGroup 为 nil
     func testOtherCategoriesNoTacticalGroup() {
         let store = PuzzleStore.shared
-        let otherPuzzles = store.demoPuzzles.filter { $0.category != "车马炮类" }
+        let categoriesWithTacticalGroup: Set<String> = ["车马炮类", "车炮类"]
+        let otherPuzzles = store.demoPuzzles.filter { !categoriesWithTacticalGroup.contains($0.category) }
         for puzzle in otherPuzzles {
             XCTAssertNil(puzzle.tacticalGroup,
-                         "非车马炮类残局 '\(puzzle.id)' tacticalGroup 应为 nil")
+                         "非车马炮类/车炮类残局 '\(puzzle.id)' tacticalGroup 应为 nil")
         }
     }
 
@@ -316,10 +321,11 @@ final class PhaseA2TacticalGroupTests: XCTestCase {
     /// 验证无子分类的分类走二级导航：分类 → 残局
     func testOtherCategoriesTwoLevelNavigation() {
         let store = PuzzleStore.shared
+        let categoriesWithTacticalGroup: Set<String> = ["车马炮类", "车炮类"]
         for cat in store.demoCategories {
-            guard cat != "车马炮类" else { continue }
+            guard !categoriesWithTacticalGroup.contains(cat) else { continue }
             XCTAssertFalse(store.hasTacticalGroups(forCategory: cat),
-                           "非车马炮类 '\(cat)' 无子分类，走二级导航")
+                           "非车马炮类/车炮类 '\(cat)' 无子分类，走二级导航")
         }
     }
 
