@@ -130,7 +130,7 @@ struct MasterGameBrowserView: View {
         #if os(macOS)
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 200)
+                .frame(minWidth: 200, idealWidth: 200)
             Divider()
             listContent
         }
@@ -924,7 +924,7 @@ struct MasterGameBrowserView: View {
                     Image(systemName: "puzzlepiece.extension")
                         .font(.system(size: 40))
                         .foregroundStyle(.secondary)
-                    Text(L10n.shared.t("demo.noData"))
+                    Text(L10n.shared.t("master.noData"))
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
@@ -994,6 +994,9 @@ struct MasterGameBrowserView: View {
             if !masterStore.isLoaded {
                 loadIndex()
             } else if useMoveSequenceFilter {
+                rebuildCache()
+            } else if selectedEvent != nil || selectedPlayer != nil || selectedOpening != nil || selectedSubcategory != nil {
+                // iOS: listContent 首次挂载时 onChange 已错过，需手动 rebuild
                 rebuildCache()
             }
         }
@@ -1171,7 +1174,7 @@ struct MasterGameBrowserView: View {
     private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 200)
+                .frame(minWidth: 200, idealWidth: 200)
             Divider()
             playContent(viewModel: vm)
         }

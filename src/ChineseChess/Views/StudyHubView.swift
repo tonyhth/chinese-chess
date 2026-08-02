@@ -52,7 +52,7 @@ struct StudyHubView: View {
             // v5.5.1 fix 问题9: 统一用 studyCard 模板
             studyCard(
                 title: l10n.t("study.openingCoach"),
-                icon: "compass.fill",
+                icon: "location.north.fill",
                 color: .teal,
                 destination: OpeningCoachSelectView(),
                 subtitle: practiceStore.practicedCount > 0
@@ -95,7 +95,7 @@ struct StudyHubView: View {
             // v5.5.1 fix 问题9: 统一用 studyCard 模板
             studyCard(
                 title: l10n.t("study.openingCoach"),
-                icon: "compass.fill",
+                icon: "location.north.fill",
                 color: .teal,
                 destination: OpeningCoachSelectView(),
                 subtitle: practiceStore.practicedCount > 0

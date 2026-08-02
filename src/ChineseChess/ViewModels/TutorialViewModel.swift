@@ -98,7 +98,7 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson3.subtitle",
             descriptionKey: "tutorial.lesson3.description",
             icon: "arrow.up.arrow.down",
-            initialFEN: "3aka3/9/9/9/9/9/9/9/9/4R4 w - - 0 1",
+            initialFEN: "3aka3/9/9/9/9/9/9/9/4K4/4R4 w - - 0 1",
             expectedMoves: ["e0d0"],
             hintKey: "tutorial.practice1.hint",
             successMessageKey: "tutorial.practice1.success"
@@ -112,7 +112,7 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson4.subtitle",
             descriptionKey: "tutorial.lesson4.description",
             icon: "scissors",
-            initialFEN: "3aka3/9/9/3c5/9/9/9/9/9/3R5 w - - 0 1",
+            initialFEN: "3aka3/9/9/3c5/9/9/9/9/4K4/3R5 w - - 0 1",
             expectedMoves: ["d0d6"],
             hintKey: "tutorial.practice2.hint",
             successMessageKey: "tutorial.practice2.success"
@@ -126,7 +126,7 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson5.subtitle",
             descriptionKey: "tutorial.lesson5.description",
             icon: "exclamationmark.triangle",
-            initialFEN: "3aka3/9/9/9/4P4/9/9/9/9/2C6 w - - 0 1",
+            initialFEN: "3aka3/9/9/9/4P4/9/9/9/4K4/2C6 w - - 0 1",
             expectedMoves: ["c0e0"],
             hintKey: "tutorial.practice3.hint",
             successMessageKey: "tutorial.practice3.success"
@@ -140,7 +140,7 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson6.subtitle",
             descriptionKey: "tutorial.lesson6.description",
             icon: "shield",
-            initialFEN: "4k4/9/9/4P4/9/9/4C4/9/9/9 b - - 0 1",
+            initialFEN: "4k4/9/9/4P4/9/9/4C4/9/9/4K4 b - - 0 1",
             expectedMoves: ["e9d9"],
             hintKey: "tutorial.practice4.hint",
             successMessageKey: "tutorial.practice4.success"
@@ -157,7 +157,7 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson7.subtitle",
             descriptionKey: "tutorial.lesson7.description",
             icon: "trophy",
-            initialFEN: "3aka3/4p4/9/2C6/9/9/9/9/9/9 w - - 0 1",
+            initialFEN: "3aka3/4p4/9/2C6/9/9/9/9/4K4/9 w - - 0 1",
             expectedMoves: ["c6e6"],
             hintKey: "tutorial.advanced1.hint",
             successMessageKey: "tutorial.advanced1.success"
@@ -172,7 +172,7 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson8.subtitle",
             descriptionKey: "tutorial.lesson8.description",
             icon: "eye.slash",
-            initialFEN: "4k4/4r4/9/4c4/9/4R4/9/9/9/9 w - - 0 1",
+            initialFEN: "4k4/4r4/9/4c4/9/4R4/9/9/4K4/9 w - - 0 1",
             expectedMoves: ["e4d4"],
             hintKey: "tutorial.advanced2.hint",
             successMessageKey: "tutorial.advanced2.success"

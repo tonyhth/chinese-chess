@@ -10931,6 +10931,22 @@
           }
         }
       }
+    },
+    "master.noData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No game records"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无棋谱数据"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
