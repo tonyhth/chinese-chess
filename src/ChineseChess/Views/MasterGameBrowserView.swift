@@ -180,6 +180,7 @@ struct MasterGameBrowserView: View {
         }
         .pickerStyle(.segmented)
         .onChange(of: browseMode) { _, newMode in
+            useMoveSequenceFilter = false  // Phase D fix: 用户切换浏览模式时退出联动
             switchToMode(newMode)
         }
     }
@@ -229,6 +230,7 @@ struct MasterGameBrowserView: View {
         .listStyle(.sidebar)
         .onChange(of: sidebarSelection) { _, newSelection in
             guard let sel = newSelection else { return }
+            useMoveSequenceFilter = false  // Phase D fix: 用户选择 sidebar 时退出联动
             currentPage = 1
             switch sel {
             case .opening(let opening):
