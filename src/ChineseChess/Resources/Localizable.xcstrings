@@ -10931,6 +10931,38 @@
           }
         }
       }
+    },
+    "opening.relatedGames": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看相关对局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Related Master Games"
+          }
+        }
+      }
+    },
+    "demo.recordPanel": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋谱"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moves"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

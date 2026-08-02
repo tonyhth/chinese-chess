@@ -146,4 +146,21 @@ class MasterGameStore: ObservableObject {
     func byEvent(_ event: String) -> [MasterGameIndex] {
         eventIndex[event] ?? []
     }
+
+    // MARK: - Phase D: 走法序列匹配（开局探索与大师棋谱联动）
+
+    /// 按走法序列前缀匹配对局
+    /// - Parameter moves: UCI 走法序列（如 ["h2e2", "b9c7"]）
+    /// - Returns: firstMoves 以给定序列开头的所有对局
+    func games(matchingFirstMoves moves: [String]) -> [MasterGameIndex] {
+        guard !moves.isEmpty else { return allGames }
+        // 利用 openingIndex 做一级过滤（第一步走法），再精确匹配前缀
+        let firstMove = moves[0]
+        let candidates = openingIndex[firstMove] ?? allGames
+        return candidates.filter { game in
+            let fm = game.firstMoves
+            guard fm.count >= moves.count else { return false }
+            return zip(fm, moves).allSatisfy { $0 == $1 }
+        }
+    }
 }

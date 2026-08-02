@@ -8,10 +8,11 @@ struct OpeningExplorerView: View {
     @State private var board = Board(fen: FENParser.standardInitial)
     @State private var moveHistory: [String] = []
 
-    // Phase 3: 搜索状态
+    // Phase D: 搜索状态
     @State private var searchText: String = ""
     @State private var searchResults: [OpeningSearchResultItem] = []
     @State private var isSearching: Bool = false
+    @State private var showRelatedGames: Bool = false
 
     @Environment(\.dismiss) private var dismiss
 
@@ -54,6 +55,16 @@ struct OpeningExplorerView: View {
             // 首次加载根节点
             if rootNodes.isEmpty {
                 rootNodes = OpeningExplorerService.shared.rootMoves()
+            }
+        }
+        .sheet(isPresented: $showRelatedGames) {
+            NavigationStack {
+                MasterGameBrowserView(initialMoveSequence: currentMoveSequence)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button(l10n.t("common.done")) { showRelatedGames = false }
+                        }
+                    }
             }
         }
     }
@@ -271,6 +282,17 @@ struct OpeningExplorerView: View {
                     .foregroundColor(.white.opacity(0.7))
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
+            }
+
+            // Phase D: 查看相关大师对局
+            if !currentMoveSequence.isEmpty {
+                Button(action: { showRelatedGames = true }) {
+                    Label(l10n.t("opening.relatedGames"), systemImage: "crown.fill")
+                        .font(.caption)
+                        .foregroundColor(.yellow)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
         }
         .padding(8)

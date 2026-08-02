@@ -88,6 +88,10 @@ struct MasterGameBrowserView: View {
     /// 统计不可用提示
     @State private var showStatsUnavailable = false
 
+    /// Phase D: 开局探索联动——传入初始走法序列
+    @State private var initialMoveSequence: [String] = []
+    @State private var useMoveSequenceFilter: Bool = false
+
     private var hasMoreItems: Bool {
         cachedItems.count < cachedTotalCount
     }
@@ -109,6 +113,14 @@ struct MasterGameBrowserView: View {
             #endif
         } else {
             browserLayout
+        }
+    }
+
+    // Phase D: 支持从开局探索联动传入走法序列
+    init(initialMoveSequence: [String] = []) {
+        if !initialMoveSequence.isEmpty {
+            _useMoveSequenceFilter = State(initialValue: true)
+            _initialMoveSequence = State(initialValue: initialMoveSequence)
         }
     }
 
@@ -948,7 +960,11 @@ struct MasterGameBrowserView: View {
             rebuildCache()
         }
         .onAppear {
-            if !masterStore.isLoaded { loadIndex() }
+            if !masterStore.isLoaded {
+                loadIndex()
+            } else if useMoveSequenceFilter {
+                rebuildCache()
+            }
         }
     }
 
@@ -983,6 +999,15 @@ struct MasterGameBrowserView: View {
     // MARK: - 缓存重建
 
     private func rebuildCache() {
+        // Phase D: 走法序列过滤（从开局探索联动）
+        if useMoveSequenceFilter && !initialMoveSequence.isEmpty {
+            let indices = masterStore.games(matchingFirstMoves: initialMoveSequence)
+            cachedTotalCount = indices.count
+            let page = indices.prefix(gamePageSize * currentPage)
+            cachedItems = page.map { MasterGameDemoItem(index: $0, fen: nil) }
+            return
+        }
+
         let indices: [MasterGameIndex]
         if let sub = selectedSubcategory {
             indices = masterStore.bySubcategory(sub.id)
@@ -1102,6 +1127,8 @@ struct MasterGameBrowserView: View {
                 isLoadingIndex = false
                 if masterStore.loadError != nil {
                     showMasterLoadError = true
+                } else if useMoveSequenceFilter {
+                    rebuildCache()
                 }
             }
         }
