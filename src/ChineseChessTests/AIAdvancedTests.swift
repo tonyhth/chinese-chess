@@ -46,20 +46,13 @@ struct AIAdvancedTests {
         let engine = AIEngine()
         let move = await engine.bestMove(for: board, difficulty: .hard)
         #expect(move != nil)
-        // 已知问题：此局面下 AI 可能返回导致飞将的走法（黑车移开 col 4 后将帅对脸）
-        // 标记为已知 bug，后续修复
+        // v5.1 Phase 1a.2 修复：BoardReadable 泛型化后搜索路径走法生成统一走 allLegalMoves，
+        // 飞将走法已被正确过滤（wouldBeInCheck → isInCheck 含将帅对面检查）
         if let move = move {
             let captured = board.piece(at: move.to)
-            var piece = move.piece
-            piece = Piece(kind: piece.kind, side: piece.side, position: move.from, id: piece.id)
+            let piece = Piece(kind: move.piece.kind, side: move.piece.side, position: move.from, id: move.piece.id)
             let mainMove = Move(piece: piece, from: move.from, to: move.to, captured: captured)
-            // 如果走法合法就验证通过；如果是飞将 bug 就跳过（已知问题）
-            if MoveValidator.isLegal(mainMove, on: board) {
-                #expect(Bool(true), "AI 返回合法走法")
-            } else {
-                // 报告已知 bug 但不阻断
-                #expect(Bool(true), "已知 bug：AI 返回飞将走法，move=\(mainMove)")
-            }
+            #expect(MoveValidator.isLegal(mainMove, on: board), "AI 返回的走法必须合法")
         }
     }
 

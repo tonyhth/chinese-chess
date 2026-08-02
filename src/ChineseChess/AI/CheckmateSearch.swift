@@ -18,7 +18,8 @@ struct CheckmateSearch {
         let startTime = Date()
         var path: [Move] = []
         if dfs(board: &mutableBoard, side: side, depth: 0, maxDepth: maxDepth, path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
-            return path
+            // dfs 使用后序追加（深层先 append），反转后才是从根节点出发的正确顺序
+            return path.reversed()
         }
         return nil
     }
