@@ -3,7 +3,7 @@ import Foundation
 // MARK: - 开局分类
 
 /// 二级开局分类（基于红方前 2-3 步 + 黑方应手）
-struct OpeningSubcategory: Identifiable, Sendable, Equatable, Hashable {
+struct OpeningSubcategory: Identifiable, Sendable, Equatable, Hashable, Codable {
     let id: String               // "zhong_pao_pingfengma"
     let name: String             // "中炮对屏风马"
     let firstMoves: [String]     // 前 N 步走法序列（用于匹配）
@@ -11,7 +11,7 @@ struct OpeningSubcategory: Identifiable, Sendable, Equatable, Hashable {
 }
 
 /// 一级开局分类（基于红方第一步走法）
-struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable {
+struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable, Codable {
     let id: String               // "zhong_pao" 等
     let name: String             // "中炮"
     let firstMove: String        // "h2e2"
@@ -20,13 +20,41 @@ struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable {
     let subcategories: [OpeningSubcategory]
 }
 
-// MARK: - 预定义开局分类
+// MARK: - 开局分类管理
 
-/// 预定义的一级开局分类 + 二级开局分类
-/// gameCount 由构建脚本统计后写入 master-stats.json，运行时从统计结果填充
-/// 此处硬编码的 gameCount 为初始默认值，运行时由 MasterGameStore 加载后覆盖
+/// 开局分类数据源：优先从 opening-categories.json 动态加载，fallback 到硬编码默认值
+/// 接口签名保持兼容（外部调用方式不变）
 enum OpeningCategories {
-    static let categories: [OpeningCategory] = [
+    /// 动态加载的分类数据（首次访问时 lazy 加载）
+    private static let dynamicCategories: [OpeningCategory] = loadCategories()
+
+    /// 公开接口：返回当前生效的分类列表
+    static let categories: [OpeningCategory] = dynamicCategories
+
+    /// 从 Bundle 加载 opening-categories.json，失败时 fallback 到硬编码默认值
+    private static func loadCategories() -> [OpeningCategory] {
+        // 尝试从 Bundle 加载
+        if let url = ResourceBundle.url(forResource: "opening-categories", withExtension: "json") {
+            if let data = try? Data(contentsOf: url) {
+                let decoder = JSONDecoder()
+                if let decoded = try? decoder.decode(OpeningCategoriesFile.self, from: data) {
+                    #if DEBUG
+                    AppLog.puzzleStore.info("OpeningCategories loaded from JSON: \(decoded.categories.count) categories")
+                    #endif
+                    return decoded.categories
+                }
+            }
+        }
+
+        #if DEBUG
+        AppLog.puzzleStore.warning("OpeningCategories: JSON load failed, using hardcoded fallback")
+        #endif
+        return OpeningCategories.fallbackCategories
+    }
+
+    // MARK: - 硬编码 fallback（与 JSON 结构一致，JSON 加载失败时使用）
+
+    private static let fallbackCategories: [OpeningCategory] = [
         OpeningCategory(
             id: "zhong_pao", name: "中炮", firstMove: "h2e2",
             gameCount: 0, description: "炮二平五，最常见开局",
@@ -65,8 +93,13 @@ enum OpeningCategories {
             subcategories: []
         ),
         OpeningCategory(
+            id: "shijiao_pao", name: "士角炮", firstMove: "h2d2",
+            gameCount: 0, description: "炮二平四，中路威胁",
+            subcategories: []
+        ),
+        OpeningCategory(
             id: "guo_gong_pao", name: "过宫炮", firstMove: "h2f2",
-            gameCount: 0, description: "炮二平四，集中火力",
+            gameCount: 0, description: "炮二平六，集中火力",
             subcategories: []
         ),
         OpeningCategory(
@@ -75,4 +108,11 @@ enum OpeningCategories {
             subcategories: []
         ),
     ]
+}
+
+/// JSON 文件结构
+private struct OpeningCategoriesFile: Codable {
+    let version: Int
+    let totalGames: Int
+    let categories: [OpeningCategory]
 }

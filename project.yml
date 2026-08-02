@@ -53,6 +53,8 @@ targets:
         buildPhase: resources
       - path: data/master-stats.json
         buildPhase: resources
+      - path: data/opening-categories.json
+        buildPhase: resources
     settings:
       base:
         GENERATE_INFOPLIST_FILE: NO
