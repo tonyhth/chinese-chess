@@ -441,14 +441,42 @@ struct MasterGameBrowserView: View {
             }
         }
     }
+    #endif
 
-    /// iOS 搜索 Sheet
+    // MARK: - iOS 搜索 Sheet（独立块，不在 macOS sidebar 块内）
     #if os(iOS)
     private var iosSearchSheet: some View {
         NavigationStack {
             List {
-                searchField
-                    .listRowSeparator(.hidden)
+                // 内联搜索框（searchField 在 macOS 块内定义，iOS 直接内联）
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    TextField(L10n.shared.t("master.search.placeholder"), text: $searchText)
+                        .textFieldStyle(.plain)
+                        .font(.subheadline)
+                        .onChange(of: searchText) { _, newValue in
+                            debounceSearch(query: newValue)
+                        }
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                            searchResults = []
+                            isSearchActive = false
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(Color.primary.opacity(0.06))
+                .cornerRadius(8)
+                .listRowSeparator(.hidden)
 
                 if !searchText.isEmpty {
                     if searchResults.isEmpty {
@@ -551,7 +579,6 @@ struct MasterGameBrowserView: View {
         currentPage = 1
         rebuildCache()
     }
-    #endif
 
     // MARK: - iOS 分类列表
 

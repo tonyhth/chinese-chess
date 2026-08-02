@@ -27,7 +27,7 @@ struct OpeningCoachSelectView: View {
     }
 
     // MARK: - macOS Layout
-
+    #if os(macOS)
     private var macOSLayout: some View {
         HSplitView {
             // 左侧分类列表
@@ -72,6 +72,7 @@ struct OpeningCoachSelectView: View {
             .hidden()
         )
     }
+    #endif
 
     // MARK: - iOS Layout
 
