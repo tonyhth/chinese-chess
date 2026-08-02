@@ -110,6 +110,11 @@ struct PuzzleDemoView: View {
             }
         }
         }
+        .onChange(of: selectedCategory) { _, _ in
+            selectedTacticalGroup = nil
+            currentPage = 1
+            rebuildListCache()
+        }
         #endif
     }
 
