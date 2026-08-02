@@ -9,6 +9,7 @@ struct MigrationTooltip: View {
     let onDismiss: () -> Void
 
     @State private var isVisible = false
+    @State private var autoDismissTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,10 +37,14 @@ struct MigrationTooltip: View {
             withAnimation(.easeOut(duration: 0.3)) {
                 isVisible = true
             }
-            Task { @MainActor in
+            autoDismissTask = Task { @MainActor in
                 try? await Task.sleep(for: .seconds(3))
+                guard !Task.isCancelled else { return }
                 dismiss()
             }
+        }
+        .onDisappear {
+            autoDismissTask?.cancel()
         }
     }
 
