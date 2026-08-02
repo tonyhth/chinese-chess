@@ -41,6 +41,15 @@ struct OpeningExplorerView: View {
                     openingNameBar
                 }
 
+                #if os(iOS)
+                // v5.5.1 fix 问题3: iOS 改上下布局，棋盘获得更多空间
+                VStack(spacing: 0) {
+                    treeList
+                        .frame(maxHeight: 280)
+                    Divider()
+                    boardPreview
+                }
+                #else
                 HStack(spacing: 0) {
                     // 左侧：开局树列表
                     treeList
@@ -48,6 +57,7 @@ struct OpeningExplorerView: View {
                     // 右侧：棋盘预览
                     boardPreview
                 }
+                #endif
             }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))

@@ -1192,6 +1192,7 @@ struct MasterGameBrowserView: View {
 
             ZStack(alignment: .top) {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
                     CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
                         .padding(.top, 8)
@@ -1204,6 +1205,7 @@ struct MasterGameBrowserView: View {
                         .scaleEffect(1.2)
                 }
             }
+            .layoutPriority(1)
 
             DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
         }

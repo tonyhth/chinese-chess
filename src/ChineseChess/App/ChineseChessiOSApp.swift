@@ -205,17 +205,6 @@ struct ChineseChessiOSApp: App {
                                 Label(L10n.shared.t("toolbar.rankPrivilege"), systemImage: "medal")
                             }
                             Divider()
-                            // 过渡期旧入口（下个版本移除）
-                            Button(action: { activeSheet = .puzzles }) {
-                                Label(L10n.shared.t("toolbar.puzzleLegacy"), systemImage: "puzzlepiece")
-                            }
-                            Button(action: {
-                                // 开局探索已归入学棋，关闭更多菜单让用户看到学棋按钮
-                                activeSheet = nil
-                            }) {
-                                Label(L10n.shared.t("toolbar.openingExplorerLegacy"), systemImage: "book")
-                            }
-                            Divider()
                             Button(action: { activeSheet = .settings }) {
                                 Label(L10n.shared.t("toolbar.settings"), systemImage: "gearshape")
                             }

@@ -58,6 +58,12 @@ struct ChapterSelectView: View {
             }
         }
         .navigationTitle(L10n.shared.t("chapter.select.title"))
+        .onAppear {
+            #if DEBUG
+            let ps = PuzzleStore.shared
+            print("[ChapterSelect] chapters=\(store.chapters.count), puzzles=\(ps.puzzles.count), demoPuzzles=\(ps.demoPuzzles.count)")
+            #endif
+        }
         .navigationDestination(for: NavigationRoute.self) { route in
             switch route {
             case .chapter(let chapter):

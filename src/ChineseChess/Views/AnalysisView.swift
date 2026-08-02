@@ -139,9 +139,18 @@ struct AnalysisView: View {
                         .foregroundColor(.secondary)
                 }
             } else if let msg = analysisVM.analysisUnavailableMessage {
-                Text(msg)
-                    .font(.caption)
-                    .foregroundColor(.orange)
+                // v5.5.1 fix 问题5: 更醒目的提示 + 重试按钮
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundColor(.orange)
+                    Text(msg)
+                        .font(.callout)
+                        .foregroundColor(.orange)
+                    Button(l10n.t("common.retry")) {
+                        Task { await startAnalysis() }
+                    }
+                    .buttonStyle(.bordered)
+                }
             } else {
                 Text(l10n.t("analysis.completed"))
                     .font(.caption)
@@ -189,6 +198,7 @@ struct AnalysisView: View {
             .frame(height: 56)
             .background(Color(red: 38/255, green: 20/255, blue: 14/255))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func moveQualityBadge(index: Int, analysis: MoveAnalysis?) -> some View {

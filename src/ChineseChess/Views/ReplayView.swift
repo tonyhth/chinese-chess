@@ -104,12 +104,17 @@ struct ReplayView: View {
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
         // v4.0 Phase 4 Batch 2: Analysis + Coach 入口
+        // v5.5.1 fix 问题5: iOS 改为 fullScreenCover，给分析视图足够空间
+        #if os(iOS)
+        .fullScreenCover(isPresented: $showAnalysis) {
+            AnalysisView(record: viewModel.record)
+        }
+        #else
         .sheet(isPresented: $showAnalysis) {
             AnalysisView(record: viewModel.record)
-                #if os(macOS)
                 .frame(minWidth: 600, minHeight: 700)
-                #endif
         }
+        #endif
         .sheet(isPresented: $showCoach) {
             NavigationStack {
                 CoachSessionView(record: viewModel.record)

@@ -99,10 +99,22 @@ struct TutorialInteractiveView: View {
 
     private func validateMove(_ from: Position, _ to: Position) {
         guard status != .complete else { return }
-        guard let piece = board.piece(at: from) else { return }
+        guard let piece = board.piece(at: from) else {
+            #if DEBUG
+            print("[Tutorial] validateMove: no piece at \(from)")
+            #endif
+            return
+        }
+
+        #if DEBUG
+        print("[Tutorial] validateMove: from=\(from), to=\(to), piece=\(piece.kind), side=\(piece.side), enabledSide=\(String(describing: enabledSide))")
+        #endif
 
         // 层 1：检查走法是否合法
         let legalMoves = MoveValidator.legalMoves(for: piece, on: board)
+        #if DEBUG
+        print("[Tutorial] legalMoves: \(legalMoves.map { $0.to })")
+        #endif
         guard legalMoves.contains(where: { $0.to == to }) else {
             status = .illegal
             return
