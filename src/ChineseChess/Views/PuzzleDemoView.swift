@@ -180,7 +180,7 @@ struct PuzzleDemoView: View {
             .font(.subheadline)
             .foregroundStyle(Color.accentColor)
         }
-        .accessibilityLabel("返回分类列表")
+        .accessibilityLabel(L10n.shared.t("demo.backToCategories"))
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -208,7 +208,7 @@ struct PuzzleDemoView: View {
             .font(.subheadline)
             .foregroundStyle(Color.accentColor)
         }
-        .accessibilityLabel(selectedCategoryHasTacticalGroups ? "返回子分类列表" : "返回分类列表")
+        .accessibilityLabel(selectedCategoryHasTacticalGroups ? L10n.shared.t("demo.backToTacticalGroups") : L10n.shared.t("demo.backToCategories"))
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

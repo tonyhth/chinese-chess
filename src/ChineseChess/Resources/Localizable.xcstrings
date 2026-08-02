@@ -10867,6 +10867,38 @@
           }
         }
       }
+    },
+    "demo.backToCategories": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回分类列表"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to Categories"
+          }
+        }
+      }
+    },
+    "demo.backToTacticalGroups": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "返回子分类列表"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to Tactical Groups"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

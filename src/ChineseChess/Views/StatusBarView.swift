@@ -81,6 +81,7 @@ struct StatusBarView: View {
                 }
                 .foregroundColor(.cyan)
                 .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .frame(width: 80) // P2: 固定宽度避免引擎名长短导致棋盘微变
                 .padding(.horizontal, 6)
                 .padding(.vertical, 3)
