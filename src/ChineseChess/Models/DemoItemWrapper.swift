@@ -100,7 +100,7 @@ struct MasterGameDemoItem: Equatable, Identifiable {
 
 // MARK: - 演示分类
 
-/// 漋局演示分类（仅残局分类）
+/// 残局演示分类（仅残局分类）
 /// 大师棋谱已迁至 MasterGameBrowserView，开局分类不再属于 DemoCategory
 enum DemoCategory: Identifiable, Hashable {
     case puzzles(String)                  // 残局分类名
