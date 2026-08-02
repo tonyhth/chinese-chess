@@ -67,15 +67,20 @@ struct TutorialInteractiveView: View {
     // MARK: - 棋盘初始化
 
     private func setupBoard() {
+        resetBoardOnly()
+        stepIndex = 0
+        status = .waiting
+        boardRevision += 1
+    }
+
+    /// 只重置棋盘到初始局面，不碰 stepIndex
+    private func resetBoardOnly() {
         if let fen = lesson.initialFEN,
            let parsed = FENParser.parse(fen: fen) {
             board = parsed
         } else {
             board = Board(fen: FENParser.standardInitial)
         }
-        stepIndex = 0
-        status = .waiting
-        boardRevision += 1
     }
 
     // MARK: - 可操作方
@@ -138,11 +143,13 @@ struct TutorialInteractiveView: View {
     // MARK: - 重置当前步骤
 
     private func resetCurrentStep() {
-        // 重新初始化棋盘到当前步骤的起始状态
-        setupBoard()
-        // 重放之前的正确步骤
+        // P1-7 fix: 保存 stepIndex，先重置棋盘，再重放之前的正确步骤
+        // 注意：wrong/illegal 时棋盘未被修改（board.execute 不会被调用），
+        // 理论上只需 status = .waiting。保留重放逻辑是防御性写法。
+        let savedStepIndex = stepIndex
+        resetBoardOnly()
         if let expected = lesson.expectedMoves {
-            for i in 0..<stepIndex {
+            for i in 0..<savedStepIndex {
                 if let move = UCIMoveConverter.move(from: expected[i], on: board) {
                     board.execute(move)
                 }
@@ -150,6 +157,16 @@ struct TutorialInteractiveView: View {
             boardRevision += 1
         }
         status = .waiting
+    }
+
+    // MARK: - 位置标签
+
+    /// 将 Position 转为可读坐标标签（如 "七路"、"3列"）
+    private func positionLabel(_ pos: Position) -> String {
+        // 用列号中文表示
+        let colNames = ["一", "二", "三", "四", "五", "六", "七", "八", "九"]
+        let rowNum = 10 - pos.row  // 转为传统象棋表示（从下往上数）
+        return "\(colNames[pos.col])路\(rowNum)"
     }
 
     // MARK: - 状态视图
@@ -175,12 +192,23 @@ struct TutorialInteractiveView: View {
             }
 
         case .wrong:
-            HStack(spacing: 6) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.orange)
-                Text(l10n.t("tutorial.wrongMove"))
-                    .font(.subheadline)
-                    .foregroundColor(.orange)
+            VStack(spacing: 4) {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.orange)
+                    Text(l10n.t("tutorial.wrongMove"))
+                        .font(.subheadline)
+                        .foregroundColor(.orange)
+                }
+                // P1-7 Fix 3: 显示期望走法提示
+                if let expected = lesson.expectedMoves,
+                   stepIndex < expected.count,
+                   let (fromPos, toPos) = UCIMoveConverter.positions(from: expected[stepIndex]) {
+                    Text(String(format: l10n.t("tutorial.hintMove"),
+                                positionLabel(fromPos), positionLabel(toPos)))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
 
         case .illegal:

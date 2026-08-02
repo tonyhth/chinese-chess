@@ -10915,6 +10915,22 @@
           }
         }
       }
+    },
+    "tutorial.hintMove": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提示：尝试从 %@ 移到 %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hint: try moving from %@ to %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
