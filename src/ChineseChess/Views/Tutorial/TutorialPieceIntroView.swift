@@ -7,15 +7,15 @@ struct TutorialPieceIntroView: View {
     private let l10n = L10n.shared
 
     // 棋子口诀数据
-    private let mainPieces: [(kind: PieceKind, name: String, hint: String, subHint: String)] = [
-        (.chariot, "tutorial.piece.chariot", "", ""),
-        (.horse, "tutorial.piece.horse", "", ""),
-        (.cannon, "tutorial.piece.cannon", "", ""),
+    private let mainPieces: [(kind: PieceKind, titleKey: String)] = [
+        (.chariot, "tutorial.piece.chariot"),
+        (.horse, "tutorial.piece.horse"),
+        (.cannon, "tutorial.piece.cannon"),
     ]
-    private let supportPieces: [(kind: PieceKind, name: String, hint: String, subHint: String)] = [
-        (.advisor, "tutorial.piece.advisor", "", ""),
-        (.elephant, "tutorial.piece.elephant", "", ""),
-        (.soldier, "tutorial.piece.soldier", "", ""),
+    private let supportPieces: [(kind: PieceKind, titleKey: String)] = [
+        (.advisor, "tutorial.piece.advisor"),
+        (.elephant, "tutorial.piece.elephant"),
+        (.soldier, "tutorial.piece.soldier"),
     ]
 
     var body: some View {
@@ -60,7 +60,7 @@ struct TutorialPieceIntroView: View {
     // MARK: - 棋子分组
 
     @ViewBuilder
-    private func pieceGroup(title: String, pieces: [(kind: PieceKind, name: String, hint: String, subHint: String)]) -> some View {
+    private func pieceGroup(title: String, pieces: [(kind: PieceKind, titleKey: String)]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
@@ -68,7 +68,7 @@ struct TutorialPieceIntroView: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 12) {
                 ForEach(pieces, id: \.kind) { piece in
-                    pieceCard(kind: piece.kind, titleKey: piece.name)
+                    pieceCard(kind: piece.kind, titleKey: piece.titleKey)
                 }
             }
         }
