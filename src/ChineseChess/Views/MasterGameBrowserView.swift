@@ -262,11 +262,14 @@ struct MasterGameBrowserView: View {
                 opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
             }) { opening in
                 if opening.subcategories.isEmpty {
-                    // 无子分类：直接选择（frame+overlay 绕法避免 sidebar HStack 挤压）
+                    // 无子分类：直接选择
                     Text(opening.name)
                         .font(.subheadline)
-                        .foregroundColor(.red)
-                        .background(Color.yellow.opacity(0.5))
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            countBadge(masterStore.gameCount(for: opening))
+                        }
                         .tag(SidebarSelection.opening(opening))
                 } else {
                     // 有子分类：DisclosureGroup 展开
@@ -302,14 +305,14 @@ struct MasterGameBrowserView: View {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { player in
-                    HStack {
-                        Text("TEST_\(player.nameCN)")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                        Spacer()
-                    }
-                    .background(Color.white)
-                    .tag(SidebarSelection.player(player))
+                    Text(player.nameCN)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            countBadge(player.count)
+                        }
+                        .tag(SidebarSelection.player(player))
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -335,17 +338,16 @@ struct MasterGameBrowserView: View {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { event in
-                    HStack {
-                        Text("X_\(event.nameCN)")
-                            .font(.caption)
-                            .foregroundColor(.black)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                        Spacer()
-                    }
-                    .background(Color.white)
-                    .frame(maxWidth: .infinity)
-                    .tag(SidebarSelection.event(event))
+                    Text(event.nameCN)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            countBadge(event.count)
+                        }
+                        .tag(SidebarSelection.event(event))
                 }
                 if visible.count < sorted.count {
                     HStack {
