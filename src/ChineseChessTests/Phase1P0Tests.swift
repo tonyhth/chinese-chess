@@ -40,31 +40,30 @@ struct Phase1P0Tests {
         return stringUnit["value"] as? String
     }
 
-    // MARK: - 修复 1: 教程规则文案（tutorial.lesson2 含将军/将死/困毙/长将判负）
-    // 注意：tutorial key 已从 tutorial.3.* 改为 tutorial.lesson*
+    // MARK: - 修复 1: 教程 lesson 文案存在性验证（v3.0 12课重设计后）
+    // 注意：旧 lesson2 是规则课，新 lesson2 是"车的走法"。测试已更新为验证新内容。
 
-    @Test("tutorial.lesson2.description 中文版包含将军/将死/困毙/长将判负")
+    @Test("tutorial.lesson2.description 中文版存在且非空")
     func tutorialDescriptionRulesFixChinese() {
         let zhVal = Self.translationValue("tutorial.lesson2.description", "zh-Hans")
         #expect(zhVal != nil, "tutorial.lesson2.description 应有 zh-Hans 翻译")
 
         guard let zh = zhVal else { return }
 
-        #expect(zh.contains("将死"), "中文版应包含 '将死'，实际: \(zh)")
-        #expect(zh.contains("困毙"), "中文版应包含 '困毙'，实际: \(zh)")
+        #expect(!zh.isEmpty, "tutorial.lesson2.description 中文不应为空")
     }
 
-    @Test("tutorial.lesson2.subtitle 中文版包含长将判负")
+    @Test("tutorial.lesson2.subtitle 中文版存在且包含走法描述")
     func tutorialDescriptionRulesFixEnglish() {
         let zhVal = Self.translationValue("tutorial.lesson2.subtitle", "zh-Hans")
         #expect(zhVal != nil, "tutorial.lesson2.subtitle 应有 zh-Hans 翻译")
 
         guard let zh = zhVal else { return }
 
-        #expect(zh.contains("长将判负"), "subtitle 应包含 '长将判负'，实际: \(zh)")
+        #expect(zh.contains("直线"), "subtitle 应包含 '直线'，实际: \(zh)")
     }
 
-    @Test("tutorial.lesson3.title 存在且为走子练习")
+    @Test("tutorial.lesson3.title 存在且为马的走法")
     func tutorialTitleFix() {
         let zhVal = Self.translationValue("tutorial.lesson3.title", "zh-Hans")
         #expect(zhVal != nil, "tutorial.lesson3.title 应有 zh-Hans 翻译")

@@ -187,10 +187,19 @@ struct TutorialInteractiveView: View {
     private var statusView: some View {
         switch status {
         case .waiting:
-            if let hintKey = lesson.hintKey {
-                Text(l10n.t(hintKey))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+            // R1 越界保护：按 stepIndex 切换 hint，超出范围时 fallback 到最后一条
+            if let hintKeys = lesson.hintKeys {
+                let hintKey = stepIndex < hintKeys.count
+                    ? hintKeys[stepIndex]
+                    : (hintKeys.last ?? "")
+                if !hintKey.isEmpty {
+                    Text(l10n.t(hintKey))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                        .multilineTextAlignment(.center)
+                }
             }
 
         case .correct:

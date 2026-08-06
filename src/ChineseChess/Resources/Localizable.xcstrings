@@ -9986,7 +9986,8 @@
             "value": "炮可以用对方棋子做炮架将军"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.advanced1.success": {
       "localizations": {
@@ -10002,7 +10003,8 @@
             "value": "完美闷宫杀！将死！"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.advanced2.hint": {
       "localizations": {
@@ -10018,7 +10020,8 @@
             "value": "注意黑车在后方伏击，别贪吃"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.advanced2.success": {
       "localizations": {
@@ -10034,7 +10037,8 @@
             "value": "聪明！保留实力比贪子更重要"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.complete": {
       "localizations": {
@@ -10217,13 +10221,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "⚡ Check: your General is under attack\nRespond by: flee, block, or capture\n\n🏆 Checkmate: Check with no possible response = Win\n\n⚠️ Stalemate = Loss! (No legal moves)\n\n❌ Perpetual check = Loss for the checker!\n❌ Perpetual chase = Loss for the chaser!\n\n💡 Remember: stalemate is a loss, perpetual check/chase is also a loss!"
+            "value": "The Rook is one of the most powerful pieces. It can move any number of squares along a straight line.\n\nTap the Rook on the board and follow the hints to complete two steps."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "⚡ 将军：对方走子后，你的将/帅被攻击\n应将方式：逃跑、挡住、吃子\n\n🏆 将死：将军且对方无法应将 = 获胜\n\n⚠️ 困毙 = 输！（轮到走棋但无棋可走）\n\n❌ 长将判负：连续将军判将军方负\n❌ 长捉判负：连续捉子判捉子方负\n\n💡 记住：困毙是输，长将长捉也是输！"
+            "value": "车是最强大的棋子之一，可以沿直线任意移动。\n\n点击棋盘上的车，按照提示完成两步练习。"
           }
         }
       }
@@ -10233,13 +10237,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check, checkmate, stalemate, perpetual check"
+            "value": "Moves in straight lines, forward and back"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将军、将死、困毙、长将判负"
+            "value": "直线行走，可进可退"
           }
         }
       }
@@ -10249,13 +10253,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Basic Rules"
+            "value": "The Rook"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "基本规则"
+            "value": "车的走法"
           }
         }
       }
@@ -10265,288 +10269,306 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Practice moving pieces!\n\nTap your piece, then tap the destination to move."
+            "value": "The Knight moves in an L-shape: one square straight, then one square diagonally.\n\nIf the square directly in front of the Knight is occupied, it cannot jump — this is called a \"blocked leg.\"\n\nComplete two steps to master the Knight's movement."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在棋盘上练习走子！\n\n点击你的棋子，再点击目标位置即可移动。"
+            "value": "马走“日”字——先直走一格，再斜走一格。\n\n注意：马腿位置有棋子时不能跳，称为“蹄马腿”。\n\n完成两步练习掌握马的走法。"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson3.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move your Rook"
+            "value": "Jumps in an L-shape, blocked by pieces"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "移动你的车"
+            "value": "日字跳跃，蹄腿不行"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson3.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moving Practice"
+            "value": "The Knight"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "走子练习"
+            "value": "马的走法"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson4.description": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Moving and capturing use the same action.\n\nWhen the destination has an enemy piece, move there to capture it."
+            "value": "The Cannon has a unique movement:\n\n• Without capturing: moves in straight lines like the Rook\n• When capturing: must jump over exactly one piece (the \"screen\")\n\nComplete two steps to master the Cannon's dual nature."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "走子和吃子是同一个操作。\n\n当目标格上有对方棋子时，移动过去即可吃掉它。"
+            "value": "炮的走法很特别：\n\n• 不吃子时：和车一样走直线\n• 吃子时：必须翻过一个棋子（炮架）才能吃\n\n完成两步练习掌握炮的双重特性。"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson4.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Capture the enemy Cannon"
+            "value": "Moves straight, captures by jumping over a screen"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "用车吃掉对方的炮"
+            "value": "不吃直线，翻山吃子"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson4.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Capturing Practice"
+            "value": "The Cannon"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "吃子练习"
+            "value": "炮的走法"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson5.description": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The Cannon is special: it needs exactly one \"screen\" piece between it and the target.\n\nMove your Cannon and use your own piece as a screen to check the enemy General!"
+            "value": "The Bishop moves two squares diagonally.\n\nRestrictions:\n• Cannot cross the river (stays on your side)\n• If the center of the diagonal is occupied, it cannot move\n\nComplete two steps to master the Bishop's movement."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "炮的攻击方式特殊：需要恰好一个「炮架」在中间才能攻击。\n\n移动你的炮，利用己方棋子作为炮架来将军对方将！"
+            "value": "象走“田”字——斜走两格。\n\n限制：\n• 不能过河（只能在己方半场）\n• 田字中心有棋子时不能走（塞象眼）\n\n完成两步练习掌握象的走法。"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson5.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check the enemy General with Cannon"
+            "value": "Moves diagonally, stays on your side"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "用炮将军对方将"
+            "value": "田字走法，不过河"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson5.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check Practice"
+            "value": "The Bishop"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将军练习"
+            "value": "象的走法"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson6.description": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You must respond to check!\n\nMove your General sideways off the attacked file to escape.\n\n⚠️ You cannot ignore check!"
+            "value": "The Advisor moves one square diagonally, but only within the palace (the 3x3 area around the General).\n\nThe Advisor is the General's bodyguard — limited range, but crucial position.\n\nComplete two steps to learn the Advisor's movement."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "被将军时必须应将！\n\n将/帅横向移出被攻击的列即可脱离危险。\n\n⚠️ 不能不应将！"
+            "value": "士只能在九宫格内斜走一步。\n\n士是将帅的贴身护卫，活动范围很小但位置关键。\n\n完成两步练习了解士的走法。"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson6.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You're in check — respond!"
+            "value": "Moves diagonally within the palace"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "对方将军，请应将"
+            "value": "斜线走子，不出九宫"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson6.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Responding to Check"
+            "value": "The Advisor"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "应将练习"
+            "value": "士的走法"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson7.description": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Checkmate = Check with no possible response.\n\nLook carefully: the enemy General is trapped in the palace by its own advisors.\nFind the move that delivers checkmate!\n\n💡 Hint: The Cannon can use the enemy's own piece as a screen!"
+            "value": "The Pawn's movement:\n\n• Before crossing the river: can only move forward one step\n• After crossing the river: can move forward or sideways one step\n• Can never move backward\n\nComplete two steps to experience the Pawn's transformation."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将死 = 将军且对方无法应将。\n\n仔细观察：对方将被困在宫中，双士堵塞逃跑路线。\n找到一步就能将死的走法！\n\n💡 提示：炮可以用对方自己的棋子作为炮架！"
+            "value": "兵的走法：\n\n• 未过河：每次只能向前走一步\n• 过河后：可以向前或左右横移一步\n• 永远不能后退\n\n完成两步练习体验兵的变化。"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson7.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Palace Smother — Cannon Kill"
+            "value": "Moves forward only; sideways after crossing the river"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "闷宫杀 — 炮的绝杀"
+            "value": "只进不退，过河可横移"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson7.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Checkmate in One"
+            "value": "The Pawn"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "一步将死"
+            "value": "兵的走法"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson8.description": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Before capturing, check: is it safe?\n\nThe enemy Cannon looks like a free capture, but a Rook lurks behind it.\nCapturing the Cannon leads to recapture — a losing trade!\n\nChoose a safe move and preserve your material!"
+            "value": "The General (Red: 帅, Black: 將) moves the same way:\n\n• One step at a time (horizontal or vertical) within the palace\n• Cannot leave the palace\n• The two Generals cannot face each other on the same column\n\nComplete two steps to learn the General's movement."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "走棋前要检查：吃子后是否安全？\n\n黑炮看似可以白吃，但后方有黑车伏击。\n吃炮会被反吃，损失更大！\n\n选择安全的走法，保留实力！"
+            "value": "将（黑）和帅（红）的走法相同：\n\n• 在九宫格内每次走一步（横或竖）\n• 不能走出九宫\n• 两个将帅不能在同一列直接对面（白脸将）\n\n完成两步练习学习将帅的走法。"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson8.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bait and Ambush"
+            "value": "One step within the palace"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "诱饵与伏击"
+            "value": "九宫内一步一行"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.lesson8.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avoid Hanging Pieces"
+            "value": "The General"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "避免送子"
+            "value": "将帅走法"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.next": {
       "localizations": {
@@ -10594,7 +10616,8 @@
             "value": "点击车，再点击目标格"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice1.success": {
       "localizations": {
@@ -10610,7 +10633,8 @@
             "value": "正确！车可以直线移动任意格数"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice2.hint": {
       "localizations": {
@@ -10626,7 +10650,8 @@
             "value": "车可以直线吃子"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice2.success": {
       "localizations": {
@@ -10642,7 +10667,8 @@
             "value": "干得好！吃掉对方棋子可以削弱对方实力"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice3.hint": {
       "localizations": {
@@ -10658,7 +10684,8 @@
             "value": "炮需要炮架才能将军"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice3.success": {
       "localizations": {
@@ -10674,7 +10701,8 @@
             "value": "太棒了！将军后对方必须应将"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice4.hint": {
       "localizations": {
@@ -10690,7 +10718,8 @@
             "value": "移动将到安全位置"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.practice4.success": {
       "localizations": {
@@ -10706,7 +10735,8 @@
             "value": "很好！应将成功，脱离危险"
           }
         }
-      }
+      },
+      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
     },
     "tutorial.prev": {
       "localizations": {
@@ -10944,6 +10974,582 @@
           "stringUnit": {
             "state": "translated",
             "value": "暂无棋谱数据"
+          }
+        }
+      }
+    },
+    "tutorial.lesson9.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Practice"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将军练习"
+          }
+        }
+      }
+    },
+    "tutorial.lesson9.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the Cannon to deliver a check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用炮翻山将军"
+          }
+        }
+      }
+    },
+    "tutorial.lesson9.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check: a move that threatens to capture the opponent's General.\n\nThe opponent must respond to the check — they cannot ignore it.\n\nIn this lesson, practice using the Cannon to deliver a check."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将军：走一步棋使对方将帅处于被吃的状态。\n\n对方必须应将——消除将军威胁。\n\n这节课练习用炮翻山将军。"
+          }
+        }
+      }
+    },
+    "tutorial.lesson10.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Responding to Check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应将练习"
+          }
+        }
+      }
+    },
+    "tutorial.lesson10.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to escape from a check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "被将军时如何脱险"
+          }
+        }
+      }
+    },
+    "tutorial.lesson10.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Three ways to respond to a check:\n\n1. Move the General to safety\n2. Block the attack with another piece\n3. Capture the checking piece\n\nIn this lesson, practice moving the General to safety."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "被将军时的三种应对：\n\n1. 走将（将帅移动到安全位置）\n2. 垫将（用棋子挡住攻击路线）\n3. 吃子（吃掉将军的棋子）\n\n这节课练习走将脱险。"
+          }
+        }
+      }
+    },
+    "tutorial.lesson11.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smothered Mate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "闷宫杀"
+          }
+        }
+      }
+    },
+    "tutorial.lesson11.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The art of checkmate in one move"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一步将死的艺术"
+          }
+        }
+      }
+    },
+    "tutorial.lesson11.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smothered mate: use the opponent's own piece as a screen for the Cannon, leaving the General with no escape.\n\nThis is one of the most classic checkmate patterns in Chinese Chess.\n\nFind that one deadly move!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "闷宫杀：利用对方棋子做炮架，将帅无路可逃。\n\n这是中国象棋中最经典的杀法之一。\n\n找到那一步致命的棋！"
+          }
+        }
+      }
+    },
+    "tutorial.lesson2.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Rook, move forward 4 squares"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击车，向前走4步"
+          }
+        }
+      }
+    },
+    "tutorial.lesson2.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move right to capture the Pawn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "横移到右边吃掉黑卒"
+          }
+        }
+      }
+    },
+    "tutorial.lesson3.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Knight, jump upper-right"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击马，向右上跳日字"
+          }
+        }
+      }
+    },
+    "tutorial.lesson3.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump upper-left to capture the Pawn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向左上跳日字吃掉黑卒"
+          }
+        }
+      }
+    },
+    "tutorial.lesson4.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Cannon, move to the far right"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击炮，横移到最右边"
+          }
+        }
+      }
+    },
+    "tutorial.lesson4.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump over a piece to capture the Cannon"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻过兵山，吃掉黑炮"
+          }
+        }
+      }
+    },
+    "tutorial.lesson5.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Bishop, move diagonal upper-right"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击象，走田字到右上方"
+          }
+        }
+      }
+    },
+    "tutorial.lesson5.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move diagonal again to capture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再走田字，吃掉黑卒"
+          }
+        }
+      }
+    },
+    "tutorial.lesson6.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Advisor, move diagonal to capture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击士，斜走吃掉黑卒"
+          }
+        }
+      }
+    },
+    "tutorial.lesson6.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move diagonal back to defend"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "斜走回防到右边"
+          }
+        }
+      }
+    },
+    "tutorial.lesson7.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the Pawn, step forward"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击兵，向前进一步"
+          }
+        }
+      }
+    },
+    "tutorial.lesson7.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crossed the river! Move left to capture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过河了！向左横移吃掉黑卒"
+          }
+        }
+      }
+    },
+    "tutorial.lesson8.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap the General, step to the right"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击帅，向右走一步"
+          }
+        }
+      }
+    },
+    "tutorial.lesson8.hint2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step forward"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向前走一步"
+          }
+        }
+      }
+    },
+    "tutorial.lesson9.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move the Cannon right, use the Pawn as screen to check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击炮，向右横移利用兵做炮架将军"
+          }
+        }
+      }
+    },
+    "tutorial.lesson10.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're in check! Move the General left to safety"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "被将军了！将向左走到安全位置"
+          }
+        }
+      }
+    },
+    "tutorial.lesson11.hint1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find the checkmate! Cannon can use enemy piece as screen"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找一步将死的走法！炮可以用对方棋子做炮架"
+          }
+        }
+      }
+    },
+    "tutorial.lesson2.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct! Rook moves in straight lines"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正确！车走直线，可进可退"
+          }
+        }
+      }
+    },
+    "tutorial.lesson3.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nice! Knight jumps in L-shape"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好棋！马跳日字，蹄腿不行"
+          }
+        }
+      }
+    },
+    "tutorial.lesson4.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfect! Cannon needs a \"screen\" (a piece in between) to capture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完美！炮翻山才能吃子"
+          }
+        }
+      }
+    },
+    "tutorial.lesson5.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good! Bishop moves diagonal, can't cross river"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好棋！象走田字，不过河"
+          }
+        }
+      }
+    },
+    "tutorial.lesson6.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct! Advisor moves diagonal within the palace"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正确！士走斜线，不出九宫"
+          }
+        }
+      }
+    },
+    "tutorial.lesson7.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nice! Pawn can move sideways after crossing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "好棋！过河后兵可以横移"
+          }
+        }
+      }
+    },
+    "tutorial.lesson8.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct! General moves one step in the palace"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正确！帅在九宫内一步一行"
+          }
+        }
+      }
+    },
+    "tutorial.lesson9.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check! The opponent must respond"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将军！对方必须应将"
+          }
+        }
+      }
+    },
+    "tutorial.lesson10.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safe! You escaped the check"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全了！成功脱离将军"
+          }
+        }
+      }
+    },
+    "tutorial.lesson11.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smothered mate! Checkmate!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "闷宫杀！一步将死！"
           }
         }
       }

@@ -8,10 +8,10 @@ struct Phase5Tests {
     // MARK: - TutorialViewModel 测试
 
     @MainActor
-@Test("教程包含 9 步课程")
-    func tutorialHasFiveLessons() {
+@Test("教程包含 12 步课程")
+    func tutorialHasTwelveLessons() {
         let vm = TutorialViewModel()
-        #expect(vm.lessons.count == 9, "应有 9 步教程")
+        #expect(vm.lessons.count == 12, "应有 12 步教程")
     }
 
     @MainActor
@@ -23,6 +23,7 @@ struct Phase5Tests {
         #expect(vm.lessons[2].titleKey == "tutorial.lesson2.title")
         #expect(vm.lessons[3].titleKey == "tutorial.lesson3.title")
         #expect(vm.lessons[4].titleKey == "tutorial.lesson4.title")
+        #expect(vm.lessons[11].titleKey == "tutorial.lesson11.title")
     }
 
     @MainActor
@@ -72,23 +73,14 @@ struct Phase5Tests {
     }
 
     @MainActor
-@Test("特殊规则课程包含困毙说明")
-    func specialRulesMentionStalemate() {
+@Test("走法课3（马）数据正确")
+    func knightLessonData() {
         let vm = TutorialViewModel()
         let lesson = vm.lessons[3]
-        // lesson 3 现在是走子练习
         #expect(lesson.descriptionKey == "tutorial.lesson3.description")
         #expect(lesson.titleKey == "tutorial.lesson3.title")
-    }
-
-    @MainActor
-@Test("特殊规则课程区分困毙和长将")
-    func specialRulesDistinguishStalemateAndRepetition() {
-        let vm = TutorialViewModel()
-        let lesson = vm.lessons[3]
-        // 验证 lesson 3 subtitle 和 title 正确对应特殊规则主题
-        #expect(lesson.subtitleKey == "tutorial.lesson3.subtitle")
-        #expect(lesson.icon == "arrow.up.arrow.down")
+        #expect(lesson.type == .interactive)
+        #expect(lesson.expectedMoves?.count == 2, "课3（马）应有2步")
     }
 
     // MARK: - 教程完成状态
