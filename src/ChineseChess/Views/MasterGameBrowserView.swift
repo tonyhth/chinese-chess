@@ -265,11 +265,8 @@ struct MasterGameBrowserView: View {
                     // 无子分类：直接选择（frame+overlay 绕法避免 sidebar HStack 挤压）
                     Text(opening.name)
                         .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            countBadge(masterStore.gameCount(for: opening))
-                        }
+                        .foregroundColor(.red)
+                        .background(Color.yellow.opacity(0.5))
                         .tag(SidebarSelection.opening(opening))
                 } else {
                     // 有子分类：DisclosureGroup 展开
@@ -305,14 +302,14 @@ struct MasterGameBrowserView: View {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { player in
-                    Text(player.nameCN)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            countBadge(player.count)
-                        }
-                        .tag(SidebarSelection.player(player))
+                    HStack {
+                        Text("TEST_\(player.nameCN)")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                        Spacer()
+                    }
+                    .background(Color.white)
+                    .tag(SidebarSelection.player(player))
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -338,21 +335,14 @@ struct MasterGameBrowserView: View {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { event in
-                    Text(event.nameCN)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            HStack(spacing: 4) {
-                                if let year = event.year {
-                                    Text("\(year)")
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
-                                }
-                                countBadge(event.count)
-                            }
-                        }
-                        .tag(SidebarSelection.event(event))
+                    HStack {
+                        Text("EVT_\(event.nameCN)")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                        Spacer()
+                    }
+                    .background(Color.white)
+                    .tag(SidebarSelection.event(event))
                 }
                 if visible.count < sorted.count {
                     HStack {

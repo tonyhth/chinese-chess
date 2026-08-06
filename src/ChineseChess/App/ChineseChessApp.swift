@@ -414,7 +414,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 600, minHeight: 700)
+                    .frame(minWidth: 900, minHeight: 750)
 
                 case .toolbarReplay(let record):
                     ReplayView(record: record)
@@ -542,7 +542,7 @@ struct ChineseChessApp: App {
 
                 case .studyHub:
                     NavigationStack {
-                        StudyHubView()
+                        MasterGameBrowserView()  // DEBUG: directly open for sidebar diagnosis
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
                                     Button(L10n.shared.t("common.done")) { activeSheet = nil }

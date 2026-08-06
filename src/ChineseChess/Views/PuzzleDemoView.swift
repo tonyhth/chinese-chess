@@ -142,6 +142,7 @@ struct PuzzleDemoView: View {
                 }
             }
         }
+        // Fix: macOS .sidebar listStyle hides Text in selection cells; use .inset instead
         .listStyle(.sidebar)
         .onAppear {
             #if DEBUG
