@@ -16,7 +16,7 @@ final class TutorialFENRedGeneralTests: XCTestCase {
         // 课4: 炮的走法 — 直线移动 + 翻山吃子
         (4, "3aka3/9/4c4/9/9/4P4/9/9/3K5/C8 w - - 0 1", ["a0e0", "e0e7"], "w"),
         // 课5: 象的走法 — 田字走法 + 吃子
-        (5, "3aka3/9/9/9/9/5p3/9/9/3K5/1B7 w - - 0 1", ["b0d2", "d2f4"], "w"),
+        (5, "3aka3/9/9/9/9/6p2/9/9/3K5/6B3 w - - 0 1", ["g0e2", "e2g4"], "w"),
         // 课6: 士的走法 — 斜线吃子 + 回防
         (6, "3k5/9/9/9/9/9/9/4p4/3AK4/9 w - - 0 1", ["d1e2", "e2f1"], "w"),
         // 课7: 兵的走法 — 前进过河 + 横移吃子
@@ -92,7 +92,7 @@ final class TutorialFENRedGeneralTests: XCTestCase {
             (2, "3aka3/9/9/9/9/4p4/9/9/3K5/R8 w - - 0 1", "a0a4", .red, .chariot),
             (3, "3aka3/9/9/3p5/9/9/4N4/9/3K5/9 w - - 0 1", "e3f5", .red, .horse),
             (4, "3aka3/9/4c4/9/9/4P4/9/9/3K5/C8 w - - 0 1", "a0e0", .red, .cannon),
-            (5, "3aka3/9/9/9/9/5p3/9/9/3K5/1B7 w - - 0 1", "b0d2", .red, .elephant),
+            (5, "3aka3/9/9/9/9/6p2/9/9/3K5/6B3 w - - 0 1", "g0e2", .red, .elephant),
             (6, "3k5/9/9/9/9/9/9/4p4/3AK4/9 w - - 0 1", "d1e2", .red, .advisor),
             (7, "4ka3/9/9/9/3p5/4P4/9/9/3K5/9 w - - 0 1", "e4e5", .red, .soldier),
             (8, "3aka3/9/9/9/9/4R4/9/9/3K5/9 w - - 0 1", "d1e1", .red, .general),
@@ -178,7 +178,7 @@ final class TutorialFENRedGeneralTests: XCTestCase {
             (2, ["a0a4", "a4e4"]),       // 课2: 车
             (3, ["e3f5", "f5d6"]),       // 课3: 马
             (4, ["a0e0", "e0e7"]),       // 课4: 炮
-            (5, ["b0d2", "d2f4"]),       // 课5: 象
+            (5, ["g0e2", "e2g4"]),       // 课5: 象
             (6, ["d1e2", "e2f1"]),       // 课6: 士
             (7, ["e4e5", "e5d5"]),       // 课7: 兵
             (8, ["d1e1", "e1e2"]),       // 课8: 将帅

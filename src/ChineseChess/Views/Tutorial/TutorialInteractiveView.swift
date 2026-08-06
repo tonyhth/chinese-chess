@@ -173,12 +173,25 @@ struct TutorialInteractiveView: View {
 
     // MARK: - 位置标签
 
-    /// 将 Position 转为可读坐标标签（如 "七路"、"3列"）
-    private func positionLabel(_ pos: Position) -> String {
-        // 用列号中文表示
-        let colNames = ["一", "二", "三", "四", "五", "六", "七", "八", "九"]
-        let rowNum = 10 - pos.row  // 转为传统象棋表示（从下往上数）
-        return "\(colNames[pos.col])路\(rowNum)"
+    /// 将 Position 转为传统象棋坐标标签
+    /// 红方：汉字路号（从右往左）+ 行号（从下往上）
+    /// 黑方：阿拉伯路号（从左往右）+ 行号（从上往下）
+    private func positionLabel(_ pos: Position, side: Side) -> String {
+        let chineseNums = ["一", "二", "三", "四", "五", "六", "七", "八", "九"]
+        let arabicNums = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        
+        switch side {
+        case .red:
+            // 红方：col8=一路 ... col0=九路（反转）
+            let colName = chineseNums[8 - pos.col]
+            let rowNum = 10 - pos.row
+            return "\(colName)路\(rowNum)"
+        case .black:
+            // 黑方：col0=1路 ... col8=9路
+            let colName = arabicNums[pos.col]
+            let rowNum = pos.row + 1
+            return "\(colName)路\(rowNum)"
+        }
     }
 
     // MARK: - 状态视图
@@ -226,7 +239,8 @@ struct TutorialInteractiveView: View {
                    stepIndex < expected.count,
                    let (fromPos, toPos) = UCIMoveConverter.positions(from: expected[stepIndex]) {
                     Text(String(format: l10n.t("tutorial.hintMove"),
-                                positionLabel(fromPos), positionLabel(toPos)))
+                                positionLabel(fromPos, side: board.piece(at: fromPos)?.side ?? .red),
+                                positionLabel(toPos, side: board.piece(at: fromPos)?.side ?? .red)))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }

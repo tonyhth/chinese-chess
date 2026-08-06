@@ -24,11 +24,15 @@ struct TutorialView: View {
             ScrollView {
                 let lesson = viewModel.lessons[viewModel.currentLesson]
                 Group {
-                    switch lesson.type {
-                    case .info:
-                        TutorialInfoView(lesson: lesson)
-                    case .interactive:
+                    switch (lesson.type, lesson.id) {
+                    case (.info, 0):
+                        TutorialBoardIntroView()
+                    case (.info, 1):
+                        TutorialPieceIntroView()
+                    case (.interactive, _):
                         TutorialInteractiveView(lesson: lesson)
+                    default:
+                        TutorialInfoView(lesson: lesson)
                     }
                 }
                 .padding()

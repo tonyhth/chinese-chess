@@ -10294,7 +10294,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "日字跳跃，蹄腿不行"
+            "value": "日字跳跃，蹩马腿不行"
           }
         }
       }
@@ -11112,13 +11112,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap the Rook, move forward 4 squares"
+            "value": "Tap the Rook, move up 4 squares"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击车，向前走4步"
+            "value": "点击车，向上走4格"
           }
         }
       }
@@ -11128,13 +11128,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move right to capture the Pawn"
+            "value": "Move right 4 squares to capture"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "横移到右边吃掉黑卒"
+            "value": "点击车，向右走4格吃掉黑卒"
           }
         }
       }
@@ -11176,13 +11176,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap the Cannon, move to the far right"
+            "value": "Tap the Cannon, move right 4 squares"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击炮，横移到最右边"
+            "value": "点击炮，向右走4格"
           }
         }
       }
@@ -11192,13 +11192,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jump over a piece to capture the Cannon"
+            "value": "Jump over one piece, move up to capture"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "翻过兵山，吃掉黑炮"
+            "value": "隔着一个棋子，向上吃掉黑炮"
           }
         }
       }
@@ -11208,13 +11208,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap the Bishop, move diagonal upper-right"
+            "value": "Tap the Bishop, move diagonal upper-left"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击象，走田字到右上方"
+            "value": "点击象，走田字到左上方"
           }
         }
       }
@@ -11240,13 +11240,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap the Advisor, move diagonal to capture"
+            "value": "Tap the Advisor, move upper-right to capture"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击士，斜走吃掉黑卒"
+            "value": "点击士，向右上方斜走吃掉黑卒"
           }
         }
       }
@@ -11256,13 +11256,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move diagonal back to defend"
+            "value": "Move lower-right to defend"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "斜走回防到右边"
+            "value": "向右下方斜走回防"
           }
         }
       }
@@ -11272,13 +11272,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap the Pawn, step forward"
+            "value": "Tap the Pawn, step up one"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击兵，向前进一步"
+            "value": "点击兵，向上走一步"
           }
         }
       }
@@ -11294,7 +11294,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "过河了！向左横移吃掉黑卒"
+            "value": "过河了！向左走一格吃掉黑卒"
           }
         }
       }
@@ -11320,13 +11320,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Step forward"
+            "value": "Step up one"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "向前走一步"
+            "value": "向上走一步"
           }
         }
       }
@@ -11336,13 +11336,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Move the Cannon right, use the Pawn as screen to check"
+            "value": "Move the Cannon right 2 squares, use the Pawn as screen to check"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "点击炮，向右横移利用兵做炮架将军"
+            "value": "点击炮，向右走2格，利用兵做炮架将军"
           }
         }
       }
@@ -11406,7 +11406,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "好棋！马跳日字，蹄腿不行"
+            "value": "好棋！马跳日字，蹩马腿不行"
           }
         }
       }
@@ -11535,6 +11535,342 @@
           "stringUnit": {
             "state": "translated",
             "value": "闷宫杀！一步将死！"
+          }
+        }
+      }
+    },
+    "tutorial.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginner Tutorial"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新手教程"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.point.grid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9×10 Grid"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "9×10 网格"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.point.gridDesc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "90 intersections"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "90个交叉点"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.point.palace": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Palace"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "九宫格"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.point.palaceDesc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General's domain"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将帅活动范围"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.point.river": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chu River"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "楚河汉界"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.point.riverDesc": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Divides the two sides"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "划分红黑两方"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.boardLabel.red": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red Side"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "红方"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.boardLabel.black": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Black Side"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "黑方"
+          }
+        }
+      }
+    },
+    "tutorial.lesson0.boardLabel.river": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chu River  Han Border"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "楚河 汉界"
+          }
+        }
+      }
+    },
+    "tutorial.lesson1.group.main": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Major Pieces"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主力棋子"
+          }
+        }
+      }
+    },
+    "tutorial.lesson1.group.support": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supporting Pieces"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "辅助棋子"
+          }
+        }
+      }
+    },
+    "tutorial.lesson1.group.general": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Generals"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将帅"
+          }
+        }
+      }
+    },
+    "tutorial.lesson1.footer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice with each piece next!"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后续课程中，你将亲手操作每种棋子！"
+          }
+        }
+      }
+    },
+    "tutorial.piece.chariot": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rook: straight lines"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "车走直线·可进可退"
+          }
+        }
+      }
+    },
+    "tutorial.piece.horse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knight: L-shape, blocked by adjacent"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "马走日字·蹩腿不行"
+          }
+        }
+      }
+    },
+    "tutorial.piece.cannon": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannon: jumps to capture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "炮翻山吃子·不吃直线"
+          }
+        }
+      }
+    },
+    "tutorial.piece.advisor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advisor: diagonal in palace"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "士走斜线·不出九宫"
+          }
+        }
+      }
+    },
+    "tutorial.piece.elephant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bishop: diagonal, no river crossing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "象走田字·不过河"
+          }
+        }
+      }
+    },
+    "tutorial.piece.soldier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pawn: forward only, sideways after crossing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "兵不退·过河可横移"
+          }
+        }
+      }
+    },
+    "tutorial.piece.general": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General: one step in palace"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "帅将不出宫·横竖一步"
           }
         }
       }

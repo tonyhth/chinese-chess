@@ -132,8 +132,8 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson5.subtitle",
             descriptionKey: "tutorial.lesson5.description",
             icon: "arc",
-            initialFEN: "3aka3/9/9/9/9/5p3/9/9/3K5/1B7 w - - 0 1",
-            expectedMoves: ["b0d2", "d2f4"],
+            initialFEN: "3aka3/9/9/9/9/6p2/9/9/3K5/6B3 w - - 0 1",
+            expectedMoves: ["g0e2", "e2g4"],
             hintKeys: ["tutorial.lesson5.hint1", "tutorial.lesson5.hint2"],
             successMessageKey: "tutorial.lesson5.success"
         ),
