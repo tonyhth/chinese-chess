@@ -262,37 +262,37 @@ struct MasterGameBrowserView: View {
                 opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
             }) { opening in
                 if opening.subcategories.isEmpty {
-                    // 无子分类：直接选择
-                    HStack {
-                        Text(opening.name)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        Spacer()
-                        countBadge(masterStore.gameCount(for: opening))
-                    }
-                    .tag(SidebarSelection.opening(opening))
+                    // 无子分类：直接选择（frame+overlay 绕法避免 sidebar HStack 挤压）
+                    Text(opening.name)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            countBadge(masterStore.gameCount(for: opening))
+                        }
+                        .tag(SidebarSelection.opening(opening))
                 } else {
                     // 有子分类：DisclosureGroup 展开
                     DisclosureGroup {
                         ForEach(opening.subcategories) { sub in
-                            HStack {
-                                Text(sub.name)
-                                    .font(.subheadline)
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                countBadge(masterStore.gameCount(for: sub))
-                            }
-                            .tag(SidebarSelection.subcategory(sub))
-                        }
-                    } label: {
-                        HStack {
-                            Text(opening.name)
+                            Text(sub.name)
                                 .font(.subheadline)
                                 .foregroundColor(.primary)
-                            Spacer()
-                            countBadge(masterStore.gameCount(for: opening))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .overlay(alignment: .trailing) {
+                                    countBadge(masterStore.gameCount(for: sub))
+                                }
+                                .tag(SidebarSelection.subcategory(sub))
                         }
-                        .tag(SidebarSelection.opening(opening))
+                    } label: {
+                        Text(opening.name)
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .overlay(alignment: .trailing) {
+                                countBadge(masterStore.gameCount(for: opening))
+                            }
+                            .tag(SidebarSelection.opening(opening))
                     }
                 }
             }
@@ -305,14 +305,14 @@ struct MasterGameBrowserView: View {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { player in
-                    HStack {
-                        Text(player.nameCN)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        Spacer()
-                        countBadge(player.count)
-                    }
-                    .tag(SidebarSelection.player(player))
+                    Text(player.nameCN)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            countBadge(player.count)
+                        }
+                        .tag(SidebarSelection.player(player))
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -338,19 +338,21 @@ struct MasterGameBrowserView: View {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { event in
-                    HStack {
-                        Text(event.nameCN)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        if let year = event.year {
-                            Text("\(year)")
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
+                    Text(event.nameCN)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            HStack(spacing: 4) {
+                                if let year = event.year {
+                                    Text("\(year)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
+                                countBadge(event.count)
+                            }
                         }
-                        Spacer()
-                        countBadge(event.count)
-                    }
-                    .tag(SidebarSelection.event(event))
+                        .tag(SidebarSelection.event(event))
                 }
                 if visible.count < sorted.count {
                     HStack {

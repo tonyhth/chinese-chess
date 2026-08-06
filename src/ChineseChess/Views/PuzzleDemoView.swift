@@ -125,20 +125,20 @@ struct PuzzleDemoView: View {
             Section(L10n.shared.t("demo.sectionPuzzles")) {
                 ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
                     let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-                    HStack {
-                        Text(DemoCategory.puzzles(cat).displayName)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        Spacer()
-                        Text("\(count)")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.secondary.opacity(0.1))
-                            .clipShape(Capsule())
-                    }
-                    .tag(DemoCategory.puzzles(cat))
+                    Text(DemoCategory.puzzles(cat).displayName)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .trailing) {
+                            Text("\(count)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.secondary.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                        .tag(DemoCategory.puzzles(cat))
                 }
             }
         }
