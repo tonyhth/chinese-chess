@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- 方案 A 最终版：墨印将帅 - 九宫+河界 -->
+  
+  <!-- 圆角矩形背景 #B8382B 朱砂红 -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="#B8382B"/>
+  
+  <!-- 棋子圆形 - 外描边 #6B3228，加粗描边 -->
+  <circle cx="512" cy="512" r="310" fill="#F0E6C8" stroke="#6B3228" stroke-width="24"/>
+  
+  <!-- 楚河汉界 - 横贯中线 -->
+  <line x1="248" y1="512" x2="776" y2="512" stroke="#4A3728" stroke-width="18" stroke-linecap="round"/>
+  
+  <!-- 上方九宫对角线（X形）-->
+  <line x1="420" y1="348" x2="520" y2="448" stroke="#4A3728" stroke-width="14" stroke-linecap="round"/>
+  <line x1="520" y1="348" x2="420" y2="448" stroke="#4A3728" stroke-width="14" stroke-linecap="round"/>
+  
+  <!-- 下方九宫对角线（X形）-->
+  <line x1="504" y1="576" x2="604" y2="676" stroke="#4A3728" stroke-width="14" stroke-linecap="round"/>
+  <line x1="604" y1="576" x2="504" y2="676" stroke="#4A3728" stroke-width="14" stroke-linecap="round"/>
+</svg>

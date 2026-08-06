@@ -358,7 +358,7 @@ struct ChineseChessApp: App {
                     pendingReviewRecord = nil
                 }
             }
-            .frame(minWidth: 600, minHeight: 700)
+            .frame(minWidth: 900, minHeight: 750)
             .onAppear {
                 TutorialViewModel.markLaunched()
                 if firstLaunchNeeded {
@@ -542,7 +542,7 @@ struct ChineseChessApp: App {
 
                 case .studyHub:
                     NavigationStack {
-                        MasterGameBrowserView()  // DEBUG: directly open for sidebar diagnosis
+                        StudyHubView()  // 学棋中心
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
                                     Button(L10n.shared.t("common.done")) { activeSheet = nil }

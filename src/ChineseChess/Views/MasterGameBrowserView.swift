@@ -336,12 +336,15 @@ struct MasterGameBrowserView: View {
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { event in
                     HStack {
-                        Text("EVT_\(event.nameCN)")
-                            .font(.headline)
+                        Text("X_\(event.nameCN)")
+                            .font(.caption)
                             .foregroundColor(.black)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
                         Spacer()
                     }
                     .background(Color.white)
+                    .frame(maxWidth: .infinity)
                     .tag(SidebarSelection.event(event))
                 }
                 if visible.count < sorted.count {
