@@ -10230,7 +10230,8 @@
             "value": "车是最强大的棋子之一，可以沿直线任意移动。\n\n点击棋盘上的车，按照提示完成两步练习。"
           }
         }
-      }
+      },
+      "comment": "Content changed from 'Basic Rules' to 'The Rook' in v3.0 redesign"
     },
     "tutorial.lesson2.subtitle": {
       "localizations": {
@@ -10246,7 +10247,8 @@
             "value": "直线行走，可进可退"
           }
         }
-      }
+      },
+      "comment": "Content changed from 'Basic Rules' to 'The Rook' in v3.0 redesign"
     },
     "tutorial.lesson2.title": {
       "localizations": {
@@ -10262,7 +10264,8 @@
             "value": "车的走法"
           }
         }
-      }
+      },
+      "comment": "Content changed from 'Basic Rules' to 'The Rook' in v3.0 redesign"
     },
     "tutorial.lesson3.description": {
       "localizations": {
@@ -10278,8 +10281,7 @@
             "value": "马走“日”字——先直走一格，再斜走一格。\n\n注意：马腿位置有棋子时不能跳，称为“蹄马腿”。\n\n完成两步练习掌握马的走法。"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson3.subtitle": {
       "localizations": {
@@ -10295,8 +10297,7 @@
             "value": "日字跳跃，蹄腿不行"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson3.title": {
       "localizations": {
@@ -10312,8 +10313,7 @@
             "value": "马的走法"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson4.description": {
       "localizations": {
@@ -10329,8 +10329,7 @@
             "value": "炮的走法很特别：\n\n• 不吃子时：和车一样走直线\n• 吃子时：必须翻过一个棋子（炮架）才能吃\n\n完成两步练习掌握炮的双重特性。"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson4.subtitle": {
       "localizations": {
@@ -10346,8 +10345,7 @@
             "value": "不吃直线，翻山吃子"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson4.title": {
       "localizations": {
@@ -10363,8 +10361,7 @@
             "value": "炮的走法"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson5.description": {
       "localizations": {
@@ -10380,8 +10377,7 @@
             "value": "象走“田”字——斜走两格。\n\n限制：\n• 不能过河（只能在己方半场）\n• 田字中心有棋子时不能走（塞象眼）\n\n完成两步练习掌握象的走法。"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson5.subtitle": {
       "localizations": {
@@ -10397,8 +10393,7 @@
             "value": "田字走法，不过河"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson5.title": {
       "localizations": {
@@ -10414,8 +10409,7 @@
             "value": "象的走法"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson6.description": {
       "localizations": {
@@ -10431,8 +10425,7 @@
             "value": "士只能在九宫格内斜走一步。\n\n士是将帅的贴身护卫，活动范围很小但位置关键。\n\n完成两步练习了解士的走法。"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson6.subtitle": {
       "localizations": {
@@ -10448,8 +10441,7 @@
             "value": "斜线走子，不出九宫"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson6.title": {
       "localizations": {
@@ -10465,8 +10457,7 @@
             "value": "士的走法"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson7.description": {
       "localizations": {
@@ -10482,8 +10473,7 @@
             "value": "兵的走法：\n\n• 未过河：每次只能向前走一步\n• 过河后：可以向前或左右横移一步\n• 永远不能后退\n\n完成两步练习体验兵的变化。"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson7.subtitle": {
       "localizations": {
@@ -10499,8 +10489,7 @@
             "value": "只进不退，过河可横移"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson7.title": {
       "localizations": {
@@ -10516,8 +10505,7 @@
             "value": "兵的走法"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson8.description": {
       "localizations": {
@@ -10533,8 +10521,7 @@
             "value": "将（黑）和帅（红）的走法相同：\n\n• 在九宫格内每次走一步（横或竖）\n• 不能走出九宫\n• 两个将帅不能在同一列直接对面（白脸将）\n\n完成两步练习学习将帅的走法。"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson8.subtitle": {
       "localizations": {
@@ -10550,8 +10537,7 @@
             "value": "九宫内一步一行"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.lesson8.title": {
       "localizations": {
@@ -10567,8 +10553,7 @@
             "value": "将帅走法"
           }
         }
-      },
-      "comment": "DEPRECATED: replaced by tutorial.lesson{N}.* in v3.0 tutorial redesign"
+      }
     },
     "tutorial.next": {
       "localizations": {

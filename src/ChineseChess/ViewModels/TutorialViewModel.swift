@@ -52,7 +52,8 @@ struct TutorialLesson: Identifiable {
         self.successMessageKey = successMessageKey
 
         // R1 安全约束：hintKeys.count 必须等于 expectedMoves.count
-        assert(hintKeys.count == expectedMoves.count,
+        // C2 fix: 用 precondition 替代 assert，Debug + Release 都生效
+        precondition(hintKeys.count == expectedMoves.count,
                "TutorialLesson(\(id)): hintKeys.count (\(hintKeys.count)) must match expectedMoves.count (\(expectedMoves.count))")
     }
 }

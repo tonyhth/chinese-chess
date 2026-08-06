@@ -174,7 +174,32 @@ final class TutorialFENRedGeneralTests: XCTestCase {
         }
     }
 
-    // MARK: - Bug 2: StudyHubView 图标（回归验证不变）
+    // MARK: - C4: expectedMoves UCI 字符串与设计文档一致性
+
+    /// 验证所有 interactive 关卡的 expectedMoves UCI 字符串与设计文档 v3.0-final 完全一致
+    func testExpectedMovesMatchDesignDoc() {
+        let vm = TutorialViewModel()
+        let expectedDesign: [(lesson: Int, moves: [String])] = [
+            (2, ["a0a4", "a4e4"]),       // 课2: 车
+            (3, ["e3f5", "f5d6"]),       // 课3: 马
+            (4, ["a0e0", "e0e7"]),       // 课4: 炮
+            (5, ["b0d2", "d2f4"]),       // 课5: 象
+            (6, ["d1e2", "e2f1"]),       // 课6: 士
+            (7, ["e4e5", "e5d5"]),       // 课7: 兵
+            (8, ["d1e1", "e1e2"]),       // 课8: 将帅
+            (9, ["c0e0"]),                // 课9: 将军
+            (10, ["e9d9"]),               // 课10: 应将
+            (11, ["c6e6"]),               // 课11: 闷宫杀
+        ]
+        for (lessonId, expectedMoves) in expectedDesign {
+            let lesson = vm.lessons.first { $0.id == lessonId }
+            XCTAssertNotNil(lesson, "课\(lessonId) 不存在")
+            XCTAssertEqual(lesson?.expectedMoves, expectedMoves,
+                           "课\(lessonId): expectedMoves 与设计文档不符")
+        }
+    }
+
+    // MARK: - C7: StudyHubView 图标测试归属修正（原位置保留，标记为非教程相关）
 
     /// 验证 StudyHubView.swift 不再使用 compass.fill
     func testNoCompassFillInStudyHubView() {
