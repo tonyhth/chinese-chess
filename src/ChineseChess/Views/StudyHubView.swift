@@ -25,6 +25,12 @@ struct StudyHubView: View {
     private var macOSLayout: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 240))], spacing: 16) {
             studyCard(
+                title: l10n.t("tutorial.title"),
+                icon: "graduationcap.fill",
+                color: .green,
+                destination: TutorialView(onComplete: nil)
+            )
+            studyCard(
                 title: l10n.t("study.puzzle"),
                 icon: "puzzlepiece",
                 color: .orange,
@@ -67,6 +73,12 @@ struct StudyHubView: View {
 
     private var iOSLayout: some View {
         VStack(spacing: 16) {
+            studyCard(
+                title: l10n.t("tutorial.title"),
+                icon: "graduationcap.fill",
+                color: .green,
+                destination: TutorialView(onComplete: nil)
+            )
             studyCard(
                 title: l10n.t("study.puzzle"),
                 icon: "puzzlepiece",

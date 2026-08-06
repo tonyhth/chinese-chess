@@ -24,7 +24,7 @@ struct ChapterSelectView: View {
 
             // 演示入口卡片（ScrollView 外，始终可见）
             if demoPuzzleCount > 0 {
-                NavigationLink(value: NavigationRoute.puzzleDemo) {
+                NavigationLink(destination: PuzzleDemoView()) {
                     DemoEntryCard(demoCount: demoPuzzleCount, categoryCount: demoCategoryCount)
                 }
                 .buttonStyle(.plain)
@@ -39,7 +39,7 @@ struct ChapterSelectView: View {
                 LazyVStack(spacing: 16) {
                     ForEach(store.chapters) { chapter in
                         if chapter.isUnlocked {
-                            NavigationLink(value: NavigationRoute.chapter(chapter)) {
+                            NavigationLink(destination: PuzzleSelectView(chapter: chapter)) {
                                 ChapterCard(chapter: chapter)
                             }
                             .buttonStyle(.plain)
@@ -64,6 +64,8 @@ struct ChapterSelectView: View {
             print("[ChapterSelect] chapters=\(store.chapters.count), puzzles=\(ps.puzzles.count), demoPuzzles=\(ps.demoPuzzles.count)")
             #endif
         }
+        // Deprecated: ChapterSelectView 内已改为 destination-based NavigationLink
+        // 保留此 navigationDestination 用于向后兼容和可能的 deep linking
         .navigationDestination(for: NavigationRoute.self) { route in
             switch route {
             case .chapter(let chapter):

@@ -266,6 +266,7 @@ struct MasterGameBrowserView: View {
                     HStack {
                         Text(opening.name)
                             .font(.subheadline)
+                            .foregroundColor(.primary)
                         Spacer()
                         countBadge(masterStore.gameCount(for: opening))
                     }
@@ -277,6 +278,7 @@ struct MasterGameBrowserView: View {
                             HStack {
                                 Text(sub.name)
                                     .font(.subheadline)
+                                    .foregroundColor(.primary)
                                 Spacer()
                                 countBadge(masterStore.gameCount(for: sub))
                             }
@@ -286,6 +288,7 @@ struct MasterGameBrowserView: View {
                         HStack {
                             Text(opening.name)
                                 .font(.subheadline)
+                                .foregroundColor(.primary)
                             Spacer()
                             countBadge(masterStore.gameCount(for: opening))
                         }
@@ -305,6 +308,7 @@ struct MasterGameBrowserView: View {
                     HStack {
                         Text(player.nameCN)
                             .font(.subheadline)
+                            .foregroundColor(.primary)
                         Spacer()
                         countBadge(player.count)
                     }
@@ -337,6 +341,7 @@ struct MasterGameBrowserView: View {
                     HStack {
                         Text(event.nameCN)
                             .font(.subheadline)
+                            .foregroundColor(.primary)
                         if let year = event.year {
                             Text("\(year)")
                                 .font(.caption2)

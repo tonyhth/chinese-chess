@@ -128,6 +128,7 @@ struct PuzzleDemoView: View {
                     HStack {
                         Text(DemoCategory.puzzles(cat).displayName)
                             .font(.subheadline)
+                            .foregroundColor(.primary)
                         Spacer()
                         Text("\(count)")
                             .font(.caption2)

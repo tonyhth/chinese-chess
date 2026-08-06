@@ -1,0 +1,835 @@
+{
+  "totalGames": 40732,
+  "players": [
+    {
+      "name": "Lv Qin",
+      "nameCN": "吕钦",
+      "count": 1837
+    },
+    {
+      "name": "HU RongHua",
+      "nameCN": "胡荣华",
+      "count": 1388
+    },
+    {
+      "name": "ZHAO GuoRong",
+      "nameCN": "赵国荣",
+      "count": 1228
+    },
+    {
+      "name": "XU YinChuan",
+      "nameCN": "许银川",
+      "count": 1188
+    },
+    {
+      "name": "LIU DaHua",
+      "nameCN": "柳大华",
+      "count": 1125
+    },
+    {
+      "name": "XU TianHong",
+      "nameCN": "徐天红",
+      "count": 916
+    },
+    {
+      "name": "Na",
+      "nameCN": "Na",
+      "count": 808
+    },
+    {
+      "name": "TAO HanMing",
+      "nameCN": "陶汉明",
+      "count": 795
+    },
+    {
+      "name": "YU YouHua",
+      "nameCN": "YU YouHua",
+      "count": 759
+    },
+    {
+      "name": "HONG Zhi",
+      "nameCN": "HONG Zhi",
+      "count": 704
+    },
+    {
+      "name": "JIANG Chuan",
+      "nameCN": "蒋川",
+      "count": 694
+    },
+    {
+      "name": "SUN YongZheng",
+      "nameCN": "SUN YongZheng",
+      "count": 589
+    },
+    {
+      "name": "WANG Bin",
+      "nameCN": "王斌",
+      "count": 586
+    },
+    {
+      "name": "LI LaiQun",
+      "nameCN": "李来群",
+      "count": 578
+    },
+    {
+      "name": "BU FengBo",
+      "nameCN": "BU FengBo",
+      "count": 574
+    },
+    {
+      "name": "LIU DianZhong",
+      "nameCN": "刘殿中",
+      "count": 553
+    },
+    {
+      "name": "ZHANG Qiang",
+      "nameCN": "张强",
+      "count": 530
+    },
+    {
+      "name": "WAN ChunLin",
+      "nameCN": "万春林",
+      "count": 529
+    },
+    {
+      "name": "ZHAO XinXin",
+      "nameCN": "ZHAO XinXin",
+      "count": 522
+    },
+    {
+      "name": "JIN Bo",
+      "nameCN": "JIN Bo",
+      "count": 513
+    },
+    {
+      "name": "WANG Yang",
+      "nameCN": "WANG Yang",
+      "count": 472
+    },
+    {
+      "name": "ZHUANG YuTing",
+      "nameCN": "庄玉庭",
+      "count": 451
+    },
+    {
+      "name": "NEI TieWen",
+      "nameCN": "NEI TieWen",
+      "count": 439
+    },
+    {
+      "name": "KE YongQing",
+      "nameCN": "KE YongQing",
+      "count": 436
+    },
+    {
+      "name": "XIE Jing",
+      "nameCN": "谢岽",
+      "count": 427
+    },
+    {
+      "name": "YAN WenQing",
+      "nameCN": "YAN WenQing",
+      "count": 419
+    },
+    {
+      "name": "HUANG HaiLin",
+      "nameCN": "黄海林",
+      "count": 412
+    },
+    {
+      "name": "ZHANG ShenHong",
+      "nameCN": "ZHANG ShenHong",
+      "count": 412
+    },
+    {
+      "name": "ZHENG YiHong",
+      "nameCN": "ZHENG YiHong",
+      "count": 409
+    },
+    {
+      "name": "Li Hong Jia",
+      "nameCN": "Li Hong Jia",
+      "count": 392
+    },
+    {
+      "name": "XU Chao",
+      "nameCN": "XU Chao",
+      "count": 378
+    },
+    {
+      "name": "WANG LinNa",
+      "nameCN": "王琳娜",
+      "count": 367
+    },
+    {
+      "name": "CHIU Yu Kuen",
+      "nameCN": "CHIU Yu Kuen",
+      "count": 356
+    },
+    {
+      "name": "ZHANG XiaoPing",
+      "nameCN": "张晓平",
+      "count": 355
+    },
+    {
+      "name": "LI XueSong",
+      "nameCN": "LI XueSong",
+      "count": 352
+    },
+    {
+      "name": "LI DeZhi",
+      "nameCN": "LI DeZhi",
+      "count": 350
+    },
+    {
+      "name": "XIE Kui",
+      "nameCN": "XIE Kui",
+      "count": 347
+    },
+    {
+      "name": "CHEN FuJie",
+      "nameCN": "CHEN FuJie",
+      "count": 340
+    },
+    {
+      "name": "LIN HongMin",
+      "nameCN": "LIN HongMin",
+      "count": 334
+    },
+    {
+      "name": "SHEN Peng",
+      "nameCN": "SHEN Peng",
+      "count": 334
+    },
+    {
+      "name": "WANG YueFei",
+      "nameCN": "WANG YueFei",
+      "count": 331
+    },
+    {
+      "name": "LI ZhiPing",
+      "nameCN": "LI ZhiPing",
+      "count": 324
+    },
+    {
+      "name": "ZHANG GuoFeng",
+      "nameCN": "ZHANG GuoFeng",
+      "count": 319
+    },
+    {
+      "name": "JIN So",
+      "nameCN": "JIN So",
+      "count": 307
+    },
+    {
+      "name": "SHANG Wei",
+      "nameCN": "尚威",
+      "count": 303
+    },
+    {
+      "name": "HUANG ShiQing",
+      "nameCN": "HUANG ShiQing",
+      "count": 290
+    },
+    {
+      "name": "ZHANG Jiang",
+      "nameCN": "张江",
+      "count": 289
+    },
+    {
+      "name": "YANG DeQi",
+      "nameCN": "YANG DeQi",
+      "count": 286
+    },
+    {
+      "name": "SONG GuoQiang",
+      "nameCN": "SONG GuoQiang",
+      "count": 286
+    },
+    {
+      "name": "JIN YuYan",
+      "nameCN": "JIN YuYan",
+      "count": 285
+    },
+    {
+      "name": "GE WeiPu",
+      "nameCN": "GE WeiPu",
+      "count": 279
+    },
+    {
+      "name": "LI Aidong",
+      "nameCN": "LI Aidong",
+      "count": 275
+    },
+    {
+      "name": "CHEN HanFeng",
+      "nameCN": "CHEN HanFeng",
+      "count": 268
+    },
+    {
+      "name": "PAN ZhenBo",
+      "nameCN": "PAN ZhenBo",
+      "count": 266
+    },
+    {
+      "name": "MIAO LiMing",
+      "nameCN": "MIAO LiMing",
+      "count": 261
+    },
+    {
+      "name": "FU GuangMing",
+      "nameCN": "FU GuangMing",
+      "count": 259
+    },
+    {
+      "name": "JING XueYi",
+      "nameCN": "JING XueYi",
+      "count": 259
+    },
+    {
+      "name": "WU Kui Lin",
+      "nameCN": "WU Kui Lin",
+      "count": 253
+    },
+    {
+      "name": "CHEN XiaoKun",
+      "nameCN": "CHEN XiaoKun",
+      "count": 251
+    },
+    {
+      "name": "LIAO ErPing",
+      "nameCN": "LIAO ErPing",
+      "count": 247
+    },
+    {
+      "name": "XIE YeJian",
+      "nameCN": "XIE YeJian",
+      "count": 247
+    },
+    {
+      "name": "ZONG YongSheng",
+      "nameCN": "ZONG YongSheng",
+      "count": 244
+    },
+    {
+      "name": "HU Ming",
+      "nameCN": "HU Ming",
+      "count": 243
+    },
+    {
+      "name": "CAI Yi",
+      "nameCN": "CAI Yi",
+      "count": 242
+    },
+    {
+      "name": "LEI Kam Fun",
+      "nameCN": "LEI Kam Fun",
+      "count": 235
+    },
+    {
+      "name": "WANG JiaLiang",
+      "nameCN": "王家良",
+      "count": 231
+    },
+    {
+      "name": "TANG ZhuoGuang",
+      "nameCN": "TANG ZhuoGuang",
+      "count": 230
+    },
+    {
+      "name": "TANG Dan",
+      "nameCN": "TANG Dan",
+      "count": 225
+    },
+    {
+      "name": "LI ShaoGeng",
+      "nameCN": "LI ShaoGeng",
+      "count": 224
+    },
+    {
+      "name": "SUN HaoYu",
+      "nameCN": "SUN HaoYu",
+      "count": 222
+    },
+    {
+      "name": "CHEN LiChun",
+      "nameCN": "CHEN LiChun",
+      "count": 216
+    },
+    {
+      "name": "LEUNG TatMan",
+      "nameCN": "LEUNG TatMan",
+      "count": 213
+    },
+    {
+      "name": "LI WangXiang",
+      "nameCN": "LI WangXiang",
+      "count": 211
+    },
+    {
+      "name": "Cheng Junchao",
+      "nameCN": "Cheng Junchao",
+      "count": 211
+    },
+    {
+      "name": "CUI Yan",
+      "nameCN": "CUI Yan",
+      "count": 208
+    },
+    {
+      "name": "XU WenXue",
+      "nameCN": "XU WenXue",
+      "count": 202
+    },
+    {
+      "name": "JIANG QuanSheng",
+      "nameCN": "JIANG QuanSheng",
+      "count": 199
+    },
+    {
+      "name": "WU Xia",
+      "nameCN": "WU Xia",
+      "count": 198
+    },
+    {
+      "name": "CAO YanLei",
+      "nameCN": "CAO YanLei",
+      "count": 198
+    },
+    {
+      "name": "ZHAO GuanFang",
+      "nameCN": "ZHAO GuanFang",
+      "count": 196
+    },
+    {
+      "name": "WANG TianYi",
+      "nameCN": "WANG TianYi",
+      "count": 196
+    },
+    {
+      "name": "DONG Fei",
+      "nameCN": "DONG Fei",
+      "count": 195
+    },
+    {
+      "name": "LI Qun",
+      "nameCN": "LI Qun",
+      "count": 194
+    },
+    {
+      "name": "JIN HaiYing",
+      "nameCN": "JIN HaiYing",
+      "count": 193
+    },
+    {
+      "name": "LI JiaHua",
+      "nameCN": "LI JiaHua",
+      "count": 192
+    },
+    {
+      "name": "DONG XuBin",
+      "nameCN": "DONG XuBin",
+      "count": 188
+    },
+    {
+      "name": "XIE ZhouMiao",
+      "nameCN": "XIE ZhouMiao",
+      "count": 185
+    },
+    {
+      "name": "WANG XiaoHua",
+      "nameCN": "WANG XiaoHua",
+      "count": 184
+    },
+    {
+      "name": "XU JianMiao",
+      "nameCN": "XU JianMiao",
+      "count": 178
+    },
+    {
+      "name": "WONG Hok Him",
+      "nameCN": "WONG Hok Him",
+      "count": 177
+    },
+    {
+      "name": "YOU YingQin",
+      "nameCN": "YOU YingQin",
+      "count": 173
+    },
+    {
+      "name": "JIANG ZhiLiang",
+      "nameCN": "JIANG ZhiLiang",
+      "count": 166
+    },
+    {
+      "name": "YUNG Tak Keung",
+      "nameCN": "YUNG Tak Keung",
+      "count": 165
+    },
+    {
+      "name": "GUO LiPing",
+      "nameCN": "郭莉萍",
+      "count": 164
+    },
+    {
+      "name": "HAO JiChao",
+      "nameCN": "HAO JiChao",
+      "count": 164
+    },
+    {
+      "name": "LU WeiTao",
+      "nameCN": "LU WeiTao",
+      "count": 162
+    },
+    {
+      "name": "HU QingYang",
+      "nameCN": "HU QingYang",
+      "count": 161
+    },
+    {
+      "name": "ZHU ZongSi",
+      "nameCN": "ZHU ZongSi",
+      "count": 160
+    },
+    {
+      "name": "DANG GuoLei",
+      "nameCN": "DANG GuoLei",
+      "count": 160
+    },
+    {
+      "name": "YANG GuanLin",
+      "nameCN": "杨官璘",
+      "count": 156
+    }
+  ],
+  "events": [
+    {
+      "name": "2014 China Xiangqi League 2014",
+      "nameCN": "2014年全国象棋甲级联赛",
+      "year": 2014,
+      "count": 722
+    },
+    {
+      "name": "China Team Championship 1984",
+      "nameCN": "1984年全国团体赛",
+      "year": 1984,
+      "count": 676
+    },
+    {
+      "name": "China Team Championship 1993",
+      "nameCN": "1993年全国团体赛",
+      "year": 1993,
+      "count": 648
+    },
+    {
+      "name": "China National Xiangqi League 2004",
+      "nameCN": "2004年全国象棋甲级联赛",
+      "year": 2004,
+      "count": 571
+    },
+    {
+      "name": "China Team Championship 2008",
+      "nameCN": "2008年全国团体赛",
+      "year": 2008,
+      "count": 564
+    },
+    {
+      "name": "Hong Kong Team Champion 2011",
+      "nameCN": "2011年香港团体赛",
+      "year": 2011,
+      "count": 540
+    },
+    {
+      "name": "Hong Kong Team Champion 2008",
+      "nameCN": "2008年香港团体赛",
+      "year": 2008,
+      "count": 520
+    },
+    {
+      "name": "Hong Kong Team Champion 2009",
+      "nameCN": "2009年香港团体赛",
+      "year": 2009,
+      "count": 512
+    },
+    {
+      "name": "China National Xiangqi League 2005",
+      "nameCN": "2005年全国象棋甲级联赛",
+      "year": 2005,
+      "count": 510
+    },
+    {
+      "name": "China National Xiangqi League 2006",
+      "nameCN": "2006年全国象棋甲级联赛",
+      "year": 2006,
+      "count": 502
+    },
+    {
+      "name": "China Team Championship 2003",
+      "nameCN": "2003年全国团体赛",
+      "year": 2003,
+      "count": 500
+    },
+    {
+      "name": "Chinese National Champion 2006",
+      "nameCN": "2006年全国个人赛",
+      "year": 2006,
+      "count": 468
+    },
+    {
+      "name": "China National Xiangqi League 2007",
+      "nameCN": "2007年全国象棋甲级联赛",
+      "year": 2007,
+      "count": 454
+    },
+    {
+      "name": "China National Xiangqi League 2008",
+      "nameCN": "2008年全国象棋甲级联赛",
+      "year": 2008,
+      "count": 442
+    },
+    {
+      "name": "Chinese National Champion 2007",
+      "nameCN": "2007年全国个人赛",
+      "year": 2007,
+      "count": 437
+    },
+    {
+      "name": "China National Xiangqi League 2011",
+      "nameCN": "2011年全国象棋甲级联赛",
+      "year": 2011,
+      "count": 434
+    },
+    {
+      "name": "China Team Championship 2005",
+      "nameCN": "2005年全国团体赛",
+      "year": 2005,
+      "count": 425
+    },
+    {
+      "name": "World Xiangqi Championships 2005",
+      "nameCN": "2005年世界象棋锦标赛",
+      "year": 2005,
+      "count": 424
+    },
+    {
+      "name": "China Team Championship 2006",
+      "nameCN": "2006年全国团体赛",
+      "year": 2006,
+      "count": 411
+    },
+    {
+      "name": "Openning Study NA",
+      "nameCN": "布局研究",
+      "year": null,
+      "count": 399
+    },
+    {
+      "name": "Chinese National Champion 2003",
+      "nameCN": "2003年全国个人赛",
+      "year": 2003,
+      "count": 397
+    },
+    {
+      "name": "Chinese National Champion 2002",
+      "nameCN": "2002年全国个人赛",
+      "year": 2002,
+      "count": 394
+    },
+    {
+      "name": "China Team Championship 2004",
+      "nameCN": "2004年全国团体赛",
+      "year": 2004,
+      "count": 386
+    },
+    {
+      "name": "China National Xiangqi League 2009",
+      "nameCN": "2009年全国象棋甲级联赛",
+      "year": 2009,
+      "count": 380
+    },
+    {
+      "name": "Chinese National Champion 1990",
+      "nameCN": "1990年全国个人赛",
+      "year": 1990,
+      "count": 378
+    },
+    {
+      "name": "Chinese National Champion 2005",
+      "nameCN": "2005年全国个人赛",
+      "year": 2005,
+      "count": 369
+    },
+    {
+      "name": "China National Xiangqi League 2003",
+      "nameCN": "2003年全国象棋甲级联赛",
+      "year": 2003,
+      "count": 368
+    },
+    {
+      "name": "Chinese National Champion 2001",
+      "nameCN": "2001年全国个人赛",
+      "year": 2001,
+      "count": 361
+    },
+    {
+      "name": "China Team Championship 1991",
+      "nameCN": "1991年全国团体赛",
+      "year": 1991,
+      "count": 360
+    },
+    {
+      "name": "Hong Kong Team Champion 2003",
+      "nameCN": "2003年香港团体赛",
+      "year": 2003,
+      "count": 360
+    },
+    {
+      "name": "China Team Championship 2007",
+      "nameCN": "2007年全国团体赛",
+      "year": 2007,
+      "count": 358
+    },
+    {
+      "name": "China Team Championship 1999",
+      "nameCN": "1999年全国团体赛",
+      "year": 1999,
+      "count": 357
+    },
+    {
+      "name": "World Xiangqi Championships 2009",
+      "nameCN": "2009年世界象棋锦标赛",
+      "year": 2009,
+      "count": 351
+    },
+    {
+      "name": "Chinese National Champion 2000",
+      "nameCN": "2000年全国个人赛",
+      "year": 2000,
+      "count": 330
+    },
+    {
+      "name": "World Xiangqi Championships 2007",
+      "nameCN": "2007年世界象棋锦标赛",
+      "year": 2007,
+      "count": 329
+    },
+    {
+      "name": "China Team Championship 1990",
+      "nameCN": "1990年全国团体赛",
+      "year": 1990,
+      "count": 317
+    },
+    {
+      "name": "China Team Championship 2002",
+      "nameCN": "2002年全国团体赛",
+      "year": 2002,
+      "count": 308
+    },
+    {
+      "name": "Chinese National Champion 1998",
+      "nameCN": "1998年全国个人赛",
+      "year": 1998,
+      "count": 293
+    },
+    {
+      "name": "Hong Kong Team Champion 2002",
+      "nameCN": "2002年香港团体赛",
+      "year": 2002,
+      "count": 287
+    },
+    {
+      "name": "China Team Championship 1997",
+      "nameCN": "1997年全国团体赛",
+      "year": 1997,
+      "count": 282
+    },
+    {
+      "name": "World Xiangqi Championships 1997",
+      "nameCN": "1997年世界象棋锦标赛",
+      "year": 1997,
+      "count": 269
+    },
+    {
+      "name": "World Xiangqi Championships 2001",
+      "nameCN": "2001年世界象棋锦标赛",
+      "year": 2001,
+      "count": 269
+    },
+    {
+      "name": "Chinese National Champion 1997",
+      "nameCN": "1997年全国个人赛",
+      "year": 1997,
+      "count": 264
+    },
+    {
+      "name": "China Team Championship 1992",
+      "nameCN": "1992年全国团体赛",
+      "year": 1992,
+      "count": 257
+    },
+    {
+      "name": "China Team Championship 1998",
+      "nameCN": "1998年全国团体赛",
+      "year": 1998,
+      "count": 254
+    },
+    {
+      "name": "China Team Championship 1996",
+      "nameCN": "1996年全国团体赛",
+      "year": 1996,
+      "count": 252
+    },
+    {
+      "name": "Hong Kong Individual Championship 2002",
+      "nameCN": "2002年香港个人赛",
+      "year": 2002,
+      "count": 242
+    },
+    {
+      "name": "Hong Kong Individual Championship 2003",
+      "nameCN": "2003年香港个人赛",
+      "year": 2003,
+      "count": 242
+    },
+    {
+      "name": "World Xiangqi Championships 2011",
+      "nameCN": "2011年世界象棋锦标赛",
+      "year": 2011,
+      "count": 239
+    },
+    {
+      "name": "Hong Kong Individual Championship 1997",
+      "nameCN": "1997年香港个人赛",
+      "year": 1997,
+      "count": 237
+    }
+  ],
+  "openingDistribution": {
+    "h2e2": 23341,
+    "c3c4": 7214,
+    "g0e2": 3634,
+    "b0c2": 1413,
+    "g3g4": 1222,
+    "h2d2": 1097,
+    "b2e2": 875,
+    "h0g2": 644,
+    "h2f2": 547,
+    "c0e2": 196,
+    "b0a2": 175,
+    "b2d2": 121,
+    "b2f2": 86,
+    "h0i2": 36,
+    "h2c2": 34,
+    "f0e1": 33,
+    "d0e1": 12,
+    "a3a4": 10,
+    "h2g2": 5,
+    "i3i4": 4,
+    "b2g2": 4,
+    "h2h6": 3,
+    "h2i2": 2,
+    "b2c2": 1,
+    "b2b4": 1,
+    "g0i2": 1
+  }
+}
