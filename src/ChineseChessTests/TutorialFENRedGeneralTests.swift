@@ -84,23 +84,18 @@ final class TutorialFENRedGeneralTests: XCTestCase {
         return (fr, fc, tr, tc)
     }
 
-    /// 验证每节课的 expectedMove 起始位置有正确的棋子
+    /// 验证每节课第一步的起始位置有正确的棋子
+    /// 注意：只验证第一步（stepIndex=0），因为第二步的起始位置是第一步走完后才存在的，
+    /// 在初始 FEN 上验证第二步起点会失败（P1 fix）。
     func testExpectedMoveSourcePieces() {
-        let expectations: [(lesson: Int, fen: String, move: String, side: Side, kind: PieceKind)] = [
+        let expectations: [(lesson: Int, fen: String, firstMove: String, side: Side, kind: PieceKind)] = [
             (2, "3aka3/9/9/9/9/4p4/9/9/3K5/R8 w - - 0 1", "a0a4", .red, .chariot),
-            (2, "3aka3/9/9/9/9/4p4/9/9/3K5/R8 w - - 0 1", "a4e4", .red, .chariot),
-            (3, "3aka3/9/9/3p5/9/9/4N4/9/3K5/9 w - - 0 1", "e3f5", .red, .knight),
-            (3, "3aka3/9/9/3p5/9/9/4N4/9/3K5/9 w - - 0 1", "f5d6", .red, .knight),
+            (3, "3aka3/9/9/3p5/9/9/4N4/9/3K5/9 w - - 0 1", "e3f5", .red, .horse),
             (4, "3aka3/9/4c4/9/9/4P4/9/9/3K5/C8 w - - 0 1", "a0e0", .red, .cannon),
-            (4, "3aka3/9/4c4/9/9/4P4/9/9/3K5/C8 w - - 0 1", "e0e7", .red, .cannon),
-            (5, "3aka3/9/9/9/9/5p3/9/9/3K5/1B7 w - - 0 1", "b0d2", .red, .bishop),
-            (5, "3aka3/9/9/9/9/5p3/9/9/3K5/1B7 w - - 0 1", "d2f4", .red, .bishop),
+            (5, "3aka3/9/9/9/9/5p3/9/9/3K5/1B7 w - - 0 1", "b0d2", .red, .elephant),
             (6, "3k5/9/9/9/9/9/9/4p4/3AK4/9 w - - 0 1", "d1e2", .red, .advisor),
-            (6, "3k5/9/9/9/9/9/9/4p4/3AK4/9 w - - 0 1", "e2f1", .red, .advisor),
-            (7, "4ka3/9/9/9/3p5/4P4/9/9/3K5/9 w - - 0 1", "e4e5", .red, .pawn),
-            (7, "4ka3/9/9/9/3p5/4P4/9/9/3K5/9 w - - 0 1", "e5d5", .red, .pawn),
+            (7, "4ka3/9/9/9/3p5/4P4/9/9/3K5/9 w - - 0 1", "e4e5", .red, .soldier),
             (8, "3aka3/9/9/9/9/4R4/9/9/3K5/9 w - - 0 1", "d1e1", .red, .general),
-            (8, "3aka3/9/9/9/9/4R4/9/9/3K5/9 w - - 0 1", "e1e2", .red, .general),
             (9, "3aka3/9/9/9/4P4/9/9/9/3K5/2C6 w - - 0 1", "c0e0", .red, .cannon),
             (10, "4ka3/9/9/4P4/9/9/4C4/9/5K3/9 b - - 0 1", "e9d9", .black, .general),
             (11, "3aka3/4p4/9/2C6/9/9/9/9/3K5/9 w - - 0 1", "c6e6", .red, .cannon),
