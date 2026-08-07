@@ -81,7 +81,7 @@ struct PuzzleDemoView: View {
         #if os(macOS)
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 200)
+                .frame(width: 220)
 
             Divider()
 
@@ -121,34 +121,66 @@ struct PuzzleDemoView: View {
     // MARK: - 分类侧边栏 (macOS)
     #if os(macOS)
     private var sidebar: some View {
-        List(selection: $selectedCategory) {
-            Section(L10n.shared.t("demo.sectionPuzzles")) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 2) {
+                // section header（模拟 List Section header）
+                Text(L10n.shared.t("demo.sectionPuzzles"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.top, 12)
+                    .padding(.bottom, 4)
+
                 ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
+                    let category = DemoCategory.puzzles(cat)
                     let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-                    Text(DemoCategory.puzzles(cat).displayName)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            Text("\(count)")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.1))
-                                .clipShape(Capsule())
-                        }
-                        .tag(DemoCategory.puzzles(cat))
+                    Button(action: { selectedCategory = category }) {
+                        sidebarRow(
+                            name: category.displayName,
+                            count: count,
+                            isSelected: selectedCategory == category
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
+            .padding(.bottom, 12)
         }
-        .listStyle(.sidebar)
+        .background(Color(nsColor: .windowBackgroundColor))
         .onAppear {
             #if DEBUG
             print("[PuzzleDemo] demoCategories = \(PuzzleStore.shared.demoCategories)")
             print("[PuzzleDemo] puzzles count = \(PuzzleStore.shared.puzzles.count)")
             #endif
         }
+    }
+
+    /// macOS sidebar 分类行 — 参考 iOS categoryRow 模式
+    private func sidebarRow(name: String, count: Int, isSelected: Bool) -> some View {
+        HStack {
+            Text(name)
+                .font(.subheadline)
+                .foregroundColor(isSelected ? .white : .primary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer()
+            Text("\(count)")
+                .font(.caption2)
+                .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(
+                    isSelected ? Color.white.opacity(0.2) : Color.secondary.opacity(0.1)
+                )
+                .clipShape(Capsule())
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isSelected ? Color.accentColor : Color.clear)
+        )
+        .contentShape(Rectangle())
     }
     #endif
 
@@ -437,7 +469,7 @@ struct PuzzleDemoView: View {
     private func macosLayout(viewModel vm: DemoViewModel) -> some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 200)
+                .frame(width: 220)
 
             Divider()
 

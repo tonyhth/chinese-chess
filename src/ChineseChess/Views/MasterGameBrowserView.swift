@@ -130,7 +130,7 @@ struct MasterGameBrowserView: View {
         #if os(macOS)
         HStack(spacing: 0) {
             sidebar
-                .frame(minWidth: 200, idealWidth: 200)
+                .frame(width: 220)
             Divider()
             listContent
         }
@@ -189,45 +189,37 @@ struct MasterGameBrowserView: View {
 
     #if os(macOS)
     private var sidebar: some View {
-        List(selection: $sidebarSelection) {
-            Section {
+        VStack(spacing: 0) {
+            // 固定区：modePicker + searchField（不滚动）
+            VStack(spacing: 8) {
                 modePicker
-                    .listRowSeparator(.hidden)
-
-                // Phase B3 Step 4: macOS 搜索框
                 searchField
-                    .listRowSeparator(.hidden)
             }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
 
-            if isSearching {
-                searchResultSection
-            } else if masterStore.isLoaded {
-                switch browseMode {
-                case .opening:
-                    openingSidebarContent
-                case .player:
-                    playerSidebarContent
-                case .event:
-                    eventSidebarContent
-                }
-            } else {
-                Section(L10n.shared.t("demo.sectionMasterGames")) {
-                    Button(action: loadIndex) {
-                        HStack {
-                            if isLoadingIndex {
-                                ProgressView().scaleEffect(0.7)
-                            } else {
-                                Image(systemName: "arrow.down.circle")
-                                    .foregroundColor(.accentColor)
-                            }
-                            Text(L10n.shared.t("demo.loadMasterIndex"))
-                                .font(.subheadline)
+            Divider()
+
+            // 滚动区：分类列表
+            ScrollView {
+                VStack(alignment: .leading, spacing: 2) {
+                    if isSearching {
+                        searchResultContent
+                    } else if masterStore.isLoaded {
+                        switch browseMode {
+                        case .opening: openingSidebarContent
+                        case .player:  playerSidebarContent
+                        case .event:   eventSidebarContent
                         }
+                    } else {
+                        // 加载入口
+                        loadIndexContent
                     }
                 }
+                .padding(.bottom, 12)
             }
         }
-        .listStyle(.sidebar)
+        .background(Color(nsColor: .windowBackgroundColor))
         .onChange(of: sidebarSelection) { _, newSelection in
             guard let sel = newSelection else { return }
             useMoveSequenceFilter = false  // Phase D fix: 用户选择 sidebar 时退出联动
@@ -256,63 +248,130 @@ struct MasterGameBrowserView: View {
         }
     }
 
+    /// macOS sidebar 分类行 — 参考 iOS categoryRow 模式
+    private func sidebarRow(name: String, count: Int, isSelected: Bool) -> some View {
+        HStack {
+            Text(name)
+                .font(.subheadline)
+                .foregroundColor(isSelected ? .white : .primary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer()
+            Text("\(count)")
+                .font(.caption2)
+                .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(
+                    isSelected ? Color.white.opacity(0.2) : Color.secondary.opacity(0.1)
+                )
+                .clipShape(Capsule())
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isSelected ? Color.accentColor : Color.clear)
+        )
+        .contentShape(Rectangle())
+    }
+
+    private var loadIndexContent: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(L10n.shared.t("demo.sectionMasterGames"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
+            Button(action: loadIndex) {
+                HStack {
+                    if isLoadingIndex {
+                        ProgressView().scaleEffect(0.7)
+                    } else {
+                        Image(systemName: "arrow.down.circle")
+                            .foregroundColor(.accentColor)
+                    }
+                    Text(L10n.shared.t("demo.loadMasterIndex"))
+                        .font(.subheadline)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
     private var openingSidebarContent: some View {
-        Section(L10n.shared.t("demo.sectionMasterGames")) {
+        VStack(alignment: .leading, spacing: 2) {
+            // section header
+            Text(L10n.shared.t("demo.sectionMasterGames"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
             ForEach(OpeningCategories.categories.filter { opening in
                 opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
             }) { opening in
                 if opening.subcategories.isEmpty {
-                    // 无子分类：直接选择
-                    Text(opening.name)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            countBadge(masterStore.gameCount(for: opening))
-                        }
-                        .tag(SidebarSelection.opening(opening))
+                    Button(action: { sidebarSelection = .opening(opening) }) {
+                        sidebarRow(
+                            name: opening.name,
+                            count: masterStore.gameCount(for: opening),
+                            isSelected: sidebarSelection == .opening(opening)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 } else {
-                    // 有子分类：DisclosureGroup 展开
                     DisclosureGroup {
                         ForEach(opening.subcategories) { sub in
-                            Text(sub.name)
-                                .font(.subheadline)
-                                .foregroundColor(.primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .overlay(alignment: .trailing) {
-                                    countBadge(masterStore.gameCount(for: sub))
-                                }
-                                .tag(SidebarSelection.subcategory(sub))
+                            Button(action: { sidebarSelection = .subcategory(sub) }) {
+                                sidebarRow(
+                                    name: sub.name,
+                                    count: masterStore.gameCount(for: sub),
+                                    isSelected: sidebarSelection == .subcategory(sub)
+                                )
+                                .padding(.leading, 16)
+                            }
+                            .buttonStyle(.plain)
                         }
                     } label: {
-                        Text(opening.name)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .overlay(alignment: .trailing) {
-                                countBadge(masterStore.gameCount(for: opening))
-                            }
-                            .tag(SidebarSelection.opening(opening))
+                        sidebarRow(
+                            name: opening.name,
+                            count: masterStore.gameCount(for: opening),
+                            isSelected: sidebarSelection == .opening(opening)
+                        )
                     }
+                    .padding(.horizontal, 0)
                 }
             }
         }
     }
 
     private var playerSidebarContent: some View {
-        Section(L10n.shared.t("master.mode.player")) {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(L10n.shared.t("master.mode.player"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
             if let players = masterStore.stats?.players {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { player in
-                    Text(player.nameCN)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            countBadge(player.count)
-                        }
-                        .tag(SidebarSelection.player(player))
+                    Button(action: { sidebarSelection = .player(player) }) {
+                        sidebarRow(
+                            name: player.nameCN,
+                            count: player.count,
+                            isSelected: sidebarSelection == .player(player)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -323,31 +382,39 @@ struct MasterGameBrowserView: View {
                         .font(.caption)
                         Spacer()
                     }
+                    .padding(.vertical, 4)
                 }
             } else {
                 Text(L10n.shared.t("master.statsUnavailable"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
             }
         }
     }
 
     private var eventSidebarContent: some View {
-        Section(L10n.shared.t("master.mode.event")) {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(L10n.shared.t("master.mode.event"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
             if let events = masterStore.stats?.events {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
                 ForEach(visible, id: \.stableId) { event in
-                    Text(event.nameCN)
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .trailing) {
-                            countBadge(event.count)
-                        }
-                        .tag(SidebarSelection.event(event))
+                    Button(action: { sidebarSelection = .event(event) }) {
+                        sidebarRow(
+                            name: event.nameCN,
+                            count: event.count,
+                            isSelected: sidebarSelection == .event(event)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
                 if visible.count < sorted.count {
                     HStack {
@@ -358,11 +425,14 @@ struct MasterGameBrowserView: View {
                         .font(.caption)
                         Spacer()
                     }
+                    .padding(.vertical, 4)
                 }
             } else {
                 Text(L10n.shared.t("master.statsUnavailable"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
             }
         }
     }
@@ -411,12 +481,21 @@ struct MasterGameBrowserView: View {
     }
 
     /// macOS sidebar 搜索结果
-    private var searchResultSection: some View {
-        Section(L10n.shared.t("master.search.results")) {
+    private var searchResultContent: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(L10n.shared.t("master.search.results"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
             if searchResults.isEmpty {
                 Text(L10n.shared.t("master.search.noResult"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
             } else {
                 ForEach(searchResults) { result in
                     Button(action: { selectSearchResult(result) }) {
@@ -435,8 +514,17 @@ struct MasterGameBrowserView: View {
                                 }
                             }
                             Spacer()
-                            countBadge(result.count)
+                            Text("\(result.count)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.secondary.opacity(0.1))
+                                .clipShape(Capsule())
                         }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -1176,7 +1264,7 @@ struct MasterGameBrowserView: View {
     private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(minWidth: 200, idealWidth: 200)
+                .frame(width: 220)
             Divider()
             playContent(viewModel: vm)
         }
