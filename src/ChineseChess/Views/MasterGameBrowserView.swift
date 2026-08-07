@@ -128,13 +128,9 @@ struct MasterGameBrowserView: View {
 
     private var browserLayout: some View {
         #if os(macOS)
-        HStack(spacing: 0) {
-            sidebar
-                .frame(width: 220)
-            Divider()
+        splitView {
             listContent
         }
-        .frame(minWidth: 720, minHeight: 520)
         .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
             Button("OK") {}
         } message: {
@@ -1251,14 +1247,22 @@ struct MasterGameBrowserView: View {
     // MARK: - 播放布局
 
     #if os(macOS)
-    private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
+    /// 弹性 sidebar + detail 容器
+    private func splitView<Detail: View>(@ViewBuilder detail: () -> Detail) -> some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 220)
+                .frame(minWidth: 180, idealWidth: 220, maxWidth: 350)
             Divider()
+            detail()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(minWidth: 700, minHeight: 520)
+    }
+
+    private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
+        splitView {
             playContent(viewModel: vm)
         }
-        .frame(minWidth: 720, minHeight: 520)
     }
     #endif
 

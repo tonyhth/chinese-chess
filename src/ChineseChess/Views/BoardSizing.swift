@@ -11,7 +11,11 @@ enum BoardSizing {
     static let gridRows = 9   // 9个间距，10条横线
 
     /// 最大 cellSize，防止窗口过大时棋盘无限放大
+    #if os(macOS)
+    static let maxCellSize: CGFloat = 200
+    #else
     static let maxCellSize: CGFloat = 80
+    #endif
 
     #if os(iOS)
     /// iOS 大屏棋盘最大尺寸约束

@@ -52,6 +52,7 @@ struct BoardCanvasView: View {
             .frame(width: boardWidth, height: boardHeight)
             .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
+        .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
     }
 
     // MARK: - Overlays
