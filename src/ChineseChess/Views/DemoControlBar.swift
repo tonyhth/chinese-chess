@@ -144,7 +144,6 @@ struct DemoControlBar: View {
 
                 Button(action: { viewModel.togglePlay() }) {
                     Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.title2)
                 }
                 .keyboardShortcut(.space, modifiers: [])
 

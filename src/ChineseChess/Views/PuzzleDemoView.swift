@@ -128,7 +128,10 @@ struct PuzzleDemoView: View {
                 ForEach(PuzzleStore.shared.demoCategories, id: \.self) { cat in
                     let category = DemoCategory.puzzles(cat)
                     let count = PuzzleStore.shared.demoPuzzles(byCategory: cat).count
-                    Button(action: { selectedCategory = category }) {
+                    Button(action: {
+                        if viewModel != nil { cleanupViewModel() }
+                        selectedCategory = category
+                    }) {
                         sidebarRow(
                             name: category.displayName,
                             count: count,
@@ -151,13 +154,12 @@ struct PuzzleDemoView: View {
 
     /// macOS sidebar 分类行 — 参考 iOS categoryRow 模式
     private func sidebarRow(name: String, count: Int, isSelected: Bool) -> some View {
-        HStack {
+        HStack(spacing: 6) {
             Text(name)
                 .font(.subheadline)
                 .foregroundColor(isSelected ? .white : .primary)
                 .lineLimit(1)
                 .truncationMode(.tail)
-            Spacer()
             Text("\(count)")
                 .font(.caption2)
                 .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
@@ -167,6 +169,7 @@ struct PuzzleDemoView: View {
                     isSelected ? Color.white.opacity(0.2) : Color.secondary.opacity(0.1)
                 )
                 .clipShape(Capsule())
+            Spacer()
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
