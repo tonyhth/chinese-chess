@@ -11874,6 +11874,70 @@
           }
         }
       }
+    },
+    "demo.pauseOnCommentary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause on Commentary"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解说时暂停"
+          }
+        }
+      }
+    },
+    "demo.showCommentary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Commentary"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示解说"
+          }
+        }
+      }
+    },
+    "demo.autoNextPuzzle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto Play Next"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动播放下一局"
+          }
+        }
+      }
+    },
+    "demo.defaultSpeed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default Speed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认速度"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

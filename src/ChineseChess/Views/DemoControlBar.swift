@@ -76,6 +76,7 @@ struct DemoControlBar: View {
                     HStack(spacing: 2) {
                         Text(viewModel.speed.label)
                             .font(.subheadline.monospacedDigit())
+                            .fixedSize(horizontal: true, vertical: false)
                         Image(systemName: "chevron.down")
                             .font(.caption2)
                     }
@@ -89,8 +90,10 @@ struct DemoControlBar: View {
                 // 连播 Toggle
                 Toggle(isOn: Binding(
                     get: { viewModel.isAutoAdvance },
-                    set: { _ in
-                        viewModel.toggleAutoAdvance()
+                    set: { newValue in
+                        if newValue != viewModel.isAutoAdvance {
+                            viewModel.toggleAutoAdvance()
+                        }
                         config.autoNextPuzzle = viewModel.isAutoAdvance
                         config.save()
                     }
@@ -172,6 +175,7 @@ struct DemoControlBar: View {
                     HStack(spacing: 2) {
                         Text(viewModel.speed.label)
                             .font(.subheadline.monospacedDigit())
+                            .fixedSize(horizontal: true, vertical: false)
                         Image(systemName: "chevron.down")
                             .font(.caption2)
                     }
@@ -195,8 +199,10 @@ struct DemoControlBar: View {
 
                 Toggle(isOn: Binding(
                     get: { viewModel.isAutoAdvance },
-                    set: { _ in
-                        viewModel.toggleAutoAdvance()
+                    set: { newValue in
+                        if newValue != viewModel.isAutoAdvance {
+                            viewModel.toggleAutoAdvance()
+                        }
                         config.autoNextPuzzle = viewModel.isAutoAdvance
                         config.save()
                     }
