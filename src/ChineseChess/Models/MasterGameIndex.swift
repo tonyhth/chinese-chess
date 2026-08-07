@@ -6,6 +6,7 @@ import Foundation
 struct MasterGameIndex: Codable, Identifiable, Sendable, Equatable {
     let id: Int                  // 全局序号（0-based）
     let event: String            // 赛事名称（PGN 原始值，英文）
+    let eventCN: String?         // 赛事中文名（v5.6.0: 无映射时回退 event）
     let redName: String          // 红方姓名（归一化后）
     let blackName: String        // 黑方姓名（归一化后）
     let redNameCN: String        // 红方中文名（来自 name_map，无映射则回退 redName）

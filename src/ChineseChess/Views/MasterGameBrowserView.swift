@@ -1189,7 +1189,7 @@ struct MasterGameBrowserView: View {
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
-                    Text(item.index.event)
+                    Text(item.index.eventCN ?? item.index.event)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
