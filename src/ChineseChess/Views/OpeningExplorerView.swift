@@ -19,9 +19,9 @@ struct OpeningExplorerView: View {
     private let l10n = L10n.shared
     private let profile = PlayerProfileStore.shared.profile
 
-    // 段位门禁：秀才以上
+    // 段位门禁：秀才以上（v5.5.9: 走 isFeatureUnlocked 使 DeveloperMode 生效）
     private var hasAccess: Bool {
-        profile.rank >= .scholar
+        profile.isFeatureUnlocked(.openingTreeBrowse)
     }
 
     var body: some View {

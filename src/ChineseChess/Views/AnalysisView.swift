@@ -11,11 +11,12 @@ struct AnalysisView: View {
     private let profile = PlayerProfileStore.shared.profile
 
     // 段位门禁（统一到 UnlockedFeature 框架口径）
+    // v5.5.9: 改为走 isFeatureUnlocked，使 DeveloperMode 绕过生效
     private var hasBasicAnalysis: Bool {
-        profile.rank >= .scholar  // 同 openingTreeBrowse
+        profile.isFeatureUnlocked(.openingTreeBrowse)
     }
     private var hasExpertAnalysis: Bool {
-        profile.rank >= .hanlin   // 同 engineAnalysis（Q2 定义）
+        profile.isFeatureUnlocked(.engineAnalysis)
     }
     // v3.7.0 Phase 2: 导出门禁
     private var canExport: Bool {
