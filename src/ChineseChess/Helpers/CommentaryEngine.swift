@@ -17,6 +17,8 @@ struct CommentaryItem: Identifiable {
     let id = UUID()
     let type: CommentaryType
     let timestamp = Date()
+    /// 评估差距（cp），由分析师填充，UI/趋势分析可使用
+    var evalDelta: Int = 0
 
     /// 点评文本（可自定义，默认从 type 派生）
     private let customText: String?
