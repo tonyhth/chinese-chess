@@ -549,7 +549,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 500, minHeight: 600)
+                    .frame(minWidth: 900, minHeight: 750)
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })
