@@ -76,8 +76,8 @@ struct CoachGameView: View {
             accuracyBar
         }
         .background(Color.controlBackground)
-        .onAppear {
-            setupGame()
+        .task {
+            await setupGame()
         }
         .onChange(of: viewModel.gameMoves.count) { oldCount, newCount in
             handleMoveChange(oldCount: oldCount, newCount: newCount)
@@ -272,7 +272,7 @@ struct CoachGameView: View {
 
     // MARK: - 游戏设置
 
-    private func setupGame() {
+    private func setupGame() async {
         viewModel.newGame()
         viewModel.setHumanSide(playerSide)
         viewModel.setDifficulty(difficulty)
@@ -284,9 +284,10 @@ struct CoachGameView: View {
             playerSide: playerSide
         )
 
-        // 初始化评估器
-        if let engine = EngineRouter.shared.activeEngine() as? EmbeddedPikafishEngine {
-            evaluator = OpeningMoveEvaluator(engine: engine)
+        // 确保嵌入式引擎已启动（修复：activeEngine() 不启动引擎，需要 switchEngineIfNeeded）
+        let engine = await EngineRouter.shared.switchEngineIfNeeded()
+        if let embeddedEngine = engine as? EmbeddedPikafishEngine {
+            evaluator = OpeningMoveEvaluator(engine: embeddedEngine)
         }
 
         lastProcessedMoveCount = 0
