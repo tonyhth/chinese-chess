@@ -20,7 +20,15 @@ final class EngineConfigStore {
     }
 
     private init() {
-        useEmbeddedEngine = UserDefaults.standard.bool(forKey: "chinesechess.useEmbeddedEngine")
+        // v5.5.9: 默认使用嵌入式 Pikafish 引擎
+        let key = "chinesechess.useEmbeddedEngine"
+        if UserDefaults.standard.object(forKey: key) == nil {
+            // 首次安装：默认开启
+            useEmbeddedEngine = true
+            UserDefaults.standard.set(true, forKey: key)
+        } else {
+            useEmbeddedEngine = UserDefaults.standard.bool(forKey: key)
+        }
         migrateLegacyConfig()
     }
 
