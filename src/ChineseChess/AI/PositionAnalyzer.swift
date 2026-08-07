@@ -112,35 +112,28 @@ actor PositionAnalyzer {
 
     static let shared = PositionAnalyzer()
 
-    /// 独立引擎实例（lazy 初始化）
-    /// 不走 EngineRouter，避免与游戏对弈引擎共享全局 C 状态
-    private var _engine: EmbeddedPikafishEngine?
-    private var _engineStarted = false
-
-    /// 获取或初始化独立引擎实例
-    /// 如果 EngineConfigStore 未启用嵌入式引擎，返回 nil
+    /// 引擎实例引用——复用 EngineRouter 的引擎，不创建独立实例
+    /// C 层 g_engine 是全局单例，两个 EmbeddedPikafishEngine 实例共享同一个 C 引擎
+    /// PositionAnalyzer 通过 EngineRouter 获取已初始化的引擎，不管理生命周期
     private func getEngine() async -> EmbeddedPikafishEngine? {
-        // 先检查配置：未启用嵌入式引擎时不初始化
-        let useEmbedded = await EngineConfigStore.shared.useEmbeddedEngine
+        // 先检查配置：未启用嵌入式引擎时不分析
+        let useEmbedded = await MainActor.run {
+            EngineConfigStore.shared.useEmbeddedEngine
+        }
         guard useEmbedded else {
-            NSLog("[PositionAnalyzer] Embedded engine disabled in config, analysis disabled")
+            NSLog("[PositionAnalyzer] Embedded engine disabled in config")
             return nil
         }
 
-        if _engine == nil {
-            _engine = EmbeddedPikafishEngine()
+        // 通过 EngineRouter 确保引擎已启动
+        let engine = await EngineRouter.shared.switchEngineIfNeeded()
+
+        if let embedded = engine as? EmbeddedPikafishEngine, embedded.isReady {
+            return embedded
         }
-        if !_engineStarted {
-            do {
-                try await _engine?.start()
-                _engineStarted = true
-            } catch {
-                NSLog("[PositionAnalyzer] Failed to start engine: \(error)")
-                _engine = nil
-                return nil
-            }
-        }
-        return _engine
+
+        NSLog("[PositionAnalyzer] Active engine is not EmbeddedPikafishEngine or not ready")
+        return nil
     }
 
     // MARK: - 分析参数
