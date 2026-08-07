@@ -1,0 +1,444 @@
+{
+  "players": [
+    {
+      "en": "CAI YouGuang",
+      "cn": "蔡友光"
+    },
+    {
+      "en": "CAI ZhiLi",
+      "cn": "蔡志立"
+    },
+    {
+      "en": "CHANG Diana",
+      "cn": "常黛安娜"
+    },
+    {
+      "en": "CHANG Wanhua",
+      "cn": "常婉华"
+    },
+    {
+      "en": "CHEN BingQuan",
+      "cn": "陈炳泉"
+    },
+    {
+      "en": "CHEN BoHui",
+      "cn": "陈伯辉"
+    },
+    {
+      "en": "CHEN HongAheng",
+      "cn": "陈鸿恒"
+    },
+    {
+      "en": "CHEN HuHai",
+      "cn": "陈湖海"
+    },
+    {
+      "en": "CHEN JianQuo",
+      "cn": "陈建国"
+    },
+    {
+      "en": "CHEN LiuGang",
+      "cn": "陈柳刚"
+    },
+    {
+      "en": "CHEN YaoLin",
+      "cn": "陈耀麟"
+    },
+    {
+      "en": "CHEN Ying",
+      "cn": "陈颖"
+    },
+    {
+      "en": "CHEN Zheng",
+      "cn": "陈正"
+    },
+    {
+      "en": "CHENG Richard",
+      "cn": "郑理查德"
+    },
+    {
+      "en": "CHI XinDe",
+      "cn": "迟新德"
+    },
+    {
+      "en": "DENG WeiDa",
+      "cn": "邓伟达"
+    },
+    {
+      "en": "DONG Bo",
+      "cn": "董波"
+    },
+    {
+      "en": "Du GuangWei",
+      "cn": "杜光伟"
+    },
+    {
+      "en": "FENG GuangMing",
+      "cn": "冯光明"
+    },
+    {
+      "en": "GANG QiuYing",
+      "cn": "刚秋英"
+    },
+    {
+      "en": "GAO WeiXuan",
+      "cn": "高维铉"
+    },
+    {
+      "en": "GUO ChangShun",
+      "cn": "郭长顺"
+    },
+    {
+      "en": "HAN DaYong",
+      "cn": "韩大勇"
+    },
+    {
+      "en": "HE ZhiMing",
+      "cn": "何志明"
+    },
+    {
+      "en": "HONG Chia Chuan",
+      "cn": "洪家全"
+    },
+    {
+      "en": "HONG HaiFeng",
+      "cn": "洪海峰"
+    },
+    {
+      "en": "HONG LeiXin",
+      "cn": "洪磊鑫"
+    },
+    {
+      "en": "HOU WenBo",
+      "cn": "侯文博"
+    },
+    {
+      "en": "HUANG BiFu",
+      "cn": "黄必福"
+    },
+    {
+      "en": "HUANG BingWei",
+      "cn": "黄炳炜"
+    },
+    {
+      "en": "HUANG Chun Long",
+      "cn": "黄春龙"
+    },
+    {
+      "en": "HUANG Fang",
+      "cn": "黄芳"
+    },
+    {
+      "en": "HUANG Haoyi",
+      "cn": "黄浩毅"
+    },
+    {
+      "en": "HUANG YuYing",
+      "cn": "黄玉英"
+    },
+    {
+      "en": "JIA Dan",
+      "cn": "贾丹"
+    },
+    {
+      "en": "JIANG QingMing",
+      "cn": "蒋清明"
+    },
+    {
+      "en": "LAI Han Soon",
+      "cn": "赖汉顺"
+    },
+    {
+      "en": "LEI Xong Cai",
+      "cn": "雷雄才"
+    },
+    {
+      "en": "LI Peng",
+      "cn": "李鹏"
+    },
+    {
+      "en": "LI Qiang",
+      "cn": "李强"
+    },
+    {
+      "en": "LI ShaoBo",
+      "cn": "李少波"
+    },
+    {
+      "en": "LI Xian",
+      "cn": "李显"
+    },
+    {
+      "en": "LI Zhuo Hao",
+      "cn": "李卓浩"
+    },
+    {
+      "en": "LIN JiaXin",
+      "cn": "林嘉欣"
+    },
+    {
+      "en": "LIN JinChun",
+      "cn": "林进春"
+    },
+    {
+      "en": "LIN Sen-Rong",
+      "cn": "林森荣"
+    },
+    {
+      "en": "LIU LiShan",
+      "cn": "刘丽珊"
+    },
+    {
+      "en": "LIU Yong",
+      "cn": "刘勇"
+    },
+    {
+      "en": "LIU Zheng",
+      "cn": "刘正"
+    },
+    {
+      "en": "LU BaoCheng",
+      "cn": "卢宝成"
+    },
+    {
+      "en": "LU HongYe",
+      "cn": "陆红野"
+    },
+    {
+      "en": "LUO ZhongCai",
+      "cn": "罗忠才"
+    },
+    {
+      "en": "MO ZhanTu",
+      "cn": "莫展图"
+    },
+    {
+      "en": "OU HanMin",
+      "cn": "欧汉民"
+    },
+    {
+      "en": "QIN JinSong",
+      "cn": "秦劲松"
+    },
+    {
+      "en": "QIN Rong",
+      "cn": "秦荣"
+    },
+    {
+      "en": "SUN QingLi",
+      "cn": "孙庆利"
+    },
+    {
+      "en": "SUN Qizhong",
+      "cn": "孙齐忠"
+    },
+    {
+      "en": "SUN ShouHua",
+      "cn": "孙寿华"
+    },
+    {
+      "en": "TANG HaoWen",
+      "cn": "唐浩文"
+    },
+    {
+      "en": "WANG BaoXian",
+      "cn": "王保显"
+    },
+    {
+      "en": "WANG ChengQiang",
+      "cn": "王成强"
+    },
+    {
+      "en": "WANG DaMing",
+      "cn": "王大明"
+    },
+    {
+      "en": "WANG GuoMin",
+      "cn": "王国民"
+    },
+    {
+      "en": "WANG JingYuan",
+      "cn": "王景元"
+    },
+    {
+      "en": "WANG TieMing",
+      "cn": "王铁明"
+    },
+    {
+      "en": "WANG XiangMing",
+      "cn": "王向明"
+    },
+    {
+      "en": "WANG XinGuang",
+      "cn": "王新光"
+    },
+    {
+      "en": "WANG XinHai",
+      "cn": "王新海"
+    },
+    {
+      "en": "WENG ChuGuang",
+      "cn": "翁初光"
+    },
+    {
+      "en": "WENG ChuWen",
+      "cn": "翁楚文"
+    },
+    {
+      "en": "WENG Han Ming",
+      "cn": "翁汉明"
+    },
+    {
+      "en": "WU CaiFang",
+      "cn": "吴彩芳"
+    },
+    {
+      "en": "WU FaQiang",
+      "cn": "吴发强"
+    },
+    {
+      "en": "WU Qiang",
+      "cn": "吴强"
+    },
+    {
+      "en": "WU Shi En",
+      "cn": "吴世恩"
+    },
+    {
+      "en": "WU WeiHao",
+      "cn": "吴伟豪"
+    },
+    {
+      "en": "XU Bin",
+      "cn": "徐彬"
+    },
+    {
+      "en": "XU BingKui",
+      "cn": "徐炳奎"
+    },
+    {
+      "en": "Xin Yu",
+      "cn": "辛宇"
+    },
+    {
+      "en": "YAN Andrew",
+      "cn": "严安哲"
+    },
+    {
+      "en": "YAN Dot San",
+      "cn": "甄达生"
+    },
+    {
+      "en": "YE RongBiao",
+      "cn": "叶荣彪"
+    },
+    {
+      "en": "YE RongGuang",
+      "cn": "叶荣光"
+    },
+    {
+      "en": "YU ChiuKing",
+      "cn": "余兆京"
+    },
+    {
+      "en": "YU Ming",
+      "cn": "于明"
+    },
+    {
+      "en": "YU SiYuan",
+      "cn": "于思远"
+    },
+    {
+      "en": "YU Xiong Wei",
+      "cn": "于雄伟"
+    },
+    {
+      "en": "ZENG YiQian",
+      "cn": "曾益谦"
+    },
+    {
+      "en": "ZHANG Gao Yang",
+      "cn": "张高扬"
+    },
+    {
+      "en": "ZHANG GuangZeng",
+      "cn": "张广增"
+    },
+    {
+      "en": "ZHANG HuaMing",
+      "cn": "张华明"
+    },
+    {
+      "en": "ZHANG JunJie",
+      "cn": "张俊杰"
+    },
+    {
+      "en": "ZHANG TingTing",
+      "cn": "张婷婷"
+    },
+    {
+      "en": "ZHANG Wei",
+      "cn": "张伟"
+    },
+    {
+      "en": "ZHANG Weimin",
+      "cn": "张为民"
+    },
+    {
+      "en": "ZHANG Yong",
+      "cn": "张勇"
+    },
+    {
+      "en": "ZHANG YongXiang",
+      "cn": "张永祥"
+    },
+    {
+      "en": "ZHAO ShunXin",
+      "cn": "赵顺心"
+    },
+    {
+      "en": "ZHENG FuXiang",
+      "cn": "郑福祥"
+    },
+    {
+      "en": "ZHENG YiTing",
+      "cn": "郑逸婷"
+    },
+    {
+      "en": "ZHENG YiYing",
+      "cn": "郑轶莹"
+    },
+    {
+      "en": "ZHENG ZiQiang",
+      "cn": "郑子强"
+    },
+    {
+      "en": "ZHONG Jiangning",
+      "cn": "钟江宁"
+    },
+    {
+      "en": "ZHOU ShiJie",
+      "cn": "周世杰"
+    },
+    {
+      "en": "ZHOU Tao",
+      "cn": "周涛"
+    },
+    {
+      "en": "ZHOU ZiDa",
+      "cn": "周子达"
+    },
+    {
+      "en": "ZHU ZhuQin",
+      "cn": "朱竹琴"
+    },
+    {
+      "en": "ZHUANG YongXi",
+      "cn": "庄永熙"
+    },
+    {
+      "en": "ZUO WenJing",
+      "cn": "左文静"
+    }
+  ]
+}
