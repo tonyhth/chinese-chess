@@ -414,7 +414,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 700, minHeight: 520)
+                    .frame(minWidth: 600, minHeight: 700)
 
                 case .toolbarReplay(let record):
                     ReplayView(record: record)
@@ -549,7 +549,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 700, minHeight: 520)
+                    .frame(minWidth: 600, minHeight: 700)
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })

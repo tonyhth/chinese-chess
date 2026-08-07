@@ -128,9 +128,15 @@ struct MasterGameBrowserView: View {
 
     private var browserLayout: some View {
         #if os(macOS)
-        splitView {
+        VStack(spacing: 0) {
+            browserTopBar
+            if !isSearching && masterStore.isLoaded && browseMode == .opening {
+                categoryFilterBar
+            }
+            Divider()
             listContent
         }
+        .frame(minWidth: 600, minHeight: 700)
         .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
             Button("OK") {}
         } message: {
@@ -181,255 +187,222 @@ struct MasterGameBrowserView: View {
         }
     }
 
-    // MARK: - macOS Sidebar
+    // MARK: - macOS 顶部工具栏
 
     #if os(macOS)
-    private var sidebar: some View {
-        VStack(spacing: 0) {
-            // 固定区：modePicker + searchField（不滚动）
-            VStack(spacing: 8) {
-                modePicker
-                searchField
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-
-            Divider()
-
-            // 滚动区：分类列表
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    if isSearching {
-                        searchResultContent
-                    } else if masterStore.isLoaded {
-                        switch browseMode {
-                        case .opening: openingSidebarContent
-                        case .player:  playerSidebarContent
-                        case .event:   eventSidebarContent
-                        }
-                    } else {
-                        // 加载入口
-                        loadIndexContent
-                    }
-                }
-                .padding(.bottom, 12)
-            }
+    /// modePicker + searchField 水平排列
+    private var browserTopBar: some View {
+        HStack(spacing: 8) {
+            modePicker
+                .frame(maxWidth: 240)
+            searchField
+                .frame(maxWidth: .infinity)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
-        .onChange(of: sidebarSelection) { _, newSelection in
-            guard let sel = newSelection else { return }
-            useMoveSequenceFilter = false  // Phase D fix: 用户选择 sidebar 时退出联动
-            currentPage = 1
-            // 播放模式下点 sidebar → 退出播放
-            if viewModel != nil { cleanupViewModel() }
-            switch sel {
-            case .opening(let opening):
-                selectedOpening = opening
-                selectedSubcategory = nil
-                selectedPlayer = nil
-                selectedEvent = nil
-            case .subcategory(let sub):
-                selectedSubcategory = sub
-                selectedOpening = nil
-                selectedPlayer = nil
-                selectedEvent = nil
-            case .player(let player):
-                selectedPlayer = player
-                selectedOpening = nil
-                selectedEvent = nil
-            case .event(let event):
-                selectedEvent = event
-                selectedOpening = nil
-                selectedPlayer = nil
-            }
-            rebuildCache()
-        }
-    }
-
-    /// macOS sidebar 分类行 — 参考 iOS categoryRow 模式
-    private func sidebarRow(name: String, count: Int, isSelected: Bool) -> some View {
-        HStack(spacing: 6) {
-            Text(name)
-                .font(.subheadline)
-                .foregroundColor(isSelected ? .white : .primary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-            Text("\(count)")
-                .font(.caption2)
-                .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(
-                    isSelected ? Color.white.opacity(0.2) : Color.secondary.opacity(0.1)
-                )
-                .clipShape(Capsule())
-            Spacer()
-        }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(isSelected ? Color.accentColor : Color.clear)
-        )
-        .contentShape(Rectangle())
+        .background(.bar)
     }
 
-    private var loadIndexContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(L10n.shared.t("demo.sectionMasterGames"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 10)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
-            Button(action: loadIndex) {
-                HStack {
-                    if isLoadingIndex {
-                        ProgressView().scaleEffect(0.7)
-                    } else {
-                        Image(systemName: "arrow.down.circle")
-                            .foregroundColor(.accentColor)
-                    }
-                    Text(L10n.shared.t("demo.loadMasterIndex"))
-                        .font(.subheadline)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private var openingSidebarContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            // section header
-            Text(L10n.shared.t("demo.sectionMasterGames"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 10)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
-            ForEach(OpeningCategories.categories.filter { opening in
-                opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
-            }) { opening in
-                if opening.subcategories.isEmpty {
-                    Button(action: { sidebarSelection = .opening(opening) }) {
-                        sidebarRow(
-                            name: opening.name,
-                            count: masterStore.gameCount(for: opening),
-                            isSelected: sidebarSelection == .opening(opening)
+    /// 开局模式一级分类标签栏
+    private var categoryFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(OpeningCategories.categories.filter { opening in
+                    opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
+                }) { opening in
+                    let isSelected = selectedOpening != nil && selectedOpening == opening
+                    Button(action: {
+                        if viewModel != nil { cleanupViewModel() }
+                        selectedOpening = opening
+                        selectedSubcategory = nil
+                        selectedPlayer = nil
+                        selectedEvent = nil
+                        currentPage = 1
+                        rebuildCache()
+                    }) {
+                        HStack(spacing: 4) {
+                            Text(opening.name)
+                                .font(.subheadline)
+                            Text("\(masterStore.gameCount(for: opening))")
+                                .font(.caption2)
+                                .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.08))
                         )
+                        .foregroundColor(isSelected ? .white : .primary)
                     }
                     .buttonStyle(.plain)
-                } else {
-                    DisclosureGroup {
-                        ForEach(opening.subcategories) { sub in
-                            Button(action: { sidebarSelection = .subcategory(sub) }) {
-                                sidebarRow(
-                                    name: sub.name,
-                                    count: masterStore.gameCount(for: sub),
-                                    isSelected: sidebarSelection == .subcategory(sub)
-                                )
-                                .padding(.leading, 16)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    } label: {
-                        sidebarRow(
-                            name: opening.name,
-                            count: masterStore.gameCount(for: opening),
-                            isSelected: sidebarSelection == .opening(opening)
-                        )
-                    }
                 }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
         }
+        .background(Color.secondary.opacity(0.05))
     }
 
-    private var playerSidebarContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(L10n.shared.t("master.mode.player"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 10)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
+    /// macOS 棋手列表（browserLayout 中显示）
+    private var playerListContent: some View {
+        Group {
             if let players = masterStore.stats?.players {
                 let sorted = players.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
-                ForEach(visible, id: \.stableId) { player in
-                    Button(action: { sidebarSelection = .player(player) }) {
-                        sidebarRow(
-                            name: player.nameCN,
-                            count: player.count,
-                            isSelected: sidebarSelection == .player(player)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-                if visible.count < sorted.count {
-                    HStack {
-                        Spacer()
-                        Button(String(format: L10n.shared.t("master.loadMorePlayers"), visible.count, sorted.count)) {
-                            categoryDisplayCount += categoryPageSize
+                List {
+                    ForEach(visible, id: \.stableId) { player in
+                        Button(action: {
+                            selectedPlayer = player
+                            selectedOpening = nil
+                            selectedSubcategory = nil
+                            selectedEvent = nil
+                            currentPage = 1
+                            rebuildCache()
+                        }) {
+                            HStack {
+                                Image(systemName: "person.fill")
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text(player.nameCN)
+                                    .font(.body)
+                                Spacer()
+                                Text("\(player.count)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color.secondary.opacity(0.12))
+                                    .clipShape(Capsule())
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
-                        .font(.caption)
-                        Spacer()
+                        .buttonStyle(.plain)
                     }
-                    .padding(.vertical, 4)
+                    if visible.count < sorted.count {
+                        HStack {
+                            Spacer()
+                            Button(String(format: L10n.shared.t("master.loadMorePlayers"), visible.count, sorted.count)) {
+                                categoryDisplayCount += categoryPageSize
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                    }
                 }
             } else {
                 Text(L10n.shared.t("master.statsUnavailable"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
 
-    private var eventSidebarContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(L10n.shared.t("master.mode.event"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 10)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
+    /// macOS 赛事列表（browserLayout 中显示）
+    private var eventListContent: some View {
+        Group {
             if let events = masterStore.stats?.events {
                 let sorted = events.sorted { $0.count > $1.count }
                 let visible = Array(sorted.prefix(categoryDisplayCount))
-                ForEach(visible, id: \.stableId) { event in
-                    Button(action: { sidebarSelection = .event(event) }) {
-                        sidebarRow(
-                            name: event.nameCN,
-                            count: event.count,
-                            isSelected: sidebarSelection == .event(event)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-                if visible.count < sorted.count {
-                    HStack {
-                        Spacer()
-                        Button(String(format: L10n.shared.t("master.loadMoreEvents"), visible.count, sorted.count)) {
-                            categoryDisplayCount += categoryPageSize
+                List {
+                    ForEach(visible, id: \.stableId) { event in
+                        Button(action: {
+                            selectedEvent = event
+                            selectedOpening = nil
+                            selectedSubcategory = nil
+                            selectedPlayer = nil
+                            currentPage = 1
+                            rebuildCache()
+                        }) {
+                            HStack {
+                                Image(systemName: "trophy.fill")
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20)
+                                Text(event.nameCN)
+                                    .font(.body)
+                                if let year = event.year {
+                                    Text("\(year)")
+                                        .font(.caption)
+                                        .foregroundStyle(.tertiary)
+                                }
+                                Spacer()
+                                Text("\(event.count)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                                    .background(Color.secondary.opacity(0.12))
+                                    .clipShape(Capsule())
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
-                        .font(.caption)
-                        Spacer()
+                        .buttonStyle(.plain)
                     }
-                    .padding(.vertical, 4)
+                    if visible.count < sorted.count {
+                        HStack {
+                            Spacer()
+                            Button(String(format: L10n.shared.t("master.loadMoreEvents"), visible.count, sorted.count)) {
+                                categoryDisplayCount += categoryPageSize
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                    }
                 }
             } else {
                 Text(L10n.shared.t("master.statsUnavailable"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+    }
+
+    /// macOS 搜索结果列表（browserLayout 中显示）
+    private var searchResultListContent: some View {
+        List {
+            if searchResults.isEmpty {
+                Text(L10n.shared.t("master.search.noResult"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(searchResults) { result in
+                    Button(action: { selectSearchResult(result) }) {
+                        HStack {
+                            Image(systemName: resultIcon(result))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 20)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(result.displayName)
+                                    .font(.body)
+                                if let sub = result.subtitle {
+                                    Text(sub)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                            Text("\(result.count)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.secondary.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -465,59 +438,6 @@ struct MasterGameBrowserView: View {
         .padding(.vertical, 6)
         .background(Color.primary.opacity(0.06))
         .cornerRadius(6)
-    }
-
-    /// macOS sidebar 搜索结果
-    private var searchResultContent: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(L10n.shared.t("master.search.results"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 10)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-
-            if searchResults.isEmpty {
-                Text(L10n.shared.t("master.search.noResult"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-            } else {
-                ForEach(searchResults) { result in
-                    Button(action: { selectSearchResult(result) }) {
-                        HStack {
-                            Image(systemName: resultIcon(result))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .frame(width: 14)
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(result.displayName)
-                                    .font(.subheadline)
-                                if let sub = result.subtitle {
-                                    Text(sub)
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
-                                }
-                            }
-                            Spacer()
-                            // 搜索结果无选中态：点击即跳转，不需要高亮
-                            Text("\(result.count)")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.secondary.opacity(0.1))
-                                .clipShape(Capsule())
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
     }
     #endif
 
@@ -972,8 +892,121 @@ struct MasterGameBrowserView: View {
 
     // MARK: - 列表内容
 
+    /// 对局列表（选中分类/棋手/赛事后显示）
+    private var gameListContent: some View {
+        Group {
+            if cachedItems.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "puzzlepiece.extension")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
+                    Text(L10n.shared.t("master.noData"))
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+                    ForEach(cachedItems) { item in
+                        Button(action: { playGame(item) }) {
+                            masterGameRow(item)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if hasMoreItems {
+                        HStack {
+                            Spacer()
+                            Button(String(format: L10n.shared.t("demo.loadMore"), cachedItems.count, cachedTotalCount)) {
+                                currentPage += 1
+                                rebuildCache()
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.brown)
+                            Spacer()
+                        }
+                        .padding(.vertical, 12)
+                    }
+                }
+                .overlay {
+                    if loadingGame { ProgressView() }
+                }
+                .alert(L10n.shared.t("demo.loadError"), isPresented: $showLoadError) {
+                    Button("OK") { loadError = nil }
+                } message: {
+                    Text(loadError ?? "")
+                }
+                .alert(L10n.shared.t("demo.incompleteWarning"), isPresented: $showIncompleteWarning) {
+                    Button("OK") {}
+                } message: {
+                    Text(L10n.shared.t("demo.incompleteMessage"))
+                }
+            }
+        }
+    }
+
     private var listContent: some View {
         Group {
+            #if os(macOS)
+            // 搜索模式
+            if isSearching {
+                searchResultListContent
+            } else if masterStore.isLoaded {
+                switch browseMode {
+                case .opening:
+                    // 开局模式：选中分类后显示对局列表
+                    if selectedOpening == nil && selectedSubcategory == nil {
+                        // 未选分类 → 提示选择
+                        VStack(spacing: 12) {
+                            Image(systemName: "rectangle.grid.2x2")
+                                .font(.system(size: 40))
+                                .foregroundStyle(.secondary)
+                            Text(L10n.shared.t("demo.selectCategory"))
+                                .font(.title3)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        gameListContent
+                    }
+                case .player:
+                    // 棋手模式：未选棋手 → 显示棋手列表；已选 → 显示对局
+                    if selectedPlayer == nil {
+                        playerListContent
+                    } else {
+                        gameListContent
+                    }
+                case .event:
+                    // 赛事模式
+                    if selectedEvent == nil {
+                        eventListContent
+                    } else {
+                        gameListContent
+                    }
+                }
+            } else {
+                // 未加载索引
+                VStack(spacing: 12) {
+                    Image(systemName: "crown")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
+                    Text(L10n.shared.t("demo.selectCategory"))
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                    Button(action: loadIndex) {
+                        if isLoadingIndex {
+                            ProgressView()
+                        } else {
+                            Label(L10n.shared.t("demo.loadMasterIndex"), systemImage: "arrow.down.circle")
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.accentColor)
+                    .padding(.top, 8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            #else
             if !masterStore.isLoaded {
                 VStack(spacing: 12) {
                     Image(systemName: "crown")
@@ -1044,6 +1077,7 @@ struct MasterGameBrowserView: View {
                     Text(L10n.shared.t("demo.incompleteMessage"))
                 }
             }
+            #endif
         }
         .alert(L10n.shared.t("demo.loadError"), isPresented: $showMasterLoadError) {
             Button("OK") {}
@@ -1249,22 +1283,17 @@ struct MasterGameBrowserView: View {
     // MARK: - 播放布局
 
     #if os(macOS)
-    /// 弹性 sidebar + detail 容器
-    private func splitView<Detail: View>(@ViewBuilder detail: () -> Detail) -> some View {
-        HStack(spacing: 0) {
-            sidebar
-                .frame(minWidth: 160, idealWidth: 190, maxWidth: 280)
-            Divider()
-            detail()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .frame(minWidth: 700, minHeight: 520)
-    }
-
     private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
-        splitView {
-            playContent(viewModel: vm)
+        VStack(spacing: 0) {
+            DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
+
+            DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
+                .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            DemoControlBar(viewModel: vm, onBackToList: { backToList() })
         }
+        .frame(minWidth: 600, minHeight: 700)
     }
     #endif
 
