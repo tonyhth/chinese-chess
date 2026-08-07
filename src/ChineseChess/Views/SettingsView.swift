@@ -112,8 +112,7 @@ struct SettingsView: View {
                     }
                 }
 
-                #if DEBUG
-                // Developer mode
+                // Developer mode (v5.5.9: 始终可见，方便开发验证)
                 Section(l10n.t("settings.devMode")) {
                     Toggle(l10n.t("settings.devBypassRank"), isOn: Binding(
                         get: { DeveloperMode.isEnabled },
@@ -123,7 +122,6 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                #endif
             }
         .formStyle(.grouped)
         .navigationTitle(l10n.t("settings.title"))

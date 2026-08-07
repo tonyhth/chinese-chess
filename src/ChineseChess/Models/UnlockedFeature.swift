@@ -85,9 +85,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
 extension PlayerProfile {
     /// 检查功能是否已解锁（基于当前段位）
     func isFeatureUnlocked(_ feature: UnlockedFeature) -> Bool {
-        #if DEBUG
         if DeveloperMode.isEnabled { return true }
-        #endif
         return rank >= feature.requiredRank
     }
 }

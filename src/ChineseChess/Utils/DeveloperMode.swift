@@ -1,8 +1,8 @@
 import Foundation
 
-// MARK: - v3.7.4: 开发者模式（仅 DEBUG）
+// MARK: - v3.7.4: 开发者模式
+// v5.5.9: 从 #if DEBUG 改为始终可用，方便开发阶段验证
 
-#if DEBUG
 /// 开发者模式工具类
 ///
 /// 功能：
@@ -27,4 +27,3 @@ enum DeveloperMode {
 extension Notification.Name {
     static let developerModeChanged = Notification.Name("chinesechess.developerModeChanged")
 }
-#endif
