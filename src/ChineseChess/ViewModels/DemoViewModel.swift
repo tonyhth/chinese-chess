@@ -249,6 +249,7 @@ class DemoViewModel {
 
     /// 在 moves 加载完成后预计算 FEN 和 UCI
     private func precomputeAnalysisData() {
+        guard smartCommentaryEnabled else { fenList = []; uciMoves = []; return }
         var board = Board(fen: item.initialFEN)
         fenList = [FENParser.generate(board: board)]
         uciMoves = []

@@ -11954,6 +11954,22 @@
           }
         }
       }
+    },
+    "demo.smartCommentary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart Commentary (Experimental)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智能点评（实验）"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

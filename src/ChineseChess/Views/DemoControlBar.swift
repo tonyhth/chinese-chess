@@ -295,7 +295,7 @@ struct DemoConfigPopover: View {
             }
 
             Toggle(isOn: $config.smartCommentaryEnabled) {
-                Text("智能点评（实验）")
+                Text(L10n.shared.t("demo.smartCommentary"))
             }
 
             HStack {
@@ -339,7 +339,7 @@ struct DemoConfigSheet: View {
                 }
 
                 Toggle(isOn: $config.smartCommentaryEnabled) {
-                    Text("智能点评（实验）")
+                    Text(L10n.shared.t("demo.smartCommentary"))
                 }
 
                 Picker(L10n.shared.t("demo.defaultSpeed"), selection: $config.demoSpeed) {
