@@ -35,11 +35,30 @@ actor EmbeddedPikafishEngine: ChessEngine {
     func start() async throws {
         guard !isReady else { return }
 
+        #if os(iOS)
+        // 诊断：检查 NNUE 文件是否在 bundle 中
+        if let nnueURL = Bundle.main.url(forResource: "pikafish", withExtension: "nnue") {
+            NSLog("[Pikafish] NNUE found at: \(nnueURL.path)")
+        } else {
+            NSLog("[Pikafish] ⚠️ NNUE file NOT found in Bundle.main!")
+            NSLog("[Pikafish] Bundle.main bundlePath: \(Bundle.main.bundlePath)")
+            NSLog("[Pikafish] Bundle.main bundleId: \(Bundle.main.bundleIdentifier ?? "nil")")
+            // 列出 bundle resources
+            if let resURL = Bundle.main.resourceURL,
+               let files = try? FileManager.default.contentsOfDirectory(atPath: resURL.path) {
+                let nnueFiles = files.filter { $0.contains("nnue") || $0.contains("pikafish") }
+                NSLog("[Pikafish] Related files in resources: \(nnueFiles)")
+            }
+        }
+        #endif
+
         let result = pikafish_init()
 
         if result != 0 {
+            NSLog("[Pikafish] pikafish_init() returned \(result) — NNUE load failed")
             throw EngineError.startFailed
         }
+        NSLog("[Pikafish] pikafish_init() success, version: \(cachedVersion ?? "unknown")")
 
         // 缓存引擎版本（start 后 C API 数据已就绪）
         if let v = pikafish_get_info() {
