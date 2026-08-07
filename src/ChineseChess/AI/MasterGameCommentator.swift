@@ -68,15 +68,7 @@ actor MasterGameCommentator {
         }
 
         var item = CommentaryItem(type: type, text: explanation.detail)
-        // 带方向的 delta：偶数步=红走，奇数步=黑走
-        // 正值=红方失误（delta 大且红走），负值=黑方失误
-        let signedDelta: Int
-        if moveHistory.count % 2 == 0 {
-            signedDelta = delta  // 红方走
-        } else {
-            signedDelta = -delta  // 黑方走
-        }
-        item.evalDelta = signedDelta
+        item.evalDelta = delta  // 绝对值，趋势分析用累积值不区分方向
         return item
     }
 }

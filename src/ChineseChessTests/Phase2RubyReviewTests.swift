@@ -40,6 +40,7 @@ struct Phase2RubyReviewTests {
         let game = MasterGameIndex(
             id: 0,
             event: "Test",
+            eventCN: nil,
             redName: "Hu",
             blackName: "Hu",
             redNameCN: "胡荣华",
@@ -115,6 +116,7 @@ struct Phase2RubyReviewTests {
         let index = MasterGameIndex(
             id: 99999,
             event: "Test",
+            eventCN: nil,
             redName: "A",
             blackName: "B",
             redNameCN: "A",
@@ -313,6 +315,7 @@ struct Phase2RubyReviewTests {
         let game = MasterGameIndex(
             id: 42,
             event: "National Championship",
+            eventCN: nil,
             redName: "HuRonghua",
             blackName: "LuTianfang",
             redNameCN: "胡荣华",
@@ -338,7 +341,7 @@ struct Phase2RubyReviewTests {
     @Test("MasterGameIndexFile Codable round-trip")
     func masterGameIndexFile_codable() throws {
         let game = MasterGameIndex(
-            id: 0, event: "E", redName: "A", blackName: "B",
+            id: 0, event: "E", eventCN: nil, redName: "A", blackName: "B",
             redNameCN: "A", blackNameCN: "B",
             year: nil, firstMove: "h2e2", firstMoves: ["h2e2"],
             moveCount: 50, pgnOffset: 0, pgnLength: 100

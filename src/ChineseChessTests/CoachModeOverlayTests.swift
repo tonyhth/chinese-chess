@@ -9,19 +9,21 @@ struct CoachModeOverlayTests {
 
     // MARK: - 1. CoachScenario 枚举完整性
 
-    @Test("CoachScenario: 8 种场景完整")
+    @Test("CoachScenario: 26 种场景完整（Phase 3 扩展）")
     func scenarioCount() {
-        #expect(CoachScenario.allCases.count == 8, "应有 8 种教练场景")
+        #expect(CoachScenario.allCases.count == 26, "应有 26 种教练场景（Phase 3 扩展后）")
     }
 
     @Test("CoachScenario: 所有 case 有 rawValue")
     func scenarioRawValues() {
-        let expected: [String] = [
+        // Phase 3 扩展后只需验证前 8 个旧场景 rawValue
+        let oldExpected: [String] = [
             "blunder", "missedMate", "missedCheck", "missedCapture",
             "developPiece", "defensiveMove", "centerControl", "generic"
         ]
-        for (i, scenario) in CoachScenario.allCases.enumerated() {
-            #expect(scenario.rawValue == expected[i], "场景 rawValue 应匹配")
+        let allCases = CoachScenario.allCases
+        for (i, expected) in oldExpected.enumerated() {
+            #expect(allCases[i].rawValue == expected, "旧场景 rawValue 应匹配: \(expected)")
         }
     }
 

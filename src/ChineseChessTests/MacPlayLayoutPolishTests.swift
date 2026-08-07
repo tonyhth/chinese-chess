@@ -131,7 +131,7 @@ final class MacPlayLayoutPolishTests: XCTestCase {
 
     func testDemoItemWrapperMasterGameTitle() {
         let index = MasterGameIndex(
-            id: 0, event: "全国个人赛", redName: "A", blackName: "B",
+            id: 0, event: "全国个人赛", eventCN: nil, redName: "A", blackName: "B",
             redNameCN: "许银川", blackNameCN: "吕钦", year: 2020,
             firstMove: "h2e2", firstMoves: ["h2e2"], moveCount: 80,
             pgnOffset: 0, pgnLength: 100
@@ -151,7 +151,7 @@ final class MacPlayLayoutPolishTests: XCTestCase {
         // 但副标题可能较长（年份+赛事名），也有 .lineLimit(1)
         let longEventName = String(repeating: "很长的赛事名", count: 10)
         let index = MasterGameIndex(
-            id: 0, event: longEventName, redName: "A", blackName: "B",
+            id: 0, event: longEventName, eventCN: nil, redName: "A", blackName: "B",
             redNameCN: "甲", blackNameCN: "乙", year: 2020,
             firstMove: "h2e2", firstMoves: ["h2e2"], moveCount: 80,
             pgnOffset: 0, pgnLength: 100

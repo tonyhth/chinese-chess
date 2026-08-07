@@ -5,15 +5,14 @@ import Foundation
 /// 趋势类型
 enum TrendType {
     case neutral           // 无明显趋势
-    case redAdvantage      // 红方确立优势
-    case blackAdvantage    // 黑方步步被动（红方连续好）
+    case advantageEstablished  // 一方确立优势（连续好棋/对手连续失误）
     case suddenTension     // 局面突然紧张
 }
 
 /// 趋势分析器（滑动窗口）
 struct TrendAnalyzer {
 
-    /// 保留最近 N 步的 evalDelta
+    /// 保留最近 N 步的 evalDelta（绝对值，不区分方向）
     private var recentDeltas: [Int] = []
     private let windowSize = 5
 
@@ -25,7 +24,7 @@ struct TrendAnalyzer {
         }
     }
 
-    /// 重置
+    /// 重置（跳步时调用）
     mutating func reset() {
         recentDeltas.removeAll()
     }
@@ -34,11 +33,10 @@ struct TrendAnalyzer {
     var trend: TrendType {
         guard recentDeltas.count >= 3 else { return .neutral }
 
-        // 连续 3 步同向累积 > 200
+        // 连续 3 步累积 delta > 200 → 一方确立优势
         let last3 = recentDeltas.suffix(3)
         let sum = last3.reduce(0, +)
-        if sum > 200 { return .redAdvantage }
-        if sum < -200 { return .blackAdvantage }
+        if sum > 200 { return .advantageEstablished }
 
         // 长期平稳后突变
         if recentDeltas.count >= 5 {
@@ -53,14 +51,11 @@ struct TrendAnalyzer {
         return .neutral
     }
 
-    /// 趋势文案
+    /// 趋势文案（通用方向，不区分红黑）
     static func commentary(for trend: TrendType) -> String? {
         switch trend {
-        case .redAdvantage:
-            return ["红方确立优势", "红方步步紧逼，黑方被动", "红方逐渐掌握主动权"]
-                .randomElement()
-        case .blackAdvantage:
-            return ["黑方反客为主", "黑方步步紧逼", "红方陷入被动"]
+        case .advantageEstablished:
+            return ["一方确立优势", "连续精准走法，对手陷入被动", "逐渐掌握主动权"]
                 .randomElement()
         case .suddenTension:
             return ["局面突然紧张！", "风云突变！", "局势急转直下"]

@@ -512,7 +512,7 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         config.save()
 
         let index = MasterGameIndex(
-            id: 0, event: "test", redName: "A", blackName: "B",
+            id: 0, event: "test", eventCN: nil, redName: "A", blackName: "B",
             redNameCN: "甲", blackNameCN: "乙", year: 2020,
             firstMove: "h2e2", firstMoves: ["h2e2"], moveCount: 10,
             pgnOffset: 0, pgnLength: 100

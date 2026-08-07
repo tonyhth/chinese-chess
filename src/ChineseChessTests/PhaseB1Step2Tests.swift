@@ -14,6 +14,7 @@ final class PhaseB1Step2Tests: XCTestCase {
         MasterGameIndex(
             id: id,
             event: "测试赛事",
+            eventCN: nil,
             redName: "许银川", blackName: "吕钦",
             redNameCN: "许银川", blackNameCN: "吕钦",
             year: 2024,

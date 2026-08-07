@@ -47,6 +47,7 @@ final class MasterGameDemoTests: XCTestCase {
         MasterGameIndex(
             id: id,
             event: event,
+            eventCN: nil,
             redName: "Xu Yinchuan",
             blackName: "Lv Qin",
             redNameCN: redNameCN,

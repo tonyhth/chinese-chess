@@ -1,6 +1,9 @@
 import Foundation
 
 // MARK: - v3.6.0 Phase 3.1: AI 教练讲解器
+//
+// 设计决策（v1.1）：新增场景的 title/detail 文案存代码内（中文 only），不走 xcstrings。
+// 象棋是中文文化产品，i18n 不是当前优先级。Phase 3 如需国际化再迁移到 xcstrings。
 
 /// 教练讲解场景类型
 enum CoachScenario: String, CaseIterable {

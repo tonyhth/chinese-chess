@@ -315,7 +315,7 @@ final class MasterGameBrowseModeTests: XCTestCase {
 
     func testMasterGameIndexEmptyFirstMove() {
         let index = MasterGameIndex(
-            id: 0, event: "test", redName: "A", blackName: "B",
+            id: 0, event: "test", eventCN: nil, redName: "A", blackName: "B",
             redNameCN: "甲", blackNameCN: "乙", year: nil,
             firstMove: "", firstMoves: [], moveCount: 0,
             pgnOffset: 0, pgnLength: 0
@@ -327,7 +327,7 @@ final class MasterGameBrowseModeTests: XCTestCase {
     func testMasterGameIndexLongFirstMoves() {
         let longMoves = (1...20).map { "m\($0)" }
         let index = MasterGameIndex(
-            id: 0, event: "test", redName: "A", blackName: "B",
+            id: 0, event: "test", eventCN: nil, redName: "A", blackName: "B",
             redNameCN: "甲", blackNameCN: "乙", year: nil,
             firstMove: "m1", firstMoves: longMoves, moveCount: 40,
             pgnOffset: 0, pgnLength: 1000
@@ -378,7 +378,7 @@ final class MasterGameBrowseModeTests: XCTestCase {
         // gamePageSize = 200
         let indices = (0..<250).map { i in
             MasterGameIndex(
-                id: i, event: "e", redName: "A", blackName: "B",
+                id: i, event: "e", eventCN: nil, redName: "A", blackName: "B",
                 redNameCN: "甲", blackNameCN: "乙", year: nil,
                 firstMove: "h2e2", firstMoves: ["h2e2"], moveCount: 80,
                 pgnOffset: 0, pgnLength: 100
