@@ -45,7 +45,7 @@ struct MasterGameBrowserView: View {
     @State private var browseMode: MasterGameBrowseMode = .opening
 
     /// macOS sidebar 统一选中
-    @State private var sidebarSelection: SidebarSelection? = nil
+    // sidebarSelection 已删除：v4 去掉 sidebar 后无消费者
 
     /// 当前选中的开局分类
     @State private var selectedOpening: OpeningCategory? = nil
@@ -562,13 +562,11 @@ struct MasterGameBrowserView: View {
             selectedOpening = nil
             selectedSubcategory = nil
             selectedEvent = nil
-            sidebarSelection = .player(player)
         case .event(let event, _):
             selectedEvent = event
             selectedOpening = nil
             selectedSubcategory = nil
             selectedPlayer = nil
-            sidebarSelection = .event(event)
         }
         // 清空搜索
         searchText = ""
@@ -892,9 +890,71 @@ struct MasterGameBrowserView: View {
 
     // MARK: - 列表内容
 
+    /// 开局子分类过滤栏（macOS，显示在 gameListContent 顶部）
+    #if os(macOS)
+    private func subcategoryFilterBar(_ opening: OpeningCategory) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                // "全部"选项
+                Button(action: {
+                    selectedSubcategory = nil
+                    currentPage = 1
+                    rebuildCache()
+                }) {
+                    Text(L10n.shared.t("puzzle.all"))
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .fill(selectedSubcategory == nil ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.08))
+                        )
+                        .foregroundColor(selectedSubcategory == nil ? .accentColor : .primary)
+                }
+                .buttonStyle(.plain)
+
+                ForEach(opening.subcategories) { sub in
+                    let isSelected = selectedSubcategory == sub
+                    Button(action: {
+                        selectedSubcategory = sub
+                        currentPage = 1
+                        rebuildCache()
+                    }) {
+                        HStack(spacing: 3) {
+                            Text(sub.name)
+                                .font(.caption)
+                            Text("\(masterStore.gameCount(for: sub))")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .fill(isSelected ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.08))
+                        )
+                        .foregroundColor(isSelected ? .accentColor : .primary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+        }
+        .background(Color.secondary.opacity(0.05))
+    }
+    #endif
+
     /// 对局列表（选中分类/棋手/赛事后显示）
     private var gameListContent: some View {
         Group {
+            // 开局模式：有子分类时显示子分类过滤栏
+            #if os(macOS)
+            if browseMode == .opening, let opening = selectedOpening, !opening.subcategories.isEmpty {
+                subcategoryFilterBar(opening)
+            }
+            #endif
+
             if cachedItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
@@ -1194,7 +1254,6 @@ struct MasterGameBrowserView: View {
         selectedSubcategory = nil
         selectedPlayer = nil
         selectedEvent = nil
-        sidebarSelection = nil
         showSubcategoryList = false
         subcategoryParent = nil
         cachedItems = []

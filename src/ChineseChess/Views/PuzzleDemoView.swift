@@ -86,6 +86,13 @@ struct PuzzleDemoView: View {
             listContent
         }
         .frame(minWidth: 600, minHeight: 700)
+        .onAppear {
+            if selectedCategory == nil, let firstCat = PuzzleStore.shared.demoCategories.first {
+                selectedCategory = .puzzles(firstCat)
+                currentPage = 1
+                rebuildListCache()
+            }
+        }
         .onChange(of: selectedCategory) { _, _ in
             selectedTacticalGroup = nil
             currentPage = 1
