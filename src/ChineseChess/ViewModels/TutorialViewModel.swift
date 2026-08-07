@@ -145,8 +145,8 @@ class TutorialViewModel {
             subtitleKey: "tutorial.lesson6.subtitle",
             descriptionKey: "tutorial.lesson6.description",
             icon: "shield",
-            initialFEN: "3k5/9/9/9/9/9/9/4p4/3AK4/9 w - - 0 1",
-            expectedMoves: ["d1e2", "e2f1"],
+            initialFEN: "4k4/9/9/9/9/9/9/9/4p4/3AK4 w - - 0 1",
+            expectedMoves: ["d0e1", "e1f0"],
             hintKeys: ["tutorial.lesson6.hint1", "tutorial.lesson6.hint2"],
             successMessageKey: "tutorial.lesson6.success"
         ),

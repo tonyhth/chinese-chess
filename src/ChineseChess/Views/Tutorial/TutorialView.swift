@@ -21,22 +21,28 @@ struct TutorialView: View {
             .padding(.horizontal)
 
             // 课程内容区（根据 lesson.type 切换）
-            ScrollView {
-                let lesson = viewModel.lessons[viewModel.currentLesson]
-                Group {
-                    switch (lesson.type, lesson.id) {
-                    case (.info, 0):
-                        TutorialBoardIntroView()
-                    case (.info, 1):
-                        TutorialPieceIntroView()
-                    case (.interactive, _):
-                        TutorialInteractiveView(lesson: lesson)
-                    default:
-                        TutorialInfoView(lesson: lesson)
+            let lesson = viewModel.lessons[viewModel.currentLesson]
+            if lesson.type == .interactive {
+                // interactive 类型：棋盘自适应，不用 ScrollView
+                TutorialInteractiveView(lesson: lesson)
+                    .frame(maxWidth: 560)
+                    .padding(.horizontal)
+            } else {
+                // info 类型：文字内容用 ScrollView
+                ScrollView {
+                    Group {
+                        switch (lesson.type, lesson.id) {
+                        case (.info, 0):
+                            TutorialBoardIntroView()
+                        case (.info, 1):
+                            TutorialPieceIntroView()
+                        default:
+                            TutorialInfoView(lesson: lesson)
+                        }
                     }
+                    .padding()
+                    .frame(maxWidth: 560)
                 }
-                .padding()
-                .frame(maxWidth: 560) // 限制最大宽度，大屏不会过宽
             }
 
             // 底部按钮栏

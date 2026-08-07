@@ -47,6 +47,8 @@ struct TutorialInteractiveView: View {
                 onMove: { from, to in validateMove(from, to) }
             )
             .id(boardRevision) // 强制刷新
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .layoutPriority(1)
 
             // 状态反馈
             statusView
