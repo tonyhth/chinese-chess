@@ -257,6 +257,10 @@ private struct SyncConfigToViewModel: ViewModifier {
                 viewModel.speed = newValue
                 config.save()
             }
+            .onChange(of: config.smartCommentaryEnabled) { _, newValue in
+                viewModel.smartCommentaryEnabled = newValue
+                config.save()
+            }
     }
 }
 
@@ -288,6 +292,10 @@ struct DemoConfigPopover: View {
 
             Toggle(isOn: $config.autoNextPuzzle) {
                 Text(L10n.shared.t("demo.autoNextPuzzle"))
+            }
+
+            Toggle(isOn: $config.smartCommentaryEnabled) {
+                Text("智能点评（实验）")
             }
 
             HStack {
@@ -328,6 +336,10 @@ struct DemoConfigSheet: View {
 
                 Toggle(isOn: $config.autoNextPuzzle) {
                     Text(L10n.shared.t("demo.autoNextPuzzle"))
+                }
+
+                Toggle(isOn: $config.smartCommentaryEnabled) {
+                    Text("智能点评（实验）")
                 }
 
                 Picker(L10n.shared.t("demo.defaultSpeed"), selection: $config.demoSpeed) {

@@ -8,6 +8,7 @@ enum CommentaryType {
     case checkmate(side: Side)   // 将死
     case sacrifice(side: Side, delta: Int)  // 弃子（Phase 2：materialDelta 检测）
     case keyMove                 // 最后一步关键走法
+    case mistake                 // 失误（智能点评）
 }
 
 // MARK: - 点评条目
@@ -17,8 +18,11 @@ struct CommentaryItem: Identifiable {
     let type: CommentaryType
     let timestamp = Date()
 
-    /// 点评文本
+    /// 点评文本（可自定义，默认从 type 派生）
+    private let customText: String?
+
     var text: String {
+        if let customText { return customText }
         switch type {
         case .check(let side):
             let sideName = side == .red
@@ -37,6 +41,8 @@ struct CommentaryItem: Identifiable {
             return String(localized: "\(sideName)弃子！子力差 \(delta)")
         case .keyMove:
             return String(localized: "关键一步！")
+        case .mistake:
+            return String(localized: "失误")
         }
     }
 
@@ -47,7 +53,13 @@ struct CommentaryItem: Identifiable {
         case .checkmate: return "crown.fill"
         case .sacrifice: return "flame.fill"
         case .keyMove: return "star.fill"
+        case .mistake: return "exclamationmark.triangle.fill"
         }
+    }
+
+    init(type: CommentaryType, text: String? = nil) {
+        self.type = type
+        self.customText = text
     }
 }
 

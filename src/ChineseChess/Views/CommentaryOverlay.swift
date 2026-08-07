@@ -35,6 +35,7 @@ struct CommentaryOverlay: View {
         case .checkmate: return .red
         case .sacrifice: return .purple
         case .keyMove: return .blue
+        case .mistake: return .red.opacity(0.8)
         }
     }
 }

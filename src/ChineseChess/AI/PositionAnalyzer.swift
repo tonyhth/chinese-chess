@@ -344,4 +344,64 @@ actor PositionAnalyzer {
             isQuickResult: false
         )
     }
+
+    // MARK: - 轻量分析（MasterGameCommentator 专用）
+
+    /// 轻量分析——用自定义参数（低于默认的 depth=18）
+    /// 与 analyzeMove 共享同一引擎实例，通过 actor 串行化保证安全
+    func analyzeMoveLite(
+        fenBefore: String,
+        playerMove: String,
+        moveHistory: [String] = [],
+        depth: Int,
+        timeMs: Int,
+        multiPVCount: Int
+    ) async -> MoveAnalysis? {
+        guard let engine = await getEngine() else { return nil }
+
+        // 1. 评估走棋前局面
+        guard let beforeLine = await engine.evaluate(
+            fen: fenBefore, moveHistory: moveHistory,
+            depth: depth, timeMs: timeMs
+        ) else { return nil }
+
+        let bestMove = beforeLine.bestMove
+        let bestEval = beforeLine.scoreCp
+
+        // 2. 评估玩家走法后局面
+        let afterHistory = moveHistory + [playerMove]
+        guard let afterLine = await engine.evaluate(
+            fen: fenBefore, moveHistory: afterHistory,
+            depth: depth, timeMs: timeMs
+        ) else { return nil }
+
+        let adjustedPlayerEval = -afterLine.scoreCp
+        let delta = abs(bestEval - adjustedPlayerEval)
+
+        // 3. 质量分级
+        let quality: MoveQuality
+        if playerMove == bestMove || delta <= 10 { quality = .brilliant }
+        else if delta <= 50 { quality = .good }
+        else if delta <= 100 { quality = .normal }
+        else if delta <= 300 { quality = .doubtful }
+        else if delta <= 700 { quality = .blunder }
+        else { quality = .losing }
+
+        // 4. 失误走法获取候选
+        var alternatives: [AnalysisLine] = []
+        if quality == .doubtful || quality == .blunder || quality == .losing {
+            let n = min(multiPVCount, self.multiPVCount)
+            alternatives = await engine.multiPV(
+                fen: fenBefore, moveHistory: moveHistory,
+                count: n, depth: depth, timeMs: timeMs
+            )
+        }
+
+        return MoveAnalysis(
+            playerMove: playerMove, quality: quality,
+            bestMove: bestMove, bestEval: bestEval,
+            playerEval: adjustedPlayerEval, evalDelta: delta,
+            alternatives: alternatives, isQuickResult: true
+        )
+    }
 }

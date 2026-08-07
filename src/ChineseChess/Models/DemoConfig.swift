@@ -9,6 +9,7 @@ struct DemoConfig: Codable, Equatable {
     var pauseOnCommentary: Bool = true      // 对应 §3.6 pauseOnCommentary
     var autoNextPuzzle: Bool = true         // 对应 §3.6 autoNextPuzzle（即 autoAdvance）
     var showCommentary: Bool = true         // 对应 §3.6 showCommentary
+    var smartCommentaryEnabled: Bool = false // 智能点评（MasterGameCommentator）
 
     /// 便利属性：speedMultiplier ↔ DemoSpeed
     var demoSpeed: DemoSpeed {
@@ -23,6 +24,7 @@ struct DemoConfig: Codable, Equatable {
         case pauseOnCommentary
         case autoNextPuzzle
         case showCommentary
+        case smartCommentaryEnabled
     }
 
     init() {}
@@ -33,6 +35,7 @@ struct DemoConfig: Codable, Equatable {
         pauseOnCommentary = try container.decodeIfPresent(Bool.self, forKey: .pauseOnCommentary) ?? true
         autoNextPuzzle = try container.decodeIfPresent(Bool.self, forKey: .autoNextPuzzle) ?? true
         showCommentary = try container.decodeIfPresent(Bool.self, forKey: .showCommentary) ?? true
+        smartCommentaryEnabled = try container.decodeIfPresent(Bool.self, forKey: .smartCommentaryEnabled) ?? false
     }
 
     // MARK: - 持久化

@@ -108,6 +108,8 @@ class DemoViewModel {
     var pauseOnCommentary: Bool = true
     /// 是否显示点评气泡
     var showCommentary: Bool = true
+    /// 智能点评开关（MasterGameCommentator 异步引擎分析）
+    var smartCommentaryEnabled: Bool = false
 
     // pauseOnCommentary 暂停恢复状态
     private var wasPausedByCommentary: Bool = false
@@ -149,6 +151,10 @@ class DemoViewModel {
         self.isAutoAdvance = config.autoNextPuzzle
         self.pauseOnCommentary = config.pauseOnCommentary
         self.showCommentary = config.showCommentary
+        self.smartCommentaryEnabled = config.smartCommentaryEnabled
+
+        // 智能点评：预计算 FEN 和 UCI
+        precomputeAnalysisData()
     }
 
     /// 便利初始化：从 Puzzle 创建（向后兼容）
@@ -234,6 +240,61 @@ class DemoViewModel {
         }
     }
 
+    // MARK: - 智能点评（异步引擎分析）
+
+    /// 预计算的 FEN 列表（每步执行前的 FEN）
+    private var fenList: [String] = []
+    /// 预计算的 UCI 走法列表
+    private var uciMoves: [String] = []
+
+    /// 在 moves 加载完成后预计算 FEN 和 UCI
+    private func precomputeAnalysisData() {
+        var board = Board(fen: item.initialFEN)
+        fenList = [FENParser.generate(board: board)]
+        uciMoves = []
+
+        for move in moves {
+            uciMoves.append(UCIMoveConverter.uciString(from: move))
+            board.execute(move)
+            fenList.append(FENParser.generate(board: board))
+        }
+    }
+
+    /// 异步分析当前步骤（智能点评）
+    private func analyzeCurrentStep() {
+        guard smartCommentaryEnabled else { return }
+        guard currentIndex >= 0, currentIndex < uciMoves.count else { return }
+
+        let idx = currentIndex
+        let fenBefore = fenList[idx]
+        let history = Array(uciMoves[0..<idx])
+        let playerMove = uciMoves[idx]
+
+        Task { [weak self] in
+            guard let commentary = await MasterGameCommentator.shared.analyzeStep(
+                fenBefore: fenBefore,
+                playerMove: playerMove,
+                moveHistory: history
+            ) else { return }
+
+            await MainActor.run {
+                guard let self = self else { return }
+                // 跳步保护：用户还在这一步才显示
+                guard self.currentIndex == idx else { return }
+                // 同步点评优先：如果当前已有同步点评（将军/弃子/将死），跳过
+                if let existing = self.currentCommentary {
+                    switch existing.type {
+                    case .check, .checkmate, .sacrifice:
+                        return  // 同步点评在显示，跳过
+                    default:
+                        break
+                    }
+                }
+                self.showCommentary(commentary)
+            }
+        }
+    }
+
     // MARK: - 点评
 
     private func updateCommentary(for move: Move, moveIndex: Int) {
@@ -248,7 +309,11 @@ class DemoViewModel {
         // Phase 1：规则推断（将军/将死/最后一步）
         if let item = CommentaryEngine.evaluate(move: move, on: board, moveIndex: moveIndex, totalMoves: moves.count) {
             showCommentary(item)
+            return
         }
+
+        // 同步无结果 → 异步智能点评
+        analyzeCurrentStep()
     }
 
     private func showCommentary(_ item: CommentaryItem) {
@@ -264,7 +329,7 @@ class DemoViewModel {
             case .checkmate, .sacrifice:
                 pause()
                 wasPausedByCommentary = true
-            case .check, .keyMove:
+            case .check, .keyMove, .mistake:
                 break  // 不暂停
             }
         }
