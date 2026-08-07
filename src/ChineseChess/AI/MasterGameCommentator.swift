@@ -29,7 +29,7 @@ actor MasterGameCommentator {
         isAnalyzing = true
         defer { isAnalyzing = false }
 
-        // 轻量引擎分析（depth=12, timeMs=800）
+        // 轻量引擎分析
         guard let analysis = await PositionAnalyzer.shared.analyzeMoveLite(
             fenBefore: fenBefore,
             playerMove: playerMove,
@@ -43,12 +43,18 @@ actor MasterGameCommentator {
         let delta = analysis.evalDelta
         guard delta <= 10 || delta > 100 else { return nil }
 
-        // 模板讲解
+        // 构建棋盘用于阶段判断
+        let board = Board(fen: fenBefore)
+        let moveNumber = moveHistory.count
+
+        // 模板讲解（新签名：支持阶段判断 + 棋谚）
         let explanation = await CoachExplainer.shared.explain(
             analysis: analysis,
             fenBefore: fenBefore,
             playerMove: playerMove,
-            bestMove: analysis.bestMove
+            bestMove: analysis.bestMove,
+            moveNumber: moveNumber,
+            board: board
         )
 
         let type: CommentaryType
@@ -61,6 +67,8 @@ actor MasterGameCommentator {
             type = .keyMove
         }
 
-        return CommentaryItem(type: type, text: explanation.detail)
+        var item = CommentaryItem(type: type, text: explanation.detail)
+        item.evalDelta = delta
+        return item
     }
 }

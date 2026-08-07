@@ -4,6 +4,7 @@ import Foundation
 
 /// 教练讲解场景类型
 enum CoachScenario: String, CaseIterable {
+    // 旧场景（8 种）
     case blunder            // 送子/失误
     case missedMate         // 错失杀机
     case missedCheck        // 将军机会
@@ -12,6 +13,34 @@ enum CoachScenario: String, CaseIterable {
     case defensiveMove      // 防守优先
     case centerControl      // 控制中线
     case generic            // 通用 fallback
+
+    // 开局阶段场景（4 种）
+    case openingInitiative  // 抢先手
+    case openingSolid       // 稳健布阵
+    case openingPoorDev     // 布阵失误
+    case openingZhongPao    // 中炮应对
+
+    // 中局阶段场景（5 种）
+    case sacrificeAttack    // 弃子攻杀
+    case winMaterial        // 交换得子
+    case controlPoint       // 控制要点
+    case tacticCombo        // 战术组合
+    case mutualAttack       // 对攻互缠
+
+    // 残局阶段场景（3 种）
+    case endgameWinning     // 例胜定式
+    case endgameHolding     // 求和技巧
+    case kingCoordination   // 王棋配合
+
+    // 跨阶段战术场景（4 种）
+    case tacticFork         // 闪击
+    case tacticPin          // 牵制
+    case tacticDoubleCheck  // 双将
+    case tacticSkewer       // 串打
+
+    // 局面转折场景（2 种）
+    case advantageEstablished  // 优势确立
+    case suddenChange          // 局面突变
 }
 
 /// 教练讲解结果
@@ -37,36 +66,50 @@ actor CoachExplainer {
 
     // MARK: - 核心方法
 
-    /// 生成单步走法的教练讲解
-    ///
-    /// - Parameters:
-    ///   - analysis: 走法分析结果
-    ///   - boardBefore: 走棋前的棋盘（用于判断场景）
-    ///   - playerMove: 玩家走法（UCI）
-    ///   - bestMove: 最佳走法（UCI）
+    /// 生成单步走法的教练讲解（旧接口，保留向后兼容）
     func explain(
         analysis: MoveAnalysis,
         fenBefore: String,
         playerMove: String,
         bestMove: String
     ) -> CoachExplanation {
+        explain(analysis: analysis, fenBefore: fenBefore,
+                playerMove: playerMove, bestMove: bestMove,
+                moveNumber: 0, board: Board(fen: fenBefore))
+    }
+
+    /// 扩展接口——支持阶段判断和趋势感知
+    func explain(
+        analysis: MoveAnalysis,
+        fenBefore: String,
+        playerMove: String,
+        bestMove: String,
+        moveNumber: Int,
+        board: Board
+    ) -> CoachExplanation {
         let delta = analysis.evalDelta
+        let phase = PhaseDetector.detect(moveNumber: moveNumber, board: board)
         let scenario = classifyScenario(
             analysis: analysis,
             fenBefore: fenBefore,
             playerMove: playerMove,
-            bestMove: bestMove
+            bestMove: bestMove,
+            moveNumber: moveNumber,
+            phase: phase
+        )
+
+        let detail = detailFor(
+            scenario: scenario,
+            delta: delta,
+            betterMove: bestMove,
+            analysis: analysis,
+            phase: phase
         )
 
         return CoachExplanation(
             scenario: scenario,
             title: titleFor(scenario: scenario, delta: delta),
-            detail: detailFor(
-                scenario: scenario,
-                delta: delta,
-                betterMove: bestMove,
-                analysis: analysis
-            ),
+            detail: detail,
             betterMove: bestMove,
             evalDelta: delta
         )
@@ -74,77 +117,139 @@ actor CoachExplainer {
 
     // MARK: - 场景分类
 
+    /// 旧接口（保留向后兼容）
     private func classifyScenario(
         analysis: MoveAnalysis,
         fenBefore: String,
         playerMove: String,
         bestMove: String
     ) -> CoachScenario {
+        return classifyScenario(analysis: analysis, fenBefore: fenBefore,
+                                playerMove: playerMove, bestMove: bestMove,
+                                moveNumber: 0, phase: .middle)
+    }
+
+    /// 扩展接口——支持阶段判断
+    private func classifyScenario(
+        analysis: MoveAnalysis,
+        fenBefore: String,
+        playerMove: String,
+        bestMove: String,
+        moveNumber: Int,
+        phase: GamePhase
+    ) -> CoachScenario {
         let delta = analysis.evalDelta
 
-        // 评估落差 < 50cp，不需要讲解
-        if delta < 50 { return .generic }
+        // 阶段优先判断
+        switch phase {
+        case .opening:
+            return classifyOpening(delta: delta, bestMove: bestMove, moveNumber: moveNumber, fenBefore: fenBefore)
+        case .endgame:
+            return classifyEndgame(delta: delta, bestMove: bestMove, moveNumber: moveNumber)
+        case .middle, .all:
+            return classifyMiddle(delta: delta, bestMove: bestMove, analysis: analysis, fenBefore: fenBefore)
+        }
+    }
 
-        // 大失误（≥300cp）：进一步分类
+    // MARK: 开局场景判断
+
+    private func classifyOpening(delta: Int, bestMove: String, moveNumber: Int, fenBefore: String) -> CoachScenario {
+        if delta > 100 { return .openingPoorDev }
+        if delta <= 30 && isDevelopmentMove(bestMove, fen: fenBefore) { return .openingInitiative }
+        if delta < 10 { return .openingSolid }
+        return .generic
+    }
+
+    // MARK: 中局场景判断
+
+    private func classifyMiddle(delta: Int, bestMove: String, analysis: MoveAnalysis, fenBefore: String) -> CoachScenario {
+        // 大失误
         if delta >= 300 {
-            // 检查是否有杀棋相关
             if isMateScore(analysis.bestEval) && !isMateScore(analysis.playerEval) {
                 return .missedMate
             }
             return .blunder
         }
 
-        // 中等落差（50-300cp）
-        // 检查最佳走法是否将军
-        if isCheckingMove(bestMove, fen: fenBefore) {
-            return .missedCheck
+        // 中等落差
+        if delta >= 50 {
+            if isCheckingMove(bestMove, fen: fenBefore) { return .missedCheck }
+            if isSafeCapture(bestMove, fen: fenBefore) { return .missedCapture }
+            if isDefensiveMove(bestMove, fen: fenBefore, analysis: analysis) { return .defensiveMove }
+            return .generic
         }
 
-        // 检查是否安全吃子
-        if isSafeCapture(bestMove, fen: fenBefore) {
-            return .missedCapture
+        // 低 delta——好棋场景
+        if delta <= 10 {
+            // 检查战术类型
+            if isCheckingMove(bestMove, fen: fenBefore) { return .tacticDoubleCheck }
+            if isCenterControlMove(bestMove, fen: fenBefore) { return .controlPoint }
+            return .tacticCombo
         }
 
-        // 检查是否展开子力
-        if isDevelopmentMove(bestMove, fen: fenBefore) {
-            return .developPiece
-        }
-
-        // 检查是否防守
-        if isDefensiveMove(bestMove, fen: fenBefore, analysis: analysis) {
-            return .defensiveMove
-        }
-
-        // 检查中线控制
-        if isCenterControlMove(bestMove, fen: fenBefore) {
-            return .centerControl
-        }
+        if isDevelopmentMove(bestMove, fen: fenBefore) { return .developPiece }
+        if isCenterControlMove(bestMove, fen: fenBefore) { return .centerControl }
 
         return .generic
     }
 
-    // MARK: - 模板文案
+    // MARK: 残局场景判断
+
+    private func classifyEndgame(delta: Int, bestMove: String, moveNumber: Int) -> CoachScenario {
+        if delta > 150 { return .blunder }
+        if delta <= 10 { return .endgameWinning }
+        if delta < 50 { return .kingCoordination }
+        return .generic
+    }
+
+    // MARK: - 模板文案（变体系统）
+
+    /// 上次文案，避免连续重复
+    private var lastTextHash: String = ""
+
+    private func pickVariant(from variants: [String]) -> String {
+        let candidates = variants.filter { $0 != lastTextHash }
+        let picked = candidates.randomElement() ?? variants[0]
+        lastTextHash = picked
+        return picked
+    }
+
+    /// ~15% 概率插入棋谚
+    private func maybeAppendProverb(to text: String, phase: GamePhase) -> String {
+        guard Int.random(in: 0..<100) < 15 else { return text }
+        guard let proverb = ProverbLibrary.randomProverb(for: phase) else { return text }
+        return text + "——" + proverb
+    }
 
     private func titleFor(scenario: CoachScenario, delta: Int) -> String {
         switch scenario {
         case .blunder:
-            return delta >= 700
-                ? l10n.t("coach.blunder.severe")
-                : l10n.t("coach.blunder.title")
-        case .missedMate:
-            return l10n.t("coach.missedMate.title")
-        case .missedCheck:
-            return l10n.t("coach.missedCheck.title")
-        case .missedCapture:
-            return l10n.t("coach.missedCapture.title")
-        case .developPiece:
-            return l10n.t("coach.develop.title")
-        case .defensiveMove:
-            return l10n.t("coach.defensive.title")
-        case .centerControl:
-            return l10n.t("coach.center.title")
-        case .generic:
-            return l10n.t("coach.generic.title")
+            return delta >= 700 ? l10n.t("coach.blunder.severe") : l10n.t("coach.blunder.title")
+        case .missedMate: return l10n.t("coach.missedMate.title")
+        case .missedCheck: return l10n.t("coach.missedCheck.title")
+        case .missedCapture: return l10n.t("coach.missedCapture.title")
+        case .developPiece: return l10n.t("coach.develop.title")
+        case .defensiveMove: return l10n.t("coach.defensive.title")
+        case .centerControl: return l10n.t("coach.center.title")
+        case .generic: return l10n.t("coach.generic.title")
+        case .openingInitiative: return "抢先手"
+        case .openingSolid: return "稳健布阵"
+        case .openingPoorDev: return "布阵失误"
+        case .openingZhongPao: return "中炮应对"
+        case .sacrificeAttack: return "弃子攻杀"
+        case .winMaterial: return "交换得子"
+        case .controlPoint: return "控制要点"
+        case .tacticCombo: return "精妙组合"
+        case .mutualAttack: return "对攻互缠"
+        case .endgameWinning: return "例胜定式"
+        case .endgameHolding: return "求和技巧"
+        case .kingCoordination: return "王棋配合"
+        case .tacticFork: return "闪击"
+        case .tacticPin: return "牵制"
+        case .tacticDoubleCheck: return "双将"
+        case .tacticSkewer: return "串打"
+        case .advantageEstablished: return "优势确立"
+        case .suddenChange: return "局面突变"
         }
     }
 
@@ -152,32 +257,138 @@ actor CoachExplainer {
         scenario: CoachScenario,
         delta: Int,
         betterMove: String,
-        analysis: MoveAnalysis
+        analysis: MoveAnalysis,
+        phase: GamePhase = .middle
     ) -> String {
         let deltaStr = String(delta)
 
+        let detail: String
         switch scenario {
         case .blunder:
-            return String(format: l10n.t("coach.blunder.detail"), betterMove, deltaStr)
+            detail = String(format: l10n.t("coach.blunder.detail"), betterMove, deltaStr)
         case .missedMate:
-            return String(format: l10n.t("coach.missedMate.detail"), betterMove)
+            detail = pickVariant(from: [
+                String(format: "错失杀机！建议走 %@，可形成绝杀。", betterMove),
+                String(format: "可惜！这里本有杀棋，走 %@ 即可终结。", betterMove),
+                String(format: "杀机稍纵即逝——%@ 是通向绝杀的正确路径。", betterMove),
+                String(format: "与杀棋擦肩而过。%@ 后对方无法防守。", betterMove),
+            ])
         case .missedCheck:
-            return String(format: l10n.t("coach.missedCheck.detail"), betterMove)
+            detail = String(format: l10n.t("coach.missedCheck.detail"), betterMove)
         case .missedCapture:
-            return String(format: l10n.t("coach.missedCapture.detail"), betterMove)
+            detail = String(format: l10n.t("coach.missedCapture.detail"), betterMove)
         case .developPiece:
-            return String(format: l10n.t("coach.develop.detail"), betterMove)
+            detail = String(format: l10n.t("coach.develop.detail"), betterMove)
         case .defensiveMove:
-            return String(format: l10n.t("coach.defensive.detail"), betterMove)
+            detail = String(format: l10n.t("coach.defensive.detail"), betterMove)
         case .centerControl:
-            return String(format: l10n.t("coach.center.detail"), betterMove)
+            detail = String(format: l10n.t("coach.center.detail"), betterMove)
         case .generic:
             if delta >= 50 {
-                return String(format: l10n.t("coach.generic.detail"), betterMove, deltaStr)
+                detail = String(format: l10n.t("coach.generic.detail"), betterMove, deltaStr)
             } else {
-                return l10n.t("coach.generic.good")
+                detail = l10n.t("coach.generic.good")
             }
+        case .openingInitiative:
+            detail = pickVariant(from: [
+                "主动变招，争夺先手。此时不宜消极应付。",
+                "变化走法！试图打破平衡，对手需要准确应对。",
+                "主动求变是好棋意识，不愿按部就班。",
+            ])
+        case .openingSolid:
+            detail = pickVariant(from: [
+                "稳健布阵，按谱走子，双方均势。",
+                "正着。布阵并然有序，不给对手机会。",
+                "扎实走法，稳扎稳打。",
+            ])
+        case .openingPoorDev:
+            detail = pickVariant(from: [
+                String(format: "布阵不够紧凑，建议走 %@。损失 %dcp。", betterMove, deltaStr),
+                String(format: "出子太慢，%@ 更好。", betterMove),
+                String(format: "布阵失误，%@ 可以获得更好的局面。", betterMove),
+            ])
+        case .openingZhongPao:
+            detail = pickVariant(from: [
+                "中炮应对要准确，不能大意。",
+                "面对中炮，防守要紧。",
+            ])
+        case .sacrificeAttack:
+            detail = pickVariant(from: [
+                "弃子攻杀！牺牲子力换取强大攻势。",
+                "果敢弃子！看到攻杀路线，子力劣势换取速度优势。",
+                "壮士断腕——弃子后攻势凌厉，对手面临严峻考验。",
+            ])
+        case .winMaterial:
+            detail = pickVariant(from: [
+                String(format: "交换得子！%@ 后子力占优。", betterMove),
+                String(format: "战术组合赢子，%@ 是关键。", betterMove),
+                "精妙交换，净赚子力。",
+            ])
+        case .controlPoint:
+            detail = pickVariant(from: [
+                String(format: "占据战略要道，%@ 控制关键点。", betterMove),
+                "好棋！占据要道，为后续进攻做准备。",
+            ])
+        case .tacticCombo:
+            detail = pickVariant(from: [
+                String(format: "精妙战术配合！%@ 是最佳走法。", betterMove),
+                "好棋！战术组合严密。",
+                String(format: "这步棋含深意，%@ 后局面主动。", betterMove),
+            ])
+        case .mutualAttack:
+            detail = pickVariant(from: [
+                "双方各攻一侧，比拼速度！",
+                "对攻局面，先手为王。",
+            ])
+        case .endgameWinning:
+            detail = pickVariant(from: [
+                "残局例胜定式。按此走法，可逐步转化为胜势。",
+                "标准胜局路径——精确走子即可，不可急躁。",
+                "进入胜势残局。只需按定式推进，胜只是时间问题。",
+            ])
+        case .endgameHolding:
+            detail = pickVariant(from: [
+                "劣势残局，求和为上。坚守阵线。",
+                "守和技巧！不可急躁，稳住防线。",
+            ])
+        case .kingCoordination:
+            detail = pickVariant(from: [
+                "将帅主动配合，残局关键。",
+                "老将出马，发挥战斗力。",
+            ])
+        case .tacticFork:
+            detail = pickVariant(from: [
+                String(format: "闪击！一子两用，%@ 同时威胁两个目标。", betterMove),
+                "精妙闪击，对手难以两全。",
+            ])
+        case .tacticPin:
+            detail = pickVariant(from: [
+                String(format: "牵制！%@ 后对方棋子动弹不得。", betterMove),
+                "成功牵制，对方子力瘫痪。",
+            ])
+        case .tacticDoubleCheck:
+            detail = pickVariant(from: [
+                "双将！必须应将，对方陷入被动。",
+                "双将必应，这是最强的攻击手段。",
+            ])
+        case .tacticSkewer:
+            detail = pickVariant(from: [
+                String(format: "串打！%@ 贯穿两个棋子，必得其一。", betterMove),
+                "串打妙手，攻其必救。",
+            ])
+        case .advantageEstablished:
+            detail = pickVariant(from: [
+                "优势确立！局面逐步倾向己方。",
+                "步步紧逼，对手已显被动。",
+            ])
+        case .suddenChange:
+            detail = pickVariant(from: [
+                "局面突然紧张！风云突变。",
+                "局势急转直下！",
+            ])
         }
+
+        return maybeAppendProverb(to: detail, phase: phase)
     }
 
     // MARK: - 局面判断辅助

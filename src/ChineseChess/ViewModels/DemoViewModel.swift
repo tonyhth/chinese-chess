@@ -111,6 +111,9 @@ class DemoViewModel {
     /// 智能点评开关（MasterGameCommentator 异步引擎分析）
     var smartCommentaryEnabled: Bool = false
 
+    /// 趋势分析器（智能点评时使用）
+    private var trendAnalyzer = TrendAnalyzer()
+
     // pauseOnCommentary 暂停恢复状态
     private var wasPausedByCommentary: Bool = false
 
@@ -291,7 +294,19 @@ class DemoViewModel {
                         break
                     }
                 }
-                self.showCommentary(commentary)
+
+                // 更新趋势分析器
+                self.trendAnalyzer.record(delta: commentary.evalDelta)
+
+                // 检查趋势
+                let trend = self.trendAnalyzer.trend
+                if let trendText = TrendAnalyzer.commentary(for: trend) {
+                    // 趋势点评追加在走法点评之后
+                    let combinedText = commentary.text + "\n" + trendText
+                    self.showCommentary(CommentaryItem(type: commentary.type, text: combinedText))
+                } else {
+                    self.showCommentary(commentary)
+                }
             }
         }
     }

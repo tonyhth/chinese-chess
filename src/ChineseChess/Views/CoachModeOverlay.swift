@@ -83,6 +83,29 @@ struct CoachModeOverlay: View {
         case .defensiveMove:   return "shield.fill"
         case .centerControl:   return "scope"
         case .generic:         return "lightbulb.fill"
+        // 开局
+        case .openingInitiative: return "bolt.circle.fill"
+        case .openingSolid:      return "checkmark.seal.fill"
+        case .openingPoorDev:    return "exclamationmark.triangle"
+        case .openingZhongPao:   return "flame"
+        // 中局
+        case .sacrificeAttack: return "flame.fill"
+        case .winMaterial:     return "hand.thumbsup.fill"
+        case .controlPoint:    return "target"
+        case .tacticCombo:     return "star.circle.fill"
+        case .mutualAttack:    return "arrow.left.and.right"
+        // 残局
+        case .endgameWinning:   return "trophy.fill"
+        case .endgameHolding:   return "shield.lefthalf.filled"
+        case .kingCoordination: return "crown"
+        // 战术
+        case .tacticFork:        return "arrow.triangle.branch"
+        case .tacticPin:         return "pin.fill"
+        case .tacticDoubleCheck: return "bolt.fill"
+        case .tacticSkewer:      return "line.diagonal"
+        // 转折
+        case .advantageEstablished: return "chart.line.uptrend.xyaxis"
+        case .suddenChange:         return "tornado"
         }
     }
 
@@ -96,6 +119,29 @@ struct CoachModeOverlay: View {
         case .defensiveMove:   return .teal
         case .centerControl:   return .indigo
         case .generic:         return .yellow
+        // 开局
+        case .openingInitiative: return .blue
+        case .openingSolid:      return .green
+        case .openingPoorDev:    return .orange
+        case .openingZhongPao:   return .purple
+        // 中局
+        case .sacrificeAttack: return .purple
+        case .winMaterial:     return .green
+        case .controlPoint:    return .indigo
+        case .tacticCombo:     return .blue
+        case .mutualAttack:    return .orange
+        // 残局
+        case .endgameWinning:   return .green
+        case .endgameHolding:   return .teal
+        case .kingCoordination: return .brown
+        // 战术
+        case .tacticFork:        return .purple
+        case .tacticPin:         return .indigo
+        case .tacticDoubleCheck: return .red
+        case .tacticSkewer:      return .purple
+        // 转折
+        case .advantageEstablished: return .blue
+        case .suddenChange:         return .orange
         }
     }
 }
