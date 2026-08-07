@@ -345,7 +345,6 @@ struct MasterGameBrowserView: View {
                             isSelected: sidebarSelection == .opening(opening)
                         )
                     }
-                    .padding(.horizontal, 0)
                 }
             }
         }
@@ -437,16 +436,6 @@ struct MasterGameBrowserView: View {
         }
     }
 
-    private func countBadge(_ count: Int) -> some View {
-        Text("\(count)")
-            .font(.caption2)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(Color.secondary.opacity(0.1))
-            .clipShape(Capsule())
-    }
-
     // MARK: - 搜索 UI 组件
 
     /// macOS/iOS 共用搜索框
@@ -514,6 +503,7 @@ struct MasterGameBrowserView: View {
                                 }
                             }
                             Spacer()
+                            // 搜索结果无选中态：点击即跳转，不需要高亮
                             Text("\(result.count)")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
