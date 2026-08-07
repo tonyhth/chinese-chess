@@ -23,35 +23,41 @@ struct TutorialInteractiveView: View {
     private let l10n = L10n.shared
 
     var body: some View {
-        VStack(spacing: 12) {
-            // 标题
+        VStack(spacing: 6) {
+            // 标题（紧凑）
             Text(l10n.t(lesson.titleKey))
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
-            Text(l10n.t(lesson.subtitleKey))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-
-            // 步骤进度（多步走法时显示）
-            if let moves = lesson.expectedMoves, moves.count > 1 {
-                Text(l10n.t("tutorial.stepProgress", stepIndex + 1, moves.count))
+            // 副标题 + 步骤进度合并为一行
+            HStack(spacing: 6) {
+                Text(l10n.t(lesson.subtitleKey))
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                if let moves = lesson.expectedMoves, moves.count > 1 {
+                    Text("(\(stepIndex + 1)/\(moves.count))")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
 
-            // 迷你棋盘
+            // 迷你棋盘 — 自适应填充剩余空间
             MiniChessBoard(
                 board: board,
                 enabledSide: enabledSide,
                 onMove: { from, to in validateMove(from, to) }
             )
-            .id(boardRevision) // 强制刷新
+            .id(boardRevision)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
 
-            // 状态反馈
+            // 状态反馈（紧凑，固定最小高度避免跳动）
             statusView
+                .frame(minHeight: 20)
 
             // 重试按钮（走错时显示）
             if status == .wrong || status == .illegal {
@@ -59,9 +65,10 @@ struct TutorialInteractiveView: View {
                     resetCurrentStep()
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.small)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { setupBoard() }
         .onChange(of: lesson.id) { _, _ in setupBoard() }
     }
