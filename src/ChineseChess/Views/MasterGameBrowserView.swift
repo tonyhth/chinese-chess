@@ -1251,7 +1251,7 @@ struct MasterGameBrowserView: View {
     private func splitView<Detail: View>(@ViewBuilder detail: () -> Detail) -> some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(minWidth: 180, idealWidth: 220, maxWidth: 350)
+                .frame(minWidth: 160, idealWidth: 190, maxWidth: 280)
             Divider()
             detail()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -1279,7 +1279,6 @@ struct MasterGameBrowserView: View {
 
             ZStack(alignment: .top) {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
                     CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
                         .padding(.top, 8)
@@ -1292,6 +1291,7 @@ struct MasterGameBrowserView: View {
                         .scaleEffect(1.2)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
 
             DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })

@@ -131,11 +131,11 @@ struct DemoControlBar: View {
 
     #if os(macOS)
     private var macosControlBar: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             ProgressView(value: Double(viewModel.currentIndex), total: Double(max(viewModel.totalSteps, 1)))
                 .padding(.horizontal, 16)
 
-            HStack(spacing: 16) {
+            HStack(spacing: 10) {
                 Button(action: { viewModel.stepBackward() }) {
                     Image(systemName: "backward.frame")
                 }
@@ -154,30 +154,45 @@ struct DemoControlBar: View {
                 .disabled(!viewModel.canGoForward)
                 .keyboardShortcut(.rightArrow, modifiers: [])
 
-                Divider().frame(height: 24)
+                Divider().frame(height: 20)
 
-                Picker(L10n.shared.t("demo.speed"), selection: Binding(
-                    get: { viewModel.speed },
-                    set: { config.demoSpeed = $0 }  // 通过 onChange 同步
-                )) {
+                // 速度选择器：Menu 替代 segmented Picker（和 iOS 统一，节省空间）
+                Menu {
                     ForEach(DemoSpeed.allCases) { speed in
-                        Text(speed.label).tag(speed)
+                        Button {
+                            config.demoSpeed = speed
+                        } label: {
+                            if viewModel.speed == speed {
+                                Label(speed.label, systemImage: "checkmark")
+                            } else {
+                                Text(speed.label)
+                            }
+                        }
                     }
+                } label: {
+                    HStack(spacing: 2) {
+                        Text(viewModel.speed.label)
+                            .font(.subheadline.monospacedDigit())
+                        Image(systemName: "chevron.down")
+                            .font(.caption2)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Color.secondary.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 180)
+                .accessibilityLabel(L10n.shared.t("demo.speed"))
 
                 // 速度快捷键 1-4
-                // 约束：DemoSpeed.allCases 必须 ≤4 个，否则快捷键映射不可靠
                 ForEach(Array(DemoSpeed.allCases.enumerated()), id: \.offset) { index, speed in
                     Button("") {
-                        config.demoSpeed = speed  // 通过 onChange 同步
+                        config.demoSpeed = speed
                     }
                     .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
                     .hidden()
                 }
 
-                Divider().frame(height: 24)
+                Divider().frame(height: 20)
 
                 Toggle(isOn: Binding(
                     get: { viewModel.isAutoAdvance },
@@ -203,8 +218,8 @@ struct DemoControlBar: View {
                     Image(systemName: "list.bullet")
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
         }
         .background(.bar)
     }
