@@ -1231,7 +1231,7 @@ struct MasterGameBrowserView: View {
                     cachedTotalCount = 0
                     return
                 }
-                indices = masterStore.byPlayer(player.name)
+                indices = masterStore.byPlayer(player.nameCN)
             case .event:
                 guard let event = selectedEvent else {
                     cachedItems = []
