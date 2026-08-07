@@ -1,0 +1,2044 @@
+{
+  "players": [
+    {
+      "cn": "丁如意",
+      "en": "Ding Ru Yi"
+    },
+    {
+      "cn": "万春林",
+      "en": "Wan Chun Lin"
+    },
+    {
+      "cn": "万科",
+      "en": "Wan Ke"
+    },
+    {
+      "cn": "严俊",
+      "en": "Yan Jun"
+    },
+    {
+      "cn": "严勇",
+      "en": "Yan Yong"
+    },
+    {
+      "cn": "于佑华",
+      "en": "Yu You Hua"
+    },
+    {
+      "cn": "于幼华",
+      "en": "Yu You Hua"
+    },
+    {
+      "cn": "付嘉伟",
+      "en": "Fu Jia Wei"
+    },
+    {
+      "cn": "付旌臣",
+      "en": "Fu Jing Chen"
+    },
+    {
+      "cn": "任刚",
+      "en": "Ren Gang"
+    },
+    {
+      "cn": "伍霞",
+      "en": "Wu Xia"
+    },
+    {
+      "cn": "何伟宁",
+      "en": "He Wei Ning"
+    },
+    {
+      "cn": "何刚",
+      "en": "He Gang"
+    },
+    {
+      "cn": "何含露",
+      "en": "He Han Lu"
+    },
+    {
+      "cn": "何媛",
+      "en": "He Yuan"
+    },
+    {
+      "cn": "何志敏",
+      "en": "He Zhi Min"
+    },
+    {
+      "cn": "何成坚",
+      "en": "He Cheng Jian"
+    },
+    {
+      "cn": "何文哲",
+      "en": "He Wen Zhe"
+    },
+    {
+      "cn": "何荣耀",
+      "en": "He Rong Yao"
+    },
+    {
+      "cn": "何连生",
+      "en": "He Lian Sheng"
+    },
+    {
+      "cn": "何静",
+      "en": "He Jing"
+    },
+    {
+      "cn": "何顺安",
+      "en": "He Shun An"
+    },
+    {
+      "cn": "侯文博",
+      "en": "Hou Wen Bo"
+    },
+    {
+      "cn": "侯昭忠",
+      "en": "Hou Zhao Zhong"
+    },
+    {
+      "cn": "倪敏",
+      "en": "Ni Min"
+    },
+    {
+      "cn": "傅光明",
+      "en": "Fu Guang Ming"
+    },
+    {
+      "cn": "储般若",
+      "en": "Chu Ban Ruo"
+    },
+    {
+      "cn": "党国蕾",
+      "en": "Dang Guo Lei"
+    },
+    {
+      "cn": "党斐",
+      "en": "Dang Fei"
+    },
+    {
+      "cn": "关文晖",
+      "en": "Guan Wen Hui"
+    },
+    {
+      "cn": "冯家俊",
+      "en": "Feng Jia Jun"
+    },
+    {
+      "cn": "冯明光",
+      "en": "Feng Ming Guang"
+    },
+    {
+      "cn": "冯晓曦",
+      "en": "Feng Xiao Xi"
+    },
+    {
+      "cn": "冯金贵",
+      "en": "Feng Jin Gui"
+    },
+    {
+      "cn": "冷易纹",
+      "en": "Leng Yi Wen"
+    },
+    {
+      "cn": "刘之恒",
+      "en": "Liu Zhi Heng"
+    },
+    {
+      "cn": "刘伟平",
+      "en": "Liu Wei Ping"
+    },
+    {
+      "cn": "刘剑青",
+      "en": "Liu Jian Qing"
+    },
+    {
+      "cn": "刘天",
+      "en": "Liu Tian"
+    },
+    {
+      "cn": "刘子健",
+      "en": "Liu Zi Jian"
+    },
+    {
+      "cn": "刘应昌",
+      "en": "Liu Ying Chang"
+    },
+    {
+      "cn": "刘思源",
+      "en": "Liu Si Yuan"
+    },
+    {
+      "cn": "刘文哲",
+      "en": "Liu Wen Zhe"
+    },
+    {
+      "cn": "刘明",
+      "en": "Liu Ming"
+    },
+    {
+      "cn": "刘柏宏",
+      "en": "Liu Bai Hong"
+    },
+    {
+      "cn": "刘欢",
+      "en": "Liu Huan"
+    },
+    {
+      "cn": "刘殿中",
+      "en": "Liu Dian Zhong"
+    },
+    {
+      "cn": "刘永校",
+      "en": "Liu Yong Xiao"
+    },
+    {
+      "cn": "刘泉",
+      "en": "Liu Quan"
+    },
+    {
+      "cn": "刘知行",
+      "en": "Liu Zhi Xing"
+    },
+    {
+      "cn": "刚秋英",
+      "en": "Gang Qiu Ying"
+    },
+    {
+      "cn": "华东",
+      "en": "Hua Dong"
+    },
+    {
+      "cn": "华晨昊",
+      "en": "Hua Chen Hao"
+    },
+    {
+      "cn": "卜风波",
+      "en": "Bu Feng Bo"
+    },
+    {
+      "cn": "卢宗福",
+      "en": "Lu Zong Fu"
+    },
+    {
+      "cn": "卢济生",
+      "en": "Lu Ji Sheng"
+    },
+    {
+      "cn": "叶宗保",
+      "en": "Ye Zong Bao"
+    },
+    {
+      "cn": "叶少锋",
+      "en": "Ye Shao Feng"
+    },
+    {
+      "cn": "叶新洲",
+      "en": "Ye Xin Zhou"
+    },
+    {
+      "cn": "叶荣光",
+      "en": "Ye Rong Guang"
+    },
+    {
+      "cn": "吉星海",
+      "en": "Ji Xing Hai"
+    },
+    {
+      "cn": "向有权",
+      "en": "Xiang You Quan"
+    },
+    {
+      "cn": "吕钦",
+      "en": "Lv Qin"
+    },
+    {
+      "cn": "吴东升",
+      "en": "Wu Dong Sheng"
+    },
+    {
+      "cn": "吴乔雯",
+      "en": "Wu Qiao Wen"
+    },
+    {
+      "cn": "吴亚利",
+      "en": "Wu Ya Li"
+    },
+    {
+      "cn": "吴代明",
+      "en": "Wu Dai Ming"
+    },
+    {
+      "cn": "吴俊乐",
+      "en": "Wu Jun Le"
+    },
+    {
+      "cn": "吴兰香",
+      "en": "Wu Lan Xiang"
+    },
+    {
+      "cn": "吴可欣",
+      "en": "Wu Ke Xin"
+    },
+    {
+      "cn": "吴嘉倩",
+      "en": "Wu Jia Qian"
+    },
+    {
+      "cn": "吴多华",
+      "en": "Wu Duo Hua"
+    },
+    {
+      "cn": "吴安勤",
+      "en": "Wu An Qin"
+    },
+    {
+      "cn": "吴宗滋",
+      "en": "Wu Zong Zi"
+    },
+    {
+      "cn": "吴宗翰",
+      "en": "Wu Zong Han"
+    },
+    {
+      "cn": "吴宜翰",
+      "en": "Wu Yi Han"
+    },
+    {
+      "cn": "吴彩芳",
+      "en": "Wu Cai Fang"
+    },
+    {
+      "cn": "吴文虎",
+      "en": "Wu Wen Hu"
+    },
+    {
+      "cn": "吴欣洋",
+      "en": "Wu Xin Yang"
+    },
+    {
+      "cn": "吴永生",
+      "en": "Wu Yong Sheng"
+    },
+    {
+      "cn": "吴渭水",
+      "en": "Wu Wei Shui"
+    },
+    {
+      "cn": "吴胜友",
+      "en": "Wu Sheng You"
+    },
+    {
+      "cn": "吴荣萱",
+      "en": "Wu Rong Xuan"
+    },
+    {
+      "cn": "吴蔚",
+      "en": "Wu Wei"
+    },
+    {
+      "cn": "吴裕成",
+      "en": "Wu Yu Cheng"
+    },
+    {
+      "cn": "吴贵临",
+      "en": "Wu Gui Lin"
+    },
+    {
+      "cn": "吴金永",
+      "en": "Wu Jin Yong"
+    },
+    {
+      "cn": "吴震熙",
+      "en": "Wu Zhen Xi"
+    },
+    {
+      "cn": "吴魏",
+      "en": "Wu Wei"
+    },
+    {
+      "cn": "唐丹",
+      "en": "Tang Dan"
+    },
+    {
+      "cn": "唐义军",
+      "en": "Tang Yi Jun"
+    },
+    {
+      "cn": "夏刚",
+      "en": "Xia Gang"
+    },
+    {
+      "cn": "夏天舒",
+      "en": "Xia Tian Shu"
+    },
+    {
+      "cn": "夏金凯",
+      "en": "Xia Jin Kai"
+    },
+    {
+      "cn": "姚勤贺",
+      "en": "Yao Qin He"
+    },
+    {
+      "cn": "姚洪新",
+      "en": "Yao Hong Xin"
+    },
+    {
+      "cn": "姚神",
+      "en": "Yao Shen"
+    },
+    {
+      "cn": "姜晓",
+      "en": "Jiang Xiao"
+    },
+    {
+      "cn": "姜毅之",
+      "en": "Jiang Yi Zhi"
+    },
+    {
+      "cn": "姜海涛",
+      "en": "Jiang Hai Tao"
+    },
+    {
+      "cn": "孙勇征",
+      "en": "Sun Yong Zheng"
+    },
+    {
+      "cn": "孙昕昊",
+      "en": "Sun Xin Hao"
+    },
+    {
+      "cn": "孙逸阳",
+      "en": "Sun Yi Yang"
+    },
+    {
+      "cn": "孟立国",
+      "en": "Meng Li Guo"
+    },
+    {
+      "cn": "孟繁睿",
+      "en": "Meng Fan Rui"
+    },
+    {
+      "cn": "孟辰",
+      "en": "Meng Chen"
+    },
+    {
+      "cn": "季本涵",
+      "en": "Ji Ben Han"
+    },
+    {
+      "cn": "季洁",
+      "en": "Ji Jie"
+    },
+    {
+      "cn": "宋国强",
+      "en": "Song Guo Qiang"
+    },
+    {
+      "cn": "宋彦",
+      "en": "Song Yan"
+    },
+    {
+      "cn": "宿少峰",
+      "en": "Su Shao Feng"
+    },
+    {
+      "cn": "尤云飞",
+      "en": "You Yun Fei"
+    },
+    {
+      "cn": "尤颖钦",
+      "en": "You Ying Qin"
+    },
+    {
+      "cn": "尹N",
+      "en": "Yin Nan"
+    },
+    {
+      "cn": "尹志勇",
+      "en": "Yin Zhi Yong"
+    },
+    {
+      "cn": "崔岩",
+      "en": "Cui Yan"
+    },
+    {
+      "cn": "崔峻",
+      "en": "Cui Jun"
+    },
+    {
+      "cn": "崔淞博",
+      "en": "Cui Song Bo"
+    },
+    {
+      "cn": "崔航",
+      "en": "Cui Hang"
+    },
+    {
+      "cn": "崔革",
+      "en": "Cui Ge"
+    },
+    {
+      "cn": "左文静",
+      "en": "Zuo Wen Jing"
+    },
+    {
+      "cn": "巨龙飞",
+      "en": "Ju Long Fei"
+    },
+    {
+      "cn": "庄玉庭",
+      "en": "Zhuang Yu Ting"
+    },
+    {
+      "cn": "康德荣",
+      "en": "Kang De Rong"
+    },
+    {
+      "cn": "康群光",
+      "en": "Kang Qun Guang"
+    },
+    {
+      "cn": "张亦辰",
+      "en": "Zhang Yi Chen"
+    },
+    {
+      "cn": "张佳雯",
+      "en": "Zhang Jia Wen"
+    },
+    {
+      "cn": "张学潮",
+      "en": "Zhang Xue Chao"
+    },
+    {
+      "cn": "张尹旻",
+      "en": "Zhang Yin Min"
+    },
+    {
+      "cn": "张弘佳",
+      "en": "Zhang Hong Jia"
+    },
+    {
+      "cn": "张强",
+      "en": "Zhang Qiang"
+    },
+    {
+      "cn": "张斌",
+      "en": "Zhang Bin"
+    },
+    {
+      "cn": "张明忠",
+      "en": "Zhang Ming Zhong"
+    },
+    {
+      "cn": "张晓平",
+      "en": "Zhang Xiao Ping"
+    },
+    {
+      "cn": "张欣",
+      "en": "Zhang Xin"
+    },
+    {
+      "cn": "张正光",
+      "en": "Zhang Zheng Guang"
+    },
+    {
+      "cn": "张汉忠",
+      "en": "Zhang Han Zhong"
+    },
+    {
+      "cn": "张江",
+      "en": "Zhang Jiang"
+    },
+    {
+      "cn": "张爽",
+      "en": "Zhang Shuang"
+    },
+    {
+      "cn": "张申宏",
+      "en": "Zhang Shen Hong"
+    },
+    {
+      "cn": "张益帆",
+      "en": "Zhang Yi Fan"
+    },
+    {
+      "cn": "张程",
+      "en": "Zhang Cheng"
+    },
+    {
+      "cn": "徐健秒",
+      "en": "Xu Jian Miao"
+    },
+    {
+      "cn": "徐公正",
+      "en": "Xu Gong Zheng"
+    },
+    {
+      "cn": "徐勤华",
+      "en": "Xu Qin Hua"
+    },
+    {
+      "cn": "徐向海",
+      "en": "Xu Xiang Hai"
+    },
+    {
+      "cn": "徐国伟",
+      "en": "Xu Guo Wei"
+    },
+    {
+      "cn": "徐天利",
+      "en": "Xu Tian Li"
+    },
+    {
+      "cn": "徐天红",
+      "en": "Xu Tian Hong"
+    },
+    {
+      "cn": "徐崇峰",
+      "en": "Xu Chong Feng"
+    },
+    {
+      "cn": "徐建斌",
+      "en": "Xu Jian Bin"
+    },
+    {
+      "cn": "徐彬",
+      "en": "Xu Bin"
+    },
+    {
+      "cn": "徐志恺",
+      "en": "Xu Zhi Kai"
+    },
+    {
+      "cn": "徐文章",
+      "en": "Xu Wen Zhang"
+    },
+    {
+      "cn": "徐昊",
+      "en": "Xu Hao"
+    },
+    {
+      "cn": "徐腾飞",
+      "en": "Xu Teng Fei"
+    },
+    {
+      "cn": "徐良进",
+      "en": "Xu Liang Jin"
+    },
+    {
+      "cn": "徐超",
+      "en": "Xu Chao"
+    },
+    {
+      "cn": "成海文",
+      "en": "Cheng Hai Wen"
+    },
+    {
+      "cn": "戴晨",
+      "en": "Dai Chen"
+    },
+    {
+      "cn": "戴荣光",
+      "en": "Dai Rong Guang"
+    },
+    {
+      "cn": "文静",
+      "en": "Wen Jing"
+    },
+    {
+      "cn": "方招胜",
+      "en": "Fang Zhao Sheng"
+    },
+    {
+      "cn": "方晔",
+      "en": "Fang Ye"
+    },
+    {
+      "cn": "景学义",
+      "en": "Jing Xue Yi"
+    },
+    {
+      "cn": "曹岩磊",
+      "en": "Cao Yan Lei"
+    },
+    {
+      "cn": "朱小虎",
+      "en": "Zhu Xiao Hu"
+    },
+    {
+      "cn": "朱文政",
+      "en": "Zhu Wen Zheng"
+    },
+    {
+      "cn": "朱晨",
+      "en": "Zhu Chen"
+    },
+    {
+      "cn": "李东升",
+      "en": "Li Dong Sheng"
+    },
+    {
+      "cn": "李义庭",
+      "en": "Li Yi Ting"
+    },
+    {
+      "cn": "李国志",
+      "en": "Li Guo Zhi"
+    },
+    {
+      "cn": "李天乐",
+      "en": "Li Tian Le"
+    },
+    {
+      "cn": "李少庚",
+      "en": "Li Shao Geng"
+    },
+    {
+      "cn": "李昌玮",
+      "en": "Li Chang Wei"
+    },
+    {
+      "cn": "李明",
+      "en": "Li Ming"
+    },
+    {
+      "cn": "李来群",
+      "en": "Li Lai Qun"
+    },
+    {
+      "cn": "李殿铭",
+      "en": "Li Dian Ming"
+    },
+    {
+      "cn": "李统领",
+      "en": "Li Tong Ling"
+    },
+    {
+      "cn": "李群",
+      "en": "Li Qun"
+    },
+    {
+      "cn": "李翰林",
+      "en": "Li Han Lin"
+    },
+    {
+      "cn": "李金波",
+      "en": "Li Jin Bo"
+    },
+    {
+      "cn": "李雪松",
+      "en": "Li Xue Song"
+    },
+    {
+      "cn": "李青昱",
+      "en": "Li Qing Yu"
+    },
+    {
+      "cn": "李鸿嘉",
+      "en": "Li Hong Jia"
+    },
+    {
+      "cn": "杜光伟",
+      "en": "Du Guang Wei"
+    },
+    {
+      "cn": "杜国杰",
+      "en": "Du Guo Jie"
+    },
+    {
+      "cn": "杜国胜",
+      "en": "Du Guo Sheng"
+    },
+    {
+      "cn": "杜宁",
+      "en": "Du Ning"
+    },
+    {
+      "cn": "杜晨昊",
+      "en": "Du Chen Hao"
+    },
+    {
+      "cn": "杨世哲",
+      "en": "Yang Shi Zhe"
+    },
+    {
+      "cn": "杨伊",
+      "en": "Yang Yi"
+    },
+    {
+      "cn": "杨剑",
+      "en": "Yang Jian"
+    },
+    {
+      "cn": "杨子正",
+      "en": "Yang Zi Zheng"
+    },
+    {
+      "cn": "杨宗谕",
+      "en": "Yang Zong Yu"
+    },
+    {
+      "cn": "杨官璘",
+      "en": "Yang Guan Lin"
+    },
+    {
+      "cn": "杨小平",
+      "en": "Yang Xiao Ping"
+    },
+    {
+      "cn": "杨应东",
+      "en": "Yang Ying Dong"
+    },
+    {
+      "cn": "杨建平",
+      "en": "Yang Jian Ping"
+    },
+    {
+      "cn": "杨德琪",
+      "en": "Yang De Qi"
+    },
+    {
+      "cn": "杨思远",
+      "en": "Yang Si Yuan"
+    },
+    {
+      "cn": "杨恬浩",
+      "en": "Yang Tian Hao"
+    },
+    {
+      "cn": "杨文雅",
+      "en": "Yang Wen Ya"
+    },
+    {
+      "cn": "杨旭",
+      "en": "Yang Xu"
+    },
+    {
+      "cn": "杨柏林",
+      "en": "Yang Bo Lin"
+    },
+    {
+      "cn": "杨正双",
+      "en": "Yang Zheng Shuang"
+    },
+    {
+      "cn": "杨浩",
+      "en": "Yang Hao"
+    },
+    {
+      "cn": "杨添任",
+      "en": "Yang Tian Ren"
+    },
+    {
+      "cn": "杨超",
+      "en": "Yang Chao"
+    },
+    {
+      "cn": "杨辉",
+      "en": "Yang Hui"
+    },
+    {
+      "cn": "杨铭",
+      "en": "Yang Ming"
+    },
+    {
+      "cn": "杨鸿轲",
+      "en": "Yang Hong Ke"
+    },
+    {
+      "cn": "杭宁",
+      "en": "Hang Ning"
+    },
+    {
+      "cn": "林宏敏",
+      "en": "Lin Hong Min"
+    },
+    {
+      "cn": "林文汉",
+      "en": "Lin Wen Han"
+    },
+    {
+      "cn": "柯善林",
+      "en": "Ke Shan Lin"
+    },
+    {
+      "cn": "柳大华",
+      "en": "Liu Da Hua"
+    },
+    {
+      "cn": "柳天",
+      "en": "Liu Tian"
+    },
+    {
+      "cn": "梁云龙",
+      "en": "Liang Yun Long"
+    },
+    {
+      "cn": "梁妍婷",
+      "en": "Liang Yan Ting"
+    },
+    {
+      "cn": "梁辉远",
+      "en": "Liang Hui Yuan"
+    },
+    {
+      "cn": "梁运龙",
+      "en": "Liang Yun Long"
+    },
+    {
+      "cn": "武俊强",
+      "en": "Wu Jun Qiang"
+    },
+    {
+      "cn": "武信阳",
+      "en": "Wu Xin Yang"
+    },
+    {
+      "cn": "武文慧",
+      "en": "Wu Wen Hui"
+    },
+    {
+      "cn": "武明一",
+      "en": "Wu Ming Yi"
+    },
+    {
+      "cn": "武霄",
+      "en": "Wu Xiao"
+    },
+    {
+      "cn": "武震",
+      "en": "Wu Zhen"
+    },
+    {
+      "cn": "毋君临",
+      "en": "Wu Jun Lin"
+    },
+    {
+      "cn": "江中豪",
+      "en": "Jiang Zhong Hao"
+    },
+    {
+      "cn": "江国华",
+      "en": "Jiang Guo Hua"
+    },
+    {
+      "cn": "江民标",
+      "en": "Jiang Min Biao"
+    },
+    {
+      "cn": "汤卓光",
+      "en": "Tang Zhuo Guang"
+    },
+    {
+      "cn": "汪洋",
+      "en": "Wang Yang"
+    },
+    {
+      "cn": "沈奥臻",
+      "en": "Shen Ao Zhen"
+    },
+    {
+      "cn": "沈志峰",
+      "en": "Shen Zhi Feng"
+    },
+    {
+      "cn": "沈斌",
+      "en": "Shen Bin"
+    },
+    {
+      "cn": "沈炳法",
+      "en": "Shen Bing Fa"
+    },
+    {
+      "cn": "沈艾婧",
+      "en": "Shen Ai Jing"
+    },
+    {
+      "cn": "洪家川",
+      "en": "Hong Jia Chuan"
+    },
+    {
+      "cn": "洪智",
+      "en": "Hong Zhi"
+    },
+    {
+      "cn": "焦志强",
+      "en": "Jiao Zhi Qiang"
+    },
+    {
+      "cn": "焦明理",
+      "en": "Jiao Ming Li"
+    },
+    {
+      "cn": "熊学元",
+      "en": "Xiong Xue Yuan"
+    },
+    {
+      "cn": "狄平川",
+      "en": "Di Ping Chuan"
+    },
+    {
+      "cn": "王嘉瑞",
+      "en": "Wang Jia Rui"
+    },
+    {
+      "cn": "王嘉良",
+      "en": "Wang Jia Liang"
+    },
+    {
+      "cn": "王天一",
+      "en": "Wang Tian Yi"
+    },
+    {
+      "cn": "王宇航",
+      "en": "Wang Yu Hang"
+    },
+    {
+      "cn": "王帅",
+      "en": "Wang Shuai"
+    },
+    {
+      "cn": "王常春",
+      "en": "Wang Chang Chun"
+    },
+    {
+      "cn": "王廓",
+      "en": "Wang Kuo"
+    },
+    {
+      "cn": "王建锋",
+      "en": "Wang Jian Feng"
+    },
+    {
+      "cn": "王斌",
+      "en": "Wang Bin"
+    },
+    {
+      "cn": "王昊",
+      "en": "Wang Hao"
+    },
+    {
+      "cn": "王昊男",
+      "en": "Wang Hao Nan"
+    },
+    {
+      "cn": "王永存",
+      "en": "Wang Yong Cun"
+    },
+    {
+      "cn": "王清",
+      "en": "Wang Qing"
+    },
+    {
+      "cn": "王禹博",
+      "en": "Wang Yu Bo"
+    },
+    {
+      "cn": "王群星",
+      "en": "Wang Qun Xing"
+    },
+    {
+      "cn": "王跃飞",
+      "en": "Wang Yue Fei"
+    },
+    {
+      "cn": "甘小晋",
+      "en": "Gan Xiao Jin"
+    },
+    {
+      "cn": "甘德彬",
+      "en": "Gan De Bin"
+    },
+    {
+      "cn": "申鹏",
+      "en": "Shen Peng"
+    },
+    {
+      "cn": "盖明强",
+      "en": "Gai Ming Qiang"
+    },
+    {
+      "cn": "盛奕铖",
+      "en": "Sheng Yi Cheng"
+    },
+    {
+      "cn": "程吉俊",
+      "en": "Cheng Ji Jun"
+    },
+    {
+      "cn": "程宇东",
+      "en": "Cheng Yu Dong"
+    },
+    {
+      "cn": "程建军",
+      "en": "Cheng Ji Jun"
+    },
+    {
+      "cn": "程琨",
+      "en": "Cheng Kun"
+    },
+    {
+      "cn": "程进超",
+      "en": "Cheng Jin Chao"
+    },
+    {
+      "cn": "程鸣",
+      "en": "Cheng Ming"
+    },
+    {
+      "cn": "程龙",
+      "en": "Cheng Long"
+    },
+    {
+      "cn": "窦超",
+      "en": "Dou Chao"
+    },
+    {
+      "cn": "章之晗",
+      "en": "Zhang Zhi Han"
+    },
+    {
+      "cn": "符开敏",
+      "en": "Fu Kai Min"
+    },
+    {
+      "cn": "管志年",
+      "en": "Guan Zhi Nian"
+    },
+    {
+      "cn": "翁德强",
+      "en": "Weng De Qiang"
+    },
+    {
+      "cn": "聂铁文",
+      "en": "Nie Tie Wen"
+    },
+    {
+      "cn": "肖八武",
+      "en": "Xiao Ba Wu"
+    },
+    {
+      "cn": "肖宇舟",
+      "en": "Xiao Yu Zhou"
+    },
+    {
+      "cn": "肖革联",
+      "en": "Xiao Ge Lian"
+    },
+    {
+      "cn": "胡家艺",
+      "en": "Hu Jia Yi"
+    },
+    {
+      "cn": "胡庆阳",
+      "en": "Hu Qing Yang"
+    },
+    {
+      "cn": "胡成荣",
+      "en": "Hu Cheng Rong"
+    },
+    {
+      "cn": "胡敬斌",
+      "en": "Hu Jing Bin"
+    },
+    {
+      "cn": "胡明",
+      "en": "Hu Ming"
+    },
+    {
+      "cn": "胡景尧",
+      "en": "Hu Jing Yao"
+    },
+    {
+      "cn": "胡炜群",
+      "en": "Hu Wei Jun"
+    },
+    {
+      "cn": "胡玉山",
+      "en": "Hu Yu Shan"
+    },
+    {
+      "cn": "胡荣华",
+      "en": "Hu Rong Hua"
+    },
+    {
+      "cn": "胡迪",
+      "en": "Hu Di"
+    },
+    {
+      "cn": "胡雯",
+      "en": "Hu Wen"
+    },
+    {
+      "cn": "芦庆祥",
+      "en": "Lu Qing Xiang"
+    },
+    {
+      "cn": "苏福荫",
+      "en": "Su Fu Yin"
+    },
+    {
+      "cn": "苗利明",
+      "en": "Miao Li Ming"
+    },
+    {
+      "cn": "苗永鹏",
+      "en": "Miao Yong Peng"
+    },
+    {
+      "cn": "范启源",
+      "en": "Fan Qi Yuan"
+    },
+    {
+      "cn": "范思远",
+      "en": "Fan Si Yuan"
+    },
+    {
+      "cn": "范磊",
+      "en": "Fan Lei"
+    },
+    {
+      "cn": "范越",
+      "en": "Fan Yue"
+    },
+    {
+      "cn": "茹一淳",
+      "en": "Ru Yi Chun"
+    },
+    {
+      "cn": "葛振衣",
+      "en": "Ge Zhen Yi"
+    },
+    {
+      "cn": "葛晓征",
+      "en": "Ge Xiao Zheng"
+    },
+    {
+      "cn": "葛维蒲",
+      "en": "Ge Wei Pu"
+    },
+    {
+      "cn": "葛超然",
+      "en": "Ge Chao Ran"
+    },
+    {
+      "cn": "董嘉琦",
+      "en": "Dong Jia Qi"
+    },
+    {
+      "cn": "董学武",
+      "en": "Dong Xue Wu"
+    },
+    {
+      "cn": "董政贤",
+      "en": "Dong Zheng Xian"
+    },
+    {
+      "cn": "董文渊",
+      "en": "Dong Wen Yuan"
+    },
+    {
+      "cn": "董旭彬",
+      "en": "Dong Xu Bin"
+    },
+    {
+      "cn": "董毓男",
+      "en": "Dong Yu Nan"
+    },
+    {
+      "cn": "董波",
+      "en": "Dong Bo"
+    },
+    {
+      "cn": "蒋全胜",
+      "en": "Jiang Quan Sheng"
+    },
+    {
+      "cn": "蒋川",
+      "en": "Jiang Chuan"
+    },
+    {
+      "cn": "蒋庆民",
+      "en": "Jiang Qing Min"
+    },
+    {
+      "cn": "蒋志梁",
+      "en": "Jiang Zhi Liang"
+    },
+    {
+      "cn": "蒋明成",
+      "en": "Jiang Ming Cheng"
+    },
+    {
+      "cn": "蒋皓",
+      "en": "Jiang Hao"
+    },
+    {
+      "cn": "蒋茂芳",
+      "en": "Jiang Mao Fang"
+    },
+    {
+      "cn": "蒋荣炳",
+      "en": "Jiang Rong Bing"
+    },
+    {
+      "cn": "蒋融冰",
+      "en": "Jiang Rong Bing"
+    },
+    {
+      "cn": "蓝陈泓",
+      "en": "Lan Chen Hong"
+    },
+    {
+      "cn": "蔚强",
+      "en": "Wei Qiang"
+    },
+    {
+      "cn": "蔡忠诚",
+      "en": "Cai Zhong Cheng"
+    },
+    {
+      "cn": "蔡福如",
+      "en": "Cai Fu Ru"
+    },
+    {
+      "cn": "薛忠",
+      "en": "Xue Zhong"
+    },
+    {
+      "cn": "薛文强",
+      "en": "Xue Wen Qiang"
+    },
+    {
+      "cn": "薛涵第",
+      "en": "Xue Han Di"
+    },
+    {
+      "cn": "言穆江",
+      "en": "Yan Mu Jiang"
+    },
+    {
+      "cn": "言缵昭",
+      "en": "Yan Zuan Zhao"
+    },
+    {
+      "cn": "许国义",
+      "en": "Xu Guo Yi"
+    },
+    {
+      "cn": "许文学",
+      "en": "Xu Wen Xue"
+    },
+    {
+      "cn": "许明",
+      "en": "Xu Ming"
+    },
+    {
+      "cn": "许明龙",
+      "en": "Xu Ming Long"
+    },
+    {
+      "cn": "许正豪",
+      "en": "Xu Zheng Hao"
+    },
+    {
+      "cn": "许波",
+      "en": "Xu Bo"
+    },
+    {
+      "cn": "许鑫鑫",
+      "en": "Xu Xin Xin"
+    },
+    {
+      "cn": "许银川",
+      "en": "Xu Yin Chuan"
+    },
+    {
+      "cn": "谢业枧",
+      "en": "Xie Ye Jian"
+    },
+    {
+      "cn": "谢丹枫",
+      "en": "Xie Dan Feng"
+    },
+    {
+      "cn": "谢卓淼",
+      "en": "Xie Zhuo Miao"
+    },
+    {
+      "cn": "谢奎",
+      "en": "Xie Kui"
+    },
+    {
+      "cn": "谢尚有",
+      "en": "Xie Shang You"
+    },
+    {
+      "cn": "谢岿",
+      "en": "Xie Kui"
+    },
+    {
+      "cn": "谢新琦",
+      "en": "Xie Xin Qi"
+    },
+    {
+      "cn": "谢靖",
+      "en": "Xie Jing"
+    },
+    {
+      "cn": "费江涛",
+      "en": "Fei Jiang Tao"
+    },
+    {
+      "cn": "贺岁学",
+      "en": "He Sui Xue"
+    },
+    {
+      "cn": "贾丹",
+      "en": "Jia Dan"
+    },
+    {
+      "cn": "贾俊",
+      "en": "Jia Jun"
+    },
+    {
+      "cn": "赖坤琳",
+      "en": "Lai Kun Lin"
+    },
+    {
+      "cn": "赖理兄",
+      "en": "Lai Li Xiong"
+    },
+    {
+      "cn": "赵一骏",
+      "en": "Zhao Yi Jun"
+    },
+    {
+      "cn": "赵东",
+      "en": "Zhao Dong"
+    },
+    {
+      "cn": "赵国荣",
+      "en": "Zhao Guo Rong"
+    },
+    {
+      "cn": "赵子雨",
+      "en": "Zhao Zi Yu"
+    },
+    {
+      "cn": "赵家宏",
+      "en": "Zhao Jia Hong"
+    },
+    {
+      "cn": "赵平",
+      "en": "Zhao Ping"
+    },
+    {
+      "cn": "赵攀伟",
+      "en": "Zhao Pan Wei"
+    },
+    {
+      "cn": "赵殿宇",
+      "en": "Zhao Dian Yu"
+    },
+    {
+      "cn": "赵玮",
+      "en": "Zhao Wei"
+    },
+    {
+      "cn": "赵瑞虎",
+      "en": "Zhao Rui Hu"
+    },
+    {
+      "cn": "赵登层",
+      "en": "Zhao Deng Ceng"
+    },
+    {
+      "cn": "赵金成",
+      "en": "Zhao Jin Cheng"
+    },
+    {
+      "cn": "赵鑫鑫",
+      "en": "Zhao Xin Xin"
+    },
+    {
+      "cn": "连泽特",
+      "en": "Lian Ze Te"
+    },
+    {
+      "cn": "迟新德",
+      "en": "Chi Xin De"
+    },
+    {
+      "cn": "邓传礼",
+      "en": "Deng Chuan Li"
+    },
+    {
+      "cn": "邓兆昂",
+      "en": "Deng Zhao Ang"
+    },
+    {
+      "cn": "邓家荣",
+      "en": "Deng Jia Rong"
+    },
+    {
+      "cn": "邓志强",
+      "en": "Deng Zhi Qiang"
+    },
+    {
+      "cn": "邓明高",
+      "en": "Deng Ming Gao"
+    },
+    {
+      "cn": "邓普普",
+      "en": "Deng Pu Pu"
+    },
+    {
+      "cn": "邓桂林",
+      "en": "Deng Gui Lin"
+    },
+    {
+      "cn": "邓清忠",
+      "en": "Deng Qing Zhong"
+    },
+    {
+      "cn": "邓颂宏",
+      "en": "Deng Song Hong"
+    },
+    {
+      "cn": "邝伟德",
+      "en": "Kuang Wei De"
+    },
+    {
+      "cn": "邬正伟",
+      "en": "Wu Zheng Wei"
+    },
+    {
+      "cn": "邱东",
+      "en": "Qiu Dong"
+    },
+    {
+      "cn": "郎祺琪",
+      "en": "Lang Qi Qi"
+    },
+    {
+      "cn": "郑一泓",
+      "en": "Zheng Yi Hong"
+    },
+    {
+      "cn": "郑惟桐",
+      "en": "Zheng Wei Tong"
+    },
+    {
+      "cn": "郑羽轩",
+      "en": "Zheng Yu Xuan"
+    },
+    {
+      "cn": "郝继超",
+      "en": "Hao Ji Chao"
+    },
+    {
+      "cn": "郭中基",
+      "en": "Guo Zhong Ji"
+    },
+    {
+      "cn": "郭凤达",
+      "en": "Guo Feng Da"
+    },
+    {
+      "cn": "郭海军",
+      "en": "Guo Hai Jun"
+    },
+    {
+      "cn": "郭瑞霞",
+      "en": "Guo Rui Xia"
+    },
+    {
+      "cn": "郭福人",
+      "en": "Guo Fu Ren"
+    },
+    {
+      "cn": "郭胜文",
+      "en": "Guo Sheng Wen"
+    },
+    {
+      "cn": "郭莉萍",
+      "en": "Guo Li Ping"
+    },
+    {
+      "cn": "郭长顺",
+      "en": "Guo Chang Shun"
+    },
+    {
+      "cn": "金华",
+      "en": "Jin Hua"
+    },
+    {
+      "cn": "金松",
+      "en": "Jin Song"
+    },
+    {
+      "cn": "金波",
+      "en": "Jin Bo"
+    },
+    {
+      "cn": "金海英",
+      "en": "Jin Hai Ying"
+    },
+    {
+      "cn": "钟少鸿",
+      "en": "Zhong Shao Hong"
+    },
+    {
+      "cn": "闫有财",
+      "en": "Yan You Cai"
+    },
+    {
+      "cn": "阎文清",
+      "en": "Yan Wen Qing"
+    },
+    {
+      "cn": "陆伟韬",
+      "en": "Lu Wei Tao"
+    },
+    {
+      "cn": "陆天逸",
+      "en": "Lu Tian Yi"
+    },
+    {
+      "cn": "陆小连",
+      "en": "Lu Xiao Lian"
+    },
+    {
+      "cn": "陆江华",
+      "en": "Lu Jiang Hua"
+    },
+    {
+      "cn": "陆钰清",
+      "en": "Lu Yu Qing"
+    },
+    {
+      "cn": "陈万威",
+      "en": "Chen Wan Wei"
+    },
+    {
+      "cn": "陈丽媛",
+      "en": "Chen Li Yuan"
+    },
+    {
+      "cn": "陈伍福",
+      "en": "Chen Wu Fu"
+    },
+    {
+      "cn": "陈信安",
+      "en": "Chen Xin An"
+    },
+    {
+      "cn": "陈发佐",
+      "en": "Chen Fa Zuo"
+    },
+    {
+      "cn": "陈启欢",
+      "en": "Chen Qi Huan"
+    },
+    {
+      "cn": "陈四海",
+      "en": "Chen Si Hai"
+    },
+    {
+      "cn": "陈图炯",
+      "en": "Chen Tu Jiong"
+    },
+    {
+      "cn": "陈妍冰",
+      "en": "Chen Yan Bing"
+    },
+    {
+      "cn": "陈孝坤",
+      "en": "Chen Xiao Kun"
+    },
+    {
+      "cn": "陈寒峰",
+      "en": "Chen Han Feng"
+    },
+    {
+      "cn": "陈幸琳",
+      "en": "Chen Xing Lin"
+    },
+    {
+      "cn": "陈广燊",
+      "en": "Chen Guang Shen"
+    },
+    {
+      "cn": "陈应贤",
+      "en": "Chen Ying Xian"
+    },
+    {
+      "cn": "陈建国",
+      "en": "Chen Jian Guo"
+    },
+    {
+      "cn": "陈建昌",
+      "en": "Chen Jian Chang"
+    },
+    {
+      "cn": "陈强安",
+      "en": "Chen Qiang An"
+    },
+    {
+      "cn": "陈懋煌",
+      "en": "Chen Mao Huang"
+    },
+    {
+      "cn": "陈振国",
+      "en": "Chen Zhen Guo"
+    },
+    {
+      "cn": "陈旭",
+      "en": "Chen Xu"
+    },
+    {
+      "cn": "陈旭东",
+      "en": "Chen Xu Dong"
+    },
+    {
+      "cn": "陈旭升",
+      "en": "Chen Xu Sheng"
+    },
+    {
+      "cn": "陈旭平",
+      "en": "Chen Xu Ping"
+    },
+    {
+      "cn": "陈有发",
+      "en": "Chen You Fa"
+    },
+    {
+      "cn": "陈柏祥",
+      "en": "Chen Bo Xiang"
+    },
+    {
+      "cn": "陈栋",
+      "en": "Chen Dong"
+    },
+    {
+      "cn": "陈树雄",
+      "en": "Chen Shu Xiong"
+    },
+    {
+      "cn": "陈永安",
+      "en": "Chen Yong An"
+    },
+    {
+      "cn": "陈泓盛",
+      "en": "Chen Hong Sheng"
+    },
+    {
+      "cn": "陈湖海",
+      "en": "Chen Hu Hai"
+    },
+    {
+      "cn": "陈焕吴",
+      "en": "Chen Huan Wu"
+    },
+    {
+      "cn": "陈球",
+      "en": "Chen Qiu"
+    },
+    {
+      "cn": "陈理",
+      "en": "Chen Li"
+    },
+    {
+      "cn": "陈红标",
+      "en": "Chen Hong Biao"
+    },
+    {
+      "cn": "陈绍博",
+      "en": "Chen Shao Bo"
+    },
+    {
+      "cn": "陈羽琦",
+      "en": "Chen Yu Qi"
+    },
+    {
+      "cn": "陈聆溪",
+      "en": "Chen Ling Xi"
+    },
+    {
+      "cn": "陈苏怡",
+      "en": "Chen Su Yi"
+    },
+    {
+      "cn": "陈茗芳",
+      "en": "Chen Ming Fang"
+    },
+    {
+      "cn": "陈衍",
+      "en": "Chen Yan"
+    },
+    {
+      "cn": "陈逸群",
+      "en": "Chen Yi Qun"
+    },
+    {
+      "cn": "陈钊荣",
+      "en": "Chen Zhao Rong"
+    },
+    {
+      "cn": "陈雅文",
+      "en": "Chen Ya Wen"
+    },
+    {
+      "cn": "陈颖",
+      "en": "Chen Ying"
+    },
+    {
+      "cn": "陈鱼",
+      "en": "Chen Yu"
+    },
+    {
+      "cn": "陶汉明",
+      "en": "Tao Han Ming"
+    },
+    {
+      "cn": "雷隆云",
+      "en": "Lei Long Yun"
+    },
+    {
+      "cn": "霍羡勇",
+      "en": "Huo Xian Yong"
+    },
+    {
+      "cn": "靳玉砚",
+      "en": "Jin Yu Yan"
+    },
+    {
+      "cn": "韩冰",
+      "en": "Han Bing"
+    },
+    {
+      "cn": "韩勇",
+      "en": "Han Yong"
+    },
+    {
+      "cn": "韩强",
+      "en": "Han Qiang"
+    },
+    {
+      "cn": "韩松龄",
+      "en": "Han Song Ling"
+    },
+    {
+      "cn": "顾亿庆",
+      "en": "Gu Yi Qing"
+    },
+    {
+      "cn": "顾博文",
+      "en": "Gu Bo Wen"
+    },
+    {
+      "cn": "顾韶音",
+      "en": "Gu Shao Yin"
+    },
+    {
+      "cn": "颜成龙",
+      "en": "Yan Cheng Long"
+    },
+    {
+      "cn": "马惠城",
+      "en": "Ma Hui Cheng"
+    },
+    {
+      "cn": "高云路",
+      "en": "Gao Yun Lu"
+    },
+    {
+      "cn": "高华",
+      "en": "Gao Hua"
+    },
+    {
+      "cn": "高家煊",
+      "en": "Gao Jia Xuan"
+    },
+    {
+      "cn": "高懿屏",
+      "en": "Gao Yi Ping"
+    },
+    {
+      "cn": "高明海",
+      "en": "Gao Ming Hai"
+    },
+    {
+      "cn": "高海军",
+      "en": "Gao Hai Jun"
+    },
+    {
+      "cn": "高维铉",
+      "en": "Gao Wei Xuan"
+    },
+    {
+      "cn": "高菲",
+      "en": "Gao Fei"
+    },
+    {
+      "cn": "高飞",
+      "en": "Gao Fei"
+    },
+    {
+      "cn": "魏依林",
+      "en": "Wei Yi Lin"
+    },
+    {
+      "cn": "魏征",
+      "en": "Wei Zheng"
+    },
+    {
+      "cn": "魏纪元",
+      "en": "Wei Ji Yuan"
+    },
+    {
+      "cn": "鲁玥",
+      "en": "Lu Yue"
+    },
+    {
+      "cn": "黃文偉",
+      "en": "Huang Wen Wei"
+    },
+    {
+      "cn": "黄世宏",
+      "en": "Huang Shi Hong"
+    },
+    {
+      "cn": "黄丹青",
+      "en": "Huang Dan Qing"
+    },
+    {
+      "cn": "黄仕清",
+      "en": "Huang Shi Qing"
+    },
+    {
+      "cn": "黄伟",
+      "en": "Huang Wei"
+    },
+    {
+      "cn": "黄俊铭",
+      "en": "Huang Jun Ming"
+    },
+    {
+      "cn": "黄光英",
+      "en": "Huang Guang Ying"
+    },
+    {
+      "cn": "黄光颖",
+      "en": "Huang Guang Ying"
+    },
+    {
+      "cn": "黄勇",
+      "en": "Huang Yong"
+    },
+    {
+      "cn": "黄向晖",
+      "en": "Huang Xiang Hui"
+    },
+    {
+      "cn": "黄学谦",
+      "en": "Huang Xue Qian"
+    },
+    {
+      "cn": "黄家欣",
+      "en": "Huang Jia Xin"
+    },
+    {
+      "cn": "黄必富",
+      "en": "Huang Bi Fu"
+    },
+    {
+      "cn": "黄志强",
+      "en": "Huang Zhi Qiang"
+    },
+    {
+      "cn": "黄文俊",
+      "en": "Huang Wen Jun"
+    },
+    {
+      "cn": "黄昌成",
+      "en": "Huang Chang Cheng"
+    },
+    {
+      "cn": "黄春龙",
+      "en": "Huang Chun Long"
+    },
+    {
+      "cn": "黄晓冬",
+      "en": "Huang Xiao Dong"
+    },
+    {
+      "cn": "黄智琦",
+      "en": "Huang Zhi Qi"
+    },
+    {
+      "cn": "黄沿吴",
+      "en": "Huang Yan Wu"
+    },
+    {
+      "cn": "黄波",
+      "en": "Huang Bo"
+    },
+    {
+      "cn": "黄浩伦",
+      "en": "Huang Hao Lun"
+    },
+    {
+      "cn": "黄海林",
+      "en": "Huang Hai Lin"
+    },
+    {
+      "cn": "黄润怀",
+      "en": "Huang Run Huai"
+    },
+    {
+      "cn": "黄竹风",
+      "en": "Huang Zhu Feng"
+    },
+    {
+      "cn": "黄蕾蕾",
+      "en": "Huang Lei Lei"
+    },
+    {
+      "cn": "黄薇",
+      "en": "Huang Wei"
+    },
+    {
+      "cn": "黄辉",
+      "en": "Huang Hui"
+    },
+    {
+      "cn": "黄运兴",
+      "en": "Huang Yun Xing"
+    },
+    {
+      "cn": "黎启新",
+      "en": "Li Qi Xin"
+    },
+    {
+      "cn": "黎德志",
+      "en": "Li De Zhi"
+    },
+    {
+      "cn": "黎铎",
+      "en": "Li Duo"
+    },
+    {
+      "cn": "龙四海",
+      "en": "Long Si Hai"
+    },
+    {
+      "cn": "龚晓民",
+      "en": "Gong Xiao Min"
+    }
+  ]
+}
