@@ -186,6 +186,12 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
     // MARK: - 7. DemoViewModel 智能点评开关
 
     func testViewModelSmartCommentaryDefaultOff() {
+        // 先确保 config 是默认关闭状态
+        let savedConfig = DemoConfig.load()
+        var cleanConfig = savedConfig
+        cleanConfig.smartCommentaryEnabled = false
+        cleanConfig.save()
+
         let puzzle = Puzzle(
             id: "test-sc-\(UUID().uuidString.prefix(8))",
             name: "测试", category: "测试", difficulty: 1, stars: 1,
@@ -196,6 +202,9 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
         let vm = DemoViewModel(item: .puzzle(puzzle), moves: convertResult.moves)
         XCTAssertFalse(vm.smartCommentaryEnabled, "ViewModel 默认应关闭")
+
+        // 恢复
+        savedConfig.save()
     }
 
     func testViewModelSmartCommentaryFromConfig() {
@@ -212,7 +221,7 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
             solution: ["h2e2"], hints: nil, maxMoves: 1
         )
         let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-        let vm = DemoViewModel(config: config, item: .puzzle(puzzle), moves: convertResult.moves)
+        let vm = DemoViewModel(item: .puzzle(puzzle), moves: convertResult.moves)
         XCTAssertTrue(vm.smartCommentaryEnabled, "从 config=true 构造的 VM 应开启")
 
         // 恢复
@@ -227,6 +236,11 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         // guard smartCommentaryEnabled else { fenList = []; uciMoves = []; return }
         //
         // 关闭时 fenList 和 uciMoves 应为空
+        let savedConfig = DemoConfig.load()
+        var cleanConfig = savedConfig
+        cleanConfig.smartCommentaryEnabled = false
+        cleanConfig.save()
+
         let puzzle = Puzzle(
             id: "test-pg-\(UUID().uuidString.prefix(8))",
             name: "测试", category: "测试", difficulty: 1, stars: 1,
@@ -239,6 +253,9 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         // smartCommentaryEnabled = false → 不预计算
         // 验证不崩溃
         XCTAssertFalse(vm.smartCommentaryEnabled)
+
+        // 恢复
+        savedConfig.save()
     }
 
     // MARK: - 9. 跳步保护逻辑
@@ -411,8 +428,11 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         // }
         //
         // 验证 config 变更能同步到 viewModel
-        var config = DemoConfig()
+        // VM 从 DemoConfig.load() 读取 → 必须先 save
+        let savedConfig = DemoConfig.load()
+        var config = savedConfig
         config.smartCommentaryEnabled = true
+        config.save()
 
         let puzzle = Puzzle(
             id: "test-sync-\(UUID().uuidString.prefix(8))",
@@ -422,12 +442,15 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
             solution: ["h2e2"], hints: nil, maxMoves: 1
         )
         let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-        let vm = DemoViewModel(config: config, item: .puzzle(puzzle), moves: convertResult.moves)
+        let vm = DemoViewModel(item: .puzzle(puzzle), moves: convertResult.moves)
         XCTAssertTrue(vm.smartCommentaryEnabled)
 
         // 模拟 onChange 关闭
         vm.smartCommentaryEnabled = false
         XCTAssertFalse(vm.smartCommentaryEnabled)
+
+        // 恢复
+        savedConfig.save()
     }
 
     // MARK: - 16. 残局演示不受影响
@@ -435,7 +458,8 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
     func testPuzzleDemoWithSmartCommentaryDoesNotCrash() {
         // 残局模式开启智能点评 → precomputeAnalysisData guard 会跳过
         // （残局的 moves 不是 UCI 格式的开局走法，但 precompute 用 UCIMoveConverter）
-        var config = DemoConfig()
+        let savedConfig = DemoConfig.load()
+        var config = savedConfig
         config.smartCommentaryEnabled = true
         config.save()
 
@@ -449,17 +473,21 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
             hints: nil, maxMoves: 3
         )
         let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-        let vm = DemoViewModel(config: config, item: .puzzle(puzzle), moves: convertResult.moves)
+        let vm = DemoViewModel(item: .puzzle(puzzle), moves: convertResult.moves)
         // 验证不崩溃
         XCTAssertTrue(vm.smartCommentaryEnabled)
 
         // 恢复
-        config.smartCommentaryEnabled = false
         config.save()
     }
 
     func testPuzzleDemoWithoutSmartCommentary() {
         // 残局模式关闭智能点评 → 行为完全一致
+        let savedConfig = DemoConfig.load()
+        var cleanConfig = savedConfig
+        cleanConfig.smartCommentaryEnabled = false
+        cleanConfig.save()
+
         let puzzle = Puzzle(
             id: "test-puzzle-nsc-\(UUID().uuidString.prefix(8))",
             name: "测试", category: "测试", difficulty: 1, stars: 1,
@@ -470,12 +498,16 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
         let vm = DemoViewModel(item: .puzzle(puzzle), moves: convertResult.moves)
         XCTAssertFalse(vm.smartCommentaryEnabled)
+
+        // 恢复
+        savedConfig.save()
     }
 
     // MARK: - 17. 大师棋谱播放 ViewModel 集成
 
     func testMasterGameViewModelWithSmartCommentary() {
-        var config = DemoConfig()
+        let savedConfig = DemoConfig.load()
+        var config = savedConfig
         config.smartCommentaryEnabled = true
         config.save()
 
@@ -489,20 +521,22 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         let wrapper = DemoItemWrapper.masterGame(item)
 
         // 创建空 moves（实际播放时会从 PGN 加载）
-        let vm = DemoViewModel(config: config, item: wrapper, moves: [])
+        let vm = DemoViewModel(item: wrapper, moves: [])
         XCTAssertTrue(vm.smartCommentaryEnabled)
 
         // 恢复
-        config.smartCommentaryEnabled = false
-        config.save()
+        savedConfig.save()
     }
 
     // MARK: - 18. 关闭后行为恢复
 
     func testDisableRestoresBehavior() {
         // 开启 → 关闭后，不应再触发异步分析
-        var config = DemoConfig()
+        // VM 从 DemoConfig.load() 读取 → 必须先 save
+        let savedConfig = DemoConfig.load()
+        var config = savedConfig
         config.smartCommentaryEnabled = true
+        config.save()
 
         let puzzle = Puzzle(
             id: "test-restore-\(UUID().uuidString.prefix(8))",
@@ -512,13 +546,16 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
             solution: ["h2e2"], hints: nil, maxMoves: 1
         )
         let convertResult = DemoMoveConverter.convert(solution: puzzle.solution, on: Board(fen: puzzle.initialFEN))
-        let vm = DemoViewModel(config: config, item: .puzzle(puzzle), moves: convertResult.moves)
+        let vm = DemoViewModel(item: .puzzle(puzzle), moves: convertResult.moves)
         XCTAssertTrue(vm.smartCommentaryEnabled)
 
         // 关闭
         vm.smartCommentaryEnabled = false
         XCTAssertFalse(vm.smartCommentaryEnabled)
         // analyzeCurrentStep guard smartCommentaryEnabled → 直接 return
+
+        // 恢复
+        savedConfig.save()
     }
 
     // MARK: - 19. View init 安全性
