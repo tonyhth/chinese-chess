@@ -374,6 +374,13 @@ int pikafish_set_option(const char* name, const char* value) {
             fprintf(stderr, "[pikafish_api] Threads option not fully implemented, ignoring\n");
             return 0;
         }
+        else if (name_str == "Skill Level") {
+            int level = std::stoi(value_str);
+            if (level < 0 || level > 20) return -1;
+            std::istringstream iss("name Skill Level value " + std::to_string(level));
+            g_engine->get_options().setoption(iss);
+            return 0;
+        }
         else {
             // Accept unknown options silently
             return 0;
