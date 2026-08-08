@@ -1356,12 +1356,8 @@ struct MasterGameBrowserView: View {
         VStack(spacing: 0) {
             DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
 
-            ZStack(alignment: .top) {
+            ZStack {
                 DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
-                if vm.showCommentary, let commentary = vm.currentCommentary {
-                    CommentaryOverlay(commentary: commentary, speed: vm.speed)
-                        .padding(.top, 8)
-                }
 
                 // FINAL-010: 补齐与 iOS 一致的过渡 loading overlay
                 if vm.playState == .transitioning {
@@ -1373,7 +1369,14 @@ struct MasterGameBrowserView: View {
             .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            DemoControlBar(viewModel: vm, onBackToList: { backToList() })
+            ZStack(alignment: .bottom) {
+                DemoControlBar(viewModel: vm, onBackToList: { backToList() })
+                if vm.showCommentary, let commentary = vm.currentCommentary {
+                    CommentaryOverlay(commentary: commentary, speed: vm.speed)
+                        .padding(.bottom, 8)
+                        .allowsHitTesting(false)
+                }
+            }
         }
         .frame(minWidth: 600, minHeight: 700)
     }
@@ -1390,12 +1393,8 @@ struct MasterGameBrowserView: View {
         VStack(spacing: 0) {
             DemoInfoBar(item: viewModel.item, viewModel: viewModel, onBackToList: { backToList() })
 
-            ZStack(alignment: .top) {
+            ZStack {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
-                if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
-                    CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
-                        .padding(.top, 8)
-                }
 
                 // P1-2: 连播过渡 UI — 半透明 loading overlay
                 if viewModel.playState == .transitioning {
@@ -1407,7 +1406,14 @@ struct MasterGameBrowserView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
 
-            DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
+            ZStack(alignment: .bottom) {
+                DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
+                if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
+                    CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
+                        .padding(.bottom, 8)
+                        .allowsHitTesting(false)
+                }
+            }
         }
         #if os(macOS)
         .focused($isDemoFocused)

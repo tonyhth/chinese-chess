@@ -532,13 +532,8 @@ struct PuzzleDemoView: View {
         VStack(spacing: 0) {
             DemoInfoBar(item: viewModel.item, viewModel: viewModel, onBackToList: { backToList() })
 
-            ZStack(alignment: .top) {
+            ZStack {
                 DemoBoardView(board: viewModel.board, lastMove: viewModel.lastMove, isFlipped: viewModel.item.shouldFlipBoard)
-
-                if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
-                    CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
-                        .padding(.top, 8)
-                }
 
                 // P1-2: 连播过渡 UI — 半透明 loading overlay
                 if viewModel.playState == .transitioning {
@@ -550,7 +545,14 @@ struct PuzzleDemoView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .layoutPriority(1)
 
-            DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
+            ZStack(alignment: .bottom) {
+                DemoControlBar(viewModel: viewModel, onBackToList: { backToList() })
+                if viewModel.showCommentary, let commentary = viewModel.currentCommentary {
+                    CommentaryOverlay(commentary: commentary, speed: viewModel.speed)
+                        .padding(.bottom, 8)
+                        .allowsHitTesting(false)
+                }
+            }
         }
         #if os(macOS)
         .focused($isDemoFocused)

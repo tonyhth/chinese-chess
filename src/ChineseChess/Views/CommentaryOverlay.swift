@@ -25,7 +25,7 @@ struct CommentaryOverlay: View {
                 .fill(bubbleColor.opacity(0.9))
                 .shadow(color: .black.opacity(0.25), radius: 4, y: 2)
         )
-        .transition(.move(edge: .top).combined(with: .opacity))
+        .transition(.move(edge: .bottom).combined(with: .opacity))
         .animation(.spring(response: 0.3), value: commentary.id)
     }
 
