@@ -154,6 +154,13 @@ struct TutorialInteractiveView: View {
                 status = .complete
             } else {
                 status = .correct
+                // 1.2 秒后自动回到 waiting，显示下一步 hint
+                Task {
+                    try? await Task.sleep(nanoseconds: 1_200_000_000)
+                    await MainActor.run {
+                        if status == .correct { status = .waiting }
+                    }
+                }
             }
         } else {
             // 合法但非期望走法
