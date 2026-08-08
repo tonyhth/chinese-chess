@@ -25,7 +25,10 @@
         "d9d8",
         "h8f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮沉底进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -82,7 +85,10 @@
         "f8f7",
         "g5f5"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 41,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -117,7 +123,9 @@
         "d8d7",
         "a4a7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -164,7 +172,9 @@
         "f8e8",
         "i5e5"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守"
+      ],
       "maxMoves": 31,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -211,7 +221,9 @@
         "d8d7",
         "c8e8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 31,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -272,7 +284,9 @@
         "f7e8",
         "h9g7"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守"
+      ],
       "maxMoves": 45,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -329,7 +343,9 @@
         "c5e7",
         "d7e7"
       ],
-      "hints": null,
+      "hints": [
+        "局面均衡，需精细运算寻找突破"
+      ],
       "maxMoves": 41,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -364,7 +380,9 @@
         "d7d8",
         "c7d7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -401,7 +419,9 @@
         "e8e7",
         "d5e5"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -434,7 +454,9 @@
         "f7e7",
         "b8b7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -465,7 +487,9 @@
         "d7c7",
         "e5d7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -494,7 +518,9 @@
         "e9e8",
         "f9f8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -517,7 +543,9 @@
         "e9e8",
         "c0c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -549,7 +577,9 @@
         "e8e9",
         "a7a9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -578,7 +608,10 @@
         "d7e8",
         "e6d6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -611,7 +644,10 @@
         "d9b8",
         "a5a9"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -636,7 +672,10 @@
         "a7b9",
         "c2c9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -683,7 +722,10 @@
         "f9f8",
         "i0i8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车占位进攻"
+      ],
       "maxMoves": 31,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -714,7 +756,10 @@
         "f2d2",
         "e1f2"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -744,7 +789,9 @@
         "i9h9",
         "d7h7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -781,7 +828,9 @@
         "f9e8",
         "e2e8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -824,7 +873,9 @@
         "d8b8",
         "g0g9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -853,7 +904,9 @@
         "e8e7",
         "d6c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -918,7 +971,9 @@
         "f7e8",
         "c1c9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 49,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -949,7 +1004,10 @@
         "b5c5",
         "c9a9"
       ],
-      "hints": null,
+      "hints": [
+        "局面均衡，需精细运算寻找突破",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -988,7 +1046,10 @@
         "e7f7",
         "i9f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 23,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -1018,7 +1079,10 @@
         "b8d9",
         "d0d9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1053,7 +1117,9 @@
         "d5f5",
         "f7g9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1092,7 +1158,9 @@
         "f5d4",
         "g5f5"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1127,7 +1195,9 @@
         "e5f3",
         "e8e9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1158,7 +1228,9 @@
         "f8f7",
         "g5f5"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1205,7 +1277,9 @@
         "d7e8",
         "c6b8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 31,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1236,7 +1310,10 @@
         "d1d9",
         "h8e8"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1263,7 +1340,9 @@
         "f8f7",
         "e2e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1294,7 +1373,9 @@
         "f9f8",
         "d9f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1337,7 +1418,10 @@
         "f8f7",
         "e1f2"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 27,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1376,7 +1460,9 @@
         "e8d7",
         "e6e8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1407,7 +1493,10 @@
         "f8f7",
         "f5f6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1432,7 +1521,10 @@
         "f9e8",
         "g7f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1461,7 +1553,10 @@
         "f9e8",
         "i6i9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：兵直线推进"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1492,7 +1587,10 @@
         "d7e8",
         "e7g8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1515,7 +1613,9 @@
         "e0a0",
         "e2c0"
       ],
-      "hints": null,
+      "hints": [
+        "局面均衡，需精细运算寻找突破"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1542,7 +1642,9 @@
         "e6e8",
         "e2f2"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1575,7 +1677,9 @@
         "f9e9",
         "f8e8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1622,7 +1726,9 @@
         "f3g3",
         "h4f3"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻"
+      ],
       "maxMoves": 31,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1651,7 +1757,10 @@
         "c0d0",
         "e8e0"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -1677,7 +1786,9 @@
         "f7e8",
         "d6f7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1710,7 +1821,9 @@
         "d9e8",
         "f8e8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1751,7 +1864,9 @@
         "d8d7",
         "e6c5"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1784,7 +1899,10 @@
         "d7e7",
         "h6g8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1813,7 +1931,9 @@
         "e8f9",
         "c8c7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1840,7 +1960,10 @@
         "g9g7",
         "e6f6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1865,7 +1988,10 @@
         "d7e8",
         "e2d2"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1902,7 +2028,9 @@
         "e8d7",
         "d9d8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1933,7 +2061,9 @@
         "f7e7",
         "f8e8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -1962,7 +2092,10 @@
         "f1f6",
         "d8d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2016,7 +2149,10 @@
         "g9e7",
         "a6e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2072,7 +2208,10 @@
         "e9f9",
         "f7f8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2098,7 +2237,10 @@
         "d8d9",
         "b7b9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2127,7 +2269,10 @@
         "d6d7",
         "i6e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2154,7 +2299,9 @@
         "e8d9",
         "b8d7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2200,7 +2347,10 @@
         "d6d2",
         "b3b2"
       ],
-      "hints": null,
+      "hints": [
+        "局面均衡，需精细运算寻找突破",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2229,7 +2379,9 @@
         "f7f8",
         "e7d9"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2251,7 +2403,10 @@
         "c9e7",
         "b8d7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2304,7 +2459,9 @@
         "d9e9",
         "f8d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2366,7 +2523,9 @@
         "d7e7",
         "c7d5"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2397,7 +2556,9 @@
         "d9e9",
         "b6c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2444,7 +2605,10 @@
         "e8f8",
         "g9h7"
       ],
-      "hints": null,
+      "hints": [
+        "以红马为核心，组织战术攻势",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 31,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2488,7 +2652,9 @@
         "e8d8",
         "d6b7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2524,7 +2690,9 @@
         "f7e7",
         "e5e6"
       ],
-      "hints": null,
+      "hints": [
+        "以红车为核心，组织战术攻势"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2586,7 +2754,9 @@
         "e7f7",
         "g4f4"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2636,7 +2806,9 @@
         "e8f8",
         "d7d8"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守"
+      ],
       "maxMoves": 35,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2681,7 +2853,9 @@
         "e7f7",
         "e2f2"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2726,7 +2900,10 @@
         "f8f7",
         "a9a7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2857,7 +3034,9 @@
         "d8d9",
         "f2f9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -2882,7 +3061,9 @@
         "c9e7",
         "b8d7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2939,7 +3120,9 @@
         "e8d8",
         "e0d0"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -2970,7 +3153,9 @@
         "c7c8",
         "f3e3"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3013,7 +3198,9 @@
         "b5d5",
         "i4i5"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3058,7 +3245,9 @@
         "f9e9",
         "f8f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3087,7 +3276,9 @@
         "e9f9",
         "a4f4"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3120,7 +3311,10 @@
         "b7d8",
         "c6e5"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3145,7 +3339,10 @@
         "e8d9",
         "a7c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3174,7 +3371,9 @@
         "d6d8",
         "c6e5"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3201,7 +3400,10 @@
         "f7e8",
         "i6g7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3228,7 +3430,9 @@
         "e8d7",
         "e2e8"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3265,7 +3469,10 @@
         "d3d8",
         "e1f1"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3292,7 +3499,9 @@
         "e8f8",
         "g8f6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3319,7 +3528,9 @@
         "e9e8",
         "a9a8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3346,7 +3557,9 @@
         "e8f9",
         "d8f8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3400,7 +3613,9 @@
         "c4c9",
         "i9c9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3429,7 +3644,9 @@
         "f9e9",
         "a8e8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3454,7 +3671,9 @@
         "f9f8",
         "i9h7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -3486,7 +3705,10 @@
         "e8e9",
         "a4a9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3515,7 +3737,10 @@
         "e7c5",
         "e2e7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3554,7 +3779,9 @@
         "f8f7",
         "g6e5"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3595,7 +3822,10 @@
         "c5e7",
         "e6c7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3626,7 +3856,9 @@
         "f9e9",
         "h6g8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3655,7 +3887,10 @@
         "f9e9",
         "c8c9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3682,7 +3917,9 @@
         "d8d7",
         "i6e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3709,7 +3946,10 @@
         "d9e9",
         "a2a9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3734,7 +3974,10 @@
         "c9a7",
         "b4b9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3767,7 +4010,9 @@
         "d9d8",
         "g2g8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3802,7 +4047,10 @@
         "f8e8",
         "c6b8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3853,7 +4101,9 @@
         "d8d9",
         "c6b8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 35,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3888,7 +4138,9 @@
         "d7e8",
         "g4g9"
       ],
-      "hints": null,
+      "hints": [
+        "局面均衡，需精细运算寻找突破"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3915,7 +4167,10 @@
         "d9e9",
         "d8d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -3954,11 +4209,14 @@
         "b1b6",
         "f6e6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_119",
@@ -3985,7 +4243,9 @@
         "a6c7",
         "a0a9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4014,7 +4274,9 @@
         "f3e3",
         "d4d8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4047,7 +4309,10 @@
         "f9f8",
         "f6h7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4082,7 +4347,9 @@
         "d8d7",
         "a9d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4115,7 +4382,9 @@
         "c5e7",
         "b7d6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4138,7 +4407,10 @@
         "f9e8",
         "g8e7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -4172,7 +4444,10 @@
         "e7c9",
         "h8h9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4197,7 +4472,9 @@
         "e8e9",
         "e5f7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4226,7 +4503,9 @@
         "d9d8",
         "h6h8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4257,7 +4536,9 @@
         "e9f9",
         "d8d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4284,7 +4565,10 @@
         "d1d9",
         "f8d7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4340,11 +4624,14 @@
         "i3e3",
         "e9d9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_131",
@@ -4373,7 +4660,10 @@
         "e9f9",
         "d0d9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4402,7 +4692,9 @@
         "d9d8",
         "e7e9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4427,7 +4719,9 @@
         "g7e8",
         "c7d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4464,7 +4758,9 @@
         "d7f8",
         "f7d8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4493,7 +4789,9 @@
         "d8d7",
         "e6d6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4518,7 +4816,9 @@
         "d9e8",
         "b7b9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4543,7 +4843,9 @@
         "e9e8",
         "h9h8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4574,7 +4876,9 @@
         "e7c5",
         "f8f7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4601,7 +4905,10 @@
         "e9f9",
         "e2f2"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4636,7 +4943,9 @@
         "f7f8",
         "d8e8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4667,7 +4976,10 @@
         "e8d9",
         "a8e8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4696,7 +5008,9 @@
         "b9d8",
         "b7c7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4723,7 +5037,10 @@
         "d9e8",
         "h2h9"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：车占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4744,7 +5061,10 @@
         "e8d9",
         "h2e2"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4767,7 +5087,9 @@
         "e9d9",
         "b3d3"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4802,7 +5124,9 @@
         "e7f7",
         "d1f1"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4857,7 +5181,9 @@
         "d7e8",
         "b5c7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 39,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4890,7 +5216,10 @@
         "f7e7",
         "a8c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车占要道进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4927,7 +5256,9 @@
         "d6e6",
         "c4d6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -4962,7 +5293,9 @@
         "d7e7",
         "d6d7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5007,7 +5340,9 @@
         "f8f7",
         "d7e9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5038,7 +5373,9 @@
         "e8d9",
         "f6d7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5067,7 +5404,9 @@
         "d7e8",
         "c5d7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5102,7 +5441,10 @@
         "e8e9",
         "h7g9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5131,7 +5473,10 @@
         "f9f8",
         "i5i8"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5162,7 +5507,9 @@
         "c1c9",
         "b8c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5193,7 +5540,10 @@
         "d9d8",
         "e6a6"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5220,7 +5570,10 @@
         "d8d7",
         "a6b8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -5248,7 +5601,10 @@
         "d4f4",
         "f2f4"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5273,7 +5629,10 @@
         "e9d9",
         "b0b9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5298,7 +5657,9 @@
         "d7d8",
         "e7d7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5325,11 +5686,14 @@
         "f8f7",
         "i2i7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_163",
@@ -5360,7 +5724,9 @@
         "e9d9",
         "e6d6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5387,7 +5753,10 @@
         "f9f8",
         "b6f6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5420,7 +5789,10 @@
         "a7c9",
         "b9c9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5449,7 +5821,10 @@
         "d8d9",
         "d5c7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5474,7 +5849,9 @@
         "e9d9",
         "b8d8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5509,7 +5886,9 @@
         "f7e8",
         "g5e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5534,7 +5913,9 @@
         "b7d8",
         "g4g7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5559,7 +5940,9 @@
         "h6e6",
         "c2c7"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5594,7 +5977,9 @@
         "c1d1",
         "g9e8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5625,7 +6010,10 @@
         "f0f9",
         "g0c0"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -5651,7 +6039,9 @@
         "d8d7",
         "e9d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5678,7 +6068,10 @@
         "d9e9",
         "h6e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5723,7 +6116,10 @@
         "a0a9",
         "b9c7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5754,7 +6150,9 @@
         "e8d9",
         "f1d1"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -5780,7 +6178,9 @@
         "b1b8",
         "h9h7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5803,7 +6203,9 @@
         "d1d7",
         "e8e9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5861,7 +6263,9 @@
         "d1d2",
         "f1f9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -5946,7 +6350,9 @@
         "f7e7",
         "i9a9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -6006,7 +6412,9 @@
         "h9f8",
         "g8g9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -6033,7 +6441,9 @@
         "e8e9",
         "b0b9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -6068,7 +6478,9 @@
         "f8f7",
         "e6g5"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守"
+      ],
       "maxMoves": 25,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -6170,7 +6582,8 @@
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_191",
@@ -6309,7 +6722,8 @@
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_196",
@@ -6481,7 +6895,10 @@
         "f7e8",
         "e4f4"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：兵占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -6520,7 +6937,10 @@
         "c2c6",
         "d5e3"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 23,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -6554,7 +6974,10 @@
         "e7d7",
         "f1d1"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：兵占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -6596,7 +7019,10 @@
         "b9b8",
         "d8d9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 27,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -6805,7 +7231,10 @@
         "d8e8",
         "f8e6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 23,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -7218,7 +7647,10 @@
         "d9d8",
         "a1a6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -7245,7 +7677,10 @@
         "c8g8",
         "b8d9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -7345,7 +7780,8 @@
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_228",
@@ -7842,7 +8278,8 @@
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_246",
@@ -7953,7 +8390,10 @@
         "e7f7",
         "c0a2"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：兵直线推进"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -8787,7 +9227,10 @@
         "c1b3",
         "f9i9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -8812,7 +9255,10 @@
         "e9f9",
         "h4h9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -8918,7 +9364,10 @@
         "a7c9",
         "b9c9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9004,7 +9453,8 @@
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_288",
@@ -9106,7 +9556,10 @@
         "h9f8",
         "h8h9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9161,7 +9614,10 @@
         "c8c4",
         "c2e2"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：帅占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9215,7 +9671,10 @@
         "g7h9",
         "b6c8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车占要道进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9282,7 +9741,10 @@
         "d7e7",
         "c4e4"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 27,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9311,7 +9773,10 @@
         "e9d9",
         "e8d8"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9368,7 +9833,10 @@
         "d9e8",
         "e6f6"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9393,7 +9861,10 @@
         "h9g7",
         "f9d9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9420,7 +9891,10 @@
         "i7g5",
         "i8i6"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9451,7 +9925,10 @@
         "f8f7",
         "f5f3"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9533,7 +10010,10 @@
         "e8f7",
         "c8d8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：兵占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9563,7 +10043,10 @@
         "g7f9",
         "f6f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9614,7 +10097,10 @@
         "e9f9",
         "h5g7"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9638,7 +10124,10 @@
         "d9d8",
         "f9e9"
       ],
-      "hints": null,
+      "hints": [
+        "以红车为核心，组织战术攻势",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9813,7 +10302,10 @@
         "f7e7",
         "e2c4"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：兵占位进攻"
+      ],
       "maxMoves": 23,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -9862,7 +10354,10 @@
         "e9d9",
         "e6e8"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9911,7 +10406,10 @@
         "e8e7",
         "i6h6"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：兵直线推进"
+      ],
       "maxMoves": 33,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9936,7 +10434,10 @@
         "f8f9",
         "d8e8"
       ],
-      "hints": null,
+      "hints": [
+        "局面均衡，需精细运算寻找突破",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -9963,7 +10464,10 @@
         "f9e8",
         "c9c8"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10019,7 +10523,10 @@
         "f8f7",
         "f6f3"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -10043,7 +10550,10 @@
         "e9d9",
         "c7c9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10093,7 +10603,10 @@
         "f9e8",
         "f8f9"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10130,7 +10643,10 @@
         "e1d1",
         "f0f1"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -10192,7 +10708,10 @@
         "e8d9",
         "b1e1"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10219,7 +10738,10 @@
         "e9e8",
         "a9a8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -10279,7 +10801,10 @@
         "e8f7",
         "i9f9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：兵直线推进"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10471,7 +10996,10 @@
         "e8f9",
         "e7f9"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -10528,7 +11056,10 @@
         "c1c8",
         "c6c9"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：炮占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10561,7 +11092,10 @@
         "e7f7",
         "h7g7"
       ],
-      "hints": null,
+      "hints": [
+        "红方占优，寻找对方防线弱点组织进攻",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -10618,7 +11152,10 @@
         "b9d8",
         "a9d9"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -10642,7 +11179,10 @@
         "e7c9",
         "d9e9"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣",
@@ -10778,7 +11318,10 @@
         "e8d9",
         "c9d9"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：兵直线推进"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -11208,7 +11751,10 @@
         "e1f1",
         "f0f1"
       ],
-      "hints": null,
+      "hints": [
+        "弃子入局，利用对方将位不稳",
+        "关键：车沉底线进攻"
+      ],
       "maxMoves": 29,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -11301,7 +11847,8 @@
       "maxMoves": 30,
       "solutionMode": "guided",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_364",
@@ -12441,7 +12988,10 @@
         "f7f8",
         "h9h8"
       ],
-      "hints": null,
+      "hints": [
+        "通过连续将军迫使对方被动防守",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -12469,7 +13019,10 @@
         "d9e9",
         "e7g8"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -12503,7 +13056,10 @@
         "f7f8",
         "d8e8"
       ],
-      "hints": null,
+      "hints": [
+        "以红马为核心，组织战术攻势",
+        "关键：马占位进攻"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
       "source": "适情雅趣"
@@ -12662,10 +13218,14 @@
         "e6f6",
         "f7e7"
       ],
-      "hints": null,
+      "hints": [
+        "红方大优，积极进攻寻找杀棋",
+        "关键：炮镇守中路"
+      ],
       "maxMoves": 20,
       "solutionMode": "guided",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "checkmate"
     },
     {
       "id": "sqyq_408",
