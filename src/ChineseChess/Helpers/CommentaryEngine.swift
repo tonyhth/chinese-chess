@@ -9,6 +9,9 @@ enum CommentaryType {
     case sacrifice(side: Side, delta: Int)  // 弃子（Phase 2：materialDelta 检测）
     case keyMove                 // 最后一步关键走法
     case mistake                 // 失误（智能点评）
+    case capture                 // 吃子（轻量级点评）
+    case threat                  // 捉子/攻击（轻量级点评）
+    case crossing                // 过河（轻量级点评）
 }
 
 // MARK: - 点评条目
@@ -45,6 +48,12 @@ struct CommentaryItem: Identifiable {
             return String(localized: "关键一步！")
         case .mistake:
             return String(localized: "失误")
+        case .capture:
+            return customText ?? String(localized: "吃子")
+        case .threat:
+            return customText ?? String(localized: "捉子")
+        case .crossing:
+            return customText ?? String(localized: "过河")
         }
     }
 
@@ -56,6 +65,9 @@ struct CommentaryItem: Identifiable {
         case .sacrifice: return "flame.fill"
         case .keyMove: return "star.fill"
         case .mistake: return "exclamationmark.triangle.fill"
+        case .capture: return "hand.point.right.fill"
+        case .threat: return "eye.fill"
+        case .crossing: return "arrow.forward.circle.fill"
         }
     }
 
@@ -104,7 +116,85 @@ struct CommentaryEngine {
         return nil
     }
 
-    /// 弃子检测（Phase 2）
+    /// 轻量级同步点评（Phase 3）
+    /// 不依赖引擎，基于规则检测吃子/捉子/过河等事件
+    /// 覆盖率目标 40-60% 走法，避免每步都点评
+    static func evaluateLightweight(move: Move, on board: Board, moveIndex: Int, totalMoves: Int) -> CommentaryItem? {
+        let movingSide = move.piece.side
+
+        // 1. 吃子点评
+        if let captured = move.captured {
+            let capturedValue = captured.baseValue
+            let moverValue = move.piece.baseValue
+
+            if capturedValue >= 900 && moverValue < capturedValue {
+                // 大子吃小子（车吃马/炮等）
+                let pieceName = pieceDisplayName(move.piece.kind)
+                let targetName = pieceDisplayName(captured.kind)
+                return CommentaryItem(type: .capture, text: "\(pieceName)扫荡\(targetName)！")
+            } else if abs(capturedValue - moverValue) <= 50 && capturedValue >= 350 {
+                // 等价交换（马换炮、炮换马等）
+                return CommentaryItem(type: .capture, text: "兑换")
+            } else if capturedValue <= 200 {
+                // 吃兵卒/士象
+                if capturedValue <= 100 {
+                    return CommentaryItem(type: .capture, text: "掠兵")
+                }
+            } else {
+                // 其他吃子
+                let targetName = pieceDisplayName(captured.kind)
+                return CommentaryItem(type: .capture, text: "吃\(targetName)")
+            }
+        }
+
+        // 2. 过河检测（仅兵/卒）
+        if move.piece.kind == .soldier {
+            let fromRow = move.from.row
+            let toRow = move.to.row
+            let crossedRiver: Bool
+            if movingSide == .red {
+                crossedRiver = fromRow > 4 && toRow <= 4
+            } else {
+                crossedRiver = fromRow < 5 && toRow >= 5
+            }
+            if crossedRiver {
+                return CommentaryItem(type: .crossing, text: movingSide == .red ? "小卒过河当车用" : "卒过河，攻势渐起")
+            }
+        }
+
+        // 3. 捉子检测：走完后检查己方棋子是否可攻击对方大子
+        let opponentSide: Side = movingSide == .red ? .black : .red
+        let bigPieces: Set<PieceKind> = [.chariot, .cannon, .horse]
+        for piece in board.pieces(for: movingSide) {
+            // 只检查刚移动的棋子（减少计算量）
+            guard piece.position == move.to else { continue }
+            let legalTargets = MoveValidator.legalMoves(for: piece, on: board)
+            for target in legalTargets {
+                if let targetPiece = board.piece(at: target.to),
+                   targetPiece.side == opponentSide,
+                   bigPieces.contains(targetPiece.kind) {
+                    let targetName = pieceDisplayName(targetPiece.kind)
+                    return CommentaryItem(type: .threat, text: "捉\(targetName)！")
+                }
+            }
+        }
+
+        return nil
+    }
+
+    /// 棋子类型中文名
+    private static func pieceDisplayName(_ kind: PieceKind) -> String {
+        switch kind {
+        case .general:  return "将"
+        case .chariot:  return "车"
+        case .cannon:   return "炮"
+        case .horse:    return "马"
+        case .advisor:  return "士"
+        case .elephant: return "象"
+        case .soldier:  return "兵"
+        }
+    }
+
     /// 在完整走法序列中检测弃子战术：走法导致己方子力下降，但前瞻 N 步后恢复或超过。
     ///
     /// - Parameters:

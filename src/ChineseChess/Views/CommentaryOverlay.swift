@@ -36,6 +36,9 @@ struct CommentaryOverlay: View {
         case .sacrifice: return .purple
         case .keyMove: return .blue
         case .mistake: return .red.opacity(0.8)
+        case .capture: return .brown
+        case .threat: return .indigo
+        case .crossing: return .teal
         }
     }
 }

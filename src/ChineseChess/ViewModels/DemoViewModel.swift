@@ -292,6 +292,8 @@ class DemoViewModel {
                     switch existing.type {
                     case .check, .checkmate, .sacrifice:
                         return  // 同步点评在显示，跳过
+                    case .capture, .threat, .crossing:
+                        return  // 轻量级点评在显示，跳过
                     default:
                         break
                     }
@@ -342,7 +344,20 @@ class DemoViewModel {
         }
 
         #if DEBUG
-        AppLog.commentary.info("[Commentary] no sync commentary at move #\(moveIndex), trying async smart=\(self.smartCommentaryEnabled)")
+        AppLog.commentary.info("[Commentary] no sync commentary at move #\(moveIndex), trying lightweight")
+        #endif
+
+        // Phase 3：轻量级点评（吃子/捉子/过河）
+        if let lightItem = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: moveIndex, totalMoves: moves.count) {
+            #if DEBUG
+            AppLog.commentary.info("[Commentary] lightweight hit at move #\(moveIndex): \(lightItem.text)")
+            #endif
+            showCommentary(lightItem)
+            return
+        }
+
+        #if DEBUG
+        AppLog.commentary.info("[Commentary] no commentary at move #\(moveIndex), trying async smart=\(self.smartCommentaryEnabled)")
         #endif
 
         // 同步无结果 → 异步智能点评
@@ -362,7 +377,7 @@ class DemoViewModel {
             case .checkmate, .sacrifice:
                 pause()
                 wasPausedByCommentary = true
-            case .check, .keyMove, .mistake:
+            case .check, .keyMove, .mistake, .capture, .threat, .crossing:
                 break  // 不暂停
             }
         }
