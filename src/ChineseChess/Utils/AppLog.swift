@@ -21,4 +21,7 @@ enum AppLog {
     static let puzzleStore = logger("PuzzleStore")
     static let soundEngine = logger("SoundEngine")
     static let preferences = logger("PreferencesMigration")
+    static let commentary = logger("Commentary")
+    static let analysis = logger("Analysis")
+    static let engine = logger("Engine")
 }

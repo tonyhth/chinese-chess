@@ -44,9 +44,16 @@ struct DemoConfig: Codable, Equatable {
 
     static func load() -> DemoConfig {
         guard let data = UserDefaults.standard.data(forKey: storageKey) else {
+            #if DEBUG
+            AppLog.commentary.info("[DemoConfig] No stored data, using defaults (showCommentary=true)")
+            #endif
             return DemoConfig()  // 默认值
         }
-        return (try? JSONDecoder().decode(DemoConfig.self, from: data)) ?? DemoConfig()
+        let config = (try? JSONDecoder().decode(DemoConfig.self, from: data)) ?? DemoConfig()
+        #if DEBUG
+        AppLog.commentary.info("[DemoConfig] Loaded: showCommentary=\(config.showCommentary), smart=\(config.smartCommentaryEnabled), speed=\(config.speedMultiplier)")
+        #endif
+        return config
     }
 
     func save() {

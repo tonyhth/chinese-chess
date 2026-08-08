@@ -317,18 +317,33 @@ class DemoViewModel {
 
     private func updateCommentary(for move: Move, moveIndex: Int) {
         // showCommentary=false 时不生成点评
-        guard showCommentary else { return }
+        guard showCommentary else {
+            #if DEBUG
+            AppLog.commentary.info("[Commentary] showCommentary=false, skip move #\(moveIndex)")
+            #endif
+            return
+        }
 
         // Phase 2：弃子点评优先（预计算，O(1) 查找）
         if let sacrificeItem = sacrificeCommentaries[moveIndex] {
+            #if DEBUG
+            AppLog.commentary.info("[Commentary] sacrifice hit at move #\(moveIndex)")
+            #endif
             showCommentary(sacrificeItem)
             return
         }
         // Phase 1：规则推断（将军/将死/最后一步）
         if let item = CommentaryEngine.evaluate(move: move, on: board, moveIndex: moveIndex, totalMoves: moves.count) {
+            #if DEBUG
+            AppLog.commentary.info("[Commentary] rule hit at move #\(moveIndex): \(item.text)")
+            #endif
             showCommentary(item)
             return
         }
+
+        #if DEBUG
+        AppLog.commentary.info("[Commentary] no sync commentary at move #\(moveIndex), trying async smart=\(self.smartCommentaryEnabled)")
+        #endif
 
         // 同步无结果 → 异步智能点评
         analyzeCurrentStep()
