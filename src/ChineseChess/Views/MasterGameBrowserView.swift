@@ -146,7 +146,7 @@ struct MasterGameBrowserView: View {
         Group {
             if !masterStore.isLoaded {
                 loadingView
-            } else if browseMode == .opening && selectedOpening == nil && !showSubcategoryList {
+            } else if browseMode == .opening && selectedOpening == nil && selectedSubcategory == nil && !showSubcategoryList {
                 iosCategoryList
             } else if browseMode == .opening && showSubcategoryList {
                 iosSubcategoryList
@@ -278,6 +278,7 @@ struct MasterGameBrowserView: View {
                                     .font(.caption)
                                     .foregroundStyle(.tertiary)
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -342,6 +343,7 @@ struct MasterGameBrowserView: View {
                                     .font(.caption)
                                     .foregroundStyle(.tertiary)
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
@@ -400,6 +402,7 @@ struct MasterGameBrowserView: View {
                                 .background(Color.secondary.opacity(0.12))
                                 .clipShape(Capsule())
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -508,6 +511,7 @@ struct MasterGameBrowserView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }
@@ -615,6 +619,7 @@ struct MasterGameBrowserView: View {
                                 .foregroundStyle(.tertiary)
                         }
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -655,6 +660,7 @@ struct MasterGameBrowserView: View {
                                 .background(Color.secondary.opacity(0.12))
                                 .clipShape(Capsule())
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -717,6 +723,7 @@ struct MasterGameBrowserView: View {
                                 .background(Color.secondary.opacity(0.12))
                                 .clipShape(Capsule())
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -773,6 +780,7 @@ struct MasterGameBrowserView: View {
                             .background(Color.secondary.opacity(0.12))
                             .clipShape(Capsule())
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
@@ -794,6 +802,7 @@ struct MasterGameBrowserView: View {
                                 .background(Color.secondary.opacity(0.12))
                                 .clipShape(Capsule())
                         }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -1200,6 +1209,7 @@ struct MasterGameBrowserView: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
+        .contentShape(Rectangle())
     }
 
     // MARK: - 缓存重建
@@ -1346,9 +1356,15 @@ struct MasterGameBrowserView: View {
         VStack(spacing: 0) {
             DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
 
-            DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
-                .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ZStack(alignment: .top) {
+                DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
+                if vm.showCommentary, let commentary = vm.currentCommentary {
+                    CommentaryOverlay(commentary: commentary, speed: vm.speed)
+                        .padding(.top, 8)
+                }
+            }
+            .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             DemoControlBar(viewModel: vm, onBackToList: { backToList() })
         }
