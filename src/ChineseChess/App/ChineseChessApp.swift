@@ -148,7 +148,11 @@ struct ChineseChessApp: App {
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    ToolbarView(viewModel: viewModel)
+                    ToolbarView(viewModel: viewModel, onReplayRequest: {
+                        if let record = viewModel.buildGameRecord() {
+                            activeSheet = .toolbarReplay(record)
+                        }
+                    })
 
                     ChessClockView(viewModel: viewModel)
 

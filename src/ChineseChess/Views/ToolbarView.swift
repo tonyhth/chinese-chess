@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ToolbarView: View {
     let viewModel: GameViewModel
+    var onReplayRequest: (() -> Void)? = nil
 
     private let l10n = L10n.shared
 
@@ -128,6 +129,18 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
                 .tint(.red)
                 .accessibilityLabel(l10n.t("game.resign"))
+
+                // FINAL-002: 对局结束后显示复盘按钮
+                if viewModel.gameState != .playing, let onReplayRequest = onReplayRequest {
+                    Button(action: onReplayRequest) {
+                        Image(systemName: "arrow.uturn.forward.circle")
+                            .font(.title3)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .tint(.brown)
+                    .accessibilityLabel(l10n.t("game.replay"))
+                }
             }
 
             Spacer()
@@ -264,6 +277,20 @@ struct ToolbarView: View {
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
                 .buttonStyle(.bordered)
                 .tint(.red)
+
+                // FINAL-002: 对局结束后显示复盘按钮
+                if viewModel.gameState != .playing, let onReplayRequest = onReplayRequest {
+                    Button(action: onReplayRequest) {
+                        Label(l10n.t("game.replay"), systemImage: "arrow.uturn.forward.circle")
+                    }
+                    #if os(macOS)
+                    .keyboardShortcut("l", modifiers: [.command, .shift])
+                    .controlSize(.small)
+                    .help(l10n.t("game.replay"))
+                    #endif
+                    .buttonStyle(.bordered)
+                    .tint(.brown)
+                }
             }
 
             // 自然分隔（替换 Divider）
