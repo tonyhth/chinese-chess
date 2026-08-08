@@ -1362,6 +1362,13 @@ struct MasterGameBrowserView: View {
                     CommentaryOverlay(commentary: commentary, speed: vm.speed)
                         .padding(.top, 8)
                 }
+
+                // FINAL-010: 补齐与 iOS 一致的过渡 loading overlay
+                if vm.playState == .transitioning {
+                    Color.black.opacity(0.3)
+                    ProgressView()
+                        .scaleEffect(1.2)
+                }
             }
             .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
