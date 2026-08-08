@@ -119,7 +119,7 @@ struct B3S4MasterGameSearchScoringTests {
         let searcher = MasterGameSearch(store: store)
         let results = searcher.search(query: "许")
         let playerResults = results.compactMap { r -> (String, Int)? in
-            if case .player(let p, let s) = r { return (p.nameCN, s) }
+            if case .player(let p, let s) = r { return (p.nameCN ?? p.name, s) }
             return nil
         }
         for (name, score) in playerResults {

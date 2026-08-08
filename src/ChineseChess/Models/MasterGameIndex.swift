@@ -22,6 +22,20 @@ struct MasterGameIndex: Codable, Identifiable, Sendable, Equatable {
         case id, event, eventCN, redName, blackName, redNameCN, blackNameCN
         case year, firstMove, firstMoves, moveCount, pgnOffset, pgnLength
     }
+    
+    // Memberwise init（测试用）
+    init(id: Int, event: String, eventCN: String? = nil,
+         redName: String, blackName: String,
+         redNameCN: String? = nil, blackNameCN: String? = nil,
+         year: Int? = nil, firstMove: String, firstMoves: [String],
+         moveCount: Int, pgnOffset: Int, pgnLength: Int) {
+        self.id = id; self.event = event; self.eventCN = eventCN
+        self.redName = redName; self.blackName = blackName
+        self.redNameCN = redNameCN; self.blackNameCN = blackNameCN
+        self.year = year; self.firstMove = firstMove; self.firstMoves = firstMoves
+        self.moveCount = moveCount; self.pgnOffset = pgnOffset; self.pgnLength = pgnLength
+    }
+    
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(Int.self, forKey: .id)
