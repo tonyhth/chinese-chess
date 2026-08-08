@@ -87,6 +87,7 @@ struct ChineseChessApp: App {
         case coach(GameRecord)
         case studyHub
         case tutorial
+        case openingExplorer   // FINAL-003: ⌘⇧O 快捷键入口
 
         var id: String {
             switch self {
@@ -106,6 +107,7 @@ struct ChineseChessApp: App {
             case .coach: return "coach"
             case .studyHub: return "studyHub"
             case .tutorial: return "tutorial"
+            case .openingExplorer: return "openingExplorer"
             }
         }
     }
@@ -558,6 +560,17 @@ struct ChineseChessApp: App {
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })
                         .frame(minWidth: 400, minHeight: 400)
+
+                case .openingExplorer:
+                    NavigationStack {
+                        OpeningExplorerView()
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button(L10n.shared.t("common.done")) { activeSheet = nil }
+                                }
+                            }
+                    }
+                    .frame(minWidth: 600, minHeight: 700)
                 }
             }
             // v3.7.0 Phase 3: 打开 .pgn 文件
@@ -608,6 +621,12 @@ struct ChineseChessApp: App {
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])
                 .disabled(viewModel.isThinking || viewModel.gameState != .playing)
+
+                // FINAL-003: ⌘⇧O 开局浏览器
+                Button(L10n.shared.t("toolbar.openingExplorer")) {
+                    activeSheet = .openingExplorer
+                }
+                .keyboardShortcut("o", modifiers: [.command, .shift])
             }
 
             // Phase C: 引擎菜单（简化版，仅 macOS）
