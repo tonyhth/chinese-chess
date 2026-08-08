@@ -561,7 +561,7 @@ struct PuzzlePlayView: View {
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 } else {
-                    Text(String(format: l10n.t("puzzle.moveProgress"), viewModel.gameMoves.count, puzzle.maxMoves))
+                    Text(String(format: l10n.t("puzzle.moveProgress"), viewModel.gameMoves.count, puzzle.effectiveMaxMoves))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -716,6 +716,10 @@ struct PuzzlePlayView: View {
                        let desc = viewModel.puzzle.endDescription, !desc.isEmpty {
                         Text(desc)
                             .font(.title2.weight(.bold))
+                            .foregroundColor(.yellow)
+                    } else if viewModel.puzzle.solutionType == "draw" {
+                        Text(l10n.t("puzzle.drawSuccess"))
+                            .font(.title.weight(.bold))
                             .foregroundColor(.yellow)
                     } else {
                         Text(isFreePlay ? l10n.t("puzzle.winFreePlay") : l10n.t("puzzle.checkmateWin"))
