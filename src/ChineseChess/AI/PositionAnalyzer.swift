@@ -121,6 +121,9 @@ actor PositionAnalyzer {
             EngineConfigStore.shared.useEmbeddedEngine
         }
         guard useEmbedded else {
+            #if DEBUG
+            AppLog.engine.info("[PositionAnalyzer] useEmbeddedEngine=false, abort")
+            #endif
             NSLog("[PositionAnalyzer] Embedded engine disabled in config")
             return nil
         }
@@ -129,9 +132,17 @@ actor PositionAnalyzer {
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
 
         if let embedded = engine as? EmbeddedPikafishEngine, embedded.isReady {
+            #if DEBUG
+            AppLog.engine.info("[PositionAnalyzer] Engine ready: \(type(of: engine))")
+            #endif
             return embedded
         }
 
+        #if DEBUG
+        let engineType = String(describing: type(of: engine))
+        let isReady = (engine as? EmbeddedPikafishEngine)?.isReady ?? false
+        AppLog.engine.error("[PositionAnalyzer] Engine not usable: type=\(engineType), isReady=\(isReady)")
+        #endif
         NSLog("[PositionAnalyzer] Active engine is not EmbeddedPikafishEngine or not ready")
         return nil
     }

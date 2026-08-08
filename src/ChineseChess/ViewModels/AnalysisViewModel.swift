@@ -80,10 +80,17 @@ final class AnalysisViewModel {
         // 检查引擎是否可用
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
         if engine as? EmbeddedPikafishEngine == nil {
+            #if DEBUG
+            AppLog.analysis.error("[Analysis] Engine is not EmbeddedPikafishEngine: \(String(describing: type(of: engine)))")
+            #endif
             analysisUnavailableMessage = L10n.shared.t("analysis.engineUnavailable")
             isAnalyzing = false
             return
         }
+
+        #if DEBUG
+        AppLog.analysis.info("[Analysis] Engine check passed, starting analysis of \(self.moves.count) moves")
+        #endif
 
         isAnalyzing = true
 
@@ -92,6 +99,7 @@ final class AnalysisViewModel {
         analysisProgress = (0, playerMoveCount)
 
         var done = 0
+        var nilCount = 0
         for (index, move) in moves.enumerated() {
             // 跳过非玩家走法
             guard isPlayerMove(at: index) else { continue }
@@ -107,10 +115,25 @@ final class AnalysisViewModel {
             analyses[index] = analysis
             done += 1
             analysisProgress = (done, playerMoveCount)
+
+            #if DEBUG
+            if analysis == nil {
+                nilCount += 1
+                AppLog.analysis.warning("[Analysis] Move #\(index) returned nil (\(nilCount)/\(done) nil so far)")
+            }
+            #endif
         }
+
+        #if DEBUG
+        let nonNil = done - nilCount
+        AppLog.analysis.info("[Analysis] Complete: \(done) analyzed, \(nonNil) non-nil, \(nilCount) nil")
+        #endif
 
         // Bug 1 fix: 引擎存在但分析全 nil（NNUE 未加载成功等），设置不可用提示
         if analyses.allSatisfy({ $0 == nil }) {
+            #if DEBUG
+            AppLog.analysis.error("[Analysis] All analyses nil — engine likely not ready (NNUE not loaded?)")
+            #endif
             analysisUnavailableMessage = L10n.shared.t("analysis.engineUnavailable")
         }
 

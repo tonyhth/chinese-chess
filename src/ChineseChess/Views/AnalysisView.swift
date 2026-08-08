@@ -257,10 +257,17 @@ struct AnalysisView: View {
                 .foregroundColor(.gray)
 
             if sequence.isEmpty {
-                Text(l10n.t("analysis.analyzing"))
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .frame(height: height)
+                if let msg = analysisVM.analysisUnavailableMessage {
+                    Text(msg)
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                        .frame(height: height)
+                } else {
+                    Text(l10n.t("analysis.analyzing"))
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .frame(height: height)
+                }
             } else {
                 GeometryReader { geo in
                     let scores = sequence.map { $0.score }
