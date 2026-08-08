@@ -6,17 +6,60 @@ import Foundation
 struct MasterGameIndex: Codable, Identifiable, Sendable, Equatable {
     let id: Int                  // 全局序号（0-based）
     let event: String            // 赛事名称（PGN 原始值，英文）
-    let eventCN: String?         // 赛事中文名（v5.6.0: 无映射时回退 event）
-    let redName: String          // 红方姓名（归一化后）
-    let blackName: String        // 黑方姓名（归一化后）
-    let redNameCN: String        // 红方中文名（来自 name_map，无映射则回退 redName）
-    let blackNameCN: String      // 黑方中文名（来自 name_map，无映射则回退 blackName）
-    let year: Int?               // 对局年份（从 Event 标签正则提取）
-    let firstMove: String        // 第一步走法（ICCS，用于一级开局分类）
-    let firstMoves: [String]     // 前 N 步走法（用于二级开局分类 + 开局树）
-    let moveCount: Int           // 总步数
-    let pgnOffset: Int           // PGN 文件中的字节偏移
-    let pgnLength: Int           // 该局 PGN 文本的字节长度
+    let eventCN: String?
+    let redName: String
+    let blackName: String
+    let redNameCN: String?
+    let blackNameCN: String?
+    let year: Int?
+    let firstMove: String
+    let firstMoves: [String]
+    let moveCount: Int
+    let pgnOffset: Int
+    let pgnLength: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id, event, eventCN, redName, blackName, redNameCN, blackNameCN
+        case year, firstMove, firstMoves, moveCount, pgnOffset, pgnLength
+    }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(Int.self, forKey: .id)
+        event = try c.decode(String.self, forKey: .event)
+        eventCN = try c.decodeIfPresent(String.self, forKey: .eventCN)
+        redName = try c.decode(String.self, forKey: .redName)
+        blackName = try c.decode(String.self, forKey: .blackName)
+        redNameCN = try c.decodeIfPresent(String.self, forKey: .redNameCN)
+        blackNameCN = try c.decodeIfPresent(String.self, forKey: .blackNameCN)
+        year = try c.decodeIfPresent(Int.self, forKey: .year)
+        firstMove = try c.decode(String.self, forKey: .firstMove)
+        firstMoves = try c.decode([String].self, forKey: .firstMoves)
+        moveCount = try c.decode(Int.self, forKey: .moveCount)
+        pgnOffset = try c.decode(Int.self, forKey: .pgnOffset)
+        pgnLength = try c.decode(Int.self, forKey: .pgnLength)
+    }
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(event, forKey: .event)
+        try c.encodeIfPresent(eventCN, forKey: .eventCN)
+        try c.encode(redName, forKey: .redName)
+        try c.encode(blackName, forKey: .blackName)
+        try c.encodeIfPresent(redNameCN, forKey: .redNameCN)
+        try c.encodeIfPresent(blackNameCN, forKey: .blackNameCN)
+        try c.encodeIfPresent(year, forKey: .year)
+        try c.encode(firstMove, forKey: .firstMove)
+        try c.encode(firstMoves, forKey: .firstMoves)
+        try c.encode(moveCount, forKey: .moveCount)
+        try c.encode(pgnOffset, forKey: .pgnOffset)
+        try c.encode(pgnLength, forKey: .pgnLength)
+    }
+}
+
+extension MasterGameIndex {
+    var localizedRedName: String { LocalizedNameResolver.display(en: redName, cn: redNameCN) }
+    var localizedBlackName: String { LocalizedNameResolver.display(en: blackName, cn: blackNameCN) }
+    var localizedEvent: String { LocalizedNameResolver.display(en: event, cn: eventCN) }
 }
 
 // MARK: - 索引文件格式
@@ -40,43 +83,41 @@ struct MasterStatsFile: Codable, Sendable {
 
     struct PlayerStat: Codable, Sendable, Hashable {
         let name: String
-        let nameCN: String
+        let nameCN: String?
         let count: Int
-
-        /// 拼音搜索预留（Phase B3 Step 4）
-        /// 当前为 nil，后续版本填充拼音数据后搜索逻辑加一行 pinyin?.hasPrefix(query) 即可
         let pinyin: String?
-
-        /// 稳定 ID，避免同名不同人导致 ForEach id 冲突
-        var stableId: String { "\(name)|\(nameCN)" }
-
-        enum CodingKeys: String, CodingKey {
-            case name, nameCN, count, pinyin
+        var stableId: String { "\(name)|\(nameCN ?? "")" }
+        enum CodingKeys: String, CodingKey { case name, nameCN, count, pinyin }
+        init(name: String, nameCN: String? = nil, count: Int, pinyin: String? = nil) {
+            self.name = name; self.nameCN = nameCN; self.count = count; self.pinyin = pinyin
         }
-
-        init(name: String, nameCN: String, count: Int, pinyin: String? = nil) {
-            self.name = name
-            self.nameCN = nameCN
-            self.count = count
-            self.pinyin = pinyin
-        }
-
         init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: CodingKeys.self)
             name = try c.decode(String.self, forKey: .name)
-            nameCN = try c.decode(String.self, forKey: .nameCN)
+            nameCN = try c.decodeIfPresent(String.self, forKey: .nameCN)
             count = try c.decode(Int.self, forKey: .count)
-            pinyin = try c.decodeIfPresent(String.self, forKey: .pinyin) // schema 演进容错
+            pinyin = try c.decodeIfPresent(String.self, forKey: .pinyin)
         }
+        var localizedName: String { LocalizedNameResolver.display(en: name, cn: nameCN) }
     }
 
     struct EventStat: Codable, Sendable, Hashable {
         let name: String
-        let nameCN: String
+        let nameCN: String?
         let year: Int?
         let count: Int
-
-        /// 稳定 ID，避免同名不同赛事导致 ForEach id 冲突
-        var stableId: String { "\(name)|\(nameCN)|\(year ?? -1)" }
+        var stableId: String { "\(name)|\(nameCN ?? "")|\(year ?? -1)" }
+        enum CodingKeys: String, CodingKey { case name, nameCN, year, count }
+        init(name: String, nameCN: String? = nil, year: Int? = nil, count: Int) {
+            self.name = name; self.nameCN = nameCN; self.year = year; self.count = count
+        }
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            name = try c.decode(String.self, forKey: .name)
+            nameCN = try c.decodeIfPresent(String.self, forKey: .nameCN)
+            year = try c.decodeIfPresent(Int.self, forKey: .year)
+            count = try c.decode(Int.self, forKey: .count)
+        }
+        var localizedName: String { LocalizedNameResolver.display(en: name, cn: nameCN) }
     }
 }

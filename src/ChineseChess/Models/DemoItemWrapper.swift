@@ -32,7 +32,7 @@ enum DemoItemWrapper: Identifiable, Equatable {
     var demoTitle: String {
         switch self {
         case .puzzle(let p): return p.name
-        case .masterGame(let m): return "\(m.index.redNameCN) vs \(m.index.blackNameCN)"
+        case .masterGame(let m): return "\(m.index.localizedRedName) vs \(m.index.localizedBlackName)"
         }
     }
 
@@ -43,7 +43,7 @@ enum DemoItemWrapper: Identifiable, Equatable {
         case .masterGame(let m):
             var parts: [String] = []
             if let year = m.index.year { parts.append("\(year)") }
-            parts.append(m.index.event)
+            parts.append(m.index.localizedEvent)
             return parts.joined(separator: " · ")
         }
     }

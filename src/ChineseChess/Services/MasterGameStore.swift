@@ -78,9 +78,9 @@ class MasterGameStore: ObservableObject {
     private func buildInvertedIndices() {
         for game in allGames {
             // 按棋手（红方和黑方都建索引）
-            playerIndex[game.redNameCN, default: []].append(game)
-            if game.redNameCN != game.blackNameCN {
-                playerIndex[game.blackNameCN, default: []].append(game)
+            playerIndex[game.redName, default: []].append(game)
+            if game.redName != game.blackName {
+                playerIndex[game.blackName, default: []].append(game)
             }
             // 同名时已在上面 append 过，不重复
             // 按赛事

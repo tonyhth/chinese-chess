@@ -264,7 +264,7 @@ struct MasterGameBrowserView: View {
                                 Image(systemName: "person.fill")
                                     .foregroundStyle(.secondary)
                                     .frame(width: 20)
-                                Text(player.nameCN)
+                                Text(player.localizedName)
                                     .font(.body)
                                 Spacer()
                                 Text("\(player.count)")
@@ -324,7 +324,7 @@ struct MasterGameBrowserView: View {
                                 Image(systemName: "trophy.fill")
                                     .foregroundStyle(.secondary)
                                     .frame(width: 20)
-                                Text(event.nameCN)
+                                Text(event.localizedName)
                                     .font(.body)
                                 if let year = event.year {
                                     Text("\(year)")
@@ -649,7 +649,7 @@ struct MasterGameBrowserView: View {
                         selectedPlayer = player
                     }) {
                         HStack {
-                            Text(player.nameCN)
+                            Text(player.localizedName)
                                 .font(.body)
                             Spacer()
                             Text("\(player.count)")
@@ -707,7 +707,7 @@ struct MasterGameBrowserView: View {
                         selectedEvent = event
                     }) {
                         HStack {
-                            Text(event.nameCN)
+                            Text(event.localizedName)
                                 .font(.body)
                             if let year = event.year {
                                 Text("\(year)")
@@ -1189,7 +1189,7 @@ struct MasterGameBrowserView: View {
     private func masterGameRow(_ item: MasterGameDemoItem) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(item.index.redNameCN) vs \(item.index.blackNameCN)")
+                Text("\(item.index.localizedRedName) vs \(item.index.localizedBlackName)")
                     .font(.subheadline.weight(.medium))
                     .lineLimit(1)
                 HStack(spacing: 4) {
@@ -1198,7 +1198,7 @@ struct MasterGameBrowserView: View {
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
-                    Text(item.index.eventCN ?? item.index.event)
+                    Text(item.index.localizedEvent)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -1241,7 +1241,7 @@ struct MasterGameBrowserView: View {
                     cachedTotalCount = 0
                     return
                 }
-                indices = masterStore.byPlayer(player.nameCN)
+                indices = masterStore.byPlayer(player.name)
             case .event:
                 guard let event = selectedEvent else {
                     cachedItems = []

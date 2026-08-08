@@ -25,15 +25,19 @@ enum MasterSearchResult: Identifiable {
     /// 显示名称
     var displayName: String {
         switch self {
-        case .player(let p, _): return p.nameCN
-        case .event(let e, _):  return e.nameCN
+        case .player(let p, _): return p.localizedName
+        case .event(let e, _):  return e.localizedName
         }
     }
 
     /// 副标题
     var subtitle: String? {
         switch self {
-        case .player(let p, _): return p.name != p.nameCN ? p.name : nil
+        case .player(let p, _):
+            if let cn = p.nameCN, !cn.isEmpty, cn != p.name {
+                return p.name
+            }
+            return nil
         case .event(let e, _):  return e.year.map { "\($0)" }
         }
     }
@@ -69,28 +73,25 @@ struct MasterGameSearch {
         // 棋手匹配
         let players = store.stats?.players ?? []
         for player in players {
-            if player.nameCN.hasPrefix(query) {
+            if let cn = player.nameCN, cn.hasPrefix(query) {
                 results.append(.player(player, score: 200 + player.count))
             } else if player.name.hasPrefix(query) {
-                // 英文名前缀匹配，权重与中文名包含相同
                 results.append(.player(player, score: 150 + player.count))
-            } else if player.nameCN.contains(query) {
+            } else if let cn = player.nameCN, cn.contains(query) {
                 results.append(.player(player, score: 100 + player.count))
             } else if player.name.contains(query) {
                 results.append(.player(player, score: 50 + player.count))
             }
-            // 拼音搜索预留：后续填充 pinyin 数据后启用
-            // if let pinyin = player.pinyin, pinyin.hasPrefix(query) {
-            //     results.append(.player(player, score: 120 + player.count))
-            // }
         }
 
         // 赛事匹配
         let events = store.stats?.events ?? []
         for event in events {
-            if event.nameCN.hasPrefix(query) {
+            if let cn = event.nameCN, cn.hasPrefix(query) {
                 results.append(.event(event, score: 200 + event.count))
-            } else if event.nameCN.contains(query) {
+            } else if event.name.hasPrefix(query) {
+                results.append(.event(event, score: 150 + event.count))
+            } else if let cn = event.nameCN, cn.contains(query) {
                 results.append(.event(event, score: 100 + event.count))
             }
         }
