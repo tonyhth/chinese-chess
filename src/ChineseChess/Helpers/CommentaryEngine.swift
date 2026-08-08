@@ -136,9 +136,13 @@ struct CommentaryEngine {
                 // 等价交换（马换炮、炮换马等）
                 return CommentaryItem(type: .capture, text: "兑换")
             } else if capturedValue <= 200 {
-                // 吃兵卒/士象
+                // 吃兵卒/士象/过河兵
                 if capturedValue <= 100 {
                     return CommentaryItem(type: .capture, text: "掠兵")
+                } else {
+                    // value 101~200：士(200)、象(200)、过河兵(200)
+                    let targetName = pieceDisplayName(captured.kind)
+                    return CommentaryItem(type: .capture, text: "吃\(targetName)")
                 }
             } else {
                 // 其他吃子
