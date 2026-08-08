@@ -73,11 +73,13 @@ class DemoViewModel {
     var validStepCount: Int { boardPlayer.totalSteps }
 
     /// Phase D: 走法文本列表（用于 iOS 棋谱面板）
+    /// 使用 NotationGenerator 生成传统中文记谱法
     var moveNotations: [String] {
-        moves.enumerated().map { idx, move in
-            // 使用 ICCS 格式（列字母+行号）
-            let side = move.piece.side == .red ? "红" : "黑"
-            return "\(side)\(UCIMoveConverter.uciString(from: move))"
+        var board = Board(fen: item.initialFEN)
+        return moves.map { move in
+            let notation = NotationGenerator.notation(for: move, on: board)
+            board.execute(move)
+            return notation
         }
     }
 
