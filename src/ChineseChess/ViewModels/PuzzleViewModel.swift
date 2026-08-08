@@ -251,7 +251,7 @@ class PuzzleViewModel {
         }
 
         // 检查是否超过最大步数
-        if gameMoves.count >= puzzle.maxMoves {
+        if gameMoves.count >= puzzle.effectiveMaxMoves {
             if playMode == .freePlay {
                 // 自由对弈模式:超步只警告,不失败
                 if !hasShownMaxMovesWarning {
@@ -514,7 +514,7 @@ class PuzzleViewModel {
                 self.isThinking = false
 
                 // 再次检查步数
-                if self.gameState == .playing && self.gameMoves.count >= self.puzzle.maxMoves {
+                if self.gameState == .playing && self.gameMoves.count >= self.puzzle.effectiveMaxMoves {
                     if self.playMode == .freePlay {
                         if !self.hasShownMaxMovesWarning {
                             self.hasShownMaxMovesWarning = true

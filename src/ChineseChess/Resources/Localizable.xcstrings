@@ -12018,6 +12018,38 @@
           }
         }
       }
+    },
+    "puzzle.type.draw": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draw"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "和局"
+          }
+        }
+      }
+    },
+    "puzzle.drawSuccess": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clever defense! Draw secured."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "巧妙守和！"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

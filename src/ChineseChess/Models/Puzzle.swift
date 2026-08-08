@@ -103,8 +103,23 @@ struct Puzzle: Identifiable, Codable {
         case "checkmate": return "puzzle.type.checkmate"
         case "sequence": return "puzzle.type.sequence"
         case "hint": return "puzzle.type.hint"
+        case "draw": return "puzzle.type.draw"
         default: return ""
         }
+    }
+
+    // MARK: - FINAL-006 子集 A：effectiveMaxMoves
+
+    /// 动态计算的步数限制，替代 JSON 中的静态 maxMoves
+    /// - freePlay: 200（自由对弈无严格限制）
+    /// - draw: solution.count + 2（1 步正确 + 2 步缓冲）
+    /// - guided: solution.count + 2（给玩家 2 步容错空间）
+    /// - solution 为空时 fallback 到 JSON maxMoves
+    var effectiveMaxMoves: Int {
+        if effectiveMode == .freePlay { return 200 }
+        if solutionType == "draw" { return max(solution.count + 2, 3) }
+        if solution.isEmpty { return maxMoves }
+        return solution.count + 2
     }
 }
 
