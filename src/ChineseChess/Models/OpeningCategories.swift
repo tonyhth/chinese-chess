@@ -30,7 +30,7 @@ struct OpeningCategory: Identifiable, Sendable, Equatable, Hashable, Codable {
     let firstMove: String        // "h2e2"
     var gameCount: Int           // 该开局下的对局数
     let description: String      // "炮二平五，最常见开局"
-    let subcategories: [OpeningSubcategory]
+    var subcategories: [OpeningSubcategory]
 
     // 自定义解码：gameCount 缺失时默认 0（向后兼容旧 JSON）
     init(from decoder: Decoder) throws {
@@ -59,8 +59,24 @@ enum OpeningCategories {
     /// 动态加载的分类数据（首次访问时 lazy 加载）
     private static let dynamicCategories: [OpeningCategory] = loadCategories()
 
-    /// 公开接口：返回当前生效的分类列表
-    static let categories: [OpeningCategory] = dynamicCategories
+    /// 公开接口：返回当前生效的分类列表（含动态“其他应手”兜底子分类）
+    static let categories: [OpeningCategory] = appendOtherSubcategories(to: dynamicCategories)
+
+    /// 给有子分类的一级分类追加“其他应手”兜底子分类
+    /// id 格式："<openingId>_other"，与 MasterGameStore.buildSubcategoryIndices() 一致
+    private static func appendOtherSubcategories(to categories: [OpeningCategory]) -> [OpeningCategory] {
+        categories.map { category in
+            guard !category.subcategories.isEmpty else { return category }
+            let otherId = "\(category.id)_other"
+            // 避免重复添加
+            if category.subcategories.contains(where: { $0.id == otherId }) { return category }
+            var newCategory = category
+            newCategory.subcategories = category.subcategories + [
+                OpeningSubcategory(id: otherId, name: "其他应手", firstMoves: [], gameCount: 0)
+            ]
+            return newCategory
+        }
+    }
 
     /// 从 Bundle 加载 opening-categories.json，失败时 fallback 到硬编码默认值
     private static func loadCategories() -> [OpeningCategory] {

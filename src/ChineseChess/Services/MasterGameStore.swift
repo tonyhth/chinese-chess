@@ -92,17 +92,40 @@ class MasterGameStore: ObservableObject {
         }
     }
 
-    /// 构建二级开局分类倒排索引
+    /// 构建二级开局分类倒排索引（最长匹配优先，一对局只匹配第一个命中的子分类）
     private func buildSubcategoryIndices() {
         let allCategories = OpeningCategories.categories
         for category in allCategories {
-            for sub in category.subcategories {
-                let candidates = openingIndex[category.firstMove] ?? []
+            guard !category.subcategories.isEmpty else { continue }
+
+            let candidates = openingIndex[category.firstMove] ?? []
+
+            // 子分类按 firstMoves 长度降序排列（最长匹配优先）
+            let sortedSubs = category.subcategories.sorted { $0.firstMoves.count > $1.firstMoves.count }
+
+            var matchedGameIds = Set<Int>()
+
+            for sub in sortedSubs {
                 let matching = candidates.filter { game in
+                    // 跳过已匹配的对局（排他）
+                    if matchedGameIds.contains(game.id) { return false }
                     guard game.firstMoves.count >= sub.firstMoves.count else { return false }
-                    return zip(game.firstMoves, sub.firstMoves).allSatisfy { $0 == $1 }
+                    let isMatch = zip(game.firstMoves, sub.firstMoves).allSatisfy { $0 == $1 }
+                    if isMatch {
+                        matchedGameIds.insert(game.id)
+                    }
+                    return isMatch
                 }
                 subcategoryIndex[sub.id] = matching
+            }
+
+            // 兜底：“其他应手”子分类 = 未被任何子分类匹配的对局
+            let otherId = "\(category.id)_other"
+            let unmatched = candidates.filter { game in
+                !matchedGameIds.contains(game.id)
+            }
+            if !unmatched.isEmpty {
+                subcategoryIndex[otherId] = unmatched
             }
         }
     }
