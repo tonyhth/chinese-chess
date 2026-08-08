@@ -10,10 +10,10 @@ struct AnalysisView: View {
     private let l10n = L10n.shared
     private let profile = PlayerProfileStore.shared.profile
 
-    // 段位门禁（统一到 UnlockedFeature 框架口径）
+    // 段位门禁（FINAL-001: 改用 analysisEntry，语义匹配复盘分析）
     // v5.5.9: 改为走 isFeatureUnlocked，使 DeveloperMode 绕过生效
     private var hasBasicAnalysis: Bool {
-        profile.isFeatureUnlocked(.openingTreeBrowse)
+        profile.isFeatureUnlocked(.analysisEntry)
     }
     private var hasExpertAnalysis: Bool {
         profile.isFeatureUnlocked(.engineAnalysis)
@@ -261,6 +261,12 @@ struct AnalysisView: View {
                     Text(msg)
                         .font(.caption)
                         .foregroundColor(.orange)
+                        .frame(height: height)
+                } else if !analysisVM.isAnalyzing {
+                    // FINAL-001: 分析完成但无数据，不显示"分析中"
+                    Text(l10n.t("analysis.noData"))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                         .frame(height: height)
                 } else {
                     Text(l10n.t("analysis.analyzing"))

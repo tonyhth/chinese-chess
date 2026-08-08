@@ -13,6 +13,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
     case engineAnalysis      // 引擎分析（翰林，Phase 2）
     case aiCoach             // AI 教练（国手，Phase 3）
     case openingTreeBrowse   // 开局树浏览（秀才）
+    case analysisEntry       // 复盘分析入口（秀才，与开局树浏览同级）
     case openingTreeFavorite // 开局树收藏（棋圣）
     case gameRecordExport    // 棋谱导出（翰林，v3.7.0 Phase 2）
     case gameRecordImport    // 棋谱导入（无段位限制，v3.7.0 Phase 2）
@@ -27,6 +28,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
         case .engineAnalysis:      return .hanlin
         case .aiCoach:             return .master
         case .openingTreeBrowse:   return .scholar
+        case .analysisEntry:       return .scholar
         case .openingTreeFavorite: return .sage
         case .gameRecordExport:    return .hanlin   // v3.7.0: 从棋圣降为翰林
         case .gameRecordImport:    return .student   // v3.7.0: 无段位限制，最低段位即可
@@ -41,7 +43,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
             return true
         case .engineAnalysis, .gameRecordExport, .gameRecordImport:
             return true   // v3.7.0 Phase 2: 已实现
-        case .aiCoach, .openingTreeBrowse,
+        case .aiCoach, .openingTreeBrowse, .analysisEntry,
              .openingTreeFavorite, .customTheme:
             return true   // v3.7.2: 已实现
         }
@@ -56,6 +58,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
         case .engineAnalysis:      return "chart.line.uptrend.xyaxis"
         case .aiCoach:             return "graduationcap.fill"
         case .openingTreeBrowse:   return "tree"
+        case .analysisEntry:       return "chart.bar.doc.horizontal"
         case .openingTreeFavorite: return "star.fill"
         case .gameRecordExport:    return "square.and.arrow.up"
         case .gameRecordImport:    return "square.and.arrow.down"
@@ -72,6 +75,7 @@ enum UnlockedFeature: String, Codable, CaseIterable {
         case .engineAnalysis:      return "feature.engineAnalysis"
         case .aiCoach:             return "feature.aiCoach"
         case .openingTreeBrowse:   return "feature.openingTreeBrowse"
+        case .analysisEntry:       return "feature.analysisEntry"
         case .openingTreeFavorite: return "feature.openingTreeFavorite"
         case .gameRecordExport:    return "feature.gameRecordExport"
         case .gameRecordImport:    return "feature.gameRecordImport"

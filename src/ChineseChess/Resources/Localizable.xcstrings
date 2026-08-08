@@ -11970,6 +11970,38 @@
           }
         }
       }
+    },
+    "analysis.noData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No analysis data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无分析数据"
+          }
+        }
+      }
+    },
+    "feature.analysisEntry": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replay Analysis"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复盘分析"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
