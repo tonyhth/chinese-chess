@@ -250,6 +250,23 @@ class PuzzleViewModel {
             }
         }
 
+        // FINAL-006 子集 B: draw 局玩家走对 solution[0] → 守和成功
+        if puzzle.solutionType == "draw" && !puzzle.solution.isEmpty {
+            let playerMoveCount = gameMoves.filter { $0.piece.side == playerSide }.count
+            if playerMoveCount == 1 {
+                let lastMove = gameMoves.last
+                let expectedFirst = puzzle.solution[0]
+                if let last = lastMove {
+                    let actualICCS = ICCSParser.iccsString(from: last.from, to: last.to)
+                    if actualICCS == expectedFirst {
+                        gameState = .success
+                        completionRating = calculateRating()
+                        return
+                    }
+                }
+            }
+        }
+
         // 检查是否超过最大步数
         if gameMoves.count >= puzzle.effectiveMaxMoves {
             if playMode == .freePlay {

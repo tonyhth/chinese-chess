@@ -3931,10 +3931,32 @@
       "description": "适情雅趣第118局",
       "playerSide": "red",
       "initialFEN": "1C3a3/3k4C/2R2a3/2p1pPN2/9/9/2P5P/1cn6/2p2pp2/4K4 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "c7c8",
+        "d8d9",
+        "g6f8",
+        "f9e8",
+        "i8e8",
+        "f1f0",
+        "e0f0",
+        "g1f1",
+        "f0f1",
+        "b2b1",
+        "f1f2",
+        "b1b6",
+        "e8e7",
+        "f7e8",
+        "c8e8",
+        "b6b2",
+        "f2f1",
+        "b2b1",
+        "f1f2",
+        "b1b6",
+        "f6e6"
+      ],
       "hints": null,
       "maxMoves": 25,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -4278,10 +4300,49 @@
       "description": "适情雅趣第130局",
       "playerSide": "red",
       "initialFEN": "4k3C/c4P3/4N2c1/r6P1/4P2P1/4n3p/2p5R/3p5/4p1n2/3KC2N1 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "e7f9",
+        "h7h9",
+        "f9h8",
+        "h9h6",
+        "h8f9",
+        "h6h9",
+        "f9h8",
+        "h9h5",
+        "e0e4",
+        "e9d9",
+        "h8f9",
+        "h5h9",
+        "f9h8",
+        "h9h0",
+        "h8f9",
+        "h0h9",
+        "f9h8",
+        "d9d8",
+        "h8f7",
+        "d8d7",
+        "i9i7",
+        "h9h7",
+        "f7d6",
+        "h7h5",
+        "e4d4",
+        "d7e7",
+        "e5e6",
+        "e7f7",
+        "e6f6",
+        "f7f8",
+        "d4f4",
+        "h5f5",
+        "f6f7",
+        "f8f9",
+        "f7f8",
+        "f9e9",
+        "i3e3",
+        "e9d9"
+      ],
       "hints": null,
       "maxMoves": 25,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -5253,10 +5314,20 @@
       "description": "适情雅趣第162局",
       "playerSide": "red",
       "initialFEN": "2bakab2/5RP2/7P1/2P6/9/2N6/9/4Cp2C/r3p4/5K3 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "c4e5",
+        "d9e8",
+        "f8f9",
+        "e9f9",
+        "g8g9",
+        "f9f8",
+        "e5g6",
+        "f8f7",
+        "i2i7"
+      ],
       "hints": null,
       "maxMoves": 25,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -6071,10 +6142,33 @@
       "description": "适情雅趣第190局",
       "playerSide": "red",
       "initialFEN": "3ak4/c3a3R/5c2N/6C2/6b2/9/9/9/1r3p3/4K2R1 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "i8i9",
+        "f7f9",
+        "e0d0",
+        "f1e1",
+        "g6e6",
+        "e8d7",
+        "i7g8",
+        "e9e8",
+        "g8f6",
+        "f9f7",
+        "i9e9",
+        "e8e9",
+        "h0h9",
+        "f7f9",
+        "f6g8",
+        "a8f8",
+        "h9f9",
+        "e9f9",
+        "e6f6",
+        "f8d8",
+        "f6d6",
+        "d8d6"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -6193,10 +6287,27 @@
       "description": "适情雅趣第195局",
       "playerSide": "red",
       "initialFEN": "2bk1aN2/1R7/3a5/9/9/9/C7C/1p7/1np2p1r1/4K4 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "b8d8",
+        "d9d8",
+        "g9f7",
+        "d8d9",
+        "i3i9",
+        "h1h9",
+        "a3d3",
+        "d7e8",
+        "f7e5",
+        "d9d8",
+        "i9i8",
+        "h9h8",
+        "e5f7",
+        "d8d9",
+        "i8i9",
+        "h8h9"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -7215,10 +7326,24 @@
       "description": "适情雅趣第0局",
       "playerSide": "red",
       "initialFEN": "3k1a3/2R1a1N1c/2R6/9/9/9/9/4Cp3/4r4/r2c1K3 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "c7d7",
+        "e8d7",
+        "g8e7",
+        "d7e8",
+        "c8c9",
+        "d9d8",
+        "e7c6",
+        "d8d7",
+        "c9c7",
+        "d7d8",
+        "c7b7",
+        "d8d9",
+        "b7b9"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -7702,10 +7827,20 @@
       "description": "适情雅趣第245局",
       "playerSide": "red",
       "initialFEN": "2ba1k3/4a4/9/9/9/4R4/9/2CrB4/3r5/2B1K3R w - - 0 1",
-      "solution": [],
+      "solution": [
+        "e4f4",
+        "e8f7",
+        "e2g4",
+        "d1d0",
+        "e0e1",
+        "d2d1",
+        "e1e2",
+        "d1d2",
+        "e2e1"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -8841,10 +8976,33 @@
       "description": "适情雅趣第287局",
       "playerSide": "red",
       "initialFEN": "2bk1a2r/4an3/cR2b3N/p3CR3/2p1p4/1C7/4Pp2P/2c1B4/3pr4/2B2K3 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "f6f8",
+        "a7a8",
+        "b7d7",
+        "d9e9",
+        "b4b9",
+        "c9a7",
+        "d7d8",
+        "d1d0",
+        "b9b0",
+        "e1e0",
+        "f0f1",
+        "i9g9",
+        "e6g6",
+        "f3f2",
+        "f8f2",
+        "c2f2",
+        "d8a8",
+        "g9g7",
+        "i7g8",
+        "e9d9",
+        "a8a9",
+        "d9d8"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -11123,10 +11281,25 @@
       "description": "适情雅趣第363局",
       "playerSide": "red",
       "initialFEN": "3k1a3/2P4R1/3a5/9/9/7C1/9/9/1p2rp3/3K1c2R w - - 0 1",
-      "solution": [],
+      "solution": [
+        "h8e8",
+        "f9e8",
+        "i0i9",
+        "e8f9",
+        "h4h9",
+        "f9e8",
+        "h9h1",
+        "e8f9",
+        "h1e1",
+        "d9e9",
+        "i9i1",
+        "f1e1",
+        "i1e1",
+        "d7e8"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣",
       "tacticalGroup": "杀势"
     },
@@ -12469,10 +12642,29 @@
       "description": "适情雅趣第407局",
       "playerSide": "red",
       "initialFEN": "2b2ab2/3PP4/5k3/4P4/9/1p7/9/C6p1/4p4/3K5 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "a2a9",
+        "f9e8",
+        "a9g9",
+        "e8f9",
+        "g9c9",
+        "h2h1",
+        "c9e9",
+        "h1g1",
+        "e9e1",
+        "g1f1",
+        "e1e4",
+        "f1e1",
+        "e4f4",
+        "f9e8",
+        "d8e8",
+        "b4b3",
+        "e6f6",
+        "f7e7"
+      ],
       "hints": null,
       "maxMoves": 20,
-      "solutionMode": "freePlay",
+      "solutionMode": "guided",
       "source": "适情雅趣"
     },
     {
@@ -14376,7 +14568,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_473",
@@ -14486,7 +14679,8 @@
       "maxMoves": 35,
       "solutionMode": "freePlay",
       "source": "适情雅趣",
-      "tacticalGroup": "杀势"
+      "tacticalGroup": "杀势",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_477",
@@ -14600,11 +14794,27 @@
       "description": "适情雅趣第480局",
       "playerSide": "red",
       "initialFEN": "3k1a3/4a4/4b3b/7P1/9/2P3P2/9/9/9/4K4 w - - 0 1",
-      "solution": [],
+      "solution": [
+        "h6g6",
+        "e8f7",
+        "g6f6",
+        "f9e8",
+        "f6e6",
+        "d9e9",
+        "e6d6",
+        "e7c9",
+        "c4c5",
+        "e9d9",
+        "d6e6",
+        "e8f9",
+        "e6f6",
+        "f7e8"
+      ],
       "hints": null,
       "maxMoves": 30,
-      "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "solutionMode": "guided",
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_481",
@@ -14622,7 +14832,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_482",
@@ -14688,7 +14899,8 @@
       "maxMoves": 40,
       "solutionMode": "freePlay",
       "source": "适情雅趣",
-      "tacticalGroup": "困毙"
+      "tacticalGroup": "困毙",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_485",
@@ -14706,7 +14918,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_486",
@@ -14724,7 +14937,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_487",
@@ -14742,7 +14956,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_488",
@@ -14815,7 +15030,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_492",
@@ -14891,7 +15107,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_495",
@@ -14968,7 +15185,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_498",
@@ -14986,7 +15204,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_499",
@@ -15004,7 +15223,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_500",
@@ -15022,7 +15242,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_501",
@@ -15040,7 +15261,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_502",
@@ -15076,7 +15298,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_504",
@@ -15094,7 +15317,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_505",
@@ -15112,7 +15336,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_506",
@@ -15193,7 +15418,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_509",
@@ -15233,7 +15459,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_511",
@@ -15251,7 +15478,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_512",
@@ -15299,7 +15527,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_514",
@@ -15377,7 +15606,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_518",
@@ -15395,7 +15625,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_519",
@@ -15413,7 +15644,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_520",
@@ -15431,7 +15663,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_521",
@@ -15525,7 +15758,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_525",
@@ -15543,7 +15777,8 @@
       "hints": null,
       "maxMoves": 35,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_526",
@@ -15562,7 +15797,8 @@
       "maxMoves": 40,
       "solutionMode": "freePlay",
       "source": "适情雅趣",
-      "tacticalGroup": "困毙"
+      "tacticalGroup": "困毙",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_527",
@@ -15580,7 +15816,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_528",
@@ -15616,7 +15853,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_530",
@@ -15670,7 +15908,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_532",
@@ -15688,7 +15927,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_533",
@@ -15798,7 +16038,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_537",
@@ -15816,7 +16057,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_538",
@@ -15834,7 +16076,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_539",
@@ -15890,7 +16133,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_542",
@@ -15908,7 +16152,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_543",
@@ -15926,7 +16171,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_544",
@@ -15944,7 +16190,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_545",
@@ -15962,7 +16209,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_546",
@@ -15980,7 +16228,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_547",
@@ -16014,7 +16263,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_549",
@@ -16032,7 +16282,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     },
     {
       "id": "sqyq_550",
@@ -16072,7 +16323,8 @@
       "hints": null,
       "maxMoves": 40,
       "solutionMode": "freePlay",
-      "source": "适情雅趣"
+      "source": "适情雅趣",
+      "solutionType": "draw"
     }
   ]
 }
