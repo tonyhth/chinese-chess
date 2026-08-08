@@ -69,10 +69,10 @@ struct StudyHubView: View {
         .padding(16)
     }
 
-    // MARK: - iOS: 纵向列表
+    // MARK: - iOS: 2 列网格
 
     private var iOSLayout: some View {
-        VStack(spacing: 16) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
             studyCard(
                 title: l10n.t("tutorial.title"),
                 icon: "graduationcap.fill",
@@ -104,7 +104,6 @@ struct StudyHubView: View {
                 destination: DailyChallengeView()
             )
             // Phase B3 Step 3: 开局教练卡片
-            // v5.5.1 fix 问题9: 统一用 studyCard 模板
             studyCard(
                 title: l10n.t("study.openingCoach"),
                 icon: "location.north.fill",
