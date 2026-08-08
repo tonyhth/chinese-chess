@@ -57,8 +57,9 @@ struct Puzzle: Identifiable, Codable {
         self.tacticalGroup = tacticalGroup
     }
 
-    /// 计算属性：solution 非空→guided，否则→freePlay
+    /// 计算属性：solutionMode=freePlay → freePlay；solution 非空→guided；否则→solutionMode
     var effectiveMode: SolutionMode {
+        if solutionMode == .freePlay { return .freePlay }
         if !solution.isEmpty { return .guided }
         return solutionMode
     }
