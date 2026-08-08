@@ -92,6 +92,19 @@ struct SettingsView: View {
                     }
                 }
 
+                // 教程重开（FINAL-008）
+                Section(l10n.t("settings.tutorialSection")) {
+                    Button {
+                        TutorialViewModel.resetTutorial()
+                    } label: {
+                        HStack {
+                            Image(systemName: "graduationcap")
+                                .foregroundColor(.brown)
+                            Text(l10n.t("settings.restartTutorial"))
+                        }
+                    }
+                }
+
                 // Developer mode (v5.5.9: 始终可见，方便开发验证)
                 Section(l10n.t("settings.devMode")) {
                     Toggle(l10n.t("settings.devBypassRank"), isOn: Binding(
