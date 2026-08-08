@@ -475,39 +475,63 @@ struct CoachExplainerPhase3Tests {
     @Test("CoachExplainer: 中局 + delta ≤ 10 + 将军走法 → tacticDoubleCheck")
     func middleTacticDoubleCheck() async {
         let explainer = CoachExplainer.shared
-        // 需要构造一个将军走法
-        // 用一个红车可以直接将军黑王的局面
-        // 黑王在 d9，红车移到 d 线形成将军
-        // FEN: 3k5/9/9/9/9/9/9/9/3R5/4K4 w - - 0 1
-        // 红车在 d1（UCI: d1），走 d1d9 将军（但距离太远，实际会走到 d9 吃王?）
-        // 用近距离将军：红车在 d8 将军黑王 d9
-        // FEN: 3k5/9/9/9/9/9/9/3R5/9/4K4 w - - 0 1
-        // UCI: d1d9 (行 1 → 行 9) 不对，d1 在 row 1 = UCI 行 1
-        // 红车在 UCI d8，将军黑王 d9: FEN row 1 = "3R5"
-        // 不对，Board 的 FEN row 0 是顶部（黑方）
-        // UCI 行号：0 = 红方底线（FEN row 9），9 = 黑方底线（FEN row 0）
-        // 所以红车 UCI d8 = FEN row 1
-        // FEN: 3k5/3R5/9/9/9/9/9/9/9/4K4 w - - 0 1
-        let fen = "3k5/3R5/9/9/9/9/9/9/9/4K4 w - - 0 1"
-        let board = Board(fen: fen)
-        // 最佳走法 d7d9（车从 d8 到 d9 将军，即吃黑王?）
-        // 不行，这会吃王。用一个别的将军：
-        // 红车在 e8，黑王在 d9：e8→e9 将军（如果 e9 和 d9 同行相邻不直接将军）
-        // 简化：用炮将军。红炮 e5，黑王 e9
-        // FEN: 4k4/9/9/9/4C4/9/9/9/9/4K4 w - - 0 1
-        // 炮从 e5 到 e5 不动。炮需要隔着架子打。
-        // 算了，用更直接的方式：红车在 e9 列，直接同列将军
-        // 红车在 UCI e5，黑王在 UCI e9。中间无子 → 直接将军
-        // FEN: 4k4/9/9/9/4R4/9/9/9/9/4K4 w - - 0 1
-        let checkFen = "4k4/9/9/9/4R4/9/9/9/9/4K4 w - - 0 1"
+        // 构造红车将军黑王的局面，但不吃王
+        // 黑王在 d9 (UCI)，红车从 d5 移到 d8 将军（中间无遮挡，不走到 d9）
+        // 需要 moveNumber 15-34 且大子 >4
+        // FEN: 黑方 row 0: 3kabnr1 (黑王 d9, 黑士 e9/f9... 不对)
+        // 黑王 d9 → FEN row 0 col 3
+        // 红车从 d2(UCI d2=row7,col3) 走到 d8(UCI d8=row1,col3)
+        // 将军：红车在 d8(row1,col3) 攻击 d9(row0,col3) 上的黑王
+        // FEN: 3k1abnr/3R5/9/9/9/9/9/9/3r1n3/2N1K1B1C w - - 0 1
+        // row 0: 3k1abnr → col 3=黑王, col 4=空, col 5=黑士, col 6=黑象, col 7=黑马, col 8=黑车
+        // row 1: 3R5 → col 3=红车 (UCI d8)
+        // row 7: 3r1n3 → col 3=黑车, col 5=黑马
+        // row 9: 2N1K1B1C → col 2=红马, col 4=红帅, col 6=红象, col 8=红炮
+        // 大子: 红 R(1)+N(1)+C(1) + 黑 r(1)+n(1)+n(1)+r(row0 col8=黑车) = ... 
+        // 黑方: r(row0 col8) + n(row0 col7) + r(row7 col3) + n(row7 col5) = 4
+        // 红方: R(row1 col3) + N(row9 col2) + C(row9 col8) = 3
+        // 合计 7 > 4 ✓, moveNumber 20 → middle ✓
+        // bestMove = d8d9... 不对，这还是吃王
+        // 红车在 d8(row1,col3)，黑王在 d9(row0,col3)
+        // 红车向上走 1 步到 d9 吃黑王... 还是不行
+        //
+        // 换思路：让红车移到 e 线（相邻列），通过移动到黑王旁边的位置形成"闷宫"式的将军
+        // 或者：让红炮从远处隔子将军
+        //
+        // 炮将军：红炮 e5，中间 e7 有棋子（炮架），黑王 e9
+        // 红炮 e5(UCI) → e8(UCI) 不对，炮的走法是直线移动
+        // 炮从 e5 到某位置... 炮翻山将军需要架
+        //
+        // 最简单：用马将军！
+        // 马的走法是日字。构造红马在能将军黑王的位置
+        // 黑王 d9 (row0, col3)，红马在 c7 (UCI c7 = row2, col2)
+        // 马从 c7(row2,col2) 走日字到 e8(row1,col4) → 这不是将军
+        // 马走法：先直一步再斜一步
+        // 从 (row2,col2) 到 (row0,col3)：先 (row1,col2) 再 (row0,col3) → 马腿在 (row1,col2)
+        // 这是"马八进七"式的走法 → 到达 d9 = (row0,col3) = 黑王位置 = 吃王
+        //
+        // 算了，用另一种方式：红车在 d7(UCI) = (row2,col3)，走 d7d8 即 (row2,col3)→(row1,col3)
+        // 走完后红车在 d8(row1,col3)，攻击正上方的黑王 d9(row0,col3)
+        // 这是将军（不是吃王，红车在 row1 不是 row0）
+        // 但 isInCheck 怎么检查？它检查黑方是否被将军
+        // 红车在 (row1,col3)，攻击范围是整条 col 3 和整条 row 1
+        // 黑王在 (row0,col3)：红车沿 col3 向上看 1 格就是黑王 → 将军！
+        //
+        // bestMove 用 d7d8：UCI d7 → (row 9-7=2, col 3), d8 → (row 9-8=1, col 3)
+        // FEN: 3k1abnr/9/3R5/9/9/9/9/9/3r1n3/2N1K1B1C w - - 0 1
+        // row 2: 3R5 → 红车在 (row2, col3) = UCI d7
+        // bestMove = "d7d8" → 红车从 (2,3) 到 (1,3)，之后攻击 (0,3) 黑王
+        let checkFen = "3k1abnr/9/3R5/9/9/9/9/9/3r1n3/2N1K1B1C w - - 0 1"
         let checkBoard = Board(fen: checkFen)
+        let majorCount = PhaseDetector.countMajorPieces(on: checkBoard)
+        #expect(majorCount > 4, "大子数应 >4，实际: \(majorCount)")
         let analysis = MoveAnalysis(
-            playerMove: "e0d0", quality: .brilliant, bestMove: "e4e9",
+            playerMove: "e0d0", quality: .brilliant, bestMove: "d7d8",
             bestEval: 100, playerEval: 95, evalDelta: 5, alternatives: []
         )
         let exp = await explainer.explain(
             analysis: analysis, fenBefore: checkFen,
-            playerMove: "e0d0", bestMove: "e4e9",
+            playerMove: "e0d0", bestMove: "d7d8",
             moveNumber: 20, board: checkBoard
         )
         // 中局 delta ≤ 10 + 将军 → tacticDoubleCheck

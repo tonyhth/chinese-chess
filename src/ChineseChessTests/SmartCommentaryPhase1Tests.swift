@@ -324,7 +324,7 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
         let nonPauseTypes: [CommentaryType] = [.check(side: .red), .keyMove, .mistake]
         for type in nonPauseTypes {
             switch type {
-            case .check, .keyMove, .mistake:
+            case .check, .keyMove, .mistake, .capture, .threat, .crossing:
                 XCTAssertTrue(true, "\(type) 不暂停")
             case .checkmate, .sacrifice:
                 XCTFail("\(type) 应暂停")
@@ -338,7 +338,7 @@ final class SmartCommentaryPhase1Tests: XCTestCase {
             switch type {
             case .checkmate, .sacrifice:
                 XCTAssertTrue(true, "\(type) 应暂停")
-            case .check, .keyMove, .mistake:
+            case .check, .keyMove, .mistake, .capture, .threat, .crossing:
                 XCTFail("\(type) 不应暂停")
             }
         }
