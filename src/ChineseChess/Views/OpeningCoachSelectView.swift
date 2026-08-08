@@ -57,20 +57,14 @@ struct OpeningCoachSelectView: View {
         }
         .navigationTitle(l10n.t("coach.select.title"))
         .toast(isPresented: $showNoCoachToast, text: l10n.t("coach.select.noCoach.toast"))
-        .background(
-            NavigationLink(
-                destination: CoachGameView(
-                    subcategory: selectedSubcategory ?? OpeningSubcategory(id: "_", name: "", firstMoves: [], gameCount: 0),
-                    playerSide: playerSide,
-                    difficulty: difficulty,
-                    onBack: { navigateToGame = false }
-                ),
-                isActive: $navigateToGame
-            ) {
-                EmptyView()
-            }
-            .hidden()
-        )
+        .navigationDestination(isPresented: $navigateToGame) {
+            CoachGameView(
+                subcategory: selectedSubcategory ?? OpeningSubcategory(id: "_", name: "", firstMoves: [], gameCount: 0),
+                playerSide: playerSide,
+                difficulty: difficulty,
+                onBack: { navigateToGame = false }
+            )
+        }
     }
     #endif
 
@@ -109,20 +103,14 @@ struct OpeningCoachSelectView: View {
         }
         .navigationTitle(l10n.t("coach.select.title"))
         .toast(isPresented: $showNoCoachToast, text: l10n.t("coach.select.noCoach.toast"))
-        .background(
-            NavigationLink(
-                destination: CoachGameView(
-                    subcategory: selectedSubcategory ?? OpeningSubcategory(id: "_", name: "", firstMoves: [], gameCount: 0),
-                    playerSide: playerSide,
-                    difficulty: difficulty,
-                    onBack: { navigateToGame = false }
-                ),
-                isActive: $navigateToGame
-            ) {
-                EmptyView()
-            }
-            .hidden()
-        )
+        .navigationDestination(isPresented: $navigateToGame) {
+            CoachGameView(
+                subcategory: selectedSubcategory ?? OpeningSubcategory(id: "_", name: "", firstMoves: [], gameCount: 0),
+                playerSide: playerSide,
+                difficulty: difficulty,
+                onBack: { navigateToGame = false }
+            )
+        }
     }
 
     // MARK: - 分类行
