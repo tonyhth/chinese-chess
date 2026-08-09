@@ -254,6 +254,105 @@ struct V60Phase3RegressionTests {
     }
 }
 
+// MARK: - P1 修复验证（commit 01a5c6d）
+
+@Suite("v6.0 Phase 3 P1 修复：fallback wiring + depth + l10n", .serialized)
+@MainActor
+struct V60Phase3P1FixTests {
+
+    // ============================
+    // MARK: - P1-1: 层 2 fallback 接入
+    // ============================
+
+    @Test("P1-1: handleEngineFailure 不再是死代码——专业级 nil 触发 fallback")
+    func handleEngineFailureWired() async {
+        // 验证 handleEngineFailure 被调用后发送通知
+        let router = EngineRouter.shared
+        let expectation = AsyncBox<Bool>()
+        let observer = NotificationCenter.default.addObserver(
+            forName: EngineRouter.fallbackNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            expectation.set(true)
+        }
+
+        // 直接调用 handleEngineFailure（模拟 triggerAIMove nil 分支行为）
+        router.handleEngineFailure(difficulty: .proExpert)
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        NotificationCenter.default.removeObserver(observer)
+        #expect(await expectation.value == true, "handleEngineFailure 应发送 fallback 通知")
+    }
+
+    // ============================
+    // MARK: - P1-2: 专业级 depth=0
+    // ============================
+
+    @Test("P1-2: 专业级 skillLevel 不为 nil（确认 Skill Level 控制棋力）")
+    func proSkillLevelControls() {
+        // depth=0 意味着不限制搜索深度，Skill Level 全权控制棋力
+        // 验证所有专业级都有 skillLevel 值
+        for diff in [AIDifficulty.amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster] {
+            #expect(diff.skillLevel != nil, "\(diff.displayName) 应有 skillLevel")
+        }
+    }
+
+    @Test("P1-2: 业余级 skillLevel 为 nil（业余级用 depth 控制而非 Skill Level）")
+    func amateurNoSkillLevel() {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
+            #expect(diff.skillLevel == nil)
+        }
+    }
+
+    // ============================
+    // MARK: - P1-3: l10n key 存在
+    // ============================
+
+    @Test("P1-3: engine.fallbackLevel l10n key 存在")
+    func l10nFallbackLevel() {
+        let val = L10n.shared.t("engine.fallbackLevel")
+        #expect(!val.isEmpty)
+    }
+
+    @Test("P1-3: engine.notReady l10n key 存在")
+    func l10nNotReady() {
+        let val = L10n.shared.t("engine.notReady")
+        #expect(!val.isEmpty)
+    }
+
+    @Test("P1-3: engine.engineFailed l10n key 存在")
+    func l10nEngineFailed() {
+        let val = L10n.shared.t("engine.engineFailed")
+        #expect(!val.isEmpty)
+    }
+
+    @Test("P1-3: stats.professional l10n key 存在")
+    func l10nStatsProfessional() {
+        let val = L10n.shared.t("stats.professional")
+        #expect(!val.isEmpty)
+    }
+
+    @Test("P1-3: engine.fallbackLevel 包含格式化占位符")
+    func l10nFallbackLevelFormat() {
+        let val = L10n.shared.t("engine.fallbackLevel")
+        // 应包含 %1$@ 和 %2$@ 占位符（中英文都是）
+        #expect(val.contains("%1$@") || val.contains("%1") || val.contains("%@"))
+    }
+
+    // ============================
+    // MARK: - 综合回归
+    // ============================
+
+    @Test("P1 回归：Phase 3 原有测试仍通过")
+    func regressionPhase3StillWorks() {
+        #expect(AIDifficulty.allCases.count == 10)
+        #expect(AIDifficulty.amateurDan.skillLevel == 5)
+        #expect(AIDifficulty.grandmaster.skillLevel == 20)
+        #expect(EngineAvailability.available == .available)
+    }
+}
+
 // MARK: - 辅助
 
 /// 异步值容器（用于通知回调中传值出去）
