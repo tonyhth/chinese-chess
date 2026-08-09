@@ -614,6 +614,9 @@ enum BayesElo {
 
 #if os(macOS)
 func runCalibrateFromCLI() async {
+    // v6.0: 禁用 stdout 缓冲，确保 CLI 模式下 print 立即输出
+    setvbuf(stdout, nil, _IONBF, 0)
+
     let args = CommandLine.arguments
     let games = args.count > 2 ? (Int(args[2]) ?? 10) : 10
     let maxMoves = args.count > 3 ? (Int(args[3]) ?? 80) : 80  // 默认 80 步上限（快速校准）
@@ -670,6 +673,9 @@ func runCalibrateFromCLI() async {
 #if os(macOS)
 /// 命令行自对弈入口（在 ChineseChessApp.swift 的 main 中通过 --selfplay 参数调用）
 func runSelfPlayFromCLI() async {
+    // v6.0: 禁用 stdout 缓冲
+    setvbuf(stdout, nil, _IONBF, 0)
+
     let args = CommandLine.arguments
 
     // v6.0: 交叉对弈校准入口
