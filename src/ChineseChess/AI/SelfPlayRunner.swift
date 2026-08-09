@@ -345,6 +345,8 @@ extension SelfPlayRunner {
         var redWins = 0
         var blackWins = 0
         var draws = 0
+        var nativeWins = 0     // v6.0 P1 fix: 按引擎维度统计
+        var pikafishWins = 0
         var totalMoves = 0
 
         // 确保 Pikafish 引擎可用
@@ -394,9 +396,14 @@ extension SelfPlayRunner {
 
             totalMoves += result.totalMoves
             switch result.result {
-            case .redWon: redWins += 1
-            case .blackWon: blackWins += 1
-            case .draw: draws += 1
+            case .redWon:
+                redWins += 1
+                if nativeIsRed { nativeWins += 1 } else { pikafishWins += 1 }
+            case .blackWon:
+                blackWins += 1
+                if nativeIsRed { pikafishWins += 1 } else { nativeWins += 1 }
+            case .draw:
+                draws += 1
             default: break
             }
 
@@ -411,7 +418,8 @@ extension SelfPlayRunner {
 
         let elapsed = Date().timeIntervalSince(startTime)
         let avg = config.totalGames > 0 ? Double(totalMoves) / Double(config.totalGames) : 0
-        let eloDelta = BayesElo.estimateDelta(wins: redWins, losses: blackWins, draws: draws)
+        // v6.0 P1 fix: 按引擎维度（native vs pikafish）算 Elo，不是红黑维度
+        let eloDelta = BayesElo.estimateDelta(wins: nativeWins, losses: pikafishWins, draws: draws)
 
         return MixedEngineSessionResult(
             games: games,
@@ -445,8 +453,6 @@ extension SelfPlayRunner {
             let currentSide = board.currentTurn
             let isNativeTurn = (currentSide == .red) == nativeIsRed
 
-            let uciMove: String?
-
             if isNativeTurn {
                 // 自研引擎走棋
                 guard let move = await engine.bestMove(
@@ -459,7 +465,6 @@ extension SelfPlayRunner {
                 let iccs = SelfPlayRunner.iccsNotation(for: move)
                 moveHistory.append(iccs)
                 board.execute(move)
-                uciMove = iccs
             } else {
                 // Pikafish 走棋
                 let fen = FENParser.generate(board: board)
@@ -479,10 +484,7 @@ extension SelfPlayRunner {
                 let iccs = SelfPlayRunner.iccsNotation(for: parsed)
                 moveHistory.append(iccs)
                 board.execute(parsed)
-                uciMove = iccs
             }
-
-            _ = uciMove // 抑制 unused warning
 
             // 重复局面检测
             let fen = FENParser.generate(board: board)
