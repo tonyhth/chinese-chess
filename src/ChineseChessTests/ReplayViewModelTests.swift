@@ -48,8 +48,8 @@ final class ReplayBoardRebuildTests: XCTestCase {
         let record = GameRecord(
             title: "测试",
             redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: gameMoves.count,
             moves: gameMoves,
@@ -332,8 +332,8 @@ final class ReplayBoardRebuildTests: XCTestCase {
         let record = GameRecord(
             title: "空",
             redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: 0,
             moves: [],

@@ -11,8 +11,8 @@ struct SelfPlayRunnerTests {
     func quickSelfPlay() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
-            red: .beginner,
-            black: .beginner,
+            red: .novice,
+            black: .novice,
             games: 2,
             maxMoves: 40
         )
@@ -29,8 +29,8 @@ struct SelfPlayRunnerTests {
     func sideSwap() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
-            red: .beginner,
-            black: .beginner,
+            red: .novice,
+            black: .novice,
             games: 4,
             maxMoves: 20,
             swapSides: true
@@ -41,18 +41,18 @@ struct SelfPlayRunnerTests {
         // 交换先后手时，偶数局红=beginner，奇数局红=beginner（同难度交换无区别）
         // 验证交换逻辑：游戏数=4，swapSides=true
         #expect(result.games.count == 4)
-        #expect(result.games[0].redDifficulty == .beginner)
-        #expect(result.games[0].blackDifficulty == .beginner)
-        #expect(result.games[1].redDifficulty == .beginner)
-        #expect(result.games[1].blackDifficulty == .beginner)
+        #expect(result.games[0].redDifficulty == .novice)
+        #expect(result.games[0].blackDifficulty == .novice)
+        #expect(result.games[1].redDifficulty == .novice)
+        #expect(result.games[1].blackDifficulty == .novice)
     }
 
     @Test("SelfPlayRunner 不交换先后手", .timeLimit(.minutes(5)))
     func noSideSwap() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
-            red: .beginner,
-            black: .beginner,
+            red: .novice,
+            black: .novice,
             games: 2,
             maxMoves: 20,
             swapSides: false
@@ -61,8 +61,8 @@ struct SelfPlayRunnerTests {
         let result = await runner.run(config: config)
 
         for game in result.games {
-            #expect(game.redDifficulty == .beginner)
-            #expect(game.blackDifficulty == .beginner)
+            #expect(game.redDifficulty == .novice)
+            #expect(game.blackDifficulty == .novice)
         }
     }
 
@@ -70,8 +70,8 @@ struct SelfPlayRunnerTests {
     func moveLimit() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
-            red: .beginner,
-            black: .beginner,
+            red: .novice,
+            black: .novice,
             games: 1,
             maxMoves: 10  // 极小步数上限
         )
@@ -91,8 +91,8 @@ struct SelfPlayRunnerTests {
     func summaryFormat() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
-            red: .beginner,
-            black: .beginner,
+            red: .novice,
+            black: .novice,
             games: 1,
             maxMoves: 20
         )

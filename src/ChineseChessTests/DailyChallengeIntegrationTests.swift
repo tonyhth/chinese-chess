@@ -155,10 +155,10 @@ struct DailyChallengeIntegrationTests {
     @Test("masterChallenge: GameViewModel 配置 master 难度")
     func masterChallengeConfig() {
         let vm = GameViewModel()
-        vm.difficulty = .master
+        vm.difficulty = .amateurHigh
         vm.isMasterChallenge = true
 
-        #expect(vm.difficulty == .master, "难度应为 master")
+        #expect(vm.difficulty == .amateurHigh, "难度应为 master")
         #expect(vm.isMasterChallenge == true, "应标记为 master 挑战")
     }
 
@@ -189,7 +189,7 @@ struct DailyChallengeIntegrationTests {
         let suite = UserDefaults(suiteName: "test_diff_\(UUID().uuidString)")!
         let manager = DailyChallengeManager(defaults: suite)
         let diff = manager.todayDifficulty()
-        let validDiffs: [AIDifficulty] = [.easy, .medium, .hard]
+        let validDiffs: [AIDifficulty] = [.beginner, .amateurLow, .amateurMid]
         #expect(validDiffs.contains(diff), "难度应为 easy/medium/hard 之一")
     }
 
@@ -369,7 +369,7 @@ struct DailyChallengeIntegrationTests {
 
         // 设置 challengeMode=.masterChallenge，认输触发 recordGameResult
         let vm = GameViewModel()
-        vm.difficulty = .master
+        vm.difficulty = .amateurHigh
         vm.isMasterChallenge = true
         vm.challengeMode = .masterChallenge
         vm.confirmResign()  // 终局 → recordGameResult → challengeMode!=nil → completeChallenge
@@ -392,7 +392,7 @@ struct DailyChallengeIntegrationTests {
                            description: "", playerSide: "red",
                            initialFEN: "4k4/4a4/4b4/9/9/9/9/4B4/4A4/4K4 w",
                            solution: [], hints: nil, maxMoves: 5)
-        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .beginner)
         vm.confirmResign()
 
         #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
@@ -411,7 +411,7 @@ struct DailyChallengeIntegrationTests {
                            description: "", playerSide: "red",
                            initialFEN: "4k4/4a4/4b4/9/9/9/9/4B4/4A4/4K4 w",
                            solution: ["a1a4"], hints: nil, maxMoves: 3)
-        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .beginner)
         vm.confirmResign()
 
         #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,
@@ -426,7 +426,7 @@ struct DailyChallengeIntegrationTests {
         _ = manager.todayChallenge(puzzles: PuzzleStore.shared.puzzles)
 
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .easy)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .beginner)
         vm.confirmResign()
 
         #expect(manager.isTodayCompleted(puzzles: PuzzleStore.shared.puzzles) == true,

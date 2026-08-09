@@ -351,14 +351,14 @@ struct Phase3DrawTests {
 
     @Test("SelfPlayRunner: 重复局面阈值可配置")
     func selfPlayRepetitionThreshold() {
-        let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 1, maxMoves: 40)
+        let config = SelfPlayConfig(red: .novice, black: .novice, games: 1, maxMoves: 40)
         // 默认 threshold = 3
         #expect(config.repetitionThreshold == 3, "默认重复阈值应为 3")
     }
 
     @Test("SelfPlayRunner: repetitionThreshold 可自定义")
     func selfPlayCustomRepetitionThreshold() {
-        var config = SelfPlayConfig(red: .beginner, black: .beginner, games: 1, maxMoves: 40)
+        var config = SelfPlayConfig(red: .novice, black: .novice, games: 1, maxMoves: 40)
         config.repetitionThreshold = 4
         #expect(config.repetitionThreshold == 4, "自定义重复阈值应为 4")
     }

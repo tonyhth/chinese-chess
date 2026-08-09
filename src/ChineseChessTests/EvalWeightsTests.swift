@@ -44,7 +44,7 @@ struct EvalWeightsTests {
         let engine = AIEngine()
 
         // 验证 AI 能返回合法走法
-        let move = await engine.bestMove(for: board, difficulty: .medium, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurLow, isIOS: false)
         #expect(move != nil, "应返回合法走法")
     }
 
@@ -207,7 +207,7 @@ struct EvalWeightsTests {
         let board = Board()
 
         // 验证不崩溃
-        let move = await engine.bestMove(for: board, difficulty: .easy, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(move != nil, "默认权重下应返回合法走法")
     }
 
@@ -223,7 +223,7 @@ struct EvalWeightsTests {
         let engine = AIEngine()
         let board = Board()
 
-        let move = await engine.bestMove(for: board, difficulty: .easy, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(move != nil, "自定义权重下应返回合法走法")
     }
 
@@ -281,7 +281,7 @@ struct EvalWeightsTests {
         let engine = AIEngine()
         let board = Board()
 
-        let move = await engine.bestMove(for: board, difficulty: .easy, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
         #expect(move != nil, "极端权重下应返回合法走法（不崩溃）")
     }
 

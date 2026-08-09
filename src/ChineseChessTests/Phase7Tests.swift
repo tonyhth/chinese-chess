@@ -146,7 +146,7 @@ struct Phase7Tests {
     func allDifficultiesValidMove() async {
         let engine = AIEngine()
         let board = Board()
-        for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 应返回合法走法")
         }
@@ -155,7 +155,7 @@ struct Phase7Tests {
     @Test("自对弈正常完成", .timeLimit(.minutes(5)))
     func selfPlayIntegration() async {
         let runner = SelfPlayRunner()
-        let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)
+        let config = SelfPlayConfig(red: .novice, black: .novice, games: 2, maxMoves: 40)
         let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)

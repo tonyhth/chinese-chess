@@ -10,7 +10,7 @@ struct Phase2bOptimizationTests {
     func razoringHard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil, "启用 Razoring 后 hard 应返回合法走法")
     }
 
@@ -18,7 +18,7 @@ struct Phase2bOptimizationTests {
     func razoringMaster() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(move != nil, "启用 Razoring 后 master 应返回合法走法")
     }
 
@@ -28,7 +28,7 @@ struct Phase2bOptimizationTests {
     func futilityPruningWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil, "启用 Futility Pruning 后应返回合法走法")
     }
 
@@ -37,7 +37,7 @@ struct Phase2bOptimizationTests {
         let engine = AIEngine()
         let board = Board()
         // beginner 不启用 futility，应正常工作
-        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
         #expect(move != nil)
     }
 
@@ -47,7 +47,7 @@ struct Phase2bOptimizationTests {
     func iidMasterWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(move != nil, "启用 IID 后 master 应返回合法走法")
     }
 
@@ -55,7 +55,7 @@ struct Phase2bOptimizationTests {
     func iidHardWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil, "启用 IID 后 hard 应返回合法走法")
     }
 
@@ -188,8 +188,8 @@ struct Phase2bOptimizationTests {
     func selfPlayWithPhase2b() async {
         let runner = SelfPlayRunner()
         let config = SelfPlayConfig(
-            red: .beginner,
-            black: .beginner,
+            red: .novice,
+            black: .novice,
             games: 2,
             maxMoves: 40
         )

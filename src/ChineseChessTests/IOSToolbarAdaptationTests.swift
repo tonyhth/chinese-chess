@@ -130,13 +130,13 @@ struct IOSToolbarAdaptationTests {
 @Test("setDifficulty 正确更新 difficulty 值")
     func setDifficultyUpdatesValue() {
         let vm = GameViewModel()
-        #expect(vm.difficulty == .medium) // 默认值
+        #expect(vm.difficulty == .amateurLow) // 默认值
 
-        vm.setDifficulty(.beginner)
-        #expect(vm.difficulty == .beginner)
+        vm.setDifficulty(.novice)
+        #expect(vm.difficulty == .novice)
 
-        vm.setDifficulty(.master)
-        #expect(vm.difficulty == .master)
+        vm.setDifficulty(.amateurHigh)
+        #expect(vm.difficulty == .amateurHigh)
     }
 
     @MainActor

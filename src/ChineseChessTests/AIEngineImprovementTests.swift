@@ -11,7 +11,7 @@ struct AIEngineImprovementTests {
     func beginnerMoveReturnsValidMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         #expect(move != nil)
     }
 
@@ -19,7 +19,7 @@ struct AIEngineImprovementTests {
     func beginnerMoveFromHasPiece() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         #expect(move != nil)
         if let move = move {
             let piece = board.piece(at: move.from)
@@ -32,7 +32,7 @@ struct AIEngineImprovementTests {
         let engine = AIEngine()
         let board = Board()
         for _ in 0..<20 {
-            let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
             #expect(move != nil)
         }
     }
@@ -41,7 +41,7 @@ struct AIEngineImprovementTests {
     func beginnerMoveIsLegal() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -56,7 +56,7 @@ struct AIEngineImprovementTests {
         let board = Board()
         // 30% 概率走 depth=1，70% 走随机。100 次必然覆盖两条路径
         for _ in 0..<100 {
-            let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
             #expect(move != nil)
         }
     }
@@ -65,7 +65,7 @@ struct AIEngineImprovementTests {
     func easyDifficultyStillWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .easy)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         #expect(move != nil)
     }
 
@@ -73,7 +73,7 @@ struct AIEngineImprovementTests {
     func mediumDifficultyStillWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -82,7 +82,7 @@ struct AIEngineImprovementTests {
         let engine = AIEngine()
         let board = Board()
         let snapshot = board.snapshot()
-        _ = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        _ = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         // board 应该没变（bestMove 内部做了 snapshot）
         #expect(board.pieces.count == snapshot.pieces.count)
     }

@@ -71,8 +71,8 @@ final class V370Phase3Tests: XCTestCase {
     func testImportResult_ConvenienceInit() {
         let record = GameRecord(
             title: "测试", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
             initialFEN: nil, source: .imported
         )
         let result = ImportResult(records: [record], warnings: ["局2失败", "局3失败"])
@@ -188,12 +188,12 @@ final class V370Phase3Tests: XCTestCase {
         let store = makeTestStore()
         let records = [
             GameRecord(title: "局1", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                       difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                       difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                        initialFEN: nil, source: .imported),
             GameRecord(title: "局2", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                       difficulty: .medium, result: .blackWon, totalMoves: 2, moves: [],
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                       difficulty: .amateurLow, result: .blackWon, totalMoves: 2, moves: [],
                        initialFEN: nil, source: .imported),
         ]
         let added = store.batchAdd(records)
@@ -206,12 +206,12 @@ final class V370Phase3Tests: XCTestCase {
         let store = makeTestStore()
         let id = UUID()
         let record1 = GameRecord(id: id, title: "局1", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                                  difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                                  difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                                   initialFEN: nil, source: .imported)
         let record2 = GameRecord(id: id, title: "局1副本", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                                  difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                                  difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                                   initialFEN: nil, source: .imported)
         store.addRecord(record1)
         let added = store.batchAdd([record2])
@@ -224,12 +224,12 @@ final class V370Phase3Tests: XCTestCase {
         let store = makeTestStore()
         let pid = "puzzle-dedup-test"
         let record1 = GameRecord(title: "残局1", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .hard),
-                                  difficulty: .hard, result: .redWon, totalMoves: 3, moves: [],
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurMid),
+                                  difficulty: .amateurMid, result: .redWon, totalMoves: 3, moves: [],
                                   initialFEN: nil, source: .puzzle, puzzleId: pid)
         let record2 = GameRecord(title: "残局1重玩", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .hard),
-                                  difficulty: .hard, result: .redWon, totalMoves: 2, moves: [],
+                                  blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurMid),
+                                  difficulty: .amateurMid, result: .redWon, totalMoves: 2, moves: [],
                                   initialFEN: nil, source: .puzzle, puzzleId: pid)
         store.addRecord(record1)
         let added = store.batchAdd([record2])
@@ -242,12 +242,12 @@ final class V370Phase3Tests: XCTestCase {
         let store = makeTestStore()
         let records = [
             GameRecord(title: "局A", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                       difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                       difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                        initialFEN: nil, source: .imported),
             GameRecord(title: "局B", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                       difficulty: .medium, result: .blackWon, totalMoves: 2, moves: [],
+                       blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                       difficulty: .amateurLow, result: .blackWon, totalMoves: 2, moves: [],
                        initialFEN: nil, source: .imported),
         ]
         _ = store.batchAdd(records)
@@ -269,15 +269,15 @@ final class V370Phase3Tests: XCTestCase {
     func testBatchAdd_MixedWithAddRecord() {
         let store = makeTestStore()
         let r1 = GameRecord(title: "单条", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                             difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                             difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                              initialFEN: nil, source: .versusAI)
         store.addRecord(r1)
         XCTAssertEqual(store.count, 1)
 
         let r2 = GameRecord(title: "批量", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                             difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                             difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                              initialFEN: nil, source: .imported)
         _ = store.batchAdd([r2])
         XCTAssertEqual(store.count, 2)
@@ -334,8 +334,8 @@ final class V370Phase3Tests: XCTestCase {
         let store = makeTestStore()
         let pid = "puzzle-3b-dedup"
         let r1 = GameRecord(title: "残局", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-                             difficulty: .hard, result: .redWon, totalMoves: 5, moves: [],
+                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+                             difficulty: .amateurMid, result: .redWon, totalMoves: 5, moves: [],
                              initialFEN: nil, source: .puzzle, puzzleId: pid)
         store.addRecord(r1)
 
@@ -363,8 +363,8 @@ final class V370Phase3Tests: XCTestCase {
         // 非 puzzle 记录不应有 puzzleId，但即使有也不应被找到
         //（实际上非 puzzle 不会设 puzzleId，所以 findRecordByPuzzleId 不会匹配）
         let r = GameRecord(title: "人机", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-                           blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-                           difficulty: .medium, result: .redWon, totalMoves: 10, moves: [],
+                           blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+                           difficulty: .amateurLow, result: .redWon, totalMoves: 10, moves: [],
                            initialFEN: nil, source: .versusAI)
         store.addRecord(r)
         XCTAssertNil(store.findRecordByPuzzleId("any"))
@@ -374,12 +374,12 @@ final class V370Phase3Tests: XCTestCase {
     func testDifferentPuzzleId_BothKept() {
         let store = makeTestStore()
         let r1 = GameRecord(title: "残局A", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-                             difficulty: .hard, result: .redWon, totalMoves: 3, moves: [],
+                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+                             difficulty: .amateurMid, result: .redWon, totalMoves: 3, moves: [],
                              initialFEN: nil, source: .puzzle, puzzleId: "p-a")
         let r2 = GameRecord(title: "残局B", redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-                             difficulty: .hard, result: .redWon, totalMoves: 5, moves: [],
+                             blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+                             difficulty: .amateurMid, result: .redWon, totalMoves: 5, moves: [],
                              initialFEN: nil, source: .puzzle, puzzleId: "p-b")
         store.addRecord(r1)
         store.addRecord(r2)
@@ -400,8 +400,8 @@ final class V370Phase3Tests: XCTestCase {
     /// RecordSummary 包含 puzzleId 字段
     func testRecordSummary_ContainsPuzzleId() {
         let record = GameRecord(title: "测试", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                 blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                                 difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                 blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                                 difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                                  initialFEN: nil, source: .puzzle, puzzleId: "test-pid")
         let summary = RecordSummary(from: record)
         XCTAssertEqual(summary.puzzleId, "test-pid", "summary 应包含 puzzleId")
@@ -410,8 +410,8 @@ final class V370Phase3Tests: XCTestCase {
     /// RecordSummary puzzleId 为 nil（非 puzzle 来源）
     func testRecordSummary_PuzzleIdNil_ForNonPuzzle() {
         let record = GameRecord(title: "人机", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                 blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                                 difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                                 blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                                 difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                                  initialFEN: nil, source: .versusAI)
         let summary = RecordSummary(from: record)
         XCTAssertNil(summary.puzzleId, "非 puzzle 来源 puzzleId 应为 nil")
@@ -450,8 +450,8 @@ final class V370Phase3Tests: XCTestCase {
                 let record = GameRecord(
                     title: "并发\(i)",
                     redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                    difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                    difficulty: .amateurLow, result: .redWon, totalMoves: i, moves: [],
                     initialFEN: nil, source: .versusAI
                 )
                 store.addRecord(record)
@@ -468,8 +468,8 @@ final class V370Phase3Tests: XCTestCase {
         let store = makeTestStore()
         // 先加一条
         let r0 = GameRecord(title: "初始", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                             difficulty: .medium, result: .redWon, totalMoves: 0, moves: [],
+                             blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                             difficulty: .amateurLow, result: .redWon, totalMoves: 0, moves: [],
                              initialFEN: nil, source: .versusAI)
         store.addRecord(r0)
 
@@ -481,8 +481,8 @@ final class V370Phase3Tests: XCTestCase {
                 let record = GameRecord(
                     title: "写入\(i)",
                     redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                    difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                    difficulty: .amateurLow, result: .redWon, totalMoves: i, moves: [],
                     initialFEN: nil, source: .versusAI
                 )
                 store.addRecord(record)
@@ -512,8 +512,8 @@ final class V370Phase3Tests: XCTestCase {
                     GameRecord(
                         title: "batch\(i)-\(j)",
                         redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                        blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                        difficulty: .medium, result: .redWon, totalMoves: i * 3 + j, moves: [],
+                        blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                        difficulty: .amateurLow, result: .redWon, totalMoves: i * 3 + j, moves: [],
                         initialFEN: nil, source: .imported
                     )
                 }
@@ -533,8 +533,8 @@ final class V370Phase3Tests: XCTestCase {
         var ids: [UUID] = []
         for i in 0..<5 {
             let r = GameRecord(title: "待删\(i)", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                                difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                                difficulty: .amateurLow, result: .redWon, totalMoves: i, moves: [],
                                 initialFEN: nil, source: .versusAI)
             store.addRecord(r)
             ids.append(r.id)
@@ -551,8 +551,8 @@ final class V370Phase3Tests: XCTestCase {
             }
             DispatchQueue.global().async {
                 let r = GameRecord(title: "新增\(i)", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                                    difficulty: .medium, result: .redWon, totalMoves: i, moves: [],
+                                    blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                                    difficulty: .amateurLow, result: .redWon, totalMoves: i, moves: [],
                                     initialFEN: nil, source: .versusAI)
                 store.addRecord(r)
                 expectation.fulfill()

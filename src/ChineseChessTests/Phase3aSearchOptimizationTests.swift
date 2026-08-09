@@ -55,7 +55,7 @@ struct Phase3aSearchOptimizationTests {
     func quiescenceSearchHardInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -68,7 +68,7 @@ struct Phase3aSearchOptimizationTests {
     func quiescenceSearchMasterInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -76,7 +76,7 @@ struct Phase3aSearchOptimizationTests {
     func quiescenceSearchMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -89,7 +89,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -101,7 +101,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         _ = move  // 可能无合法走法（将帅对），只要不 crash
     }
 
@@ -117,7 +117,7 @@ struct Phase3aSearchOptimizationTests {
             return
         }
         let start = Date()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         let elapsed = Date().timeIntervalSince(start)
         _ = move
         // check extension 不应导致超时（应在合理时间内返回）
@@ -133,7 +133,7 @@ struct Phase3aSearchOptimizationTests {
             return
         }
         let start = Date()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         let elapsed = Date().timeIntervalSince(start)
         _ = move
         #expect(elapsed < 60.0, "Check extension 导致搜索时间过长: \(elapsed)s")
@@ -143,7 +143,7 @@ struct Phase3aSearchOptimizationTests {
     func checkExtensionMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -213,7 +213,7 @@ struct Phase3aSearchOptimizationTests {
     func killerMoveAIDoesNotCrash() async {
         let engine = AIEngine()
         let board = Board()
-        for diff in [AIDifficulty.hard, .master] {
+        for diff in [AIDifficulty.amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             #expect(move != nil, "\(diff) 启用 killer 后返回 nil")
         }
@@ -230,7 +230,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -242,7 +242,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         _ = move
     }
 
@@ -250,7 +250,7 @@ struct Phase3aSearchOptimizationTests {
     func nullMoveMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -283,7 +283,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -300,7 +300,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -310,7 +310,7 @@ struct Phase3aSearchOptimizationTests {
     func allDifficultiesMultipleCallsNoCrash() async {
         let engine = AIEngine()
         let board = Board()
-        for diff in [AIDifficulty.beginner, .easy, .medium] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow] {
             for _ in 0..<3 {
                 let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
                 #expect(move != nil, "\(diff) 返回 nil")
@@ -327,7 +327,7 @@ struct Phase3aSearchOptimizationTests {
             Issue.record("FEN 解析失败")
             return
         }
-        for diff in [AIDifficulty.hard, .master] {
+        for diff in [AIDifficulty.amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -342,7 +342,7 @@ struct Phase3aSearchOptimizationTests {
         let engine = AIEngine()
         let board = Board()
         for step in 0..<8 {
-            let diff: AIDifficulty = step % 2 == 0 ? .hard : .master
+            let diff: AIDifficulty = step % 2 == 0 ? .amateurMid : .amateurHigh
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             guard let move = move else { break }
             let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)

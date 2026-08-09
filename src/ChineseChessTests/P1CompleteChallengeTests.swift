@@ -86,7 +86,7 @@ struct CompleteChallengeIntegrationTests {
     @Test("挑战模式：challengeMode != nil 且游戏结束 → completeChallenge 条件满足")
     func challengeModeTriggersCompleteChallenge() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .beginner)
+        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .novice)
 
         // 验证挑战模式已设置
         #expect(vm.challengeMode != nil, "应处于挑战模式")
@@ -120,7 +120,7 @@ struct CompleteChallengeIntegrationTests {
     @Test("游戏进行中：gameState == .playing → completeChallenge 条件不满足")
     func playingStateNoCompleteChallenge() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .beginner)
+        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .novice)
 
         // 游戏仍在进行
         #expect(vm.gameState == .playing, "游戏应仍在进行")
@@ -152,7 +152,7 @@ struct CompleteChallengeIntegrationTests {
     func loadChallengeSavesPuzzle() {
         let vm = GameViewModel()
         let puzzle = makeTestPuzzle()
-        vm.loadChallenge(mode: .endgamePuzzle, puzzle: puzzle, difficulty: .beginner)
+        vm.loadChallenge(mode: .endgamePuzzle, puzzle: puzzle, difficulty: .novice)
 
         #expect(vm.challengeMode == .endgamePuzzle)
         // challengePuzzle 是 private，无法直接验证
@@ -163,7 +163,7 @@ struct CompleteChallengeIntegrationTests {
     @Test("newGame 重置 challengeMode 和 challengePuzzle")
     func newGameResetsChallenge() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .beginner)
+        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .novice)
         #expect(vm.challengeMode != nil)
 
         vm.newGame()
@@ -176,7 +176,7 @@ struct CompleteChallengeIntegrationTests {
     @Test("和棋状态 score=0")
     func drawChallengeScoreZero() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .beginner)
+        vm.loadChallenge(mode: .endgamePuzzle, puzzle: makeTestPuzzle(), difficulty: .novice)
         vm.humanSide = .red
 
         // 和棋

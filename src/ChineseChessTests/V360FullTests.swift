@@ -9,37 +9,37 @@ struct V360FullTests {
 
     @Test("recommendedCoachDifficulty: 学童 → easy")
     func coachDifficultyStudent() {
-        #expect(Rank.student.recommendedCoachDifficulty == .easy)
+        #expect(Rank.student.recommendedCoachDifficulty == .beginner)
     }
 
     @Test("recommendedCoachDifficulty: 秀才 → medium")
     func coachDifficultyScholar() {
-        #expect(Rank.scholar.recommendedCoachDifficulty == .medium)
+        #expect(Rank.scholar.recommendedCoachDifficulty == .amateurLow)
     }
 
     @Test("recommendedCoachDifficulty: 举人 → hard")
     func coachDifficultyJuren() {
-        #expect(Rank.juren.recommendedCoachDifficulty == .hard)
+        #expect(Rank.juren.recommendedCoachDifficulty == .amateurMid)
     }
 
     @Test("recommendedCoachDifficulty: 进士 → hard")
     func coachDifficultyJinshi() {
-        #expect(Rank.jinshi.recommendedCoachDifficulty == .hard)
+        #expect(Rank.jinshi.recommendedCoachDifficulty == .amateurMid)
     }
 
     @Test("recommendedCoachDifficulty: 翰林 → master")
     func coachDifficultyHanlin() {
-        #expect(Rank.hanlin.recommendedCoachDifficulty == .master)
+        #expect(Rank.hanlin.recommendedCoachDifficulty == .amateurHigh)
     }
 
     @Test("recommendedCoachDifficulty: 国手 → master")
     func coachDifficultyMaster() {
-        #expect(Rank.master.recommendedCoachDifficulty == .master)
+        #expect(Rank.master.recommendedCoachDifficulty == .amateurHigh)
     }
 
     @Test("recommendedCoachDifficulty: 棋圣 → master")
     func coachDifficultySage() {
-        #expect(Rank.sage.recommendedCoachDifficulty == .master)
+        #expect(Rank.sage.recommendedCoachDifficulty == .amateurHigh)
     }
 
     // MARK: - 2. Q2 段位升级奖励展示
@@ -77,7 +77,7 @@ struct V360FullTests {
     func continuousCheckUnlock() {
         let result = GameResultInfo(
             isWin: true,
-            difficulty: .medium,
+            difficulty: .amateurLow,
             moveCount: 20,
             playerMoveCount: 10,
             elapsedSeconds: 120,
@@ -96,7 +96,7 @@ struct V360FullTests {
     func continuousCheckNotUnlock() {
         let result = GameResultInfo(
             isWin: true,
-            difficulty: .medium,
+            difficulty: .amateurLow,
             moveCount: 20,
             playerMoveCount: 10,
             elapsedSeconds: 120,
@@ -115,7 +115,7 @@ struct V360FullTests {
     func continuousCheckLoseNoUnlock() {
         let result = GameResultInfo(
             isWin: false,
-            difficulty: .medium,
+            difficulty: .amateurLow,
             moveCount: 20,
             playerMoveCount: 10,
             elapsedSeconds: 120,
@@ -149,7 +149,7 @@ struct V360FullTests {
     func comebackKingUnlock() {
         let result = GameResultInfo(
             isWin: true,
-            difficulty: .medium,
+            difficulty: .amateurLow,
             moveCount: 40,
             playerMoveCount: 20,
             elapsedSeconds: 300,
@@ -168,7 +168,7 @@ struct V360FullTests {
     func comebackKingNotEnough() {
         let result = GameResultInfo(
             isWin: true,
-            difficulty: .medium,
+            difficulty: .amateurLow,
             moveCount: 40,
             playerMoveCount: 20,
             elapsedSeconds: 300,
@@ -187,7 +187,7 @@ struct V360FullTests {
     func comebackKingLoseNoUnlock() {
         let result = GameResultInfo(
             isWin: false,
-            difficulty: .medium,
+            difficulty: .amateurLow,
             moveCount: 40,
             playerMoveCount: 20,
             elapsedSeconds: 300,
@@ -228,10 +228,10 @@ struct V360FullTests {
     @Test("AIDifficulty 有所有枚举值")
     func aiDifficultyCases() {
         let cases = AIDifficulty.allCases
+        #expect(cases.contains(.novice))
         #expect(cases.contains(.beginner))
-        #expect(cases.contains(.easy))
-        #expect(cases.contains(.medium))
-        #expect(cases.contains(.hard))
-        #expect(cases.contains(.master))
+        #expect(cases.contains(.amateurLow))
+        #expect(cases.contains(.amateurMid))
+        #expect(cases.contains(.amateurHigh))
     }
 }

@@ -10,7 +10,7 @@ struct V41CannonOnlyRegressionTests {
     @MainActor
     private func makeVM() -> GameViewModel {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .easy)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .beginner)
         return vm
     }
 
@@ -304,7 +304,7 @@ struct V41ChallengeResultLogicTests {
                             description: "", playerSide: "red",
                             initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                             solution: [], hints: nil, maxMoves: 5, solutionType: "sequence")
-        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .beginner)
         #expect(vm.challengeResult == nil)
     }
 
@@ -312,7 +312,7 @@ struct V41ChallengeResultLogicTests {
     @Test("cannonOnly: 初始化 challengeResult = nil")
     func cannonOnlyInitNil() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .hard)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .amateurMid)
         #expect(vm.challengeResult == nil)
     }
 
@@ -324,7 +324,7 @@ struct V41ChallengeResultLogicTests {
                             description: "", playerSide: "red",
                             initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                             solution: ["a0a1"], hints: nil, maxMoves: 1, solutionType: "checkmate")
-        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .beginner)
         #expect(vm.challengeResult == nil)
     }
 
@@ -355,7 +355,7 @@ struct V41ChallengeResultLogicTests {
     func loadChallengeResetsResult() {
         let vm = GameViewModel()
         vm.challengeResult = .success
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .hard)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .amateurMid)
         #expect(vm.challengeResult == nil)
     }
 

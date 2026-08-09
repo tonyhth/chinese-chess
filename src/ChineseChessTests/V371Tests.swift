@@ -74,8 +74,8 @@ final class V371Tests: XCTestCase {
         let record1 = GameRecord(
             title: "残局: 去重测试",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 5,
             moves: [],
@@ -93,8 +93,8 @@ final class V371Tests: XCTestCase {
             id: existing!.id,
             title: "残局: 去重测试",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 3,
             moves: [],
@@ -116,8 +116,8 @@ final class V371Tests: XCTestCase {
         let record1 = GameRecord(
             title: "残局 A",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 5,
             moves: [],
@@ -128,8 +128,8 @@ final class V371Tests: XCTestCase {
         let record2 = GameRecord(
             title: "残局 B",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 8,
             moves: [],
@@ -148,8 +148,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "人机对弈",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI-中级", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "AI-中级", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: 20,
             moves: [],
@@ -191,7 +191,7 @@ final class V371Tests: XCTestCase {
     @MainActor
     func testB2_SetDifficulty_UpdatesProperty() {
         let viewModel = GameViewModel()
-        for diff: AIDifficulty in [.beginner, .easy, .medium, .hard, .master] {
+        for diff: AIDifficulty in [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             viewModel.setDifficulty(diff)
             XCTAssertEqual(viewModel.difficulty, diff, "难度应更新")
         }
@@ -216,8 +216,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "很长的标题测试：人机对弈残局训练专用棋局",
             redPlayer: PlayerInfo(name: "非常长的红方名称", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "非常长的黑方名称", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "非常长的黑方名称", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 30,
             moves: [],
@@ -234,8 +234,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "",
             redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .draw,
             totalMoves: 10,
             moves: [],
@@ -252,8 +252,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "原标题",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 0,
             moves: [],
@@ -283,8 +283,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "原标题",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 0,
             moves: [],
@@ -303,8 +303,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "原标题",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 0,
             moves: [],
@@ -326,7 +326,7 @@ final class V371Tests: XCTestCase {
             title: "导入的棋谱",
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
             blackPlayer: PlayerInfo(name: "黑方", isAI: false, difficulty: nil),
-            difficulty: .hard,
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 0,
             moves: [],
@@ -342,8 +342,8 @@ final class V371Tests: XCTestCase {
         let record = GameRecord(
             title: "人机对弈",
             redPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI-高级", isAI: true, difficulty: .hard),
-            difficulty: .hard,
+            blackPlayer: PlayerInfo(name: "AI-高级", isAI: true, difficulty: .amateurMid),
+            difficulty: .amateurMid,
             result: .redWon,
             totalMoves: 0,
             moves: [],

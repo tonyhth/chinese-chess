@@ -29,7 +29,7 @@ struct IntegrationTests {
         board.execute(move1)
 
         // 黑方 AI 走
-        let aiMove1 = await engine.bestMove(for: board, difficulty: .easy)
+        let aiMove1 = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(aiMove1 != nil)
         let captured1 = board.piece(at: aiMove1!.to)
         let mainMove1 = Move(piece: aiMove1!.piece, from: aiMove1!.from, to: aiMove1!.to, captured: captured1)
@@ -43,7 +43,7 @@ struct IntegrationTests {
         board.execute(move2)
 
         // 黑方 AI 走
-        let aiMove2 = await engine.bestMove(for: board, difficulty: .easy)
+        let aiMove2 = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(aiMove2 != nil)
         let captured2 = board.piece(at: aiMove2!.to)
         let mainMove2 = Move(piece: aiMove2!.piece, from: aiMove2!.from, to: aiMove2!.to, captured: captured2)
@@ -67,7 +67,7 @@ struct IntegrationTests {
         board.execute(move1)
 
         // 黑方走
-        let aiMove1 = await engine.bestMove(for: board, difficulty: .easy)!
+        let aiMove1 = await engine.bestMove(for: board, difficulty: .beginner)!
         let c1 = board.piece(at: aiMove1.to)
         board.execute(Move(piece: aiMove1.piece, from: aiMove1.from, to: aiMove1.to, captured: c1))
 
@@ -77,7 +77,7 @@ struct IntegrationTests {
         board.execute(move2)
 
         // 黑方走
-        let aiMove2 = await engine.bestMove(for: board, difficulty: .easy)!
+        let aiMove2 = await engine.bestMove(for: board, difficulty: .beginner)!
         let c2 = board.piece(at: aiMove2.to)
         board.execute(Move(piece: aiMove2.piece, from: aiMove2.from, to: aiMove2.to, captured: c2))
 
@@ -109,7 +109,7 @@ struct IntegrationTests {
             }
 
             // 黑方 AI 走
-            guard let blackMove = await engine.bestMove(for: board, difficulty: .easy) else { break }
+            guard let blackMove = await engine.bestMove(for: board, difficulty: .beginner) else { break }
             let captured = board.piece(at: blackMove.to)
             let mainMove = Move(piece: blackMove.piece, from: blackMove.from, to: blackMove.to, captured: captured)
             #expect(MoveValidator.isLegal(mainMove, on: board))
@@ -135,7 +135,7 @@ struct IntegrationTests {
         let board = Board(pieces: [rg, bg, bc, bh])
         let engine = AIEngine()
 
-        let move = await engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)

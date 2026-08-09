@@ -10,7 +10,7 @@ struct Phase2aSearchTests {
     func pvsBeginnerCorrectness() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
         #expect(move != nil, "PVS 启用后仍应返回合法走法")
     }
 
@@ -18,7 +18,7 @@ struct Phase2aSearchTests {
     func pvsHardCorrectness() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil, "hard 难度启用 PVS 后仍应返回合法走法")
     }
 
@@ -26,7 +26,7 @@ struct Phase2aSearchTests {
     func pvsMasterCorrectness() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(move != nil, "master 难度启用 PVS 后仍应返回合法走法")
     }
 
@@ -35,8 +35,8 @@ struct Phase2aSearchTests {
         let engine = AIEngine()
         let board = Board()
         // master 使用确定性开局，所以前几步固定
-        let move1 = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
-        let move2 = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move1 = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
+        let move2 = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(move1 != nil)
         #expect(move2 != nil)
         // 确定性开局应返回相同走法

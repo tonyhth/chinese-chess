@@ -46,7 +46,7 @@ struct Phase3bEvaluationTests {
         let engine = AIEngine()
         // 正常开局局面，将上方有士
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil, "防空检测应正常工作")
     }
 
@@ -56,7 +56,7 @@ struct Phase3bEvaluationTests {
         // 残局局面（少量子力）
         let fen = "3ak4/9/9/9/9/9/9/9/4r4/3AK4 w"
         let board = Board(fen: fen)
-        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(move != nil, "残局将帅安全评估应正常")
     }
 
@@ -66,7 +66,7 @@ struct Phase3bEvaluationTests {
         // 缺士缺象局面
         let fen = "4k4/9/9/9/9/9/9/9/4r4/3AK4 w"
         let board = Board(fen: fen)
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil)
     }
 
@@ -97,7 +97,7 @@ struct Phase3bEvaluationTests {
     @Test("Phase 3b 全部启用：beginner vs beginner 2局", .timeLimit(.minutes(5)))
     func selfPlayPhase3b() async {
         let runner = SelfPlayRunner()
-        let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)
+        let config = SelfPlayConfig(red: .novice, black: .novice, games: 2, maxMoves: 40)
         let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)
@@ -107,7 +107,7 @@ struct Phase3bEvaluationTests {
     func allDifficultiesValidMove() async {
         let engine = AIEngine()
         let board = Board()
-        for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 应返回合法走法")
         }
@@ -123,7 +123,7 @@ struct Phase3bEvaluationTests {
         ]
         for fen in fens {
             let board = Board(fen: fen)
-            let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
             #expect(move != nil, "残局 FEN 应正常评估: \(fen)")
         }
     }

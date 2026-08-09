@@ -171,7 +171,7 @@ struct Phase1P0Tests {
     func aiCanStillMoveBeginner() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         #expect(move != nil, "beginner 难度应返回走法")
     }
 
@@ -180,7 +180,7 @@ struct Phase1P0Tests {
     func aiCanStillMoveMaster() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil, "master 难度应返回走法")
     }
 
@@ -206,7 +206,7 @@ struct Phase1P0Tests {
         let blackBoard = board.snapshot()
         blackBoard.toggleTurn()
         let engine = AIEngine()
-        let move = await engine.bestMove(for: blackBoard.snapshot(), difficulty: .easy)
+        let move = await engine.bestMove(for: blackBoard.snapshot(), difficulty: .beginner)
         #expect(move != nil, "黑方在被将死对手的局面应能返回走法")
     }
 
@@ -216,7 +216,7 @@ struct Phase1P0Tests {
         let engine = AIEngine()
         let board = Board()
 
-        for difficulty in [AIDifficulty.beginner, .easy, .medium] {
+        for difficulty in [AIDifficulty.novice, .beginner, .amateurLow] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: difficulty)
             #expect(move != nil, "\(difficulty) 难度应返回走法")
         }

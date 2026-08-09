@@ -201,11 +201,11 @@ struct ChallengeLoadTests {
     func loadEndgameStart() {
         let vm = GameViewModel()
         let puzzle = makeTestPuzzle()
-        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .beginner)
 
         #expect(vm.challengeMode == .endgameStart)
         #expect(vm.humanSide == puzzle.side)
-        #expect(vm.difficulty == .easy)
+        #expect(vm.difficulty == .beginner)
         #expect(vm.isBlitzMode == false)
         #expect(vm.isMasterChallenge == false)
         #expect(vm.challengeResult == nil)
@@ -216,7 +216,7 @@ struct ChallengeLoadTests {
     func loadSolveMate() {
         let vm = GameViewModel()
         let puzzle = makeTestPuzzle()
-        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .medium)
+        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .amateurLow)
 
         #expect(vm.challengeMode == .solveMate)
         #expect(vm.isOneStepMateMode == true)
@@ -229,19 +229,19 @@ struct ChallengeLoadTests {
     @Test("loadChallenge cannonOnly 标准局面")
     func loadCannonOnly() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .hard)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .amateurMid)
 
         #expect(vm.challengeMode == .cannonOnly)
         #expect(vm.isBlitzMode == false)
         #expect(vm.isOneStepMateMode == false)
-        #expect(vm.difficulty == .hard)
+        #expect(vm.difficulty == .amateurMid)
     }
 
     @MainActor
     @Test("loadChallenge puzzle=nil 时 showChallengeUnavailable")
     func loadWithNilPuzzle() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .endgameStart, puzzle: nil, difficulty: .easy)
+        vm.loadChallenge(mode: .endgameStart, puzzle: nil, difficulty: .beginner)
 
         #expect(vm.showChallengeUnavailable == true, "Puzzle 为空时应弹 unavailable alert")
     }
@@ -250,7 +250,7 @@ struct ChallengeLoadTests {
     @Test("loadChallenge solveMate puzzle=nil 时 showChallengeUnavailable")
     func solveMateWithNilPuzzle() {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .solveMate, puzzle: nil, difficulty: .easy)
+        vm.loadChallenge(mode: .solveMate, puzzle: nil, difficulty: .beginner)
 
         #expect(vm.showChallengeUnavailable == true)
     }
@@ -263,7 +263,7 @@ struct ChallengeLoadTests {
         vm.showChallengeRuleViolation = true
         vm.isOneStepMateMode = true
 
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .easy)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .beginner)
 
         #expect(vm.challengeResult == nil, "应重置 challengeResult")
         #expect(vm.showChallengeRuleViolation == false, "应重置规则违规")
@@ -277,7 +277,7 @@ struct ChallengeMoveRestrictionTests {
     @MainActor
     private func makeCannonOnlyVM() -> GameViewModel {
         let vm = GameViewModel()
-        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .easy)
+        vm.loadChallenge(mode: .cannonOnly, puzzle: nil, difficulty: .beginner)
         return vm
     }
 
@@ -390,7 +390,7 @@ struct ChallengeMoveRestrictionTests {
                             description: "", playerSide: "red",
                             initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                             solution: ["b2e2"], hints: nil, maxMoves: 1, solutionType: "checkmate")
-        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .endgameStart, puzzle: puzzle, difficulty: .beginner)
 
         let chariotMove = Move(
             piece: Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0),
@@ -425,7 +425,7 @@ struct ChallengeNewGameResetTests {
                             description: "", playerSide: "red",
                             initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                             solution: ["b2e2"], hints: nil, maxMoves: 1, solutionType: "checkmate")
-        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .medium)
+        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .amateurLow)
 
         // 确认挑战状态已设
         #expect(vm.challengeMode == .solveMate)
@@ -460,7 +460,7 @@ struct OneStepMateTests {
                             description: "", playerSide: "red",
                             initialFEN: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w",
                             solution: ["b2e2"], hints: nil, maxMoves: 1, solutionType: "checkmate")
-        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .easy)
+        vm.loadChallenge(mode: .solveMate, puzzle: puzzle, difficulty: .beginner)
         #expect(vm.challengeResult == nil, "挑战开始时 result 应为 nil")
     }
 }

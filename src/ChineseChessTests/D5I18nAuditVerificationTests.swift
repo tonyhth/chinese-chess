@@ -107,7 +107,7 @@ struct D5I18nAuditVerificationTests {
         let testCases: [(key: String, expected: String)] = [
             ("game.newGame", "New"),
             ("game.undoMove", "Undo"),
-            ("difficulty.medium", "Medium"),
+            ("difficulty.amateurLow", "Medium"),
             ("result.redWon", "Red Won"),
             ("result.draw", "Draw"),
         ]
@@ -127,7 +127,7 @@ struct D5I18nAuditVerificationTests {
         let testCases: [(key: String, expected: String)] = [
             ("game.newGame", "新局"),
             ("game.undoMove", "悔棋"),
-            ("difficulty.medium", "中级"),
+            ("difficulty.amateurLow", "中级"),
             ("result.redWon", "红方胜"),
             ("result.draw", "和棋"),
         ]
@@ -292,7 +292,7 @@ struct D5I18nAuditVerificationTests {
         #expect(!strings.isEmpty, "xcstrings 不应为空")
 
         // 抽查若干 key 的结构
-        let sampleKeys = ["settings.title", "game.newGame", "difficulty.easy", "result.draw"]
+        let sampleKeys = ["settings.title", "game.newGame", "difficulty.beginner", "result.draw"]
         for key in sampleKeys {
             guard let entry = strings[key] else {
                 Issue.record("抽样 key '\(key)' 不存在")

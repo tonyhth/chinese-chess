@@ -362,7 +362,7 @@ struct StatsManagerTests {
     func testRecordAIWin() {
         let manager = makeManager()
 
-        manager.recordWin(for: .medium)
+        manager.recordWin(for: .amateurLow)
         let stats = manager.stats
         let medium = stats.vsAI["medium", default: WinLossDraw()]
         #expect(medium.wins == 1)
@@ -378,14 +378,14 @@ struct StatsManagerTests {
         let stats0 = manager.stats
         #expect(stats0.vsAI.isEmpty)
 
-        manager.recordWin(for: .hard)
+        manager.recordWin(for: .amateurMid)
 
         let stats1 = manager.stats
         let hard1 = stats1.vsAI["hard", default: WinLossDraw()]
         #expect(hard1.wins == 1)
 
-        manager.recordWin(for: .hard)
-        manager.recordLoss(for: .hard)
+        manager.recordWin(for: .amateurMid)
+        manager.recordLoss(for: .amateurMid)
 
         let stats2 = manager.stats
         let hard2 = stats2.vsAI["hard", default: WinLossDraw()]
@@ -397,7 +397,7 @@ struct StatsManagerTests {
 @Test("重置清空统计")
     func testReset() {
         let manager = makeManager()
-        manager.recordWin(for: .beginner)
+        manager.recordWin(for: .novice)
         manager.reset()
         let stats = manager.stats
         #expect(stats.vsAI.isEmpty)

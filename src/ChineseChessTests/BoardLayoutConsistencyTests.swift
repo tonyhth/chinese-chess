@@ -42,8 +42,8 @@ struct BoardLayoutConsistencyTests {
             title: "空对局",
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .easy),
-            difficulty: .easy,
+            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .beginner),
+            difficulty: .beginner,
             result: .draw,
             totalMoves: 0,
             moves: [],
@@ -156,7 +156,7 @@ struct BoardLayoutConsistencyTests {
 
         for i in 0..<6 {
             let side = tempBoard.currentTurn
-            guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+            guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .novice) else { break }
             let notation = NotationGenerator.notation(for: move, on: tempBoard)
             let opponent: Side = (side == .red) ? .black : .red
             tempBoard.execute(move)
@@ -182,8 +182,8 @@ struct BoardLayoutConsistencyTests {
             title: "测试对局",
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI-新手", isAI: true, difficulty: .beginner),
-            difficulty: .beginner,
+            blackPlayer: PlayerInfo(name: "AI-新手", isAI: true, difficulty: .novice),
+            difficulty: .novice,
             result: .draw,
             totalMoves: moves.count,
             moves: moves,

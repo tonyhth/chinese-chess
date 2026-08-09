@@ -21,7 +21,7 @@ struct P0AIFixTests {
         let uciMove = await engine.bestMove(
             fen: fen,
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: .amateurLow,
             timeLimitMs: 0
         )
 
@@ -45,7 +45,7 @@ struct P0AIFixTests {
         let uciMove = await engine.bestMove(
             fen: currentFen,
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: .amateurLow,
             timeLimitMs: 0
         )
 
@@ -76,7 +76,7 @@ struct P0AIFixTests {
         let uciMove = await engine.bestMove(
             fen: fen,
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: .amateurLow,
             timeLimitMs: 0
         )
 

@@ -325,12 +325,12 @@ final class V370Phase1Tests: XCTestCase {
 
     func testPGNExport_ImportedSource_NoDifficultyTag() {
         // source==.imported 时跳过 Difficulty 标签
-        let recordImported = sample(source: .imported, difficulty: .hard)
+        let recordImported = sample(source: .imported, difficulty: .amateurMid)
         let pgnImported = PGNExporter.export(recordImported)
         XCTAssertFalse(pgnImported.contains("[Difficulty"), "imported 来源不应输出 Difficulty 标签")
 
         // source 非 .imported + difficulty 非 nil 时输出
-        let recordVsAI = sample(source: .versusAI, difficulty: .hard)
+        let recordVsAI = sample(source: .versusAI, difficulty: .amateurMid)
         let pgnVsAI = PGNExporter.export(recordVsAI)
         XCTAssertTrue(pgnVsAI.contains("[Difficulty"), "非 imported 来源 + difficulty 非 nil 应输出 Difficulty 标签")
 
@@ -815,7 +815,7 @@ final class V370Phase1Tests: XCTestCase {
     // ============================================================
 
     func testRecordSummary_FromRecord() {
-        let record = sample(source: .puzzle, difficulty: .hard, result: .draw)
+        let record = sample(source: .puzzle, difficulty: .amateurMid, result: .draw)
         let summary = RecordSummary(from: record)
 
         XCTAssertEqual(summary.id, record.id)
@@ -823,7 +823,7 @@ final class V370Phase1Tests: XCTestCase {
         XCTAssertEqual(summary.date, record.date)
         XCTAssertEqual(summary.result, GameState.draw)
         XCTAssertEqual(summary.totalMoves, record.totalMoves)
-        XCTAssertEqual(summary.difficulty, AIDifficulty.hard)
+        XCTAssertEqual(summary.difficulty, AIDifficulty.amateurMid)
         XCTAssertEqual(summary.source, RecordSource.puzzle)
     }
 
@@ -869,7 +869,7 @@ final class V370Phase1Tests: XCTestCase {
         title: String = "测试对局",
         date: Date = Date(),
         source: RecordSource = .versusAI,
-        difficulty: AIDifficulty? = .hard,
+        difficulty: AIDifficulty? = .amateurMid,
         result: GameState = .redWon,
         initialFEN: String? = nil,
         moves: [GameMove] = [],

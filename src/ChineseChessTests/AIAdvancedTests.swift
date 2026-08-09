@@ -14,7 +14,7 @@ struct AIAdvancedTests {
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -29,7 +29,7 @@ struct AIAdvancedTests {
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .amateurLow)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -44,7 +44,7 @@ struct AIAdvancedTests {
         let board = Board(pieces: [rg, bg, blackChariot])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid)
         #expect(move != nil)
         // v5.1 Phase 1a.2 修复：BoardReadable 泛型化后搜索路径走法生成统一走 allLegalMoves，
         // 飞将走法已被正确过滤（wouldBeInCheck → isInCheck 含将帅对面检查）
@@ -74,7 +74,7 @@ struct AIAdvancedTests {
         var chariotMovedToUnsafeCount = 0
         let iterations = 5
         for _ in 0..<iterations {
-            let move = await engine.bestMove(for: board, difficulty: .hard)
+            let move = await engine.bestMove(for: board, difficulty: .amateurMid)
             #expect(move != nil)
             // 检查黑车是否走到了红炮可以吃它的位置
             // 红炮在 (7,1)，需要炮架才能吃
@@ -104,7 +104,7 @@ struct AIAdvancedTests {
         board.setCurrentTurn(.black)
         let engine = AIEngine()
         for _ in 0..<10 {
-            let move = await engine.bestMove(for: board, difficulty: .easy)
+            let move = await engine.bestMove(for: board, difficulty: .beginner)
             if let move {
                 #expect(move.piece.side == .black)
             }
@@ -120,7 +120,7 @@ struct AIAdvancedTests {
         let originalPieceCount = board.pieces.count
         let originalTurn = board.currentTurn
         let engine = AIEngine()
-        _ = await engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .amateurLow)
         #expect(board.pieces.count == originalPieceCount)
         #expect(board.currentTurn == originalTurn)
     }

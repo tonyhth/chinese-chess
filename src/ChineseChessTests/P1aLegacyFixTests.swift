@@ -85,7 +85,7 @@ struct P1aLegacyFixTests {
             return
         }
         #expect(board.pieces.count == 6)
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -99,7 +99,7 @@ struct P1aLegacyFixTests {
             return
         }
         #expect(board.pieces.count == 4)
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -112,7 +112,7 @@ struct P1aLegacyFixTests {
             return
         }
         #expect(board.pieces.count == 2)
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         // 将帅对面可能直接结束，move 可能为 nil（没有合法走法）
         // 但不应 crash
         _ = move
@@ -131,7 +131,7 @@ struct P1aLegacyFixTests {
         }
         // 验证 AI 能正常评估此局面（不会因为 horsePalaceThreat 出错）
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -144,7 +144,7 @@ struct P1aLegacyFixTests {
         let board = Board(pieces: [rg, bg, blackHorse])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         // 只要不 crash
         _ = move
     }
@@ -158,7 +158,7 @@ struct P1aLegacyFixTests {
         // 多次调用以覆盖 30% 搜索 / 70% 随机的两个分支
         var allValid = true
         for _ in 0..<20 {
-            let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
                 let isLegal = legalMoves.contains { $0.from == move.from && $0.to == move.to }
@@ -173,7 +173,7 @@ struct P1aLegacyFixTests {
         let engine = AIEngine()
         let board = Board()
         for _ in 0..<30 {
-            let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+            let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
             _ = move
         }
     }
@@ -269,7 +269,7 @@ struct P1aLegacyFixTests {
         let engine = AIEngine()
         let board = Board()
         // 初始局面，hard 用 lookupWeightedRandom
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -277,7 +277,7 @@ struct P1aLegacyFixTests {
     func masterOpeningBookLookup() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -285,7 +285,7 @@ struct P1aLegacyFixTests {
     func mediumOpeningBookWeightedRandom() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -295,7 +295,7 @@ struct P1aLegacyFixTests {
         let engine = AIEngine()
         let board = Board()
         var seen = Set<String>()
-        for diff in [AIDifficulty.medium, .hard, .master] {
+        for diff in [AIDifficulty.amateurLow, .amateurMid, .amateurHigh] {
             for _ in 0..<10 {
                 if let move = await engine.bestMove(for: board.snapshot(), difficulty: diff) {
                     let iccs = ICCSParser.iccsString(from: move.from, to: move.to)
@@ -313,7 +313,7 @@ struct P1aLegacyFixTests {
         let engine = AIEngine()
         let board = Board()
         let start = Date()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         let elapsed = Date().timeIntervalSince(start)
         #expect(move != nil)
         // 开局库命中应在 100ms 内返回
@@ -331,7 +331,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -344,7 +344,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -394,7 +394,7 @@ struct P1aLegacyFixTests {
     func boardViewLayoutPriorityNoEffect() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -408,7 +408,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        for diff in [AIDifficulty.beginner, .easy, .medium, .hard] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -471,7 +471,7 @@ struct P1aLegacyFixTests {
         // 验证通过 AI 行为：高级 AI 能正常评估马的机动性
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -486,7 +486,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -499,7 +499,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 }

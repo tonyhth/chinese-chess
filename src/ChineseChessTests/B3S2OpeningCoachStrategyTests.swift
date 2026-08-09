@@ -16,11 +16,11 @@ struct B3S2CoachConfigTests {
         let sub = makeSubcategory()
         let config = CoachConfig(
             targetSubcategory: sub,
-            aiDifficulty: .medium,
+            aiDifficulty: .amateurLow,
             playerSide: .red
         )
         #expect(config.targetSubcategory.id == "test")
-        #expect(config.aiDifficulty == .medium)
+        #expect(config.aiDifficulty == .amateurLow)
         #expect(config.playerSide == .red)
     }
 
@@ -29,7 +29,7 @@ struct B3S2CoachConfigTests {
         let sub = makeSubcategory()
         let config = CoachConfig(
             targetSubcategory: sub,
-            aiDifficulty: .hard,
+            aiDifficulty: .amateurMid,
             playerSide: .black
         )
         #expect(config.playerSide == .black)

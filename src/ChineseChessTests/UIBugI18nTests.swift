@@ -118,14 +118,14 @@ struct UIBugI18nTests {
 @Test("i18n：难度选项 5 级全覆盖")
     func difficultyLocalizationComplete() {
         let difficultyKeys = [
+            "difficulty.novice",
             "difficulty.beginner",
-            "difficulty.easy",
-            "difficulty.medium",
-            "difficulty.hard",
-            "difficulty.master"
+            "difficulty.amateurLow",
+            "difficulty.amateurMid",
+            "difficulty.amateurHigh"
         ]
         // AIDifficulty 枚举 5 个值
-        let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
+        let difficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
         #expect(difficultyKeys.count == difficulties.count)
     }
 
@@ -167,7 +167,7 @@ struct UIBugI18nTests {
     func aiBeginnerMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         #expect(move != nil)
     }
 
@@ -176,7 +176,7 @@ struct UIBugI18nTests {
     func aiMediumMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -185,7 +185,7 @@ struct UIBugI18nTests {
     func aiMasterMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -267,7 +267,7 @@ struct UIBugI18nTests {
             var m: [GameMove] = []
             for i in 0..<6 {
                 let side = tempBoard.currentTurn
-                guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+                guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .novice) else { break }
                 let notation = NotationGenerator.notation(for: move, on: tempBoard)
                 let opponent: Side = (side == .red) ? .black : .red
                 tempBoard.execute(move)
@@ -294,8 +294,8 @@ struct UIBugI18nTests {
             title: "测试对局",
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI-新手", isAI: true, difficulty: .beginner),
-            difficulty: .beginner,
+            blackPlayer: PlayerInfo(name: "AI-新手", isAI: true, difficulty: .novice),
+            difficulty: .novice,
             result: .draw,
             totalMoves: gameMoves.count,
             moves: gameMoves,

@@ -87,7 +87,7 @@ struct B3S3CoachConfigAIInterceptTests {
         let sub = OpeningSubcategory(id: "test", name: "测试", firstMoves: ["h2e2"], gameCount: 1)
         vm.coachConfig = CoachConfig(
             targetSubcategory: sub,
-            aiDifficulty: .medium,
+            aiDifficulty: .amateurLow,
             playerSide: .red
         )
         #expect(vm.coachConfig != nil, "设置后 coachConfig 不应为 nil")
@@ -100,7 +100,7 @@ struct B3S3CoachConfigAIInterceptTests {
         let sub = OpeningSubcategory(id: "test", name: "测试", firstMoves: ["h2e2"], gameCount: 1)
         vm.coachConfig = CoachConfig(
             targetSubcategory: sub,
-            aiDifficulty: .medium,
+            aiDifficulty: .amateurLow,
             playerSide: .red
         )
         vm.newGame()

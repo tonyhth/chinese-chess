@@ -292,11 +292,11 @@ struct R3R1FunctionalTests {
         let board = Board()
 
         // 新手级应能返回走法（随机或浅搜索）
-        let beginnerMove = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let beginnerMove = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
         #expect(beginnerMove != nil, "新手级应能走棋")
 
         // 大师级应能返回走法（深度搜索）
-        let masterMove = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let masterMove = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(masterMove != nil, "大师级应能走棋")
 
         // 验证五档难度枚举完整
@@ -633,8 +633,8 @@ struct R3R1FunctionalTests {
         let record = GameRecord(
             id: UUID(), title: "测试对局", date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 1,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 1,
             moves: [gameMove], initialFEN: nil
         )
 
@@ -684,8 +684,8 @@ struct R3R1FunctionalTests {
         let record = GameRecord(
             id: UUID(), title: "测试", date: Date(),
             redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: moves.count,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: moves.count,
             moves: moves, initialFEN: nil
         )
 
@@ -716,8 +716,8 @@ struct R3R1FunctionalTests {
         let record = GameRecord(
             id: UUID(), title: "空对局", date: Date(),
             redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .draw, totalMoves: 0,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .draw, totalMoves: 0,
             moves: [], initialFEN: nil
         )
 
@@ -747,9 +747,9 @@ struct R3R1FunctionalTests {
         let key = "test_stats_\(Int(Date().timeIntervalSince1970))"
 
         // 记录一胜一负一和
-        stats.recordWin(for: .medium)
-        stats.recordLoss(for: .medium)
-        stats.recordDraw(for: .medium)
+        stats.recordWin(for: .amateurLow)
+        stats.recordLoss(for: .amateurLow)
+        stats.recordDraw(for: .amateurLow)
 
         // StatsManager 使用 UserDefaults，验证至少不 crash
         // 具体数值校验需要 StatsManager 暴露查询接口

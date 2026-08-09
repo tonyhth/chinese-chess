@@ -420,7 +420,7 @@ struct V2215Tests {
         @MainActor
 @Test("AI 各难度正常走棋")
         func aiAllDifficulties() async {
-            let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
+            let difficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
             for diff in difficulties {
                 let engine = AIEngine()
                 let board = Board()
@@ -494,7 +494,7 @@ struct V2215Tests {
                 var m: [GameMove] = []
                 for i in 0..<6 {
                 let side = tempBoard.currentTurn
-                guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .beginner) else { break }
+                guard let move = await engine.bestMove(for: tempBoard.snapshot(), difficulty: .novice) else { break }
                 let notation = NotationGenerator.notation(for: move, on: tempBoard)
                 let opponent: Side = (side == .red) ? .black : .red
                 tempBoard.execute(move)
@@ -521,8 +521,8 @@ struct V2215Tests {
                 title: "测试对局",
                 date: Date(),
                 redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "AI-新手", isAI: true, difficulty: .beginner),
-                difficulty: .beginner,
+                blackPlayer: PlayerInfo(name: "AI-新手", isAI: true, difficulty: .novice),
+                difficulty: .novice,
                 result: .draw,
                 totalMoves: gameMoves.count,
                 moves: gameMoves,

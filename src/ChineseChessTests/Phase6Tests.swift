@@ -166,11 +166,11 @@ struct EnumTests6 {
     @Test("AIDifficulty 所有 5 级")
     func testAllDifficulties() {
         #expect(AIDifficulty.allCases.count == 5)
+        #expect(AIDifficulty.allCases.contains(.novice))
         #expect(AIDifficulty.allCases.contains(.beginner))
-        #expect(AIDifficulty.allCases.contains(.easy))
-        #expect(AIDifficulty.allCases.contains(.medium))
-        #expect(AIDifficulty.allCases.contains(.hard))
-        #expect(AIDifficulty.allCases.contains(.master))
+        #expect(AIDifficulty.allCases.contains(.amateurLow))
+        #expect(AIDifficulty.allCases.contains(.amateurMid))
+        #expect(AIDifficulty.allCases.contains(.amateurHigh))
     }
 }
 
@@ -421,8 +421,8 @@ struct GameHistoryStoreExtendedTests6 {
             title: "测试对局",
             date: date,
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: 10,
             moves: [],
@@ -504,12 +504,12 @@ struct GameHistoryStoreExtendedTests6 {
 
     @Test("PlayerInfo Codable roundtrip")
     func testPlayerInfoCodable() throws {
-        let info = PlayerInfo(name: "AI-高级", isAI: true, difficulty: .hard)
+        let info = PlayerInfo(name: "AI-高级", isAI: true, difficulty: .amateurMid)
         let data = try JSONEncoder().encode(info)
         let decoded = try JSONDecoder().decode(PlayerInfo.self, from: data)
         #expect(decoded.name == "AI-高级")
         #expect(decoded.isAI)
-        #expect(decoded.difficulty == .hard)
+        #expect(decoded.difficulty == .amateurMid)
     }
 
     @Test("删除不存在的记录不崩溃")
@@ -903,12 +903,12 @@ struct StatsManagerExtendedTests6 {
         let defaults = UserDefaults(suiteName: suiteName)!
         let stats = StatsManager(defaults: defaults)
 
-        stats.recordWin(for: .medium)
-        stats.recordWin(for: .medium)
-        stats.recordLoss(for: .medium)
+        stats.recordWin(for: .amateurLow)
+        stats.recordWin(for: .amateurLow)
+        stats.recordLoss(for: .amateurLow)
 
         let s = stats.stats
-        let vsMedium = s.vsAI["medium"]
+        let vsMedium = s.vsAI["lvl3"]
         #expect(vsMedium != nil)
         #expect(vsMedium!.wins == 2)
         #expect(vsMedium!.losses == 1)
@@ -920,8 +920,8 @@ struct StatsManagerExtendedTests6 {
         let defaults = UserDefaults(suiteName: suiteName)!
         let stats = StatsManager(defaults: defaults)
 
-        stats.recordWin(for: .hard)
-        #expect(stats.stats.vsAI["hard"]?.wins == 1)
+        stats.recordWin(for: .amateurMid)
+        #expect(stats.stats.vsAI["lvl4"]?.wins == 1)
 
         stats.reset()
         #expect(stats.stats.vsAI.isEmpty)
@@ -933,14 +933,14 @@ struct StatsManagerExtendedTests6 {
         let defaults = UserDefaults(suiteName: suiteName)!
         let stats = StatsManager(defaults: defaults)
 
-        stats.recordWin(for: .easy)
-        stats.recordLoss(for: .hard)
+        stats.recordWin(for: .beginner)
+        stats.recordLoss(for: .amateurMid)
 
         let s = stats.stats
-        #expect(s.vsAI["easy"]?.wins == 1)
-        #expect(s.vsAI["easy"]?.losses == 0)
-        #expect(s.vsAI["hard"]?.wins == 0)
-        #expect(s.vsAI["hard"]?.losses == 1)
+        #expect(s.vsAI["lvl2"]?.wins == 1)
+        #expect(s.vsAI["lvl2"]?.losses == 0)
+        #expect(s.vsAI["lvl4"]?.wins == 0)
+        #expect(s.vsAI["lvl4"]?.losses == 1)
     }
 
     @Test("平局统计")
@@ -949,8 +949,8 @@ struct StatsManagerExtendedTests6 {
         let defaults = UserDefaults(suiteName: suiteName)!
         let stats = StatsManager(defaults: defaults)
 
-        stats.recordDraw(for: .master)
-        #expect(stats.stats.vsAI["master"]?.draws == 1)
+        stats.recordDraw(for: .amateurHigh)
+        #expect(stats.stats.vsAI["lvl5"]?.draws == 1)
     }
 
     @Test("初始统计为空")

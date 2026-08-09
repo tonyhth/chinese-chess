@@ -134,7 +134,7 @@ struct V34EmbeddedPikafishEngineTests {
         let result = await engine.bestMove(
             fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: .amateurLow,
             timeLimitMs: 1000
         )
         #expect(result == nil, "未启动时 bestMove 应返回 nil")
@@ -165,7 +165,7 @@ struct V34EmbeddedPikafishEngineTests {
     @Test("EmbeddedPikafishEngine mapDifficulty 覆盖所有难度")
     func mapDifficultyAllLevels() async {
         let engine = EmbeddedPikafishEngine()
-        for difficulty in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for difficulty in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             let result = await engine.bestMove(
                 fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
                 moveHistory: [],

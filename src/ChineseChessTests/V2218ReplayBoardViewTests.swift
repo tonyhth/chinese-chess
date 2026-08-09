@@ -105,8 +105,8 @@ struct V2218ReplayBoardViewTests {
         GameRecord(
             id: UUID(), title: "测试对局", date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .beginner),
-            difficulty: .beginner, result: .draw,
+            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .novice),
+            difficulty: .novice, result: .draw,
             totalMoves: moves.count, moves: moves, initialFEN: nil
         )
     }

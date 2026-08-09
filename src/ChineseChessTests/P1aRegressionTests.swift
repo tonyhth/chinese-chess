@@ -87,7 +87,7 @@ struct P1aRegressionTests {
             return
         }
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil, "AI 在車攻击局面返回 nil")
     }
 
@@ -99,7 +99,7 @@ struct P1aRegressionTests {
             return
         }
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil, "AI 在炮攻击局面返回 nil")
     }
 
@@ -181,7 +181,7 @@ struct P1aRegressionTests {
         let board = Board()
         var allLegal = true
         for _ in 0..<10 {
-            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner) else {
+            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice) else {
                 allLegal = false; continue
             }
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -196,7 +196,7 @@ struct P1aRegressionTests {
     func easyInitialLegalMove() async {
         let engine = AIEngine()
         let board = Board()
-        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .easy) else {
+        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner) else {
             Issue.record("easy 返回 nil")
             return
         }
@@ -208,7 +208,7 @@ struct P1aRegressionTests {
     func mediumInitialLegalMove() async {
         let engine = AIEngine()
         let board = Board()
-        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium) else {
+        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow) else {
             Issue.record("medium 返回 nil")
             return
         }
@@ -220,7 +220,7 @@ struct P1aRegressionTests {
     func hardInitialLegalMove() async {
         let engine = AIEngine()
         let board = Board()
-        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard) else {
+        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid) else {
             Issue.record("hard 返回 nil")
             return
         }
@@ -232,7 +232,7 @@ struct P1aRegressionTests {
     func masterInitialLegalMove() async {
         let engine = AIEngine()
         let board = Board()
-        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .master) else {
+        guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh) else {
             Issue.record("master 返回 nil")
             return
         }
@@ -244,7 +244,7 @@ struct P1aRegressionTests {
 
     @Test("AI 不修改传入的棋盘（所有难度）")
     func aiDoesNotModifyInput() async {
-        let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard]
+        let difficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid]
         for diff in difficulties {
             let engine = AIEngine()
             let board = Board()
@@ -265,7 +265,7 @@ struct P1aRegressionTests {
             Issue.record("FEN 解析失败")
             return
         }
-        for diff in [AIDifficulty.medium, .hard] {
+        for diff in [AIDifficulty.amateurLow, .amateurMid] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             #expect(move != nil, "\(diff) 残局返回 nil")
         }
@@ -279,7 +279,7 @@ struct P1aRegressionTests {
         let board = Board()
         var moves = Set<String>()
         for _ in 0..<30 {
-            if let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner) {
+            if let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice) {
                 moves.insert("\(move.from.row),\(move.from.col)->\(move.to.row),\(move.to.col)")
             }
         }
@@ -294,7 +294,7 @@ struct P1aRegressionTests {
         let board = Board()
         for _ in 0..<10 {
             let side = board.currentTurn
-            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium) else {
+            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow) else {
                 Issue.record("medium 返回 nil at move \(board.moveHistory.count)")
                 return
             }
@@ -311,7 +311,7 @@ struct P1aRegressionTests {
         let board = Board()
         for i in 0..<10 {
             let side = board.currentTurn
-            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard) else {
+            guard let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid) else {
                 Issue.record("hard 返回 nil at move \(i)")
                 return
             }

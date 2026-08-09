@@ -53,9 +53,9 @@ struct StatsViewModelTests {
     @Test("recordWin 增加胜场")
     func recordWin() {
         let (manager, _) = makeSUT()
-        manager.recordWin(for: .master)
+        manager.recordWin(for: .amateurHigh)
         let stats = manager.stats
-        let record = stats.vsAI[AIDifficulty.master.rawValue]
+        let record = stats.vsAI[AIDifficulty.amateurHigh.rawValue]
         #expect(record?.wins == 1)
         #expect(record?.losses == 0)
     }
@@ -63,9 +63,9 @@ struct StatsViewModelTests {
     @Test("recordLoss 增加负场")
     func recordLoss() {
         let (manager, _) = makeSUT()
-        manager.recordLoss(for: .medium)
+        manager.recordLoss(for: .amateurLow)
         let stats = manager.stats
-        let record = stats.vsAI[AIDifficulty.medium.rawValue]
+        let record = stats.vsAI[AIDifficulty.amateurLow.rawValue]
         #expect(record?.losses == 1)
         #expect(record?.wins == 0)
     }
@@ -73,21 +73,21 @@ struct StatsViewModelTests {
     @Test("recordDraw 增加平场")
     func recordDraw() {
         let (manager, _) = makeSUT()
-        manager.recordDraw(for: .hard)
+        manager.recordDraw(for: .amateurMid)
         let stats = manager.stats
-        let record = stats.vsAI[AIDifficulty.hard.rawValue]
+        let record = stats.vsAI[AIDifficulty.amateurMid.rawValue]
         #expect(record?.draws == 1)
     }
 
     @Test("多次记录累积正确")
     func multipleRecords() {
         let (manager, _) = makeSUT()
-        manager.recordWin(for: .easy)
-        manager.recordWin(for: .easy)
-        manager.recordLoss(for: .easy)
-        manager.recordDraw(for: .easy)
+        manager.recordWin(for: .beginner)
+        manager.recordWin(for: .beginner)
+        manager.recordLoss(for: .beginner)
+        manager.recordDraw(for: .beginner)
 
-        let record = manager.stats.vsAI[AIDifficulty.easy.rawValue]
+        let record = manager.stats.vsAI[AIDifficulty.beginner.rawValue]
         #expect(record?.wins == 2)
         #expect(record?.losses == 1)
         #expect(record?.draws == 1)
@@ -97,8 +97,8 @@ struct StatsViewModelTests {
     @Test("reset 清空所有统计")
     func resetClears() {
         let (manager, _) = makeSUT()
-        manager.recordWin(for: .easy)
-        manager.recordLoss(for: .master)
+        manager.recordWin(for: .beginner)
+        manager.recordLoss(for: .amateurHigh)
         manager.reset()
 
         let stats = manager.stats
@@ -108,12 +108,12 @@ struct StatsViewModelTests {
     @Test("不同难度的统计独立")
     func independentDifficulties() {
         let (manager, _) = makeSUT()
-        manager.recordWin(for: .easy)
-        manager.recordLoss(for: .master)
+        manager.recordWin(for: .beginner)
+        manager.recordLoss(for: .amateurHigh)
 
         let stats = manager.stats
-        let easyRecord = stats.vsAI[AIDifficulty.easy.rawValue]
-        let masterRecord = stats.vsAI[AIDifficulty.master.rawValue]
+        let easyRecord = stats.vsAI[AIDifficulty.beginner.rawValue]
+        let masterRecord = stats.vsAI[AIDifficulty.amateurHigh.rawValue]
 
         #expect(easyRecord?.wins == 1)
         #expect(easyRecord?.losses == 0)

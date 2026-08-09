@@ -125,8 +125,8 @@ struct V2220FinalTests {
     private static func makeRecord(moves: [GameMove]) -> GameRecord {
         GameRecord(id: UUID(), title: "v2220测试", date: Date(),
                    redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-                   blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .beginner),
-                   difficulty: .beginner, result: .draw,
+                   blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .novice),
+                   difficulty: .novice, result: .draw,
                    totalMoves: moves.count, moves: moves, initialFEN: nil)
     }
 

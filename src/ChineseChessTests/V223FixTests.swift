@@ -12,11 +12,11 @@ struct V223FixTests {
     func testAIDifficultyDisplayNameLocalized() {
         // displayName 现在返回 l10n.t() key，不再是硬编码中文
         // 在 zh-Hans locale 下运行时应返回中文值
+        #expect(AIDifficulty.novice.displayName == L10n.shared.t("difficulty.novice"))
         #expect(AIDifficulty.beginner.displayName == L10n.shared.t("difficulty.beginner"))
-        #expect(AIDifficulty.easy.displayName == L10n.shared.t("difficulty.easy"))
-        #expect(AIDifficulty.medium.displayName == L10n.shared.t("difficulty.medium"))
-        #expect(AIDifficulty.hard.displayName == L10n.shared.t("difficulty.hard"))
-        #expect(AIDifficulty.master.displayName == L10n.shared.t("difficulty.master"))
+        #expect(AIDifficulty.amateurLow.displayName == L10n.shared.t("difficulty.amateurLow"))
+        #expect(AIDifficulty.amateurMid.displayName == L10n.shared.t("difficulty.amateurMid"))
+        #expect(AIDifficulty.amateurHigh.displayName == L10n.shared.t("difficulty.amateurHigh"))
     }
     // MARK: - 问题2：棋盘启动时太小 → 增大窗口 + 最小高度
     // MARK: - 回归：v2.2.2 修复不受影响

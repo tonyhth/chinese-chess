@@ -9,21 +9,21 @@ final class DifficultyResetBugFixTests: XCTestCase {
     /// 测试1: 学童段位下手动选"新手"难度 → newGame() 后难度保持"新手"
     func testUserSelectedDifficulty_NotReset_OnNewGame_StudentRank() {
         let vm = GameViewModel()
-        // 确保段位是学童（推荐难度 = .easy）
+        // 确保段位是学童（推荐难度 = .beginner）
         // 先 newGame 让初始难度设为段位推荐
         vm.newGame()
         let initialDifficulty = vm.difficulty
 
         // 手动选"新手"（beginner）
-        vm.setDifficulty(.beginner)
-        XCTAssertEqual(vm.difficulty, .beginner, "手动设置后难度应为 beginner")
+        vm.setDifficulty(.novice)
+        XCTAssertEqual(vm.difficulty, .novice, "手动设置后难度应为 beginner")
 
         // 点新局
         vm.newGame()
 
         // 难度应保持 beginner，不被重置
         XCTAssertNotEqual(vm.difficulty, initialDifficulty, "难度不应被重置为段位推荐")
-        XCTAssertEqual(vm.difficulty, .beginner, "newGame 后应保持用户手动选择的 beginner")
+        XCTAssertEqual(vm.difficulty, .novice, "newGame 后应保持用户手动选择的 beginner")
     }
 
     /// 测试2: 选"大师"难度 → newGame() 后保持"大师"
@@ -31,11 +31,11 @@ final class DifficultyResetBugFixTests: XCTestCase {
         let vm = GameViewModel()
         vm.newGame()
 
-        vm.setDifficulty(.master)
-        XCTAssertEqual(vm.difficulty, .master)
+        vm.setDifficulty(.amateurHigh)
+        XCTAssertEqual(vm.difficulty, .amateurHigh)
 
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .master, "newGame 后应保持 master")
+        XCTAssertEqual(vm.difficulty, .amateurHigh, "newGame 后应保持 master")
     }
 
     /// 测试3: 不手动选难度 → newGame() 应为段位推荐难度
@@ -52,16 +52,16 @@ final class DifficultyResetBugFixTests: XCTestCase {
     func testMultipleNewGames_PreserverUserChoice() {
         let vm = GameViewModel()
         vm.newGame()
-        vm.setDifficulty(.hard)
+        vm.setDifficulty(.amateurMid)
 
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .hard, "第一次 newGame 后应保持 hard")
+        XCTAssertEqual(vm.difficulty, .amateurMid, "第一次 newGame 后应保持 hard")
 
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .hard, "第二次 newGame 后应保持 hard")
+        XCTAssertEqual(vm.difficulty, .amateurMid, "第二次 newGame 后应保持 hard")
 
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .hard, "第三次 newGame 后应保持 hard")
+        XCTAssertEqual(vm.difficulty, .amateurMid, "第三次 newGame 后应保持 hard")
     }
 
     /// 测试5: setDifficulty 逐次切换都被保留
@@ -69,22 +69,22 @@ final class DifficultyResetBugFixTests: XCTestCase {
         let vm = GameViewModel()
         vm.newGame()
 
-        vm.setDifficulty(.beginner)
+        vm.setDifficulty(.novice)
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .beginner)
+        XCTAssertEqual(vm.difficulty, .novice)
 
-        vm.setDifficulty(.medium)
+        vm.setDifficulty(.amateurLow)
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .medium)
+        XCTAssertEqual(vm.difficulty, .amateurLow)
 
-        vm.setDifficulty(.master)
+        vm.setDifficulty(.amateurHigh)
         vm.newGame()
-        XCTAssertEqual(vm.difficulty, .master)
+        XCTAssertEqual(vm.difficulty, .amateurHigh)
     }
 
     /// 测试6: 段位推荐难度验证（学童 → easy）
     func testStudentRank_RecommendsEasy() {
         let rank = Rank.student
-        XCTAssertEqual(rank.recommendedCoachDifficulty, .easy, "学童段位推荐难度应为 easy")
+        XCTAssertEqual(rank.recommendedCoachDifficulty, .beginner, "学童段位推荐难度应为 easy")
     }
 }

@@ -151,7 +151,7 @@ struct Phase2aTests {
 
         // 第一次搜索 depth=2，填充置换表
         let engine = AIEngine()
-        _ = await engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .amateurLow)
 
         // 注意：AIEngine 内部每次 bestMove 都会 clear TT，所以这个测试
         // 验证的是 TT 在搜索过程中被正确使用（通过 probeBestMove）
@@ -281,7 +281,7 @@ struct Phase2aTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .beginner)
+        let move = await engine.bestMove(for: board, difficulty: .novice)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -302,7 +302,7 @@ struct Phase2aTests {
             let board = Board(pieces: [rg, bg, blackChariot, redCannon, redSoldier])
             board.setCurrentTurn(.black)
             let engine = AIEngine()
-            let move = await engine.bestMove(for: board, difficulty: .beginner)
+            let move = await engine.bestMove(for: board, difficulty: .novice)
             if let move, move.piece.kind == .chariot {
                 // 检查走后是否被吃
                 let snapshot = board.snapshot()
@@ -324,7 +324,7 @@ struct Phase2aTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -337,7 +337,7 @@ struct Phase2aTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .amateurLow)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -350,7 +350,7 @@ struct Phase2aTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .master)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -469,7 +469,7 @@ struct Phase2aUCITests {
         let uciMove = await engine.bestMove(
             fen: fen,
             moveHistory: [],
-            difficulty: .easy,
+            difficulty: .beginner,
             timeLimitMs: 5000
         )
 

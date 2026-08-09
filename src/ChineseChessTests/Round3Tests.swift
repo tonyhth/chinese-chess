@@ -84,8 +84,8 @@ struct Round3Tests {
         let record = GameRecord(
             id: UUID(), title: "测试", date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 3, moves: moves, initialFEN: nil
+            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 3, moves: moves, initialFEN: nil
         )
         let vm = ReplayViewModel(record: record)
 

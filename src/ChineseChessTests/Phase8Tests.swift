@@ -119,7 +119,7 @@ struct Phase8Tests {
         // 模拟 v2.x 历史数据：用 StatsManager API 写入 20 胜
         let statsManager = StatsManager(defaults: suite)
         for _ in 0..<20 {
-            statsManager.recordWin(for: .medium)
+            statsManager.recordWin(for: .amateurLow)
         }
 
         let migration = DataMigration(defaults: suite)

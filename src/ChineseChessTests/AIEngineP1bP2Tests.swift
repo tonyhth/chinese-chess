@@ -15,7 +15,7 @@ struct AIEngineP1bP2Tests {
         #expect(board.pieces.count == 32)
         // 通过 evaluate 间接验证：黑方红方子力和对称
         // 直接测 dynamicValue 不可访问（private），通过 AI 行为验证
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -23,7 +23,7 @@ struct AIEngineP1bP2Tests {
     func dynamicValueDoesNotCrashHard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -32,7 +32,7 @@ struct AIEngineP1bP2Tests {
         let engine = AIEngine()
         let board = Board()
         // 大师级耗时较长，只验证不 crash
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -40,7 +40,7 @@ struct AIEngineP1bP2Tests {
     func dynamicValueEasyNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .easy)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
         #expect(move != nil)
     }
 
@@ -52,7 +52,7 @@ struct AIEngineP1bP2Tests {
         let board = Board()
         // advanced config = mobility: true + safety: true
         // hard 和 master 使用 advanced
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -60,7 +60,7 @@ struct AIEngineP1bP2Tests {
     func mobilityBasicNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -70,7 +70,7 @@ struct AIEngineP1bP2Tests {
         // 验证 AI 能正常处理马的机动性
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -81,7 +81,7 @@ struct AIEngineP1bP2Tests {
         let engine = AIEngine()
         let board = Board()
         // 初始局面士象齐全，无暴露扣分
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -89,7 +89,7 @@ struct AIEngineP1bP2Tests {
     func kingSafetyHorseThreatNoCrash() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -100,7 +100,7 @@ struct AIEngineP1bP2Tests {
         let engine = AIEngine()
         let board = Board()
         // 测试 beginner, easy, medium（hard/master 太慢，单独测）
-        for diff in [AIDifficulty.beginner, .easy, .medium] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             #expect(move != nil, "\(diff) 返回 nil")
         }
@@ -119,7 +119,7 @@ struct AIEngineP1bP2Tests {
             // 第一步不可能吃子（初始局面无接触）
 
             // AI 回应
-            let aiMove = await engine.bestMove(for: boardCopy.snapshot(), difficulty: .medium)
+            let aiMove = await engine.bestMove(for: boardCopy.snapshot(), difficulty: .amateurLow)
             #expect(aiMove != nil)
             if let aiMove = aiMove {
                 let legalMoves = MoveValidator.allLegalMoves(for: .black, on: boardCopy)
@@ -137,7 +137,7 @@ struct AIEngineP1bP2Tests {
         let board = Board()
         // 初始局面角落无马，但 horseJumpTargets 处理越界检查
         // 通过 AI 搜索间接验证
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -147,7 +147,7 @@ struct AIEngineP1bP2Tests {
         // AI 正常返回说明 horsePalaceThreat 安全
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -157,7 +157,7 @@ struct AIEngineP1bP2Tests {
     func beginnerStillWorks() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .beginner)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .novice)
         #expect(move != nil)
     }
 

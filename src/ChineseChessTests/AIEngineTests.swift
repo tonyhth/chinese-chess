@@ -9,7 +9,7 @@ struct AIEngineTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(move != nil)
         #expect(MoveValidator.isLegal(move!, on: board))
     }
@@ -19,7 +19,7 @@ struct AIEngineTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .amateurLow)
         #expect(move != nil)
         // 验证走法在原棋盘上合法
         let captured = board.piece(at: move!.to)
@@ -32,7 +32,7 @@ struct AIEngineTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid)
         #expect(move != nil)
         let captured = board.piece(at: move!.to)
         let mainMove = Move(piece: move!.piece, from: move!.from, to: move!.to, captured: captured)
@@ -49,7 +49,7 @@ struct AIEngineTests {
         let snapshot = board.snapshot()
         // 通过 bestMove 间接测试（评估函数是私有的）
         // 这里测试 AI 能正常走步即可
-        let move = await engine.bestMove(for: snapshot, difficulty: .easy)
+        let move = await engine.bestMove(for: snapshot, difficulty: .beginner)
         #expect(move != nil)
     }
 
@@ -63,7 +63,7 @@ struct AIEngineTests {
         let board = Board(pieces: [redGeneral, blackGeneral, blackChariot, blackChariot2])
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .easy)
+        let move = await engine.bestMove(for: board, difficulty: .beginner)
         #expect(move != nil)
     }
 }

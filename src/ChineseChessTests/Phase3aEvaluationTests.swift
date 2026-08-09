@@ -153,7 +153,7 @@ struct Phase3aEvaluationTests {
         let engine = AIEngine()
         let board = Board()  // 标准初始局面
         // 验证不崩溃，且返回正值
-        let move = await engine.bestMove(for: board, difficulty: .beginner, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
         #expect(move != nil)
     }
 
@@ -164,7 +164,7 @@ struct Phase3aEvaluationTests {
         let board = Board(fen: fen)
         // 验证评估不崩溃
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil)
     }
 
@@ -174,7 +174,7 @@ struct Phase3aEvaluationTests {
     func chariotCenterMobility() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .hard, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)
         #expect(move != nil, "hard 难度启用机动性评估应正常工作")
     }
 
@@ -183,7 +183,7 @@ struct Phase3aEvaluationTests {
         let engine = AIEngine()
         let fen = "4k4/9/9/9/9/9/8n/9/9/4K4 b"
         let board = Board(fen: fen)
-        let move = await engine.bestMove(for: board, difficulty: .master, isIOS: false)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(move != nil, "master 残局机动性应正常")
     }
 
@@ -192,7 +192,7 @@ struct Phase3aEvaluationTests {
     @Test("Phase 3a 全部启用：beginner vs beginner 2局", .timeLimit(.minutes(5)))
     func selfPlayPhase3a() async {
         let runner = SelfPlayRunner()
-        let config = SelfPlayConfig(red: .beginner, black: .beginner, games: 2, maxMoves: 40)
+        let config = SelfPlayConfig(red: .novice, black: .novice, games: 2, maxMoves: 40)
         let result = await runner.run(config: config)
         #expect(result.games.count == 2)
         #expect(result.redWins + result.blackWins + result.draws == 2)
@@ -202,7 +202,7 @@ struct Phase3aEvaluationTests {
     func allDifficultiesValidMove() async {
         let engine = AIEngine()
         let board = Board()
-        for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board, difficulty: diff, isIOS: false)
             #expect(move != nil, "\(diff.rawValue) 应返回合法走法")
         }

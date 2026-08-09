@@ -134,8 +134,8 @@ struct GameRecordForReviewTests {
         let record = GameRecord(
             id: UUID(), title: "test", date: Date(),
             redPlayer: PlayerInfo(name: "Human", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 1,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 1,
             moves: [move], initialFEN: nil, source: .versusAI
         )
         #expect(record.moves.count == 1)
@@ -151,8 +151,8 @@ struct RaceConditionLogicTests {
         GameRecord(
             id: UUID(), title: title, date: Date(),
             redPlayer: PlayerInfo(name: "R", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 10,
+            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 10,
             moves: [], initialFEN: nil, source: .versusAI
         )
     }
@@ -253,8 +253,8 @@ struct ViewExistenceTests {
         let record = GameRecord(
             id: UUID(), title: "draw game", date: Date(),
             redPlayer: PlayerInfo(name: "R", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .draw, totalMoves: 20,
+            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .draw, totalMoves: 20,
             moves: [], initialFEN: nil, source: .versusAI
         )
         #expect(record.result == .draw)
@@ -287,8 +287,8 @@ struct ReplayViewEntryTests {
         let record = GameRecord(
             id: UUID(), title: "empty", date: Date(),
             redPlayer: PlayerInfo(name: "R", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 0,
+            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 0,
             moves: [], initialFEN: nil, source: .versusAI
         )
         #expect(record.moves.isEmpty, "空 moves 记录可被 disabled")
@@ -306,8 +306,8 @@ struct ReplayViewEntryTests {
         let record = GameRecord(
             id: UUID(), title: "has-moves", date: Date(),
             redPlayer: PlayerInfo(name: "R", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 1,
+            blackPlayer: PlayerInfo(name: "B", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 1,
             moves: [move], initialFEN: nil, source: .versusAI
         )
         #expect(!record.moves.isEmpty, "有 moves 时按钮应启用")

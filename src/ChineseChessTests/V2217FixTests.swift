@@ -115,40 +115,40 @@ struct V2217FixTests {
     struct Bug4MediumAITimeTests {
 
         @MainActor
-        @Test("TimeManager.forDifficulty(.medium, board: nil as Board?) 现在返回非 nil")
+        @Test("TimeManager.forDifficulty(.amateurLow, board: nil as Board?) 现在返回非 nil")
         func mediumDifficultyReturnsTimeManager() {
-            let tm = TimeManager.forDifficulty(.medium, board: nil as Board?)
-            #expect(tm != nil, ".medium 现在应返回 TimeManager（不再返回 nil）")
+            let tm = TimeManager.forDifficulty(.amateurLow, board: nil as Board?)
+            #expect(tm != nil, ".amateurLow 现在应返回 TimeManager（不再返回 nil）")
         }
 
         @MainActor
-        @Test("TimeManager.forDifficulty(.medium, isIOS: true, board: nil as Board?) 时间 ≤ 2000ms")
+        @Test("TimeManager.forDifficulty(.amateurLow, isIOS: true, board: nil as Board?) 时间 ≤ 2000ms")
         func mediumIOSTimeLimit() {
-            let tm = TimeManager.forDifficulty(.medium, isIOS: true, board: nil as Board?)
-            #expect(tm != nil, ".medium iOS 应返回 TimeManager")
-            #expect(tm!.timeLimitMs <= 2000, ".medium iOS 时间上限应为 ≤2000ms，实际 \(tm!.timeLimitMs)")
+            let tm = TimeManager.forDifficulty(.amateurLow, isIOS: true, board: nil as Board?)
+            #expect(tm != nil, ".amateurLow iOS 应返回 TimeManager")
+            #expect(tm!.timeLimitMs <= 2000, ".amateurLow iOS 时间上限应为 ≤2000ms，实际 \(tm!.timeLimitMs)")
         }
 
         @MainActor
-        @Test("TimeManager.forDifficulty(.medium, isIOS: false, board: nil as Board?) 时间 ≤ 3000ms")
+        @Test("TimeManager.forDifficulty(.amateurLow, isIOS: false, board: nil as Board?) 时间 ≤ 3000ms")
         func mediumMacOSTimeLimit() {
-            let tm = TimeManager.forDifficulty(.medium, isIOS: false, board: nil as Board?)
-            #expect(tm != nil, ".medium macOS 应返回 TimeManager")
-            #expect(tm!.timeLimitMs <= 3000, ".medium macOS 时间上限应为 ≤3000ms，实际 \(tm!.timeLimitMs)")
+            let tm = TimeManager.forDifficulty(.amateurLow, isIOS: false, board: nil as Board?)
+            #expect(tm != nil, ".amateurLow macOS 应返回 TimeManager")
+            #expect(tm!.timeLimitMs <= 3000, ".amateurLow macOS 时间上限应为 ≤3000ms，实际 \(tm!.timeLimitMs)")
+        }
+
+        @MainActor
+        @Test("TimeManager.forDifficulty(.novice, board: nil as Board?) 仍返回 nil")
+        func beginnerStillReturnsNil() {
+            let tm = TimeManager.forDifficulty(.novice, board: nil as Board?)
+            #expect(tm == nil, ".novice 应仍返回 nil")
         }
 
         @MainActor
         @Test("TimeManager.forDifficulty(.beginner, board: nil as Board?) 仍返回 nil")
-        func beginnerStillReturnsNil() {
+        func easyStillReturnsNil() {
             let tm = TimeManager.forDifficulty(.beginner, board: nil as Board?)
             #expect(tm == nil, ".beginner 应仍返回 nil")
-        }
-
-        @MainActor
-        @Test("TimeManager.forDifficulty(.easy, board: nil as Board?) 仍返回 nil")
-        func easyStillReturnsNil() {
-            let tm = TimeManager.forDifficulty(.easy, board: nil as Board?)
-            #expect(tm == nil, ".easy 应仍返回 nil")
         }
 
         @MainActor
@@ -156,7 +156,7 @@ struct V2217FixTests {
         func mediumSearchReturnsLegalMove() async {
             let board = Board()
             let engine = AIEngine()
-            let move = await engine.bestMove(for: board, difficulty: .medium, isIOS: false)
+            let move = await engine.bestMove(for: board, difficulty: .amateurLow, isIOS: false)
             #expect(move != nil, "medium AI 应返回走法")
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -170,9 +170,9 @@ struct V2217FixTests {
         func timeManagerComplexityAdjustment() {
             let simpleFEN = "4k4/9/9/9/9/9/9/9/9/4K4 w"
             let simpleBoard = Board(fen: simpleFEN)
-            let simpleTM = TimeManager.forDifficulty(.medium, isIOS: false, board: simpleBoard)
+            let simpleTM = TimeManager.forDifficulty(.amateurLow, isIOS: false, board: simpleBoard)
             let complexBoard = Board()
-            let complexTM = TimeManager.forDifficulty(.medium, isIOS: false, board: complexBoard)
+            let complexTM = TimeManager.forDifficulty(.amateurLow, isIOS: false, board: complexBoard)
             #expect(simpleTM != nil && complexTM != nil, "两种局面都应返回 TimeManager")
             if let simpleTM = simpleTM, let complexTM = complexTM {
                 #expect(complexTM.timeLimitMs >= simpleTM.timeLimitMs,

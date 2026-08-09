@@ -135,8 +135,8 @@ struct ReplayViewModelTests {
         return GameRecord(
             id: UUID(), title: "测试对局", date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "黑方", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon, totalMoves: 2, moves: moves,
             initialFEN: nil
         )
@@ -628,8 +628,8 @@ struct Phase35Tests {
             title: "测试对局",
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI-中级", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "AI-中级", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: 10,
             moves: [],
@@ -665,8 +665,8 @@ struct Phase35Tests {
                 title: "对局 \(i)",
                 date: Date().addingTimeInterval(Double(i)),
                 redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-                difficulty: .medium,
+                blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow,
                 result: .redWon,
                 totalMoves: i,
                 moves: [],
@@ -696,8 +696,8 @@ struct Phase35Tests {
             title: "同一对局",
             date: Date(),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: 10,
             moves: [],
@@ -723,8 +723,8 @@ struct Phase35Tests {
                 title: "对局 \(i)",
                 date: Date(),
                 redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-                difficulty: .medium,
+                blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow,
                 result: .redWon,
                 totalMoves: i,
                 moves: [],
@@ -743,11 +743,11 @@ struct Phase35Tests {
 
     @Test("AIDifficulty displayName localized")
     func testAIDifficultyDisplayName() {
+        #expect(AIDifficulty.novice.displayName == String(localized: "difficulty.novice"))
         #expect(AIDifficulty.beginner.displayName == String(localized: "difficulty.beginner"))
-        #expect(AIDifficulty.easy.displayName == String(localized: "difficulty.easy"))
-        #expect(AIDifficulty.medium.displayName == String(localized: "difficulty.medium"))
-        #expect(AIDifficulty.hard.displayName == String(localized: "difficulty.hard"))
-        #expect(AIDifficulty.master.displayName == String(localized: "difficulty.master"))
+        #expect(AIDifficulty.amateurLow.displayName == String(localized: "difficulty.amateurLow"))
+        #expect(AIDifficulty.amateurMid.displayName == String(localized: "difficulty.amateurMid"))
+        #expect(AIDifficulty.amateurHigh.displayName == String(localized: "difficulty.amateurHigh"))
     }
 
     @Test("GameHistoryStore 按时间倒序")
@@ -760,14 +760,14 @@ struct Phase35Tests {
         let r1 = GameRecord(
             id: UUID(), title: "旧对局", date: now.addingTimeInterval(-100),
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 5, moves: [], initialFEN: nil
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 5, moves: [], initialFEN: nil
         )
         let r2 = GameRecord(
             id: UUID(), title: "新对局", date: now,
             redPlayer: PlayerInfo(name: "红方", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .blackWon, totalMoves: 8, moves: [], initialFEN: nil
+            blackPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .blackWon, totalMoves: 8, moves: [], initialFEN: nil
         )
 
         // 先加旧的，再加新的

@@ -12,7 +12,7 @@ struct LazyOpeningBookTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .amateurLow)
         #expect(move != nil)
         if let move = move {
             let captured = board.piece(at: move.to)
@@ -26,7 +26,7 @@ struct LazyOpeningBookTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid)
         #expect(move != nil)
         if let move = move {
             let captured = board.piece(at: move.to)
@@ -40,7 +40,7 @@ struct LazyOpeningBookTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .master)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh)
         #expect(move != nil)
         if let move = move {
             let captured = board.piece(at: move.to)
@@ -66,7 +66,7 @@ struct LazyOpeningBookTests {
         // 首次 bestMove 才触发加载，但应正常返回
         let board = Board()
         board.setCurrentTurn(.black)
-        let move = await engine.bestMove(for: board, difficulty: .medium)
+        let move = await engine.bestMove(for: board, difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -79,7 +79,7 @@ struct LazyOpeningBookTests {
         // 第 1 局
         let board1 = Board()
         board1.setCurrentTurn(.black)
-        let move1 = await engine.bestMove(for: board1, difficulty: .medium)
+        let move1 = await engine.bestMove(for: board1, difficulty: .amateurLow)
         #expect(move1 != nil)
 
         // newGame（清空历史，不开局库）
@@ -88,7 +88,7 @@ struct LazyOpeningBookTests {
         // 第 2 局
         let board2 = Board()
         board2.setCurrentTurn(.black)
-        let move2 = await engine.bestMove(for: board2, difficulty: .medium)
+        let move2 = await engine.bestMove(for: board2, difficulty: .amateurLow)
         #expect(move2 != nil)
 
         // newGame
@@ -97,7 +97,7 @@ struct LazyOpeningBookTests {
         // 第 3 局
         let board3 = Board()
         board3.setCurrentTurn(.black)
-        let move3 = await engine.bestMove(for: board3, difficulty: .hard)
+        let move3 = await engine.bestMove(for: board3, difficulty: .amateurMid)
         #expect(move3 != nil)
     }
 
@@ -131,7 +131,7 @@ struct LazyOpeningBookTests {
         #expect(board.moveHistory.count >= 6)
 
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -160,7 +160,7 @@ struct LazyOpeningBookTests {
         #expect(board.moveHistory.count >= 6)
 
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .master)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -171,7 +171,7 @@ struct LazyOpeningBookTests {
         let board = Board()
         board.setCurrentTurn(.black)
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .beginner)
+        let move = await engine.bestMove(for: board, difficulty: .novice)
         #expect(move != nil)
         if let move = move {
             let captured = board.piece(at: move.to)

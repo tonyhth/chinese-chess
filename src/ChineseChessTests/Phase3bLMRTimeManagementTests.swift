@@ -41,7 +41,7 @@ struct Phase3bLMRTimeManagementTests {
     func lmrHardInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -54,7 +54,7 @@ struct Phase3bLMRTimeManagementTests {
     func lmrMasterInitialBoard() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -67,7 +67,7 @@ struct Phase3bLMRTimeManagementTests {
     func lmrMediumNotAffected() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .medium)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurLow)
         #expect(move != nil)
     }
 
@@ -80,7 +80,7 @@ struct Phase3bLMRTimeManagementTests {
             Issue.record("FEN 解析失败")
             return
         }
-        for diff in [AIDifficulty.hard, .master] {
+        for diff in [AIDifficulty.amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -98,7 +98,7 @@ struct Phase3bLMRTimeManagementTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -177,11 +177,11 @@ struct Phase3bLMRTimeManagementTests {
 
     @Test("forDifficulty：不传 board 时用基础时间")
     func timeManagerDefaultTime() {
-        let hardTm = TimeManager.forDifficulty(.hard, isIOS: false, board: nil as Board?)
+        let hardTm = TimeManager.forDifficulty(.amateurMid, isIOS: false, board: nil as Board?)
         #expect(hardTm != nil)
         #expect(hardTm!.timeLimitMs == 5000)
 
-        let masterTm = TimeManager.forDifficulty(.master, isIOS: false, board: nil as Board?)
+        let masterTm = TimeManager.forDifficulty(.amateurHigh, isIOS: false, board: nil as Board?)
         #expect(masterTm != nil)
         #expect(masterTm!.timeLimitMs == 10000)
     }
@@ -189,7 +189,7 @@ struct Phase3bLMRTimeManagementTests {
     @Test("forDifficulty：传入 board 时时间在 0.6x-1.4x 基础范围内")
     func timeManagerDynamicTime() {
         let board = Board()
-        let hardTm = TimeManager.forDifficulty(.hard, isIOS: false, board: board)
+        let hardTm = TimeManager.forDifficulty(.amateurMid, isIOS: false, board: board)
         #expect(hardTm != nil)
         // 基础 5000，factor 0.6-1.4 → 3000-7000
         #expect(hardTm!.timeLimitMs >= 3000 && hardTm!.timeLimitMs <= 7000,
@@ -198,18 +198,18 @@ struct Phase3bLMRTimeManagementTests {
 
     @Test("forDifficulty：iOS 时间低于 macOS")
     func timeManagerIOSLessTime() {
-        let macTm = TimeManager.forDifficulty(.master, isIOS: false, board: nil as Board?)!
-        let iosTm = TimeManager.forDifficulty(.master, isIOS: true, board: nil as Board?)!
+        let macTm = TimeManager.forDifficulty(.amateurHigh, isIOS: false, board: nil as Board?)!
+        let iosTm = TimeManager.forDifficulty(.amateurHigh, isIOS: true, board: nil as Board?)!
         #expect(iosTm.timeLimitMs <= macTm.timeLimitMs,
                "iOS 时间应 ≤ macOS: iOS=\(iosTm.timeLimitMs), macOS=\(macTm.timeLimitMs)")
     }
 
     @Test("forDifficulty：beginner/easy 返回 nil（无时间限制）；medium 有时间限制（v2.2.17 Bug4 修复）")
     func timeManagerNoTimeLimit() {
+        #expect(TimeManager.forDifficulty(.novice, board: nil as Board?) == nil)
         #expect(TimeManager.forDifficulty(.beginner, board: nil as Board?) == nil)
-        #expect(TimeManager.forDifficulty(.easy, board: nil as Board?) == nil)
-        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?) != nil)
-        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?)!.timeLimitMs == 3000)
+        #expect(TimeManager.forDifficulty(.amateurLow, board: nil as Board?) != nil)
+        #expect(TimeManager.forDifficulty(.amateurLow, board: nil as Board?)!.timeLimitMs == 3000)
     }
 
     // MARK: - SmartTime 仅 master 启用
@@ -219,7 +219,7 @@ struct Phase3bLMRTimeManagementTests {
         let engine = AIEngine()
         let board = Board()
         // master 应正常返回（SmartTime 启用）
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .master)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurHigh)
         #expect(move != nil)
     }
 
@@ -228,7 +228,7 @@ struct Phase3bLMRTimeManagementTests {
         let engine = AIEngine()
         let board = Board()
         // hard 不启用 SmartTime，但仍有普通 shouldStop 检查
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -239,7 +239,7 @@ struct Phase3bLMRTimeManagementTests {
         let engine = AIEngine()
         // 深度 3 不会触发 LMR，但不应 crash
         let board = Board()
-        let move = await engine.bestMove(for: board.snapshot(), difficulty: .hard)
+        let move = await engine.bestMove(for: board.snapshot(), difficulty: .amateurMid)
         #expect(move != nil)
     }
 
@@ -250,7 +250,7 @@ struct Phase3bLMRTimeManagementTests {
         let engine = AIEngine()
         let board = Board()
         for step in 0..<10 {
-            let diff: AIDifficulty = step % 2 == 0 ? .hard : .master
+            let diff: AIDifficulty = step % 2 == 0 ? .amateurMid : .amateurHigh
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             guard let move = move else { break }
             let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)
@@ -268,7 +268,7 @@ struct Phase3bLMRTimeManagementTests {
             Issue.record("FEN 解析失败")
             return
         }
-        for diff in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             let move = await engine.bestMove(for: board.snapshot(), difficulty: diff)
             if let move = move {
                 let legalMoves = MoveValidator.allLegalMoves(for: board.currentTurn, on: board)

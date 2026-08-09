@@ -32,8 +32,8 @@ struct P0BoardPlayerEmptyRecursionTests {
         let record = GameRecord(
             title: "空棋局",
             redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-            difficulty: .medium,
+            blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow,
             result: .redWon,
             totalMoves: 0,
             moves: [],

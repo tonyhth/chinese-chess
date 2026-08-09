@@ -191,22 +191,22 @@ struct TimeManagerTests {
 
     @Test("beginner/easy 无时间管理；medium 有时间限制（v2.2.17 Bug4 修复）")
     func noTimeManagerForLowerDifficulty() {
+        #expect(TimeManager.forDifficulty(.novice, board: nil as Board?) == nil)
         #expect(TimeManager.forDifficulty(.beginner, board: nil as Board?) == nil)
-        #expect(TimeManager.forDifficulty(.easy, board: nil as Board?) == nil)
-        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?) != nil)
-        #expect(TimeManager.forDifficulty(.medium, board: nil as Board?)!.timeLimitMs == 3000)
+        #expect(TimeManager.forDifficulty(.amateurLow, board: nil as Board?) != nil)
+        #expect(TimeManager.forDifficulty(.amateurLow, board: nil as Board?)!.timeLimitMs == 3000)
     }
 
     @Test("hard 有 5 秒限制")
     func hardTimeLimit() {
-        let tm = TimeManager.forDifficulty(.hard, board: nil as Board?)
+        let tm = TimeManager.forDifficulty(.amateurMid, board: nil as Board?)
         #expect(tm != nil)
         #expect(tm!.timeLimitMs == 5000)
     }
 
     @Test("master 有 10 秒限制")
     func masterTimeLimit() {
-        let tm = TimeManager.forDifficulty(.master, board: nil as Board?)
+        let tm = TimeManager.forDifficulty(.amateurHigh, board: nil as Board?)
         #expect(tm != nil)
         #expect(tm!.timeLimitMs == 10000)
     }
@@ -225,7 +225,7 @@ struct Phase2bIntegrationTests {
         board.setCurrentTurn(.red)
 
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .hard)
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid)
         #expect(move != nil)
         // 高级 AI 应该能找到直接的杀法
     }
@@ -240,14 +240,14 @@ struct Phase2bIntegrationTests {
         board.setCurrentTurn(.black)
 
         let engine = AIEngine()
-        let move = await engine.bestMove(for: board, difficulty: .master)
+        let move = await engine.bestMove(for: board, difficulty: .amateurHigh)
         // 黑方只能走将，应该不崩溃
         #expect(move != nil)
     }
 
     @Test("5 级 AI 全部能完成残局对局")
     func allDifficultyCompleteEndgame() async {
-        let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
+        let difficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)

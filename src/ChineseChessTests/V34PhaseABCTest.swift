@@ -107,7 +107,7 @@ struct PhaseBEngineTests {
         let result = await engine.bestMove(
             fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: .amateurLow,
             timeLimitMs: 500
         )
         #expect(result == nil, "未启动时 bestMove 应返回 nil")
@@ -151,7 +151,7 @@ struct PhaseBEngineTests {
         let move = await engine.bestMove(
             fen: startFEN,
             moveHistory: [],
-            difficulty: .beginner,
+            difficulty: .novice,
             timeLimitMs: 1000
         )
 
@@ -178,7 +178,7 @@ struct PhaseBEngineTests {
         }
 
         let startFEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
-        for difficulty in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for difficulty in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             let _ = await engine.bestMove(
                 fen: startFEN,
                 moveHistory: [],
@@ -206,7 +206,7 @@ struct PhaseBEngineTests {
             await engine.bestMove(
                 fen: startFEN,
                 moveHistory: [],
-                difficulty: .master,
+                difficulty: .amateurHigh,
                 timeLimitMs: 30000
             )
         }
@@ -245,7 +245,7 @@ struct PhaseBEngineTests {
         let move = await engine.bestMove(
             fen: "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1",
             moveHistory: [],
-            difficulty: .medium,
+            difficulty: .amateurLow,
             timeLimitMs: 500
         )
         #expect(move == nil, "shutdown 后 bestMove 应返回 nil")
@@ -259,12 +259,12 @@ struct PhaseBDifficultyTests {
 
     @Test("AIDifficulty 有 5 个等级")
     func fiveDifficultyLevels() {
-        #expect([AIDifficulty.beginner, .easy, .medium, .hard, .master].count == 5)
+        #expect([AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh].count == 5)
     }
 
     @Test("所有难度 displayName 非空")
     func displayNamesNotEmpty() {
-        for d in [AIDifficulty.beginner, .easy, .medium, .hard, .master] {
+        for d in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
             #expect(!d.displayName.isEmpty, "难度 \(d) displayName 不应为空")
         }
     }

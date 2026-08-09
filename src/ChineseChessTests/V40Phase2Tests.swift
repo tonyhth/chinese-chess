@@ -74,7 +74,7 @@ struct BeginnerMoveTests {
     func beginnerReturnsMove() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .beginner)
+        let move = await engine.bestMove(for: board, difficulty: .novice)
         #expect(move != nil, "beginner 应始终返回走法")
     }
 
@@ -82,7 +82,7 @@ struct BeginnerMoveTests {
     func beginnerMoveIsLegal() async {
         let engine = AIEngine()
         let board = Board()
-        let move = await engine.bestMove(for: board, difficulty: .beginner)
+        let move = await engine.bestMove(for: board, difficulty: .novice)
         #expect(move != nil)
         if let move = move {
             let legalMoves = MoveValidator.allLegalMoves(for: .red, on: board)
@@ -99,7 +99,7 @@ struct BeginnerMoveTests {
         let board = Board()
         var results: Set<String> = []
         for _ in 0..<10 {
-            if let move = await engine.bestMove(for: board, difficulty: .beginner) {
+            if let move = await engine.bestMove(for: board, difficulty: .novice) {
                 let key = "\(move.from.row),\(move.from.col)->\(move.to.row),\(move.to.col)"
                 results.insert(key)
             }
@@ -117,7 +117,7 @@ struct AITimeManagementTests {
         let engine = AIEngine()
         let board = Board()
         let start = Date()
-        _ = await engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .amateurLow)
         let elapsed = Date().timeIntervalSince(start)
         // P95 < 2.5 秒，平均应更低。这里用 5 秒作为上限验证
         #expect(elapsed < 5.0, "medium 搜索应 < 5 秒，实际: \(elapsed)s")
@@ -129,11 +129,11 @@ struct AITimeManagementTests {
         let board = Board()
 
         let start1 = Date()
-        _ = await engine.bestMove(for: board, difficulty: .beginner)
+        _ = await engine.bestMove(for: board, difficulty: .novice)
         let beginnerTime = Date().timeIntervalSince(start1)
 
         let start2 = Date()
-        _ = await engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .amateurLow)
         let mediumTime = Date().timeIntervalSince(start2)
 
         // beginner 是 depth-1 + 噪声，通常比 medium 快
@@ -297,7 +297,7 @@ struct TimeCheckTests {
         let engine = AIEngine()
         let board = Board()
         let start = Date()
-        _ = await engine.bestMove(for: board, difficulty: .medium)
+        _ = await engine.bestMove(for: board, difficulty: .amateurLow)
         let elapsed = Date().timeIntervalSince(start)
         #expect(elapsed < 10.0, "浅层搜索不应被时间检查阻塞")
     }
@@ -362,9 +362,9 @@ struct V40P2RegressionTests {
         let engine = AIEngine()
         let board = Board()
 
-        let beginner = await engine.bestMove(for: board, difficulty: .beginner)
-        let easy = await engine.bestMove(for: board, difficulty: .easy)
-        let medium = await engine.bestMove(for: board, difficulty: .medium)
+        let beginner = await engine.bestMove(for: board, difficulty: .novice)
+        let easy = await engine.bestMove(for: board, difficulty: .beginner)
+        let medium = await engine.bestMove(for: board, difficulty: .amateurLow)
 
         #expect(beginner != nil, "beginner 应返回走法")
         #expect(easy != nil, "easy 应返回走法")

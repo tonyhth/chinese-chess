@@ -144,7 +144,7 @@ final class Phase3CannonOnlyStateTests: XCTestCase {
             date: "2026-07-19",
             mode: .cannonOnly,
             puzzleId: nil,
-            targetDifficulty: .medium,
+            targetDifficulty: .amateurLow,
             completed: true,
             score: 100
         )
@@ -163,7 +163,7 @@ final class Phase3CannonOnlyStateTests: XCTestCase {
             date: "2026-07-19",
             mode: .endgameStart,
             puzzleId: "puzzle_42",
-            targetDifficulty: .medium,
+            targetDifficulty: .amateurLow,
             completed: true,
             score: 100
         )

@@ -218,11 +218,11 @@ struct AIDifficultyTests {
     func testAIDifficultyFiveLevels() {
         let levels = AIDifficulty.allCases
         #expect(levels.count == 5)
-        #expect(levels[0] == .beginner)
-        #expect(levels[1] == .easy)
-        #expect(levels[2] == .medium)
-        #expect(levels[3] == .hard)
-        #expect(levels[4] == .master)
+        #expect(levels[0] == .novice)
+        #expect(levels[1] == .beginner)
+        #expect(levels[2] == .amateurLow)
+        #expect(levels[3] == .amateurMid)
+        #expect(levels[4] == .amateurHigh)
     }
 
     @Test("AIDifficulty Codable roundtrip")

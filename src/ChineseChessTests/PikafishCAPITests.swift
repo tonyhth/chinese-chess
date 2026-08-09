@@ -336,7 +336,7 @@ struct PikafishCAPITests {
         let move = await engine.bestMove(
             fen: fen,
             moveHistory: [],
-            difficulty: .beginner,
+            difficulty: .novice,
             timeLimitMs: 1000
         )
 
@@ -368,7 +368,7 @@ struct PikafishCAPITests {
 
         // 验证：newGame 后引擎仍可正常返回走法
         let fen = FENParser.generate(board: Board())
-        let move = await engine.bestMove(fen: fen, moveHistory: [], difficulty: .easy, timeLimitMs: 500)
+        let move = await engine.bestMove(fen: fen, moveHistory: [], difficulty: .beginner, timeLimitMs: 500)
         #expect(move != nil, "newGame 后引擎应可正常搜索")
 
         await engine.shutdown()

@@ -25,27 +25,27 @@ final class UnifiedSheetTests: XCTestCase {
             ChineseChessApp.SheetDestination.rankUp(.student).id,
             ChineseChessApp.SheetDestination.toolbarReplay(GameRecord(
                 title: "t", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )).id,
             ChineseChessApp.SheetDestination.historyReplay(GameRecord(
                 title: "t", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )).id,
             // v3.7.2: 新增 3 个 case
             ChineseChessApp.SheetDestination.analysis(GameRecord(
                 title: "t", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )).id,
             ChineseChessApp.SheetDestination.coach(GameRecord(
                 title: "t", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )).id,
         ]
@@ -73,8 +73,8 @@ final class UnifiedSheetTests: XCTestCase {
     func testSheetDestination_ReplayDifferentId() {
         let record = GameRecord(
             title: "t", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+            blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
             initialFEN: nil, source: .versusAI
         )
         let toolbarId = ChineseChessApp.SheetDestination.toolbarReplay(record).id
@@ -139,8 +139,8 @@ final class UnifiedSheetTests: XCTestCase {
 
         let record = GameRecord(
             title: "测试对局", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-            blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-            difficulty: .medium, result: .redWon, totalMoves: 5, moves: [],
+            blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+            difficulty: .amateurLow, result: .redWon, totalMoves: 5, moves: [],
             initialFEN: nil, source: .versusAI
         )
         // 用户在历史列表中点击一局棋 → 切换到 historyReplay
@@ -158,14 +158,14 @@ final class UnifiedSheetTests: XCTestCase {
         let summaries = [
             RecordSummary(from: GameRecord(
                 title: "人机对局", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 10, moves: [],
+                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 10, moves: [],
                 initialFEN: nil, source: .versusAI
             )),
             RecordSummary(from: GameRecord(
                 title: "残局挑战", redPlayer: PlayerInfo(name: "红", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .hard),
-                difficulty: .hard, result: .blackWon, totalMoves: 5, moves: [],
+                blackPlayer: PlayerInfo(name: "黑", isAI: true, difficulty: .amateurMid),
+                difficulty: .amateurMid, result: .blackWon, totalMoves: 5, moves: [],
                 initialFEN: nil, source: .puzzle
             )),
         ]
@@ -181,14 +181,14 @@ final class UnifiedSheetTests: XCTestCase {
         let summaries = [
             RecordSummary(from: GameRecord(
                 title: "A", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )),
             RecordSummary(from: GameRecord(
                 title: "B", redPlayer: PlayerInfo(name: "r", isAI: false, difficulty: nil),
-                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .medium),
-                difficulty: .medium, result: .redWon, totalMoves: 1, moves: [],
+                blackPlayer: PlayerInfo(name: "b", isAI: true, difficulty: .amateurLow),
+                difficulty: .amateurLow, result: .redWon, totalMoves: 1, moves: [],
                 initialFEN: nil, source: .versusAI
             )),
         ]
