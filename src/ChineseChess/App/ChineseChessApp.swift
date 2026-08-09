@@ -34,6 +34,15 @@ struct ChineseChessApp: App {
             RunLoop.main.run()
             fatalError("calibrate CLI should have exited")
         }
+        // v6.0: 纯 Pikafish 自对弈梯度验证
+        if args.count >= 2 && args[1] == "--pfmatch" {
+            Task.detached {
+                await runPikafishMatchFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("pfmatch CLI should have exited")
+        }
         // v3.1: CMA-ES 自动调参模式（CLI-only，非用户路径）
         if args.count >= 2 && args[1] == "--cmaes" {
             Task.detached {
