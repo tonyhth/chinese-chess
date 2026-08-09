@@ -80,7 +80,7 @@ struct AssessmentView: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(l10n.t("assessment.confidence") + "：\(report.eloEstimate.confidence.label)")
                         .font(.subheadline.weight(.medium))
-                    Text("\(report.eloEstimate.sampleSize) 步")
+                    Text(String(format: l10n.t("assessment.stepCount"), report.eloEstimate.sampleSize))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -124,7 +124,7 @@ struct AssessmentView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("\(report.moveStats.totalMoves) 步（\(report.sourceGames.count) 局）")
+                Text(String(format: l10n.t("assessment.sampleDetail"), report.moveStats.totalMoves, report.sourceGames.count))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -144,10 +144,10 @@ struct AssessmentView: View {
             // 评分进度条
             VStack(spacing: 6) {
                 scoreBar(l10n.t("assessment.opening"), report.dimensions.opening.score, report.dimensions.opening.label)
-                scoreBar("中盘战术", report.dimensions.tactics.score, report.dimensions.tactics.label)
+                scoreBar(l10n.t("assessment.tactics"), report.dimensions.tactics.score, report.dimensions.tactics.label)
                 scoreBar(l10n.t("assessment.endgame"), report.dimensions.endgame.score, report.dimensions.endgame.label)
                 scoreBar(l10n.t("assessment.consistency"), report.dimensions.consistency.score, report.dimensions.consistency.label)
-                scoreBar("杀棋敏感", report.dimensions.checkmate.score, report.dimensions.checkmate.label)
+                scoreBar(l10n.t("assessment.checkmate"), report.dimensions.checkmate.score, report.dimensions.checkmate.label)
             }
 
             // 优势/短板

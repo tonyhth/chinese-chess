@@ -12818,6 +12818,38 @@
           }
         }
       }
+    },
+    "assessment.stepCount": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d moves"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 步"
+          }
+        }
+      }
+    },
+    "assessment.sampleDetail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d moves (%d games)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d 步（%d 局）"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
