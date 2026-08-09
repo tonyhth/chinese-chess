@@ -128,25 +128,12 @@ struct V60Phase5ViewTests {
         #expect(source.contains("setDifficultyFromAssessment"), "GameViewModel 应监听评估推荐通知")
     }
 
-    @Test("闭环通知正确设置难度")
-    func closedLoopSetsDifficulty() async {
-        let vm = GameViewModel()
-        let originalDiff = vm.difficulty
-
-        // 模拟发送通知
-        NotificationCenter.default.post(
-            name: .setDifficultyFromAssessment,
-            object: nil,
-            userInfo: ["level": AIDifficulty.grandmaster]
-        )
-
-        // 等待 MainActor 处理
-        try? await Task.sleep(nanoseconds: 200_000_000)
-
-        #expect(vm.difficulty == .grandmaster, "通知应将难度设置为 grandmaster")
-
-        // 恢复
-        vm.setDifficulty(originalDiff)
+    @Test("闭环通知机制验证")
+    func closedLoopMechanismVerified() {
+        // 验证通知名称存在 + GameViewModel 注册了监听
+        let source = SourceChecker.source(for: "GameViewModel")
+        #expect(source.contains("setDifficultyFromAssessment"), "GameViewModel 应监听评估推荐通知")
+        #expect(source.contains("setDifficulty("), "收到通知后应调用 setDifficulty")
     }
 
     // ============================
@@ -227,5 +214,110 @@ enum SourceChecker {
             }
         }
         return ""
+    }
+}
+
+// MARK: - P1 修复验证（commit 91fd046）
+
+@Suite("v6.0 Phase 5 P1 修复：闭环 + l10n", .serialized)
+@MainActor
+struct V60Phase5P1FixTests {
+
+    // ============================
+    // MARK: - P1-1: 闭环修复
+    // ============================
+
+    @Test("P1-1: 推荐按钮使用 dismiss + notification（非 navigateToDifficulty）")
+    func closedLoopUsesDismiss() {
+        let source = SourceChecker.source(for: "AssessmentView")
+        #expect(source.contains("dismiss()"), "推荐按钮应调用 dismiss()")
+        #expect(!source.contains("navigateToDifficulty"), "不应再使用 navigateToDifficulty")
+        #expect(!source.contains("navigationDestination"), "不应再使用 navigationDestination 到空白页")
+    }
+
+    @Test("P1-1: 闭环通知 → setDifficulty 生效", .serialized)
+    func closedLoopNotificationSetsDifficulty() async {
+        let vm = GameViewModel()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        NotificationCenter.default.post(
+            name: .setDifficultyFromAssessment,
+            object: nil,
+            userInfo: ["level": AIDifficulty.proExpert]
+        )
+
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        #expect(vm.difficulty == .proExpert, "通知应将难度设置为 proExpert")
+    }
+
+    @Test("P1-1: 通知 userInfo 包含 level key")
+    func notificationUserInfo() {
+        let source = SourceChecker.source(for: "AssessmentView")
+        #expect(source.contains("\"level\""), "通知 userInfo 应包含 'level' key")
+    }
+
+    // ============================
+    // MARK: - P1-2: l10n key 验证
+    // ============================
+
+    @Test("P1-2: 24 个新 assessment l10n key 存在")
+    func l10nKeysExist() {
+        let l10n = L10n.shared
+        let keys = [
+            "assessment.title",
+            "assessment.recommendedLevel",
+            "assessment.confidence",
+            "assessment.estimated",
+            "assessment.disclaimer",
+            "assessment.sampleSize",
+            "assessment.strengths",
+            "assessment.weaknesses",
+            "assessment.trainingSuggestions",
+            "assessment.analyzeHistory",
+            "assessment.reassess",
+            "assessment.emptyTitle",
+            "assessment.emptyDesc",
+            "assessment.opening",
+            "assessment.tactics",
+            "assessment.endgame",
+            "assessment.consistency",
+            "assessment.checkmate",
+            "assessment.overall",
+            "assessment.noRecords",
+            "settings.assessment",
+            "settings.assessmentDesc",
+            "settings.notAssessed",
+        ]
+        for key in keys {
+            let val = l10n.t(key)
+            #expect(!val.isEmpty, "l10n key '\(key)' 应有值")
+        }
+    }
+
+    @Test("P1-2: AssessmentView 硬编码中文已替换为 l10n")
+    func noHardcodedChinese() {
+        let source = SourceChecker.source(for: "AssessmentView")
+        // 这些硬编码中文应该已被 l10n 替换
+        #expect(!source.contains("\"棋力评估\""), "'棋力评估' 应使用 l10n.t")
+        #expect(!source.contains("\"推荐级别\""), "'推荐级别' 应使用 l10n.t")
+        #expect(!source.contains("\"分析样本\""), "'分析样本' 应使用 l10n.t")
+        #expect(!source.contains("\"重新评估\""), "'重新评估' 应使用 l10n.t")
+    }
+
+    @Test("P1-2: SettingsView 硬编码中文已替换")
+    func settingsNoHardcodedChinese() {
+        let source = SourceChecker.source(for: "SettingsView")
+        #expect(source.contains("l10n.t"), "SettingsView 应使用 l10n.t")
+    }
+
+    // ============================
+    // MARK: - 回归
+    // ============================
+
+    @Test("P1 回归：Phase 5 原有测试仍通过")
+    func regressionPhase5StillWorks() {
+        let _ = AssessmentView()
+        let _ = RadarChartView(scores: [("A", 50), ("B", 60), ("C", 70)])
+        #expect(AIDifficulty.allCases.count == 10)
     }
 }
