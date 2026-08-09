@@ -338,6 +338,7 @@ extension SelfPlayRunner {
         config: MixedEngineConfig,
         nativeDifficulty: AIDifficulty = .amateurHigh,
         pikafishDifficulty: AIDifficulty = .amateurDan,
+        pikafishSkillOverride: Int? = nil,
         progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
     ) async -> MixedEngineSessionResult {
         let startTime = Date()
@@ -361,8 +362,14 @@ extension SelfPlayRunner {
             )
         }
 
+        // 应用 Skill override
+        if let skill = pikafishSkillOverride {
+            await pikafishEngine.setSkillLevel(skill)
+        }
+
         let nativeName = "Native(\(nativeDifficulty.rawValue))"
-        let pikafishName = "Pikafish(\(pikafishDifficulty.rawValue))"
+        let pfSkillDesc = pikafishSkillOverride.map { "s\($0)" } ?? pikafishDifficulty.rawValue
+        let pikafishName = "Pikafish(\(pfSkillDesc))"
 
         for gameIndex in 0..<config.totalGames {
             // 交换先后手
@@ -381,7 +388,8 @@ extension SelfPlayRunner {
                 maxMoves: config.maxMovesPerGame,
                 moveTimeMs: config.moveTimeMs,
                 repetitionThreshold: config.repetitionThreshold,
-                pikafishEngine: pikafishEngine
+                pikafishEngine: pikafishEngine,
+                pikafishSkillOverride: pikafishSkillOverride
             )
 
             games.append(MixedEngineGameResult(
@@ -442,7 +450,8 @@ extension SelfPlayRunner {
         maxMoves: Int,
         moveTimeMs: Int,
         repetitionThreshold: Int,
-        pikafishEngine: EmbeddedPikafishEngine
+        pikafishEngine: EmbeddedPikafishEngine,
+        pikafishSkillOverride: Int? = nil
     ) async -> (result: GameState, totalMoves: Int, reason: GameEndReason, moveHistory: [String]) {
         let board = Board()
         var moveHistory: [String] = []
@@ -467,6 +476,9 @@ extension SelfPlayRunner {
                 board.execute(move)
             } else {
                 // Pikafish 走棋
+                if let skillOverride = pikafishSkillOverride {
+                    await pikafishEngine.setSkillLevel(skillOverride)
+                }
                 let fen = FENParser.generate(board: board)
                 // 构造 UCI move history（ICCS 格式兼容）
                 let result = await pikafishEngine.bestMove(
@@ -481,7 +493,7 @@ extension SelfPlayRunner {
                     let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
                     return (winner, moveHistory.count, endReason, moveHistory)
                 }
-                let iccs = SelfPlayRunner.iccsNotation(for: parsed)
+                let iccs = ICCSParser.iccsString(from: parsed.from, to: parsed.to)
                 moveHistory.append(iccs)
                 board.execute(parsed)
             }
@@ -513,22 +525,25 @@ extension SelfPlayRunner {
     func runCalibration(
         nativeDifficulty: AIDifficulty = .amateurHigh,
         pikafishDifficulty: AIDifficulty = .amateurDan,
+        pikafishSkillOverride: Int? = nil,
         games: Int = 10,
         moveTimeMs: Int = 500,
         maxMoves: Int = 80
     ) async -> String {
         let config = MixedEngineConfig(games: games, maxMoves: maxMoves, moveTimeMs: moveTimeMs)
 
+        let pfSkillDesc = pikafishSkillOverride.map { " (Skill \($0) override)" } ?? ""
         print("═══════════════════════════════════════════")
         print("  交叉对弈校准")
-        print("  \(nativeDifficulty.rawValue) vs \(pikafishDifficulty.rawValue)（\(games) 局）")
+        print("  \(nativeDifficulty.rawValue) vs \(pikafishDifficulty.rawValue)\(pfSkillDesc)（\(games) 局）")
         print("═══════════════════════════════════════════")
         print("")
 
         let result = await runMixedEngineMatch(
             config: config,
             nativeDifficulty: nativeDifficulty,
-            pikafishDifficulty: pikafishDifficulty
+            pikafishDifficulty: pikafishDifficulty,
+            pikafishSkillOverride: pikafishSkillOverride
         ) { completed, gameResult in
             let winnerStr: String
             switch gameResult.result {
@@ -581,6 +596,166 @@ extension SelfPlayRunner {
         print("报告已保存：\(outputPath)")
 
         return report
+    }
+
+    // MARK: - v6.0: 纯 Pikafish 自对弈（Skill Level 梯度验证）
+
+    /// 纯 Pikafish 自对弈：红方 Skill A vs 黑方 Skill B
+    /// 单实例 Pikafish，每步前通过 difficulty 设置当前方的 Skill Level
+    func runPikafishSelfPlay(
+        redDifficulty: AIDifficulty,
+        blackDifficulty: AIDifficulty,
+        games: Int,
+        maxMoves: Int = 80,
+        moveTimeMs: Int = 500,
+        progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
+    ) async -> MixedEngineSessionResult {
+        let startTime = Date()
+        var gameResults: [MixedEngineGameResult] = []
+        var redWins = 0, blackWins = 0, draws = 0, totalMoves = 0
+        var redSkillWins = 0, blackSkillWins = 0
+
+        let engine = EmbeddedPikafishEngine()
+        do {
+            try await engine.start()
+        } catch {
+            print("❌ Pikafish failed to start: \(error)")
+            return MixedEngineSessionResult(
+                games: [], redWins: 0, blackWins: 0, draws: 0,
+                avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0
+            )
+        }
+
+        let redName = "Skill\(redDifficulty.skillLevel ?? 0)"
+        let blackName = "Skill\(blackDifficulty.skillLevel ?? 0)"
+
+        for gameIndex in 0..<games {
+            let actualRed: AIDifficulty
+            let actualBlack: AIDifficulty
+            // 交换先后手
+            if gameIndex % 2 == 1 {
+                actualRed = blackDifficulty
+                actualBlack = redDifficulty
+            } else {
+                actualRed = redDifficulty
+                actualBlack = blackDifficulty
+            }
+
+            let result = await playPikafishSelfPlayGame(
+                gameIndex: gameIndex,
+                redDifficulty: actualRed,
+                blackDifficulty: actualBlack,
+                maxMoves: maxMoves,
+                moveTimeMs: moveTimeMs,
+                engine: engine
+            )
+
+            let redIsRedSkill = (gameIndex % 2 == 0)
+            gameResults.append(MixedEngineGameResult(
+                gameIndex: gameIndex,
+                result: result.result,
+                totalMoves: result.totalMoves,
+                reason: result.reason,
+                moveHistory: result.moveHistory,
+                redEngineName: redIsRedSkill ? redName : blackName,
+                blackEngineName: redIsRedSkill ? blackName : redName
+            ))
+
+            totalMoves += result.totalMoves
+            switch result.result {
+            case .redWon:
+                redWins += 1
+                if redIsRedSkill { redSkillWins += 1 } else { blackSkillWins += 1 }
+            case .blackWon:
+                blackWins += 1
+                if !redIsRedSkill { redSkillWins += 1 } else { blackSkillWins += 1 }
+            case .draw:
+                draws += 1
+            default: break
+            }
+
+            progressCallback?(gameIndex + 1, gameResults.last!)
+            await engine.newGame()
+        }
+
+        await engine.shutdown()
+
+        let elapsed = Date().timeIntervalSince(startTime)
+        let avg = games > 0 ? Double(totalMoves) / Double(games) : 0
+        let eloDelta = BayesElo.estimateDelta(wins: redSkillWins, losses: blackSkillWins, draws: draws)
+
+        print("")
+        print("═══ 纯 Pikafish 自对弈结果 ═══")
+        print("  \(redName) vs \(blackName)（\(games) 局）")
+        print("  \(redName) 胜：\(redSkillWins)")
+        print("  \(blackName) 胜：\(blackSkillWins)")
+        print("  和棋：\(draws)")
+        print("  BayesElo 差值：\(eloDelta >= 0 ? "+" : "")\(eloDelta)")
+        print("  平均步数：\(String(format: "%.1f", avg))")
+        print("  耗时：\(String(format: "%.1f", elapsed))s")
+
+        return MixedEngineSessionResult(
+            games: gameResults, redWins: redWins, blackWins: blackWins,
+            draws: draws, avgMoves: avg, durationSeconds: elapsed,
+            bayesEloDelta: eloDelta
+        )
+    }
+
+    /// 纯 Pikafish 单局
+    private func playPikafishSelfPlayGame(
+        gameIndex: Int,
+        redDifficulty: AIDifficulty,
+        blackDifficulty: AIDifficulty,
+        maxMoves: Int,
+        moveTimeMs: Int,
+        engine: EmbeddedPikafishEngine
+    ) async -> (result: GameState, totalMoves: Int, reason: GameEndReason, moveHistory: [String]) {
+        let board = Board()
+        var moveHistory: [String] = []
+        var fenCounts: [String: Int] = [:]
+        var endReason: GameEndReason = .normal
+
+        while moveHistory.count < maxMoves {
+            let currentSide = board.currentTurn
+            let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
+
+            // bestMove 内部会根据 difficulty.skillLevel 自动设置 Skill Level
+            let fen = FENParser.generate(board: board)
+            let result = await engine.bestMove(
+                fen: fen,
+                moveHistory: [],
+                difficulty: difficulty,
+                timeLimitMs: moveTimeMs
+            )
+
+            guard let uciMove = result,
+                  let move = UCIMoveConverter.move(from: uciMove, on: board) else {
+                endReason = .stalemate
+                let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
+                return (winner, moveHistory.count, endReason, moveHistory)
+            }
+
+            let iccs = SelfPlayRunner.iccsNotation(for: move)
+            moveHistory.append(iccs)
+            board.execute(move)
+
+            let fen2 = FENParser.generate(board: board)
+            fenCounts[fen2, default: 0] += 1
+            if fenCounts[fen2]! >= 3 {
+                endReason = .repetition
+                return (.draw, moveHistory.count, endReason, moveHistory)
+            }
+
+            if board.generalPosition(of: .red) == nil {
+                return (.blackWon, moveHistory.count, .normal, moveHistory)
+            }
+            if board.generalPosition(of: .black) == nil {
+                return (.redWon, moveHistory.count, .normal, moveHistory)
+            }
+        }
+
+        endReason = .moveLimit
+        return (.draw, moveHistory.count, endReason, moveHistory)
     }
 }
 
@@ -663,8 +838,31 @@ func runCalibrateFromCLI() async {
     print("═══════════════════════════════════════════")
     print("")
 
+    // 支持自定义难度: --calibrate <games> <maxMoves> [nativeLvl] [pikafishLvl]
+    // 默认: native=4(lvl4/amateurMid), pikafish=6(lvl6/amateurDan=Skill5)
+    // 特殊: pikafishLvl=0 表示 Skill 0（用 novice/lvl1 映射到 Skill 0）
+    let nativeLvl = args.count > 4 ? (Int(args[4]) ?? 4) : 4  // 默认 4 级
+    let pikafishLvl = args.count > 5 ? (Int(args[5]) ?? 6) : 6  // 默认 6 级
+    let nativeDiff = AIDifficulty(rawValue: "lvl\(nativeLvl)") ?? .amateurMid
+    // pikafishLvl 1-5 = Skill 0/4/7/10/13（对应天梯实测点）
+    // 直接传 Skill Level 数值
+    let skillMap = [0: 0, 1: 4, 2: 7, 3: 10, 4: 13, 5: 20]  // pikafishLvl → Skill Level
+    // 如果 pikafishLvl > 5，直接当 Skill Level 用
+    let skillLevel = pikafishLvl <= 5 ? (skillMap[pikafishLvl] ?? 0) : pikafishLvl
+    // 用 lvl6 作为 enum 占位（EngineRouter 需要 isProfessional=true），实际 Skill 由下面 override
+    let pikafishDiff = AIDifficulty.amateurDan  // lvl6 占位
+    print("  自研: lvl\(nativeLvl)(\(nativeDiff.displayName)) vs Pikafish: Skill \(skillLevel)")
+    print("")
+
+    // 临时覆盖 skillLevel
     let runner = SelfPlayRunner()
-    _ = await runner.runCalibration(games: games, maxMoves: maxMoves)
+    _ = await runner.runCalibration(
+        nativeDifficulty: nativeDiff,
+        pikafishDifficulty: pikafishDiff,
+        pikafishSkillOverride: skillLevel,
+        games: games,
+        maxMoves: maxMoves
+    )
 }
 #endif
 
@@ -751,5 +949,110 @@ func runSelfPlayFromCLI() async {
 
     try? report.write(toFile: outputPath, atomically: true, encoding: String.Encoding.utf8)
     print("报告已保存：\(outputPath)")
+}
+#endif
+
+// MARK: - 纯 Pikafish 自对弈梯度验证
+
+#if os(macOS)
+func runPikafishMatchFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+    
+    let args = CommandLine.arguments
+    // --pfmatch <games> <maxMoves> <skillA> <skillB>
+    let games = args.count > 2 ? (Int(args[2]) ?? 4) : 4
+    let maxMoves = args.count > 3 ? (Int(args[3]) ?? 40) : 40
+    let skillA = args.count > 4 ? (Int(args[4]) ?? 0) : 0
+    let skillB = args.count > 5 ? (Int(args[5]) ?? 4) : 4
+    
+    print("═══════════════════════════════════════════")
+    print("  Pikafish 自对弈梯度验证")
+    print("  Skill \(skillA) vs Skill \(skillB)（\(games) 局，最多 \(maxMoves) 步/局）")
+    print("═══════════════════════════════════════════")
+    print("")
+    
+    let engine = EmbeddedPikafishEngine()
+    do {
+        try await engine.start()
+    } catch {
+        print("❌ Pikafish 启动失败: \(error)")
+        return
+    }
+    
+    var winsA = 0
+    var winsB = 0
+    var draws = 0
+    
+    for gameIdx in 0..<games {
+        let aIsRed = gameIdx % 2 == 0
+        let board = Board()
+        var moveHistory: [String] = []
+        var fenCounts: [String: Int] = [:]
+        
+        print("  第\(gameIdx+1)局开始... Skill\(skillA)(\(aIsRed ? "红" : "黑")) vs Skill\(skillB)(\(aIsRed ? "黑" : "红"))")
+        
+        while moveHistory.count < maxMoves {
+            let currentSide = board.currentTurn
+            let isATurn = (currentSide == .red) == aIsRed
+            let skill = isATurn ? skillA : skillB
+            
+            await engine.setSkillLevel(skill)
+            
+            let fen = FENParser.generate(board: board)
+            guard let bestMove = await engine.bestMove(
+                fen: fen, moveHistory: [], difficulty: .amateurDan, timeLimitMs: 500
+            ),
+            let parsed = UCIMoveConverter.move(from: bestMove, on: board) else {
+                print("    无合法走法，结束")
+                break
+            }
+            
+            let iccs = ICCSParser.iccsString(from: parsed.from, to: parsed.to)
+            moveHistory.append(iccs)
+            board.execute(parsed)
+            
+            let fenAfter = FENParser.generate(board: board)
+            fenCounts[fenAfter, default: 0] += 1
+            if fenCounts[fenAfter]! >= 3 {
+                print("  第\(gameIdx+1)局: 和棋（三次重复）\(moveHistory.count)步")
+                draws += 1
+                break
+            }
+            
+            if board.generalPosition(of: .red) == nil {
+                let winner: String
+                if aIsRed { winner = "Skill\(skillB)"; winsB += 1 } else { winner = "Skill\(skillA)"; winsA += 1 }
+                print("  第\(gameIdx+1)局: \(winner) 胜（\(moveHistory.count)步）")
+                break
+            }
+            if board.generalPosition(of: .black) == nil {
+                let winner: String
+                if aIsRed { winner = "Skill\(skillA)"; winsA += 1 } else { winner = "Skill\(skillB)"; winsB += 1 }
+                print("  第\(gameIdx+1)局: \(winner) 胜（\(moveHistory.count)步）")
+                break
+            }
+        }
+        
+        if moveHistory.count >= maxMoves {
+            print("  第\(gameIdx+1)局: 和棋（步数上限\(maxMoves)）")
+            draws += 1
+        }
+    }
+    
+    print("")
+    print("═══════════════════════════════════════════")
+    print("  结果: Skill\(skillA) \(winsA)胜 / Skill\(skillB) \(winsB)胜 / \(draws)和")
+    
+    let total = winsA + winsB + draws
+    if total > 0 {
+        let scoreA = Double(winsA) + 0.5 * Double(draws)
+        let scoreRate = scoreA / Double(total)
+        print("  Skill\(skillA) 得分率: \(String(format: "%.1f%%", scoreRate * 100))")
+        if scoreRate > 0 && scoreRate < 1 {
+            let eloDelta = -400 * log10(1.0 / scoreRate - 1.0)
+            print("  BayesElo 差: \(String(format: "%.0f", eloDelta))（正数表示 A 强于 B）")
+        }
+    }
+    print("═══════════════════════════════════════════")
 }
 #endif
