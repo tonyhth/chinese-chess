@@ -62,18 +62,18 @@ enum EloEstimator {
 
     // MARK: - 推荐级别映射
 
-    /// Elo → 推荐 AIDifficulty
+    /// Elo → 推荐 AIDifficulty（设计文档 §3.5 区间）
     static func recommendedLevel(from elo: EloEstimate) -> AIDifficulty {
         switch elo.estimate {
-        case 0...800:    return .novice
-        case 801...1000: return .beginner
-        case 1001...1300: return .amateurLow
-        case 1301...1600: return .amateurMid
-        case 1601...1900: return .amateurHigh
-        case 1901...2200: return .amateurDan
-        case 2201...2500: return .proApprentice
-        case 2501...2800: return .proExpert
-        case 2801...3100: return .proMaster
+        case 0...800:      return .novice
+        case 801...1100:  return .beginner
+        case 1101...1400: return .amateurLow
+        case 1401...1700: return .amateurMid
+        case 1701...1900: return .amateurHigh
+        case 1901...2100: return .amateurDan
+        case 2101...2500: return .proApprentice
+        case 2501...2700: return .proExpert
+        case 2701...2900: return .proMaster
         default:          return .grandmaster
         }
     }
