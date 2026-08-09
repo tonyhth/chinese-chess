@@ -178,7 +178,11 @@ class GameViewModel {
             Task { @MainActor in
                 if let original = notification.userInfo?["originalLevel"] as? AIDifficulty {
                     let fallback = notification.userInfo?["fallbackLevel"] as? AIDifficulty ?? .amateurHigh
-                    self?.engineFallbackMessage = "引擎异常，已从 \(original.displayName) 切换到 \(fallback.displayName)"
+                    self?.engineFallbackMessage = String(
+                        format: L10n.shared.t("engine.fallbackLevel"),
+                        original.displayName,
+                        fallback.displayName
+                    )
                 } else {
                     self?.engineFallbackMessage = L10n.shared.t("engine.fallbackMessage")
                 }
@@ -566,9 +570,9 @@ class GameViewModel {
                 self.stopThinking()
                 switch reason {
                 case .engineNotReady:
-                    self.engineFallbackMessage = "Pikafish 引擎未就绪，请选择业余级或稍后重试"
+                    self.engineFallbackMessage = L10n.shared.t("engine.notReady")
                 case .engineFailed:
-                    self.engineFallbackMessage = "Pikafish 引擎异常，已切换到业余高级"
+                    self.engineFallbackMessage = L10n.shared.t("engine.engineFailed")
                 }
                 return
             }
@@ -660,7 +664,18 @@ class GameViewModel {
             } else {
                 // 引擎返回 nil
                 AppLog.gameVM.error("AI move: engine returned nil")
-                self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
+                
+                // v6.0 P1-1: 专业级引擎失败时触发非静默 fallback
+                if currentDifficulty.isProfessional {
+                    EngineRouter.shared.handleEngineFailure(difficulty: currentDifficulty)
+                    self.engineFallbackMessage = String(
+                        format: L10n.shared.t("engine.fallbackLevel"),
+                        currentDifficulty.displayName,
+                        AIDifficulty.amateurHigh.displayName
+                    )
+                } else {
+                    self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
+                }
             }
             
             // P0 修复：stopThinking 由 defer 保证，无需手动调用

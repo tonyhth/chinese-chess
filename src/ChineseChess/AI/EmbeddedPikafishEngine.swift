@@ -321,8 +321,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
 
     // MARK: - Difficulty Mapping
     
-    /// Map AIDifficulty to search depth
-    /// Depth controls search strength: lower depth = weaker play
+    /// Map AIDifficulty to search depth + time
+    /// 业余级（1-5）：depth 控制
+    /// 专业级（6-10）：不限制 depth（Skill Level 全权控制棋力），只用 movetime
     private func mapDifficulty(_ difficulty: AIDifficulty, timeLimitMs: Int) -> (depth: Int, timeMs: Int) {
         let depth: Int
         let defaultTimeMs: Int
@@ -344,24 +345,24 @@ actor EmbeddedPikafishEngine: ChessEngine {
             depth = 24
             defaultTimeMs = 5000
         case .amateurDan:
-            // v6.0 Phase 3: 将改为 Skill Level 5
-            depth = 24
+            // v6.0: Skill Level 5，不限制 depth（0=无限）
+            depth = 0
             defaultTimeMs = 5000
         case .proApprentice:
-            // v6.0 Phase 3: 将改为 Skill Level 8
-            depth = 26
+            // v6.0: Skill Level 8
+            depth = 0
             defaultTimeMs = 6000
         case .proExpert:
-            // v6.0 Phase 3: 将改为 Skill Level 12
-            depth = 28
+            // v6.0: Skill Level 12
+            depth = 0
             defaultTimeMs = 7000
         case .proMaster:
-            // v6.0 Phase 3: 将改为 Skill Level 16
-            depth = 30
+            // v6.0: Skill Level 16
+            depth = 0
             defaultTimeMs = 8000
         case .grandmaster:
-            // v6.0 Phase 3: 将改为 Skill Level 20
-            depth = 32
+            // v6.0: Skill Level 20
+            depth = 0
             defaultTimeMs = 10000
         }
 

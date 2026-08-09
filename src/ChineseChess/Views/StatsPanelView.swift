@@ -44,7 +44,7 @@ struct StatsPanelView: View {
                 // 专业级统计
                 let hasProStats = proDifficulties.contains(where: { !$0.displayName.isEmpty && statsVM.aiStats(for: $0).total > 0 })
                 if hasProStats {
-                    Text(l10n.t("difficulty.label") + " - Pro")
+                    Text(l10n.t("stats.professional"))
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.yellow)
                         .padding(.top, 4)

@@ -12370,6 +12370,70 @@
           }
         }
       }
+    },
+    "engine.fallbackLevel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engine error, switched from %1$@ to %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引擎异常，已从 %1$@ 切换到 %2$@"
+          }
+        }
+      }
+    },
+    "engine.notReady": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pikafish engine not ready. Please select amateur level or try again later."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pikafish 引擎未就绪，请选择业余级或稍后重试"
+          }
+        }
+      }
+    },
+    "engine.engineFailed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pikafish engine error, switched to Amateur High"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pikafish 引擎异常，已切换到业余高级"
+          }
+        }
+      }
+    },
+    "stats.professional": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Professional"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "专业级"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
