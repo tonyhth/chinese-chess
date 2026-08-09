@@ -100,12 +100,6 @@ struct RadarChartView: View {
                 x: center.x + radius * cos(angle),
                 y: center.y + radius * sin(angle)
             )
-        } + [
-            // 闭合
-            CGPoint(
-                x: center.x + radius * cos(angleFor(index: 0, total: sides)),
-                y: center.y + radius * sin(angleFor(index: 0, total: sides))
-            )
-        ]
+        }
     }
 }

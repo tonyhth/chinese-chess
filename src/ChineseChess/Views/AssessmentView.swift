@@ -8,8 +8,7 @@ struct AssessmentView: View {
     @State private var store = AssessmentStore.shared
     @State private var showHistoryPicker = false
     @State private var selectedRecords: [GameRecord] = []
-    @State private var navigateToGame = false
-    @State private var navigateToDifficulty: AIDifficulty?
+    @Environment(\.dismiss) private var dismiss
 
     private let l10n = L10n.shared
 
@@ -43,18 +42,7 @@ struct AssessmentView: View {
                 }
                 .padding()
             }
-            .navigationTitle("棋力评估")
-            .navigationDestination(item: $navigateToDifficulty) { level in
-                Text("推荐级别：\(level.displayName)")
-                    .onAppear {
-                        // 设置 GameViewModel 难度
-                        NotificationCenter.default.post(
-                            name: .setDifficultyFromAssessment,
-                            object: nil,
-                            userInfo: ["level": level]
-                        )
-                    }
-            }
+            .navigationTitle(l10n.t("assessment.title"))
         }
     }
 
@@ -90,7 +78,7 @@ struct AssessmentView: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("置信度：\(report.eloEstimate.confidence.label)")
+                    Text(l10n.t("assessment.confidence") + "：\(report.eloEstimate.confidence.label)")
                         .font(.subheadline.weight(.medium))
                     Text("\(report.eloEstimate.sampleSize) 步")
                         .font(.caption)
@@ -107,11 +95,17 @@ struct AssessmentView: View {
 
             // 推荐级别
             HStack {
-                Text("推荐级别")
+                Text(l10n.t("assessment.recommendedLevel"))
                     .font(.body.weight(.medium))
                 Spacer()
                 Button(action: {
-                    navigateToDifficulty = report.recommendedLevel
+                    let level = report.recommendedLevel
+                    NotificationCenter.default.post(
+                        name: .setDifficultyFromAssessment,
+                        object: nil,
+                        userInfo: ["level": level]
+                    )
+                    dismiss()
                 }) {
                     HStack(spacing: 4) {
                         Text(report.recommendedLevel.displayName)
@@ -126,7 +120,7 @@ struct AssessmentView: View {
 
             // 分析样本
             HStack {
-                Text("分析样本")
+                Text(l10n.t("assessment.sampleSize"))
                     .font(.caption)
                     .foregroundColor(.secondary)
                 Spacer()
@@ -137,29 +131,29 @@ struct AssessmentView: View {
 
             // 六维雷达图
             RadarChartView(scores: [
-                ("开局", Double(report.dimensions.opening.score)),
-                ("中盘", Double(report.dimensions.tactics.score)),
-                ("残局", Double(report.dimensions.endgame.score)),
-                ("稳定性", Double(report.dimensions.consistency.score)),
-                ("杀棋", Double(report.dimensions.checkmate.score)),
-                ("总评", Double(report.dimensions.overall)),
+                (l10n.t("assessment.opening"), Double(report.dimensions.opening.score)),
+                (l10n.t("assessment.tactics"), Double(report.dimensions.tactics.score)),
+                (l10n.t("assessment.endgame"), Double(report.dimensions.endgame.score)),
+                (l10n.t("assessment.consistency"), Double(report.dimensions.consistency.score)),
+                (l10n.t("assessment.checkmate"), Double(report.dimensions.checkmate.score)),
+                (l10n.t("assessment.overall"), Double(report.dimensions.overall)),
             ])
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
 
             // 评分进度条
             VStack(spacing: 6) {
-                scoreBar("开局", report.dimensions.opening.score, report.dimensions.opening.label)
+                scoreBar(l10n.t("assessment.opening"), report.dimensions.opening.score, report.dimensions.opening.label)
                 scoreBar("中盘战术", report.dimensions.tactics.score, report.dimensions.tactics.label)
-                scoreBar("残局", report.dimensions.endgame.score, report.dimensions.endgame.label)
-                scoreBar("稳定性", report.dimensions.consistency.score, report.dimensions.consistency.label)
+                scoreBar(l10n.t("assessment.endgame"), report.dimensions.endgame.score, report.dimensions.endgame.label)
+                scoreBar(l10n.t("assessment.consistency"), report.dimensions.consistency.score, report.dimensions.consistency.label)
                 scoreBar("杀棋敏感", report.dimensions.checkmate.score, report.dimensions.checkmate.label)
             }
 
             // 优势/短板
             if !report.strengths.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("优势")
+                    Text(l10n.t("assessment.strengths"))
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.green)
                     ForEach(report.strengths, id: \.self) { s in
@@ -173,7 +167,7 @@ struct AssessmentView: View {
 
             if !report.weaknesses.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("短板")
+                    Text(l10n.t("assessment.weaknesses"))
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(.orange)
                     ForEach(report.weaknesses, id: \.self) { w in
@@ -188,7 +182,7 @@ struct AssessmentView: View {
             // 训练建议
             if !report.trainingSuggestions.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("训练建议")
+                    Text(l10n.t("assessment.trainingSuggestions"))
                         .font(.subheadline.weight(.semibold))
                     ForEach(report.trainingSuggestions) { s in
                         VStack(alignment: .leading, spacing: 2) {
@@ -205,7 +199,7 @@ struct AssessmentView: View {
             }
 
             // 重新评估按钮
-            Button("重新评估") {
+            Button(l10n.t("assessment.reassess")) {
                 session.reset()
             }
             .buttonStyle(.bordered)
@@ -252,9 +246,9 @@ struct AssessmentView: View {
             Image(systemName: "chart.bar.doc.horizontal")
                 .font(.system(size: 48))
                 .foregroundColor(.secondary)
-            Text("还没有评估报告")
+            Text(l10n.t("assessment.emptyTitle"))
                 .font(.headline)
-            Text("通过分析你的对局来估算棋力水平\n推荐合适的对弈级别")
+            Text(l10n.t("assessment.emptyDesc"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -269,13 +263,13 @@ struct AssessmentView: View {
             Button(action: {
                 startHistoryAnalysis()
             }) {
-                Label("分析历史对局", systemImage: "clock.arrow.circlepath")
+                Label(l10n.t("assessment.analyzeHistory"), systemImage: "clock.arrow.circlepath")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .tint(.accentColor)
 
-            Text("选择最近 1-5 局 vs AI 的对局进行逐手分析")
+            Text(l10n.t("assessment.analyzeHistoryDesc"))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -303,7 +297,7 @@ struct AssessmentView: View {
             .compactMap { GameRecordStore.shared.loadRecord(id: $0.id) }
 
         guard !records.isEmpty else {
-            session.state = .failed("没有 vs AI 的对局记录")
+            session.state = .failed(l10n.t("assessment.noRecords"))
             return
         }
 
@@ -321,7 +315,3 @@ struct AssessmentView: View {
 extension Notification.Name {
     static let setDifficultyFromAssessment = Notification.Name("setDifficultyFromAssessment")
 }
-
-// MARK: - AIDifficulty Identifiable（用于 navigationDestination）
-
-extension AIDifficulty: Identifiable {}

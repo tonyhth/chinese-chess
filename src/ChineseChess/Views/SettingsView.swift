@@ -43,23 +43,23 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "chart.bar.doc.horizontal")
                                 .foregroundColor(.accentColor)
-                            Text("棋力评估")
+                            Text(l10n.t("settings.assessment"))
                             Spacer()
                             if let report = AssessmentStore.shared.lastReport {
                                 Text("\(report.eloEstimate.estimate) ±\(report.eloEstimate.upperBound - report.eloEstimate.estimate)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             } else {
-                                Text("未评估")
+                                Text(l10n.t("settings.notAssessed"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                         }
                     }
                 } header: {
-                    Text("棋力评估")
+                    Text(l10n.t("settings.assessment"))
                 } footer: {
-                    Text("分析对局估算棋力，推荐合适级别")
+                    Text(l10n.t("settings.assessmentDesc"))
                         .font(.caption2)
                 }
 
