@@ -1,0 +1,44 @@
+{
+  "1": {
+    "wins": 3,
+    "losses": 1,
+    "draws": 0,
+    "score": 0.75,
+    "elo_vs_baseline": 191
+  },
+  "2": {
+    "wins": 0,
+    "losses": 0,
+    "draws": 4,
+    "score": 0.5,
+    "elo_vs_baseline": 0
+  },
+  "3": {
+    "wins": 3,
+    "losses": 1,
+    "draws": 0,
+    "score": 0.75,
+    "elo_vs_baseline": 191
+  },
+  "5": {
+    "wins": 2,
+    "losses": 1,
+    "draws": 1,
+    "score": 0.625,
+    "elo_vs_baseline": 89
+  },
+  "8": {
+    "wins": 4,
+    "losses": 0,
+    "draws": 0,
+    "score": 1.0,
+    "elo_vs_baseline": 798
+  },
+  "12": {
+    "wins": 4,
+    "losses": 0,
+    "draws": 0,
+    "score": 1.0,
+    "elo_vs_baseline": 798
+  }
+}

@@ -117,6 +117,8 @@ def build_index(pgn_path: str, output_path: str, stats_path: str,
 
             if not header_lines:
                 continue
+            if len(header_lines) < 4:
+                continue
 
             # 读取走法段
             move_lines = []
