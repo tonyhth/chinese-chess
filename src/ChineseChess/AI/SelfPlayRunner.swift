@@ -480,11 +480,16 @@ extension SelfPlayRunner {
                     await pikafishEngine.setSkillLevel(skillOverride)
                 }
                 let fen = FENParser.generate(board: board)
+                // v6.0: Skill override — 先设 Skill Level，再用 .novice 调用避免被覆盖
+                if let skillOverride = pikafishSkillOverride {
+                    await pikafishEngine.setSkillLevel(skillOverride)
+                }
                 // 构造 UCI move history（ICCS 格式兼容）
+                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .novice : pikafishDifficulty
                 let result = await pikafishEngine.bestMove(
                     fen: fen,
                     moveHistory: [],
-                    difficulty: pikafishDifficulty,
+                    difficulty: pfDifficulty,
                     timeLimitMs: moveTimeMs
                 )
                 guard let move = result,
@@ -999,8 +1004,10 @@ func runPikafishMatchFromCLI() async {
             await engine.setSkillLevel(skill)
             
             let fen = FENParser.generate(board: board)
+            // 传 .amateurHigh（skillLevel=nil）避免 bestMove 内部覆盖手动设的 Skill
+            // amateurHigh 的 depth=24 足够深，主要靠 Skill Level + movetime 控制棋力
             guard let bestMove = await engine.bestMove(
-                fen: fen, moveHistory: [], difficulty: .amateurDan, timeLimitMs: 500
+                fen: fen, moveHistory: [], difficulty: .amateurHigh, timeLimitMs: 500
             ),
             let parsed = UCIMoveConverter.move(from: bestMove, on: board) else {
                 print("    无合法走法，结束")
