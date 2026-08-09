@@ -24,6 +24,8 @@ targets:
     sources:
       - path: src/ChineseChess/AI
         type: group
+      - path: src/ChineseChess/Assessment
+        type: group
       - path: src/ChineseChess/Accessibility
         type: group
       - path: src/ChineseChess/App
