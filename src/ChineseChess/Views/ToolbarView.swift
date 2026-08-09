@@ -180,13 +180,19 @@ struct ToolbarView: View {
                 .tint(.brown)
                 .accessibilityLabel(l10n.t("game.sideLabel"))
 
-                // v6.0: 业余级难度快捷按钮
+                // v6.0: 10 级难度快捷菜单
                 Menu {
                     Button(l10n.t("difficulty.lvl1")) { viewModel.setDifficulty(.novice) }
                     Button(l10n.t("difficulty.lvl2")) { viewModel.setDifficulty(.beginner) }
                     Button(l10n.t("difficulty.lvl3")) { viewModel.setDifficulty(.amateurLow) }
                     Button(l10n.t("difficulty.lvl4")) { viewModel.setDifficulty(.amateurMid) }
                     Button(l10n.t("difficulty.lvl5")) { viewModel.setDifficulty(.amateurHigh) }
+                    Divider()
+                    Button(l10n.t("difficulty.lvl6")) { viewModel.setDifficulty(.amateurDan) }
+                    Button(l10n.t("difficulty.lvl7")) { viewModel.setDifficulty(.proApprentice) }
+                    Button(l10n.t("difficulty.lvl8")) { viewModel.setDifficulty(.proExpert) }
+                    Button(l10n.t("difficulty.lvl9")) { viewModel.setDifficulty(.proMaster) }
+                    Button(l10n.t("difficulty.lvl10")) { viewModel.setDifficulty(.grandmaster) }
                 } label: {
                     Text(difficultyShortName(viewModel.difficulty))
                         .font(.caption.weight(.bold))
@@ -303,11 +309,20 @@ struct ToolbarView: View {
                     get: { viewModel.difficulty },
                     set: { viewModel.setDifficulty($0) }
                 )) {
-                    Text(l10n.t("difficulty.lvl1")).tag(AIDifficulty.novice)
-                    Text(l10n.t("difficulty.lvl2")).tag(AIDifficulty.beginner)
-                    Text(l10n.t("difficulty.lvl3")).tag(AIDifficulty.amateurLow)
-                    Text(l10n.t("difficulty.lvl4")).tag(AIDifficulty.amateurMid)
-                    Text(l10n.t("difficulty.lvl5")).tag(AIDifficulty.amateurHigh)
+                    Group {
+                        Text(l10n.t("difficulty.lvl1")).tag(AIDifficulty.novice)
+                        Text(l10n.t("difficulty.lvl2")).tag(AIDifficulty.beginner)
+                        Text(l10n.t("difficulty.lvl3")).tag(AIDifficulty.amateurLow)
+                        Text(l10n.t("difficulty.lvl4")).tag(AIDifficulty.amateurMid)
+                        Text(l10n.t("difficulty.lvl5")).tag(AIDifficulty.amateurHigh)
+                    }
+                    Group {
+                        Text(l10n.t("difficulty.lvl6")).tag(AIDifficulty.amateurDan)
+                        Text(l10n.t("difficulty.lvl7")).tag(AIDifficulty.proApprentice)
+                        Text(l10n.t("difficulty.lvl8")).tag(AIDifficulty.proExpert)
+                        Text(l10n.t("difficulty.lvl9")).tag(AIDifficulty.proMaster)
+                        Text(l10n.t("difficulty.lvl10")).tag(AIDifficulty.grandmaster)
+                    }
                 }
                 .pickerStyle(.menu)
                 .labelsHidden()

@@ -169,14 +169,19 @@ class GameViewModel {
 
     init() {
         self.board = Board()
-        // P1-2: 监听外部引擎 fallback 通知
+        // v6.0: 监听引擎 fallback 通知（包含 originalLevel 和 fallbackLevel）
         fallbackObserver = NotificationCenter.default.addObserver(
             forName: EngineRouter.fallbackNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in
+        ) { [weak self] notification in
             Task { @MainActor in
-                self?.engineFallbackMessage = L10n.shared.t("engine.fallbackMessage")
+                if let original = notification.userInfo?["originalLevel"] as? AIDifficulty {
+                    let fallback = notification.userInfo?["fallbackLevel"] as? AIDifficulty ?? .amateurHigh
+                    self?.engineFallbackMessage = "引擎异常，已从 \(original.displayName) 切换到 \(fallback.displayName)"
+                } else {
+                    self?.engineFallbackMessage = L10n.shared.t("engine.fallbackMessage")
+                }
             }
         }
     }
@@ -494,13 +499,14 @@ class GameViewModel {
             guard let self else { return }
             defer { self.stopThinking() }
             
-            // 确保引擎切换完成
+            // v6.0: 确保引擎切换完成 + 按难度路由
             _ = await EngineRouter.shared.switchEngineIfNeeded()
             
             // P0 修复：gameVersion 检查
             guard self.gameVersion == currentVersion else { return }
             
-            let engine = EngineRouter.shared.activeEngine()
+            // v6.0: 按难度获取引擎
+            let engine = EngineRouter.shared.engineFor(difficulty: currentDifficulty)
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
             let fen = FENParser.generate(board: self.board)
             
@@ -551,13 +557,27 @@ class GameViewModel {
                 return
             }
             
-            // 确保引擎切换完成
+            // v6.0: 确保引擎切换完成 + 按难度路由
             _ = await EngineRouter.shared.switchEngineIfNeeded()
+            
+            // v6.0: 专业级进入对弈前检查 Pikafish 可用性
+            let availability = await EngineRouter.shared.validateEngineAvailability(for: currentDifficulty)
+            if case .unavailable(let reason) = availability {
+                self.stopThinking()
+                switch reason {
+                case .engineNotReady:
+                    self.engineFallbackMessage = "Pikafish 引擎未就绪，请选择业余级或稍后重试"
+                case .engineFailed:
+                    self.engineFallbackMessage = "Pikafish 引擎异常，已切换到业余高级"
+                }
+                return
+            }
             
             // P0 修复：gameVersion 检查 — 新对局可能已开始
             guard self.gameVersion == currentVersion else { return }
             
-            let engine = EngineRouter.shared.activeEngine()
+            // v6.0: 按难度获取引擎
+            let engine = EngineRouter.shared.engineFor(difficulty: currentDifficulty)
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
             let fen = FENParser.generate(board: self.board)
             

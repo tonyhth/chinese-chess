@@ -118,6 +118,11 @@ actor EmbeddedPikafishEngine: ChessEngine {
             return nil
         }
 
+        // v6.0: 专业级设置 Skill Level（UCI 选项）
+        if let skill = difficulty.skillLevel {
+            setSkillLevel(skill)
+        }
+
         let (depth, timeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
         let movesStr = moveHistory.joined(separator: " ")
 
@@ -206,6 +211,23 @@ actor EmbeddedPikafishEngine: ChessEngine {
         #endif
 
         let _ = pikafish_set_option("Hash", String(ttSizeMB))
+    }
+
+    // MARK: - v6.0: Skill Level 设置
+
+    /// 设置 Pikafish Skill Level（UCI 选项）
+    /// Skill Level 0-20，控制引擎棋力（完整搜索后按概率选劣变）
+    func setSkillLevel(_ skill: Int) {
+        guard isReady else {
+            NSLog("[Pikafish] setSkillLevel(\(skill)) called before engine ready — ignored")
+            return
+        }
+        let result = pikafish_set_option("Skill Level", String(skill))
+        if result == 0 {
+            NSLog("[Pikafish] Skill Level set to \(skill)")
+        } else {
+            NSLog("[Pikafish] ⚠️ Failed to set Skill Level to \(skill) (result=\(result))")
+        }
     }
 
     // MARK: - Analysis (for PositionAnalyzer)
