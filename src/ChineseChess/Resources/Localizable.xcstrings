@@ -12850,6 +12850,38 @@
           }
         }
       }
+    },
+    "difficulty.amateurSection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amateur"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "业余级"
+          }
+        }
+      }
+    },
+    "difficulty.proSection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Professional"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "专业级"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

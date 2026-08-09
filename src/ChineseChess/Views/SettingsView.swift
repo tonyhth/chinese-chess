@@ -15,14 +15,14 @@ struct SettingsView: View {
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
-                        Group {
+                        Section(l10n.t("difficulty.amateurSection")) {
                             Text(l10n.t("difficulty.lvl1")).tag(AIDifficulty.novice)
                             Text(l10n.t("difficulty.lvl2")).tag(AIDifficulty.beginner)
                             Text(l10n.t("difficulty.lvl3")).tag(AIDifficulty.amateurLow)
                             Text(l10n.t("difficulty.lvl4")).tag(AIDifficulty.amateurMid)
                             Text(l10n.t("difficulty.lvl5")).tag(AIDifficulty.amateurHigh)
                         }
-                        Group {
+                        Section(l10n.t("difficulty.proSection")) {
                             Text(l10n.t("difficulty.lvl6")).tag(AIDifficulty.amateurDan)
                             Text(l10n.t("difficulty.lvl7")).tag(AIDifficulty.proApprentice)
                             Text(l10n.t("difficulty.lvl8")).tag(AIDifficulty.proExpert)
@@ -104,17 +104,6 @@ struct SettingsView: View {
                         Text("English").tag("en" as String?)
                     }
                     .pickerStyle(.menu)
-                }
-
-                // 引擎设置（iOS/macOS 统一，v5.5.9: iOS 不再 disabled）
-                Section(l10n.t("settings.engineSection")) {
-                    Toggle(l10n.t("engine.usePikafish"), isOn: Binding(
-                        get: { EngineConfigStore.shared.useEmbeddedEngine },
-                        set: { newValue in
-                            EngineConfigStore.shared.useEmbeddedEngine = newValue
-                            Task { await EngineRouter.shared.switchEngineIfNeeded() }
-                        }
-                    ))
                 }
 
                 // 关于

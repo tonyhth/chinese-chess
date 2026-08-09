@@ -145,20 +145,8 @@ struct ToolbarView: View {
 
             Spacer()
 
-            // 右侧：引擎切换 + 执边 + 新开一局
+            // 右侧：执边 + 新开一局
             HStack(spacing: 8) {
-                // P2 #12: 快速切换引擎按钮
-                Button(action: toggleEngine) {
-                    Image(systemName: EngineConfigStore.shared.useEmbeddedEngine ? "externaldrive.fill" : "cpu.fill")
-                        .font(.title3)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .disabled(viewModel.isThinking)
-                .opacity(viewModel.isThinking ? 0.5 : 1.0)
-                .tint(EngineConfigStore.shared.useEmbeddedEngine ? .cyan : .brown)
-                .accessibilityLabel(l10n.t(EngineConfigStore.shared.useEmbeddedEngine ? "engine.external" : "engine.builtIn"))
-
                 // v3.7.1 B1: iOS 执边选择按钮（P2-3: 对弈中确认）
                 Button(action: {
                     if !viewModel.board.moveHistory.isEmpty && viewModel.gameState == .playing {
@@ -329,16 +317,6 @@ struct ToolbarView: View {
                 .frame(width: 70)
                 .help(l10n.t("difficulty.label"))
 
-                // 快速切换引擎按钮（仅图标）
-                Button(action: toggleEngine) {
-                    Image(systemName: EngineConfigStore.shared.useEmbeddedEngine ? "externaldrive.fill" : "cpu.fill")
-                }
-                .disabled(viewModel.isThinking)
-                .opacity(viewModel.isThinking ? 0.5 : 1.0)
-                .buttonStyle(.bordered)
-                .tint(EngineConfigStore.shared.useEmbeddedEngine ? .cyan : .brown)
-                .help(l10n.t("engine.toggleTooltip", l10n.t(EngineConfigStore.shared.useEmbeddedEngine ? "engine.external" : "engine.builtIn")))
-
                 // 执边选择：颜色圆点按钮（SF Symbol）
                 Button(action: {
                     let newSide: Side = viewModel.humanSide == .red ? .black : .red
@@ -379,26 +357,5 @@ struct ToolbarView: View {
         case .proMaster:     return l10n.t("difficulty.short.lvl9")
         case .grandmaster:   return l10n.t("difficulty.short.lvl10")
         }
-    }
-
-    // MARK: - Engine Toggle
-
-    private func toggleEngine() {
-        let store = EngineConfigStore.shared
-        let result = store.quickToggleEngine()
-
-        switch result {
-        case "builtIn":
-            toastMessage = l10n.t("engine.switchToast", l10n.t("engine.builtIn"))
-        case "external":
-            toastMessage = l10n.t("engine.switchToast", l10n.t("engine.external"))
-        case "noExternalAvailable":
-            toastMessage = l10n.t("engine.noExternalAvailable")
-        default:
-            break
-        }
-
-        // P1 #1 修复：移除手动 refreshTrigger，依赖 @Observable 自动响应
-        withAnimation { showToast = true }
     }
 }
