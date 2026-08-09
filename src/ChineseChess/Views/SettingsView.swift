@@ -9,19 +9,30 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-                // 难度设置
-                Section(l10n.t("difficulty.label")) {
+                // 难度设置（v6.0: 10 级分组）
+                Section {
                     Picker(l10n.t("difficulty.label"), selection: Binding(
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
-                        Text("入门").tag(AIDifficulty.novice)
-                        Text("初级").tag(AIDifficulty.beginner)
-                        Text("业余初级").tag(AIDifficulty.amateurLow)
-                        Text("业余中级").tag(AIDifficulty.amateurMid)
-                        Text("业余高级").tag(AIDifficulty.amateurHigh)
+                        Group {
+                            Text(l10n.t("difficulty.lvl1")).tag(AIDifficulty.novice)
+                            Text(l10n.t("difficulty.lvl2")).tag(AIDifficulty.beginner)
+                            Text(l10n.t("difficulty.lvl3")).tag(AIDifficulty.amateurLow)
+                            Text(l10n.t("difficulty.lvl4")).tag(AIDifficulty.amateurMid)
+                            Text(l10n.t("difficulty.lvl5")).tag(AIDifficulty.amateurHigh)
+                        }
+                        Group {
+                            Text(l10n.t("difficulty.lvl6")).tag(AIDifficulty.amateurDan)
+                            Text(l10n.t("difficulty.lvl7")).tag(AIDifficulty.proApprentice)
+                            Text(l10n.t("difficulty.lvl8")).tag(AIDifficulty.proExpert)
+                            Text(l10n.t("difficulty.lvl9")).tag(AIDifficulty.proMaster)
+                            Text(l10n.t("difficulty.lvl10")).tag(AIDifficulty.grandmaster)
+                        }
                     }
                     .pickerStyle(.menu)
+                } header: {
+                    Text(l10n.t("difficulty.label"))
                 }
 
                 // 主题

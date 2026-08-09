@@ -90,7 +90,9 @@ struct TimeManager {
     }
 
     /// 根据难度创建 TimeManager
-    /// beginner/easy/medium 无时间限制，返回 nil
+    /// 1-2 级无时间限制，返回 nil
+    /// 3-5 级自研引擎时间分配
+    /// 6-10 级专业级返回 nil（时间由 Pikafish 内部管理）
     /// isIOS: iOS 降时避免主线程阻塞被系统 kill
     /// board: 可选，传入时根据局面复杂度动态调整时间
     static func forDifficulty<T: BoardReadable>(_ difficulty: AIDifficulty, isIOS: Bool = false,
@@ -105,10 +107,9 @@ struct TimeManager {
             baseTimeMs = isIOS ? 3000 : 5000
         case .amateurHigh:
             baseTimeMs = isIOS ? 5000 : 10000
-        default:
-            // v6.0 Phase 2: 专业级时间由 Pikafish 内部管理
-            // 临时 fallback: 同 amateurHigh
-            baseTimeMs = isIOS ? 5000 : 10000
+        case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster:
+            // v6.0: 专业级时间由 Pikafish 内部管理
+            return nil
         }
 
         // 根据局面复杂度调整时间（仅当传入 board 时）

@@ -4,7 +4,8 @@ struct StatsPanelView: View {
     @State private var statsVM = StatsViewModel()
     @State private var showResetAlert = false
 
-    private let difficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
+    private let amateurDifficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
+    private let proDifficulties: [AIDifficulty] = [.amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster]
 
     private let l10n = L10n.shared
 
@@ -20,7 +21,7 @@ struct StatsPanelView: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.orange)
 
-                ForEach(difficulties, id: \.self) { diff in
+                ForEach(amateurDifficulties, id: \.self) { diff in
                     let s = statsVM.aiStats(for: diff)
                     HStack {
                         Text(diff.displayName)
@@ -37,6 +38,37 @@ struct StatsPanelView: View {
                         Text(String(format: "%.0f%%", s.winRate * 100))
                             .font(.footnote.weight(.medium))
                             .foregroundColor(s.winRate >= 0.5 ? .green : .red)
+                    }
+                }
+
+                // 专业级统计
+                let hasProStats = proDifficulties.contains(where: { !$0.displayName.isEmpty && statsVM.aiStats(for: $0).total > 0 })
+                if hasProStats {
+                    Text(l10n.t("difficulty.label") + " - Pro")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.yellow)
+                        .padding(.top, 4)
+
+                    ForEach(proDifficulties, id: \.self) { diff in
+                        let s = statsVM.aiStats(for: diff)
+                        if s.total > 0 {
+                            HStack {
+                                Text(diff.displayName)
+                                    .font(.footnote)
+                                    .foregroundColor(.white)
+                                    .frame(minWidth: 50, alignment: .leading)
+
+                                Text(String(format: l10n.t("stats.recordFormat"), s.wins, s.losses, s.draws))
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+
+                                Spacer()
+
+                                Text(String(format: "%.0f%%", s.winRate * 100))
+                                    .font(.footnote.weight(.medium))
+                                    .foregroundColor(s.winRate >= 0.5 ? .green : .red)
+                            }
+                        }
                     }
                 }
             }

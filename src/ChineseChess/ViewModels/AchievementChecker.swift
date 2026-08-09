@@ -58,7 +58,8 @@ enum AchievementChecker {
         var unlocked: [String] = []
         let beaten = Set(profile.unlockedAchievements)
 
-        // beat_medium / beat_hard / beat_master（v6.0: 新枚举名映射）
+        // beat_medium / beat_hard / beat_master（v6.0: 业余级成就阈值）
+        // 新增专业级成就
         switch result.difficulty {
         case .amateurLow:
             if !beaten.contains("beat_medium") { unlocked.append("beat_medium") }
@@ -66,7 +67,18 @@ enum AchievementChecker {
             if !beaten.contains("beat_hard") { unlocked.append("beat_hard") }
         case .amateurHigh:
             if !beaten.contains("beat_master") { unlocked.append("beat_master") }
-        default: break
+        case .amateurDan:
+            if !beaten.contains("beat_pro_1") { unlocked.append("beat_pro_1") }
+        case .proApprentice:
+            if !beaten.contains("beat_pro_2") { unlocked.append("beat_pro_2") }
+        case .proExpert:
+            if !beaten.contains("beat_pro_3") { unlocked.append("beat_pro_3") }
+        case .proMaster:
+            if !beaten.contains("beat_pro_4") { unlocked.append("beat_pro_4") }
+        case .grandmaster:
+            if !beaten.contains("beat_pro_5") { unlocked.append("beat_pro_5") }
+        case .novice, .beginner:
+            break  // 入门/初级无专属成就
         }
 
         // no_hint_win
@@ -112,10 +124,10 @@ enum AchievementChecker {
         if currentStreak >= 5 && !beaten.contains("win_streak_5") { unlocked.append("win_streak_5") }
         if currentStreak >= 10 && !beaten.contains("win_streak_10") { unlocked.append("win_streak_10") }
 
-        // all_difficulties（排除 beginner，需赢 4 种）
+        // all_difficulties（v6.0: 赢遍业余级 2-5 即可解锁，排除 novice 入门级）
         var beatenDiff = profile.beatenDifficulties
         beatenDiff.insert(result.difficulty.id)
-        let requiredDifficulties = AIDifficulty.allCases.filter { $0 != .novice }
+        let requiredDifficulties: [AIDifficulty] = [.beginner, .amateurLow, .amateurMid, .amateurHigh]
         let beatenRequired = requiredDifficulties.filter { beatenDiff.contains($0.id) }
         if beatenRequired.count >= requiredDifficulties.count && !beaten.contains("all_difficulties") {
             unlocked.append("all_difficulties")

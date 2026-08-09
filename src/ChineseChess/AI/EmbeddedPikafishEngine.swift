@@ -321,11 +321,26 @@ actor EmbeddedPikafishEngine: ChessEngine {
         case .amateurHigh:
             depth = 24
             defaultTimeMs = 5000
-        default:
-            // v6.0 Phase 2: 专业级用 Skill Level，不再走 depth 映射
-            // 临时 fallback：当作 amateurHigh
+        case .amateurDan:
+            // v6.0 Phase 3: 将改为 Skill Level 5
             depth = 24
             defaultTimeMs = 5000
+        case .proApprentice:
+            // v6.0 Phase 3: 将改为 Skill Level 8
+            depth = 26
+            defaultTimeMs = 6000
+        case .proExpert:
+            // v6.0 Phase 3: 将改为 Skill Level 12
+            depth = 28
+            defaultTimeMs = 7000
+        case .proMaster:
+            // v6.0 Phase 3: 将改为 Skill Level 16
+            depth = 30
+            defaultTimeMs = 8000
+        case .grandmaster:
+            // v6.0 Phase 3: 将改为 Skill Level 20
+            depth = 32
+            defaultTimeMs = 10000
         }
 
         let timeMs = timeLimitMs > 0 ? timeLimitMs : defaultTimeMs

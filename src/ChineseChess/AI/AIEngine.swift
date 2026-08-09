@@ -65,9 +65,9 @@ actor AIEngine: AIEngineProtocol {
             return hardSearch(for: &workBoard, isIOS: isIOS)
         case .amateurHigh:
             return masterSearch(for: &workBoard, isIOS: isIOS)
-        default:
-            // v6.0 Phase 2: 专业级走 EngineRouter → Pikafish，自研引擎不应收到
-            // 临时 fallback：专业级当作 amateurHigh 处理
+        case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster:
+            // v6.0: 专业级走 EngineRouter → Pikafish，自研引擎不处理
+            // Phase 3 EngineRouter 实现后此处永远不会到达
             return masterSearch(for: &workBoard, isIOS: isIOS)
         }
     }
