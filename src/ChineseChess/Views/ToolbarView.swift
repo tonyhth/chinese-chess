@@ -180,13 +180,13 @@ struct ToolbarView: View {
                 .tint(.brown)
                 .accessibilityLabel(l10n.t("game.sideLabel"))
 
-                // v3.7.1 B2: iOS 难度快捷按钮
+                // v3.7.1 B2: iOS 难度快捷按钮（v6.0: 临时保留 5 级快捷选项，Phase 2 改为 10 级分组）
                 Menu {
-                    Button(l10n.t("difficulty.beginner")) { viewModel.setDifficulty(.beginner) }
-                    Button(l10n.t("difficulty.easy")) { viewModel.setDifficulty(.easy) }
-                    Button(l10n.t("difficulty.medium")) { viewModel.setDifficulty(.medium) }
-                    Button(l10n.t("difficulty.hard")) { viewModel.setDifficulty(.hard) }
-                    Button(l10n.t("difficulty.master")) { viewModel.setDifficulty(.master) }
+                    Button("入门") { viewModel.setDifficulty(.novice) }
+                    Button("初级") { viewModel.setDifficulty(.beginner) }
+                    Button("业余初级") { viewModel.setDifficulty(.amateurLow) }
+                    Button("业余中级") { viewModel.setDifficulty(.amateurMid) }
+                    Button("业余高级") { viewModel.setDifficulty(.amateurHigh) }
                 } label: {
                     Text(difficultyShortName(viewModel.difficulty))
                         .font(.caption.weight(.bold))
@@ -303,11 +303,11 @@ struct ToolbarView: View {
                     get: { viewModel.difficulty },
                     set: { viewModel.setDifficulty($0) }
                 )) {
-                    Text(l10n.t("difficulty.beginner")).tag(AIDifficulty.beginner)
-                    Text(l10n.t("difficulty.easy")).tag(AIDifficulty.easy)
-                    Text(l10n.t("difficulty.medium")).tag(AIDifficulty.medium)
-                    Text(l10n.t("difficulty.hard")).tag(AIDifficulty.hard)
-                    Text(l10n.t("difficulty.master")).tag(AIDifficulty.master)
+                    Text("入门").tag(AIDifficulty.novice)
+                    Text("初级").tag(AIDifficulty.beginner)
+                    Text("业余初级").tag(AIDifficulty.amateurLow)
+                    Text("业余中级").tag(AIDifficulty.amateurMid)
+                    Text("业余高级").tag(AIDifficulty.amateurHigh)
                 }
                 .pickerStyle(.menu)
                 .labelsHidden()
@@ -352,11 +352,14 @@ struct ToolbarView: View {
     /// v3.7.1 B2: 难度首字缩写（iOS 工具栏用）
     private func difficultyShortName(_ difficulty: AIDifficulty) -> String {
         switch difficulty {
-        case .beginner: return l10n.t("difficulty.short.beginner")
-        case .easy: return l10n.t("difficulty.short.easy")
-        case .medium: return l10n.t("difficulty.short.medium")
-        case .hard: return l10n.t("difficulty.short.hard")
-        case .master: return l10n.t("difficulty.short.master")
+        case .novice:        return "入门"
+        case .beginner:      return "初级"
+        case .amateurLow:    return "业初"
+        case .amateurMid:    return "业中"
+        case .amateurHigh:   return "业高"
+        default:
+            // v6.0 Phase 2: 专业级短名称
+            return difficulty.displayName.prefix(2).description
         }
     }
 

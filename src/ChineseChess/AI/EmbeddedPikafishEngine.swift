@@ -306,19 +306,24 @@ actor EmbeddedPikafishEngine: ChessEngine {
         let defaultTimeMs: Int
 
         switch difficulty {
-        case .beginner:
+        case .novice:
             depth = 2
             defaultTimeMs = 500
-        case .easy:
+        case .beginner:
             depth = 5
             defaultTimeMs = 1000
-        case .medium:
+        case .amateurLow:
             depth = 10
             defaultTimeMs = 2000
-        case .hard:
+        case .amateurMid:
             depth = 18
             defaultTimeMs = 3000
-        case .master:
+        case .amateurHigh:
+            depth = 24
+            defaultTimeMs = 5000
+        default:
+            // v6.0 Phase 2: 专业级用 Skill Level，不再走 depth 映射
+            // 临时 fallback：当作 amateurHigh
             depth = 24
             defaultTimeMs = 5000
         }

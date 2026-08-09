@@ -4,7 +4,7 @@ struct StatsPanelView: View {
     @State private var statsVM = StatsViewModel()
     @State private var showResetAlert = false
 
-    private let difficulties: [AIDifficulty] = [.beginner, .easy, .medium, .hard, .master]
+    private let difficulties: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
 
     private let l10n = L10n.shared
 

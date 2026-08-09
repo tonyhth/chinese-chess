@@ -15,11 +15,11 @@ struct SettingsView: View {
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
-                        Text(l10n.t("difficulty.beginner")).tag(AIDifficulty.beginner)
-                        Text(l10n.t("difficulty.easy")).tag(AIDifficulty.easy)
-                        Text(l10n.t("difficulty.medium")).tag(AIDifficulty.medium)
-                        Text(l10n.t("difficulty.hard")).tag(AIDifficulty.hard)
-                        Text(l10n.t("difficulty.master")).tag(AIDifficulty.master)
+                        Text("入门").tag(AIDifficulty.novice)
+                        Text("初级").tag(AIDifficulty.beginner)
+                        Text("业余初级").tag(AIDifficulty.amateurLow)
+                        Text("业余中级").tag(AIDifficulty.amateurMid)
+                        Text("业余高级").tag(AIDifficulty.amateurHigh)
                     }
                     .pickerStyle(.menu)
                 }

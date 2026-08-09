@@ -206,7 +206,7 @@ final class DailyChallengeManager {
     /// 今日挑战难度（3 天轮换：easy → medium → hard）
     func todayDifficulty() -> AIDifficulty {
         let hash = Self.deterministicHash(todayString)
-        let difficulties: [AIDifficulty] = [.easy, .medium, .hard]
+        let difficulties: [AIDifficulty] = [.beginner, .amateurLow, .amateurMid]
         return difficulties[hash % difficulties.count]
     }
 

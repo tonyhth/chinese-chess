@@ -78,16 +78,16 @@ enum Rank: String, Codable, CaseIterable, Comparable {
         Rank.allCases.firstIndex(of: self) ?? 0
     }
 
-    /// Phase 3.4: 教练模式推荐难度（段位+1）
+    /// Phase 3.4: 教练模式推荐难度（段位+1）（v6.0: 新枚举名）
     var recommendedCoachDifficulty: AIDifficulty {
         switch self {
-        case .student: return .easy       // 学童+1=初级
-        case .scholar: return .medium     // 秀才+1=中级
-        case .juren:   return .hard       // 举人+1=高级
-        case .jinshi:  return .hard       // 进士+1=高级（master 太强）
-        case .hanlin:  return .master     // 翰林+1=大师
-        case .master:  return .master     // 国手→大师
-        case .sage:    return .master     // 棋圣→大师
+        case .student: return .beginner      // 学童→初级
+        case .scholar: return .amateurLow    // 秀才→业余初级
+        case .juren:   return .amateurMid    // 举人→业余中级
+        case .jinshi:  return .amateurMid    // 进士→业余中级（业余高级太强）
+        case .hanlin:  return .amateurHigh   // 翰林→业余高级
+        case .master:  return .amateurHigh   // 国手→业余高级
+        case .sage:    return .amateurHigh   // 棋圣→业余高级
         }
     }
 

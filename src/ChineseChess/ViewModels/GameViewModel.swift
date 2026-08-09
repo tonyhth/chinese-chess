@@ -102,7 +102,7 @@ class GameViewModel {
     }
     var isProcessingWrongMove: Bool = false
     var isInCheck: Bool = false
-    var difficulty: AIDifficulty = .medium
+    var difficulty: AIDifficulty = .amateurLow
     private var userDidSetDifficulty = false
     var humanSide: Side = {
         let saved = UserDefaults.standard.string(forKey: "chinesechess.humanSide") ?? "red"

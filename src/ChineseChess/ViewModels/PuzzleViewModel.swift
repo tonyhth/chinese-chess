@@ -102,14 +102,14 @@ class PuzzleViewModel {
     // MARK: - 防守方 AI 难度映射
 
     private var defenderDifficulty: AIDifficulty {
-        // 星级→AI搜索深度映射
+        // 星级→AI搜索深度映射（v6.0: 新枚举名）
         switch puzzle.stars {
-        case 1: return .beginner  // depth 2
-        case 2: return .easy      // depth 3
-        case 3: return .medium    // depth 4
-        case 4: return .hard      // depth 5
-        case 5: return .master    // depth 6
-        default: return .easy
+        case 1: return .novice        // depth 2
+        case 2: return .beginner      // depth 3
+        case 3: return .amateurLow    // depth 4
+        case 4: return .amateurMid    // depth 5
+        case 5: return .amateurHigh   // depth 6
+        default: return .beginner
         }
     }
 

@@ -682,7 +682,7 @@ struct PuzzlePlayView: View {
                             date: Date(),
                             redPlayer: PlayerInfo(name: isHumanRed ? humanName : aiName, isAI: !isHumanRed, difficulty: nil),
                             blackPlayer: PlayerInfo(name: isHumanRed ? aiName : humanName, isAI: isHumanRed, difficulty: nil),
-                            difficulty: .medium,
+                            difficulty: .amateurLow,
                             result: puzzleResult,
                             totalMoves: viewModel.gameMoves.count,
                             moves: viewModel.gameMoves,

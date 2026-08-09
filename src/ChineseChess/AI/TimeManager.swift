@@ -97,13 +97,17 @@ struct TimeManager {
                               board: T? = nil) -> TimeManager? {
         let baseTimeMs: Int
         switch difficulty {
-        case .beginner, .easy:
+        case .novice, .beginner:
             return nil
-        case .medium:
+        case .amateurLow:
             baseTimeMs = isIOS ? 2000 : 3000
-        case .hard:
+        case .amateurMid:
             baseTimeMs = isIOS ? 3000 : 5000
-        case .master:
+        case .amateurHigh:
+            baseTimeMs = isIOS ? 5000 : 10000
+        default:
+            // v6.0 Phase 2: 专业级时间由 Pikafish 内部管理
+            // 临时 fallback: 同 amateurHigh
             baseTimeMs = isIOS ? 5000 : 10000
         }
 

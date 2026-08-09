@@ -58,25 +58,25 @@ enum AchievementChecker {
         var unlocked: [String] = []
         let beaten = Set(profile.unlockedAchievements)
 
-        // beat_medium / beat_hard / beat_master
+        // beat_medium / beat_hard / beat_master（v6.0: 新枚举名映射）
         switch result.difficulty {
-        case .medium:
+        case .amateurLow:
             if !beaten.contains("beat_medium") { unlocked.append("beat_medium") }
-        case .hard:
+        case .amateurMid:
             if !beaten.contains("beat_hard") { unlocked.append("beat_hard") }
-        case .master:
+        case .amateurHigh:
             if !beaten.contains("beat_master") { unlocked.append("beat_master") }
         default: break
         }
 
         // no_hint_win
-        if !result.usedHint && result.difficulty.order >= AIDifficulty.medium.order
+        if !result.usedHint && result.difficulty.order >= AIDifficulty.amateurLow.order
             && !beaten.contains("no_hint_win") {
             unlocked.append("no_hint_win")
         }
 
         // kill_ten_steps（10 步内将杀 AI，中等以上难度）
-        if result.playerMoveCount <= 10 && result.difficulty.order >= AIDifficulty.medium.order
+        if result.playerMoveCount <= 10 && result.difficulty.order >= AIDifficulty.amateurLow.order
             && !beaten.contains("kill_ten_steps") {
             unlocked.append("kill_ten_steps")
         }
@@ -115,7 +115,7 @@ enum AchievementChecker {
         // all_difficulties（排除 beginner，需赢 4 种）
         var beatenDiff = profile.beatenDifficulties
         beatenDiff.insert(result.difficulty.id)
-        let requiredDifficulties = AIDifficulty.allCases.filter { $0 != .beginner }
+        let requiredDifficulties = AIDifficulty.allCases.filter { $0 != .novice }
         let beatenRequired = requiredDifficulties.filter { beatenDiff.contains($0.id) }
         if beatenRequired.count >= requiredDifficulties.count && !beaten.contains("all_difficulties") {
             unlocked.append("all_difficulties")
@@ -190,20 +190,4 @@ enum AchievementChecker {
     }
 }
 
-// MARK: - AIDifficulty order 扩展
-
-extension AIDifficulty {
-    /// 难度排序值（用于比较）
-    var order: Int {
-        switch self {
-        case .beginner: return 0
-        case .easy: return 1
-        case .medium: return 2
-        case .hard: return 3
-        case .master: return 4
-        }
-    }
-
-    /// 难度 ID（用于存储）
-    var id: String { rawValue }
-}
+// MARK: - AIDifficulty order + id 已移至 Enums.swift（v6.0 统一定义）

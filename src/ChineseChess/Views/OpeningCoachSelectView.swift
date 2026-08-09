@@ -10,7 +10,7 @@ struct OpeningCoachSelectView: View {
     @State private var selectedCategory: OpeningCategory? = OpeningCategories.categories.first { !$0.subcategories.isEmpty }
     @State private var selectedSubcategory: OpeningSubcategory?
     @State private var playerSide: Side = .red
-    @State private var difficulty: AIDifficulty = .medium
+    @State private var difficulty: AIDifficulty = .amateurLow
     @State private var showNoCoachToast: Bool = false
     /// 导航到教练对弈视图
     @State private var navigateToGame: Bool = false

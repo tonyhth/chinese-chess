@@ -561,16 +561,4 @@ struct GameHistorySummaryRow: View {
     }
 }
 
-// MARK: - AIDifficulty 扩展
-
-extension AIDifficulty {
-    var displayName: String {
-        switch self {
-        case .beginner: return L10n.shared.t("difficulty.beginner")
-        case .easy: return L10n.shared.t("difficulty.easy")
-        case .medium: return L10n.shared.t("difficulty.medium")
-        case .hard: return L10n.shared.t("difficulty.hard")
-        case .master: return L10n.shared.t("difficulty.master")
-        }
-    }
-}
+// MARK: - AIDifficulty displayName 已移至 Enums.swift（v6.0 统一定义）

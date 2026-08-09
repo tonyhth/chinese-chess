@@ -54,16 +54,20 @@ actor AIEngine: AIEngineProtocol {
         var workBoard = SearchBoard(from: board)
 
         switch difficulty {
-        case .beginner:
+        case .novice:
             return beginnerMove(for: &workBoard)
-        case .easy:
+        case .beginner:
             return rootSearch(for: &workBoard, depth: 3, useTT: true, useMoveOrder: true,
                               evalConfig: .basic)
-        case .medium:
+        case .amateurLow:
             return mediumSearch(for: &workBoard, isIOS: isIOS)
-        case .hard:
+        case .amateurMid:
             return hardSearch(for: &workBoard, isIOS: isIOS)
-        case .master:
+        case .amateurHigh:
+            return masterSearch(for: &workBoard, isIOS: isIOS)
+        default:
+            // v6.0 Phase 2: 专业级走 EngineRouter → Pikafish，自研引擎不应收到
+            // 临时 fallback：专业级当作 amateurHigh 处理
             return masterSearch(for: &workBoard, isIOS: isIOS)
         }
     }
@@ -232,7 +236,7 @@ actor AIEngine: AIEngineProtocol {
             return move
         }
 
-        guard let tm = TimeManager.forDifficulty(.medium, isIOS: isIOS, board: board) else {
+        guard let tm = TimeManager.forDifficulty(.amateurLow, isIOS: isIOS, board: board) else {
             let maxDepth = board.pieces.count <= 10 ? 7 : 6
             return rootSearch(for: &board, depth: maxDepth, useTT: true, useMoveOrder: true,
                               searchConfig: .medium)
@@ -265,7 +269,7 @@ actor AIEngine: AIEngineProtocol {
         else if board.pieces.count <= 10 { baseDepth = 6 }
         else { baseDepth = 6 }
 
-        guard let tm = TimeManager.forDifficulty(.hard, isIOS: isIOS, board: board) else {
+        guard let tm = TimeManager.forDifficulty(.amateurMid, isIOS: isIOS, board: board) else {
             return rootSearch(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
                               searchConfig: .hard)
         }
@@ -295,7 +299,7 @@ actor AIEngine: AIEngineProtocol {
         else if board.pieces.count <= 10 { baseDepth = 8 }
         else { baseDepth = 7 }
 
-        guard let tm = TimeManager.forDifficulty(.master, isIOS: isIOS, board: board) else {
+        guard let tm = TimeManager.forDifficulty(.amateurHigh, isIOS: isIOS, board: board) else {
             return rootSearch(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
                               searchConfig: .master)
         }

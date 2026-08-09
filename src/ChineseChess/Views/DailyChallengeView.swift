@@ -5,7 +5,7 @@ import SwiftUI
 struct DailyChallengeView: View {
     @State private var manager = DailyChallengeManager.shared
     @State private var todayMode: DailyChallengeMode = .endgamePuzzle
-    @State private var todayDiff: AIDifficulty = .easy
+    @State private var todayDiff: AIDifficulty = .beginner
     @State private var isCompleted = false
     @State private var streak = 0
     @State private var streakReward: DailyStreakReward? = nil
@@ -185,7 +185,7 @@ struct DailyChallengeView: View {
             NavigationStack {
                 BoardView(viewModel: {
                     let vm = GameViewModel()
-                    vm.difficulty = .master
+                    vm.difficulty = .amateurHigh
                     vm.isMasterChallenge = true
                     vm.challengeMode = .masterChallenge
                     return vm

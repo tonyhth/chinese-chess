@@ -52,7 +52,7 @@ final class OpeningBookExpander {
         print("🔄 开始自对弈扩展...")
         
         let runner = SelfPlayRunner()
-        let difficulties: [AIDifficulty] = [.medium, .hard, .master]
+        let difficulties: [AIDifficulty] = [.amateurLow, .amateurMid, .amateurHigh]
         
         var addedPositions = 0
         

@@ -196,7 +196,7 @@ struct CMAESConfig {
 
     // 自对弈评估配置
     var selfPlayGames: Int = 20        // 每个个体评估局数
-    var selfPlayDifficulty: AIDifficulty = .hard  // 对手难度
+    var selfPlayDifficulty: AIDifficulty = .amateurMid  // 对手难度
     var convergenceThreshold: Double = 0.01  // 收敛阈值(平均适应度变化 < 此值停止)
 }
 
@@ -489,7 +489,7 @@ func runCMAESFromCLI() async {
         populationSize: popSize,
         maxGenerations: maxGen,
         selfPlayGames: gamesPerEval,
-        selfPlayDifficulty: .medium  // Intel Mac 加速
+        selfPlayDifficulty: .amateurLow  // Intel Mac 加速
     )
 
     print("═══════════════════════════════════════════")
