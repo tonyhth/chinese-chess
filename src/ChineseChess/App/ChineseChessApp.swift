@@ -17,13 +17,22 @@ struct ChineseChessApp: App {
         #if os(macOS)
         let args = CommandLine.arguments
         if args.count >= 2 && args[1] == "--selfplay" {
-            Task {
+            Task.detached {
                 await runSelfPlayFromCLI()
                 Foundation.exit(0)
             }
             RunLoop.main.run()
             // 不应到达此处
             fatalError("selfplay CLI should have exited")
+        }
+        // v6.0 Phase 6: 交叉对弈校准 CLI
+        if args.count >= 2 && args[1] == "--calibrate" {
+            Task.detached {
+                await runCalibrateFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("calibrate CLI should have exited")
         }
         // v3.1: CMA-ES 自动调参模式（CLI-only，非用户路径）
         if args.count >= 2 && args[1] == "--cmaes" {

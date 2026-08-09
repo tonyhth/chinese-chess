@@ -183,6 +183,16 @@ int pikafish_init(void) {
             }
         });
 
+        // Set on_update_no_moves callback (prevent bad_function_call)
+        g_engine->set_on_update_no_moves([](const Stockfish::Engine::InfoShort& info) {
+            // No-op — only update_full is used for eval capture
+        });
+
+        // Set on_iter callback (prevent bad_function_call)
+        g_engine->set_on_iter([](const Stockfish::Engine::InfoIter& info) {
+            // No-op — only update_full is used for eval capture
+        });
+
         // Set default options
         g_engine->set_tt_size(64);  // 64MB hash table
         g_engine->resize_threads(); // Use default thread count (1)

@@ -514,9 +514,10 @@ extension SelfPlayRunner {
         nativeDifficulty: AIDifficulty = .amateurHigh,
         pikafishDifficulty: AIDifficulty = .amateurDan,
         games: Int = 10,
-        moveTimeMs: Int = 500
+        moveTimeMs: Int = 500,
+        maxMoves: Int = 80
     ) async -> String {
-        let config = MixedEngineConfig(games: games, moveTimeMs: moveTimeMs)
+        let config = MixedEngineConfig(games: games, maxMoves: maxMoves, moveTimeMs: moveTimeMs)
 
         print("═══════════════════════════════════════════")
         print("  交叉对弈校准")
@@ -608,6 +609,61 @@ enum BayesElo {
         return estimateDelta(winRate: winRate)
     }
 }
+
+// MARK: - v6.0 Phase 6: 交叉对弈校准 CLI 入口
+
+#if os(macOS)
+func runCalibrateFromCLI() async {
+    let args = CommandLine.arguments
+    let games = args.count > 2 ? (Int(args[2]) ?? 10) : 10
+    let maxMoves = args.count > 3 ? (Int(args[3]) ?? 80) : 80  // 默认 80 步上限（快速校准）
+
+    // NNUE 路径排查日志
+    let bundlePath = Bundle.main.bundlePath
+    let execPath = CommandLine.arguments[0]
+    let execDir = (execPath as NSString).deletingLastPathComponent
+    NSLog("[Calibrate] Bundle.main.bundlePath: \(bundlePath)")
+    NSLog("[Calibrate] Executable path: \(execPath)")
+    NSLog("[Calibrate] Exec dir: \(execDir)")
+
+    // 尝试在可执行文件目录附近查找 NNUE
+    let possiblePaths = [
+        "\(execDir)/pikafish.nnue",
+        "\(execDir)/Contents/Resources/pikafish.nnue",  // .app bundle
+        "\(execDir)/../Resources/pikafish.nnue",
+        "\(execDir)/../SharedSupport/pikafish.nnue",
+    ]
+    var nnueFound = false
+    for path in possiblePaths {
+        if FileManager.default.fileExists(atPath: path) {
+            NSLog("[Calibrate] Found NNUE at: \(path)")
+            nnueFound = true
+            break
+        }
+    }
+
+    if !nnueFound {
+        // 尝试 Bundle.main 资源
+        if let nnueURL = Bundle.main.url(forResource: "pikafish", withExtension: "nnue") {
+            NSLog("[Calibrate] Found NNUE via Bundle.main: \(nnueURL.path)")
+            nnueFound = true
+        } else {
+            print("❌ pikafish.nnue not found in any location")
+            print("   Searched: \(possiblePaths.joined(separator: ", "))")
+            print("   Bundle.main path: \(bundlePath)")
+            return
+        }
+    }
+
+    print("═══════════════════════════════════════════")
+    print("  交叉对弈校准（\(games) 局，最多 \(maxMoves) 步/局）")
+    print("═══════════════════════════════════════════")
+    print("")
+
+    let runner = SelfPlayRunner()
+    _ = await runner.runCalibration(games: games, maxMoves: maxMoves)
+}
+#endif
 
 // MARK: - 命令行入口
 
