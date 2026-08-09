@@ -150,6 +150,7 @@ class GameViewModel {
 
     // P2 修复：持有 observer token，deinit 时移除
     @ObservationIgnored nonisolated(unsafe) private var fallbackObserver: NSObjectProtocol?
+    @ObservationIgnored nonisolated(unsafe) private var assessmentObserver: NSObjectProtocol?
 
     // Phase B3 Step 3: 开局教练模式配置
     // 非nil时，GameViewModel 不自动触发AI走法，由外部（CoachGameView）控制AI走法
@@ -188,10 +189,25 @@ class GameViewModel {
                 }
             }
         }
+        // v6.0 Phase 5: 监听棋力评估推荐级别
+        assessmentObserver = NotificationCenter.default.addObserver(
+            forName: .setDifficultyFromAssessment,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor in
+                if let level = notification.userInfo?["level"] as? AIDifficulty {
+                    self?.setDifficulty(level)
+                }
+            }
+        }
     }
 
     deinit {
         if let observer = fallbackObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = assessmentObserver {
             NotificationCenter.default.removeObserver(observer)
         }
     }

@@ -35,6 +35,34 @@ struct SettingsView: View {
                     Text(l10n.t("difficulty.label"))
                 }
 
+                // 棋力评估（v6.0 Phase 5）
+                Section {
+                    NavigationLink {
+                        AssessmentView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "chart.bar.doc.horizontal")
+                                .foregroundColor(.accentColor)
+                            Text("棋力评估")
+                            Spacer()
+                            if let report = AssessmentStore.shared.lastReport {
+                                Text("\(report.eloEstimate.estimate) ±\(report.eloEstimate.upperBound - report.eloEstimate.estimate)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text("未评估")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("棋力评估")
+                } footer: {
+                    Text("分析对局估算棋力，推荐合适级别")
+                        .font(.caption2)
+                }
+
                 // 主题
                 Section(l10n.t("settings.themeSection")) {
                     ForEach(BoardTheme.allCases, id: \.self) { theme in
