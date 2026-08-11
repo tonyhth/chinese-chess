@@ -73,10 +73,10 @@ struct AIDifficultyEnumTests {
 
     @Test("skillLevel：专业级返回正确值")
     func skillLevelProValues() {
-        #expect(AIDifficulty.amateurDan.skillLevel == 5)
-        #expect(AIDifficulty.proApprentice.skillLevel == 8)
-        #expect(AIDifficulty.proExpert.skillLevel == 12)
-        #expect(AIDifficulty.proMaster.skillLevel == 16)
+        #expect(AIDifficulty.amateurDan.skillLevel == 4)     // v2.1: 5→4
+        #expect(AIDifficulty.proApprentice.skillLevel == 7) // v2.1: 8→7
+        #expect(AIDifficulty.proExpert.skillLevel == 10)    // v2.1: 12→10
+        #expect(AIDifficulty.proMaster.skillLevel == 13)    // v2.1: 16→13
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
     }
 
@@ -89,18 +89,18 @@ struct AIDifficultyEnumTests {
         #expect(AIDifficulty.grandmaster.fallbackToAmateur == .amateurHigh)
     }
 
-    @Test("displayName：10 个中文名正确")
+    @Test("displayName：10 个中文名正确 (v2.1)")
     func displayNames() {
-        #expect(AIDifficulty.novice.displayName == "入门")
-        #expect(AIDifficulty.beginner.displayName == "初级")
-        #expect(AIDifficulty.amateurLow.displayName == "业余初级")
-        #expect(AIDifficulty.amateurMid.displayName == "业余中级")
-        #expect(AIDifficulty.amateurHigh.displayName == "业余高级")
-        #expect(AIDifficulty.amateurDan.displayName == "业余初段")
-        #expect(AIDifficulty.proApprentice.displayName == "业余三段")
-        #expect(AIDifficulty.proExpert.displayName == "业余五段")
-        #expect(AIDifficulty.proMaster.displayName == "专业三段")
-        #expect(AIDifficulty.grandmaster.displayName == "棋圣")
+        #expect(AIDifficulty.novice.displayName == "九级棋士")
+        #expect(AIDifficulty.beginner.displayName == "八级棋士")
+        #expect(AIDifficulty.amateurLow.displayName == "七级棋士")
+        #expect(AIDifficulty.amateurMid.displayName == "六级棋士")
+        #expect(AIDifficulty.amateurHigh.displayName == "五级棋士")
+        #expect(AIDifficulty.amateurDan.displayName == "四级棋士")
+        #expect(AIDifficulty.proApprentice.displayName == "三级棋士")
+        #expect(AIDifficulty.proExpert.displayName == "二级棋士")
+        #expect(AIDifficulty.proMaster.displayName == "一级棋士")
+        #expect(AIDifficulty.grandmaster.displayName == "特级大师")
     }
 
     @Test("order：0-9 递增")
