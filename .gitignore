@@ -64,3 +64,4 @@ selfplay-results/
 src/ChineseChess/Pikafish/build_test.sh
 .build_release/
 docs/phases/
+calibration-results/

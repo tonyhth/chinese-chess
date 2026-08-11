@@ -476,17 +476,13 @@ extension SelfPlayRunner {
                 board.execute(move)
             } else {
                 // Pikafish 走棋
+                // v2.1: 使用 .amateurHigh（skillLevel 返回 nil），避免 bestMove 内部覆盖外部 override
                 if let skillOverride = pikafishSkillOverride {
                     await pikafishEngine.setSkillLevel(skillOverride)
                 }
                 let fen = FENParser.generate(board: board)
-                // v6.0: Skill override — 先设 Skill Level，再用 .grandmaster 调用避免被覆盖
-                // .grandmaster 让 depth=0(无限)，Skill Level 全权控制棋力
-                if let skillOverride = pikafishSkillOverride {
-                    await pikafishEngine.setSkillLevel(skillOverride)
-                }
                 // 构造 UCI move history（ICCS 格式兼容）
-                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .grandmaster : pikafishDifficulty
+                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .amateurHigh : pikafishDifficulty
                 let result = await pikafishEngine.bestMove(
                     fen: fen,
                     moveHistory: [],
