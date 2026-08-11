@@ -57,8 +57,10 @@ actor AIEngine: AIEngineProtocol {
         case .novice:
             return beginnerMove(for: &workBoard)
         case .beginner:
-            return rootSearch(for: &workBoard, depth: 3, useTT: true, useMoveOrder: true,
-                              evalConfig: .basic)
+            // v2.1: depth 3→2 + movetime 3000ms 修复超时
+            let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+            return rootSearch(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
+                              evalConfig: .basic, timeManager: tm)
         case .amateurLow:
             return mediumSearch(for: &workBoard, isIOS: isIOS)
         case .amateurMid:
@@ -72,50 +74,39 @@ actor AIEngine: AIEngineProtocol {
         }
     }
 
-    // MARK: - 新手：depth-1 搜索 + 评估噪声 + 加权随机（v4.0）
+    // MARK: - 新手：depth-1 搜索 + top-3 加权随机（v2.1）
 
-    // v3.x 旧方案：30% depth-1 + 70% 随机 → 走法不连贯
-    // v4.0 新方案：100% depth-1 搜索 + ±150cp 噪声 + 加权随机
+    // v4.0 旧方案：depth-1 + ±150cp 噪声 + top-5 加权随机（三重扰动不可控）
+    // v2.1 新方案：depth-1 + top-3 加权随机（去掉噪声，更可预测）
     private func beginnerMove(for board: inout SearchBoard) -> Move? {
         let side = board.currentTurn
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
         guard !moves.isEmpty else { return nil }
 
-        let noise = beginnerNoiseAmplitude(board: board)
-
-        // 对每个走法做 depth-1 评估，噪声只在局部应用
-        var scoredMoves: [(move: Move, noisyScore: Int)] = []
+        // 对每个走法做 depth-1 评估（无噪声）
+        var scoredMoves: [(move: Move, score: Int)] = []
         for move in moves {
             board.execute(move)
             let rawScore = -evaluator.evaluate(board, config: .basic)
             _ = board.undoLastMove()
-            let noiseVal = Int.random(in: -noise...noise)
-            scoredMoves.append((move, rawScore + noiseVal))
+            scoredMoves.append((move, rawScore))
         }
 
-        // 排序，取前 5 名
-        scoredMoves.sort { $0.noisyScore > $1.noisyScore }
-        let topN = min(5, scoredMoves.count)
+        // 排序，取前 3 名（v2.1: top-5→top-3）
+        scoredMoves.sort { $0.score > $1.score }
+        let topN = min(3, scoredMoves.count)
         let candidates = Array(scoredMoves.prefix(topN))
 
         // 加权随机选择：分数越高被选概率越大
         return weightedRandomPick(from: candidates)
     }
 
-    /// 动态噪声幅度：开局最大，残局递减
-    private func beginnerNoiseAmplitude(board: SearchBoard) -> Int {
-        let moveCount = board.moveHistory.count
-        if moveCount < 10 { return 150 }  // 开局：最大噪声
-        if moveCount < 25 { return 120 }  // 中局：递减
-        return 80                          // 残局：更精确但仍弱
-    }
-
     /// 加权随机选择：分数越高被选概率越大
-    private func weightedRandomPick(from candidates: [(move: Move, noisyScore: Int)]) -> Move {
+    private func weightedRandomPick(from candidates: [(move: Move, score: Int)]) -> Move {
         // 用指数加权确保高分走法有更高概率
         let weights = candidates.map { entry in
             // 偏移确保所有权重为正，然后取平方增强高分偏好
-            let offset = entry.noisyScore - (candidates.last?.noisyScore ?? 0) + 1
+            let offset = entry.score - (candidates.last?.score ?? 0) + 1
             return max(1, offset * offset)
         }
         let totalWeight = weights.reduce(0, +)

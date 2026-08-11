@@ -28,18 +28,18 @@ enum GameState: String, Equatable, Codable {
 // MARK: - AI 难度（v6.0: 10 级统一棋力系统）
 enum AIDifficulty: CaseIterable, Codable {
     // 业余级（自研引擎）
-    case novice        // 1级 入门
-    case beginner      // 2级 初级
-    case amateurLow    // 3级 业余初级
-    case amateurMid    // 4级 业余中级
-    case amateurHigh   // 5级 业余高级
+    case novice        // 1级 九级棋士
+    case beginner      // 2级 八级棋士
+    case amateurLow    // 3级 七级棋士
+    case amateurMid    // 4级 六级棋士
+    case amateurHigh   // 5级 五级棋士
 
-    // 专业级（Pikafish Skill Level）
-    case amateurDan    // 6级 业余初段 (Skill 5)
-    case proApprentice // 7级 业余三段 (Skill 8)
-    case proExpert     // 8级 业余五段 (Skill 12)
-    case proMaster     // 9级 专业三段 (Skill 16)
-    case grandmaster   // 10级 棋圣 (Skill 20)
+    // 棋士级（Pikafish Skill Level）
+    case amateurDan    // 6级 四级棋士 (Skill 4)
+    case proApprentice // 7级 三级棋士 (Skill 7)
+    case proExpert     // 8级 二级棋士 (Skill 10)
+    case proMaster     // 9级 一级棋士 (Skill 13)
+    case grandmaster   // 10级 特级大师 (Skill 20)
 
     // MARK: - rawValue（持久化用，lvl1-lvl10）
 
@@ -112,10 +112,10 @@ enum AIDifficulty: CaseIterable, Codable {
     /// Pikafish Skill Level（仅专业级有值）
     var skillLevel: Int? {
         switch self {
-        case .amateurDan:    return 5
-        case .proApprentice: return 8
-        case .proExpert:     return 12
-        case .proMaster:     return 16
+        case .amateurDan:    return 4
+        case .proApprentice: return 7
+        case .proExpert:     return 10
+        case .proMaster:     return 13
         case .grandmaster:   return 20
         default:             return nil
         }
@@ -126,19 +126,19 @@ enum AIDifficulty: CaseIterable, Codable {
         .amateurHigh
     }
 
-    /// 中文显示名
+    /// 中文显示名（v2.1: 中国象棋协会等级制）
     var displayName: String {
         switch self {
-        case .novice:        return "入门"
-        case .beginner:      return "初级"
-        case .amateurLow:    return "业余初级"
-        case .amateurMid:    return "业余中级"
-        case .amateurHigh:   return "业余高级"
-        case .amateurDan:    return "业余初段"
-        case .proApprentice: return "业余三段"
-        case .proExpert:     return "业余五段"
-        case .proMaster:     return "专业三段"
-        case .grandmaster:   return "棋圣"
+        case .novice:        return "九级棋士"
+        case .beginner:      return "八级棋士"
+        case .amateurLow:    return "七级棋士"
+        case .amateurMid:    return "六级棋士"
+        case .amateurHigh:   return "五级棋士"
+        case .amateurDan:    return "四级棋士"
+        case .proApprentice: return "三级棋士"
+        case .proExpert:     return "二级棋士"
+        case .proMaster:     return "一级棋士"
+        case .grandmaster:   return "特级大师"
         }
     }
 

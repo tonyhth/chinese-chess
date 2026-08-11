@@ -480,12 +480,13 @@ extension SelfPlayRunner {
                     await pikafishEngine.setSkillLevel(skillOverride)
                 }
                 let fen = FENParser.generate(board: board)
-                // v6.0: Skill override — 先设 Skill Level，再用 .novice 调用避免被覆盖
+                // v6.0: Skill override — 先设 Skill Level，再用 .grandmaster 调用避免被覆盖
+                // .grandmaster 让 depth=0(无限)，Skill Level 全权控制棋力
                 if let skillOverride = pikafishSkillOverride {
                     await pikafishEngine.setSkillLevel(skillOverride)
                 }
                 // 构造 UCI move history（ICCS 格式兼容）
-                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .novice : pikafishDifficulty
+                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .grandmaster : pikafishDifficulty
                 let result = await pikafishEngine.bestMove(
                     fen: fen,
                     moveHistory: [],
@@ -849,11 +850,8 @@ func runCalibrateFromCLI() async {
     let nativeLvl = args.count > 4 ? (Int(args[4]) ?? 4) : 4  // 默认 4 级
     let pikafishLvl = args.count > 5 ? (Int(args[5]) ?? 6) : 6  // 默认 6 级
     let nativeDiff = AIDifficulty(rawValue: "lvl\(nativeLvl)") ?? .amateurMid
-    // pikafishLvl 1-5 = Skill 0/4/7/10/13（对应天梯实测点）
-    // 直接传 Skill Level 数值
-    let skillMap = [0: 0, 1: 4, 2: 7, 3: 10, 4: 13, 5: 20]  // pikafishLvl → Skill Level
-    // 如果 pikafishLvl > 5，直接当 Skill Level 用
-    let skillLevel = pikafishLvl <= 5 ? (skillMap[pikafishLvl] ?? 0) : pikafishLvl
+    // pikafishLvl 直接就是 Skill Level (0-20)
+    let skillLevel = pikafishLvl
     // 用 lvl6 作为 enum 占位（EngineRouter 需要 isProfessional=true），实际 Skill 由下面 override
     let pikafishDiff = AIDifficulty.amateurDan  // lvl6 占位
     print("  自研: lvl\(nativeLvl)(\(nativeDiff.displayName)) vs Pikafish: Skill \(skillLevel)")
@@ -1005,7 +1003,7 @@ func runPikafishMatchFromCLI() async {
             
             let fen = FENParser.generate(board: board)
             // 传 .amateurHigh（skillLevel=nil）避免 bestMove 内部覆盖手动设的 Skill
-            // amateurHigh 的 depth=24 足够深，主要靠 Skill Level + movetime 控制棋力
+            // amateurHigh 的 depth=24 + timeLimitMs=500 控制搜索
             guard let bestMove = await engine.bestMove(
                 fen: fen, moveHistory: [], difficulty: .amateurHigh, timeLimitMs: 500
             ),

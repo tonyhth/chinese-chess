@@ -119,6 +119,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
         }
 
         // v6.0: 专业级设置 Skill Level（UCI 选项）
+        // pfmatch 模式下用 skillLevelOverride 覆盖
         if let skill = difficulty.skillLevel {
             setSkillLevel(skill)
         }

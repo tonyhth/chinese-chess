@@ -97,16 +97,19 @@ struct TimeManager {
     /// board: 可选，传入时根据局面复杂度动态调整时间
     static func forDifficulty<T: BoardReadable>(_ difficulty: AIDifficulty, isIOS: Bool = false,
                               board: T? = nil) -> TimeManager? {
-        let baseTimeMs: Int
+        var baseTimeMs: Int
         switch difficulty {
         case .novice, .beginner:
             return nil
         case .amateurLow:
             baseTimeMs = isIOS ? 2000 : 3000
+            if ProcessInfo.processInfo.environment["FAST_CALIBRATE"] == "1" { baseTimeMs = 1000 }
         case .amateurMid:
             baseTimeMs = isIOS ? 3000 : 5000
+            if ProcessInfo.processInfo.environment["FAST_CALIBRATE"] == "1" { baseTimeMs = 1500 }
         case .amateurHigh:
             baseTimeMs = isIOS ? 5000 : 10000
+            if ProcessInfo.processInfo.environment["FAST_CALIBRATE"] == "1" { baseTimeMs = 2000 }
         case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster:
             // v6.0: 专业级时间由 Pikafish 内部管理
             return nil
