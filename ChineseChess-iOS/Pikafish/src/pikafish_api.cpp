@@ -251,6 +251,7 @@ int pikafish_best_move(const char* fen, const char* moves,
 
         // Build search limits
         Stockfish::Search::LimitsType limits;
+        limits.startTime = Stockfish::now();
         if (depth > 0) {
             limits.depth = depth;
         }
