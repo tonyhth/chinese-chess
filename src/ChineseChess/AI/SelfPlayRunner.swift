@@ -266,7 +266,7 @@ struct MixedEngineSessionResult {
     let durationSeconds: Double
     let bayesEloDelta: Int
     // 校准 v3.0: 终局分类统计
-    let checkmateCount: Int      // 将死 (.normal 且非步数上限)
+    let checkmateCount: Int      // .normal reason（将死/将帅被吃）
     let stalemateCount: Int      // 困毙 (.stalemate)
     let repetitionCount: Int     // 重复和棋 (.repetition)
     let moveLimitCount: Int      // 步数上限 (.moveLimit)
@@ -788,14 +788,17 @@ extension SelfPlayRunner {
 
         while moveHistory.count < maxMoves {
             let currentSide = board.currentTurn
-            let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
+            let baseDifficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
             let skillOverride = (currentSide == .red) ? redSkillOverride : blackSkillOverride
 
             // 校准 v3.0: 如果有 skillOverride，手动设置 Skill Level
             // bestMove 内部检测 lastSkillOverride != nil 时自动强制 depth=0
+            // ⚠️ 必须传 skillLevel=nil 的 difficulty（如 .amateurLow），否则 bestMove 内部
+            // 会用 difficulty.skillLevel 覆盖我们手动设的 Skill Level（P0 fix）
             if let skill = skillOverride {
                 await engine.setSkillLevel(skill)
             }
+            let difficulty: AIDifficulty = skillOverride != nil ? .amateurLow : baseDifficulty
 
             let fen = FENParser.generate(board: board)
             let result = await engine.bestMove(
@@ -1157,7 +1160,7 @@ func runCalibrateNativeFromCLI() async {
         示例: ChineseChess --calibrate-native 3 4 20 500
 
         lvlA/lvlB: 自研引擎级别 (1-5)
-          lvl1=novic(九级棋士)  lvl2=beginner(八级棋士)  lvl3=amateurLow(七级棋士)
+          lvl1=novice(九级棋士)  lvl2=beginner(八级棋士)  lvl3=amateurLow(七级棋士)
           lvl4=amateurMid(六级棋士)  lvl5=amateurHigh(五级棋士)
         """)
         return
