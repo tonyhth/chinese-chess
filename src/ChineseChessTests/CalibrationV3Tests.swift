@@ -215,7 +215,7 @@ struct CalibrationV3Tests {
     // MARK: - 5. EmbeddedPikafishEngine depth=0 + skillOverride
     // ============================
 
-    @Test("EmbeddedPikafishEngine: newGame 清除 lastSkillOverride", .timeLimit(.minutes(3)), .disabled("需要引擎启动，在 Intel Mac 上 depth=0 搜索耗时过长"))
+    @Test("EmbeddedPikafishEngine: newGame 清除 lastSkillOverride", .timeLimit(.minutes(3)))
     func newGameClearsSkillOverride() async {
         let engine = EmbeddedPikafishEngine()
         try? await engine.start()
@@ -229,17 +229,17 @@ struct CalibrationV3Tests {
         // 验证：newGame 后再次调用 bestMove 不应使用 depth=0
         // 由于 lastSkillOverride 是 private，通过行为验证：
         // difficulty=.amateurDan 有 skillLevel=4，bestMove 会走正常 mappedDepth 路径
-        let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w"
+        let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"  // 完整 FEN
         let move = await engine.bestMove(
             fen: fen, moveHistory: [],
             difficulty: .amateurDan,  // 有 skillLevel=4，不会触发 depth=0 路径
-            timeLimitMs: 1000  // Intel Mac 需要更长的搜索时间
+            timeLimitMs: 3000  // Debug 构建下引擎未优化，需要更多时间
         )
         #expect(move != nil, "newGame 后 bestMove 应正常返回")
         await engine.shutdown()
     }
 
-    @Test("EmbeddedPikafishEngine: skillOverride + amateurLow 深度=0搜索", .timeLimit(.minutes(5)), .disabled("需要引擎启动，在 Intel Mac 上 depth=0 搜索耗时过长"))
+    @Test("EmbeddedPikafishEngine: skillOverride + amateurLow 深度=0搜索", .timeLimit(.minutes(3)))
     func skillOverrideWithAmateurLow() async {
         let engine = EmbeddedPikafishEngine()
         try? await engine.start()
@@ -250,18 +250,15 @@ struct CalibrationV3Tests {
         await engine.newGame()  // 清除上次设置
         await engine.setSkillLevel(5)  // 重新设置
 
-        let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w"
+        let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"  // 完整 FEN
         let move = await engine.bestMove(
             fen: fen, moveHistory: [],
             difficulty: .amateurLow,  // skillLevel=nil → 触发 depth=0 路径
-            timeLimitMs: 1000  // depth=0 需要足够搜索时间
+            timeLimitMs: 3000  // Debug 构建下引擎未优化，需要更多时间
         )
-        // depth=0 + Skill Level 由 pick_best 机制控制棋力
-        // 注意：Intel Mac 上 depth=0 可能因搜索超时而返回 nil
-        // 这是引擎行为，非代码 bug。验证重点是"不崩溃"
-        // 即只要函数正常返回（无论 move 是否为 nil）就算通过
+        // startTime 修复后（6a0f750），depth=0 + movetime 应正确返回走法
         await engine.shutdown()
-        #expect(true, "skillOverride + amateurLow depth=0 未崩溃")
+        #expect(move != nil, "skillOverride + amateurLow depth=0 应返回有效走法")
     }
 
     // ============================
@@ -292,7 +289,7 @@ struct CalibrationV3Tests {
     // MARK: - 7. runPikafishSelfPlay 默认参数验证
     // ============================
 
-    @Test("runPikafishSelfPlay 接受 redSkillOverride/blackSkillOverride 参数", .timeLimit(.minutes(10)), .disabled("需要完整引擎对弈，Intel Mac 上超时"))
+    @Test("runPikafishSelfPlay 接受 redSkillOverride/blackSkillOverride 参数", .timeLimit(.minutes(2)))
     func runPikafishSelfPlayWithOverrides() async {
         // 验证新增参数能正确传入并完成最小规模对弈
         // depth=0 搜索较慢，需要足够时间

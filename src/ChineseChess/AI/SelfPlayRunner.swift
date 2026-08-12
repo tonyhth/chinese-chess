@@ -170,8 +170,9 @@ final class SelfPlayRunner {
 
             // 清空 TT 避免跨局污染（但局内保留 TT 加速搜索）
             guard let move = await engine.bestMove(for: board, difficulty: difficulty, isIOS: isIOS) else {
-                // 无棋可走 = 困毙
-                endReason = .stalemate
+                // 区分将死和困毙
+                let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
+                endReason = isCheckmate ? .normal : .stalemate
                 let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
                 return SelfPlayGameResult(
                     gameIndex: gameIndex,
@@ -500,8 +501,9 @@ extension SelfPlayRunner {
                 guard let move = await engine.bestMove(
                     for: board, difficulty: nativeDifficulty, isIOS: false
                 ) else {
-                    endReason = .stalemate
-                    let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
+                    let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
+                    endReason = isCheckmate ? .normal : .stalemate
+                    let winner: GameState = (board.currentTurn == .red) ? .blackWon : .redWon
                     return (winner, moveHistory.count, endReason, moveHistory)
                 }
                 let iccs = SelfPlayRunner.iccsNotation(for: move)
@@ -525,8 +527,9 @@ extension SelfPlayRunner {
                 )
                 guard let move = result,
                       let parsed = UCIMoveConverter.move(from: move, on: board) else {
-                    endReason = .stalemate
-                    let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
+                    let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
+                    endReason = isCheckmate ? .normal : .stalemate
+                    let winner: GameState = (board.currentTurn == .red) ? .blackWon : .redWon
                     return (winner, moveHistory.count, endReason, moveHistory)
                 }
                 let iccs = ICCSParser.iccsString(from: parsed.from, to: parsed.to)
@@ -810,8 +813,10 @@ extension SelfPlayRunner {
 
             guard let uciMove = result,
                   let move = UCIMoveConverter.move(from: uciMove, on: board) else {
-                endReason = .stalemate
-                let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
+                // 区分将死（被将军且无解）和困毙（无棋可走但未被将军）
+                let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
+                endReason = isCheckmate ? .normal : .stalemate
+                let winner: GameState = (board.currentTurn == .red) ? .blackWon : .redWon
                 return (winner, moveHistory.count, endReason, moveHistory)
             }
 
@@ -1092,7 +1097,9 @@ func runPikafishMatchFromCLI() async {
                 } else {
                     winnerSkill = "Skill\(skillA)"; winsA += 1
                 }
-                print("  第\(gameIdx+1)局: \(winnerSkill) 胜（困毙，\(moveHistory.count)步）")
+                let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
+                let endLabel = isCheckmate ? "将死" : "困毙"
+                print("  第\(gameIdx+1)局: \(winnerSkill) 胜（\(endLabel)，\(moveHistory.count)步）")
                 break
             }
             
