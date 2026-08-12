@@ -36,8 +36,16 @@ struct V60Phase6Tests {
 
     @Test("MixedEngineSessionResult summary 包含关键信息")
     func sessionResultSummary() {
+        // v3.0 起 summary 对空 games 有 guard 保护，需传入非空 games 走正常路径
+        let games = (0..<10).map { i in
+            MixedEngineGameResult(
+                gameIndex: i, result: .redWon, totalMoves: 50,
+                reason: .normal, moveHistory: [],
+                redEngineName: "Native", blackEngineName: "Pikafish"
+            )
+        }
         let result = MixedEngineSessionResult(
-            games: [],
+            games: games,
             redWins: 3, blackWins: 5, draws: 2,
             avgMoves: 85.5, durationSeconds: 120.0,
             bayesEloDelta: -80,
