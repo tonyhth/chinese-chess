@@ -25,6 +25,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
     // 在途搜索计数（actor 上下文内安全操作）
     private var activeSearchCount = 0
 
+    // 校准 v3.0: 记录外部手动设置的 Skill Level，用于 bestMove 判断是否强制 depth=0
+    private var lastSkillOverride: Int? = nil
+
     // C API 调用专用串行队列——保证同一时间只有一个线程进入 C 层
     // actor 的 withCheckedContinuation 在 suspend 点释放锁，DispatchQueue.global() 会导致
     // evaluate 和 bestMove 并发进入 C 层全局单例 g_engine。串行队列物理上阻止并发。
@@ -124,7 +127,10 @@ actor EmbeddedPikafishEngine: ChessEngine {
             setSkillLevel(skill)
         }
 
-        let (depth, timeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
+        let (mappedDepth, timeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
+        // 校准 v3.0: 当有外部 skillOverride 时，强制 depth=0（无限制搜索）
+        // 让 Skill Level 全权控制棋力，避免 mapDifficulty 的 depth 覆盖 pick_best 机制
+        let depth = (lastSkillOverride != nil && difficulty.skillLevel == nil) ? 0 : mappedDepth
         let movesStr = moveHistory.joined(separator: " ")
 
         // 标记搜索开始（actor 上下文，安全）
@@ -186,6 +192,8 @@ actor EmbeddedPikafishEngine: ChessEngine {
         cApiQueue.sync {
             pikafish_new_game()
         }
+        // 校准 v3.0: 清除 skill override，避免跨局污染
+        lastSkillOverride = nil
     }
 
     var version: String { cachedVersion }
@@ -223,6 +231,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
             NSLog("[Pikafish] setSkillLevel(\(skill)) called before engine ready — ignored")
             return
         }
+        lastSkillOverride = skill
         let result = pikafish_set_option("Skill Level", String(skill))
         if result == 0 {
             NSLog("[Pikafish] Skill Level set to \(skill)")

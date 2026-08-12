@@ -40,7 +40,9 @@ struct V60Phase6Tests {
             games: [],
             redWins: 3, blackWins: 5, draws: 2,
             avgMoves: 85.5, durationSeconds: 120.0,
-            bayesEloDelta: -80
+            bayesEloDelta: -80,
+            checkmateCount: 4, stalemateCount: 1, repetitionCount: 2,
+            moveLimitCount: 3, redWinRate: 0.3
         )
         let summary = result.summary
         #expect(summary.contains("混合引擎对弈结果"))

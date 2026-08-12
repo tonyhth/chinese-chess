@@ -43,6 +43,24 @@ struct ChineseChessApp: App {
             RunLoop.main.run()
             fatalError("pfmatch CLI should have exited")
         }
+        // 校准 v3.0: 自研内部对弈
+        if args.count >= 2 && args[1] == "--calibrate-native" {
+            Task.detached {
+                await runCalibrateNativeFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("calibrate-native CLI should have exited")
+        }
+        // 校准 v3.0: Pikafish 内部对弈
+        if args.count >= 2 && args[1] == "--calibrate-pf" {
+            Task.detached {
+                await runCalibratePfFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("calibrate-pf CLI should have exited")
+        }
         // v3.1: CMA-ES 自动调参模式（CLI-only，非用户路径）
         if args.count >= 2 && args[1] == "--cmaes" {
             Task.detached {

@@ -265,17 +265,36 @@ struct MixedEngineSessionResult {
     let avgMoves: Double
     let durationSeconds: Double
     let bayesEloDelta: Int
+    // 校准 v3.0: 终局分类统计
+    let checkmateCount: Int      // 将死 (.normal 且非步数上限)
+    let stalemateCount: Int      // 困毙 (.stalemate)
+    let repetitionCount: Int     // 重复和棋 (.repetition)
+    let moveLimitCount: Int      // 步数上限 (.moveLimit)
+    let redWinRate: Double       // 先手胜率
 
     var summary: String {
         let total = games.count
+        guard total > 0 else {
+            return "混合引擎对弈结果（0 局）\n无数据"
+        }
+        let pct: (Int) -> String = { count in
+            String(format: "%.1f%%", Double(count) / Double(total) * 100)
+        }
         return """
         混合引擎对弈结果（\(total) 局）
-        红胜：\(redWins)（\(String(format: "%.1f%%", Double(redWins) / Double(total) * 100))）
-        黑胜：\(blackWins)（\(String(format: "%.1f%%", Double(blackWins) / Double(total) * 100))）
-        和棋：\(draws)（\(String(format: "%.1f%%", Double(draws) / Double(total) * 100))）
+        红胜：\(redWins)（\(pct(redWins))）
+        黑胜：\(blackWins)（\(pct(blackWins))）
+        和棋：\(draws)（\(pct(draws))）
         平均步数：\(String(format: "%.1f", avgMoves))
         BayesElo 差值：\(bayesEloDelta >= 0 ? "+" : "")\(bayesEloDelta)
         耗时：\(String(format: "%.1f", durationSeconds))s
+
+        终局分布：
+          将死(normal)：\(checkmateCount) 局（\(pct(checkmateCount))）
+          困毙(stalemate)：\(stalemateCount) 局（\(pct(stalemateCount))）
+          重复(repetition)：\(repetitionCount) 局（\(pct(repetitionCount))）
+          步数上限(moveLimit)：\(moveLimitCount) 局（\(pct(moveLimitCount))）
+        先手优势：红方胜率 \(String(format: "%.1f%%", redWinRate * 100))（Elo ±\(abs(bayesEloDelta))）
         """
     }
 }
@@ -358,7 +377,9 @@ extension SelfPlayRunner {
             NSLog("[MixedEngine] Pikafish failed to start: \(error)")
             return MixedEngineSessionResult(
                 games: [], redWins: 0, blackWins: 0, draws: 0,
-                avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0
+                avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0,
+                checkmateCount: 0, stalemateCount: 0, repetitionCount: 0,
+                moveLimitCount: 0, redWinRate: 0
             )
         }
 
@@ -429,6 +450,13 @@ extension SelfPlayRunner {
         // v6.0 P1 fix: 按引擎维度（native vs pikafish）算 Elo，不是红黑维度
         let eloDelta = BayesElo.estimateDelta(wins: nativeWins, losses: pikafishWins, draws: draws)
 
+        // 校准 v3.0: 终局分类统计
+        let checkmateCount = games.filter { $0.reason == .normal }.count
+        let stalemateCount = games.filter { $0.reason == .stalemate }.count
+        let repetitionCount = games.filter { $0.reason == .repetition }.count
+        let moveLimitCount = games.filter { $0.reason == .moveLimit }.count
+        let redWinRate = games.count > 0 ? Double(redWins) / Double(games.count) : 0
+
         return MixedEngineSessionResult(
             games: games,
             redWins: redWins,
@@ -436,7 +464,12 @@ extension SelfPlayRunner {
             draws: draws,
             avgMoves: avg,
             durationSeconds: elapsed,
-            bayesEloDelta: eloDelta
+            bayesEloDelta: eloDelta,
+            checkmateCount: checkmateCount,
+            stalemateCount: stalemateCount,
+            repetitionCount: repetitionCount,
+            moveLimitCount: moveLimitCount,
+            redWinRate: redWinRate
         )
     }
 
@@ -476,13 +509,14 @@ extension SelfPlayRunner {
                 board.execute(move)
             } else {
                 // Pikafish 走棋
-                // v2.1: 使用 .amateurHigh（skillLevel 返回 nil），避免 bestMove 内部覆盖外部 override
+                // v2.1: 使用 .amateurLow（skillLevel 返回 nil），避免 bestMove 内部覆盖外部 override
+                // 同时 depth=10（比 .amateurHigh depth=24 快很多），校准变量更干净
                 if let skillOverride = pikafishSkillOverride {
                     await pikafishEngine.setSkillLevel(skillOverride)
                 }
                 let fen = FENParser.generate(board: board)
                 // 构造 UCI move history（ICCS 格式兼容）
-                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .amateurHigh : pikafishDifficulty
+                let pfDifficulty: AIDifficulty = pikafishSkillOverride != nil ? .amateurLow : pikafishDifficulty
                 let result = await pikafishEngine.bestMove(
                     fen: fen,
                     moveHistory: [],
@@ -529,8 +563,8 @@ extension SelfPlayRunner {
         pikafishDifficulty: AIDifficulty = .amateurDan,
         pikafishSkillOverride: Int? = nil,
         games: Int = 10,
-        moveTimeMs: Int = 500,
-        maxMoves: Int = 80
+        moveTimeMs: Int = 1000,
+        maxMoves: Int = 500
     ) async -> String {
         let config = MixedEngineConfig(games: games, maxMoves: maxMoves, moveTimeMs: moveTimeMs)
 
@@ -602,6 +636,21 @@ extension SelfPlayRunner {
 
     // MARK: - v6.0: 纯 Pikafish 自对弈（Skill Level 梯度验证）
 
+    /// Skill Level → AIDifficulty 映射辅助
+    /// 将任意 Skill 值 (0-20) 映射到最近的 AIDifficulty 枚举占位
+    /// 实际 Skill 由 skillOverride 控制
+    static func skillToDifficulty(_ skill: Int) -> AIDifficulty {
+        // 专业级枚举有 skillLevel，选最近的
+        let mapping: [(AIDifficulty, Int)] = [
+            (.amateurDan, 4),
+            (.proApprentice, 7),
+            (.proExpert, 10),
+            (.proMaster, 13),
+            (.grandmaster, 20),
+        ]
+        return mapping.min(by: { abs($0.1 - skill) < abs($1.1 - skill) })?.0 ?? .amateurDan
+    }
+
     /// 纯 Pikafish 自对弈：红方 Skill A vs 黑方 Skill B
     /// 单实例 Pikafish，每步前通过 difficulty 设置当前方的 Skill Level
     func runPikafishSelfPlay(
@@ -610,6 +659,8 @@ extension SelfPlayRunner {
         games: Int,
         maxMoves: Int = 80,
         moveTimeMs: Int = 500,
+        redSkillOverride: Int? = nil,
+        blackSkillOverride: Int? = nil,
         progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
     ) async -> MixedEngineSessionResult {
         let startTime = Date()
@@ -624,12 +675,16 @@ extension SelfPlayRunner {
             print("❌ Pikafish failed to start: \(error)")
             return MixedEngineSessionResult(
                 games: [], redWins: 0, blackWins: 0, draws: 0,
-                avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0
+                avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0,
+                checkmateCount: 0, stalemateCount: 0, repetitionCount: 0,
+                moveLimitCount: 0, redWinRate: 0
             )
         }
 
-        let redName = "Skill\(redDifficulty.skillLevel ?? 0)"
-        let blackName = "Skill\(blackDifficulty.skillLevel ?? 0)"
+        let redSkill = redSkillOverride ?? redDifficulty.skillLevel ?? 0
+        let blackSkill = blackSkillOverride ?? blackDifficulty.skillLevel ?? 0
+        let redName = "Skill\(redSkill)"
+        let blackName = "Skill\(blackSkill)"
 
         for gameIndex in 0..<games {
             let actualRed: AIDifficulty
@@ -649,7 +704,9 @@ extension SelfPlayRunner {
                 blackDifficulty: actualBlack,
                 maxMoves: maxMoves,
                 moveTimeMs: moveTimeMs,
-                engine: engine
+                engine: engine,
+                redSkillOverride: redSkillOverride,
+                blackSkillOverride: blackSkillOverride
             )
 
             let redIsRedSkill = (gameIndex % 2 == 0)
@@ -696,10 +753,20 @@ extension SelfPlayRunner {
         print("  平均步数：\(String(format: "%.1f", avg))")
         print("  耗时：\(String(format: "%.1f", elapsed))s")
 
+        // 校准 v3.0: 终局分类统计
+        let checkmateCount = gameResults.filter { $0.reason == .normal }.count
+        let stalemateCount = gameResults.filter { $0.reason == .stalemate }.count
+        let repetitionCount = gameResults.filter { $0.reason == .repetition }.count
+        let moveLimitCount = gameResults.filter { $0.reason == .moveLimit }.count
+        let redWinRate = gameResults.count > 0 ? Double(redWins) / Double(gameResults.count) : 0
+
         return MixedEngineSessionResult(
             games: gameResults, redWins: redWins, blackWins: blackWins,
             draws: draws, avgMoves: avg, durationSeconds: elapsed,
-            bayesEloDelta: eloDelta
+            bayesEloDelta: eloDelta,
+            checkmateCount: checkmateCount, stalemateCount: stalemateCount,
+            repetitionCount: repetitionCount, moveLimitCount: moveLimitCount,
+            redWinRate: redWinRate
         )
     }
 
@@ -710,7 +777,9 @@ extension SelfPlayRunner {
         blackDifficulty: AIDifficulty,
         maxMoves: Int,
         moveTimeMs: Int,
-        engine: EmbeddedPikafishEngine
+        engine: EmbeddedPikafishEngine,
+        redSkillOverride: Int? = nil,
+        blackSkillOverride: Int? = nil
     ) async -> (result: GameState, totalMoves: Int, reason: GameEndReason, moveHistory: [String]) {
         let board = Board()
         var moveHistory: [String] = []
@@ -720,8 +789,14 @@ extension SelfPlayRunner {
         while moveHistory.count < maxMoves {
             let currentSide = board.currentTurn
             let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
+            let skillOverride = (currentSide == .red) ? redSkillOverride : blackSkillOverride
 
-            // bestMove 内部会根据 difficulty.skillLevel 自动设置 Skill Level
+            // 校准 v3.0: 如果有 skillOverride，手动设置 Skill Level
+            // bestMove 内部检测 lastSkillOverride != nil 时自动强制 depth=0
+            if let skill = skillOverride {
+                await engine.setSkillLevel(skill)
+            }
+
             let fen = FENParser.generate(board: board)
             let result = await engine.bestMove(
                 fen: fen,
@@ -796,7 +871,7 @@ func runCalibrateFromCLI() async {
 
     let args = CommandLine.arguments
     let games = args.count > 2 ? (Int(args[2]) ?? 10) : 10
-    let maxMoves = args.count > 3 ? (Int(args[3]) ?? 80) : 80  // 默认 80 步上限（快速校准）
+    let maxMoves = args.count > 3 ? (Int(args[3]) ?? 500) : 500  // 默认 500 步上限（让对局自然结束）
 
     // NNUE 路径排查日志
     let bundlePath = Bundle.main.bundlePath
@@ -998,13 +1073,23 @@ func runPikafishMatchFromCLI() async {
             await engine.setSkillLevel(skill)
             
             let fen = FENParser.generate(board: board)
-            // 传 .amateurHigh（skillLevel=nil）避免 bestMove 内部覆盖手动设的 Skill
-            // amateurHigh 的 depth=24 + timeLimitMs=500 控制搜索
+            // 传 .amateurLow（skillLevel=nil）避免 bestMove 内部覆盖手动设的 Skill
+            // amateurLow 的 depth=10 + timeLimitMs=1000 控制搜索（v2.1 校准优化）
             guard let bestMove = await engine.bestMove(
-                fen: fen, moveHistory: [], difficulty: .amateurHigh, timeLimitMs: 500
+                fen: fen, moveHistory: [], difficulty: .amateurLow, timeLimitMs: 1000
             ),
             let parsed = UCIMoveConverter.move(from: bestMove, on: board) else {
-                print("    无合法走法，结束")
+                // 困毙/无子可动：当前走子方输棋（中国象棋规则）
+                let loserSide = board.currentTurn
+                let winnerSkill: String
+                let isCurrentA = (loserSide == .red) == aIsRed
+                if isCurrentA {
+                    // A 方无子可动，B 赢
+                    winnerSkill = "Skill\(skillB)"; winsB += 1
+                } else {
+                    winnerSkill = "Skill\(skillA)"; winsA += 1
+                }
+                print("  第\(gameIdx+1)局: \(winnerSkill) 胜（困毙，\(moveHistory.count)步）")
                 break
             }
             
@@ -1055,5 +1140,177 @@ func runPikafishMatchFromCLI() async {
         }
     }
     print("═══════════════════════════════════════════")
+}
+#endif
+
+// MARK: - 校准 v3.0: --calibrate-native CLI 入口（自研内部对弈）
+
+#if os(macOS)
+func runCalibrateNativeFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+
+    let args = CommandLine.arguments
+    // --calibrate-native <lvlA> <lvlB> <games> [maxMoves]
+    guard args.count >= 5 else {
+        print("""
+        用法: ChineseChess --calibrate-native <lvlA> <lvlB> <games> [maxMoves]
+        示例: ChineseChess --calibrate-native 3 4 20 500
+
+        lvlA/lvlB: 自研引擎级别 (1-5)
+          lvl1=novic(九级棋士)  lvl2=beginner(八级棋士)  lvl3=amateurLow(七级棋士)
+          lvl4=amateurMid(六级棋士)  lvl5=amateurHigh(五级棋士)
+        """)
+        return
+    }
+
+    guard let lvlA = Int(args[2]), let lvlB = Int(args[3]) else {
+        print("❌ 无效的级别参数")
+        return
+    }
+    guard let games = Int(args[4]), games > 0 else {
+        print("❌ 无效的局数: \(args[4])")
+        return
+    }
+    let maxMoves = args.count > 5 ? (Int(args[5]) ?? 500) : 500
+
+    let diffA = AIDifficulty(rawValue: "lvl\(lvlA)") ?? .amateurMid
+    let diffB = AIDifficulty(rawValue: "lvl\(lvlB)") ?? .amateurHigh
+
+    print("═══════════════════════════════════════════")
+    print("  自研内部对弈校准")
+    print("  \(diffA.rawValue)(\(diffA.displayName)) vs \(diffB.rawValue)(\(diffB.displayName))")
+    print("  \(games) 局，最多 \(maxMoves) 步/局")
+    print("═══════════════════════════════════════════")
+    print("")
+
+    let config = SelfPlayConfig(red: diffA, black: diffB, games: games, maxMoves: maxMoves)
+    let runner = SelfPlayRunner()
+
+    let result = await runner.run(config: config) { completed, gameResult in
+        let winnerStr: String
+        switch gameResult.result {
+        case .redWon: winnerStr = "红胜"
+        case .blackWon: winnerStr = "黑胜"
+        case .draw: winnerStr = "和棋"
+        default: winnerStr = "未知"
+        }
+        print("  [\(completed)/\(games)] \(winnerStr) (\(gameResult.totalMoves)步, \(gameResult.reason.rawValue))")
+    }
+
+    let eloDelta = BayesElo.estimateDelta(wins: result.redWins, losses: result.blackWins, draws: result.draws)
+
+    var report = result.summary + "\n\n"
+    report += "BayesElo 估值：\(eloDelta >= 0 ? "+" : "")\(eloDelta)\n"
+    report += "\n逐局结果：\n"
+    for game in result.games {
+        let winnerStr: String
+        switch game.result {
+        case .redWon: winnerStr = "红胜"
+        case .blackWon: winnerStr = "黑胜"
+        case .draw: winnerStr = "和棋"
+        default: winnerStr = "未知"
+        }
+        report += "  第\(game.gameIndex + 1)局：\(winnerStr)（\(game.totalMoves)步, \(game.reason.rawValue)）\n"
+    }
+
+    print("")
+    print(report)
+
+    // 保存报告
+    let fm = FileManager.default
+    let outputDir = "calibration-results"
+    try? fm.createDirectory(atPath: outputDir, withIntermediateDirectories: true)
+    let timestamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+    let outputPath = "\(outputDir)/native_\(diffA.rawValue)_vs_\(diffB.rawValue)_\(timestamp).txt"
+    try? report.write(toFile: outputPath, atomically: true, encoding: .utf8)
+    print("报告已保存：\(outputPath)")
+}
+#endif
+
+// MARK: - 校准 v3.0: --calibrate-pf CLI 入口（Pikafish 内部对弈）
+
+#if os(macOS)
+func runCalibratePfFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+
+    let args = CommandLine.arguments
+    // --calibrate-pf <skillA> <skillB> <games> [maxMoves] [moveTimeMs]
+    guard args.count >= 5 else {
+        print("""
+        用法: ChineseChess --calibrate-pf <skillA> <skillB> <games> [maxMoves] [moveTimeMs]
+        示例: ChineseChess --calibrate-pf 0 4 20 500 500
+
+        skillA/skillB: Pikafish Skill Level (0-20)
+        """)
+        return
+    }
+
+    guard let skillA = Int(args[2]), let skillB = Int(args[3]) else {
+        print("❌ 无效的 Skill 参数")
+        return
+    }
+    guard let games = Int(args[4]), games > 0 else {
+        print("❌ 无效的局数: \(args[4])")
+        return
+    }
+    let maxMoves = args.count > 5 ? (Int(args[5]) ?? 500) : 500
+    let moveTimeMs = args.count > 6 ? (Int(args[6]) ?? 500) : 500
+
+    // Skill → AIDifficulty 映射：找最近的枚举值作为占位
+    // 实际 Skill 由 skillOverride 参数控制
+    let diffA = SelfPlayRunner.skillToDifficulty(skillA)
+    let diffB = SelfPlayRunner.skillToDifficulty(skillB)
+
+    print("═══════════════════════════════════════════")
+    print("  Pikafish 内部对弈校准")
+    print("  Skill\(skillA) vs Skill\(skillB)")
+    print("  \(games) 局，最多 \(maxMoves) 步/局，每步 \(moveTimeMs)ms")
+    print("═══════════════════════════════════════════")
+    print("")
+
+    let runner = SelfPlayRunner()
+    let result = await runner.runPikafishSelfPlay(
+        redDifficulty: diffA,
+        blackDifficulty: diffB,
+        games: games,
+        maxMoves: maxMoves,
+        moveTimeMs: moveTimeMs,
+        redSkillOverride: skillA,
+        blackSkillOverride: skillB
+    ) { completed, gameResult in
+        let winnerStr: String
+        switch gameResult.result {
+        case .redWon: winnerStr = "红胜"
+        case .blackWon: winnerStr = "黑胜"
+        case .draw: winnerStr = "和棋"
+        default: winnerStr = "未知"
+        }
+        print("  [\(completed)/\(games)] \(winnerStr) (\(gameResult.totalMoves)步, \(gameResult.reason.rawValue)) [红:\(gameResult.redEngineName) 黑:\(gameResult.blackEngineName)]")
+    }
+
+    print("")
+    print(result.summary)
+
+    // 生成并保存报告
+    var report = result.summary + "\n\n"
+    report += "逐局结果：\n"
+    for game in result.games {
+        let winnerStr: String
+        switch game.result {
+        case .redWon: winnerStr = "红胜"
+        case .blackWon: winnerStr = "黑胜"
+        case .draw: winnerStr = "和棋"
+        default: winnerStr = "未知"
+        }
+        report += "  第\(game.gameIndex + 1)局：\(winnerStr)（\(game.totalMoves)步, \(game.reason.rawValue)）[红:\(game.redEngineName) 黑:\(game.blackEngineName)]\n"
+    }
+
+    let fm = FileManager.default
+    let outputDir = "calibration-results"
+    try? fm.createDirectory(atPath: outputDir, withIntermediateDirectories: true)
+    let timestamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+    let outputPath = "\(outputDir)/pikafish_skill\(skillA)_vs_skill\(skillB)_\(timestamp).txt"
+    try? report.write(toFile: outputPath, atomically: true, encoding: .utf8)
+    print("报告已保存：\(outputPath)")
 }
 #endif
