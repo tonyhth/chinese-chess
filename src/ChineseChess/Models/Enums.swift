@@ -126,7 +126,7 @@ enum AIDifficulty: CaseIterable, Codable {
         .amateurHigh
     }
 
-    /// 中文显示名（v4.2）
+    /// 中文显示名（v6.0: 10 级统一棋力系统）
     var displayName: String {
         switch self {
         case .novice:        return "入门"

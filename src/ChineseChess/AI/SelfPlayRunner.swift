@@ -711,10 +711,10 @@ extension SelfPlayRunner {
     static func skillToDifficulty(_ skill: Int) -> AIDifficulty {
         // 专业级枚举有 skillLevel，选最近的
         let mapping: [(AIDifficulty, Int)] = [
-            (.amateurDan, 4),
-            (.proApprentice, 7),
-            (.proExpert, 10),
-            (.proMaster, 13),
+            (.amateurDan, 0),
+            (.proApprentice, 4),
+            (.proExpert, 7),
+            (.proMaster, 10),
             (.grandmaster, 20),
         ]
         return mapping.min(by: { abs($0.1 - skill) < abs($1.1 - skill) })?.0 ?? .amateurDan
@@ -991,7 +991,7 @@ func runCalibrateFromCLI() async {
     print("")
 
     // 支持自定义难度: --calibrate <games> <maxMoves> [nativeLvl] [pikafishLvl]
-    // 默认: native=4(lvl4/amateurMid), pikafish=6(lvl6/amateurDan=Skill5)
+    // 默认: native=4(lvl4/amateurMid), pikafish=6(lvl6/amateurDan=Skill0)
     // 特殊: pikafishLvl=0 表示 Skill 0（用 novice/lvl1 映射到 Skill 0）
     let nativeLvl = args.count > 4 ? (Int(args[4]) ?? 4) : 4  // 默认 4 级
     let pikafishLvl = args.count > 5 ? (Int(args[5]) ?? 6) : 6  // 默认 6 级
