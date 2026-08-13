@@ -519,21 +519,20 @@ class GameViewModel {
             guard let self else { return }
             defer { self.stopThinking() }
             
-            // v6.0: 确保引擎切换完成 + 按难度路由
-            _ = await EngineRouter.shared.switchEngineIfNeeded()
+            // v6.0: 确保引擎切换完成
+            // hint 始终用 Pikafish 最强引擎（不受用户难度影响）
+            let engine = await EngineRouter.shared.switchEngineIfNeeded()
             
             // P0 修复：gameVersion 检查
             guard self.gameVersion == currentVersion else { return }
             
-            // v6.0: 按难度获取引擎
-            let engine = EngineRouter.shared.engineFor(difficulty: currentDifficulty)
             // P0 修复：FEN 已代表当前局面，moveHistory 会重复执行走法导致 nil
             let fen = FENParser.generate(board: self.board)
             
             let uciMove = await engine.bestMove(
                 fen: fen,
                 moveHistory: [],
-                difficulty: currentDifficulty,
+                difficulty: .grandmaster,  // hint 始终用最强
                 timeLimitMs: 0
             )
             
