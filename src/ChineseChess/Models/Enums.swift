@@ -129,16 +129,32 @@ enum AIDifficulty: CaseIterable, Codable {
     /// 中文显示名（v2.1: 中国象棋协会等级制）
     var displayName: String {
         switch self {
-        case .novice:        return "九级棋士"
-        case .beginner:      return "八级棋士"
-        case .amateurLow:    return "七级棋士"
-        case .amateurMid:    return "六级棋士"
-        case .amateurHigh:   return "五级棋士"
-        case .amateurDan:    return "四级棋士"
-        case .proApprentice: return "三级棋士"
-        case .proExpert:     return "二级棋士"
-        case .proMaster:     return "一级棋士"
-        case .grandmaster:   return "特级大师"
+        case .novice:        return "入门"
+        case .beginner:      return "初级"
+        case .amateurLow:    return "中级"
+        case .amateurMid:    return "高级"
+        case .amateurHigh:   return "精通"
+        case .amateurDan:    return "棋友"
+        case .proApprentice: return "棋手"
+        case .proExpert:     return "棋师"
+        case .proMaster:     return "大师"
+        case .grandmaster:   return "棋圣"
+        }
+    }
+
+    /// 英文显示名
+    var displayNameEN: String {
+        switch self {
+        case .novice:        return "Beginner"
+        case .beginner:      return "Elementary"
+        case .amateurLow:    return "Intermediate"
+        case .amateurMid:    return "Advanced"
+        case .amateurHigh:   return "Proficient"
+        case .amateurDan:    return "Player"
+        case .proApprentice: return "Expert"
+        case .proExpert:     return "Master"
+        case .proMaster:     return "Grandmaster"
+        case .grandmaster:   return "Legend"
         }
     }
 

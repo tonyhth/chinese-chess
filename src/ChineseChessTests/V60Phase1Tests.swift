@@ -91,16 +91,16 @@ struct AIDifficultyEnumTests {
 
     @Test("displayName：10 个中文名正确 (v2.1)")
     func displayNames() {
-        #expect(AIDifficulty.novice.displayName == "九级棋士")
-        #expect(AIDifficulty.beginner.displayName == "八级棋士")
-        #expect(AIDifficulty.amateurLow.displayName == "七级棋士")
-        #expect(AIDifficulty.amateurMid.displayName == "六级棋士")
-        #expect(AIDifficulty.amateurHigh.displayName == "五级棋士")
-        #expect(AIDifficulty.amateurDan.displayName == "四级棋士")
-        #expect(AIDifficulty.proApprentice.displayName == "三级棋士")
-        #expect(AIDifficulty.proExpert.displayName == "二级棋士")
-        #expect(AIDifficulty.proMaster.displayName == "一级棋士")
-        #expect(AIDifficulty.grandmaster.displayName == "特级大师")
+        #expect(AIDifficulty.novice.displayName == "入门")
+        #expect(AIDifficulty.beginner.displayName == "初级")
+        #expect(AIDifficulty.amateurLow.displayName == "中级")
+        #expect(AIDifficulty.amateurMid.displayName == "高级")
+        #expect(AIDifficulty.amateurHigh.displayName == "精通")
+        #expect(AIDifficulty.amateurDan.displayName == "棋友")
+        #expect(AIDifficulty.proApprentice.displayName == "棋手")
+        #expect(AIDifficulty.proExpert.displayName == "棋师")
+        #expect(AIDifficulty.proMaster.displayName == "大师")
+        #expect(AIDifficulty.grandmaster.displayName == "棋圣")
     }
 
     @Test("order：0-9 递增")

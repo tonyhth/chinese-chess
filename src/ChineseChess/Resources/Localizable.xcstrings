@@ -12056,13 +12056,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "9th-Class"
+            "value": "Beginner"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "九级棋士"
+            "value": "入门"
           }
         }
       }
@@ -12072,13 +12072,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "8th-Class"
+            "value": "Elementary"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "八级棋士"
+            "value": "初级"
           }
         }
       }
@@ -12088,13 +12088,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "7th-Class"
+            "value": "Intermediate"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "七级棋士"
+            "value": "中级"
           }
         }
       }
@@ -12104,13 +12104,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "6th-Class"
+            "value": "Advanced"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "六级棋士"
+            "value": "高级"
           }
         }
       }
@@ -12120,13 +12120,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "5th-Class"
+            "value": "Proficient"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "五级棋士"
+            "value": "精通"
           }
         }
       }
@@ -12136,13 +12136,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "4th-Class"
+            "value": "Player"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "四级棋士"
+            "value": "棋友"
           }
         }
       }
@@ -12152,13 +12152,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "3rd-Class"
+            "value": "Expert"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "三级棋士"
+            "value": "棋手"
           }
         }
       }
@@ -12168,34 +12168,18 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "2nd-Class"
+            "value": "Master"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "二级棋士"
+            "value": "棋师"
           }
         }
       }
     },
     "difficulty.lvl9": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1st-Class"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "一级棋士"
-          }
-        }
-      }
-    },
-    "difficulty.lvl10": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -12206,7 +12190,23 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "特级大师"
+            "value": "大师"
+          }
+        }
+      }
+    },
+    "difficulty.lvl10": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legend"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "棋圣"
           }
         }
       }
