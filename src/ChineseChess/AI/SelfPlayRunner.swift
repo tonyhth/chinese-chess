@@ -168,9 +168,6 @@ final class SelfPlayRunner {
             let currentSide = board.currentTurn
             let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
 
-            // T2: 每步前清空 TT，防止红黑双方通过 TT 互相偷看搜索结果
-            await engine.clearTT()
-
             // C1: 取 top-3 候选走法，回避重复局面
             let candidates = await engine.bestMoves(for: board, difficulty: difficulty, isIOS: isIOS, topK: 3)
             guard !candidates.isEmpty else {
@@ -523,9 +520,6 @@ extension SelfPlayRunner {
             let isNativeTurn = (currentSide == .red) == nativeIsRed
 
             if isNativeTurn {
-                // T2: 自研引擎走棋前清空 TT，防止信息泄漏
-                await engine.clearTT()
-
                 // C1: 取 top-3 候选走法，回避重复局面
                 let candidates = await engine.bestMoves(for: board, difficulty: nativeDifficulty, isIOS: false, topK: 3)
                 guard !candidates.isEmpty else {
@@ -1287,6 +1281,19 @@ func runCalibrateNativeFromCLI() async {
     let outputPath = "\(outputDir)/native_\(diffA.rawValue)_vs_\(diffB.rawValue)_\(timestamp).txt"
     try? report.write(toFile: outputPath, atomically: true, encoding: .utf8)
     print("报告已保存：\(outputPath)")
+
+    // 输出每局走法序列（moveHistory），供循环模式分析
+    let mhDir = "calibration-results/move-history"
+    try? fm.createDirectory(atPath: mhDir, withIntermediateDirectories: true)
+    let groupLabel = "A\(lvlA)\(lvlB)"  // e.g. A34 for lvl3 vs lvl4
+    for game in result.games {
+        let gameNum = game.gameIndex + 1
+        let mhFilename = "\(groupLabel)_game\(gameNum)_\(game.redDifficulty.rawValue)vs\(game.blackDifficulty.rawValue)_\(game.totalMoves).txt"
+        let mhPath = "\(mhDir)/\(mhFilename)"
+        let mhContent = game.moveHistory.joined(separator: "\n")
+        try? mhContent.write(toFile: mhPath, atomically: true, encoding: .utf8)
+    }
+    print("走法序列已保存：\(mhDir)/ (\(result.games.count) 局)")
 }
 #endif
 

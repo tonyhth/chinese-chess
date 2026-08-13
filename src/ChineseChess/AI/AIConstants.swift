@@ -6,9 +6,10 @@ import Foundation
 struct AIEvalConfig {
     var mobility: Bool  // 简化机动性评估
     var safety: Bool    // 将帅安全评估
+    var contempt: Int   // 单向 contempt factor（均势局面下给当前走方的正向偏置，0=禁用）
 
-    static let basic = AIEvalConfig(mobility: false, safety: true)       // 初级/中级
-    static let advanced = AIEvalConfig(mobility: true, safety: true)     // 高级/大师
+    static let basic = AIEvalConfig(mobility: false, safety: true, contempt: 0)       // 初级/中级
+    static let advanced = AIEvalConfig(mobility: true, safety: true, contempt: 0)     // 高级/大师
 }
 
 // MARK: - 搜索配置

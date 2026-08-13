@@ -63,11 +63,16 @@ struct AIEvaluator {
             mobilityBonus = 0
         }
 
-        return sign * (Int(Double(materialScore) * w.materialWeight)
+        // 单向 Contempt factor：均势局面下给当前走方正向偏置，鼓励强方求变
+        let baseScore = Int(Double(materialScore) * w.materialWeight)
             + Int(Double(positionScore) * w.positionWeight)
             + Int(Double(patternBonus) * w.patternWeight)
             + Int(Double(mobilityBonus) * w.mobilityWeight)
-            + Int(Double(safetyBonus) * w.safetyWeight))
+            + Int(Double(safetyBonus) * w.safetyWeight)
+        let isDrawish = abs(baseScore) < 100  // 均势判定阈值 100cp
+        let contemptBonus = isDrawish ? config.contempt : 0
+
+        return sign * (baseScore + contemptBonus)
     }
 
     // MARK: - 棋子动态价值

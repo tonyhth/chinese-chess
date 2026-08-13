@@ -30,6 +30,10 @@ actor AIEngine: AIEngineProtocol {
     /// 每 4096 个节点检查一次时间
     private let timeCheckInterval = 4096
 
+    /// Contempt factor（校准专用）：均势局面下给当前走方的正向偏置
+    /// 默认 0（人机对弈不受影响），校准时由 bestMove/bestMoves 根据 difficulty 设置
+    private var calibrationContempt: Int = 0
+
     /// 原有初始化器（兼容现有代码）
     init() {
         self.weights = EvalConfigManager.shared.weights
@@ -54,14 +58,30 @@ actor AIEngine: AIEngineProtocol {
     ///
     /// ⚠️ 性能 trade-off：每次调用后局内 TT 缓存失效，
     /// 搜索性能下降约 30-50%（无 TT 加速，每步从零开始搜索）。
-    /// 校准场景优先公平性，性能损失可接受。
-    /// 替代方案（未实现）：给 TT 条目加 side 标记，只清对方条目。
+    /// 清空 TT（当前无内部调用方）。
+    /// T2 回退后局间清空通过 clearHistory() 中的 transpositionTable.clear() 实现。
+    /// 保留此方法作为公共 API，供外部调用方使用。
     func clearTT() {
         transpositionTable.clear()
     }
 
+    /// 单向 Contempt factor 映射（校准专用）
+    /// lvl1-3: contempt=0（弱方保持中立）
+    /// lvl4: contempt=20（均势局面下主动求变）
+    /// lvl5: contempt=30
+    /// lvl6+: 不走自研引擎，值不重要
+    private static func contemptFor(_ difficulty: AIDifficulty) -> Int {
+        switch difficulty {
+        case .novice, .beginner, .amateurLow: return 0
+        case .amateurMid: return 20
+        case .amateurHigh: return 30
+        case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster: return 0
+        }
+    }
+
     func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
         // ⚠️ 唯一的 Board → SearchBoard 转换点
+        calibrationContempt = Self.contemptFor(difficulty)
         var workBoard = SearchBoard(from: board)
 
         switch difficulty {
@@ -70,8 +90,10 @@ actor AIEngine: AIEngineProtocol {
         case .beginner:
             // v2.1: depth 3→2 + movetime 3000ms 修复超时
             let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+            var evalCfg = AIEvalConfig.basic
+            evalCfg.contempt = calibrationContempt
             return rootSearch(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
-                              evalConfig: .basic, timeManager: tm)
+                              evalConfig: evalCfg, timeManager: tm)
         case .amateurLow:
             return mediumSearch(for: &workBoard, isIOS: isIOS)
         case .amateurMid:
@@ -90,6 +112,7 @@ actor AIEngine: AIEngineProtocol {
     /// 返回 top-k 候选走法，带评分。用于自对弈时回避重复局面。
     /// 仅支持自研引擎级别（novice 走 beginnerMove 逻辑，也返回 top-k）。
     func bestMoves(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false, topK: Int = 3) async -> [(move: Move, score: Int)] {
+        calibrationContempt = Self.contemptFor(difficulty)
         var workBoard = SearchBoard(from: board)
 
         switch difficulty {
@@ -110,8 +133,10 @@ actor AIEngine: AIEngineProtocol {
 
         case .beginner:
             let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+            var evalCfg = AIEvalConfig.basic
+            evalCfg.contempt = calibrationContempt
             return rootSearchScored(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
-                                    evalConfig: .basic, timeManager: tm, topK: topK) ?? []
+                                    evalConfig: evalCfg, timeManager: tm, topK: topK) ?? []
 
         case .amateurLow:
             return mediumSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
@@ -135,6 +160,13 @@ actor AIEngine: AIEngineProtocol {
         nodeCount = 0
         activeTimeManager = timeManager
 
+        // P1 fix: 统一 resolve searchConfig，确保 evalConfig（含 contempt）传播到 negamax
+        let resolvedConfig = searchConfig ?? {
+            var sc = AISearchConfig.default
+            sc.evalConfig = evalConfig
+            return sc
+        }()
+
         let side = board.currentTurn
         let hash = ZobristHash.hash(board: board)
 
@@ -153,7 +185,7 @@ actor AIEngine: AIEngineProtocol {
         var alpha = origAlpha
         let beta = 100_000_000
         var scoredMoves: [(move: Move, score: Int)] = []
-        let usePVS = searchConfig?.enablePVS ?? false
+        let usePVS = resolvedConfig.enablePVS
 
         for (moveIndex, move) in orderedMoves.enumerated() {
             if let tm = timeManager, tm.shouldStop { break }
@@ -166,43 +198,24 @@ actor AIEngine: AIEngineProtocol {
 
             let score: Int
             if usePVS && moveIndex > 0 {
-                let nullWindowScore: Int
-                if let sc = searchConfig {
-                    nullWindowScore = -negamax(board: &board, depth: depth - 1,
+                let nullWindowScore = -negamax(board: &board, depth: depth - 1,
                                                alpha: -alpha - 1, beta: -alpha, hash: childHash,
                                                useTT: useTT, useMoveOrder: useMoveOrder,
-                                               searchConfig: sc)
-                } else {
-                    nullWindowScore = -negamax(board: &board, depth: depth - 1,
-                                               alpha: -alpha - 1, beta: -alpha, hash: childHash,
-                                               useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-                }
+                                               searchConfig: resolvedConfig)
 
                 if nullWindowScore > alpha && nullWindowScore < beta {
-                    if let sc = searchConfig {
-                        score = -negamax(board: &board, depth: depth - 1,
-                                         alpha: -beta, beta: -alpha, hash: childHash,
-                                         useTT: useTT, useMoveOrder: useMoveOrder,
-                                         searchConfig: sc)
-                    } else {
-                        score = -negamax(board: &board, depth: depth - 1,
-                                         alpha: -beta, beta: -alpha, hash: childHash,
-                                         useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-                    }
+                    score = -negamax(board: &board, depth: depth - 1,
+                                     alpha: -beta, beta: -alpha, hash: childHash,
+                                     useTT: useTT, useMoveOrder: useMoveOrder,
+                                     searchConfig: resolvedConfig)
                 } else {
                     score = nullWindowScore
                 }
             } else {
-                if let sc = searchConfig {
-                    score = -negamax(board: &board, depth: depth - 1,
-                                     alpha: -beta, beta: -alpha, hash: childHash,
-                                     useTT: useTT, useMoveOrder: useMoveOrder,
-                                     searchConfig: sc)
-                } else {
-                    score = -negamax(board: &board, depth: depth - 1,
-                                     alpha: -beta, beta: -alpha, hash: childHash,
-                                     useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-                }
+                score = -negamax(board: &board, depth: depth - 1,
+                                 alpha: -beta, beta: -alpha, hash: childHash,
+                                 useTT: useTT, useMoveOrder: useMoveOrder,
+                                 searchConfig: resolvedConfig)
             }
             _ = board.undoLastMove()
 
@@ -238,15 +251,18 @@ actor AIEngine: AIEngineProtocol {
             return [(move, 0)]
         }
 
+        var config = AISearchConfig.medium
+        config.evalConfig.contempt = calibrationContempt
+
         guard let tm = TimeManager.forDifficulty(.amateurLow, isIOS: isIOS, board: board) else {
             let maxDepth = board.pieces.count <= 10 ? 7 : 6
             return rootSearchScored(for: &board, depth: maxDepth, useTT: true, useMoveOrder: true,
-                                    searchConfig: .medium, topK: topK)
+                                    searchConfig: config, topK: topK)
         }
 
         let maxDepth = board.pieces.count <= 10 ? 7 : 6
         return iterativeDeepeningSearchScored(for: &board, maxDepth: maxDepth, timeManager: tm,
-                                               searchConfig: .medium, topK: topK)
+                                               searchConfig: config, topK: topK)
     }
 
     private func hardSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
@@ -265,6 +281,9 @@ actor AIEngine: AIEngineProtocol {
             return killMoves.prefix(topK).map { ($0, 0) }
         }
 
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
         let baseDepth: Int
         if board.pieces.count <= 6 { baseDepth = 7 }
         else if board.pieces.count <= 10 { baseDepth = 6 }
@@ -272,10 +291,10 @@ actor AIEngine: AIEngineProtocol {
 
         guard let tm = TimeManager.forDifficulty(.amateurMid, isIOS: isIOS, board: board) else {
             return rootSearchScored(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                                    searchConfig: .hard, topK: topK)
+                                    searchConfig: config, topK: topK)
         }
         return iterativeDeepeningSearchScored(for: &board, maxDepth: baseDepth, timeManager: tm,
-                                               searchConfig: .hard, topK: topK)
+                                               searchConfig: config, topK: topK)
     }
 
     private func masterSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
@@ -294,6 +313,9 @@ actor AIEngine: AIEngineProtocol {
             return killMoves.prefix(topK).map { ($0, 0) }
         }
 
+        var config = AISearchConfig.master
+        config.evalConfig.contempt = calibrationContempt
+
         let baseDepth: Int
         if board.pieces.count <= 6 { baseDepth = 10 }
         else if board.pieces.count <= 10 { baseDepth = 8 }
@@ -301,10 +323,10 @@ actor AIEngine: AIEngineProtocol {
 
         guard let tm = TimeManager.forDifficulty(.amateurHigh, isIOS: isIOS, board: board) else {
             return rootSearchScored(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                                    searchConfig: .master, topK: topK)
+                                    searchConfig: config, topK: topK)
         }
         return iterativeDeepeningSearchScored(for: &board, maxDepth: baseDepth, timeManager: tm,
-                                               searchConfig: .master, topK: topK)
+                                               searchConfig: config, topK: topK)
     }
 
     /// IDS 的 scored 变体：返回最后一轮迭代的 top-k 候选
@@ -386,6 +408,13 @@ actor AIEngine: AIEngineProtocol {
         nodeCount = 0
         activeTimeManager = timeManager
 
+        // P1 fix: 统一 resolve searchConfig，确保 evalConfig（含 contempt）传播到 negamax
+        let resolvedConfig = searchConfig ?? {
+            var sc = AISearchConfig.default
+            sc.evalConfig = evalConfig
+            return sc
+        }()
+
         let side = board.currentTurn
         // #7: 入口处计算初始哈希（全量，只算一次）
         let hash = ZobristHash.hash(board: board)
@@ -407,7 +436,7 @@ actor AIEngine: AIEngineProtocol {
         var bestScore = origAlpha
         var alpha = origAlpha
         let beta = 100_000_000
-        let usePVS = searchConfig?.enablePVS ?? false
+        let usePVS = resolvedConfig.enablePVS
 
         for (moveIndex, move) in orderedMoves.enumerated() {
             if let tm = timeManager, tm.shouldStop { break }
@@ -421,43 +450,24 @@ actor AIEngine: AIEngineProtocol {
 
             let score: Int
             if usePVS && moveIndex > 0 {
-                let nullWindowScore: Int
-                if let sc = searchConfig {
-                    nullWindowScore = -negamax(board: &board, depth: depth - 1,
+                let nullWindowScore = -negamax(board: &board, depth: depth - 1,
                                                alpha: -alpha - 1, beta: -alpha, hash: childHash,
                                                useTT: useTT, useMoveOrder: useMoveOrder,
-                                               searchConfig: sc)
-                } else {
-                    nullWindowScore = -negamax(board: &board, depth: depth - 1,
-                                               alpha: -alpha - 1, beta: -alpha, hash: childHash,
-                                               useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-                }
+                                               searchConfig: resolvedConfig)
 
                 if nullWindowScore > alpha && nullWindowScore < beta {
-                    if let sc = searchConfig {
-                        score = -negamax(board: &board, depth: depth - 1,
-                                         alpha: -beta, beta: -alpha, hash: childHash,
-                                         useTT: useTT, useMoveOrder: useMoveOrder,
-                                         searchConfig: sc)
-                    } else {
-                        score = -negamax(board: &board, depth: depth - 1,
-                                         alpha: -beta, beta: -alpha, hash: childHash,
-                                         useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-                    }
+                    score = -negamax(board: &board, depth: depth - 1,
+                                     alpha: -beta, beta: -alpha, hash: childHash,
+                                     useTT: useTT, useMoveOrder: useMoveOrder,
+                                     searchConfig: resolvedConfig)
                 } else {
                     score = nullWindowScore
                 }
             } else {
-                if let sc = searchConfig {
-                    score = -negamax(board: &board, depth: depth - 1,
-                                     alpha: -beta, beta: -alpha, hash: childHash,
-                                     useTT: useTT, useMoveOrder: useMoveOrder,
-                                     searchConfig: sc)
-                } else {
-                    score = -negamax(board: &board, depth: depth - 1,
-                                     alpha: -beta, beta: -alpha, hash: childHash,
-                                     useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
-                }
+                score = -negamax(board: &board, depth: depth - 1,
+                                 alpha: -beta, beta: -alpha, hash: childHash,
+                                 useTT: useTT, useMoveOrder: useMoveOrder,
+                                 searchConfig: resolvedConfig)
             }
             _ = board.undoLastMove()
 
@@ -485,14 +495,17 @@ actor AIEngine: AIEngineProtocol {
             return move
         }
 
+        var config = AISearchConfig.medium
+        config.evalConfig.contempt = calibrationContempt
+
         guard let tm = TimeManager.forDifficulty(.amateurLow, isIOS: isIOS, board: board) else {
             let maxDepth = board.pieces.count <= 10 ? 7 : 6
             return rootSearch(for: &board, depth: maxDepth, useTT: true, useMoveOrder: true,
-                              searchConfig: .medium)
+                              searchConfig: config)
         }
 
         let maxDepth = board.pieces.count <= 10 ? 7 : 6
-        return iterativeDeepeningSearch(for: &board, maxDepth: maxDepth, timeManager: tm, searchConfig: .medium)
+        return iterativeDeepeningSearch(for: &board, maxDepth: maxDepth, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 高级
@@ -513,6 +526,9 @@ actor AIEngine: AIEngineProtocol {
             return killMoves.first
         }
 
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
         let baseDepth: Int
         if board.pieces.count <= 6 { baseDepth = 7 }
         else if board.pieces.count <= 10 { baseDepth = 6 }
@@ -520,9 +536,9 @@ actor AIEngine: AIEngineProtocol {
 
         guard let tm = TimeManager.forDifficulty(.amateurMid, isIOS: isIOS, board: board) else {
             return rootSearch(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                              searchConfig: .hard)
+                              searchConfig: config)
         }
-        return iterativeDeepeningSearch(for: &board, maxDepth: baseDepth, timeManager: tm, searchConfig: .hard)
+        return iterativeDeepeningSearch(for: &board, maxDepth: baseDepth, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 大师
@@ -543,6 +559,9 @@ actor AIEngine: AIEngineProtocol {
             return killMoves.first
         }
 
+        var config = AISearchConfig.master
+        config.evalConfig.contempt = calibrationContempt
+
         let baseDepth: Int
         if board.pieces.count <= 6 { baseDepth = 10 }
         else if board.pieces.count <= 10 { baseDepth = 8 }
@@ -550,9 +569,9 @@ actor AIEngine: AIEngineProtocol {
 
         guard let tm = TimeManager.forDifficulty(.amateurHigh, isIOS: isIOS, board: board) else {
             return rootSearch(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                              searchConfig: .master)
+                              searchConfig: config)
         }
-        return iterativeDeepeningSearch(for: &board, maxDepth: baseDepth, timeManager: tm, searchConfig: .master)
+        return iterativeDeepeningSearch(for: &board, maxDepth: baseDepth, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 迭代加深 Negamax
