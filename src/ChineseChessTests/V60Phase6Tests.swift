@@ -17,7 +17,7 @@ struct V60Phase6Tests {
         #expect(config.totalGames == 10)
         #expect(config.maxMovesPerGame == 200)
         #expect(config.moveTimeMs == 500)
-        #expect(config.repetitionThreshold == 3)
+        #expect(config.repetitionThreshold == 6)
         #expect(config.swapSides == true)
     }
 

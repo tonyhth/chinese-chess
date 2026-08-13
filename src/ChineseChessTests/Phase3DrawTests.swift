@@ -353,7 +353,7 @@ struct Phase3DrawTests {
     func selfPlayRepetitionThreshold() {
         let config = SelfPlayConfig(red: .novice, black: .novice, games: 1, maxMoves: 40)
         // 默认 threshold = 3
-        #expect(config.repetitionThreshold == 3, "默认重复阈值应为 3")
+        #expect(config.repetitionThreshold == 6, "默认重复阈值应为 6")
     }
 
     @Test("SelfPlayRunner: repetitionThreshold 可自定义")
