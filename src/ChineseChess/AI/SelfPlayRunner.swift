@@ -151,7 +151,7 @@ final class SelfPlayRunner {
     }
 
     /// v4: 按难度级别返回 Softmax temperature（cp）
-    /// lvl2=30, lvl3=40, lvl4=50, lvl5=60（级别越低随机性越大）
+    /// lvl2=30, lvl3=40, lvl4=50, lvl5=60（级别越高随机性越大，鼓励强方变化防循环）
     private static func softmaxTemperature(for difficulty: AIDifficulty) -> Double {
         switch difficulty {
         case .beginner:      return 30  // lvl2
