@@ -410,8 +410,11 @@ struct DifficultyV21Tests {
 
     @Test("回归: 旧 displayName 值不再使用")
     func legacyDisplayNamesRemoved() {
-        let legacyNames = ["入门", "初级", "业余初级", "业余中级", "业余高级",
-                           "业余初段", "业余三段", "业余五段", "专业三段", "棋圣"]
+        let legacyNames = ["业余初级", "业余中级", "业余高级",
+                           "业余初段", "业余三段", "业余五段", "专业三段",
+                           "九级棋士", "八级棋士", "七级棋士", "六级棋士",
+                           "五级棋士", "四级棋士", "三级棋士", "二级棋士",
+                           "一级棋士", "特级大师"]
         let currentNames = Set(AIDifficulty.allCases.map { $0.displayName })
         for legacy in legacyNames {
             #expect(!currentNames.contains(legacy),
@@ -447,7 +450,7 @@ struct DifficultyV21Tests {
                       AIDifficulty.grandmaster].compactMap { $0.skillLevel }
 
         // 验证 skill 值与设计文档一致
-        #expect(skills == [4, 7, 10, 13, 20])
+        #expect(skills == [0, 4, 7, 10, 20])
 
         // 对应天梯 Elo 严格递增（理论值，非实测验证）
         for i in 0..<4 {
@@ -456,15 +459,12 @@ struct DifficultyV21Tests {
         }
     }
 
-    @Test("梯度: lvl5→lvl6 不倒挂（lvl6 Skill=4 天梯 1777 = lvl5 下限 1777）")
+    @Test("梯度: lvl5→lvl6 不倒挂")
     func noInversionLvl5ToLvl6() {
-        // 设计文档 §六.1 (Vera P0-1):
-        // lvl5 天梯下限 = lvl6 天梯 = 1777
-        // 这不是倒挂——lvl5 下限等于 lvl6 等于"不倒挂"边界
+        // v4.2: lvl6 Skill=0（天梯 ~1280），lvl5 自研引擎天梯 ~750-950
+        // lvl5 < lvl6，不倒挂
         let lvl6Skill = AIDifficulty.amateurDan.skillLevel!
-        #expect(lvl6Skill == 4, "lvl6 应为 Skill 4（天梯 1777）")
-        // lvl5 是自研引擎（天梯 1777-2268），lvl6 是稳定 1777
-        // 不倒挂的判定: lvl5 下限(1777) >= lvl6(1777) ✓
+        #expect(lvl6Skill == 0, "lvl6 应为 Skill 0（v4.2 重映射）")
     }
 
     // ============================================================
