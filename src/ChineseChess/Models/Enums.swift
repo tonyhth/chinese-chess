@@ -112,11 +112,11 @@ enum AIDifficulty: CaseIterable, Codable {
     /// Pikafish Skill Level（仅专业级有值）
     var skillLevel: Int? {
         switch self {
-        case .amateurDan:    return 4
-        case .proApprentice: return 7
-        case .proExpert:     return 10
-        case .proMaster:     return 13
-        case .grandmaster:   return 20
+        case .amateurDan:    return 0   // lvl6: v4 重映射（从 4 改为 0）
+        case .proApprentice: return 4   // lvl7: v4 重映射（从 7 改为 4）
+        case .proExpert:     return 7   // lvl8: v4 重映射（从 10 改为 7）
+        case .proMaster:     return 10  // lvl9: v4 重映射（从 13 改为 10）
+        case .grandmaster:   return 20  // lvl10: 不变
         default:             return nil
         }
     }

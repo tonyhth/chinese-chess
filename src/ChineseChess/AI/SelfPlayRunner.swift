@@ -150,6 +150,18 @@ final class SelfPlayRunner {
         return "\(fromCol)\(move.from.row)\(toCol)\(move.to.row)"
     }
 
+    /// v4: 按难度级别返回 Softmax temperature（cp）
+    /// lvl2=30, lvl3=40, lvl4=50, lvl5=60（级别越低随机性越大）
+    private static func softmaxTemperature(for difficulty: AIDifficulty) -> Double {
+        switch difficulty {
+        case .beginner:      return 30  // lvl2
+        case .amateurLow:    return 40  // lvl3
+        case .amateurMid:    return 50  // lvl4
+        case .amateurHigh:   return 60  // lvl5
+        default:             return 40  // fallback
+        }
+    }
+
     /// C1+Softmax: 先过滤重复候选，再对剩余候选做 Softmax 加权随机选择
     /// - Parameters:
     ///   - candidates: top-k 候选走法（带评分）
@@ -232,7 +244,8 @@ final class SelfPlayRunner {
             }
 
             // C1+Softmax: 先过滤重复候选，再 Softmax 加权随机选择
-            let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts)
+            let temp = Self.softmaxTemperature(for: difficulty)
+            let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts, temperature: temp)
 
             board.execute(move)
             let iccs = Self.iccsNotation(for: move)
@@ -556,7 +569,8 @@ extension SelfPlayRunner {
                 }
 
                 // C1+Softmax: 先过滤重复候选，再 Softmax 加权随机选择
-                let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts)
+                let temp = Self.softmaxTemperature(for: nativeDifficulty)
+                let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts, temperature: temp)
 
                 let iccs = SelfPlayRunner.iccsNotation(for: move)
                 moveHistory.append(iccs)

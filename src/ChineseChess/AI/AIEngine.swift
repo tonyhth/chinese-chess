@@ -90,8 +90,8 @@ actor AIEngine: AIEngineProtocol {
         case .novice:
             return beginnerMove(for: &workBoard)
         case .beginner:
-            // v2.1: depth 3→2 + movetime 3000ms 修复超时
-            let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+            // v4: depth=2, 1000ms
+            let tm = TimeManager(timeLimitMs: 1000, startTime: Date())
             var evalCfg = AIEvalConfig.basic
             evalCfg.contempt = calibrationContempt
             return rootSearch(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
@@ -134,7 +134,7 @@ actor AIEngine: AIEngineProtocol {
             return Array(scoredMoves.prefix(topK))
 
         case .beginner:
-            let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+            let tm = TimeManager(timeLimitMs: 1000, startTime: Date())
             var evalCfg = AIEvalConfig.basic
             evalCfg.contempt = calibrationContempt
             return rootSearchScored(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
@@ -245,34 +245,54 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - C1 辅助: 各级别的 scored 变体
 
+    /// v4.2: lvl3 scored — IDS maxDepth=4, 2000ms, .mediumNoQS
     private func mediumSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
            let move = openingBook.parseICCSMove(iccsMove, on: board) {
-            // 开局库走法，返回单元素数组
             return [(move, 0)]
         }
 
-        var config = AISearchConfig.medium
+        var config = AISearchConfig.mediumNoQS
         config.evalConfig.contempt = calibrationContempt
 
-        guard let tm = TimeManager.forDifficulty(.amateurLow, isIOS: isIOS, board: board) else {
-            let maxDepth = board.pieces.count <= 10 ? 7 : 6
-            return rootSearchScored(for: &board, depth: maxDepth, useTT: true, useMoveOrder: true,
-                                    searchConfig: config, topK: topK)
-        }
-
-        let maxDepth = board.pieces.count <= 10 ? 7 : 6
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: maxDepth, timeManager: tm,
+        let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 4, timeManager: tm,
                                                searchConfig: config, topK: topK)
     }
 
+    /// v4.2: lvl4 scored — IDS maxDepth=5, 3000ms, .medium, CheckmateSearch(12, 800ms)
     private func hardSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
             let hash = ZobristHash.hash(board: board)
             if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return [(move, 0)]
+            }
+        }
+
+        let killTimeLimit = isIOS ? 600 : 800
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
+            return killMoves.prefix(topK).map { ($0, 0) }
+        }
+
+        var config = AISearchConfig.medium
+        config.evalConfig.contempt = calibrationContempt
+
+        let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 5, timeManager: tm,
+                                               searchConfig: config, topK: topK)
+    }
+
+    /// v4: lvl5 scored — IDS maxDepth=6, 5000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
+    private func masterSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        let side = board.currentTurn
+
+        if board.moveHistory.count < 6 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookup(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
                 return [(move, 0)]
             }
@@ -286,48 +306,8 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let baseDepth: Int
-        if board.pieces.count <= 6 { baseDepth = 7 }
-        else if board.pieces.count <= 10 { baseDepth = 6 }
-        else { baseDepth = 6 }
-
-        guard let tm = TimeManager.forDifficulty(.amateurMid, isIOS: isIOS, board: board) else {
-            return rootSearchScored(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                                    searchConfig: config, topK: topK)
-        }
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: baseDepth, timeManager: tm,
-                                               searchConfig: config, topK: topK)
-    }
-
-    private func masterSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
-        let side = board.currentTurn
-
-        if board.moveHistory.count < 6 {
-            let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookup(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
-                return [(move, 0)]
-            }
-        }
-
-        let killTimeLimit = isIOS ? 1500 : 2500
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 16, timeLimitMs: killTimeLimit) {
-            return killMoves.prefix(topK).map { ($0, 0) }
-        }
-
-        var config = AISearchConfig.master
-        config.evalConfig.contempt = calibrationContempt
-
-        let baseDepth: Int
-        if board.pieces.count <= 6 { baseDepth = 10 }
-        else if board.pieces.count <= 10 { baseDepth = 8 }
-        else { baseDepth = 7 }
-
-        guard let tm = TimeManager.forDifficulty(.amateurHigh, isIOS: isIOS, board: board) else {
-            return rootSearchScored(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                                    searchConfig: config, topK: topK)
-        }
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: baseDepth, timeManager: tm,
+        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 6, timeManager: tm,
                                                searchConfig: config, topK: topK)
     }
 
@@ -490,6 +470,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - 中级
 
+    /// v4.2: lvl3 — IDS maxDepth=4, 2000ms, .mediumNoQS config
     private func mediumSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
@@ -497,27 +478,48 @@ actor AIEngine: AIEngineProtocol {
             return move
         }
 
-        var config = AISearchConfig.medium
+        var config = AISearchConfig.mediumNoQS
         config.evalConfig.contempt = calibrationContempt
 
-        guard let tm = TimeManager.forDifficulty(.amateurLow, isIOS: isIOS, board: board) else {
-            let maxDepth = board.pieces.count <= 10 ? 7 : 6
-            return rootSearch(for: &board, depth: maxDepth, useTT: true, useMoveOrder: true,
-                              searchConfig: config)
-        }
-
-        let maxDepth = board.pieces.count <= 10 ? 7 : 6
-        return iterativeDeepeningSearch(for: &board, maxDepth: maxDepth, timeManager: tm, searchConfig: config)
+        let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 4, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 高级
 
+    /// v4.2: lvl4 — IDS maxDepth=5, 3000ms, .medium config, CheckmateSearch(12, 800ms)
     private func hardSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
             let hash = ZobristHash.hash(board: board)
             if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return move
+            }
+        }
+
+        let killTimeLimit = isIOS ? 600 : 800
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
+            return killMoves.first
+        }
+
+        var config = AISearchConfig.medium
+        config.evalConfig.contempt = calibrationContempt
+
+        let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 5, timeManager: tm, searchConfig: config)
+    }
+
+    // MARK: - 大师
+
+    /// v4: lvl5 — IDS maxDepth=6, 5000ms, .hard config, CheckmateSearch(maxDepth=12, 1200ms)
+    private func masterSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
+        let side = board.currentTurn
+
+        if board.moveHistory.count < 6 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookup(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
                 return move
             }
@@ -531,49 +533,8 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let baseDepth: Int
-        if board.pieces.count <= 6 { baseDepth = 7 }
-        else if board.pieces.count <= 10 { baseDepth = 6 }
-        else { baseDepth = 6 }
-
-        guard let tm = TimeManager.forDifficulty(.amateurMid, isIOS: isIOS, board: board) else {
-            return rootSearch(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                              searchConfig: config)
-        }
-        return iterativeDeepeningSearch(for: &board, maxDepth: baseDepth, timeManager: tm, searchConfig: config)
-    }
-
-    // MARK: - 大师
-
-    private func masterSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
-        let side = board.currentTurn
-
-        if board.moveHistory.count < 6 {
-            let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookup(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
-                return move
-            }
-        }
-
-        let killTimeLimit = isIOS ? 1500 : 2500
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 16, timeLimitMs: killTimeLimit) {
-            return killMoves.first
-        }
-
-        var config = AISearchConfig.master
-        config.evalConfig.contempt = calibrationContempt
-
-        let baseDepth: Int
-        if board.pieces.count <= 6 { baseDepth = 10 }
-        else if board.pieces.count <= 10 { baseDepth = 8 }
-        else { baseDepth = 7 }
-
-        guard let tm = TimeManager.forDifficulty(.amateurHigh, isIOS: isIOS, board: board) else {
-            return rootSearch(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
-                              searchConfig: config)
-        }
-        return iterativeDeepeningSearch(for: &board, maxDepth: baseDepth, timeManager: tm, searchConfig: config)
+        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 6, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 迭代加深 Negamax

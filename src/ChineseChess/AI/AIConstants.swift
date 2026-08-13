@@ -74,6 +74,24 @@ struct AISearchConfig {
         maxCheckExtensions: 8
     )
 
+    /// v4.2: lvl3 专用 — .medium 去掉 QS（killer + checkExtension + LMR + futility，无 QS/PVS）
+    static let mediumNoQS = AISearchConfig(
+        enableQuiescence: false,
+        enableKillerMove: true,
+        enableCheckExtension: true,
+        enableNullMoveFix: false,
+        enableLMR: true,
+        enableSmartTime: false,
+        enablePVS: false,
+        enableCountermove: false,
+        enableFutility: true,
+        enableRazoring: false,
+        enableIID: false,
+        evalConfig: .advanced,
+        maxQSDepth: 0,
+        maxCheckExtensions: 8
+    )
+
     /// 高级配置
     static let hard = AISearchConfig(
         enableQuiescence: true,
