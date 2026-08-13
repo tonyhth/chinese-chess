@@ -47,6 +47,17 @@ actor AIEngine: AIEngineProtocol {
     /// 清空历史启发表（新对局时调用）
     func clearHistory() {
         moveOrderer.clearHistory()
+        transpositionTable.clear()
+    }
+
+    /// 清空置换表（T2: 防止红黑双方通过 TT 互相偷看搜索结果）
+    ///
+    /// ⚠️ 性能 trade-off：每次调用后局内 TT 缓存失效，
+    /// 搜索性能下降约 30-50%（无 TT 加速，每步从零开始搜索）。
+    /// 校准场景优先公平性，性能损失可接受。
+    /// 替代方案（未实现）：给 TT 条目加 side 标记，只清对方条目。
+    func clearTT() {
+        transpositionTable.clear()
     }
 
     func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
@@ -72,6 +83,253 @@ actor AIEngine: AIEngineProtocol {
             // Phase 3 EngineRouter 实现后此处永远不会到达
             return masterSearch(for: &workBoard, isIOS: isIOS)
         }
+    }
+
+    // MARK: - C1: 返回 top-k 候选走法（用于 anti-repetition 走法选择）
+
+    /// 返回 top-k 候选走法，带评分。用于自对弈时回避重复局面。
+    /// 仅支持自研引擎级别（novice 走 beginnerMove 逻辑，也返回 top-k）。
+    func bestMoves(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false, topK: Int = 3) async -> [(move: Move, score: Int)] {
+        var workBoard = SearchBoard(from: board)
+
+        switch difficulty {
+        case .novice:
+            // novice 已有 top-3 评分逻辑，直接复用
+            let side = workBoard.currentTurn
+            let moves = MoveValidator.allLegalMoves(for: side, on: workBoard)
+            guard !moves.isEmpty else { return [] }
+            var scoredMoves: [(move: Move, score: Int)] = []
+            for move in moves {
+                workBoard.execute(move)
+                let rawScore = -evaluator.evaluate(workBoard, config: .basic)
+                _ = workBoard.undoLastMove()
+                scoredMoves.append((move, rawScore))
+            }
+            scoredMoves.sort { $0.score > $1.score }
+            return Array(scoredMoves.prefix(topK))
+
+        case .beginner:
+            let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
+            return rootSearchScored(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
+                                    evalConfig: .basic, timeManager: tm, topK: topK) ?? []
+
+        case .amateurLow:
+            return mediumSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
+
+        case .amateurMid:
+            return hardSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
+
+        case .amateurHigh, .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster:
+            return masterSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
+        }
+    }
+
+    // MARK: - C1 辅助: 带评分的 rootSearch（返回 top-k 候选）
+
+    /// 与 rootSearch 相同逻辑，但返回 top-k 候选走法及评分
+    private func rootSearchScored(for board: inout SearchBoard, depth: Int, useTT: Bool, useMoveOrder: Bool,
+                                  evalConfig: AIEvalConfig = .basic,
+                                  searchConfig: AISearchConfig? = nil,
+                                  timeManager: TimeManager? = nil,
+                                  topK: Int = 3) -> [(move: Move, score: Int)]? {
+        nodeCount = 0
+        activeTimeManager = timeManager
+
+        let side = board.currentTurn
+        let hash = ZobristHash.hash(board: board)
+
+        let moves = MoveValidator.allLegalMoves(for: side, on: board)
+        guard !moves.isEmpty else { return nil }
+
+        let orderedMoves: [Move]
+        if useMoveOrder {
+            let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
+            orderedMoves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth)
+        } else {
+            orderedMoves = orderMovesSimple(moves)
+        }
+
+        let origAlpha = -100_000_000
+        var alpha = origAlpha
+        let beta = 100_000_000
+        var scoredMoves: [(move: Move, score: Int)] = []
+        let usePVS = searchConfig?.enablePVS ?? false
+
+        for (moveIndex, move) in orderedMoves.enumerated() {
+            if let tm = timeManager, tm.shouldStop { break }
+
+            let childHash = ZobristHash.update(hash: hash, piece: move.piece,
+                                              from: move.from, to: move.to,
+                                              captured: move.captured)
+
+            board.execute(move)
+
+            let score: Int
+            if usePVS && moveIndex > 0 {
+                let nullWindowScore: Int
+                if let sc = searchConfig {
+                    nullWindowScore = -negamax(board: &board, depth: depth - 1,
+                                               alpha: -alpha - 1, beta: -alpha, hash: childHash,
+                                               useTT: useTT, useMoveOrder: useMoveOrder,
+                                               searchConfig: sc)
+                } else {
+                    nullWindowScore = -negamax(board: &board, depth: depth - 1,
+                                               alpha: -alpha - 1, beta: -alpha, hash: childHash,
+                                               useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                }
+
+                if nullWindowScore > alpha && nullWindowScore < beta {
+                    if let sc = searchConfig {
+                        score = -negamax(board: &board, depth: depth - 1,
+                                         alpha: -beta, beta: -alpha, hash: childHash,
+                                         useTT: useTT, useMoveOrder: useMoveOrder,
+                                         searchConfig: sc)
+                    } else {
+                        score = -negamax(board: &board, depth: depth - 1,
+                                         alpha: -beta, beta: -alpha, hash: childHash,
+                                         useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                    }
+                } else {
+                    score = nullWindowScore
+                }
+            } else {
+                if let sc = searchConfig {
+                    score = -negamax(board: &board, depth: depth - 1,
+                                     alpha: -beta, beta: -alpha, hash: childHash,
+                                     useTT: useTT, useMoveOrder: useMoveOrder,
+                                     searchConfig: sc)
+                } else {
+                    score = -negamax(board: &board, depth: depth - 1,
+                                     alpha: -beta, beta: -alpha, hash: childHash,
+                                     useTT: useTT, useMoveOrder: useMoveOrder, evalConfig: evalConfig)
+                }
+            }
+            _ = board.undoLastMove()
+
+            scoredMoves.append((move, score))
+
+            if score > alpha {
+                alpha = score
+            }
+        }
+
+        // 排序并返回 top-k
+        scoredMoves.sort { $0.score > $1.score }
+        if scoredMoves.isEmpty { return nil }
+
+        // 存 TT（用最佳走法）
+        if useTT {
+            let bestScore = scoredMoves[0].score
+            let bestMove = scoredMoves[0].move
+            let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
+            transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
+        }
+
+        return Array(scoredMoves.prefix(topK))
+    }
+
+    // MARK: - C1 辅助: 各级别的 scored 变体
+
+    private func mediumSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        let hash = ZobristHash.hash(board: board)
+        if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+           let move = openingBook.parseICCSMove(iccsMove, on: board) {
+            // 开局库走法，返回单元素数组
+            return [(move, 0)]
+        }
+
+        guard let tm = TimeManager.forDifficulty(.amateurLow, isIOS: isIOS, board: board) else {
+            let maxDepth = board.pieces.count <= 10 ? 7 : 6
+            return rootSearchScored(for: &board, depth: maxDepth, useTT: true, useMoveOrder: true,
+                                    searchConfig: .medium, topK: topK)
+        }
+
+        let maxDepth = board.pieces.count <= 10 ? 7 : 6
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: maxDepth, timeManager: tm,
+                                               searchConfig: .medium, topK: topK)
+    }
+
+    private func hardSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        let side = board.currentTurn
+
+        if board.moveHistory.count < 6 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return [(move, 0)]
+            }
+        }
+
+        let killTimeLimit = isIOS ? 800 : 1200
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
+            return killMoves.prefix(topK).map { ($0, 0) }
+        }
+
+        let baseDepth: Int
+        if board.pieces.count <= 6 { baseDepth = 7 }
+        else if board.pieces.count <= 10 { baseDepth = 6 }
+        else { baseDepth = 6 }
+
+        guard let tm = TimeManager.forDifficulty(.amateurMid, isIOS: isIOS, board: board) else {
+            return rootSearchScored(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
+                                    searchConfig: .hard, topK: topK)
+        }
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: baseDepth, timeManager: tm,
+                                               searchConfig: .hard, topK: topK)
+    }
+
+    private func masterSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        let side = board.currentTurn
+
+        if board.moveHistory.count < 6 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookup(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return [(move, 0)]
+            }
+        }
+
+        let killTimeLimit = isIOS ? 1500 : 2500
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 16, timeLimitMs: killTimeLimit) {
+            return killMoves.prefix(topK).map { ($0, 0) }
+        }
+
+        let baseDepth: Int
+        if board.pieces.count <= 6 { baseDepth = 10 }
+        else if board.pieces.count <= 10 { baseDepth = 8 }
+        else { baseDepth = 7 }
+
+        guard let tm = TimeManager.forDifficulty(.amateurHigh, isIOS: isIOS, board: board) else {
+            return rootSearchScored(for: &board, depth: baseDepth, useTT: true, useMoveOrder: true,
+                                    searchConfig: .master, topK: topK)
+        }
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: baseDepth, timeManager: tm,
+                                               searchConfig: .master, topK: topK)
+    }
+
+    /// IDS 的 scored 变体：返回最后一轮迭代的 top-k 候选
+    private func iterativeDeepeningSearchScored(for board: inout SearchBoard, maxDepth: Int,
+                                                  timeManager: TimeManager,
+                                                  searchConfig: AISearchConfig,
+                                                  topK: Int) -> [(move: Move, score: Int)]? {
+        var bestResult: [(move: Move, score: Int)]? = nil
+        var tm = timeManager
+
+        for depth in 2...maxDepth {
+            if searchConfig.enableSmartTime {
+                if depth > 2 && !tm.shouldStartNextIteration { break }
+            }
+            if tm.shouldStop { break }
+
+            if let result = rootSearchScored(for: &board, depth: depth, useTT: true, useMoveOrder: true,
+                                              searchConfig: searchConfig,
+                                              timeManager: tm, topK: topK) {
+                bestResult = result
+            }
+
+            tm.recordIterationComplete()
+        }
+        return bestResult
     }
 
     // MARK: - 新手：depth-1 搜索 + top-3 加权随机（v2.1）

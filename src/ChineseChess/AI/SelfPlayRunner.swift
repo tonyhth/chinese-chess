@@ -48,7 +48,7 @@ struct SelfPlayConfig {
     var blackDifficulty: AIDifficulty
     var totalGames: Int
     var maxMovesPerGame: Int = 200
-    var repetitionThreshold: Int = 3  // 同一 FEN 出现 ≥3 次判和
+    var repetitionThreshold: Int = 6  // T1: 3→6，减少虚假和棋
     var swapSides: Bool = true        // 交换先后手
 
     init(red: AIDifficulty, black: AIDifficulty, games: Int,
@@ -168,9 +168,13 @@ final class SelfPlayRunner {
             let currentSide = board.currentTurn
             let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
 
-            // 清空 TT 避免跨局污染（但局内保留 TT 加速搜索）
-            guard let move = await engine.bestMove(for: board, difficulty: difficulty, isIOS: isIOS) else {
-                // 区分将死和困毙
+            // T2: 每步前清空 TT，防止红黑双方通过 TT 互相偷看搜索结果
+            await engine.clearTT()
+
+            // C1: 取 top-3 候选走法，回避重复局面
+            let candidates = await engine.bestMoves(for: board, difficulty: difficulty, isIOS: isIOS, topK: 3)
+            guard !candidates.isEmpty else {
+                // 无合法走法：区分将死和困毙
                 let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
                 endReason = isCheckmate ? .normal : .stalemate
                 let winner: GameState = (currentSide == .red) ? .blackWon : .redWon
@@ -183,6 +187,28 @@ final class SelfPlayRunner {
                     reason: endReason,
                     moveHistory: moveHistory
                 )
+            }
+
+            // C1: 遍历候选走法，选第一个不导致重复的
+            var move = candidates[0].move
+            if candidates.count > 1 {
+                var bestCandidate = candidates[0].move
+                var minRepeatCount = Int.max
+                for candidate in candidates {
+                    board.execute(candidate.move)
+                    let candidateFEN = FENParser.generate(board: board)
+                    board.undoLastMove()
+                    let repeatCount = fenCounts[candidateFEN, default: 0]
+                    if repeatCount == 0 {
+                        bestCandidate = candidate.move
+                        break
+                    }
+                    if repeatCount < minRepeatCount {
+                        minRepeatCount = repeatCount
+                        bestCandidate = candidate.move
+                    }
+                }
+                move = bestCandidate
             }
 
             board.execute(move)
@@ -306,7 +332,7 @@ struct MixedEngineConfig {
     var totalGames: Int
     var maxMovesPerGame: Int = 200
     var moveTimeMs: Int = 500       // 每步固定时限（确保公平）
-    var repetitionThreshold: Int = 3
+    var repetitionThreshold: Int = 6  // T1: 3→6，减少虚假和棋
     var swapSides: Bool = true
 
     init(games: Int, maxMoves: Int = 200, moveTimeMs: Int = 500, swapSides: Bool = true) {
@@ -497,15 +523,40 @@ extension SelfPlayRunner {
             let isNativeTurn = (currentSide == .red) == nativeIsRed
 
             if isNativeTurn {
-                // 自研引擎走棋
-                guard let move = await engine.bestMove(
-                    for: board, difficulty: nativeDifficulty, isIOS: false
-                ) else {
+                // T2: 自研引擎走棋前清空 TT，防止信息泄漏
+                await engine.clearTT()
+
+                // C1: 取 top-3 候选走法，回避重复局面
+                let candidates = await engine.bestMoves(for: board, difficulty: nativeDifficulty, isIOS: false, topK: 3)
+                guard !candidates.isEmpty else {
                     let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
                     endReason = isCheckmate ? .normal : .stalemate
                     let winner: GameState = (board.currentTurn == .red) ? .blackWon : .redWon
                     return (winner, moveHistory.count, endReason, moveHistory)
                 }
+
+                // C1: 选第一个不导致重复的候选走法
+                var move = candidates[0].move
+                if candidates.count > 1 {
+                    var bestCandidate = candidates[0].move
+                    var minRepeatCount = Int.max
+                    for candidate in candidates {
+                        board.execute(candidate.move)
+                        let candidateFEN = FENParser.generate(board: board)
+                        board.undoLastMove()
+                        let repeatCount = fenCounts[candidateFEN, default: 0]
+                        if repeatCount == 0 {
+                            bestCandidate = candidate.move
+                            break
+                        }
+                        if repeatCount < minRepeatCount {
+                            minRepeatCount = repeatCount
+                            bestCandidate = candidate.move
+                        }
+                    }
+                    move = bestCandidate
+                }
+
                 let iccs = SelfPlayRunner.iccsNotation(for: move)
                 moveHistory.append(iccs)
                 board.execute(move)
@@ -782,7 +833,8 @@ extension SelfPlayRunner {
         moveTimeMs: Int,
         engine: EmbeddedPikafishEngine,
         redSkillOverride: Int? = nil,
-        blackSkillOverride: Int? = nil
+        blackSkillOverride: Int? = nil,
+        repetitionThreshold: Int = 6  // T1: 默认 6，统一阈值
     ) async -> (result: GameState, totalMoves: Int, reason: GameEndReason, moveHistory: [String]) {
         let board = Board()
         var moveHistory: [String] = []
@@ -826,7 +878,7 @@ extension SelfPlayRunner {
 
             let fen2 = FENParser.generate(board: board)
             fenCounts[fen2, default: 0] += 1
-            if fenCounts[fen2]! >= 3 {
+            if fenCounts[fen2]! >= repetitionThreshold {
                 endReason = .repetition
                 return (.draw, moveHistory.count, endReason, moveHistory)
             }
@@ -1046,6 +1098,7 @@ func runPikafishMatchFromCLI() async {
     let maxMoves = args.count > 3 ? (Int(args[3]) ?? 40) : 40
     let skillA = args.count > 4 ? (Int(args[4]) ?? 0) : 0
     let skillB = args.count > 5 ? (Int(args[5]) ?? 4) : 4
+    let repetitionThreshold = args.count > 6 ? (Int(args[6]) ?? 6) : 6  // T1: 默认 6，可从 args[6] 覆盖
     
     print("═══════════════════════════════════════════")
     print("  Pikafish 自对弈梯度验证")
@@ -1109,7 +1162,7 @@ func runPikafishMatchFromCLI() async {
             
             let fenAfter = FENParser.generate(board: board)
             fenCounts[fenAfter, default: 0] += 1
-            if fenCounts[fenAfter]! >= 3 {
+            if fenCounts[fenAfter]! >= repetitionThreshold {
                 print("  第\(gameIdx+1)局: 和棋（三次重复）\(moveHistory.count)步")
                 draws += 1
                 break
