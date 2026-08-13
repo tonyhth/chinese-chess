@@ -150,6 +150,51 @@ final class SelfPlayRunner {
         return "\(fromCol)\(move.from.row)\(toCol)\(move.to.row)"
     }
 
+    /// C1+Softmax: 先过滤重复候选，再对剩余候选做 Softmax 加权随机选择
+    /// - Parameters:
+    ///   - candidates: top-k 候选走法（带评分）
+    ///   - board: 当前棋盘（方法内部会 execute/undoLastMove 来检查 FEN）
+    ///   - fenCounts: FEN 出现次数字典
+    ///   - temperature: Softmax 温度（cp），默认 40
+    /// - Returns: 选中的走法
+    private static func softmaxSelect(
+        candidates: [(move: Move, score: Int)],
+        on board: Board,
+        fenCounts: [String: Int],
+        temperature: Double = 40.0
+    ) -> Move {
+        guard !candidates.isEmpty else {
+            fatalError("softmaxSelect called with empty candidates")
+        }
+
+        // 1. 过滤掉导致重复的候选（C1 回避逻辑）
+        let nonRepeating = candidates.filter { candidate in
+            board.execute(candidate.move)
+            let fen = FENParser.generate(board: board)
+            board.undoLastMove()
+            return fenCounts[fen, default: 0] == 0
+        }
+
+        // 2. 对剩余候选做 Softmax 加权随机
+        let pool = nonRepeating.isEmpty ? candidates : nonRepeating
+
+        if pool.count == 1 { return pool[0].move }
+
+        let maxScore = pool[0].score  // bestMoves 已按分降序
+        let expScores = pool.map { exp(Double($0.score - maxScore) / temperature) }
+        let totalExp = expScores.reduce(0, +)
+
+        let r = Double.random(in: 0..<totalExp)
+        var cumulative = 0.0
+        for (i, e) in expScores.enumerated() {
+            cumulative += e
+            if r < cumulative {
+                return pool[i].move
+            }
+        }
+        return pool[0].move  // fallback
+    }
+
     private func playGame(
         gameIndex: Int,
         redDifficulty: AIDifficulty,
@@ -186,27 +231,8 @@ final class SelfPlayRunner {
                 )
             }
 
-            // C1: 遍历候选走法，选第一个不导致重复的
-            var move = candidates[0].move
-            if candidates.count > 1 {
-                var bestCandidate = candidates[0].move
-                var minRepeatCount = Int.max
-                for candidate in candidates {
-                    board.execute(candidate.move)
-                    let candidateFEN = FENParser.generate(board: board)
-                    board.undoLastMove()
-                    let repeatCount = fenCounts[candidateFEN, default: 0]
-                    if repeatCount == 0 {
-                        bestCandidate = candidate.move
-                        break
-                    }
-                    if repeatCount < minRepeatCount {
-                        minRepeatCount = repeatCount
-                        bestCandidate = candidate.move
-                    }
-                }
-                move = bestCandidate
-            }
+            // C1+Softmax: 先过滤重复候选，再 Softmax 加权随机选择
+            let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts)
 
             board.execute(move)
             let iccs = Self.iccsNotation(for: move)
@@ -529,27 +555,8 @@ extension SelfPlayRunner {
                     return (winner, moveHistory.count, endReason, moveHistory)
                 }
 
-                // C1: 选第一个不导致重复的候选走法
-                var move = candidates[0].move
-                if candidates.count > 1 {
-                    var bestCandidate = candidates[0].move
-                    var minRepeatCount = Int.max
-                    for candidate in candidates {
-                        board.execute(candidate.move)
-                        let candidateFEN = FENParser.generate(board: board)
-                        board.undoLastMove()
-                        let repeatCount = fenCounts[candidateFEN, default: 0]
-                        if repeatCount == 0 {
-                            bestCandidate = candidate.move
-                            break
-                        }
-                        if repeatCount < minRepeatCount {
-                            minRepeatCount = repeatCount
-                            bestCandidate = candidate.move
-                        }
-                    }
-                    move = bestCandidate
-                }
+                // C1+Softmax: 先过滤重复候选，再 Softmax 加权随机选择
+                let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts)
 
                 let iccs = SelfPlayRunner.iccsNotation(for: move)
                 moveHistory.append(iccs)

@@ -71,12 +71,14 @@ actor AIEngine: AIEngineProtocol {
     /// lvl5: contempt=30
     /// lvl6+: 不走自研引擎，值不重要
     private static func contemptFor(_ difficulty: AIDifficulty) -> Int {
-        switch difficulty {
-        case .novice, .beginner, .amateurLow: return 0
-        case .amateurMid: return 20
-        case .amateurHigh: return 30
-        case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster: return 0
-        }
+        return 0  // contempt 实现有缺陷（评估层加常数导致强方走弱），全面禁用
+        // 原映射：lvl4=20, lvl5=30。未来在搜索层正确实现后可恢复
+        // switch difficulty {
+        //     case .novice, .beginner, .amateurLow: return 0
+        //     case .amateurMid: return 20   // lvl4
+        //     case .amateurHigh: return 30  // lvl5
+        //     case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster: return 0
+        // }
     }
 
     func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
