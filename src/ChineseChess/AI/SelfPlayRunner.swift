@@ -155,9 +155,9 @@ final class SelfPlayRunner {
     private static func softmaxTemperature(for difficulty: AIDifficulty) -> Double {
         switch difficulty {
         case .beginner:      return 30  // lvl2
-        case .amateurLow:    return 40  // lvl3
-        case .amateurMid:    return 50  // lvl4
-        case .amateurHigh:   return 60  // lvl5
+        case .amateurLow:    return 50  // lvl3：↑ 更随机 → 更弱
+        case .amateurMid:    return 35  // lvl4：↓ 更确定 → 更强
+        case .amateurHigh:   return 25  // lvl5：↓ 更确定 → 最强
         default:             return 40  // fallback
         }
     }

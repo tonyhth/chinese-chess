@@ -245,7 +245,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - C1 辅助: 各级别的 scored 变体
 
-    /// v4.2: lvl3 scored — IDS maxDepth=4, 2000ms, .mediumNoQS
+    /// v4.3: lvl3 scored — IDS maxDepth=3, 2000ms, .mediumNoQS
     private func mediumSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
@@ -257,7 +257,7 @@ actor AIEngine: AIEngineProtocol {
         config.evalConfig.contempt = calibrationContempt
 
         let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 4, timeManager: tm,
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
                                                searchConfig: config, topK: topK)
     }
 
@@ -470,7 +470,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - 中级
 
-    /// v4.2: lvl3 — IDS maxDepth=4, 2000ms, .mediumNoQS config
+    /// v4.3: lvl3 — IDS maxDepth=3, 2000ms, .mediumNoQS config
     private func mediumSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
@@ -482,7 +482,7 @@ actor AIEngine: AIEngineProtocol {
         config.evalConfig.contempt = calibrationContempt
 
         let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 4, timeManager: tm, searchConfig: config)
+        return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 高级
