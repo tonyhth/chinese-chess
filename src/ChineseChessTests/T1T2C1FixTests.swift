@@ -33,8 +33,8 @@ struct T1T2C1FixTests {
             black: .novice,
             games: 1
         )
-        config.repetitionThreshold = 3
-        #expect(config.repetitionThreshold == 6, "应支持通过属性修改 repetitionThreshold")
+        config.repetitionThreshold = 8  // 自定义非默认值
+        #expect(config.repetitionThreshold == 8, "应支持通过属性修改 repetitionThreshold")
     }
 
     // MARK: - T2: clearTT() 功能验证

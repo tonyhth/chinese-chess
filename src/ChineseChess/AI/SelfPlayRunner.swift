@@ -171,7 +171,7 @@ final class SelfPlayRunner {
         let nonRepeating = candidates.filter { candidate in
             board.execute(candidate.move)
             let fen = FENParser.generate(board: board)
-            board.undoLastMove()
+            _ = board.undoLastMove()
             return fenCounts[fen, default: 0] == 0
         }
 
