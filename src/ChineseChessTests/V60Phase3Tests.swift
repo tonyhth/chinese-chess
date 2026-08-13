@@ -153,10 +153,10 @@ struct V60Phase3SkillLevelTests {
 
     @Test("skillLevel 值与设计文档一致")
     func skillLevelValues() {
-        #expect(AIDifficulty.amateurDan.skillLevel == 4)     // v2.1: 5→4
-        #expect(AIDifficulty.proApprentice.skillLevel == 7) // v2.1: 8→7
-        #expect(AIDifficulty.proExpert.skillLevel == 10)    // v2.1: 12→10
-        #expect(AIDifficulty.proMaster.skillLevel == 13)    // v2.1: 16→13
+        #expect(AIDifficulty.amateurDan.skillLevel == 0)     // v4.2 重映射
+        #expect(AIDifficulty.proApprentice.skillLevel == 4) // v4.2 重映射
+        #expect(AIDifficulty.proExpert.skillLevel == 7)    // v4.2 重映射
+        #expect(AIDifficulty.proMaster.skillLevel == 10)   // v4.2 重映射
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
     }
 
@@ -347,7 +347,7 @@ struct V60Phase3P1FixTests {
     @Test("P1 回归：Phase 3 原有测试仍通过")
     func regressionPhase3StillWorks() {
         #expect(AIDifficulty.allCases.count == 10)
-        #expect(AIDifficulty.amateurDan.skillLevel == 4)  // v2.1: 5→4
+        #expect(AIDifficulty.amateurDan.skillLevel == 0)  // v4.2 重映射
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
         #expect(EngineAvailability.available == .available)
     }

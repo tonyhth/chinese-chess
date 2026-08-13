@@ -209,7 +209,7 @@ struct V60Phase6Tests {
     @Test("Phase 1-5 回归：枚举 + 路由 + 评估")
     func regressionPhase1to5() {
         #expect(AIDifficulty.allCases.count == 10)
-        #expect(AIDifficulty.amateurDan.skillLevel == 4)  // v2.1: 5→4
+        #expect(AIDifficulty.amateurDan.skillLevel == 0)  // v4.2 重映射
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
         let elo = EloEstimator.eloFromDelta(0)
         #expect(elo == 2500)

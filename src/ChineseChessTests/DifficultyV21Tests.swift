@@ -22,28 +22,28 @@ struct DifficultyV21Tests {
     // 1. skillLevel 映射值（设计文档 §九.2）
     // ============================================================
 
-    @Test("skillLevel: amateurDan = 4（v2.1 改动，原 5）")
+    @Test("skillLevel: amateurDan = 0（v4.2 重映射）")
     func skillLevelAmateurDan() {
-        #expect(AIDifficulty.amateurDan.skillLevel == 4,
-                "amateurDan.skillLevel 应为 4（Skill 4 = 天梯 1777，确保不倒挂）")
+        #expect(AIDifficulty.amateurDan.skillLevel == 0,
+                "amateurDan.skillLevel 应为 0（v4.2 重映射）")
     }
 
-    @Test("skillLevel: proApprentice = 7（v2.1 改动，原 8）")
+    @Test("skillLevel: proApprentice = 4（v4.2 重映射）")
     func skillLevelProApprentice() {
-        #expect(AIDifficulty.proApprentice.skillLevel == 7,
-                "proApprentice.skillLevel 应为 7（Skill 7 = 天梯 2268）")
+        #expect(AIDifficulty.proApprentice.skillLevel == 4,
+                "proApprentice.skillLevel 应为 4（v4.2 重映射）")
     }
 
-    @Test("skillLevel: proExpert = 10（v2.1 改动，原 12）")
+    @Test("skillLevel: proExpert = 7（v4.2 重映射）")
     func skillLevelProExpert() {
-        #expect(AIDifficulty.proExpert.skillLevel == 10,
-                "proExpert.skillLevel 应为 10（Skill 10 = 天梯 2568，填补梯度跳变）")
+        #expect(AIDifficulty.proExpert.skillLevel == 7,
+                "proExpert.skillLevel 应为 7（v4.2 重映射）")
     }
 
-    @Test("skillLevel: proMaster = 13（v2.1 改动，原 16）")
+    @Test("skillLevel: proMaster = 10（v4.2 重映射）")
     func skillLevelProMaster() {
-        #expect(AIDifficulty.proMaster.skillLevel == 13,
-                "proMaster.skillLevel 应为 13（Skill 13 = 天梯 ~2900）")
+        #expect(AIDifficulty.proMaster.skillLevel == 10,
+                "proMaster.skillLevel 应为 10（v4.2 重映射）")
     }
 
     @Test("skillLevel: grandmaster = 20（不变）")

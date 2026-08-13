@@ -73,10 +73,10 @@ struct AIDifficultyEnumTests {
 
     @Test("skillLevel：专业级返回正确值")
     func skillLevelProValues() {
-        #expect(AIDifficulty.amateurDan.skillLevel == 4)     // v2.1: 5→4
-        #expect(AIDifficulty.proApprentice.skillLevel == 7) // v2.1: 8→7
-        #expect(AIDifficulty.proExpert.skillLevel == 10)    // v2.1: 12→10
-        #expect(AIDifficulty.proMaster.skillLevel == 13)    // v2.1: 16→13
+        #expect(AIDifficulty.amateurDan.skillLevel == 0)     // v4.2 重映射
+        #expect(AIDifficulty.proApprentice.skillLevel == 4) // v4.2 重映射
+        #expect(AIDifficulty.proExpert.skillLevel == 7)    // v4.2 重映射
+        #expect(AIDifficulty.proMaster.skillLevel == 10)   // v4.2 重映射
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
     }
 
