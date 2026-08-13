@@ -1235,8 +1235,8 @@ func runCalibrateNativeFromCLI() async {
         示例: ChineseChess --calibrate-native 3 4 20 500
 
         lvlA/lvlB: 自研引擎级别 (1-5)
-          lvl1=novice(九级棋士)  lvl2=beginner(八级棋士)  lvl3=amateurLow(七级棋士)
-          lvl4=amateurMid(六级棋士)  lvl5=amateurHigh(五级棋士)
+          lvl1=novice(入门)  lvl2=beginner(初级)  lvl3=amateurLow(中级)
+          lvl4=amateurMid(高级)  lvl5=amateurHigh(精通)
         """)
         return
     }

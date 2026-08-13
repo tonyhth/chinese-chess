@@ -28,18 +28,18 @@ enum GameState: String, Equatable, Codable {
 // MARK: - AI 难度（v6.0: 10 级统一棋力系统）
 enum AIDifficulty: CaseIterable, Codable {
     // 业余级（自研引擎）
-    case novice        // 1级 九级棋士
-    case beginner      // 2级 八级棋士
-    case amateurLow    // 3级 七级棋士
-    case amateurMid    // 4级 六级棋士
-    case amateurHigh   // 5级 五级棋士
+    case novice        // 1级 入门
+    case beginner      // 2级 初级
+    case amateurLow    // 3级 中级
+    case amateurMid    // 4级 高级
+    case amateurHigh   // 5级 精通
 
     // 棋士级（Pikafish Skill Level）
-    case amateurDan    // 6级 四级棋士 (Skill 4)
-    case proApprentice // 7级 三级棋士 (Skill 7)
-    case proExpert     // 8级 二级棋士 (Skill 10)
-    case proMaster     // 9级 一级棋士 (Skill 13)
-    case grandmaster   // 10级 特级大师 (Skill 20)
+    case amateurDan    // 6级 棋友 (Skill 0)
+    case proApprentice // 7级 棋手 (Skill 4)
+    case proExpert     // 8级 棋师 (Skill 7)
+    case proMaster     // 9级 大师 (Skill 10)
+    case grandmaster   // 10级 棋圣 (Skill 20)
 
     // MARK: - rawValue（持久化用，lvl1-lvl10）
 
@@ -126,7 +126,7 @@ enum AIDifficulty: CaseIterable, Codable {
         .amateurHigh
     }
 
-    /// 中文显示名（v2.1: 中国象棋协会等级制）
+    /// 中文显示名（v4.2）
     var displayName: String {
         switch self {
         case .novice:        return "入门"
