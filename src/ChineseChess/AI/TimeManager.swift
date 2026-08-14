@@ -6,7 +6,9 @@ import Foundation
 struct TimeManager {
 
     let timeLimitMs: Int     // 总时间限制（毫秒）
-    let startTime: Date      // 搜索开始时间
+    let startTime: Date      // 搜索开始时间（仅保留兼容，计时用 uptime）
+    /// 纯计算时钟起点：systemUptime 在 macOS 休眠期间暂停计时，避免休眠唤醒后搜索预算被休眠时间吃掉
+    private let startUptime: Double
 
     /// 上一层搜索的单层耗时（毫秒），用于迭代加深时间分配
     var lastIterationMs: Int = 0
@@ -17,11 +19,12 @@ struct TimeManager {
     init(timeLimitMs: Int, startTime: Date) {
         self.timeLimitMs = timeLimitMs
         self.startTime = startTime
+        self.startUptime = ProcessInfo.processInfo.systemUptime
     }
 
-    /// 已用时间（毫秒）
+    /// 已用时间（毫秒，systemUptime 口径，休眠不计入）
     var elapsedMs: Int {
-        Int(Date().timeIntervalSince(startTime) * 1000)
+        Int((ProcessInfo.processInfo.systemUptime - startUptime) * 1000)
     }
 
     /// 是否应该停止搜索

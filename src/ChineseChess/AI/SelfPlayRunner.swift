@@ -19,6 +19,19 @@ enum GameEndReason: String {
     case stalemate      // 无棋可走（困毙）
 }
 
+// MARK: - 耗时统计（排除休眠）
+
+/// 双时钟计时器：墙钟（wall clock，含休眠）+ 纯计算时钟（systemUptime，macOS 休眠期间暂停计时）
+struct ElapsedClock {
+    let wallStart = Date()
+    let uptimeStart = ProcessInfo.processInfo.systemUptime
+
+    /// 纯计算耗时（秒，不含休眠）
+    var computeSeconds: Double { ProcessInfo.processInfo.systemUptime - uptimeStart }
+    /// 墙钟耗时（秒，含休眠）
+    var wallSeconds: Double { Date().timeIntervalSince(wallStart) }
+}
+
 struct SelfPlaySessionResult {
     let config: SelfPlayConfig
     let games: [SelfPlayGameResult]
@@ -27,6 +40,8 @@ struct SelfPlaySessionResult {
     let draws: Int
     let avgMoves: Double
     let durationSeconds: Double
+    /// 墙钟耗时（含休眠）；durationSeconds 为纯计算耗时（systemUptime，排除休眠）
+    var wallDurationSeconds: Double = 0
 
     var summary: String {
         let total = games.count
@@ -36,7 +51,8 @@ struct SelfPlaySessionResult {
         黑胜：\(blackWins)（\(String(format: "%.1f%%", Double(blackWins) / Double(total) * 100))）
         和棋：\(draws)（\(String(format: "%.1f%%", Double(draws) / Double(total) * 100))）
         平均步数：\(String(format: "%.1f", avgMoves))
-        耗时：\(String(format: "%.1f", durationSeconds))s
+        纯计算耗时：\(String(format: "%.1f", durationSeconds))s（排除休眠）
+        墙钟耗时：\(String(format: "%.1f", wallDurationSeconds))s
         """
     }
 }
@@ -88,7 +104,7 @@ final class SelfPlayRunner {
     private var gameResults: [SelfPlayGameResult] = []
 
     func run(config: SelfPlayConfig, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) async -> SelfPlaySessionResult {
-        let startTime = Date()
+        let clock = ElapsedClock()
 
         for gameIndex in 0..<config.totalGames {
             // 交换先后手：偶数局红=redDifficulty，奇数局交换
@@ -126,7 +142,7 @@ final class SelfPlayRunner {
             await engine.clearHistory()
         }
 
-        let elapsed = Date().timeIntervalSince(startTime)
+        let elapsed = clock.computeSeconds
         let avg = Double(totalMoves) / Double(config.totalGames)
 
         return SelfPlaySessionResult(
@@ -136,7 +152,8 @@ final class SelfPlayRunner {
             blackWins: blackWins,
             draws: draws,
             avgMoves: avg,
-            durationSeconds: elapsed
+            durationSeconds: elapsed,
+            wallDurationSeconds: clock.wallSeconds
         )
     }
 
@@ -327,6 +344,8 @@ struct MixedEngineSessionResult {
     let draws: Int
     let avgMoves: Double
     let durationSeconds: Double
+    /// 墙钟耗时（含休眠）；durationSeconds 为纯计算耗时（systemUptime，排除休眠）
+    var wallDurationSeconds: Double = 0
     let bayesEloDelta: Int
     // 校准 v3.0: 终局分类统计
     let checkmateCount: Int      // .normal reason（将死/将帅被吃）
@@ -350,7 +369,8 @@ struct MixedEngineSessionResult {
         和棋：\(draws)（\(pct(draws))）
         平均步数：\(String(format: "%.1f", avgMoves))
         BayesElo 差值：\(bayesEloDelta >= 0 ? "+" : "")\(bayesEloDelta)
-        耗时：\(String(format: "%.1f", durationSeconds))s
+        纯计算耗时：\(String(format: "%.1f", durationSeconds))s（排除休眠）
+        墙钟耗时：\(String(format: "%.1f", wallDurationSeconds))s
 
         终局分布：
           将死(normal)：\(checkmateCount) 局（\(pct(checkmateCount))）
@@ -423,7 +443,7 @@ extension SelfPlayRunner {
         pikafishSkillOverride: Int? = nil,
         progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
     ) async -> MixedEngineSessionResult {
-        let startTime = Date()
+        let clock = ElapsedClock()
         var games: [MixedEngineGameResult] = []
         var redWins = 0
         var blackWins = 0
@@ -508,7 +528,7 @@ extension SelfPlayRunner {
 
         await pikafishEngine.shutdown()
 
-        let elapsed = Date().timeIntervalSince(startTime)
+        let elapsed = clock.computeSeconds
         let avg = config.totalGames > 0 ? Double(totalMoves) / Double(config.totalGames) : 0
         // v6.0 P1 fix: 按引擎维度（native vs pikafish）算 Elo，不是红黑维度
         let eloDelta = BayesElo.estimateDelta(wins: nativeWins, losses: pikafishWins, draws: draws)
@@ -527,6 +547,7 @@ extension SelfPlayRunner {
             draws: draws,
             avgMoves: avg,
             durationSeconds: elapsed,
+            wallDurationSeconds: clock.wallSeconds,
             bayesEloDelta: eloDelta,
             checkmateCount: checkmateCount,
             stalemateCount: stalemateCount,
@@ -732,7 +753,7 @@ extension SelfPlayRunner {
         blackSkillOverride: Int? = nil,
         progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
     ) async -> MixedEngineSessionResult {
-        let startTime = Date()
+        let clock = ElapsedClock()
         var gameResults: [MixedEngineGameResult] = []
         var redWins = 0, blackWins = 0, draws = 0, totalMoves = 0
         var redSkillWins = 0, blackSkillWins = 0
@@ -808,7 +829,8 @@ extension SelfPlayRunner {
 
         await engine.shutdown()
 
-        let elapsed = Date().timeIntervalSince(startTime)
+        let elapsed = clock.computeSeconds
+        let wallElapsed = clock.wallSeconds
         let avg = games > 0 ? Double(totalMoves) / Double(games) : 0
         let eloDelta = BayesElo.estimateDelta(wins: redSkillWins, losses: blackSkillWins, draws: draws)
 
@@ -820,7 +842,8 @@ extension SelfPlayRunner {
         print("  和棋：\(draws)")
         print("  BayesElo 差值：\(eloDelta >= 0 ? "+" : "")\(eloDelta)")
         print("  平均步数：\(String(format: "%.1f", avg))")
-        print("  耗时：\(String(format: "%.1f", elapsed))s")
+        print("  纯计算耗时：\(String(format: "%.1f", elapsed))s（排除休眠）")
+        print("  墙钟耗时：\(String(format: "%.1f", wallElapsed))s")
 
         // 校准 v3.0: 终局分类统计
         let checkmateCount = gameResults.filter { $0.reason == .normal }.count
@@ -832,7 +855,7 @@ extension SelfPlayRunner {
         return MixedEngineSessionResult(
             games: gameResults, redWins: redWins, blackWins: blackWins,
             draws: draws, avgMoves: avg, durationSeconds: elapsed,
-            bayesEloDelta: eloDelta,
+            wallDurationSeconds: wallElapsed, bayesEloDelta: eloDelta,
             checkmateCount: checkmateCount, stalemateCount: stalemateCount,
             repetitionCount: repetitionCount, moveLimitCount: moveLimitCount,
             redWinRate: redWinRate
@@ -1071,10 +1094,10 @@ func runSelfPlayFromCLI() async {
     let runner = SelfPlayRunner()
     let config = SelfPlayConfig(red: red, black: black, games: games)
 
-    let startTime = Date()
+    let startUptime = ProcessInfo.processInfo.systemUptime
 
     let report = await runner.runAndReport(config: config, label: label) { completed, gameResult in
-        let elapsed = Date().timeIntervalSince(startTime)
+        let elapsed = ProcessInfo.processInfo.systemUptime - startUptime
         let winnerStr: String
         switch gameResult.result {
         case .redWon: winnerStr = "红胜"
