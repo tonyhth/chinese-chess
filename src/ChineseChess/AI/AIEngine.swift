@@ -258,7 +258,7 @@ actor AIEngine: AIEngineProtocol {
 
         let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
-                                               searchConfig: config, topK: topK)
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl3")
     }
 
     /// v4.3 v1.2: lvl4 scored — IDS maxDepth=6, 5000ms, .hard, CheckmateSearch(12, 800ms)
@@ -283,7 +283,7 @@ actor AIEngine: AIEngineProtocol {
 
         let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 6, timeManager: tm,
-                                               searchConfig: config, topK: topK)
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl4")
     }
 
     /// v4.3 v1.2: lvl5 scored — IDS maxDepth=7, 8000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
@@ -308,16 +308,19 @@ actor AIEngine: AIEngineProtocol {
 
         let tm = TimeManager(timeLimitMs: 8000, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 7, timeManager: tm,
-                                               searchConfig: config, topK: topK)
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl5")
     }
 
     /// IDS 的 scored 变体：返回最后一轮迭代的 top-k 候选
+    /// - Parameter depthLogLabel: 级别标签（如 "lvl4"），用于 IDS_DEPTH_LOG=1 时的完成深度日志
     private func iterativeDeepeningSearchScored(for board: inout SearchBoard, maxDepth: Int,
                                                   timeManager: TimeManager,
                                                   searchConfig: AISearchConfig,
-                                                  topK: Int) -> [(move: Move, score: Int)]? {
+                                                  topK: Int,
+                                                  depthLogLabel: String) -> [(move: Move, score: Int)]? {
         var bestResult: [(move: Move, score: Int)]? = nil
         var tm = timeManager
+        var completedDepth = 0
 
         for depth in 2...maxDepth {
             if searchConfig.enableSmartTime {
@@ -329,10 +332,13 @@ actor AIEngine: AIEngineProtocol {
                                               searchConfig: searchConfig,
                                               timeManager: tm, topK: topK) {
                 bestResult = result
+                completedDepth = depth
             }
 
             tm.recordIterationComplete()
         }
+        logCompletedDepth(label: depthLogLabel, completedDepth: completedDepth,
+                          budgetDepth: maxDepth, elapsedMs: tm.elapsedMs)
         return bestResult
     }
 
@@ -482,7 +488,8 @@ actor AIEngine: AIEngineProtocol {
         config.evalConfig.contempt = calibrationContempt
 
         let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config)
+        return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl3")
     }
 
     // MARK: - 高级
@@ -508,7 +515,8 @@ actor AIEngine: AIEngineProtocol {
         config.evalConfig.contempt = calibrationContempt
 
         let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 6, timeManager: tm, searchConfig: config)
+        return iterativeDeepeningSearch(for: &board, maxDepth: 6, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl4")
     }
 
     // MARK: - 大师
@@ -534,16 +542,19 @@ actor AIEngine: AIEngineProtocol {
         config.evalConfig.contempt = calibrationContempt
 
         let tm = TimeManager(timeLimitMs: 8000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 7, timeManager: tm, searchConfig: config)
+        return iterativeDeepeningSearch(for: &board, maxDepth: 7, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl5")
     }
 
     // MARK: - 迭代加深 Negamax
 
     private func iterativeDeepeningSearch(for board: inout SearchBoard, maxDepth: Int,
                                             timeManager: TimeManager,
-                                            searchConfig: AISearchConfig) -> Move? {
+                                            searchConfig: AISearchConfig,
+                                            depthLogLabel: String) -> Move? {
         var bestMoveSoFar: Move?
         var tm = timeManager
+        var completedDepth = 0
 
         for depth in 2...maxDepth {
             if searchConfig.enableSmartTime {
@@ -555,11 +566,21 @@ actor AIEngine: AIEngineProtocol {
                                       searchConfig: searchConfig,
                                       timeManager: tm) {
                 bestMoveSoFar = move
+                completedDepth = depth
             }
 
             tm.recordIterationComplete()
         }
+        logCompletedDepth(label: depthLogLabel, completedDepth: completedDepth,
+                          budgetDepth: maxDepth, elapsedMs: tm.elapsedMs)
         return bestMoveSoFar
+    }
+
+    /// v4.3 §9.5.4: IDS 完成深度日志（校准报告用直方图数据）
+    /// 仅在环境变量 IDS_DEPTH_LOG=1 时输出，人机对弈不受影响
+    private func logCompletedDepth(label: String, completedDepth: Int, budgetDepth: Int, elapsedMs: Int) {
+        guard ProcessInfo.processInfo.environment["IDS_DEPTH_LOG"] == "1" else { return }
+        print("[IDS] lvl=\(label) completedDepth=\(completedDepth) budgetDepth=\(budgetDepth) elapsedMs=\(elapsedMs)")
     }
 
     // MARK: - Negamax + Alpha-Beta 核心
