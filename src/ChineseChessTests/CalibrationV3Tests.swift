@@ -147,34 +147,34 @@ struct CalibrationV3Tests {
     // MARK: - 3. skillToDifficulty 映射
     // ============================
 
-    @Test("skillToDifficulty: Skill 0 映射到 amateurDan(4)")
+    @Test("skillToDifficulty: Skill 0 映射到 amateurDan(0)")
     func skillMap0() {
         let diff = SelfPlayRunner.skillToDifficulty(0)
-        #expect(diff == .amateurDan, "Skill 0 应映射到 amateurDan (skill=4)")
+        #expect(diff == .amateurDan, "Skill 0 应映射到 amateurDan (skill=0)")
     }
 
-    @Test("skillToDifficulty: Skill 4 映射到 amateurDan(4)")
+    @Test("skillToDifficulty: Skill 4 映射到 proApprentice(4)")
     func skillMap4() {
         let diff = SelfPlayRunner.skillToDifficulty(4)
-        #expect(diff == .amateurDan, "Skill 4 应映射到 amateurDan")
+        #expect(diff == .proApprentice, "Skill 4 应映射到 proApprentice")
     }
 
-    @Test("skillToDifficulty: Skill 7 映射到 proApprentice(7)")
+    @Test("skillToDifficulty: Skill 7 映射到 proExpert(7)")
     func skillMap7() {
         let diff = SelfPlayRunner.skillToDifficulty(7)
-        #expect(diff == .proApprentice, "Skill 7 应映射到 proApprentice")
+        #expect(diff == .proExpert, "Skill 7 应映射到 proExpert")
     }
 
-    @Test("skillToDifficulty: Skill 10 映射到 proExpert(10)")
+    @Test("skillToDifficulty: Skill 10 映射到 proMaster(10)")
     func skillMap10() {
         let diff = SelfPlayRunner.skillToDifficulty(10)
-        #expect(diff == .proExpert, "Skill 10 应映射到 proExpert")
+        #expect(diff == .proMaster, "Skill 10 应映射到 proMaster")
     }
 
-    @Test("skillToDifficulty: Skill 13 映射到 proMaster(13)")
+    @Test("skillToDifficulty: Skill 13 映射到最近的 proMaster(10)")
     func skillMap13() {
         let diff = SelfPlayRunner.skillToDifficulty(13)
-        #expect(diff == .proMaster, "Skill 13 应映射到 proMaster")
+        #expect(diff == .proMaster, "Skill 13 距离 proMaster(10)=3 比距离 grandmaster(20)=7 近，应映射到 proMaster")
     }
 
     @Test("skillToDifficulty: Skill 20 映射到 grandmaster(20)")
@@ -183,14 +183,14 @@ struct CalibrationV3Tests {
         #expect(diff == .grandmaster, "Skill 20 应映射到 grandmaster")
     }
 
-    @Test("skillToDifficulty: 边界值 5-6 过渡")
+    @Test("skillToDifficulty: 边界值 5-6 过渡（新梯度 0/4/7/10/20）")
     func skillMapBoundary5_6() {
-        // Skill 5 距离 amateurDan(4) 距离 1，距离 proApprentice(7) 距离 2 → amateurDan
+        // Skill 5 距离 proApprentice(4) 距离 1，距离 proExpert(7) 距离 2 → proApprentice
         let diff5 = SelfPlayRunner.skillToDifficulty(5)
-        #expect(diff5 == .amateurDan, "Skill 5 应映射到 amateurDan")
-        // Skill 6 距离 amateurDan(4) 距离 2，距离 proApprentice(7) 距离 1 → proApprentice
+        #expect(diff5 == .proApprentice, "Skill 5 应映射到 proApprentice")
+        // Skill 6 距离 proApprentice(4) 距离 2，距离 proExpert(7) 距离 1 → proExpert
         let diff6 = SelfPlayRunner.skillToDifficulty(6)
-        #expect(diff6 == .proApprentice, "Skill 6 应映射到 proApprentice")
+        #expect(diff6 == .proExpert, "Skill 6 应映射到 proExpert")
     }
 
     // ============================
