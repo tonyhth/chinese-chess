@@ -167,14 +167,14 @@ final class SelfPlayRunner {
         return "\(fromCol)\(move.from.row)\(toCol)\(move.to.row)"
     }
 
-    /// v4.3 Plan B: 按难度级别返回 Softmax temperature（cp）
-    /// lvl2=30, lvl3=40, lvl4=35, lvl5=40（lvl4 最确定→最强；lvl3 削弱只靠 maxDepth）
+    /// v4.3 v1.2: 按难度级别返回 Softmax temperature（cp）
+    /// lvl2=30, lvl3=40, lvl4=35, lvl5=25（lvl3 随机峰值，lvl3→lvl5 递减：强方更确定）
     private static func softmaxTemperature(for difficulty: AIDifficulty) -> Double {
         switch difficulty {
         case .beginner:      return 30  // lvl2
         case .amateurLow:    return 40  // lvl3：回退到 v4.2 值，削弱只靠 maxDepth
         case .amateurMid:    return 35  // lvl4：更确定 → 更强
-        case .amateurHigh:   return 40  // lvl5：保守降低（v4.2=60），避免 A4 倒挂
+        case .amateurHigh:   return 25  // lvl5：最确定 → 最强（v1.2 恢复递减段，9.7.3）
         default:             return 40  // fallback
         }
     }

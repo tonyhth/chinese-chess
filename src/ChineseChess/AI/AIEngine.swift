@@ -261,7 +261,7 @@ actor AIEngine: AIEngineProtocol {
                                                searchConfig: config, topK: topK)
     }
 
-    /// v4.2: lvl4 scored — IDS maxDepth=5, 3000ms, .medium, CheckmateSearch(12, 800ms)
+    /// v4.3 v1.2: lvl4 scored — IDS maxDepth=6, 5000ms, .hard, CheckmateSearch(12, 800ms)
     private func hardSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
@@ -278,15 +278,15 @@ actor AIEngine: AIEngineProtocol {
             return killMoves.prefix(topK).map { ($0, 0) }
         }
 
-        var config = AISearchConfig.medium
+        var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 5, timeManager: tm,
+        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 6, timeManager: tm,
                                                searchConfig: config, topK: topK)
     }
 
-    /// v4: lvl5 scored — IDS maxDepth=6, 5000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
+    /// v4.3 v1.2: lvl5 scored — IDS maxDepth=7, 8000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
     private func masterSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
@@ -306,8 +306,8 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 6, timeManager: tm,
+        let tm = TimeManager(timeLimitMs: 8000, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 7, timeManager: tm,
                                                searchConfig: config, topK: topK)
     }
 
@@ -487,7 +487,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - 高级
 
-    /// v4.2: lvl4 — IDS maxDepth=5, 3000ms, .medium config, CheckmateSearch(12, 800ms)
+    /// v4.3 v1.2: lvl4 — IDS maxDepth=6, 5000ms, .hard config, CheckmateSearch(12, 800ms)
     private func hardSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
@@ -504,16 +504,16 @@ actor AIEngine: AIEngineProtocol {
             return killMoves.first
         }
 
-        var config = AISearchConfig.medium
+        var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 3000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 5, timeManager: tm, searchConfig: config)
+        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 6, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 大师
 
-    /// v4: lvl5 — IDS maxDepth=6, 5000ms, .hard config, CheckmateSearch(maxDepth=12, 1200ms)
+    /// v4.3 v1.2: lvl5 — IDS maxDepth=7, 8000ms, .hard config, CheckmateSearch(maxDepth=12, 1200ms)
     private func masterSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
@@ -533,8 +533,8 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 6, timeManager: tm, searchConfig: config)
+        let tm = TimeManager(timeLimitMs: 8000, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 7, timeManager: tm, searchConfig: config)
     }
 
     // MARK: - 迭代加深 Negamax
