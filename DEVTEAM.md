@@ -64,6 +64,18 @@ git diff --stat        # 确认 working tree 干净
 - 专项测试：`xcodebuild test -only-testing:<TestClassName>`
 - EloBaselineTests 是自对弈 5 局 × 30+ 分钟，会锁死构建目录
 
+### iOS 编译门禁（Phase 合入前必跑）
+
+```bash
+xcodebuild build -project ChineseChess.xcodeproj -scheme ChineseChess \
+  -configuration Debug -destination 'generic/platform=iOS' \
+  CODE_SIGNING_ALLOWED=NO -derivedDataPath /tmp/ios-gate-dd
+```
+
+- 检出 macOS 专属 API 裸用（AssessmentView :209 教训：phase 功能从未在 iOS 编译过）
+- 无签名/无设备依赖，任何环境可跑；DerivedData 独立路径不与主构建互踩
+- project.yml 为磁盘态配置（gitignored，勿 commit），由 xcodegen 维护
+
 ### 编译检查频率
 - 每修改 3-5 个源文件后执行一次 `xcodebuild build`
 - 不要攒一大堆改动最后才编译
