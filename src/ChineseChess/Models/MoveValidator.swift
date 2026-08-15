@@ -4,8 +4,8 @@ struct MoveValidator {
 
     // MARK: - 主入口
 
-    /// 判断走法是否合法
-    static func isLegal<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
+    /// 判断走法是否合法（拷贝式合法化路径：约束 SearchBoardConvertible，v1.2 §2.4）
+    static func isLegal<T: SearchBoardConvertible>(_ move: Move, on board: T) -> Bool {
         let piece = move.piece
         guard Position.isValid(move.to) else { return false }
         if let target = board.piece(at: move.to), target.side == piece.side { return false }
@@ -15,13 +15,13 @@ struct MoveValidator {
     }
 
     /// 某棋子所有合法走法（按棋子类型生成候选位置，避免 90 格全遍历）
-    static func legalMoves<T: BoardReadable>(for piece: Piece, on board: T) -> [Move] {
+    static func legalMoves<T: SearchBoardConvertible>(for piece: Piece, on board: T) -> [Move] {
         let candidates = candidateMoves(for: piece, on: board)
         return candidates.filter { isLegal($0, on: board) }
     }
 
     /// 某方所有合法走法
-    static func allLegalMoves<T: BoardReadable>(for side: Side, on board: T) -> [Move] {
+    static func allLegalMoves<T: SearchBoardConvertible>(for side: Side, on board: T) -> [Move] {
         board.pieces(for: side).flatMap { legalMoves(for: $0, on: board) }
     }
 
@@ -29,7 +29,7 @@ struct MoveValidator {
 
     /// 某方所有吃子候选走法（仅走法模式校验 + 己方棋子过滤，不做将帅暴露检查）
     /// 用于静态搜索（QS），在 QS 内部通过实际执行验证合法性
-    static func captureMoves<T: BoardReadable>(for side: Side, on board: T) -> [Move] {
+    static func captureMoves<T: SearchBoardConvertible>(for side: Side, on board: T) -> [Move] {
         var result: [Move] = []
         for piece in board.pieces(for: side) {
             let candidates = candidateMoves(for: piece, on: board)
@@ -168,11 +168,11 @@ struct MoveValidator {
         return false
     }
 
-    static func isCheckmate<T: BoardReadable>(_ side: Side, on board: T) -> Bool {
+    static func isCheckmate<T: SearchBoardConvertible>(_ side: Side, on board: T) -> Bool {
         isInCheck(side, on: board) && allLegalMoves(for: side, on: board).isEmpty
     }
 
-    static func isStalemate<T: BoardReadable>(_ side: Side, on board: T) -> Bool {
+    static func isStalemate<T: SearchBoardConvertible>(_ side: Side, on board: T) -> Bool {
         !isInCheck(side, on: board) && allLegalMoves(for: side, on: board).isEmpty
     }
 
@@ -318,7 +318,7 @@ struct MoveValidator {
         return isMovePatternValid(for: piece, from: piece.position, to: target, on: board)
     }
 
-    private static func wouldBeInCheck<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
+    private static func wouldBeInCheck<T: SearchBoardConvertible>(_ move: Move, on board: T) -> Bool {
         var workBoard = board.makeSearchBoard()
         workBoard.execute(move)
         return isInCheck(move.piece.side, on: workBoard)

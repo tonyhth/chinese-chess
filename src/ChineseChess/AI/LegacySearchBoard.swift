@@ -11,7 +11,7 @@
 /// - 实现 BoardReadable 协议，可传入 MoveValidator 等泛型方法
 /// - execute/undo 是 mutating，配合 inout 避免不必要拷贝
 /// - moveHistory 使用 [Move]（与 Board 一致，降低初期改动复杂度）
-struct LegacySearchBoard: BoardReadable {
+struct LegacySearchBoard: SearchBoardConvertible {
     private(set) var pieces: [Piece]
     private(set) var currentTurn: Side = .red
     private(set) var moveHistory: [Move] = []
@@ -37,6 +37,8 @@ struct LegacySearchBoard: BoardReadable {
     func makeSearchBoard() -> LegacySearchBoard {
         self  // 值类型赋值即深拷贝，COW 可优化
     }
+    // makeSearchBoard 归属 SearchBoardConvertible（v1.2 §2.4）：拷贝式合法化专用转换，
+    // 供 MoveValidator.wouldBeInCheck / MoveOrderer.givesCheck 消费
 
     // MARK: - 初始化
 

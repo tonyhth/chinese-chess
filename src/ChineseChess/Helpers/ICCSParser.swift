@@ -12,7 +12,7 @@ struct ICCSParser {
     ///     - 数字格式："5450"（row + col + row + col）
     ///   - board: 当前棋盘状态
     /// - Returns: 合法的 Move，或 nil
-    static func parse<T: BoardReadable>(_ iccs: String, on board: T) -> Move? {
+    static func parse<T: SearchBoardConvertible>(_ iccs: String, on board: T) -> Move? {
         guard iccs.count == 4 else { return nil }
         let chars = Array(iccs)
 
