@@ -11,6 +11,11 @@ import Testing
 ///       净效果：每对 execute/undo 把棋子永久漂移到"未来位置"→ 棋盘腐败。
 ///
 /// 本组测试直接证明 execute/undo 的漂移语义（不依赖 CheckmateSearch 命中构造）。
+///
+/// ⚠️ 属性声明（2026-08-16 Tina 补标）：本组为**现状断言（立项证据）**，非回归测试——
+/// 断言"漂移会发生"恰是 Board.execute/undo 现行腐败语义。根治修复合入后，本组测试
+/// **应当变红**（届时将断言反转为守恒断言，或按修复语义重写）；绿 = 腐败机制仍在，
+/// 红 = 根治生效。commit a409d3e message 中"回归测试"系误称，以本注释为准。
 @Suite("A3r2 第一因：陈旧候选 execute/undo 漂移语义")
 struct A3r2FirstCauseTests {
 
