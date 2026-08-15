@@ -8,7 +8,6 @@ import Testing
 /// - A（治本）：CheckmateSearch 命中只返回 `[killMoves[0]]`（AIEngine :289/:315）
 /// - B（兜底）：softmaxSelect 过滤循环前置一致性校验，陈旧候选跳过不 execute
 ///
-<<<<<<< HEAD
 /// 本组测试直接证明 execute/undo 的漂移语义（不依赖 CheckmateSearch 命中构造）。
 ///
 /// ⚠️ 属性声明（2026-08-16 Tina 补标）：本组为**现状断言（立项证据）**，非回归测试——
@@ -18,13 +17,10 @@ import Testing
 ///
 /// ⚠️ 更正（2026-08-15，Luke 裁定/Cody 指出）：本组直接调 Board.execute 绕过 softmaxSelect，
 /// 恒绿与根治解耦，回归语义由 m1 重写版（5c51f91）承担——80c2f2d"根治后应变红"表述系误判。
-@Suite("A3r2 第一因：陈旧候选 execute/undo 漂移语义")
-=======
 /// 反转后语义：
 /// - Board.execute/undo 的 id 盲搬漂移**机制仍在**（Board 属 UI 共享层，不在本 fix 范围）
 /// - 但入口被 B 拦截：漂移候选进不了 execute → 主棋盘守恒
 @Suite("A3r2 根治回归：陈旧候选拦截 + 杀法返回形态")
->>>>>>> 5c51f91 (fix(engine): A3r2 第一因根治——杀法序列只返首着 + softmaxSelect 陈旧候选拦截)
 struct A3r2FirstCauseTests {
 
     // MARK: - B 兜底校验（拦截器单元）
