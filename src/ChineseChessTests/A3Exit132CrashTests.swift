@@ -103,12 +103,12 @@ final class A3Exit132CrashTests: XCTestCase {
     func testNestedMakeUnmakeMaintainIntegrity() {
         for seed in 101...106 {
             var rng = SeededRNG(seed: UInt64(seed))
-            var board = SearchBoard()
+            var board = LegacySearchBoard()
             nestedSearch(&board, depth: 3, rng: &rng, label: "seed=\(seed)")
         }
     }
 
-    private func nestedSearch(_ board: inout SearchBoard, depth: Int,
+    private func nestedSearch(_ board: inout LegacySearchBoard, depth: Int,
                               rng: inout SeededRNG, label: String) {
         guard depth > 0 else { return }
         let side = board.currentTurn

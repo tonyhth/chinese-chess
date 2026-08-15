@@ -1,13 +1,17 @@
-// SearchBoard.swift — AI 引擎专用棋盘（纯值类型，脱离 @Observable）
+// LegacySearchBoard.swift — AI 引擎专用棋盘（纯值类型，脱离 @Observable）
 
 /// AI 搜索专用棋盘。纯值类型，无线程安全风险。
+///
+/// **M1 Phase 2a（m1-hotpath-redesign v1.2 §7.1）**：原 SearchBoard.swift 更名
+/// LegacySearchBoard——与 SearchBoardV2（90 格信箱）双实现并存至 P2d 收敛，
+/// 交叉对比期间作为运行时参照（§8.2）。除名字外零行为改动。
 ///
 /// 设计要点：
 /// - 不继承 @Observable，不注册到 Observation 全局表
 /// - 实现 BoardReadable 协议，可传入 MoveValidator 等泛型方法
 /// - execute/undo 是 mutating，配合 inout 避免不必要拷贝
 /// - moveHistory 使用 [Move]（与 Board 一致，降低初期改动复杂度）
-struct SearchBoard: BoardReadable {
+struct LegacySearchBoard: BoardReadable {
     private(set) var pieces: [Piece]
     private(set) var currentTurn: Side = .red
     private(set) var moveHistory: [Move] = []
@@ -30,7 +34,7 @@ struct SearchBoard: BoardReadable {
         pieces.contains { $0.position == pos }
     }
 
-    func makeSearchBoard() -> SearchBoard {
+    func makeSearchBoard() -> LegacySearchBoard {
         self  // 值类型赋值即深拷贝，COW 可优化
     }
 
@@ -74,7 +78,7 @@ struct SearchBoard: BoardReadable {
         #if DEBUG
         let problems = Board.integrityProblems(in: pieces)
         if !problems.isEmpty {
-            BoardIntegrityLogger.dumpOverlap(reason: "SearchBoard.execute",
+            BoardIntegrityLogger.dumpOverlap(reason: "LegacySearchBoard.execute",
                                              pieces: pieces,
                                              recentMoves: Array(moveHistory.suffix(10)),
                                              detail: problems.joined(separator: " | "))
@@ -98,7 +102,7 @@ struct SearchBoard: BoardReadable {
         #if DEBUG
         let problems = Board.integrityProblems(in: pieces)
         if !problems.isEmpty {
-            BoardIntegrityLogger.dumpOverlap(reason: "SearchBoard.undoLastMove",
+            BoardIntegrityLogger.dumpOverlap(reason: "LegacySearchBoard.undoLastMove",
                                              pieces: pieces,
                                              recentMoves: Array(moveHistory.suffix(10)),
                                              detail: problems.joined(separator: " | "))

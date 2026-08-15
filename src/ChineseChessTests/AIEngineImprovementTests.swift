@@ -92,29 +92,29 @@ struct AIEngineImprovementTests {
     @Test("CheckmateSearch：初始局面无将杀")
     func checkmateSearchInitialNoCheckmate() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 3)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 3)
         #expect(result == nil)
     }
 
     @Test("CheckmateSearch depth=1 不 crash")
     func checkmateSearchDepth1NoCrash() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 1)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 1)
         _ = result
     }
 
     @Test("CheckmateSearch depth=6 不 crash")
     func checkmateSearchDepth6NoCrash() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 6)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 6)
         _ = result
     }
 
     @Test("CheckmateSearch 从红方和黑方搜都不 crash")
     func checkmateSearchBothSidesNoCrash() {
         let board = Board()
-        let redResult = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 3)
-        let blackResult = CheckmateSearch.search(board: SearchBoard(from: board), for: .black, maxDepth: 3)
+        let redResult = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 3)
+        let blackResult = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .black, maxDepth: 3)
         _ = redResult
         _ = blackResult
     }
@@ -122,7 +122,7 @@ struct AIEngineImprovementTests {
     @Test("CheckmateSearch 带超时不 crash")
     func checkmateSearchWithTimeLimitNoCrash() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8, timeLimitMs: 100)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 8, timeLimitMs: 100)
         _ = result
     }
 
@@ -130,7 +130,7 @@ struct AIEngineImprovementTests {
     func checkmateSearchDoesNotMutateBoard() {
         let board = Board()
         let pieceCount = board.pieces.count
-        _ = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 3)
+        _ = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 3)
         #expect(board.pieces.count == pieceCount)
     }
 
@@ -138,7 +138,7 @@ struct AIEngineImprovementTests {
     func checkmateSearchPruningIsFast() {
         let board = Board()
         let start = Date()
-        _ = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 6)
+        _ = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 6)
         let elapsed = Date().timeIntervalSince(start)
         // 初始局面无将军走法，checkMoves 为空，应该极快返回
         #expect(elapsed < 2.0)

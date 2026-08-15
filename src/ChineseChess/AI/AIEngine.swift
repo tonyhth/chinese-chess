@@ -91,9 +91,9 @@ actor AIEngine: AIEngineProtocol {
     }
 
     func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
-        // ⚠️ 唯一的 Board → SearchBoard 转换点
+        // ⚠️ 唯一的 Board → LegacySearchBoard 转换点
         calibrationContempt = Self.contemptFor(difficulty)
-        var workBoard = SearchBoard(from: board)
+        var workBoard = LegacySearchBoard(from: board)
 
         switch difficulty {
         case .novice:
@@ -124,7 +124,7 @@ actor AIEngine: AIEngineProtocol {
     /// 仅支持自研引擎级别（novice 走 beginnerMove 逻辑，也返回 top-k）。
     func bestMoves(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false, topK: Int = 3) async -> [(move: Move, score: Int)] {
         calibrationContempt = Self.contemptFor(difficulty)
-        var workBoard = SearchBoard(from: board)
+        var workBoard = LegacySearchBoard(from: board)
 
         switch difficulty {
         case .novice:
@@ -163,7 +163,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - C1 辅助: 带评分的 rootSearch（返回 top-k 候选）
 
     /// 与 rootSearch 相同逻辑，但返回 top-k 候选走法及评分
-    private func rootSearchScored(for board: inout SearchBoard, depth: Int, useTT: Bool, useMoveOrder: Bool,
+    private func rootSearchScored(for board: inout LegacySearchBoard, depth: Int, useTT: Bool, useMoveOrder: Bool,
                                   evalConfig: AIEvalConfig = .basic,
                                   searchConfig: AISearchConfig? = nil,
                                   timeManager: TimeManager? = nil,
@@ -272,7 +272,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - C1 辅助: 各级别的 scored 变体
 
     /// v4.3: lvl3 scored — IDS maxDepth=3, 2000ms, .mediumNoQS
-    private func mediumSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+    private func mediumSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
            let move = openingBook.parseICCSMove(iccsMove, on: board) {
@@ -288,7 +288,7 @@ actor AIEngine: AIEngineProtocol {
     }
 
     /// v4.3 v1.2: lvl4 scored — IDS maxDepth=6, 5000ms, .hard, CheckmateSearch(12, 800ms)
-    private func hardSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+    private func hardSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
@@ -320,7 +320,7 @@ actor AIEngine: AIEngineProtocol {
     }
 
     /// v4.3 v1.2: lvl5 scored — IDS maxDepth=7, 8000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
-    private func masterSearchScored(for board: inout SearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+    private func masterSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
@@ -347,7 +347,7 @@ actor AIEngine: AIEngineProtocol {
 
     /// IDS 的 scored 变体：返回最后一轮迭代的 top-k 候选
     /// - Parameter depthLogLabel: 级别标签（如 "lvl4"），用于 IDS_DEPTH_LOG=1 时的完成深度日志
-    private func iterativeDeepeningSearchScored(for board: inout SearchBoard, maxDepth: Int,
+    private func iterativeDeepeningSearchScored(for board: inout LegacySearchBoard, maxDepth: Int,
                                                   timeManager: TimeManager,
                                                   searchConfig: AISearchConfig,
                                                   topK: Int,
@@ -400,7 +400,7 @@ actor AIEngine: AIEngineProtocol {
     /// 温度随机关闭（固定取 top-1），纯搜索压力测量。
     func npsBench(board: Board, maxDepth: Int) -> (totalNodes: Int, elapsedMs: Int, completedDepth: Int)? {
         calibrationContempt = 0
-        var workBoard = SearchBoard(from: board)
+        var workBoard = LegacySearchBoard(from: board)
         var config = AISearchConfig.hard
         config.evalConfig.contempt = 0
         let tm = TimeManager(timeLimitMs: 120_000, startTime: Date())
@@ -414,7 +414,7 @@ actor AIEngine: AIEngineProtocol {
 
     // v4.0 旧方案：depth-1 + ±150cp 噪声 + top-5 加权随机（三重扰动不可控）
     // v2.1 新方案：depth-1 + top-3 加权随机（去掉噪声，更可预测）
-    private func beginnerMove(for board: inout SearchBoard) -> Move? {
+    private func beginnerMove(for board: inout LegacySearchBoard) -> Move? {
         let side = board.currentTurn
         let moves = MoveValidator.allLegalMoves(for: side, on: board)
         guard !moves.isEmpty else { return nil }
@@ -456,7 +456,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - Negamax 根搜索（统一接口）
 
-    private func rootSearch(for board: inout SearchBoard, depth: Int, useTT: Bool, useMoveOrder: Bool,
+    private func rootSearch(for board: inout LegacySearchBoard, depth: Int, useTT: Bool, useMoveOrder: Bool,
                             evalConfig: AIEvalConfig = .basic,
                             searchConfig: AISearchConfig? = nil,
                             timeManager: TimeManager? = nil) -> Move? {
@@ -550,7 +550,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - 中级
 
     /// v4.3: lvl3 — IDS maxDepth=3, 2000ms, .mediumNoQS config
-    private func mediumSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
+    private func mediumSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
         let hash = ZobristHash.hash(board: board)
         if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
            let move = openingBook.parseICCSMove(iccsMove, on: board) {
@@ -568,7 +568,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - 高级
 
     /// v4.3 v1.2: lvl4 — IDS maxDepth=6, 5000ms, .hard config, CheckmateSearch(12, 800ms)
-    private func hardSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
+    private func hardSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
@@ -595,7 +595,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - 大师
 
     /// v4.3 v1.2: lvl5 — IDS maxDepth=7, 8000ms, .hard config, CheckmateSearch(maxDepth=12, 1200ms)
-    private func masterSearch(for board: inout SearchBoard, isIOS: Bool) -> Move? {
+    private func masterSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
         if board.moveHistory.count < 6 {
@@ -621,7 +621,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - 迭代加深 Negamax
 
-    private func iterativeDeepeningSearch(for board: inout SearchBoard, maxDepth: Int,
+    private func iterativeDeepeningSearch(for board: inout LegacySearchBoard, maxDepth: Int,
                                             timeManager: TimeManager,
                                             searchConfig: AISearchConfig,
                                             depthLogLabel: String) -> Move? {
@@ -675,7 +675,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - Negamax + Alpha-Beta 核心
 
-    private func negamax(board: inout SearchBoard, depth: Int, alpha: Int, beta: Int,
+    private func negamax(board: inout LegacySearchBoard, depth: Int, alpha: Int, beta: Int,
                          hash: UInt64,  // #7: 增量哈希参数
                          useTT: Bool, useMoveOrder: Bool, evalConfig: AIEvalConfig = .basic,
                          extensions: Int = 0, searchConfig: AISearchConfig = .default) -> Int {
@@ -908,7 +908,7 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - 静态搜索（Quiescence Search）
 
     private func quiescenceSearch(
-        board: inout SearchBoard,
+        board: inout LegacySearchBoard,
         hash: UInt64,  // #7: 增量哈希参数
         alpha: Int, beta: Int,
         qDepth: Int,
@@ -980,7 +980,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - Null Move 辅助
 
-    private func shouldDisableNullMove(on board: SearchBoard, config: AISearchConfig) -> Bool {
+    private func shouldDisableNullMove(on board: LegacySearchBoard, config: AISearchConfig) -> Bool {
         let side = board.currentTurn
         var materialSum = 0
         for piece in board.pieces(for: side) {
@@ -1004,7 +1004,7 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - 终止判定
 
-    private func isTerminal(_ board: SearchBoard) -> Bool {
+    private func isTerminal(_ board: LegacySearchBoard) -> Bool {
         let side = board.currentTurn
         return MoveValidator.allLegalMoves(for: side, on: board).isEmpty
     }

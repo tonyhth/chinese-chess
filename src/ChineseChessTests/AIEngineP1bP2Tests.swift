@@ -164,7 +164,7 @@ struct AIEngineP1bP2Tests {
     @Test("CheckmateSearch 不 crash（P1-a 不受影响）")
     func checkmateSearchStillWorks() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 3)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 3)
         #expect(result == nil)
     }
 }

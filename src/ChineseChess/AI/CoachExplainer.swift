@@ -405,7 +405,7 @@ actor CoachExplainer {
     private func isCheckingMove(_ move: String, fen: String) -> Bool {
         // P2 fix: 精确推演走法后检查对方是否被将军
         guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
-        // TODO: Phase 1a.3 迁移到 SearchBoard
+        // TODO: Phase 1a.3 迁移到 LegacySearchBoard
         let board = Board(fen: fen)
         guard let piece = board.piece(at: from) else { return false }
 
@@ -420,7 +420,7 @@ actor CoachExplainer {
     /// 是否是安全吃子（走法推演：吃子后己方不被将军，且落点不受对方攻击）
     private func isSafeCapture(_ move: String, fen: String) -> Bool {
         guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
-        // TODO: Phase 1a.3 迁移到 SearchBoard — actor 内 @Observable Board 注册 Observation 全局表有竞争风险
+        // TODO: Phase 1a.3 迁移到 LegacySearchBoard — actor 内 @Observable Board 注册 Observation 全局表有竞争风险
         let board = Board(fen: fen)
         guard let piece = board.piece(at: from) else { return false }
         guard let captured = board.piece(at: to) else { return false }  // 必须有吃子目标
@@ -501,7 +501,7 @@ actor CoachExplainer {
         // 展开子力
         if isDevelopmentMove(bestMove, fen: fen) { return .develop }
         // 防守（简化：FEN 中己方被将军时）
-        // TODO: Phase 1a.3 迁移到 SearchBoard
+        // TODO: Phase 1a.3 迁移到 LegacySearchBoard
         let board = Board(fen: fen)
         if MoveValidator.isInCheck(board.currentTurn, on: board) { return .defend }
 

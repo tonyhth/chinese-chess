@@ -74,7 +74,7 @@ class Board {
     /// 校验 pieces 数组完整性：无重复位置、无重复 ID
     /// 背景：A3 自对弈崩溃根因是棋盘数据腐败（車与将同格）导致
     /// canAttack → countPiecesBetween(from==to) → runtime trap (SIGILL)
-    /// Debug 构建在 Board/SearchBoard 每次 execute/undo 后断言，第一时间暴露腐败点
+    /// Debug 构建在 Board/LegacySearchBoard 每次 execute/undo 后断言，第一时间暴露腐败点
     /// Release 构建无开销（assert 编译期移除）
     static func integrityProblems(in pieces: [Piece]) -> [String] {
         var problems: [String] = []
@@ -184,9 +184,9 @@ class Board {
     // MARK: - 深拷贝（AI 搜索用）
 
     /// ⚠️ 已废弃：返回 @Observable 副本，AI 引擎不应使用。
-    /// AI 引擎请使用 SearchBoard(from: board)。
+    /// AI 引擎请使用 LegacySearchBoard(from: board)。
     /// UI 层仍可使用（主线程安全），但建议迁移到值类型方案。
-    @available(*, deprecated, message: "AI 引擎请使用 SearchBoard(from: board)")
+    @available(*, deprecated, message: "AI 引擎请使用 LegacySearchBoard(from: board)")
     func snapshot() -> Board {
         let copy = Board(pieces: pieces.map { Piece(kind: $0.kind, side: $0.side, position: $0.position, id: $0.id) })
         copy.moveHistory = moveHistory

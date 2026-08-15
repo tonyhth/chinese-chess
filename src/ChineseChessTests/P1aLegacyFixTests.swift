@@ -28,7 +28,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 6, timeLimitMs: 3000)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 6, timeLimitMs: 3000)
         // 红車在 a0，可以 a9 将军，黑将走到 d9/f9
         // 搜索应该能找到一些将军序列（可能不是将杀）
         // 但至少不 crash
@@ -39,7 +39,7 @@ struct P1aLegacyFixTests {
     func checkmateSearchNoCheckmate() {
         // 标准开局，不可能将杀
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 4, timeLimitMs: 1000)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 4, timeLimitMs: 1000)
         #expect(result == nil, "标准开局不应找到将杀")
     }
 
@@ -47,7 +47,7 @@ struct P1aLegacyFixTests {
     func checkmateSearchTimeout() {
         let board = Board()
         // 极短超时
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 20, timeLimitMs: 1)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 20, timeLimitMs: 1)
         // 可能 nil 或可能找到什么，只要不 crash
         _ = result
     }
@@ -61,7 +61,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 10, timeLimitMs: 5000)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 10, timeLimitMs: 5000)
         // 車+帅可以杀将+士，但需要精确走法
         // 至少不 crash
         _ = result
@@ -436,14 +436,14 @@ struct P1aLegacyFixTests {
     @Test("CheckmateSearch：深度 0 不 crash")
     func checkmateSearchDepthZero() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 0, timeLimitMs: 1000)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 0, timeLimitMs: 1000)
         #expect(result == nil, "深度 0 不应找到将杀")
     }
 
     @Test("CheckmateSearch：深度 2 不 crash")
     func checkmateSearchDepthTwo() {
         let board = Board()
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 2, timeLimitMs: 1000)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 2, timeLimitMs: 1000)
         // 标准开局 2 层不可能将杀
         #expect(result == nil, "标准开局深度 2 不应找到将杀")
     }
@@ -456,7 +456,7 @@ struct P1aLegacyFixTests {
             Issue.record("FEN 解析失败")
             return
         }
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8, timeLimitMs: 3000)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 8, timeLimitMs: 3000)
         // 車帅 vs 单将，应该能找到将杀
         #expect(result != nil, "車帅 vs 单将应找到将杀")
         if let moves = result {

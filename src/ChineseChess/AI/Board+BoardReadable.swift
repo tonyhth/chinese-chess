@@ -5,7 +5,7 @@ extension Board: BoardReadable {
     // pieces / currentTurn / piece(at:) / pieces(for:) / generalPosition(of:) / hasPiece(at:)
     // 均已在 Board.swift 中定义，且访问级别匹配
 
-    func makeSearchBoard() -> SearchBoard {
-        SearchBoard(from: self)
+    func makeSearchBoard() -> LegacySearchBoard {
+        LegacySearchBoard(from: self)
     }
 }

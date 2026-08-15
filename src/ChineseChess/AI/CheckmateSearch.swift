@@ -13,7 +13,7 @@ struct CheckmateSearch {
     ///   - maxDepth: 最大搜索深度（半步数）
     ///   - timeLimitMs: 超时毫秒数，nil 表示不限制
     /// - Returns: 杀法走法序列，从进攻方的第一步将军开始
-    static func search(board: SearchBoard, for side: Side, maxDepth: Int, timeLimitMs: Int? = nil) -> [Move]? {
+    static func search(board: LegacySearchBoard, for side: Side, maxDepth: Int, timeLimitMs: Int? = nil) -> [Move]? {
         var mutableBoard = board
         let startTime = Date()
         var path: [Move] = []
@@ -32,7 +32,7 @@ struct CheckmateSearch {
     /// ⚠️ 不用 defer：for 循环中 defer 延迟到函数退出，不在迭代结束时触发。
     /// 每个分支必须手动 board.undoLastMove()。
     private static func dfs(
-        board: inout SearchBoard, side: Side, depth: Int, maxDepth: Int,
+        board: inout LegacySearchBoard, side: Side, depth: Int, maxDepth: Int,
         path: inout [Move], startTime: Date, timeLimitMs: Int?
     ) -> Bool {
         // 超时检查
@@ -101,7 +101,7 @@ struct CheckmateSearch {
     }
 
     /// 应将走法简单排序评分：吃子优先、走向己方九宫附近优先、阻挡攻击线加分。
-    private static func moveScore(_ move: Move, on board: SearchBoard) -> Int {
+    private static func moveScore(_ move: Move, on board: LegacySearchBoard) -> Int {
         var score = 0
         // 吃子加分
         if let captured = move.captured {
@@ -150,7 +150,7 @@ struct CheckmateSearch {
     }
 
     /// 计算两个位置之间（不含两端）的棋子数量（仅限同行或同列）
-    private static func countPiecesBetween(_ a: Position, _ b: Position, on board: SearchBoard) -> Int {
+    private static func countPiecesBetween(_ a: Position, _ b: Position, on board: LegacySearchBoard) -> Int {
         var count = 0
         if a.row == b.row {
             let minCol = min(a.col, b.col) + 1

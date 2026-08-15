@@ -16,7 +16,7 @@ struct CheckmateSearchTests {
         let board = Board(pieces: [rg, bg, rc])
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 8)
         #expect(result != nil)
         if let moves = result {
             #expect(!moves.isEmpty)
@@ -32,7 +32,7 @@ struct CheckmateSearchTests {
         let board = Board(pieces: [rg, bg, rc1, rc2])
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 8)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 8)
         #expect(result != nil)
     }
 
@@ -42,7 +42,7 @@ struct CheckmateSearchTests {
         let board = Board()
         board.setCurrentTurn(.red)
 
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 4)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 4)
         // 初始局面 depth=4 内不太可能有连将杀
         // 不做严格断言，只验证不崩溃
         _ = result
@@ -53,7 +53,7 @@ struct CheckmateSearchTests {
         let board = Board()
         board.setCurrentTurn(.red)
         // 极短超时
-        let result = CheckmateSearch.search(board: SearchBoard(from: board), for: .red, maxDepth: 12, timeLimitMs: 1)
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 12, timeLimitMs: 1)
         // 超时应安全退出
         _ = result
     }
