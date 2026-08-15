@@ -287,7 +287,11 @@ actor AIEngine: AIEngineProtocol {
 
         let killTimeLimit = isIOS ? 600 : 800
         if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
-            return killMoves.prefix(topK).map { ($0, 0) }
+            // A3r2 根治 A（docs/bugs/A3r2-first-cause-root-cause.md）：只返回杀法序列第一步。
+            // 旧实现 prefix(topK) 返回 m2/m3 未来着法，softmaxSelect 过滤循环对它们
+            // execute/undo → 棋子 id 盲搬漂移 → 棋盘腐败（A3-r2 OVERLAP 7 条现场）。
+            // 连将杀每步重新命中 CheckmateSearch，行为等价、语义正确。
+            return [killMoves[0]].map { ($0, 0) }
         }
 
         var config = AISearchConfig.hard
@@ -312,7 +316,8 @@ actor AIEngine: AIEngineProtocol {
 
         let killTimeLimit = isIOS ? 800 : 1200
         if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
-            return killMoves.prefix(topK).map { ($0, 0) }
+            // A3r2 根治 A（同 lvl4 注释，memo 见 docs/bugs/A3r2-first-cause-root-cause.md）
+            return [killMoves[0]].map { ($0, 0) }
         }
 
         var config = AISearchConfig.hard

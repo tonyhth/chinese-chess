@@ -197,7 +197,14 @@ final class SelfPlayRunner {
         }
 
         // 1. 过滤掉导致重复的候选（C1 回避逻辑）
+        // A3r2 根治 B（docs/bugs/A3r2-first-cause-root-cause.md）：前置一致性校验——
+        // 陈旧候选（from/captured 与棋盘实际不符，如杀法序列未来着法）不 execute，
+        // 从根切断 id 盲搬漂移；防一切未来来源的陈旧候选，与 A（治本）双保险。
         let nonRepeating = candidates.filter { candidate in
+            guard candidate.move.piece.position == candidate.move.from,
+                  board.piece(at: candidate.move.from)?.id == candidate.move.piece.id,
+                  candidate.move.captured?.id == board.piece(at: candidate.move.to)?.id
+            else { return false }  // 陈旧候选：跳过，不 execute（不漂移）
             board.execute(candidate.move)
             let fen = FENParser.generate(board: board)
             _ = board.undoLastMove()
