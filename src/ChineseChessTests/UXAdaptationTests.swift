@@ -119,6 +119,9 @@ struct UXAdaptationTests {
         @MainActor
 @Test("多次切换语言不丢失状态")
         func multipleSwitches() async {
+            // v6.2 断言清偿 P1：启用 TestL10nSupport 还原基建（Ruby 审）——终态 zh-Hans 不再跨套件泄漏
+            let saved = TestL10nSupport.injectZhHans()
+            defer { TestL10nSupport.restore(saved) }
             // v6.2 断言清偿：L10n.shared 为进程级单例，其他 Suite 的 zh-Hans 注入/恢复
             // 与本测试的 setLanguage 存在并行写竞态——中间态断言不可靠（fullrun2 实证）。
             // 保留测试本意（多次切换后状态不丢失）：只断言最终态，配一次竞态容忍复核。

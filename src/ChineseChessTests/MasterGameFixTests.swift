@@ -11,7 +11,7 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 MasterGameBrowserView 使用 master.noData（不再用 demo.noData）
     func testMasterGameUsesMasterNoDataKey() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
@@ -116,7 +116,7 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 MasterGameBrowserView 不再有硬编码 .frame(width: 200)
     func testNoHardcodedSidebarWidth() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
@@ -161,7 +161,8 @@ final class MasterGameFixTests: XCTestCase {
     }
 
     /// 验证播放布局全幅棋盘（v6.2 断言清偿：播放模式已无 sidebar——全幅棋盘+控制条架构）
-    func testPlayLayoutSidebarFrame() {
+    /// 台账锚点：原 testPlayLayoutSidebarFrame，2026-08-16 Ruby P1 更名——旧名与断言方向相反（断言的是无 sidebar）
+    func testPlayLayoutFullBoardNoSidebar() {
         let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
@@ -196,7 +197,7 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 listContent 的 onAppear 中包含 selectedEvent/Player/Opening/Subcategory 的手动 rebuild
     func testOnAppearHasManualRebuildForSelectedFilters() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
@@ -226,7 +227,7 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 onAppear 分支优先级正确：loadIndex → useMoveSequenceFilter → selected*
     func testOnAppearBranchPriority() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
@@ -255,7 +256,7 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 onChange 仍存在（没有被 onAppear 替代）
     func testOnChangeStillPresent() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
