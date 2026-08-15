@@ -7,13 +7,6 @@ struct SettingsView: View {
     @AppStorage("chinesechess.notationFormat") private var notationFormat: String = "chinese"
     private let l10n = L10n.shared
 
-    /// Bundle 真实版本（CFBundleShortVersionString + build），plist 机制化后与发布线同步
-    static var appVersion: String {
-        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
-        let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
-        return v == b ? v : "\(v) (\(b))"
-    }
-
     var body: some View {
         Form {
                 // 难度设置（v6.0: 10 级分组）
@@ -117,6 +110,16 @@ struct SettingsView: View {
 
                 Section(l10n.t("settings.aboutSection")) {
                     NavigationLink {
+                        AboutView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "info.circle")
+                                .foregroundColor(.brown)
+                            Text(l10n.t("settings.aboutSection"))
+                        }
+                    }
+
+                    NavigationLink {
                         PrivacyPolicyView()
                     } label: {
                         HStack {
@@ -134,7 +137,7 @@ struct SettingsView: View {
                             .foregroundColor(.brown)
                         Text(l10n.t("settings.versionLabel"))
                         Spacer()
-                        Text(Self.appVersion)
+                        Text(AboutView.appVersion)
                             .foregroundColor(.secondary)
                     }
                 }
