@@ -25,6 +25,15 @@ actor AIEngine: AIEngineProtocol {
 
     /// v4.0: 节点计数器，用于 negamax 内部周期性时间检查
     private var nodeCount: Int = 0
+    /// Phase 1 NPS 遥测（D2 P0）：跨迭代累加（nodeCount 每次根搜索清零，收尾只读末迭代的 bug 修正）
+    private var totalNodes: Int = 0
+    /// Phase 1 NPS 遥测：QS 节点单独计数（NPS 口径声明用，v1.2 §6.3-3）
+    private var qsNodes: Int = 0
+    /// Phase 1 NPS 遥测（D2 P0）：末次根搜索是否搜完全部走法（部分迭代不计入 completedDepth）
+    private var lastIterationFullySearched: Bool = true
+    /// Phase 1 NPS 遥测：末次 IDS 完成深度（--nps-bench 回传用）
+    private(set) var lastCompletedDepth: Int = 0
+    private var npsLogEnabled: Bool { ProcessInfo.processInfo.environment["NPS_LOG"] == "1" }
     /// v4.0: 搜索中的 TimeManager 引用（negamax 内部检查用）
     private var activeTimeManager: TimeManager? = nil
     /// 每 4096 个节点检查一次时间
@@ -160,6 +169,8 @@ actor AIEngine: AIEngineProtocol {
                                   timeManager: TimeManager? = nil,
                                   topK: Int = 3) -> [(move: Move, score: Int)]? {
         nodeCount = 0
+        qsNodes = 0
+        lastIterationFullySearched = true
         activeTimeManager = timeManager
         // P0 归因探针：make/unmake 平衡断言（Debug，位置保真版——计数平衡不足以检出 teleport）
         #if DEBUG
@@ -202,7 +213,10 @@ actor AIEngine: AIEngineProtocol {
         let usePVS = resolvedConfig.enablePVS
 
         for (moveIndex, move) in orderedMoves.enumerated() {
-            if let tm = timeManager, tm.shouldStop { break }
+            if let tm = timeManager, tm.shouldStop {
+                lastIterationFullySearched = false  // D2 P0：部分迭代不计入 completedDepth
+                break
+            }
 
             let childHash = ZobristHash.update(hash: hash, piece: move.piece,
                                               from: move.from, to: move.to,
@@ -338,6 +352,8 @@ actor AIEngine: AIEngineProtocol {
         var bestResult: [(move: Move, score: Int)]? = nil
         var tm = timeManager
         var completedDepth = 0
+        totalNodes = 0
+        let npsStart = ProcessInfo.processInfo.systemUptime
 
         for depth in 2...maxDepth {
             if searchConfig.enableSmartTime {
@@ -345,18 +361,50 @@ actor AIEngine: AIEngineProtocol {
             }
             if tm.shouldStop { break }
 
+            let iterStart = ProcessInfo.processInfo.systemUptime
             if let result = rootSearchScored(for: &board, depth: depth, useTT: true, useMoveOrder: true,
                                               searchConfig: searchConfig,
                                               timeManager: tm, topK: topK) {
                 bestResult = result
-                completedDepth = depth
+                if lastIterationFullySearched {
+                    completedDepth = depth  // D2 P0：部分迭代不进入 completedDepth
+                }
+            }
+            totalNodes += nodeCount  // D2 P0：跨迭代累加
+            if npsLogEnabled {
+                let iterElapsed = Int((ProcessInfo.processInfo.systemUptime - iterStart) * 1000)
+                let iterNps = iterElapsed > 0 ? nodeCount * 1000 / iterElapsed : 0
+                print("[NPS] lvl=\(depthLogLabel) depth=\(depth) iterNodes=\(nodeCount) qsNodes=\(qsNodes) iterMs=\(iterElapsed) iterNps=\(iterNps) fullySearched=\(lastIterationFullySearched)")
             }
 
             tm.recordIterationComplete()
         }
+        lastCompletedDepth = completedDepth
         logCompletedDepth(label: depthLogLabel, completedDepth: completedDepth,
                           budgetDepth: maxDepth, elapsedMs: tm.elapsedMs)
+        if npsLogEnabled {
+            let totalElapsed = Int((ProcessInfo.processInfo.systemUptime - npsStart) * 1000)
+            let avgNps = totalElapsed > 0 ? totalNodes * 1000 / totalElapsed : 0
+            print("[NPS] lvl=\(depthLogLabel) totalNodes=\(totalNodes) totalMs=\(totalElapsed) avgNps=\(avgNps)")
+        }
         return bestResult
+    }
+
+    // MARK: - Phase 1: NPS 基线测量入口（--nps-bench 专用）
+
+    /// 直连 IDS，绕过开局库/CheckmateSearch（v1.2 §6 + D2 P1-2：窗口 = TimeManager elapsedMs）。
+    /// 返回 (totalNodes, elapsedMs, completedDepth)；单局面 120s 熔断（v1.2 P2-6）。
+    /// 温度随机关闭（固定取 top-1），纯搜索压力测量。
+    func npsBench(board: Board, maxDepth: Int) -> (totalNodes: Int, elapsedMs: Int, completedDepth: Int)? {
+        calibrationContempt = 0
+        var workBoard = SearchBoard(from: board)
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = 0
+        let tm = TimeManager(timeLimitMs: 120_000, startTime: Date())
+        guard iterativeDeepeningSearchScored(for: &workBoard, maxDepth: maxDepth, timeManager: tm,
+                                             searchConfig: config, topK: 1,
+                                             depthLogLabel: "nps-bench") != nil else { return nil }
+        return (totalNodes, tm.elapsedMs, lastCompletedDepth)
     }
 
     // MARK: - 新手：depth-1 搜索 + top-3 加权随机（v2.1）
@@ -395,7 +443,7 @@ actor AIEngine: AIEngineProtocol {
             return max(1, offset * offset)
         }
         let totalWeight = weights.reduce(0, +)
-        var r = Int.random(in: 0..<totalWeight)
+        var r = SeededRandom.int(in: 0..<totalWeight)  // Phase 1 seed 注入点③
         for (i, w) in weights.enumerated() {
             r -= w
             if r < 0 { return candidates[i].move }
@@ -411,6 +459,8 @@ actor AIEngine: AIEngineProtocol {
                             timeManager: TimeManager? = nil) -> Move? {
         // v4.0: 重置节点计数器和时间管理器
         nodeCount = 0
+        qsNodes = 0
+        lastIterationFullySearched = true
         activeTimeManager = timeManager
 
         // P1 fix: 统一 resolve searchConfig，确保 evalConfig（含 contempt）传播到 negamax
@@ -444,7 +494,10 @@ actor AIEngine: AIEngineProtocol {
         let usePVS = resolvedConfig.enablePVS
 
         for (moveIndex, move) in orderedMoves.enumerated() {
-            if let tm = timeManager, tm.shouldStop { break }
+            if let tm = timeManager, tm.shouldStop {
+                lastIterationFullySearched = false  // D2 P0
+                break
+            }
 
             // #7: 走法执行前增量计算子局面哈希
             let childHash = ZobristHash.update(hash: hash, piece: move.piece,
@@ -572,6 +625,8 @@ actor AIEngine: AIEngineProtocol {
         var bestMoveSoFar: Move?
         var tm = timeManager
         var completedDepth = 0
+        totalNodes = 0
+        let npsStart = ProcessInfo.processInfo.systemUptime
 
         for depth in 2...maxDepth {
             if searchConfig.enableSmartTime {
@@ -579,17 +634,32 @@ actor AIEngine: AIEngineProtocol {
             }
             if tm.shouldStop { break }
 
+            let iterStart = ProcessInfo.processInfo.systemUptime
             if let move = rootSearch(for: &board, depth: depth, useTT: true, useMoveOrder: true,
                                       searchConfig: searchConfig,
                                       timeManager: tm) {
                 bestMoveSoFar = move
-                completedDepth = depth
+                if lastIterationFullySearched {
+                    completedDepth = depth  // D2 P0：部分迭代不进入 completedDepth
+                }
+            }
+            totalNodes += nodeCount  // D2 P0：跨迭代累加
+            if npsLogEnabled {
+                let iterElapsed = Int((ProcessInfo.processInfo.systemUptime - iterStart) * 1000)
+                let iterNps = iterElapsed > 0 ? nodeCount * 1000 / iterElapsed : 0
+                print("[NPS] lvl=\(depthLogLabel) depth=\(depth) iterNodes=\(nodeCount) qsNodes=\(qsNodes) iterMs=\(iterElapsed) iterNps=\(iterNps) fullySearched=\(lastIterationFullySearched)")
             }
 
             tm.recordIterationComplete()
         }
+        lastCompletedDepth = completedDepth
         logCompletedDepth(label: depthLogLabel, completedDepth: completedDepth,
                           budgetDepth: maxDepth, elapsedMs: tm.elapsedMs)
+        if npsLogEnabled {
+            let totalElapsed = Int((ProcessInfo.processInfo.systemUptime - npsStart) * 1000)
+            let avgNps = totalElapsed > 0 ? totalNodes * 1000 / totalElapsed : 0
+            print("[NPS] lvl=\(depthLogLabel) totalNodes=\(totalNodes) totalMs=\(totalElapsed) avgNps=\(avgNps)")
+        }
         return bestMoveSoFar
     }
 
@@ -713,8 +783,8 @@ actor AIEngine: AIEngineProtocol {
         // 走法排序
         if useMoveOrder {
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
-            let cmMove: Move? = searchConfig.enableCountermove ? moveOrderer.getCountermove(for: board.moveHistory.last) : nil
-            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth, countermove: cmMove)
+            let cmKey: Int? = searchConfig.enableCountermove ? moveOrderer.getCountermoveKey(for: board.moveHistory.last) : nil
+            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth, countermoveKey: cmKey)
         } else if depth >= 2 {
             moves = orderMovesSimple(moves)
         }
@@ -847,6 +917,7 @@ actor AIEngine: AIEngineProtocol {
                        "quiescenceSearch make/unmake 不平衡: 入口\(histAtEntry) 出口\(board.moveHistory.count)") }
         // v3.9.1: QS 内部时间检查（防止 master maxQSDepth=6 超时）
         nodeCount += 1
+        qsNodes += 1  // Phase 1 NPS 口径：QS 节点单独计数（v1.2 §6.3-3）
         if nodeCount & (timeCheckInterval - 1) == 0, let tm = activeTimeManager, tm.shouldStop {
             return evaluator.evaluate(board, config: searchConfig.evalConfig)
         }
