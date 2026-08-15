@@ -16,6 +16,9 @@ import Testing
 /// 断言"漂移会发生"恰是 Board.execute/undo 现行腐败语义。根治修复合入后，本组测试
 /// **应当变红**（届时将断言反转为守恒断言，或按修复语义重写）；绿 = 腐败机制仍在，
 /// 红 = 根治生效。commit a409d3e message 中"回归测试"系误称，以本注释为准。
+///
+/// ⚠️ 更正（2026-08-15，Luke 裁定/Cody 指出）：本组直接调 Board.execute 绕过 softmaxSelect，
+/// 恒绿与根治解耦，回归语义由 m1 重写版（5c51f91）承担——80c2f2d"根治后应变红"表述系误判。
 @Suite("A3r2 第一因：陈旧候选 execute/undo 漂移语义")
 struct A3r2FirstCauseTests {
 
