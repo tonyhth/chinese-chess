@@ -125,61 +125,71 @@ final class MasterGameFixTests: XCTestCase {
                        "不应再有 .frame(width: 200) 硬编码宽度")
     }
 
-    /// 验证有2处 .frame(minWidth: 200, idealWidth: 200)
+    /// 验证浏览模式 sidebar 宽度约束（v6.2 断言清偿：布局已演进为 maxWidth: 240，旧 minWidth/idealWidth 200 作废）
     func testSidebarUsesMinWidthIdealWidth() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
         }
 
-        let target = ".frame(minWidth: 200, idealWidth: 200)"
+        let target = ".frame(maxWidth: 240)"
         let occurrences = content.components(separatedBy: target).count - 1
-        XCTAssertEqual(occurrences, 2,
-                       "应有2处 .frame(minWidth: 200, idealWidth: 200)（浏览模式 + 播放模式），实际\(occurrences)次")
+        XCTAssertEqual(occurrences, 1,
+                       "浏览模式 sidebar 应有1处 .frame(maxWidth: 240)，实际\(occurrences)次")
     }
 
-    /// 验证 sidebar 布局：浏览模式中 minWidth:200 在 sidebar 之后
+    /// 验证顶部工具栏布局（v6.2 断言清偿：v4 起 sidebar 已删除——:48 注释存证，宽度约束迁移至
+    /// browserTopBar 的 modePicker maxWidth:240；方法名保留存量对账不改）
     func testBrowserLayoutSidebarFrame() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
         }
 
-        let lines = content.components(separatedBy: "\n")
-        for (i, line) in lines.enumerated() {
-            if line.contains(".frame(minWidth: 200, idealWidth: 200)") {
-                // 检查前几行是否有 sidebar
-                let context = lines[max(0, i-3)...i].joined(separator: " ")
-                XCTAssertTrue(context.contains("sidebar"),
-                              "第\(i+1)行的 minWidth:200 应紧邻 sidebar 调用")
-            }
+        guard let barRange = content.range(of: "private var browserTopBar") else {
+            XCTFail("找不到 browserTopBar 定义")
+            return
         }
+        let upper = content.index(barRange.lowerBound, offsetBy: 400, limitedBy: content.endIndex) ?? content.endIndex
+        let barBody = String(content[barRange.lowerBound..<upper])
+        XCTAssertTrue(barBody.contains("modePicker"), "browserTopBar 应包含 modePicker")
+        XCTAssertTrue(barBody.contains(".frame(maxWidth: 240)"),
+                      "modePicker 应使用 .frame(maxWidth: 240) 限宽（现状布局）")
+        XCTAssertTrue(barBody.contains("searchField"), "browserTopBar 应包含 searchField")
     }
 
-    /// 验证 sidebar minWidth 在播放布局中也存在
+    /// 验证播放布局全幅棋盘（v6.2 断言清偿：播放模式已无 sidebar——全幅棋盘+控制条架构）
     func testPlayLayoutSidebarFrame() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/MasterGameBrowserView.swift"
+        let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
             return
         }
 
-        // macosPlayLayout 函数应包含 sidebar + minWidth:200
+        // macosPlayLayout 函数应为全幅布局（无 sidebar）
         XCTAssertTrue(content.contains("macosPlayLayout"), "应有 macosPlayLayout 函数")
 
-        // 找到 macosPlayLayout 函数体
         if let playLayoutRange = content.range(of: "func macosPlayLayout") {
             let afterFunc = String(content[playLayoutRange.lowerBound...])
-            // 取前500字符（函数体应该不会太长）
             let funcBody = String(afterFunc.prefix(500))
-            XCTAssertTrue(funcBody.contains("sidebar"), "macosPlayLayout 应包含 sidebar")
-            XCTAssertTrue(funcBody.contains(".frame(minWidth: 200, idealWidth: 200)"),
-                          "macosPlayLayout 中 sidebar 应使用 .frame(minWidth: 200, idealWidth: 200)")
+            XCTAssertTrue(funcBody.contains("DemoBoardView"), "macosPlayLayout 应包含 DemoBoardView（全幅棋盘）")
+            XCTAssertFalse(funcBody.contains("sidebar"), "播放模式不应包含 sidebar（已演进为全幅布局）")
         } else {
             XCTFail("找不到 macosPlayLayout 函数")
         }
+    }
+
+    /// v6.2 断言清偿：#file 相对路径解析（原绝对路径指向主库——测试移动目标，现指向当前树）
+    private static func masterGameBrowserViewPath() -> String {
+        URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("ChineseChess")
+            .appendingPathComponent("Views")
+            .appendingPathComponent("MasterGameBrowserView.swift")
+            .path
     }
 
     // MARK: - Bug 4 追加：.onAppear 根因修复（iOS listContent 空列表）
