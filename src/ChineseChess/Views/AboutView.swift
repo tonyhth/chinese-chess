@@ -5,6 +5,7 @@ import SwiftUI
 /// 关于页：版本（Bundle 真实版本，依赖 Info.plist $(MARKETING_VERSION) 机制）/ 版权 / 隐私政策 / 反馈入口。
 /// Settings 关于区 NavigationLink 进入，iOS/macOS 共用。
 struct AboutView: View {
+    private let l10n = L10n.shared
     /// 反馈邮箱：待 Luke 提供后填入即激活反馈行（空串=行隐藏，不放假链接）
     static let feedbackEmail = ""  // TODO(Luke): 填反馈邮箱后反馈行自动出现
 
