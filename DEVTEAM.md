@@ -168,3 +168,30 @@ git log --oneline -3   # 确认 Phase commit 存在
 git diff --stat        # 确认 working tree 干净
 ```
 working tree 不为空 → 不算验收通过。
+
+## 工作区与并行协作（2026-08-16 起，7 人团队）
+
+### 工作区划分（线级隔离）
+- **主树**（~/DevTeam/projects/chinese-chess，m1 分支）：Cody 专用（M1 引擎线 P2-P5）
+- **/tmp/v62-wt**（v6.2 分支 worktree）：Eric（布局+HIG UI 修复）与 Tina（断言清偿验证批）共享
+- worktree 重建后必须重新 rsync gitignored 资产（ChineseChess-iOS/ + data/ + src/ChineseChess/Pikafish/，清单见 deploy-ios.sh）
+
+### 共享 worktree git 卫生（v62-wt 双人期间）
+1. `git add` 只按具体文件路径，**禁止 -A / -u**（防误收对方 WIP；2026-08-15 git 手术 add -A 教训）
+2. commit 前自查：`git diff --cached --name-only` 只含自己的文件
+3. 遇 `index.lock`：等 10s 重试，不删锁
+4. 文件面分工：Eric→Views/ 新增实现+新建测试；Tina→ChineseChessTests/ 存量重写
+
+### worktree 拆分触发（预登记，双门槛）
+- 条件：Tina 断言批与 Eric 布局重叠 >2 天 **且** 锁冲突/误收事故 ≥1 次
+- 动作：Tina 迁独立 worktree（v6.2-tests 分支，Luke 定期合并）；迁移时带上 fixture 资产清单（批次新造 fixture 可能引用 data/ 路径）
+- 依据：断言批=收敛型任务（批次结束设施即废），布局=生长型任务（Eric 长期驻地）——不为收敛型建永久设施
+
+### 合并仲裁（单口原则）
+- **所有跨分支合并归 Luke**：v6.2→main、m1→main、（若拆分）v6.2-tests→v6.2
+- Eric/Tina/Cody 只 commit 不 merge——双头合并是 2026-08-15 手术场景的种子
+
+### Eric 首日验证清单（2026-08-16 执行）
+- 飞书群 bot 路由实测（Danny bot 230002 前鉴）
+- HIG P1-1 练手单全升级链走真：编码→Ruby 审→Tina 验
+- HIG P1-1 的 alert 文案过 Vera 增量 HIG 对照（触发式 HIG 规约首例实践）
