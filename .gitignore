@@ -65,3 +65,7 @@ src/ChineseChess/Pikafish/build_test.sh
 .build_release/
 docs/phases/
 calibration-results/
+
+# A3 崩溃遥测与自对弈运行时产物（可随时再生）
+overlap-dumps/
+selfplay-results/

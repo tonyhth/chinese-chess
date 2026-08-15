@@ -70,6 +70,16 @@ struct SearchBoard: BoardReadable {
         }
         moveHistory.append(move)
         currentTurn = (currentTurn == .red) ? .black : .red
+        // P0 遥测：Debug 下检出腐败 dump-继续（与 Board 同语义，详见 Board.swift 注释）
+        #if DEBUG
+        let problems = Board.integrityProblems(in: pieces)
+        if !problems.isEmpty {
+            BoardIntegrityLogger.dumpOverlap(reason: "SearchBoard.execute",
+                                             pieces: pieces,
+                                             recentMoves: Array(moveHistory.suffix(10)),
+                                             detail: problems.joined(separator: " | "))
+        }
+        #endif
     }
 
     @discardableResult
@@ -84,6 +94,16 @@ struct SearchBoard: BoardReadable {
         }
 
         currentTurn = (currentTurn == .red) ? .black : .red
+        // P0 遥测：Debug 下检出腐败 dump-继续
+        #if DEBUG
+        let problems = Board.integrityProblems(in: pieces)
+        if !problems.isEmpty {
+            BoardIntegrityLogger.dumpOverlap(reason: "SearchBoard.undoLastMove",
+                                             pieces: pieces,
+                                             recentMoves: Array(moveHistory.suffix(10)),
+                                             detail: problems.joined(separator: " | "))
+        }
+        #endif
         return move
     }
 

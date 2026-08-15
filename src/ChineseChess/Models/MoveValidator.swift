@@ -278,6 +278,19 @@ struct MoveValidator {
     // MARK: - 辅助方法
 
     private static func countPiecesBetween<T: BoardReadable>(from: Position, to: Position, on board: T) -> Int {
+        // A3 崩溃修复：from == to 时 (minC+1)..<maxC 会变成 (c+1)..<c
+        // → Swift runtime trap "Range requires lowerBound <= upperBound" (SIGILL)
+        // 触发路径：canAttack(車, target: 己方将位) 且棋盘数据异常导致二者同格
+        // 语义：同格之间棋子数为 0；同时 dump 现场（去抖）供根治分析
+        if from == to {
+            // 顺序铁律：先 dump 再安全返回（反了 = 吞异常丢数据）
+            BoardIntegrityLogger.dumpOverlap(
+                reason: "countPiecesBetween_from==to",
+                pieces: board.pieces,
+                recentMoves: Array(board.moveHistory.suffix(10)),
+                detail: "from==to==(\(from.row),\(from.col)) countPiecesBetween 防御命中")
+            return 0
+        }
         var count = 0
         if from.row == to.row {
             let minC = min(from.col, to.col)
@@ -298,6 +311,8 @@ struct MoveValidator {
     // v3.9: canAttack 复用 isMovePatternValid，消除与 isValidXxxMove 的逻辑不一致
     // 审计发现三处偏差：象半场检查用 from（应为 target）、士宫殿检查属性错、将分支为死代码
     static func canAttack<T: BoardReadable>(piece: Piece, target: Position, on board: T) -> Bool {
+        // 棋子不攻击自己所在的格子（含数据异常时同格的防御：A3 崩溃直接触发点）
+        guard piece.position != target else { return false }
         // 攻击目标必须是对方棋子或空位（canAttack 只判断攻击范围，不检查目标归属）
         // isMovePatternValid 已包含宫殿/半场/蹩腿等约束
         return isMovePatternValid(for: piece, from: piece.position, to: target, on: board)

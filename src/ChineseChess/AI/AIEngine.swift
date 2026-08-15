@@ -161,6 +161,18 @@ actor AIEngine: AIEngineProtocol {
                                   topK: Int = 3) -> [(move: Move, score: Int)]? {
         nodeCount = 0
         activeTimeManager = timeManager
+        // P0 归因探针：make/unmake 平衡断言（Debug，位置保真版——计数平衡不足以检出 teleport）
+        #if DEBUG
+        let histAtEntry = board.moveHistory.count
+        let piecesAtEntry = board.pieces.map { "\($0.id):\($0.position.row),\($0.position.col)" }.sorted()
+        defer {
+            assert(board.moveHistory.count == histAtEntry,
+                   "rootSearchScored make/unmake 计数不平衡: 入口\(histAtEntry) 出口\(board.moveHistory.count)")
+            let piecesAtExit = board.pieces.map { "\($0.id):\($0.position.row),\($0.position.col)" }.sorted()
+            assert(piecesAtExit == piecesAtEntry,
+                   "rootSearchScored 位置保真失败——引擎内部 teleport（陈旧候选第一因）：\n入口\(piecesAtEntry)\n出口\(piecesAtExit)")
+        }
+        #endif
 
         // P1 fix: 统一 resolve searchConfig，确保 evalConfig（含 contempt）传播到 negamax
         let resolvedConfig = searchConfig ?? {
@@ -589,6 +601,10 @@ actor AIEngine: AIEngineProtocol {
                          hash: UInt64,  // #7: 增量哈希参数
                          useTT: Bool, useMoveOrder: Bool, evalConfig: AIEvalConfig = .basic,
                          extensions: Int = 0, searchConfig: AISearchConfig = .default) -> Int {
+        // P0 归因探针：make/unmake 平衡断言（Debug）
+        let histAtEntry = board.moveHistory.count
+        defer { assert(board.moveHistory.count == histAtEntry,
+                       "negamax make/unmake 不平衡: depth=\(depth) 入口\(histAtEntry) 出口\(board.moveHistory.count)") }
         // v4.0: 周期性时间检查，防止超时
         nodeCount += 1
         if nodeCount & (timeCheckInterval - 1) == 0, // 每 4096 节点
@@ -820,6 +836,10 @@ actor AIEngine: AIEngineProtocol {
         qDepth: Int,
         searchConfig: AISearchConfig
     ) -> Int {
+        // P0 归因探针：make/unmake 平衡断言（Debug）
+        let histAtEntry = board.moveHistory.count
+        defer { assert(board.moveHistory.count == histAtEntry,
+                       "quiescenceSearch make/unmake 不平衡: 入口\(histAtEntry) 出口\(board.moveHistory.count)") }
         // v3.9.1: QS 内部时间检查（防止 master maxQSDepth=6 超时）
         nodeCount += 1
         if nodeCount & (timeCheckInterval - 1) == 0, let tm = activeTimeManager, tm.shouldStop {

@@ -69,6 +69,30 @@ class Board {
         return p
     }
 
+    // MARK: - 棋盘完整性校验（A3 EXIT:132 崩溃防御）
+
+    /// 校验 pieces 数组完整性：无重复位置、无重复 ID
+    /// 背景：A3 自对弈崩溃根因是棋盘数据腐败（車与将同格）导致
+    /// canAttack → countPiecesBetween(from==to) → runtime trap (SIGILL)
+    /// Debug 构建在 Board/SearchBoard 每次 execute/undo 后断言，第一时间暴露腐败点
+    /// Release 构建无开销（assert 编译期移除）
+    static func integrityProblems(in pieces: [Piece]) -> [String] {
+        var problems: [String] = []
+        var posOwner: [Position: (id: Int, kind: PieceKind)] = [:]
+        var seenIds = Set<Int>()
+        for p in pieces {
+            if let other = posOwner[p.position] {
+                problems.append("重复位置(row:\(p.position.row),col:\(p.position.col)): id=\(other.id)(\(other.kind)) 与 id=\(p.id)(\(p.kind))")
+            } else {
+                posOwner[p.position] = (p.id, p.kind)
+            }
+            if !seenIds.insert(p.id).inserted {
+                problems.append("重复 ID: \(p.id)")
+            }
+        }
+        return problems
+    }
+
     // MARK: - 查询
 
     func piece(at pos: Position) -> Piece? {
@@ -100,6 +124,17 @@ class Board {
         }
         moveHistory.append(move)
         currentTurn = (currentTurn == .red) ? .black : .red
+        // P0 遥测：Debug 下检出腐败 dump-继续（不 assert 崩——遗留演示/解说路径存在
+        // 宽松走法序列，fatal 会误杀合法测试；数据捕获语义与 Release 检查点一致）
+        #if DEBUG
+        let problems = Self.integrityProblems(in: pieces)
+        if !problems.isEmpty {
+            BoardIntegrityLogger.dumpOverlap(reason: "Board.execute",
+                                             pieces: pieces,
+                                             recentMoves: Array(moveHistory.suffix(10)),
+                                             detail: problems.joined(separator: " | "))
+        }
+        #endif
     }
 
     func undoLastMove() -> Move? {
@@ -115,6 +150,17 @@ class Board {
         }
 
         currentTurn = (currentTurn == .red) ? .black : .red
+        // P0 遥测：Debug 下检出腐败 dump-继续（fidelity 运行正是此处断言捕获 softmaxSelect
+        // 过滤循环的 teleport 现场——改为 dump 后同样拿到调用栈，且不杀进程）
+        #if DEBUG
+        let problems = Self.integrityProblems(in: pieces)
+        if !problems.isEmpty {
+            BoardIntegrityLogger.dumpOverlap(reason: "Board.undoLastMove",
+                                             pieces: pieces,
+                                             recentMoves: Array(moveHistory.suffix(10)),
+                                             detail: problems.joined(separator: " | "))
+        }
+        #endif
         return move
     }
 

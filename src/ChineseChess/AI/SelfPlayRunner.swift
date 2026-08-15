@@ -224,6 +224,64 @@ final class SelfPlayRunner {
         return pool[0].move  // fallback
     }
 
+    // MARK: - P0 遥测：playGame 边界检查点（A3 EXIT:132 根治）
+
+    /// 执行前检查：move 快照 vs 棋盘实际状态（Release 生效，检出 dump 后继续）
+    /// - C1: move.piece 是否仍在 from 且 id/类型/方一致（过期快照检查）
+    /// - C2: move.captured 与棋盘 to 位实际棋子一致性（captured 生成缺陷检查）
+    /// - C3: 执行前棋盘完整性（重叠/重复 ID 检查）
+    private static func preExecuteCheckpoint(_ board: Board, move: Move, gameIndex: Int, ply: Int) {
+        var problems: [String] = []
+
+        // C0: 外部突变探针——board 历史长度/走子方/boardId（与 playGame 本地状态交叉验证）
+        let boardTurn = board.currentTurn == .red ? "red" : "black"
+        let moverTurn = move.piece.side == .red ? "red" : "black"
+        if boardTurn != moverTurn {
+            problems.append("C0 board.currentTurn=\(boardTurn) 但行棋方=\(moverTurn)")
+        }
+
+        // C1: 过期快照检查
+        if let actual = board.piece(at: move.from) {
+            if actual.id != move.piece.id {
+                problems.append("C1 move.piece(id=\(move.piece.id) \(move.piece.kind)) 在 from(\(move.from.row),\(move.from.col)) 实际是 id=\(actual.id) \(actual.kind) —— 过期快照")
+            }
+        } else {
+            problems.append("C1 from(\(move.from.row),\(move.from.col)) 无棋子，但 move.piece=id\(move.piece.id) \(move.piece.kind)")
+        }
+
+        // C2: captured 快照一致性
+        let target = board.piece(at: move.to)
+        if move.captured?.id != target?.id {
+            problems.append("C2 move.captured=\(move.captured.map { "id=\($0.id) \($0.kind)" } ?? "nil") != 棋盘 to 位=\(target.map { "id=\($0.id) \($0.kind)" } ?? "nil")")
+        }
+
+        // C3: 执行前完整性
+        problems.append(contentsOf: Board.integrityProblems(in: board.pieces).map { "C3 \($0)" })
+
+        guard !problems.isEmpty else { return }
+        let extra = " [probe histCount=\(board.moveHistory.count) localPlyLabel=\(ply + 1) boardId=\(ObjectIdentifier(board).hashValue)]"
+        BoardIntegrityLogger.dumpOverlap(
+            reason: "playGame_preExecute game#\(gameIndex + 1) ply#\(ply + 1)",
+            pieces: board.pieces,
+            recentMoves: Array(board.moveHistory.suffix(10)),
+            detail: problems.joined(separator: " | ") + extra)
+    }
+
+    /// 执行后检查：棋盘完整性 + 历史长度同步（Release 生效，检出 dump 后继续）
+    private static func postExecuteCheckpoint(_ board: Board, move: Move, gameIndex: Int, ply: Int) {
+        var problems = Board.integrityProblems(in: board.pieces)
+        // C0-post：board 历史长度应等于 ply+1（playGame 与 board 同步追加）
+        if board.moveHistory.count != ply + 1 {
+            problems.append("C0-post board.moveHistory.count=\(board.moveHistory.count) ≠ 预期 \(ply + 1)——外部 make/unmake 篡改历史")
+        }
+        guard !problems.isEmpty else { return }
+        BoardIntegrityLogger.dumpOverlap(
+            reason: "playGame_postExecute game#\(gameIndex + 1) ply#\(ply + 1)",
+            pieces: board.pieces,
+            recentMoves: Array(board.moveHistory.suffix(10)),
+            detail: "执行 move=id\(move.piece.id) \(move.piece.kind) (\(move.from.row),\(move.from.col))→(\(move.to.row),\(move.to.col)) 后: \(problems.joined(separator: " | "))")
+    }
+
     private func playGame(
         gameIndex: Int,
         redDifficulty: AIDifficulty,
@@ -241,6 +299,9 @@ final class SelfPlayRunner {
         while moveHistory.count < maxMoves {
             let currentSide = board.currentTurn
             let difficulty = (currentSide == .red) ? redDifficulty : blackDifficulty
+
+            // P0 遥测：更新运行上下文（防御点 dump 需要知道当前 lvl/局号/ply）
+            BoardIntegrityLogger.currentContext = "selfplay red=\(redDifficulty.rawValue) black=\(blackDifficulty.rawValue) game#\(gameIndex + 1) ply#\(moveHistory.count + 1) turn=\(difficulty.rawValue)"
 
             // C1: 取 top-3 候选走法，回避重复局面
             let candidates = await engine.bestMoves(for: board, difficulty: difficulty, isIOS: isIOS, topK: 3)
@@ -264,7 +325,10 @@ final class SelfPlayRunner {
             let temp = Self.softmaxTemperature(for: difficulty)
             let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts, temperature: temp)
 
+            // P0 遥测：边界检查点（检出异常 dump 后继续，不阻塞对弈）
+            Self.preExecuteCheckpoint(board, move: move, gameIndex: gameIndex, ply: moveHistory.count)
             board.execute(move)
+            Self.postExecuteCheckpoint(board, move: move, gameIndex: gameIndex, ply: moveHistory.count)
             let iccs = Self.iccsNotation(for: move)
             moveHistory.append(iccs)
 
