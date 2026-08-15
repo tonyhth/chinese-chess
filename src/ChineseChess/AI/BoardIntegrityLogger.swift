@@ -22,8 +22,13 @@ enum BoardIntegrityLogger {
     private static var lastDumpAt: [String: Date] = [:]
     private static let lock = NSLock()
 
-    /// 运行上下文（lvl 对局/局号/ply），由 SelfPlayRunner 每步更新，dump 时原样带上
-    static var currentContext: String = ""
+    /// 运行上下文（lvl 对局/局号/ply），由 SelfPlayRunner 每步更新，dump 时原样带上。
+    /// P1(Ruby 快审)：String 跨线程非原子——读写均过锁（写方=自对弈主循环，读方=搜索线程的 dumpOverlap）
+    private static var _currentContext: String = ""
+    static var currentContext: String {
+        get { lock.lock(); defer { lock.unlock() }; return _currentContext }
+        set { lock.lock(); defer { lock.unlock() }; _currentContext = newValue }
+    }
 
     /// 日志目录（相对 cwd；测试注入临时目录）
     static var logDirectory: String = "overlap-dumps"
@@ -57,11 +62,13 @@ enum BoardIntegrityLogger {
         let timestamp = ISO8601DateFormatter().string(from: now)
         let thread = Thread.current
         let threadName = thread.name ?? ""
+        // P1(Ruby): 经锁保护的计算属性读取，避免搜索线程读时撕裂
+        let context = currentContext
 
         var lines: [String] = []
         lines.append("=== OVERLAP \(reason) ===")
         lines.append("time: \(timestamp)")
-        lines.append("context: \(currentContext.isEmpty ? "(未设置)" : currentContext)")
+        lines.append("context: \(context.isEmpty ? "(未设置)" : context)")
         lines.append("thread: \(threadName.isEmpty ? "main" : threadName) (\(thread.isMainThread ? "main" : "background"))")
         if !detail.isEmpty { lines.append("detail: \(detail)") }
 
