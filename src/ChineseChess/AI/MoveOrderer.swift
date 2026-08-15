@@ -33,14 +33,14 @@ struct MoveOrderer {
         return (move.piece.side == .red ? 0 : 8100) + fromSq * 90 + toSq
     }
 
-    /// 走法压缩编码（不含 side，countermove 存值用）：fromSq * 90 + toSq → Int16
+    /// 走法压缩编码（不含 side）：M2 预留——countermove 存值改完整键后生产零调用（仅 M1Phase1Tests 往返验证）。保留供 M2 TT 紧凑条目（路线图 G）复用，届时重新评审
     static func packedMove(_ move: Move) -> Int16 {
         let fromSq = move.from.row * 9 + move.from.col
         let toSq = move.to.row * 9 + move.to.col
         return Int16(fromSq * 90 + toSq)
     }
 
-    /// 逆变换：完整键 → (side, fromSq, toSq)
+    /// 逆变换：完整键 → (side, fromSq, toSq)。M2 预留（同 packedMove 注释）
     static func unpackKey(_ key: Int) -> (side: Side, fromSq: Int, toSq: Int) {
         let side: Side = key >= 8100 ? .black : .red
         let base = key - (side == .red ? 0 : 8100)
@@ -54,7 +54,8 @@ struct MoveOrderer {
 
     /// 记录一个产生 beta cutoff 的走法
     mutating func recordCutoff(move: Move, depth: Int) {
-        historyTable[Self.historyKey(move)] &+= Int32(depth * depth)  // 深度加权（溢出安全：上限收敛）
+        // 深度加权；&+= 环回而非陷阱（极长对局理论可环回，排序分数噪声可接受，无正确性影响）
+        historyTable[Self.historyKey(move)] &+= Int32(depth * depth)
     }
 
     /// v3.0 Phase 2a: 记录 countermove（A-3 整数化：存回应方完整键，含 side）

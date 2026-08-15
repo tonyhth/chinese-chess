@@ -186,6 +186,14 @@ final class SelfPlayRunner {
     ///   - fenCounts: FEN 出现次数字典
     ///   - temperature: Softmax 温度（cp），默认 40
     /// - Returns: 选中的走法
+    /// A3r2 根治 B 的候选新鲜度判据（单一事实源，过滤循环与 fallback 池共用）
+    /// 三判据：from 位棋子与快照一致（位置 + id），captured 与 to 位实际占用一致（含 nil==nil）
+    static func isFreshCandidate(_ move: Move, on board: Board) -> Bool {
+        move.piece.position == move.from &&
+        board.piece(at: move.from)?.id == move.piece.id &&
+        move.captured?.id == board.piece(at: move.to)?.id
+    }
+
     private static func softmaxSelect(
         candidates: [(move: Move, score: Int)],
         on board: Board,
@@ -202,10 +210,7 @@ final class SelfPlayRunner {
         // 从根切断 id 盲搬漂移；B = 与 A（治本）双保险的第一道（非“防一切”，
         // all-stale 边缘由下方 fallback fresh 池兜底）。
         let nonRepeating = candidates.filter { candidate in
-            guard candidate.move.piece.position == candidate.move.from,
-                  board.piece(at: candidate.move.from)?.id == candidate.move.piece.id,
-                  candidate.move.captured?.id == board.piece(at: candidate.move.to)?.id
-            else { return false }  // 陈旧候选：跳过，不 execute（不漂移）
+            guard Self.isFreshCandidate(candidate.move, on: board) else { return false }  // 陈旧候选：跳过，不 execute（不漂移）
             board.execute(candidate.move)
             let fen = FENParser.generate(board: board)
             _ = board.undoLastMove()
@@ -217,11 +222,7 @@ final class SelfPlayRunner {
         // 候选，不让陈旧候选经 fallback 重回 softmax 可选集。全 stale 时才退回
         // candidates（A 在位时不可达：kill 路径单候选恒 fresh、IDS 路径恒 fresh，
         // 纯防御深度，且避免空池 fatalError 中断 self-play）。
-        let freshPool = candidates.filter {
-            $0.move.piece.position == $0.move.from &&
-            board.piece(at: $0.move.from)?.id == $0.move.piece.id &&
-            $0.move.captured?.id == board.piece(at: $0.move.to)?.id
-        }
+        let freshPool = candidates.filter { Self.isFreshCandidate($0.move, on: board) }
         let pool = !nonRepeating.isEmpty ? nonRepeating
                   : (!freshPool.isEmpty ? freshPool : candidates)
 
