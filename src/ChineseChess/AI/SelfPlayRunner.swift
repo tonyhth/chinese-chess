@@ -199,7 +199,8 @@ final class SelfPlayRunner {
         // 1. 过滤掉导致重复的候选（C1 回避逻辑）
         // A3r2 根治 B（docs/bugs/A3r2-first-cause-root-cause.md）：前置一致性校验——
         // 陈旧候选（from/captured 与棋盘实际不符，如杀法序列未来着法）不 execute，
-        // 从根切断 id 盲搬漂移；防一切未来来源的陈旧候选，与 A（治本）双保险。
+        // 从根切断 id 盲搬漂移；B = 与 A（治本）双保险的第一道（非“防一切”，
+        // all-stale 边缘由下方 fallback fresh 池兜底）。
         let nonRepeating = candidates.filter { candidate in
             guard candidate.move.piece.position == candidate.move.from,
                   board.piece(at: candidate.move.from)?.id == candidate.move.piece.id,
@@ -212,7 +213,17 @@ final class SelfPlayRunner {
         }
 
         // 2. 对剩余候选做 Softmax 加权随机
-        let pool = nonRepeating.isEmpty ? candidates : nonRepeating
+        // B 边缘补丁（all-stale fallback）：nonRepeating 全空时，回退池只取 fresh
+        // 候选，不让陈旧候选经 fallback 重回 softmax 可选集。全 stale 时才退回
+        // candidates（A 在位时不可达：kill 路径单候选恒 fresh、IDS 路径恒 fresh，
+        // 纯防御深度，且避免空池 fatalError 中断 self-play）。
+        let freshPool = candidates.filter {
+            $0.move.piece.position == $0.move.from &&
+            board.piece(at: $0.move.from)?.id == $0.move.piece.id &&
+            $0.move.captured?.id == board.piece(at: $0.move.to)?.id
+        }
+        let pool = !nonRepeating.isEmpty ? nonRepeating
+                  : (!freshPool.isEmpty ? freshPool : candidates)
 
         if pool.count == 1 { return pool[0].move }
 
