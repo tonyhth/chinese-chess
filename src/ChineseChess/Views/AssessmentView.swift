@@ -206,7 +206,11 @@ struct AssessmentView: View {
             .tint(.secondary)
         }
         .padding()
+        #if os(macOS)
         .background(Color(.controlBackgroundColor))
+        #else
+        .background(Color(.systemBackground))
+        #endif
         .cornerRadius(12)
     }
 
