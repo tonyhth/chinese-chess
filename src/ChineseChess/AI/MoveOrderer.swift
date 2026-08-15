@@ -6,17 +6,46 @@ import Foundation
 /// 优先级：置换表最佳走法 > 将军 > 吃子(MVV-LVA) > 历史启发 > 其他
 struct MoveOrderer {
 
-    /// 历史启发表：记录每种走法产生 cutoff 的次数
-    /// Key: "fromRow,fromCol,toRow,toCol"，Value: 累计分数
-    /// 实例级，避免多 AIEngine 并发竞争
-    private var historyTable: [String: Int] = [:]
+    /// 历史启发表：记录每种走法产生 cutoff 的次数（A-3 整数化，v1.2 §4）
+    /// 旧 String 键不含走子方（双方互染统计缺陷）；整数键含 side 分域
+    /// 16200 定长数组（63KB）替代字典：查询零分配、clear memset 级
+    private var historyTable: [Int32]
 
     // Killer Move 表：Key=depth, Value=最多 2 个 killer move
     private var killerMoves: [Int: [Move?]] = [:]
 
-    // Countermove 表：Key=对手上一走法的 hash，Value=最佳回应走法
-    // v3.0 Phase 2a: Countermove Heuristic
-    private var countermoveTable: [String: Move] = [:]
+    // Countermove 表（v3.0 Phase 2a）：对手走法键 → 最佳回应完整键
+    // 值存完整键（Int16 含 side，v1.2 P2-1），-1 = 无记录
+    private var countermoveTable: [Int16]
+
+    /// 键空间：红 0..<8100，黑 8100..<16200（(sideBase + fromSq) * 90 + toSq）
+    static let keySpace = 16200
+
+    init() {
+        historyTable = [Int32](repeating: 0, count: Self.keySpace)
+        countermoveTable = [Int16](repeating: -1, count: Self.keySpace)
+    }
+
+    /// A-3 整数键（含走子方）：(sideBase + fromSq) * 90 + toSq
+    static func historyKey(_ move: Move) -> Int {
+        let fromSq = move.from.row * 9 + move.from.col
+        let toSq = move.to.row * 9 + move.to.col
+        return (move.piece.side == .red ? 0 : 8100) + fromSq * 90 + toSq
+    }
+
+    /// 走法压缩编码（不含 side，countermove 存值用）：fromSq * 90 + toSq → Int16
+    static func packedMove(_ move: Move) -> Int16 {
+        let fromSq = move.from.row * 9 + move.from.col
+        let toSq = move.to.row * 9 + move.to.col
+        return Int16(fromSq * 90 + toSq)
+    }
+
+    /// 逆变换：完整键 → (side, fromSq, toSq)
+    static func unpackKey(_ key: Int) -> (side: Side, fromSq: Int, toSq: Int) {
+        let side: Side = key >= 8100 ? .black : .red
+        let base = key - (side == .red ? 0 : 8100)
+        return (side, base / 90, base % 90)
+    }
 
     /// 统一判等逻辑：piece.id + from + to
     static func isSameMove(_ a: Move, _ b: Move) -> Bool {
@@ -25,22 +54,20 @@ struct MoveOrderer {
 
     /// 记录一个产生 beta cutoff 的走法
     mutating func recordCutoff(move: Move, depth: Int) {
-        let key = historyKey(move: move)
-        historyTable[key, default: 0] += depth * depth  // 深度加权
+        historyTable[Self.historyKey(move)] &+= Int32(depth * depth)  // 深度加权（溢出安全：上限收敛）
     }
 
-    /// v3.0 Phase 2a: 记录 countermove
-    /// 对手上一走法导致的 beta cutoff 中，记录最佳回应
+    /// v3.0 Phase 2a: 记录 countermove（A-3 整数化：存回应方完整键，含 side）
     mutating func recordCountermove(move: Move, opponentMove: Move?) {
         guard let opp = opponentMove else { return }
-        let key = countermoveKey(move: opp)
-        countermoveTable[key] = move
+        countermoveTable[Self.historyKey(opp)] = Int16(Self.historyKey(move))
     }
 
-    /// v3.0 Phase 2a: 查询 countermove
-    func getCountermove(for opponentMove: Move?) -> Move? {
+    /// v3.0 Phase 2a: 查询 countermove 键（A-3：返回完整键，order 侧键比对，P2-1）
+    func getCountermoveKey(for opponentMove: Move?) -> Int? {
         guard let opp = opponentMove else { return nil }
-        return countermoveTable[countermoveKey(move: opp)]
+        let stored = countermoveTable[Self.historyKey(opp)]
+        return stored >= 0 ? Int(stored) : nil
     }
 
     /// 记录一个产生 beta cutoff 的非吃子走法为 killer move
@@ -70,9 +97,9 @@ struct MoveOrderer {
 
     /// 清空历史表、killer 表和 countermove 表（新对局时调用）
     mutating func clearHistory() {
-        historyTable.removeAll()
+        historyTable = [Int32](repeating: 0, count: Self.keySpace)
         killerMoves.removeAll()
-        countermoveTable.removeAll()
+        countermoveTable = [Int16](repeating: -1, count: Self.keySpace)
     }
 
     /// 排序走法列表
@@ -81,10 +108,10 @@ struct MoveOrderer {
     ///   - board: 当前棋盘
     ///   - ttBestMove: 置换表中的最佳走法（如有）
     ///   - checkLegal: 是否启用将军排序（depth >= 3 时启用，低深度开销大）
-    ///   - countermove: 对手上一走法的 countermove（如有）
-    func order<T: BoardReadable>(_ moves: [Move], on board: T, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermove: Move? = nil) -> [Move] {
+    ///   - countermoveKey: 对手上一走法的 countermove 完整键（A-3，如有）
+    func order<T: BoardReadable>(_ moves: [Move], on board: T, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermoveKey: Int? = nil) -> [Move] {
         let ttMove = ttBestMove
-        let cmMove = countermove
+        let cmKey = countermoveKey
 
         return moves.map { move in
             var score = 0
@@ -109,16 +136,16 @@ struct MoveOrderer {
                 score += 8000
             }
 
-            // 3.5 v3.0 Phase 2a: Countermove
-            if let cm = cmMove, Self.isSameMove(move, cm) {
+            // 3.5 v3.0 Phase 2a: Countermove（A-3 键比对，含 side 避免跨方碰撞假阳性）
+            if let cm = cmKey, Self.historyKey(move) == cm {
                 score += 6000
             }
 
             // 4. 威胁子力（走到目标位置后能威胁对方高价值棋子）
             score += threatBonus(for: move, on: board)
 
-            // 5. 历史启发加分
-            score += historyTable[historyKey(move: move), default: 0]
+            // 5. 历史启发加分（A-3：整数键直索引，零分配）
+            score += Int(historyTable[Self.historyKey(move)])
 
             return (move, score)
         }
@@ -177,14 +204,5 @@ struct MoveOrderer {
         return min(bonus, 5000)  // 上限
     }
 
-    // MARK: - 历史启发辅助
-
-    private func historyKey(move: Move) -> String {
-        "\(move.from.row),\(move.from.col),\(move.to.row),\(move.to.col)"
-    }
-
-    /// v3.0 Phase 2a: Countermove 表的 key（基于对手走法的 from-to）
-    private func countermoveKey(move: Move) -> String {
-        "\(move.from.row),\(move.from.col),\(move.to.row),\(move.to.col)"
-    }
+    // MARK: - 历史启发辅助（A-3：键函数已上移为静态，供测试与 order 复用）
 }

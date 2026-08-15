@@ -64,17 +64,14 @@ struct Phase2aSearchTests {
             captured: opponentMove.piece
         )
 
-        // 记录前查询应为 nil
-        #expect(orderer.getCountermove(for: opponentMove) == nil)
+        // 记录前查询应为 nil（A-3 整数键化：返回完整键而非 Move）
+        #expect(orderer.getCountermoveKey(for: opponentMove) == nil)
 
-        // 记录后查询应返回 response
+        // 记录后查询应返回 response 的完整键
         orderer.recordCountermove(move: response, opponentMove: opponentMove)
-        let result = orderer.getCountermove(for: opponentMove)
+        let result = orderer.getCountermoveKey(for: opponentMove)
         #expect(result != nil)
-        if let r = result {
-            #expect(r.from == response.from)
-            #expect(r.to == response.to)
-        }
+        #expect(result == MoveOrderer.historyKey(response), "键应精确对应记录的回应走法（含 side）")
     }
 
     @Test("Countermove nil 对手走法安全处理")
@@ -88,7 +85,7 @@ struct Phase2aSearchTests {
         )
         // nil opponentMove 不应崩溃
         orderer.recordCountermove(move: move, opponentMove: nil)
-        #expect(orderer.getCountermove(for: nil) == nil)
+        #expect(orderer.getCountermoveKey(for: nil) == nil)
     }
 
     @Test("Countermove clearHistory 清空")
@@ -109,7 +106,7 @@ struct Phase2aSearchTests {
 
         orderer.recordCountermove(move: response, opponentMove: opponentMove)
         orderer.clearHistory()
-        #expect(orderer.getCountermove(for: opponentMove) == nil)
+        #expect(orderer.getCountermoveKey(for: opponentMove) == nil)
     }
 
     @Test("Countermove 排序加分：countermove 在走法列表中排序提前")
@@ -133,11 +130,11 @@ struct Phase2aSearchTests {
 
         // 获取所有黑方走法，验证 cmMove 排序靠前
         let blackMoves = MoveValidator.allLegalMoves(for: .black, on: board)
-        let cmRetrieved = orderer.getCountermove(for: opponentMove)
+        let cmRetrieved = orderer.getCountermoveKey(for: opponentMove)
         #expect(cmRetrieved != nil)
 
-        // 排序后验证 cmMove 的位置
-        let ordered = orderer.order(blackMoves, on: board, countermove: cmMove)
+        // 排序后验证 cmMove 的位置（A-3：countermove 参数改为完整键）
+        let ordered = orderer.order(blackMoves, on: board, countermoveKey: MoveOrderer.historyKey(cmMove))
         // cmMove 应该在比较前的位置（有加分）
         if let cmIdx = ordered.firstIndex(where: { $0.from == cmMove.from && $0.to == cmMove.to }),
            let originalIdx = blackMoves.firstIndex(where: { $0.from == cmMove.from && $0.to == cmMove.to }) {
