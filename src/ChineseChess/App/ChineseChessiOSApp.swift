@@ -118,18 +118,6 @@ struct ChineseChessiOSApp: App {
                 }
                 .navigationTitle(L10n.shared.t("app.title"))
                 .navigationBarTitleDisplayMode(.inline)
-                // P1-2: 外部引擎 fallback 提示（iOS 上理论上不会触发，但保持一致）
-                .alert(
-                    L10n.shared.t("engine.fallbackTitle"),
-                    isPresented: Binding(
-                        get: { gameViewModel.engineFallbackMessage != nil },
-                        set: { if !$0 { gameViewModel.engineFallbackMessage = nil } }
-                    )
-                ) {
-                    Button(L10n.shared.t("common.ok")) { gameViewModel.engineFallbackMessage = nil }
-                } message: {
-                    Text(gameViewModel.engineFallbackMessage ?? "")
-                }
                 // P0-1 fix: 长将判负首次触发解释弹窗
                 .alert(
                     L10n.shared.t("game.perpetualCheckTitle"),

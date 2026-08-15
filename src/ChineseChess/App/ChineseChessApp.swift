@@ -408,18 +408,6 @@ struct ChineseChessApp: App {
                 }
             }
             .preferredColorScheme(.dark)
-            // P1-2: 外部引擎 fallback 提示
-            .alert(
-                L10n.shared.t("engine.fallbackTitle"),
-                isPresented: Binding(
-                    get: { viewModel.engineFallbackMessage != nil },
-                    set: { if !$0 { viewModel.engineFallbackMessage = nil } }
-                )
-            ) {
-                Button(L10n.shared.t("common.ok")) { viewModel.engineFallbackMessage = nil }
-            } message: {
-                Text(viewModel.engineFallbackMessage ?? "")
-            }
             // P0-1 fix: 长将判负首次触发解释弹窗
             .alert(
                 L10n.shared.t("game.perpetualCheckTitle"),
