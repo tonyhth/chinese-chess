@@ -67,6 +67,7 @@ git diff --stat        # 确认 working tree 干净
 ### iOS 编译门禁（Phase 合入前必跑）
 
 ```bash
+cd ChineseChess-iOS  # ⚠️ iOS 工程在子目录（主区 project.yml 是 macOS 的）
 xcodebuild build -project ChineseChess.xcodeproj -scheme ChineseChess \
   -configuration Debug -destination 'generic/platform=iOS' \
   CODE_SIGNING_ALLOWED=NO -derivedDataPath /tmp/ios-gate-dd
