@@ -96,7 +96,7 @@ final class OpeningBook {
         if entries.count == 1 { return entries[0].move }
 
         let totalWeight = entries.reduce(0) { $0 + $1.weight }
-        var r = Int.random(in: 0..<totalWeight)
+        var r = SeededRandom.int(in: 0..<totalWeight)  // Phase 1 seed 注入点②
         for entry in entries {
             r -= entry.weight
             if r < 0 { return entry.move }

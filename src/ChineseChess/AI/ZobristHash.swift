@@ -88,7 +88,8 @@ struct ZobristHash {
 // MARK: - SplitMix64 伪随机数生成器
 
 /// 固定种子的 PRNG，用于生成 Zobrist 表。保证跨平台、跨运行一致性。
-private struct SplitMix64 {
+/// Phase 1：internal + RandomNumberGenerator（seed 注入三点的 RNG 基座）
+struct SplitMix64: RandomNumberGenerator {
     private var state: UInt64
 
     init(seed: UInt64) {

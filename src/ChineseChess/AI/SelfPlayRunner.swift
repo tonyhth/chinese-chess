@@ -220,7 +220,7 @@ final class SelfPlayRunner {
         let expScores = pool.map { exp(Double($0.score - maxScore) / temperature) }
         let totalExp = expScores.reduce(0, +)
 
-        let r = Double.random(in: 0..<totalExp)
+        let r = SeededRandom.double(in: 0..<totalExp)  // Phase 1 seed 注入点①
         var cumulative = 0.0
         for (i, e) in expScores.enumerated() {
             cumulative += e
@@ -294,7 +294,9 @@ final class SelfPlayRunner {
         redDifficulty: AIDifficulty,
         blackDifficulty: AIDifficulty,
         maxMoves: Int,
-        repetitionThreshold: Int
+        repetitionThreshold: Int,
+        redEngine: AIEngine? = nil,    // Phase 1 CrossVersion：双引擎装载（nil = self.engine，既有调用面不变）
+        blackEngine: AIEngine? = nil
     ) async -> SelfPlayGameResult {
         let board = Board()  // 标准初始局面
         var moveHistory: [String] = []
@@ -310,8 +312,9 @@ final class SelfPlayRunner {
             // P0 遥测：更新运行上下文（防御点 dump 需要知道当前 lvl/局号/ply）
             BoardIntegrityLogger.currentContext = "selfplay red=\(redDifficulty.rawValue) black=\(blackDifficulty.rawValue) game#\(gameIndex + 1) ply#\(moveHistory.count + 1) turn=\(difficulty.rawValue)"
 
-            // C1: 取 top-3 候选走法，回避重复局面
-            let candidates = await engine.bestMoves(for: board, difficulty: difficulty, isIOS: isIOS, topK: 3)
+            // C1: 取 top-3 候选走法，回避重复局面（Phase 1：按方分派引擎实例）
+            let sideEngine = (currentSide == .red) ? (redEngine ?? engine) : (blackEngine ?? engine)
+            let candidates = await sideEngine.bestMoves(for: board, difficulty: difficulty, isIOS: isIOS, topK: 3)
             guard !candidates.isEmpty else {
                 // 无合法走法：区分将死和困毙
                 let isCheckmate = MoveValidator.isInCheck(board.currentTurn, on: board)
@@ -450,6 +453,104 @@ struct MixedEngineSessionResult {
           步数上限(moveLimit)：\(moveLimitCount) 局（\(pct(moveLimitCount))）
         先手优势：红方胜率 \(String(format: "%.1f%%", redWinRate * 100))（Elo ±\(abs(bayesEloDelta))）
         """
+    }
+}
+
+// MARK: - Phase 1: 跨版本引擎对弈（路径 b 装载骨架，首单五件确认①⑤）
+
+/// P5 双版本对弈配置。
+/// maxMovesPerGame 默认 500（SPRT 协议口径；⚠️ 有意不继承 MixedEngineConfig 的 200——五件确认⑤的发现）
+struct CrossVersionConfig {
+    var totalGames: Int
+    var maxMovesPerGame: Int = 500
+    var repetitionThreshold: Int = 6
+    var swapSides: Bool = true
+
+    init(games: Int, maxMoves: Int = 500, swapSides: Bool = true) {
+        self.totalGames = games
+        self.maxMovesPerGame = maxMoves
+        self.swapSides = swapSides
+    }
+}
+
+extension SelfPlayRunner {
+
+    /// 路径 b 装载：双 AIEngine 实例**装载期一次性定型**（首单五件确认①草图落地）。
+    /// M1_HOTPATH flag 臂在 P2c 接入——现两实例同代码路径 = 镜像对局（验证 harness 自身），
+    /// P5 复用时调用方按 flag 构造不同行为实例传入即可。
+    /// TT/MoveOrderer 为实例属性，双实例天然隔离（五件确认②静态审计）。
+    func runCrossVersionMatch(
+        config: CrossVersionConfig,
+        difficulty: AIDifficulty = .amateurHigh,
+        engineA: AIEngine? = nil,
+        engineB: AIEngine? = nil,
+        nameA: String = "baseline",
+        nameB: String = "hotpath",
+        progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
+    ) async -> MixedEngineSessionResult {
+        let clock = ElapsedClock()
+        let engA = engineA ?? AIEngine()   // 装载期定型（nil = 临时新实例）
+        let engB = engineB ?? AIEngine()
+        var games: [MixedEngineGameResult] = []
+        var redWins = 0, blackWins = 0, draws = 0
+        var aWins = 0, bWins = 0, totalMoves = 0
+
+        for gameIndex in 0..<config.totalGames {
+            let aIsRed = !(config.swapSides && gameIndex % 2 == 1)  // 与 run() 同映射：偶局 A 执红（五件确认④）
+            let result = await playGame(
+                gameIndex: gameIndex,
+                redDifficulty: difficulty,
+                blackDifficulty: difficulty,   // 版本差异在代码路径，非难度
+                maxMoves: config.maxMovesPerGame,
+                repetitionThreshold: config.repetitionThreshold,
+                redEngine: aIsRed ? engA : engB,
+                blackEngine: aIsRed ? engB : engA
+            )
+
+            let redName = aIsRed ? nameA : nameB
+            let blackName = aIsRed ? nameB : nameA
+            games.append(MixedEngineGameResult(
+                gameIndex: gameIndex,
+                result: result.result,
+                totalMoves: result.totalMoves,
+                reason: result.reason,
+                moveHistory: result.moveHistory,
+                redEngineName: redName,
+                blackEngineName: blackName
+            ))
+
+            totalMoves += result.totalMoves
+            switch result.result {
+            case .redWon: redWins += 1; if aIsRed { aWins += 1 } else { bWins += 1 }
+            case .blackWon: blackWins += 1; if aIsRed { bWins += 1 } else { aWins += 1 }
+            case .draw: draws += 1
+            default: break
+            }
+
+            progressCallback?(gameIndex + 1, games.last!)
+
+            // 每局之间清空引擎状态（与 run() 对称）
+            await engA.clearHistory()
+            await engB.clearHistory()
+        }
+
+        let elapsed = clock.computeSeconds
+        let avg = config.totalGames > 0 ? Double(totalMoves) / Double(config.totalGames) : 0
+        let eloDelta = BayesElo.estimateDelta(wins: aWins, losses: bWins, draws: draws)
+        let checkmateCount = games.filter { $0.reason == .normal }.count
+        let stalemateCount = games.filter { $0.reason == .stalemate }.count
+        let repetitionCount = games.filter { $0.reason == .repetition }.count
+        let moveLimitCount = games.filter { $0.reason == .moveLimit }.count
+        let redWinRate = games.count > 0 ? Double(redWins) / Double(games.count) : 0
+
+        return MixedEngineSessionResult(
+            games: games, redWins: redWins, blackWins: blackWins,
+            draws: draws, avgMoves: avg, durationSeconds: elapsed,
+            wallDurationSeconds: clock.wallSeconds, bayesEloDelta: eloDelta,
+            checkmateCount: checkmateCount, stalemateCount: stalemateCount,
+            repetitionCount: repetitionCount, moveLimitCount: moveLimitCount,
+            redWinRate: redWinRate
+        )
     }
 }
 
@@ -1166,7 +1267,14 @@ func runSelfPlayFromCLI() async {
 
     // 走法落盘默认开启（P0-3 细化约束）；--no-save-moves 显式关闭（位置无关）
     let saveMoves = !args.contains("--no-save-moves")
-    let positional = args.filter { $0 != "--no-save-moves" }
+    // Phase 1: --seed <N>（位置无关，首单五件确认③；501/502/503 与历史 run 区分）
+    var dropIndices = Set<Int>()
+    if let i = args.firstIndex(of: "--seed"), i + 1 < args.count, let seed = UInt64(args[i + 1]) {
+        SeededRandom.configure(seed: seed)
+        dropIndices.insert(i); dropIndices.insert(i + 1)
+        print("  seed=\(seed)（RNG 注入：softmax/开局库/加权随机三注入点）")
+    }
+    let positional = args.enumerated().filter { !dropIndices.contains($0.offset) && $0.element != "--no-save-moves" }.map { $0.element }
 
     guard let red = AIDifficulty(rawValue: positional[2]) else {
         print("❌ 无效的红方难度: \(positional[2])")
@@ -1396,6 +1504,12 @@ func runCalibrateNativeFromCLI() async {
     print("═══════════════════════════════════════════")
     print("")
 
+    // Phase 1: --seed <N>（与 --selfplay 同款注入，首单五件确认③）
+    if let si = args.firstIndex(of: "--seed"), si + 1 < args.count, let seed = UInt64(args[si + 1]) {
+        SeededRandom.configure(seed: seed)
+        print("  seed=\(seed)")
+    }
+
     let config = SelfPlayConfig(red: diffA, black: diffB, games: games, maxMoves: maxMoves)
     let runner = SelfPlayRunner()
     let groupLabel = "A\(lvlA)\(lvlB)"  // e.g. A34 for lvl3 vs lvl4
@@ -1532,5 +1646,82 @@ func runCalibratePfFromCLI() async {
     let outputPath = "\(outputDir)/pikafish_skill\(skillA)_vs_skill\(skillB)_\(timestamp).txt"
     try? report.write(toFile: outputPath, atomically: true, encoding: .utf8)
     print("报告已保存：\(outputPath)")
+}
+#endif
+
+// MARK: - Phase 1: NPS 基线测量 CLI（--nps-bench，v1.2 §6 + D2 P1-2）
+
+#if os(macOS)
+func runNpsBenchFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+    let args = CommandLine.arguments
+    // --nps-bench [fen文件] [depth=6] [repeats=3]
+    guard args.count >= 2 else { return }
+    let fenPath = args.count > 2 ? args[2] : "docs/fixtures/nps-positions.txt"
+    let depth = args.count > 3 ? (Int(args[3]) ?? 6) : 6
+    let repeats = args.count > 4 ? (Int(args[4]) ?? 3) : 3
+
+    guard let content = try? String(contentsOfFile: fenPath, encoding: .utf8) else {
+        print("❌ 无法读取 FEN 文件: \(fenPath)")
+        print("   格式：每行一个 FEN（空行/# 注释行跳过）")
+        return
+    }
+    let fens = content.split(separator: "\n").map { $0.trimmingCharacters(in: .whitespaces) }
+        .filter { !$0.isEmpty && !$0.hasPrefix("#") }
+    guard !fens.isEmpty else {
+        print("❌ FEN 文件无有效局面: \(fenPath)")
+        return
+    }
+
+    // --seed 支持（与其他 CLI 同款）
+    if let i = args.firstIndex(of: "--seed"), i + 1 < args.count, let seed = UInt64(args[i + 1]) {
+        SeededRandom.configure(seed: seed)
+    }
+
+    print("═══════════════════════════════════════════")
+    print("  NPS 基线测量（直连 IDS，绕过开局库/CheckmateSearch）")
+    print("  局面 \(fens.count) 个 × 深度 \(depth) × \(repeats) 次 | 单局面 120s 熔断")
+    print("═══════════════════════════════════════════")
+
+    var positionMedians: [Int] = []
+    var timeoutCount = 0
+
+    for (i, fen) in fens.enumerated() {
+        guard let board = FENParser.parse(fen: fen) else {
+            print("  [\(i + 1)/\(fens.count)] ❌ FEN 解析失败: \(fen.prefix(40))…")
+            continue
+        }
+        // 每局面新引擎实例（TT 不跨局面；v1.2 §6.3 口径）
+        let engine = AIEngine()
+        var repNps: [Int] = []
+        for rep in 1...repeats {
+            guard let r = await withCheckedContinuation({ (cont: CheckedContinuation<(totalNodes: Int, elapsedMs: Int, completedDepth: Int)?, Never>) in
+                // npsBench 是同步计算密集，放后台线程避免 CLI 主线程卡死
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let result = engine.npsBench(board: board, maxDepth: depth)
+                    cont.resume(returning: result)
+                }
+            }) else { continue }
+            let nps = r.elapsedMs > 0 ? r.totalNodes * 1000 / r.elapsedMs : 0
+            let timedOut = r.completedDepth < depth
+            if timedOut { timeoutCount += 1 }
+            repNps.append(nps)
+            print("  [\(i + 1)/\(fens.count)] rep\(rep) nodes=\(r.totalNodes) ms=\(r.elapsedMs) completed=\(r.completedDepth)\(timedOut ? " [熔断]" : "") nps=\(nps)")
+        }
+        if !repNps.isEmpty {
+            let sorted = repNps.sorted()
+            let median = sorted[sorted.count / 2]
+            positionMedians.append(median)
+            print("  [\(i + 1)/\(fens.count)] 中位 nps=\(median)")
+        }
+    }
+
+    if !positionMedians.isEmpty {
+        let sorted = positionMedians.sorted()
+        let overall = sorted[sorted.count / 2]
+        print("═══════════════════════════════════════════")
+        print("  总中位 NPS: \(overall)  （\(positionMedians.count) 局面，熔断 \(timeoutCount) 次）")
+        print("═══════════════════════════════════════════")
+    }
 }
 #endif
