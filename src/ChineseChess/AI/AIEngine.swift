@@ -305,7 +305,10 @@ actor AIEngine: AIEngineProtocol {
             // 旧实现 prefix(topK) 返回 m2/m3 未来着法，softmaxSelect 过滤循环对它们
             // execute/undo → 棋子 id 盲搬漂移 → 棋盘腐败（A3-r2 OVERLAP 7 条现场）。
             // 连将杀每步重新命中 CheckmateSearch，行为等价、语义正确。
-            return [killMoves[0]].map { ($0, 0) }
+// 边界声明（Ruby 快审 P2a）：dfs 的 maxResponses=8 截断下，多应着局面可能
+            // 假杀——此时走 m1 后对方实际应着解杀 → 下轮不再命中 → 正常搜索 fallback。
+            // 即"每步重新命中"严格说是"命中或正常搜索"的良性退化，非完备杀保证。
+                        return [killMoves[0]].map { ($0, 0) }
         }
 
         var config = AISearchConfig.hard
