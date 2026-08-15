@@ -123,8 +123,11 @@ struct AITimeManagementTests {
         #expect(elapsed < 5.0, "medium 搜索应 < 5 秒，实际: \(elapsed)s")
     }
 
-    @Test("beginner 应比 medium 快")
+    @Test("beginner 与 medium 均在合理时间内完成（CI 性能保护）")
     func beginnerFasterThanMedium() async {
+        // v6.2 断言清偿 C 类：原断言 beginner<medium*50 依赖相对时序——
+        // medium 命中开局库时耗时 ~0ms → 比例无限大 → 假阳性。
+        // 改为绝对预算：两者各 < 10s 即合理（CI 性能回归保护不变）。
         let engine = AIEngine()
         let board = Board()
 
@@ -136,10 +139,8 @@ struct AITimeManagementTests {
         _ = await engine.bestMove(for: board, difficulty: .amateurLow)
         let mediumTime = Date().timeIntervalSince(start2)
 
-        // beginner 是 depth-1 + 噪声，通常比 medium 快
-        // 注意：性能测试在 CI 上不可靠（缓存、负载、温度影响大）
-        // 放宽阈值到 50 倍仅做粗略回归保护
-        #expect(beginnerTime < mediumTime * 50, "beginner 不应比 medium 慢 50 倍以上（CI 性能保护）")
+        #expect(beginnerTime < 10.0, "novice 走法应在 10s 内完成（实际 \(beginnerTime)s）")
+        #expect(mediumTime < 10.0, "amateurLow 走法应在 10s 内完成（实际 \(mediumTime)s）")
     }
 }
 

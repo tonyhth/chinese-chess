@@ -84,53 +84,55 @@ struct V60Phase3FallbackTests {
 
     @Test("handleEngineFailure 发送 fallback 通知")
     func fallbackNotificationSent() async {
+        // v6.2 断言清偿 C 类：原 observer 闭包含裸 #expect → 跨套件通知串扰中毒
+        // 修法：observer 零 #expect，捕获后测试体内断言
         let router = EngineRouter.shared
-
-        // 监听通知
-        let expectation = AsyncBox<Bool>()
+        let box = AsyncBox<Bool>()
         let observer = NotificationCenter.default.addObserver(
             forName: EngineRouter.fallbackNotification,
             object: nil,
             queue: .main
         ) { notification in
-            expectation.set(true)
-            // 验证 userInfo 包含 originalLevel 和 fallbackLevel
-            #expect(notification.userInfo?["originalLevel"] != nil)
-            #expect(notification.userInfo?["fallbackLevel"] != nil)
+            // 只捕获带 originalLevel 的通知（handleEngineFailure 同步发，有 userInfo）
+            if notification.userInfo?["originalLevel"] != nil {
+                box.set(true)
+            }
         }
 
-        // 触发 fallback（使用专业级）
         router.handleEngineFailure(difficulty: .grandmaster)
-
-        // 等待通知（短暂延迟）
         try? await Task.sleep(nanoseconds: 100_000_000)
 
         NotificationCenter.default.removeObserver(observer)
-        #expect(await expectation.value == true)
+        #expect(await box.value == true, "handleEngineFailure 应发送带 userInfo 的 fallback 通知")
     }
 
     @Test("handleEngineFailure: 通知包含 originalLevel 和 fallbackLevel")
     func fallbackNotificationContent() async {
+        // v6.2 断言清偿 C 类：observer 零 #expect，捕获 originalLevel 后体内断言
         let router = EngineRouter.shared
 
-        let expectation = AsyncBox<AIDifficulty?>()
+        let box = AsyncBox<(AIDifficulty, AIDifficulty)?>()
         let observer = NotificationCenter.default.addObserver(
             forName: EngineRouter.fallbackNotification,
             object: nil,
             queue: .main
         ) { notification in
-            let original = notification.userInfo?["originalLevel"] as? AIDifficulty
-            let fallback = notification.userInfo?["fallbackLevel"] as? AIDifficulty
-            expectation.set(original)
-            #expect(original == .proExpert)
-            #expect(fallback == .amateurHigh)
+            if let original = notification.userInfo?["originalLevel"] as? AIDifficulty,
+               let fallback = notification.userInfo?["fallbackLevel"] as? AIDifficulty {
+                box.set((original, fallback))
+            }
         }
 
         router.handleEngineFailure(difficulty: .proExpert)
         try? await Task.sleep(nanoseconds: 100_000_000)
 
         NotificationCenter.default.removeObserver(observer)
-        #expect(await expectation.value == .proExpert)
+        if let captured = await box.value, let (original, fallback) = captured {
+            #expect(original == .proExpert, "originalLevel 应为 proExpert")
+            #expect(fallback == .amateurHigh, "fallbackLevel 应为 amateurHigh")
+        } else {
+            #expect(Bool(false), "未捕获到带 userInfo 的 fallback 通知")
+        }
     }
 
     @Test("handleEngineFailure: 所有专业级 fallback 到 amateurHigh")

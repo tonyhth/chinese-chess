@@ -11,7 +11,12 @@ import Foundation
 @testable import ChineseChess
 
 @Suite("i18n Key 补全测试", .serialized)
-struct I18nKeyCompletionTests {
+final class I18nKeyCompletionTests {
+
+    private let savedLang: String
+
+    init() { savedLang = TestL10nSupport.injectZhHans() }  // v6.2 断言清偿 簇1
+    deinit { TestL10nSupport.restore(savedLang) }
 
     /// xcstrings 文件路径
     private static let xcstringsPath: String = {

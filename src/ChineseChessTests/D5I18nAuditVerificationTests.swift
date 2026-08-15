@@ -11,7 +11,12 @@ import Foundation
 @testable import ChineseChess
 
 @Suite("D5 i18n 审计验证", .serialized)
-struct D5I18nAuditVerificationTests {
+final class D5I18nAuditVerificationTests {
+
+    private let savedLang: String
+
+    init() { savedLang = TestL10nSupport.injectZhHans() }  // v6.2 断言清偿 簇1：隔离跨套件语言污染
+    deinit { TestL10nSupport.restore(savedLang) }
 
     // MARK: - 工具方法
 
@@ -107,7 +112,7 @@ struct D5I18nAuditVerificationTests {
         let testCases: [(key: String, expected: String)] = [
             ("game.newGame", "New"),
             ("game.undoMove", "Undo"),
-            ("difficulty.amateurLow", "Medium"),
+            ("difficulty.lvl3", "Intermediate"),  // v6.2 断言清偿：difficulty 已迁移 lvlN 体系，旧键 amateurLow 不存在
             ("result.redWon", "Red Won"),
             ("result.draw", "Draw"),
         ]
@@ -127,7 +132,7 @@ struct D5I18nAuditVerificationTests {
         let testCases: [(key: String, expected: String)] = [
             ("game.newGame", "新局"),
             ("game.undoMove", "悔棋"),
-            ("difficulty.amateurLow", "中级"),
+            ("difficulty.lvl3", "中级"),  // v6.2 断言清偿：difficulty 已迁移 lvlN 体系，旧键 amateurLow 不存在
             ("result.redWon", "红方胜"),
             ("result.draw", "和棋"),
         ]
@@ -278,7 +283,13 @@ struct D5I18nAuditVerificationTests {
 
         #expect(zhCount > 0, "中文翻译表不应为空")
         #expect(enCount > 0, "英文翻译表不应为空")
-        #expect(zhCount == enCount, "两种语言的 key 数量应一致（zh=\(zhCount), en=\(enCount)）")
+        // v6.2 断言清偿：zh⊆en 不变量（en 覆盖 zh 全集）。
+        // 已知 en-only 2 key（notation.chineseNum.%lld / notation.redFile.%lld）—
+        // 中文记谱原生生成（一二三 / 红方纵线中文字），en 需格式化 key，系设计性差异非缺陷。
+        let zk = Set(zhDict.keys), ek = Set(enDict.keys)
+        let zhOnlyKeys = zk.subtracting(ek)
+        #expect(zhOnlyKeys.isEmpty, "zh 有但 en 无的 key（应全部覆盖）: \(zhOnlyKeys)")
+        // 不再断言 zhCount == enCount（en 有 2 个设计性独有 key）
 
         // 验证翻译内容不同（至少 settings.title 不同）
         #expect(zhDict["settings.title"] != enDict["settings.title"], "中英文 settings.title 应不同")

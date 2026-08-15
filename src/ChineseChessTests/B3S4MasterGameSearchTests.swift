@@ -5,7 +5,14 @@ import Foundation
 // MARK: - Phase B3 Step 4 — 大师棋谱搜索审查修复验证
 
 @Suite("B3S4 MasterGameSearch", .serialized)
-struct B3S4MasterGameSearchTests {
+final class B3S4MasterGameSearchTests {
+
+    private let savedLang: String
+
+    init() {
+        savedLang = TestL10nSupport.injectZhHans()  // v6.2 断言清偿 簇1：中文环境注入
+    }
+    deinit { TestL10nSupport.restore(savedLang) }
 
     // MARK: - 搜索模型基本功能
 
