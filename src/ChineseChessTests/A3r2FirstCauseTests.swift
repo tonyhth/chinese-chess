@@ -17,7 +17,6 @@ import Testing
 ///
 /// ⚠️ 更正（2026-08-15，Luke 裁定/Cody 指出）：本组直接调 Board.execute 绕过 softmaxSelect，
 /// 恒绿与根治解耦，回归语义由 m1 重写版（5c51f91）承担——80c2f2d"根治后应变红"表述系误判。
-@Suite("A3r2 第一因：陈旧候选 execute/undo 漂移语义")
 /// 反转后语义：
 /// - Board.execute/undo 的 id 盲搬漂移**机制仍在**（Board 属 UI 共享层，不在本 fix 范围）
 /// - 但入口被 B 拦截：漂移候选进不了 execute → 主棋盘守恒
