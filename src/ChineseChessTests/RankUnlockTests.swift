@@ -5,7 +5,19 @@ import Foundation
 // MARK: - Phase Q2 段位门禁系统测试
 
 @Suite("UnlockedFeature 段位门禁")
-struct RankUnlockTests {
+final class RankUnlockTests {
+
+    /// 测试基建（v6.2 断言清偿）：强制关闭 DeveloperMode 旁路
+    /// —— 宿主 App 的 UserDefaults（com.chinesechess.app 域）曾残留 developerMode=1，
+    ///    导致 isFeatureUnlocked 恒 true、25 断言全崩（"门禁放宽"系误判，实为环境泄漏）
+    private let savedDeveloperMode: Bool
+
+    init() {
+        savedDeveloperMode = DeveloperMode.isEnabled
+        DeveloperMode.isEnabled = false
+    }
+
+    deinit { DeveloperMode.isEnabled = savedDeveloperMode }
 
     /// 辅助：创建指定段位的 profile
     private func makeProfile(_ rank: Rank) -> PlayerProfile {

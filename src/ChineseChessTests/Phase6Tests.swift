@@ -165,7 +165,7 @@ struct EnumTests6 {
 
     @Test("AIDifficulty 所有 5 级")
     func testAllDifficulties() {
-        #expect(AIDifficulty.allCases.count == 5)
+        #expect(AIDifficulty.allCases.count == 10) // v6.0 十级体系（业余5+棋士5），旧 5 级断言过期
         #expect(AIDifficulty.allCases.contains(.novice))
         #expect(AIDifficulty.allCases.contains(.beginner))
         #expect(AIDifficulty.allCases.contains(.amateurLow))

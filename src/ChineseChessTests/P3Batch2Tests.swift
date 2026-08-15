@@ -12,8 +12,8 @@ struct P3Batch2Tests {
         let explainer = CoachExplainer()
         let analysis = MoveAnalysis(
             playerMove: "a0a1", quality: .doubtful,
-            bestMove: "b5d7", bestEval: 200, playerEval: 100,
-            evalDelta: 100, alternatives: []
+            bestMove: "b5d7", bestEval: 200, playerEval: 170,
+            evalDelta: 30, alternatives: []
         )
         let result = await explainer.explain(
             analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "b5d7"
@@ -26,8 +26,8 @@ struct P3Batch2Tests {
         let explainer = CoachExplainer()
         let analysis = MoveAnalysis(
             playerMove: "a0a1", quality: .doubtful,
-            bestMove: "h2e2", bestEval: 200, playerEval: 100,
-            evalDelta: 100, alternatives: []
+            bestMove: "h2e2", bestEval: 200, playerEval: 170,
+            evalDelta: 30, alternatives: []
         )
         let result = await explainer.explain(
             analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "h2e2"
@@ -40,8 +40,8 @@ struct P3Batch2Tests {
         let explainer = CoachExplainer()
         let analysis = MoveAnalysis(
             playerMove: "a0a1", quality: .doubtful,
-            bestMove: "a3f3", bestEval: 200, playerEval: 100,
-            evalDelta: 100, alternatives: []
+            bestMove: "a3f3", bestEval: 200, playerEval: 170,
+            evalDelta: 30, alternatives: []
         )
         let result = await explainer.explain(
             analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "a3f3"

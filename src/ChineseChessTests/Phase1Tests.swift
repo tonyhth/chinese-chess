@@ -214,15 +214,20 @@ struct GameMoveTests {
 @Suite("AIDifficulty Tests")
 struct AIDifficultyTests {
 
-    @Test("AIDifficulty 5 级完整性")
-    func testAIDifficultyFiveLevels() {
+    @Test("AIDifficulty 10 级完整性")
+    func testAIDifficultyTenLevels() {
         let levels = AIDifficulty.allCases
-        #expect(levels.count == 5)
+        #expect(levels.count == 10) // v6.0 十级体系（业余5+棋士5），旧 5 级断言过期
         #expect(levels[0] == .novice)
         #expect(levels[1] == .beginner)
         #expect(levels[2] == .amateurLow)
         #expect(levels[3] == .amateurMid)
         #expect(levels[4] == .amateurHigh)
+        #expect(levels[5] == .amateurDan)
+        #expect(levels[6] == .proApprentice)
+        #expect(levels[7] == .proExpert)
+        #expect(levels[8] == .proMaster)
+        #expect(levels[9] == .grandmaster)
     }
 
     @Test("AIDifficulty Codable roundtrip")

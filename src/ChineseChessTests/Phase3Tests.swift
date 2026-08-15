@@ -364,7 +364,7 @@ struct StatsManagerTests {
 
         manager.recordWin(for: .amateurLow)
         let stats = manager.stats
-        let medium = stats.vsAI["medium", default: WinLossDraw()]
+        let medium = stats.vsAI["lvl3", default: WinLossDraw()] // v6.0 rawValue 桶名（amateurLow→lvl3），旧 5 级桶名过期
         #expect(medium.wins == 1)
         #expect(medium.losses == 0)
     }
@@ -381,14 +381,14 @@ struct StatsManagerTests {
         manager.recordWin(for: .amateurMid)
 
         let stats1 = manager.stats
-        let hard1 = stats1.vsAI["hard", default: WinLossDraw()]
+        let hard1 = stats1.vsAI["lvl4", default: WinLossDraw()] // v6.0 rawValue 桶名（amateurMid→lvl4）
         #expect(hard1.wins == 1)
 
         manager.recordWin(for: .amateurMid)
         manager.recordLoss(for: .amateurMid)
 
         let stats2 = manager.stats
-        let hard2 = stats2.vsAI["hard", default: WinLossDraw()]
+        let hard2 = stats2.vsAI["lvl4", default: WinLossDraw()] // v6.0 rawValue 桶名（amateurMid→lvl4）
         #expect(hard2.wins == 2)
         #expect(hard2.losses == 1)
     }

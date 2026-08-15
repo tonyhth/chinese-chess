@@ -10,15 +10,16 @@ struct Phase62Tests {
 
     @Test("SolutionMode: effectiveMode — solution 非空时为 guided")
     func testEffectiveModeGuided() {
+        // v6.2 断言清偿：P1_11 canonical 语义 = solutionMode=.freePlay 优先；
+        // 本用例测试「solution 非空 → guided」分支，需用默认 .guided（非显式 freePlay）
         let puzzle = Puzzle(
             id: "test_001", name: "测试", category: "测试",
             difficulty: 1, stars: 1, description: "测试",
             playerSide: "red",
             initialFEN: "4k4/9/9/9/9/9/9/9/9/4K4 w - - 0 1",
-            solution: ["a1a2"], hints: nil, maxMoves: 10,
-            solutionMode: .freePlay  // 显式设为 freePlay
+            solution: ["e9d9"], hints: nil, maxMoves: 10
+            // solutionMode 默认 .guided → !solution.isEmpty → .guided
         )
-        // 但 solution 非空 → effectiveMode 应为 guided
         #expect(puzzle.effectiveMode == .guided)
     }
 

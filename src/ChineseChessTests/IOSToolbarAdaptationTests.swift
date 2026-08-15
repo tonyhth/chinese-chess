@@ -16,6 +16,7 @@ struct IOSToolbarAdaptationTests {
 @Test("新局后：isThinking=false, moveHistory 为空, gameState=playing, capturedPieces 清空")
     func newGameResetsAllState() {
         let vm = GameViewModel()
+        vm.setHumanSide(.red)  // v6.2 断言清偿：隔离宿主 UserDefaults humanSide 泄漏（humanSide=.black 触发 AI 先行 → isThinking=true）
         // 模拟走棋后状态
         vm.isThinking = true
         vm.gameState = .redWon
@@ -38,6 +39,7 @@ struct IOSToolbarAdaptationTests {
 @Test("新局后按钮 disabled 状态：isThinking=false → 新局按钮可用")
     func newGameButtonEnabledAfterNewGame() {
         let vm = GameViewModel()
+        vm.setHumanSide(.red)  // 同上：隔离 humanSide 泄漏
         vm.isThinking = true
         vm.newGame()
         // 新局后 isThinking=false → 新局按钮 enabled
@@ -142,7 +144,7 @@ struct IOSToolbarAdaptationTests {
     @MainActor
 @Test("AIDifficulty CaseIterable 包含 5 个级别")
     func allDifficulties() {
-        #expect(AIDifficulty.allCases.count == 5)
+        #expect(AIDifficulty.allCases.count == 10) // v6.0 十级体系（业余5+棋士5），旧 5 级断言过期
     }
 
     // MARK: - ToolbarView iOS 分支验证（编译时）
@@ -279,6 +281,7 @@ struct IOSToolbarAdaptationTests {
 @Test("undoMove 正确恢复 capturedPieces")
     func undoMoveRestoresCapturedPieces() async {
         let vm = GameViewModel()
+        vm.setHumanSide(.red)  // v6.2 断言清偿：humanSide=.red 确保 (9,0) 红车可选（旧 env 泄漏 humanSide=.black → 选黑子被拒→selectedPosition nil）
         // 初始局面手动执行走棋（模拟吃子）
         // 走一步棋（红方走，触发 AI 回应）
         let redCharriot = vm.board.piece(at: Position(row: 9, col: 0))

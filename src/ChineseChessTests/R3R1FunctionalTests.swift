@@ -299,8 +299,8 @@ struct R3R1FunctionalTests {
         let masterMove = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)
         #expect(masterMove != nil, "大师级应能走棋")
 
-        // 验证五档难度枚举完整
-        #expect(AIDifficulty.allCases.count == 5, "应有 5 档难度")
+        // 验证十档难度枚举完整（v6.0 十级体系）
+        #expect(AIDifficulty.allCases.count == 10, "应有 10 档难度")
     }
 
     // ============================================================

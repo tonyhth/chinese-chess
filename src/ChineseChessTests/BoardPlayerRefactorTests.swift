@@ -58,9 +58,9 @@ extension BoardPlayerRefactorTests {
 
     /// 构造测试用 Puzzle
     static func makeTestPuzzle(
-        solution: [String] = ["h2e2", "h9g7", "e2e6"],
+        solution: [String] = ["h7e7", "h0g2", "b9c7"],  // v6.2 断言清偿：标准开局合法走法（现行 ICCS 约定 row digit=9-row）
         category: String = "Basic",
-        initialFEN: String = "r1bakab1r/9/4c4/p3p1p1p/2pn5/6P2/P1P1P3P/2N1C4/9/R1BAKAB1R w - - 0 1"
+        initialFEN: String = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
     ) -> Puzzle {
         Puzzle(
             id: "test-puzzle",
@@ -401,7 +401,7 @@ struct BoardPlayerRefactorTests {
 @Suite("DemoViewModel Delegation", .serialized)
 struct DemoViewModelDelegationTests {
 
-    private func makeVM(solution: [String] = ["h2e2", "h9g7", "e2e6"]) -> DemoViewModel {
+    private func makeVM(solution: [String] = ["h7e7", "h0g2", "b9c7"]) -> DemoViewModel {
         let puzzle = BoardPlayerRefactorTests.makeTestPuzzle(solution: solution)
         return DemoViewModel(puzzle: puzzle)
     }
@@ -457,7 +457,7 @@ struct DemoViewModelDelegationTests {
 
     @Test("DemoVM canGoForward/canGoBack 转发正确")
     func canGo_forwarded() {
-        let vm = makeVM(solution: ["h2e2"])
+        let vm = makeVM(solution: ["h7e7"])  // v6.2 断言清偿：单步合法走法
         #expect(vm.canGoForward)
         #expect(!vm.canGoBack)
         vm.stepForward()
@@ -547,7 +547,7 @@ struct DemoViewModelDelegationTests {
 
     @Test("DemoVM 播放完成后进入 showingResult")
     func playbackComplete_showingResult() async {
-        let vm = makeVM(solution: ["h2e2"])
+        let vm = makeVM(solution: ["h7e7"])  // v6.2 断言清偿：单步合法走法
         vm.boardPlayer.speed = 100.0  // 极速
 
         vm.play()
@@ -560,7 +560,7 @@ struct DemoViewModelDelegationTests {
 
     @Test("DemoVM progressText 包含步数信息")
     func progressText_containsSteps() {
-        let vm = makeVM(solution: ["h2e2", "h9g7"])
+        let vm = makeVM(solution: ["h7e7", "h0g2"])  // v6.2 断言清偿：两步合法走法
         #expect(vm.progressText.contains("0"))
         #expect(vm.progressText.contains("2"))
         vm.stepForward()
@@ -571,7 +571,7 @@ struct DemoViewModelDelegationTests {
 
     @Test("DemoVM validStepCount 转发自 BoardPlayer")
     func validStepCount_forwarded() {
-        let vm = makeVM(solution: ["h2e2", "h9g7"])
+        let vm = makeVM(solution: ["h7e7", "h0g2"])  // v6.2 断言清偿：两步合法走法
         #expect(vm.validStepCount == 2)
         #expect(vm.validStepCount == vm.boardPlayer.totalSteps)
     }
