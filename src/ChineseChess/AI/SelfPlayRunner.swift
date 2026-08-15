@@ -466,6 +466,24 @@ struct MixedEngineConfig {
 // MARK: - 命令行报告生成
 
 extension SelfPlayRunner {
+    /// 从难度 rawValue 提取级别号（"lvl3" → "3"；旧值如 "beginner" → nil）
+    static func levelNumber(_ rawValue: String) -> String? {
+        guard rawValue.hasPrefix("lvl") else { return nil }
+        let suffix = String(rawValue.dropFirst(3))
+        return Int(suffix).map { _ in suffix }
+    }
+
+    /// 逐局即时落盘走法序列（--save-moves / --calibrate-native 共用）
+    /// 崩溃时已完成的局不丢失（旧版 --calibrate-native 跑完全部后统一写，
+    /// 第 11 局崩溃 = 前 10 局全部丢失，A3 重跑 15 局零落盘的根因）
+    static func writeMoveHistory(_ game: SelfPlayGameResult, to dir: String, groupLabel: String) {
+        let fm = FileManager.default
+        try? fm.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        let filename = "\(groupLabel)_game\(game.gameIndex + 1)_\(game.redDifficulty.rawValue)vs\(game.blackDifficulty.rawValue)_\(game.totalMoves).txt"
+        let content = game.moveHistory.joined(separator: "\n")
+        try? content.write(toFile: "\(dir)/\(filename)", atomically: true, encoding: .utf8)
+    }
+
     /// 运行自对弈并生成报告字符串
     func runAndReport(config: SelfPlayConfig, label: String, progressCallback: ((Int, SelfPlayGameResult) -> Void)? = nil) async -> String {
         let result = await run(config: config, progressCallback: progressCallback)
@@ -1122,33 +1140,52 @@ func runSelfPlayFromCLI() async {
 
     guard args.count >= 5 else {
         print("""
-        用法: ChineseChess --selfplay <红方难度> <黑方难度> <局数> [标签]
+        用法: ChineseChess --selfplay <红方难度> <黑方难度> <局数> [标签] [--no-save-moves]
         用法: ChineseChess --calibrate [局数]
 
         难度 (v6.0): lvl1 | lvl2 | lvl3 | lvl4 | lvl5 | lvl6 | lvl7 | lvl8 | lvl9 | lvl10
         （旧值兼容: beginner | easy | medium | hard | master）
 
+        走法序列默认逐局即时落盘到 selfplay-results/move-history/（崩溃不丢已完成局）
+        加 --no-save-moves 可关闭（A3 崩溃教训：无落盘 = 无归因数据）
+
         示例:
           ChineseChess --selfplay lvl5 lvl4 100 5vs4
+          ChineseChess --selfplay lvl3 lvl4 15 a3rerun
           ChineseChess --calibrate 10
         """)
         return
     }
 
-    guard let red = AIDifficulty(rawValue: args[2]) else {
-        print("❌ 无效的红方难度: \(args[2])")
+    // 走法落盘默认开启（P0-3 细化约束）；--no-save-moves 显式关闭（位置无关）
+    let saveMoves = !args.contains("--no-save-moves")
+    let positional = args.filter { $0 != "--no-save-moves" }
+
+    guard let red = AIDifficulty(rawValue: positional[2]) else {
+        print("❌ 无效的红方难度: \(positional[2])")
         return
     }
-    guard let black = AIDifficulty(rawValue: args[3]) else {
-        print("❌ 无效的黑方难度: \(args[3])")
+    guard let black = AIDifficulty(rawValue: positional[3]) else {
+        print("❌ 无效的黑方难度: \(positional[3])")
         return
     }
-    guard let games = Int(args[4]), games > 0 else {
-        print("❌ 无效的局数: \(args[4])")
+    guard let games = Int(positional[4]), games > 0 else {
+        print("❌ 无效的局数: \(positional[4])")
         return
     }
 
-    let label = args.count > 5 ? args[5] : "\(red.rawValue)-vs-\(black.rawValue)"
+    let label = positional.count > 5 ? positional[5] : "\(red.rawValue)-vs-\(black.rawValue)"
+    // 走法落盘分组名：优先与 --calibrate-native 的 A34 风格对齐，非 lvl 格式用 label
+    let groupLabel: String
+    if let rn = SelfPlayRunner.levelNumber(red.rawValue), let bn = SelfPlayRunner.levelNumber(black.rawValue) {
+        groupLabel = "A\(rn)\(bn)"
+    } else {
+        groupLabel = label
+    }
+    let mhDir = "selfplay-results/move-history"
+    if saveMoves {
+        print("  走法序列落盘：\(mhDir)/ （逐局即时写，崩溃不丢已完成局；--no-save-moves 关闭）")
+    }
 
     print("═══════════════════════════════════════════")
     print("  自对弈：\(red.rawValue) vs \(black.rawValue)（\(games) 局）")
@@ -1170,6 +1207,10 @@ func runSelfPlayFromCLI() async {
         default: winnerStr = "未知"
         }
         print("  [\(completed)/\(games)] \(winnerStr) (\(gameResult.totalMoves)步, \(gameResult.reason.rawValue)) [\(String(format: "%.1f", elapsed))s]")
+        // --save-moves：逐局即时落盘（崩溃时已完成的局保留）
+        if saveMoves {
+            SelfPlayRunner.writeMoveHistory(gameResult, to: mhDir, groupLabel: groupLabel)
+        }
     }
 
     print("")
@@ -1350,6 +1391,8 @@ func runCalibrateNativeFromCLI() async {
 
     let config = SelfPlayConfig(red: diffA, black: diffB, games: games, maxMoves: maxMoves)
     let runner = SelfPlayRunner()
+    let groupLabel = "A\(lvlA)\(lvlB)"  // e.g. A34 for lvl3 vs lvl4
+    let mhDir = "calibration-results/move-history"
 
     let result = await runner.run(config: config) { completed, gameResult in
         let winnerStr: String
@@ -1360,6 +1403,8 @@ func runCalibrateNativeFromCLI() async {
         default: winnerStr = "未知"
         }
         print("  [\(completed)/\(games)] \(winnerStr) (\(gameResult.totalMoves)步, \(gameResult.reason.rawValue))")
+        // 逐局即时落盘（A3 教训：旧版跑完才统一写，崩溃 = 全丢）
+        SelfPlayRunner.writeMoveHistory(gameResult, to: mhDir, groupLabel: groupLabel)
     }
 
     let eloDelta = BayesElo.estimateDelta(wins: result.redWins, losses: result.blackWins, draws: result.draws)
@@ -1390,18 +1435,8 @@ func runCalibrateNativeFromCLI() async {
     try? report.write(toFile: outputPath, atomically: true, encoding: .utf8)
     print("报告已保存：\(outputPath)")
 
-    // 输出每局走法序列（moveHistory），供循环模式分析
-    let mhDir = "calibration-results/move-history"
-    try? fm.createDirectory(atPath: mhDir, withIntermediateDirectories: true)
-    let groupLabel = "A\(lvlA)\(lvlB)"  // e.g. A34 for lvl3 vs lvl4
-    for game in result.games {
-        let gameNum = game.gameIndex + 1
-        let mhFilename = "\(groupLabel)_game\(gameNum)_\(game.redDifficulty.rawValue)vs\(game.blackDifficulty.rawValue)_\(game.totalMoves).txt"
-        let mhPath = "\(mhDir)/\(mhFilename)"
-        let mhContent = game.moveHistory.joined(separator: "\n")
-        try? mhContent.write(toFile: mhPath, atomically: true, encoding: .utf8)
-    }
-    print("走法序列已保存：\(mhDir)/ (\(result.games.count) 局)")
+    // 走法序列已在 progressCallback 中逐局即时保存（崩溃不丢已完成局）
+    print("走法序列已保存：\(mhDir)/ （逐局即时写）")
 }
 #endif
 
