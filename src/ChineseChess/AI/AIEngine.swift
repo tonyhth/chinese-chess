@@ -98,8 +98,8 @@ actor AIEngine: AIEngineProtocol {
     }
 
     /// P2c-②：后端选择（m1-hotpath-redesign v1.2 §7.4 回滚开关窗口）。
-    /// 优先级：USE_SEARCHBOARD_V2 编译条件 > 实例注入（M1_HOTPATH env 默认值/双引擎实例覆盖） > Legacy。
-    /// 开发期默认 Legacy；P5 验收才切 V2 跑全量对比。一行切回 = 翻编译条件。
+    /// 优先级：USE_SEARCHBOARD_V2 编译条件 > boardPathOverride 实例注入（P5 双引擎 A/B 用） > Legacy。
+    /// 开发期默认 Legacy；P5 验收才切 V2 跑全量对比。一行切回 = 翻编译条件（跑法见 DEVTEAM.md a12f9c0 命令块）。
     #if USE_SEARCHBOARD_V2
     static let useSearchBoardV2 = true
     #else
@@ -1020,14 +1020,11 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - Null Move 辅助
 
-    private func shouldDisableNullMove<T: BoardReadable>(on board: T, config: AISearchConfig) -> Bool {
+    private func shouldDisableNullMove<B: SearchBoardProtocol>(on board: B, config: AISearchConfig) -> Bool {
         let side = board.currentTurn
-        var materialSum = 0
-        for piece in board.pieces(for: side) {
-            if piece.kind != .general && piece.kind != .advisor && piece.kind != .elephant {
-                materialSum += piece.baseValue
-            }
-        }
+        // P3-0（v1.2 §2.4 三层防线②）：NMP 守门子力和走后端快路径
+        // （V2 = 槽位扫描 nonGuardMaterial :290；Legacy = pieces(for:) 循环同语义，零行为变化）
+        let materialSum = board.nonGuardMaterial(side)
         if materialSum < config.nullMoveMaterialThreshold { return true }
 
         let kingPos = board.generalPosition(of: side)

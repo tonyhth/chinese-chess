@@ -34,6 +34,11 @@ protocol SearchBoardProtocol: BoardReadable {
 
     // ── MoveOrderer.checkLegal 分支可用性（§7.2 P2 守门⑦：V2 无拷贝路径 → false）──
     var supportsCheckLegalOrder: Bool { get }
+
+    // ── NMP 守门快路径（v1.2 §2.4 三层防线②，P3-0 接线）──
+    /// 非守子子力和（排除 general/advisor/elephant）。V2 = 槽位扫描直实现；
+    /// Legacy = pieces(for:) 循环（原语义，零行为变化）。每节点至多一次（depth≥3 NMP 守门）。
+    func nonGuardMaterial(_ side: Side) -> Int
 }
 
 // MARK: - Legacy 实现（零行为变化：全部路由到现有 MoveValidator / execute 路径）
@@ -53,6 +58,16 @@ extension LegacySearchBoard: SearchBoardProtocol {
     func asLegacyForCheckmate() -> LegacySearchBoard { self }
 
     var supportsCheckLegalOrder: Bool { true }
+
+    func nonGuardMaterial(_ side: Side) -> Int {
+        var total = 0
+        for piece in pieces(for: side) {
+            if piece.kind != .general && piece.kind != .advisor && piece.kind != .elephant {
+                total += piece.baseValue
+            }
+        }
+        return total
+    }
 }
 
 // MARK: - V2 实现（谓词组合 = 交叉对比断言 A + C + D，31,483 局面验证）
@@ -61,6 +76,7 @@ extension SearchBoardV2: SearchBoardProtocol {
     typealias Undo = UndoInfo
 
     // make / unmake / toggleTurn / inCheck 为 §2 原生实现，协议直用
+    // nonGuardMaterial 为 §2.4 原生实现（P3-0 接线：槽位扫描直实现，三层防线②）
 
     /// 伪合法成员匹配 + make 后自将检测（自副本执行，self 不变）。
     /// 谓词 = 断言 A（伪生成全等）∩ 断言 C（inCheck 双实现全等）。

@@ -205,4 +205,27 @@ struct M1HotpathSwitchTests {
         let restoredMove = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
         #expect(restoredMove != nil)
     }
+
+    @Test("P3-0 深链冒烟：override+lvl4 全链（IDS+QS+排序+杀法桥真实触发）")
+    func backendSwitchLvl4DeepChain() async {
+        // Ruby P2 整体审 P2-1 / P5 硬项①：on 态 lvl4 深链覆盖。
+        // 走若于开局库命中则不经 IDS——用非开局局面（随机游走 8 步，seed 固定）
+        // 遍历 CheckmateSearch 桥（asLegacyForCheckmate 真实触发路径）与 negamax/QS/order。
+        // 随机游走 8 步（偶数 → 轮红，与 Board(pieces:) 默认 currentTurn 一致，免 private(set) 限制）
+        let pieces = walkPieces(steps: 8, seed: 711)
+        let turn = walkTurn(steps: 8, seed: 711)
+        #expect(turn == .red, "前提：8 步后轮红（偶数步）")
+        let board = Board(pieces: pieces)
+        let engine = AIEngine()
+
+        await engine.setBoardPathOverride(true)   // 强制 V2
+        defer { Task { await engine.setBoardPathOverride(nil) } }
+        let move = await engine.bestMove(for: board, difficulty: .amateurMid, isIOS: false)  // lvl4
+        #expect(move != nil, "V2 态 lvl4 深链应返回走法")
+        if let m = move {
+            // 返回走法须在该局面合法（V2 谓词）——非法走法=0 前线哨兵的单元级版
+            let v2 = SearchBoardV2(pieces: pieces, currentTurn: turn)
+            #expect(v2.isLegal(m), "V2 lvl4 返回非法走法：\(m)")
+        }
+    }
 }
