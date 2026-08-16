@@ -29,6 +29,14 @@ protocol SearchBoardProtocol: BoardReadable {
     func legalMoves(for side: Side) -> [Move]
     func captureCandidates(for side: Side) -> [Move]
 
+    // ── A-1 伪合法化（P3-②，phase3.md v1.2 §3.2）──
+    /// 搜索循环候选源：Legacy = legalMoves（预过滤集，循环免自将检测）；
+    /// V2 = MoveGenerator.pseudoLegalMoves（循环内单遍 make+inCheck 过滤）。
+    /// 谓词等价由交叉对比断言 A 背书（pseudo − 送将集 == Legacy 合法集）。
+    func pseudoMoves(for side: Side) -> [Move]
+    /// true = pseudoMoves 返回集已这合法（Legacy）；false = 需循环内过滤（V2）
+    var moveSetPreFiltered: Bool { get }
+
     // ── CheckmateSearch 桥接（D4 P1：Legacy 直通副本，V2 pieces 重建）──
     func asLegacyForCheckmate() -> LegacySearchBoard
 
@@ -54,6 +62,9 @@ extension LegacySearchBoard: SearchBoardProtocol {
 
     func legalMoves(for side: Side) -> [Move] { MoveValidator.allLegalMoves(for: side, on: self) }
     func captureCandidates(for side: Side) -> [Move] { MoveValidator.captureMoves(for: side, on: self) }
+
+    func pseudoMoves(for side: Side) -> [Move] { legalMoves(for: side) }
+    var moveSetPreFiltered: Bool { true }
 
     func asLegacyForCheckmate() -> LegacySearchBoard { self }
 
@@ -106,6 +117,11 @@ extension SearchBoardV2: SearchBoardProtocol {
     func captureCandidates(for side: Side) -> [Move] {
         MoveGenerator.pseudoLegalMoves(on: self, capturesOnly: true)
     }
+
+    func pseudoMoves(for side: Side) -> [Move] {
+        MoveGenerator.pseudoLegalMoves(on: self)
+    }
+    var moveSetPreFiltered: Bool { false }
 
     /// Legacy 重建（O(32)，每 lvl4/5 步一次非热路径；pieces 读面 = 交叉对比 b 源复算面）
     func asLegacyForCheckmate() -> LegacySearchBoard {
