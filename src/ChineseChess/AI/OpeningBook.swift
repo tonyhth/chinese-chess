@@ -105,8 +105,17 @@ final class OpeningBook {
     }
 
     /// 将 ICCS 格式走法解析为 Move（供 AIEngine 使用）
+    /// 拷贝路径版（UI Board / LegacySearchBoard 调用方——Phase2aTests 等）。
+    /// 与协议版共存无歧义：Board 仅 conform SearchBoardConvertible，
+    /// AIEngine 泛型链仅匹配协议版。
     func parseICCSMove<T: SearchBoardConvertible>(_ iccs: String, on board: T) -> Move? {
         ICCSParser.parse(iccs, on: board)
+    }
+
+    /// P2c-①：SearchBoardProtocol 后端版（AIEngine 泛型链直通）。
+    /// 语义与拷贝路径版全等（交叉对比 A/C/D 谓词）。
+    func parseICCSMove<B: SearchBoardProtocol>(_ iccs: String, on board: B) -> Move? {
+        ICCSParser.parseOnBackend(iccs, on: board)
     }
 
     // MARK: - v1 兼容索引构建

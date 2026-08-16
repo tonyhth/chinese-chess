@@ -68,6 +68,7 @@ git diff --stat        # 确认 working tree 干净
 
 ```bash
 cd ChineseChess-iOS  # ⚠️ iOS 工程在子目录（主区 project.yml 是 macOS 的）
+xcodegen generate     # ⚠️ 新增源文件必先 regenerate，否则新文件不进 iOS target（P2c 教训：新增 .swift 后 iOS 报 cannot find type）
 xcodebuild build -project ChineseChess.xcodeproj -scheme ChineseChess \
   -configuration Debug -destination 'generic/platform=iOS' \
   CODE_SIGNING_ALLOWED=NO -derivedDataPath /tmp/ios-gate-dd
@@ -75,7 +76,19 @@ xcodebuild build -project ChineseChess.xcodeproj -scheme ChineseChess \
 
 - 检出 macOS 专属 API 裸用（AssessmentView :209 教训：phase 功能从未在 iOS 编译过）
 - 无签名/无设备依赖，任何环境可跑；DerivedData 独立路径不与主构建互踩
-- project.yml 为磁盘态配置（gitignored，勿 commit），由 xcodegen 维护
+- ~~project.yml 为磁盘态配置（gitignored，勿 commit），由 xcodegen 维护~~ **更正（2026-08-16，与 worktree 侧 f0a335b 同款）**：root project.yml 与 ChineseChess-iOS/project.yml 均 **git 跟踪**（可且应 commit）；gitignored 的是生成的 **xcodeproj** 磁盘态——验证 commit 态勿信残留，**regenerate 后再跑**
+- ⚠️ **错误跑法警示**：主工程 ChineseChess.xcodeproj 仅 macOS——直接对它跑 `generic/platform=iOS` 报 "Unable to find destination" / 先兆 "Supported platforms is empty"。必须 cd ChineseChess-iOS 按上块跑
+
+### 测试 env 传参规范（2026-08-16，P2c 踩坑落档）
+
+**env 直传不进 xcodebuild 测试进程**：`env FOO=1 xcodebuild test` 的 FOO 在测试内 `ProcessInfo.processInfo.environment` 读不到（xcodebuild 不透传给 test runner）。
+
+正确姿势：**`TEST_RUNNER_` 前缀**，xcodebuild 自动剥前缀后注入测试进程：
+```bash
+TEST_RUNNER_MOVEGEN_CROSSCHECK_FULL=1 xcodebuild test -scheme ChineseChess \
+  -only-testing:ChineseChessTests/MovegenCrosscheckTests -destination 'platform=macOS'
+```
+首跑教训：直传导致 FULL 批以默认规模静默假跑（715 局面 full=false），白烧一轮。同族陷阱与 `-only-testing` 过滤器漏写同源：**派单命令从本文件复制，不凭记忆**。
 
 ### 编译检查频率
 - 每修改 3-5 个源文件后执行一次 `xcodebuild build`

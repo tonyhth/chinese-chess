@@ -5,14 +5,8 @@ import Foundation
 /// 列 a-i 对应 col 0-8，行 0-9（0=黑方底线=row 9）
 struct ICCSParser {
 
-    /// 将 ICCS 格式字符串解析为 Move
-    /// - Parameters:
-    ///   - iccs: ICCS 格式走法，支持两种格式：
-    ///     - 字母格式："h2e2"（列a-i + 行0-9）
-    ///     - 数字格式："5450"（row + col + row + col）
-    ///   - board: 当前棋盘状态
-    /// - Returns: 合法的 Move，或 nil
-    static func parse<T: SearchBoardConvertible>(_ iccs: String, on board: T) -> Move? {
+    /// ICCS 坐标解码（字母/数字双格式）→ (from, to)。parse / parseOnBackend 共用（P2c-①）
+    static func parsePositions(_ iccs: String) -> (from: Position, to: Position)? {
         guard iccs.count == 4 else { return nil }
         let chars = Array(iccs)
 
@@ -31,8 +25,18 @@ struct ICCSParser {
             fromRow = fR; fromCol = fC; toRow = tR; toCol = tC
         }
 
-        let from = Position(row: fromRow, col: fromCol)
-        let to = Position(row: toRow, col: toCol)
+        return (Position(row: fromRow, col: fromCol), Position(row: toRow, col: toCol))
+    }
+
+    /// 将 ICCS 格式字符串解析为 Move
+    /// - Parameters:
+    ///   - iccs: ICCS 格式走法，支持两种格式：
+    ///     - 字母格式："h2e2"（列a-i + 行0-9）
+    ///     - 数字格式："5450"（row + col + row + col）
+    ///   - board: 当前棋盘状态
+    /// - Returns: 合法的 Move，或 nil
+    static func parse<T: SearchBoardConvertible>(_ iccs: String, on board: T) -> Move? {
+        guard let (from, to) = parsePositions(iccs) else { return nil }
 
         guard let piece = board.piece(at: from) else { return nil }
         let captured = board.piece(at: to)
@@ -40,6 +44,19 @@ struct ICCSParser {
 
         guard MoveValidator.isLegal(move, on: board) else { return nil }
         return move
+    }
+
+    /// P2c-①：SearchBoardProtocol 后端版（V2 路径，OpeningBook 链）。
+    /// 语义与 parse 全等：坐标解码 + 读面查子 + isLegal（谓词 = 交叉对比断言 A/C/D 组合）。
+    /// 命名区分避免与 parse<T: SearchBoardConvertible> 在 Legacy 具体类型上重载歧义。
+    static func parseOnBackend<B: SearchBoardProtocol>(_ iccs: String, on board: B) -> Move? {
+        guard let (from, to) = parsePositions(iccs) else { return nil }
+
+        guard let piece = board.piece(at: from) else { return nil }
+        let captured = board.piece(at: to)
+        let move = Move(piece: piece, from: from, to: to, captured: captured)
+
+        return board.isLegal(move) ? move : nil
     }
 
     /// 将 Position 转为 ICCS 字符串（字母格式，向后兼容）
