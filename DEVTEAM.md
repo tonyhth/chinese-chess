@@ -66,7 +66,10 @@ git diff --stat        # 确认 working tree 干净
 
 ### iOS 编译门禁（Phase 合入前必跑）
 
+⚠️ 路径修正（2026-08-16 Tina 验证 P1-1 实测踩坑）：主工程 `ChineseChess.xcodeproj` 仅支持 macOS，直接对它跑 iOS destination 必报 `Unable to find a destination matching ... { generic:1, platform:iOS }`（Available destinations 只有 My Mac / Any Mac；日志先兆 `Supported platforms for the buildables in the current scheme is empty`）。正确跑法 = **ChineseChess-iOS/ 独立 iOS 工程**，且先 xcodegen 从 project.yml 重新生成（xcodeproj 系 gitignored 磁盘态，验证 commit 态配置勿信残留工程）：
+
 ```bash
+cd ChineseChess-iOS && xcodegen generate && \
 xcodebuild build -project ChineseChess.xcodeproj -scheme ChineseChess \
   -configuration Debug -destination 'generic/platform=iOS' \
   CODE_SIGNING_ALLOWED=NO -derivedDataPath /tmp/ios-gate-dd
@@ -74,7 +77,7 @@ xcodebuild build -project ChineseChess.xcodeproj -scheme ChineseChess \
 
 - 检出 macOS 专属 API 裸用（AssessmentView :209 教训：phase 功能从未在 iOS 编译过）
 - 无签名/无设备依赖，任何环境可跑；DerivedData 独立路径不与主构建互踩
-- project.yml 为磁盘态配置（gitignored，勿 commit），由 xcodegen 维护
+- project.yml（主工程根与 ChineseChess-iOS/ 两处）均系 git 跟踪文件；生成的 .xcodeproj 为磁盘态（gitignored，勿 commit），由 xcodegen 维护
 
 ### 编译检查频率
 - 每修改 3-5 个源文件后执行一次 `xcodebuild build`
