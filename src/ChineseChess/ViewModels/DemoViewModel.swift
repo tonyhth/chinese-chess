@@ -211,6 +211,14 @@ class DemoViewModel {
         playState = .idle
     }
 
+    /// v6.2 走法记录点击跳转（macOS MoveRecordPanel / Tina P1-2）
+    /// BoardPlayer.jumpTo 薄封装 + 边界钳制；手动漫转与 step 同语义（停连播）
+    func jumpToMove(at moveIndex: Int) {
+        guard moveIndex >= 0, moveIndex <= moves.count else { return }
+        boardPlayer.jumpTo(index: moveIndex)
+        playState = .idle
+    }
+
     // MARK: - BoardPlayer 回调
 
     private func handleMoveExecuted(move: Move, moveIndex: Int) {

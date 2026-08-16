@@ -31,7 +31,7 @@ enum SidebarSelection: Hashable {
 // MARK: - 大师棋谱浏览器
 
 /// 独立的大师棋谱浏览视图（从 PuzzleDemoView 拆出）
-/// macOS：sidebar（按开局/棋手/赛事分类）+ 列表 + 棋谱播放
+/// macOS：分类筛选列表 + 棋谱播放（v4 移除 sidebar；v6.2 播放页改左右布局：棋盘左 + 右侧信息面板）
 /// iOS：全屏列表 → 棋谱播放
 struct MasterGameBrowserView: View {
     @State private var viewModel: DemoViewModel?
@@ -45,7 +45,7 @@ struct MasterGameBrowserView: View {
     @State private var browseMode: MasterGameBrowseMode = .opening
 
     /// macOS sidebar 统一选中
-    // sidebarSelection 已删除：v4 去掉 sidebar 后无消费者
+    // （历史注记：v4 移除 sidebar，selection 无消费者已删；头部注释 v6.2 对齐）
 
     /// 当前选中的开局分类
     @State private var selectedOpening: OpeningCategory? = nil
@@ -1353,9 +1353,9 @@ struct MasterGameBrowserView: View {
 
     #if os(macOS)
     private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
-        VStack(spacing: 0) {
-            DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
-
+        // v6.2 左右布局（v1.2 §三.1）：棋盘左（等比缩放）+ 右侧信息面板
+        // 点评从底部 overlay 改右侧常驻（P1-3），走法记录面板本页新增（P1-2）
+        ManagedSplitView {
             ZStack {
                 DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
 
@@ -1368,17 +1368,22 @@ struct MasterGameBrowserView: View {
             }
             .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            ZStack(alignment: .bottom) {
-                DemoControlBar(viewModel: vm, onBackToList: { backToList() })
-                if vm.showCommentary, let commentary = vm.currentCommentary {
-                    CommentaryOverlay(commentary: commentary, speed: vm.speed)
-                        .padding(.bottom, 8)
-                        .allowsHitTesting(false)
+        } right: {
+            DemoSidePanel(
+                commentary: vm.showCommentary ? vm.currentCommentary : nil,
+                notations: vm.moveNotations,
+                currentIndex: vm.currentIndex,
+                onMoveTap: { row in vm.jumpToMove(at: row + 1) },
+                header: {
+                    DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
+                },
+                footer: {
+                    DemoControlBar(viewModel: vm, onBackToList: { backToList() })
                 }
-            }
+            )
         }
-        .frame(minWidth: 600, minHeight: 700)
+        // v1.2 §三.2：左右布局需 min 800（左 400 + 右 300 + handle 8）；高度 750→600
+        .frame(minWidth: 800, minHeight: 600)
     }
     #endif
 
