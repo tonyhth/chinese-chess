@@ -90,6 +90,23 @@ TEST_RUNNER_MOVEGEN_CROSSCHECK_FULL=1 xcodebuild test -scheme ChineseChess \
 ```
 首跑教训：直传导致 FULL 批以默认规模静默假跑（715 局面 full=false），白烧一轮。同族陷阱与 `-only-testing` 过滤器漏写同源：**派单命令从本文件复制，不凭记忆**。
 
+### USE_SEARCHBOARD_V2 开关跑法（P2c-②，v1.2 §7.4）
+
+```bash
+# flag-off（默认，Legacy 路径）——直接跑，无需任何参数
+xcodebuild test -scheme ChineseChess -only-testing:ChineseChessTests/M1HotpathSwitchTests \
+  -destination 'platform=macOS' -derivedDataPath /tmp/xc-p2c-dd
+
+# flag-on（V2 路径，P5 验收/双态复核用）——OTHER_SWIFT_FLAGS 传编译条件
+env OTHER_SWIFT_FLAGS='-DUSE_SEARCHBOARD_V2' xcodebuild test -scheme ChineseChess \
+  -only-testing:ChineseChessTests/M1HotpathSwitchTests -destination 'platform=macOS' \
+  -derivedDataPath /tmp/xc-p2c-dd
+
+# 切回 Legacy = 去掉 env 前缀重跑（编译条件默认 off，无需改码）
+```
+
+⚠️ flag 与 TEST_RUNNER_ 前缀同族风险：OTHER_SWIFT_FLAGS 凭记忆重敲 = 假跑。双态复跑一律未本块复制。
+
 ### 编译检查频率
 - 每修改 3-5 个源文件后执行一次 `xcodebuild build`
 - 不要攒一大堆改动最后才编译
