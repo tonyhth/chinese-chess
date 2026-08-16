@@ -209,4 +209,29 @@ struct M1P3SpecialTests {
         // QS 候选（粗集）可为非空（pseudo 吃子），但循环过滤后全跳——引擎层不进 QS（depth=0 走 negamax 空集）
         #expect(v2.captureCandidates(for: .black) == v2.captureCandidates(for: .black), "QS 粗集确定性")
     }
+
+    // MARK: - V2 契约证据测试（Luke 指令 2026-08-16 夜，两份崩溃报告归档）
+
+    @Test("V2 契约：越界 id 局面在引擎入口被预检回退（不触断言）")
+    func v2ContractEvidence() async {
+        // 历史事实：on 态全量首跑（21:01/21:05）两崩，均因手写 fixture
+        // id 250/283/285 越出 V2 槽位契约 0..31，V2.init :71 Debug 断言拦截
+        // （A3 输入侧防御正常工作）。产品侧修法 = 入口预检回退 Legacy
+        // （resolvedSearchBoard.v2Eligible，38d454b），本测试固化该行为：
+        // 非法 id 局面在 on 语义（override=true）下走 Legacy 不崩且返回合法着。
+        let badPieces = [
+            Piece(kind: .general, side: .red,   position: Position(row: 9, col: 4), id: 8),
+            Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24),
+            Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 283),  // 越界：真实历史值
+        ]
+        let board = Board(pieces: badPieces)
+        let engine = AIEngine()
+        await engine.setBoardPathOverride(true)   // 强制 V2 语义
+        defer { Task { await engine.setBoardPathOverride(nil) } }
+        // 不崩 = 入口预检生效（直接 SearchBoardV2(pieces:) 在 Debug 下会断言炸）
+        let backend = await engine.resolvedSearchBoard(from: board)
+        #expect(backend is LegacySearchBoard, "越界 id 局面应回退 Legacy，实际 \(type(of: backend))")
+        let move = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
+        #expect(move != nil, "回退路径正常返回走法")
+    }
 }
