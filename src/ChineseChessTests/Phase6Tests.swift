@@ -191,7 +191,7 @@ struct MoveTests6 {
     @Test("Move 带吃子")
     func testMoveWithCapture() {
         let red = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
-        let black = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let black = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 16)
         let move = Move(piece: red, from: Position(row: 9, col: 0), to: Position(row: 5, col: 0), captured: black)
         #expect(move.captured?.side == .black)
     }
@@ -1064,7 +1064,7 @@ struct GameMoveExtendedTests6 {
     @Test("GameMove 带吃子 Codable")
     func testGameMoveWithCaptureCodable() throws {
         let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
-        let captured = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let captured = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 16)
         let move = GameMove(
             id: UUID(),
             piece: piece,

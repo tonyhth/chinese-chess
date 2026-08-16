@@ -130,7 +130,7 @@ struct IntegrationTests {
         // 简单残局：黑方车马 vs 红方帅
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 16)
         let bh = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 1), id: 18)
         let board = Board(pieces: [rg, bg, bc, bh])
         let engine = AIEngine()

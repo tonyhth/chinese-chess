@@ -179,7 +179,7 @@ struct Phase2aTests {
         // 构造一个有吃子走法的局面
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 16)
         let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 1), id: 151)
         let board2 = Board(pieces: [rg, bg, blackChariot, redHorse])
         board2.setCurrentTurn(.black)
@@ -293,7 +293,7 @@ struct Phase2aTests {
     func beginnerDoesNotBlunderBigPieces() async {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 250)
+        let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 16)
         let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 1), id: 9)
         let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0), id: 11)
 
