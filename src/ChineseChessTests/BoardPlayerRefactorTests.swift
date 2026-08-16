@@ -821,7 +821,13 @@ struct ReplayNoAutoRestartTests {
         #expect(player.currentIndex == 1)
     }
 
-    @Test("ReplayVM 中途暂停后再播放可以继续")
+    // 基线污染单3（Alex L2 §3）：flaky——3 跑 2 红 1 绿（dc4653d §三），isAutoPlaying 时序竞态
+    // 隔离批否决理由：单跑隔离态即复现，隔离不消除竞态只挪噪声
+    // 守门原则：基线成员必须确定性（绿或 skip），不掷硬币（known-issues 已记）
+    // ⚠️ 形态实证（verify4-6 三轮）：XCTSkip 在 async test 被本版 swift-testing 记为红（伪装断言债，更糟）；
+    // .disabled trait = 确定性排除（Test run 计数 22，计数比对可见）。修复落地（Ruby P2 结构化指引）时
+    // 同 commit 移除此 trait——已写入 P2 工单验收项
+    @Test("ReplayVM 中途暂停后再播放可以继续", .disabled("flaky: isAutoPlaying 时序竞态（dc4653d §三，3 跑 2 红 1 绿）——Ruby P2 结构化修复落地时同 commit 移除"))
     func replay_pauseThenPlay_continues() async {
         let (record, _) = BoardPlayerRefactorTests.makeGameRecord(moves: 10)
         let vm = ReplayViewModel(record: record)

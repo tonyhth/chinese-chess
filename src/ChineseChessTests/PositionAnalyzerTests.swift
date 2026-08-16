@@ -230,7 +230,7 @@ struct PositionAnalyzerTests {
 
     // MARK: - C API 集成测试（需要引擎）
 
-    @Test("evaluate: 标准开局 FEN 返回有效评估")
+    @Test("evaluate: 标准开局 FEN 返回有效评估", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：引擎不可用，环境破缺 skip（门规：批次 Test run 计数必须等于全量数，少计=环境破缺批次作废）"))  // 基线污染单2：skip 第三态
     func testEvaluateStartingPosition() async throws {
         // v3.7.2: P0 已传入 time_ms=2000，不会无限挂起
         let startFEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
@@ -243,7 +243,7 @@ struct PositionAnalyzerTests {
         #expect(!line.bestMove.isEmpty, "bestMove 应非空")
     }
 
-    @Test("topMoves: MultiPV 返回多条候选")
+    @Test("topMoves: MultiPV 返回多条候选", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：引擎不可用，环境破缺 skip（门规：批次 Test run 计数必须等于全量数，少计=环境破缺批次作废）"))  // 基线污染单2：skip 第三态
     func testTopMovesMultiPV() async throws {
         let startFEN = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
 
@@ -257,7 +257,7 @@ struct PositionAnalyzerTests {
         }
     }
 
-    @Test("analyzeMove: 完整单步分析返回有效结构")
+    @Test("analyzeMove: 完整单步分析返回有效结构", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：引擎不可用，环境破缺 skip（门规：批次 Test run 计数必须等于全量数，少计=环境破缺批次作废）"))  // 基线污染单2：skip 第三态
     func testAnalyzeMoveComplete() async throws {
         let fenBefore = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
         let playerMove = "h2e2"

@@ -59,6 +59,7 @@ git diff --stat        # 确认 working tree 干净
 - **⚠️ 不再使用 `swift build` / `swift test`**（Package.swift 已删除，SPM 已废弃）
 
 ### ⚠️ 测试命令（铁律）
+- **起跑前预检（2026-08-16 起，基线污染单2）**：`~/DevTeam/scripts/preflight-test-assets.sh <worktree根>`——四类 gitignored 资产（nnue / Pikafish 引擎 / data JSON / Accessibility 源）缺一即退出码 3 终止，不烧批次；隔离 worktree 必跑（资产不随 git 走，dc4653d §五.2 实证四轮补资产的学费）
 - **禁止全量 `xcodebuild test`**（不带过滤参数）— Intel Mac 必定超时
 - **必须用** `xcodebuild test -skip-testing:EloBaselineTests`
 - 专项测试：`xcodebuild test -only-testing:<TestClassName>`
