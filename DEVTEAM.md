@@ -60,6 +60,9 @@ git diff --stat        # 确认 working tree 干净
 
 ### ⚠️ 测试命令（铁律）
 - **起跑前预检（2026-08-16 起，基线污染单2）**：`~/DevTeam/scripts/preflight-test-assets.sh <worktree根>`——四类 gitignored 资产（nnue / Pikafish 引擎 / data JSON / Accessibility 源）缺一即退出码 3 终止，不烧批次；隔离 worktree 必跑（资产不随 git 走，dc4653d §五.2 实证四轮补资产的学费）
+- **Test run 计数与基线比对 = 常规门规（2026-08-16 起）**：每测试批 Test run 总数与比对锚核对——**锚 = 同 commit 预期起跑数**（套件清单变更只走 docs commit 同步更新，禁运行时自适应锚）；**缺口 = 批次作废（hard fail）**非警告；误报处置序 = 先查环境再查清单，不允许补录豁免
+  - 背景：`.disabled` 静默性双向刃（对 CI 不可见，任何人静默 disable 用例同样无痕——dc4653d 三跑实录是运气不是机制）+ 本版 swift-testing xcresult `skippedTests` 恒 0（verify4 实测）→ Test run 总数缺位 = 唯一可见信号
+  - 谱系呼应：与 aa35f46 存量对账账目同源——静态账目 vs 动态起跑数，同一对账原则的运行时延伸
 - **禁止全量 `xcodebuild test`**（不带过滤参数）— Intel Mac 必定超时
 - **必须用** `xcodebuild test -skip-testing:EloBaselineTests`
 - 专项测试：`xcodebuild test -only-testing:<TestClassName>`
