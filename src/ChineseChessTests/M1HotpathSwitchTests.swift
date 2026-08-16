@@ -228,4 +228,57 @@ struct M1HotpathSwitchTests {
             #expect(v2.isLegal(m), "V2 lvl4 返回非法走法：\(m)")
         }
     }
+
+    // MARK: - P3-① MoveOrderer V2 双快路径（phase3.md 裁定 A）
+
+    @Test("P3-①：V2 态给将走法排首（checkLegal 恢复兑现）")
+    func orderV2GivesCheckFirst() {
+        // 红车 (5,4) 上行吃黑车 (2,4) 后与黑将 (0,4) 同列且 (1,4) 空 → 将军；
+        // 黑车 (2,4) 同时挡住红车直进吃将路径（无吃将边角）。其余走法均不将军。
+        let pieces = [
+            Piece(kind: .general, side: .red,   position: Position(row: 9, col: 4), id: 8),
+            Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24),
+            Piece(kind: .chariot, side: .red,   position: Position(row: 5, col: 4), id: 0),
+            Piece(kind: .chariot, side: .black, position: Position(row: 2, col: 4), id: 16),
+            Piece(kind: .soldier, side: .red,   position: Position(row: 6, col: 3), id: 12),
+        ]
+        let v2 = SearchBoardV2(pieces: pieces, currentTurn: .red)
+        let legal = v2.legalMoves(for: .red)
+        #expect(!legal.isEmpty)
+        let orderer = MoveOrderer()
+        let ordered = orderer.order(legal, on: v2, checkLegal: true, depth: 3)
+        guard let first = ordered.first else {
+            IssueRecord("空排序结果")
+            return
+        }
+        // 唯一将军着：红车 (5,4)→(2,4) 吃黑车（将军 +50000，且是吃子加分叠加）
+        let isCheckMove = first.from.row == 5 && first.from.col == 4
+            && first.to.row == 2 && first.to.col == 4 && first.captured != nil
+        #expect(isCheckMove, "给将走法未排首：\(first)")
+    }
+
+    @Test("P3-①：order 双后端输出全等（threatBonusV2 等价锚，§4 #6）")
+    func orderV2EquivalenceAnchor() {
+        // 同局面同参数（checkLegal=false 隔离 givesCheck 路径，纯 threatBonus/公式链比对）。
+        // 双后端生成序可能不同（集合等价、序不比对），统一排序输入后再 order，
+        // 等分段的稳定排序输出才可逐位比对——threatBonusV2 排序行为等价锚。
+        for s in samples() {
+            let legacy = LegacySearchBoard(pieces: s.pieces, currentTurn: s.turn)
+            let v2 = SearchBoardV2(pieces: s.pieces, currentTurn: s.turn)
+            let canonical: ([Move]) -> [Move] = { $0.sorted { key($0) < key($1) } }
+            let legacyMoves = canonical(legacy.legalMoves(for: s.turn))
+            let v2Moves = canonical(v2.legalMoves(for: s.turn))
+            let orderer = MoveOrderer()
+            let viaLegacy = orderer.order(legacyMoves, on: legacy, checkLegal: false, depth: 3)
+            let viaV2 = orderer.order(v2Moves, on: v2, checkLegal: false, depth: 3)
+            let kl = viaLegacy.map(key)
+            let kv = viaV2.map(key)
+            #expect(kl == kv, "[\(s.tag)] 排序输出分歧：Legacy=\(kl) V2=\(kv)")
+        }
+    }
+
+    /// 测试内轻量断言封装（Issue.record 语义）
+    private func IssueRecord(_ msg: String) {
+        Issue.record(Comment(rawValue: msg))
+    }
 }

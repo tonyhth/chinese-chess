@@ -112,8 +112,14 @@ struct MoveOrderer {
     ///   - countermoveKey: 对手上一走法的 countermove 完整键（A-3，如有）
     /// P2c-①：约束放宽 SearchBoardConvertible → BoardReadable（V2 无拷贝路径不可实现前者，
     /// v1.2 §3.3 MoveOrderer 行）。checkLegal 分支 as? 下派发：Legacy 走拷贝路径；
-    /// V2 无快路径前不可达（调用方 supportsCheckLegalOrder 门控必传 false，P2 守门⑦）。
+    /// **P3-①（phase3.md 裁定 A）：V2 分支已建**（orderV2 双快路径）——givesCheckV2
+    /// work 副本 make O(1)+inCheck O(32)+unmake O(1)，threatBonusV2 预提取零分配。
     func order<T: BoardReadable>(_ moves: [Move], on board: T, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermoveKey: Int? = nil) -> [Move] {
+        // P3-①：V2 双快路径入口（order 层一次 as?；work 副本/预提取都在分支内）
+        if let v2 = board as? SearchBoardV2 {
+            return orderV2(moves, on: v2, ttMove: ttBestMove, cmKey: countermoveKey,
+                           checkLegal: checkLegal, depth: depth)
+        }
         let ttMove = ttBestMove
         let cmKey = countermoveKey
 
@@ -155,6 +161,81 @@ struct MoveOrderer {
         }
         .sorted { $0.1 > $1.1 }
         .map { $0.0 }
+    }
+
+    // MARK: - P3-① V2 双快路径（phase3.md 裁定 A + Vera 硬化注 3 条）
+
+    /// V2 分支排序：work 副本提升到 order 层（每调用一次，~246B = 5 个 [Int8] 缓冲 COW 之和
+    /// + 重绑空 undoStack/moveHistory 防深度 COW，硬化注2/3）；givesCheckV2 每候选断言复位（硬1）。
+    /// 评分公式与 Legacy 分支逐项全等（tt/将军/吃子/killer/countermove/threat/history）。
+    private func orderV2(_ moves: [Move], on v2Board: SearchBoardV2,
+                          ttMove: Move?, cmKey: Int?, checkLegal: Bool, depth: Int?) -> [Move] {
+        var work = v2Board
+        work.prepareOrderWork()
+        // 预提取：行棋方全部同 side，对方目标集 order 层一次（裁定 A 零分配锚）
+        let moverSide: Side = moves.first?.piece.side ?? v2Board.currentTurn
+        let opponent: Side = (moverSide == .red) ? .black : .red
+        let targets = v2Board.threatTargets(of: opponent)
+
+        return moves.map { move -> (Move, Int) in
+            var score = 0
+            // 0. 置换表最佳
+            if let tt = ttMove, Self.isSameMove(move, tt) { score += 100000 }
+            // 1. 将军走法（V2 快路径：make O(1) + inCheck O(32) + unmake O(1)）
+            if checkLegal && givesCheckV2(move, &work) { score += 50000 }
+            // 2. 吃子 MVV-LVA
+            if let captured = move.captured { score += 10000 + captured.baseValue * 10 - move.piece.baseValue }
+            // 3. Killer
+            if let d = depth, isKillerMove(move, depth: d) { score += 8000 }
+            // 3.5 Countermove（A-3 完整键含 side）
+            if let cm = cmKey, Self.historyKey(move) == cm { score += 6000 }
+            // 4. 威胁子力（V2 预提取版，公式/baseValue 与 Legacy 全等——等价锚 §4 #6）
+            score += threatBonusV2(move, targets: targets)
+            // 5. 历史启发（A-3 整数键直索引）
+            score += Int(historyTable[Self.historyKey(move)])
+            return (move, score)
+        }
+        .sorted { $0.1 > $1.1 }
+        .map { $0.0 }
+    }
+
+    /// V2 将军检测：work 副本上 make → inCheck(对方) → unmake，严格配对。
+    /// 硬化注1：每候选断言复位（O(1)），不在 order 出口集中查——中途失衡立即定位。
+    private func givesCheckV2(_ move: Move, _ work: inout SearchBoardV2) -> Bool {
+        let undo = work.make(move)
+        let opponent: Side = (move.piece.side == .red) ? .black : .red
+        let inCheck = work.inCheck(opponent)
+        work.unmake(undo)
+        assert(work.moveHistory.count == 0,
+               "givesCheckV2 work 副本失衡（P3-① 硬化注1）")
+        return inCheck
+    }
+
+    /// V2 威胁加分：预提取元组零分配查询。
+    /// 语义与 Legacy threatBonus 逐分支全等（车同行列/5、炮同行列/10、马日字/5、上限 5000）。
+    private func threatBonusV2(_ move: Move, targets: [(row: Int, col: Int, baseValue: Int)]) -> Int {
+        var bonus = 0
+        switch move.piece.kind {
+        case .chariot:
+            for t in targets where t.baseValue >= 300 {
+                if t.row == move.to.row || t.col == move.to.col { bonus += t.baseValue / 5 }
+            }
+        case .cannon:
+            for t in targets where t.baseValue >= 300 {
+                if t.col == move.to.col || t.row == move.to.row { bonus += t.baseValue / 10 }
+            }
+        case .horse:
+            let horseMoves = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2)]
+            for (dr, dc) in horseMoves {
+                let tr = move.to.row + dr, tc = move.to.col + dc
+                if let t = targets.first(where: { $0.row == tr && $0.col == tc }) {
+                    bonus += t.baseValue / 5
+                }
+            }
+        default:
+            break
+        }
+        return min(bonus, 5000)
     }
 
     // MARK: - 将军检测

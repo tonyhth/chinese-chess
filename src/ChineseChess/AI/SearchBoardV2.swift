@@ -304,6 +304,32 @@ extension SearchBoardV2 {
         return total
     }
 
+    // MARK: - P3-① order 快路径支撑（phase3.md 裁定 A + Vera 硬化注）
+
+    /// order work 副本准备（硬化注2）：undoStack/moveHistory 重绑空数组——
+    /// 深度比例 COW（UndoInfo ~40B × 深度 8-10）共享 + 首 make 触发整栈拷贝的规避；
+    /// 断言简化为归零判（make/unmake 平衡后两数组应回到空）。
+    mutating func prepareOrderWork() {
+        undoStack = []
+        moveHistory = []
+    }
+
+    /// 预提取对方活跃威胁目标（裁定 A：order 层一次，循环内零分配）。
+    /// 语义锚 = Legacy threatBonus 的 opponentPieces（对方非将活跃子，
+    /// baseValueLookup 与 Piece.baseValue 逐值同源——Ruby P2 实核）。
+    func threatTargets(of opponent: Side) -> [(row: Int, col: Int, baseValue: Int)] {
+        var out: [(row: Int, col: Int, baseValue: Int)] = []
+        for slot in 0..<32 {
+            let sq = pieceSquares[slot]
+            guard sq >= 0 else { continue }
+            let code = pieceCodes[slot]
+            guard PieceCode.side(of: code) == opponent else { continue }
+            guard PieceCode.kind(of: code) != .general else { continue }
+            out.append((Int(sq) / 9, Int(sq) % 9, baseValueLookup(code, at: sq)))
+        }
+        return out
+    }
+
     // MARK: - 将军检测快路径（v1.2 §2.7）
     //
     // 双分量规格（v1.2-draft，D1-P1-2 + D3-P0-1 双独立确认）：
