@@ -41,6 +41,7 @@
 - **in-test**：共享 preflight helper（如 `TestEnvPreflight.requireNNUE()`）挂引擎 suite setUp，缺失 → `XCTSkip`。skip 是第三态（非红非绿），不会被指纹比对误读为产品缺陷——正对 Tina 方法论五.2
 - **脚本级**：baseline/gating 起跑前预检四类 gitignored 资产（nnue / Pikafish 库 / data JSON / Accessibility 源），缺即独立退出码终止——不烧 20 分钟批次（Tina 四轮补资产的真实成本在此偿还）
 - ⚠️ **配套门规（必带，否则 skip 形态反成漏洞）**：gating/baseline 有效性判据加 **skip 计数 == 0**。skip>0 = 环境破缺、批次作废——防静默绿
+  - 版本注记（08-16 晚，Tina 执行发现）：本版 swift-testing ① XCTSkip 在 async test 记红（弃用）② .disabled trait 确定性排除但 xcresult/stdout 零痕迹——skip 计数不可观测，门规改载体：**Test run 计数比对**（缺资产 → 引擎用例不起跑 → run 计数低于同 commit 套件清单锚点 → 批次作废；gating 资产预检拦截为主，计数比对为网内兑底）。防静默绿效力等价且覆盖面更广（任何确定性排除形态均掉计数）
 
 ## 3. flaky 标记 — skip 条件注记，否决隔离批
 
