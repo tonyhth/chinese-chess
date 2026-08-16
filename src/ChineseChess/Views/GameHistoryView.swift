@@ -42,18 +42,12 @@ struct GameHistoryView: View {
     var body: some View {
         List(selection: isSelectMode ? $selectedIDs : nil) {
             if filteredSummaries.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.largeTitle)
-                        .foregroundColor(.secondary)
-                    Text(l10n.t("history.empty"))
-                        .foregroundColor(.secondary)
+                // v6.2 P1-2: 空态统一 ContentUnavailableView（macOS 14+/iOS 17+ 达标，Eric）
+                ContentUnavailableView {
+                    Label(l10n.t("history.empty"), systemImage: "clock.arrow.circlepath")
+                } description: {
                     Text(l10n.t("history.empty.hint"))
-                        .font(.subheadline)
-                        .foregroundColor(.secondary.opacity(0.8))
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
             } else {
                 ForEach(filteredSummaries) { summary in
                     GameHistorySummaryRow(summary: summary)
