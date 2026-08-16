@@ -6,6 +6,17 @@ import XCTest
 /// Bug 4: 按赛事 sidebar 布局不完整 (.frame(width:) → .frame(minWidth:idealWidth:))
 /// Bug 1 & Bug 2 已由 TutorialFENRedGeneralTests 覆盖（内容完全一致），此处不重复
 final class MasterGameFixTests: XCTestCase {
+    private var savedLang = ""
+
+    override func setUp() {
+        super.setUp()
+        savedLang = TestL10nSupport.injectZhHans()  // 基线污染单1：泄漏源接线（setUp/tearDown 形态，Alex L2 §1 要点4）
+    }
+
+    override func tearDown() {
+        TestL10nSupport.restore(savedLang)
+        super.tearDown()
+    }
 
     // MARK: - Bug 3: 大师棋谱空状态文案
 

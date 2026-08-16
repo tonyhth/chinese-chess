@@ -11,7 +11,10 @@ import Foundation
 @testable import ChineseChess
 
 @Suite("D5 i18n 审计验证", .serialized)
-struct D5I18nAuditVerificationTests {
+final class D5I18nAuditVerificationTests {
+    private var savedLang = ""
+    init() { savedLang = TestL10nSupport.injectZhHans() }  // 基线污染单1：泄漏源接线（Alex L2 §1 要点4）
+    deinit { TestL10nSupport.restore(savedLang) }
 
     // MARK: - 工具方法
 
