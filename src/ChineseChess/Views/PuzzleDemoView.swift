@@ -442,16 +442,29 @@ struct PuzzleDemoView: View {
     // MARK: - macOS 布局
     #if os(macOS)
     private func macosLayout(viewModel vm: DemoViewModel) -> some View {
-        VStack(spacing: 0) {
-            DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
-
+        // v6.2 左右布局（v1.2 §三.1，与 MasterGameBrowserView 同构）：
+        // 棋盘左（等比缩放）+ 右侧信息面板；点评从 iOS overlay 语境改为右侧常驻
+        // （macOS 此前无点评显示，v6.2 面板化补齐）；走法记录面板新增（P1-2）
+        ManagedSplitView {
             DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
                 .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            DemoControlBar(viewModel: vm, onBackToList: { backToList() })
+        } right: {
+            DemoSidePanel(
+                commentary: vm.showCommentary ? vm.currentCommentary : nil,
+                notations: vm.moveNotations,
+                currentIndex: vm.currentIndex,
+                onMoveTap: { row in vm.jumpToMove(at: row + 1) },
+                header: {
+                    DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
+                },
+                footer: {
+                    DemoControlBar(viewModel: vm, onBackToList: { backToList() })
+                }
+            )
         }
-        .frame(minWidth: 600, minHeight: 700)
+        // v1.2 §三.2：左右布局需 min 800；高度 700→600
+        .frame(minWidth: 800, minHeight: 600)
     }
     #endif
 
