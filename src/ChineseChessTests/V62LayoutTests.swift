@@ -11,6 +11,9 @@ import Testing
 //   语义锚 = 交接说明（禁回头 HSplitView）→ 断言改为 ManagedSplitView 组件存在 +
 //   macosPlayLayout / macosLayout 接入之。
 // 源码定位：#filePath 相对推导（不重蹈 MasterGameFixTests 主树硬路径的混读坑）
+// ⚠️ 自动化边界（Ruby 整审 P2 建议采纳 2026-08-16）：T1-T10 锚定源码存在性与结构；
+//   拖拽持久化/点击跳转/宽度可用性等交互行为归 M4 手工清单（Tina 11 项制）验证，
+//   勿将源码锚误当行为全验。
 
 @Suite("v6.2 macOS 左右布局 T1-T10")
 struct V62LayoutTests {
