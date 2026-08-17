@@ -1,7 +1,8 @@
 import Foundation
 
 struct Piece: Equatable, Identifiable, Codable {
-    let id: Int              // P0-1 修正：稳定唯一 ID（0-31），开局分配
+    let id: Int              // P0-1 修正：稳定唯一 ID。实际产品域（含 fallbackId 直接编码，见下方推算函数）：
+                                  // 开局初始位置 0-31；非开局位置 10000-16198（见 Piece.swift fallbackId 推算）
     let kind: PieceKind
     let side: Side
     var position: Position

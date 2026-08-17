@@ -35,6 +35,13 @@ struct AISearchConfig {
     var maxCheckExtensions: Int = 8
     var nullMoveMaterialThreshold: Int = 2000
 
+    /// P4-②（v1.2 §5.3 + phase4 §1 开关边界裁定）：QS standPat 评估策略。
+    /// false（默认）= cheapEval（M1 V2 主张路径，P4-0 通过前提已满足）；
+    /// true = 全量 evaluate（回退档 L1，零 rebuild 实例切换）。
+    /// 仅 V2 态生效（Legacy 六点全走原路全量，无效位）；razor/futility 不设开关
+    /// （margin 容差吸收）。默认值入口处读 env QS_STANDPAT_FULL=1（不进程缓存）。
+    var qsStandPatFullEval: Bool = false
+
     /// 默认配置：所有优化关闭（中级及以下安全）
     static let `default` = AISearchConfig()
 

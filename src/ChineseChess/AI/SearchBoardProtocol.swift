@@ -47,6 +47,22 @@ protocol SearchBoardProtocol: BoardReadable {
     /// 非守子子力和（排除 general/advisor/elephant）。V2 = 槽位扫描直实现；
     /// Legacy = pieces(for:) 循环（原语义，零行为变化）。每节点至多一次（depth≥3 NMP 守门）。
     func nonGuardMaterial(_ side: Side) -> Int
+
+    // ── P4-② cheapEval 分流（phase4.md §1 开关边界裁定）──
+    /// 评估策略旗标（轴分离：表示层 USE_SEARCHBOARD_V2 / 评估策略 qsStandPatFullEval
+    /// 两轴正交禁锁死）。Legacy false = 六点全走原路全量（零触碰铁律）；
+    /// V2 true = razor/futility/standPat 三点分流。
+    var supportsCheapEval: Bool { get }
+
+    /// 廉价评估（v1.2 §5.1：material+pstSum 差值 O(1)）。仅 supportsCheapEval==true
+    /// 时有意义（消费方门控同 supportsCheckLegalOrder 形态）；Legacy witness 返回 0。
+    func cheapEval(for side: Side) -> Int
+
+    // ── P4-① pieceCount 协议化（phase4 §1 standPat 守卫）──
+    /// 活子数（含将帅，同 board.pieces.count 口径）。V2 = 增量字段 O(1) 直读；
+    /// Legacy = pieces.count O(n)（守卫每 QS 节点读，Legacy 非主张路径可接受）。
+    /// 消费方：standPat ≤6 子守卫（Endgame 域 full eval 分值体系不同，cheap 不覆盖）。
+    var pieceCount: Int { get }
 }
 
 // MARK: - Legacy 实现（零行为变化：全部路由到现有 MoveValidator / execute 路径）
@@ -79,6 +95,10 @@ extension LegacySearchBoard: SearchBoardProtocol {
         }
         return total
     }
+
+    var supportsCheapEval: Bool { false }
+    func cheapEval(for side: Side) -> Int { 0 }  // Legacy：不支持（消费方 supportsCheapEval 门控，永不被调）
+    var pieceCount: Int { pieces.count }
 }
 
 // MARK: - V2 实现（谓词组合 = 交叉对比断言 A + C + D，31,483 局面验证）
@@ -122,6 +142,9 @@ extension SearchBoardV2: SearchBoardProtocol {
         MoveGenerator.pseudoLegalMoves(on: self)
     }
     var moveSetPreFiltered: Bool { false }
+
+    var supportsCheapEval: Bool { true }
+    // cheapEval(for:) 为 §5.1 原生实现（本文件 P4-① 落地），协议直用
 
     /// Legacy 重建（O(32)，每 lvl4/5 步一次非热路径；pieces 读面 = 交叉对比 b 源复算面）
     func asLegacyForCheckmate() -> LegacySearchBoard {
