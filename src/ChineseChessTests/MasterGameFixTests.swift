@@ -35,7 +35,8 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证残局模块仍使用 demo.noData（不受影响）
     func testPuzzleStillUsesDemoNoDataKey() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/PuzzleDemoView.swift"
+        // v6.2 断言清偿：#file 相对路径解析（原 NSHomeDirectory 绝对路径指向主库——测试移动目标）
+        let viewPath = Self.relativeSourcePath("PuzzleDemoView.swift")
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 PuzzleDemoView.swift")
             return
@@ -46,7 +47,8 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 master.noData key 在 xcstrings 中存在且有双语翻译
     func testMasterNoDataKeyInXcstrings() {
-        let xcstringsPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Resources/Localizable.xcstrings"
+        // v6.2 断言清偿：#file 相对路径解析（原 NSHomeDirectory 绝对路径指向主库——测试移动目标）
+        let xcstringsPath = Self.xcstringsPath()
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: xcstringsPath)),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let strings = json["strings"] as? [String: [String: Any]] else {
@@ -79,7 +81,8 @@ final class MasterGameFixTests: XCTestCase {
 
     /// 验证 demo.noData key 仍在 xcstrings 中（未被误删）
     func testDemoNoDataKeyStillExists() {
-        let xcstringsPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Resources/Localizable.xcstrings"
+        // v6.2 断言清偿：#file 相对路径解析（原 NSHomeDirectory 绝对路径指向主库——测试移动目标）
+        let xcstringsPath = Self.xcstringsPath()
         guard let data = try? Data(contentsOf: URL(fileURLWithPath: xcstringsPath)),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let strings = json["strings"] as? [String: [String: Any]] else {
@@ -136,8 +139,9 @@ final class MasterGameFixTests: XCTestCase {
                        "不应再有 .frame(width: 200) 硬编码宽度")
     }
 
-    /// 验证浏览模式 sidebar 宽度约束（v6.2 断言清偿：布局已演进为 maxWidth: 240，旧 minWidth/idealWidth 200 作废）
-    func testSidebarUsesMinWidthIdealWidth() {
+    /// 验证浏览模式 sidebar 宽度约束
+    /// 台账锚点：原 testSidebarUsesMinWidthIdealWidth，2026-08-16 P2 sweep 更名——旧名与断言方向相反（断言的是 maxWidth: 240，旧 minWidth/idealWidth 200 已作废）
+    func testSidebarUsesMaxWidthConstraint() {
         let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
@@ -150,9 +154,9 @@ final class MasterGameFixTests: XCTestCase {
                        "浏览模式 sidebar 应有1处 .frame(maxWidth: 240)，实际\(occurrences)次")
     }
 
-    /// 验证顶部工具栏布局（v6.2 断言清偿：v4 起 sidebar 已删除——:48 注释存证，宽度约束迁移至
-    /// browserTopBar 的 modePicker maxWidth:240；方法名保留存量对账不改）
-    func testBrowserLayoutSidebarFrame() {
+    /// 验证顶部工具栏布局（v4 起 sidebar 已删除，宽度约束迁移至 browserTopBar 的 modePicker maxWidth:240）
+    /// 台账锚点：原 testBrowserLayoutSidebarFrame，2026-08-16 P2 sweep 更名——旧名与断言方向相反（sidebar v4 起已删除，断言对象实为 browserTopBar；原“保留不改”注释随之作废）
+    func testBrowserTopBarLayoutConstraint() {
         let viewPath = Self.masterGameBrowserViewPath()
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 MasterGameBrowserView.swift")
@@ -195,12 +199,28 @@ final class MasterGameFixTests: XCTestCase {
 
     /// v6.2 断言清偿：#file 相对路径解析（原绝对路径指向主库——测试移动目标，现指向当前树）
     private static func masterGameBrowserViewPath() -> String {
+        relativeSourcePath("MasterGameBrowserView.swift")
+    }
+
+    /// v6.2 P2 sweep（洪涛 21:55 拍板）：#file 相对路径解析，照 masterGameBrowserViewPath 既有模式
+    private static func relativeSourcePath(_ fileName: String) -> String {
         URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("ChineseChess")
             .appendingPathComponent("Views")
-            .appendingPathComponent("MasterGameBrowserView.swift")
+            .appendingPathComponent(fileName)
+            .path
+    }
+
+    /// v6.2 P2 sweep：xcstrings 路径同批迁 #file 相对解析（Resources/Localizable.xcstrings）
+    private static func xcstringsPath() -> String {
+        URL(fileURLWithPath: #file)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("ChineseChess")
+            .appendingPathComponent("Resources")
+            .appendingPathComponent("Localizable.xcstrings")
             .path
     }
 
@@ -301,7 +321,8 @@ final class MasterGameFixTests: XCTestCase {
 
     /// Bug 2 快速验证：StudyHubView 不含 compass.fill
     func testBug2NoCompassFill() {
-        let viewPath = NSHomeDirectory() + "/DevTeam/projects/chinese-chess/src/ChineseChess/Views/StudyHubView.swift"
+        // v6.2 断言清偿：#file 相对路径解析（原 NSHomeDirectory 绝对路径指向主库——测试移动目标）
+        let viewPath = Self.relativeSourcePath("StudyHubView.swift")
         guard let content = try? String(contentsOfFile: viewPath) else {
             XCTFail("无法读取 StudyHubView.swift")
             return
