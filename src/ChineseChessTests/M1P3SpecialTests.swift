@@ -182,13 +182,14 @@ struct M1P3SpecialTests {
         // 吃车后兵 (2,4) 不将 (1,4)……构造复杂度高，双闭合断言兜底：
         assertLegalSetClosed(stale, .black, "stalemate-attempt")
         let v2 = SearchBoardV2(pieces: stale, currentTurn: .black)
-        let empty = v2.legalMoves(for: .black).isEmpty
-        let inCheck = v2.inCheck(.black)
-        // 本局面实测：若 empty && !inCheck → 困毙命中；否则该局作构造存档
-        // （困毙精确构造由 Tina 批补，本测试固化"空集时 inCheck 语义可判"的甲口径锚）
-        if empty {
-            #expect(!inCheck || inCheck, "甲口径：空集时杀棋/困毙同返 static eval，区分仅在断言层")
-        }
+        let legacy = LegacySearchBoard(pieces: stale, currentTurn: .black)
+        // 主断言 = 双向闭合（assertLegalSetClosed，上方）+ 双后端空集判定一致。
+        // 原 `#expect(!inCheck || inCheck)` 恒真断言已删（D4 #6 禁止模式，P2-2）。
+        // 空集时杀棋/困毙同返 static eval（甲口径），语义区分仅断言层；
+        // 困毙精确构造由 Tina 批补，本测试固化双后端空集语义锚。
+        #expect(v2.legalMoves(for: .black).isEmpty
+                == MoveValidator.allLegalMoves(for: .black, on: legacy).isEmpty,
+                "双后端 legalCount==0 判定分歧（stalemate-attempt）")
     }
 
     // MARK: - 双后端 legalCount==0 一致性（甲口径跨后端）
