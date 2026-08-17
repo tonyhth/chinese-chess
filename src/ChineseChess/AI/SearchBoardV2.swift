@@ -43,9 +43,13 @@ struct SearchBoardV2 {
         let movedSlot: Int8     // 走子槽位（= Piece.id，见 §2.3）
         let capturedSlot: Int8  // 被吃槽位；-1 = 无吃子
         // P4-①：增量字段快照（回滚 = 快照恢复而非逆运算——相位切换下逆推导
-        // 易对称漂移，快照方案天然免疫；5×Int ≈ 40B）
-        let savedMaterialSum: [Int]
-        let savedPstSum: [Int]
+        // 易对称漂移，快照方案天然免疫）。
+        // P4 性能件（Ruby 审点①）：[红,黑] 双元素数组快照每次 make 触发堆分配，
+        // 定长展开为 5 标量——UndoInfo 全标量化，make 热路径零堆分配。
+        let savedMaterialRed: Int
+        let savedMaterialBlack: Int
+        let savedPstRed: Int
+        let savedPstBlack: Int
         let savedPieceCount: Int
     }
 
@@ -180,7 +184,10 @@ struct SearchBoardV2 {
             kingSq[Self.sideIndex(of: move.piece.side)] = toSq
         }
         // ── P4-① 增量维护（快照 + 增量 + 相位跨界重算）──
-        let savedMaterial = materialSum, savedPst = pstSum, savedCount = pieceCount
+        // P4 性能件：标量快照免 [Int] 拷贝堆分配（读元素零分配）
+        let savedMatR = materialSum[0], savedMatB = materialSum[1]
+        let savedPstR = pstSum[0], savedPstB = pstSum[1]
+        let savedCount = pieceCount
         let oldPhase = pieceCount <= 16
         let moverCode = pieceCodes[Int(slot)]
         let moverSide = Self.sideIndex(of: move.piece.side)
@@ -204,7 +211,9 @@ struct SearchBoardV2 {
         moveHistory.append(move)
         currentTurn = (currentTurn == .red) ? .black : .red
         let undo = UndoInfo(move: move, movedSlot: slot, capturedSlot: capturedSlot,
-                            savedMaterialSum: savedMaterial, savedPstSum: savedPst, savedPieceCount: savedCount)
+                            savedMaterialRed: savedMatR, savedMaterialBlack: savedMatB,
+                            savedPstRed: savedPstR, savedPstBlack: savedPstB,
+                            savedPieceCount: savedCount)
         undoStack.append(undo)
         assertStructure()
         return undo
@@ -230,8 +239,11 @@ struct SearchBoardV2 {
             kingSq[Self.sideIndex(of: undo.move.piece.side)] = fromSq
         }
         // ── P4-① 增量回滚 = 快照恢复（相位跨界下逆推导易对称漂移，快照天然免疫）──
-        materialSum = undo.savedMaterialSum
-        pstSum = undo.savedPstSum
+        // P4 性能件：逐元素原地写，免数组字面量重建堆分配
+        materialSum[0] = undo.savedMaterialRed
+        materialSum[1] = undo.savedMaterialBlack
+        pstSum[0] = undo.savedPstRed
+        pstSum[1] = undo.savedPstBlack
         pieceCount = undo.savedPieceCount
         moveHistory.removeLast()
         undoStack.removeLast()
