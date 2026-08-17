@@ -140,7 +140,7 @@ struct P1aLegacyFixTests {
         // 黑马在角落，红帅在远处——直接构造棋盘避免 FEN 方向问题
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let blackHorse = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 0), id: 100)
+        let blackHorse = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 0, col: 0))
         let board = Board(pieces: [rg, bg, blackHorse])
         board.setCurrentTurn(.black)
         let engine = AIEngine()

@@ -241,8 +241,8 @@ struct NotationGeneratorTests {
     func testRedDoubleChariotDisambiguation() {
         // 构造：红方两个车都在 col=4
         var pieces = Board.initialPieces().filter { !($0.kind == .chariot && $0.side == .red) }
-        pieces.append(Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4), id: 301))
-        pieces.append(Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 4), id: 302))
+        pieces.append(TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 4)))
+        pieces.append(TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 8, col: 4)))
         let board = Board(pieces: pieces)
 
         // row=5 的车在前（更靠近黑方），row=8 的车在后
@@ -269,8 +269,8 @@ struct NotationGeneratorTests {
         var pieces: [Piece] = []
         pieces.append(Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8))
         pieces.append(Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24))
-        pieces.append(Piece(kind: .cannon, side: .black, position: Position(row: 3, col: 4), id: 303))
-        pieces.append(Piece(kind: .cannon, side: .black, position: Position(row: 5, col: 4), id: 304))
+        pieces.append(TestPieceFactory.makePiece(kind: .cannon, side: .black, position: Position(row: 3, col: 4)))
+        pieces.append(TestPieceFactory.makePiece(kind: .cannon, side: .black, position: Position(row: 5, col: 4)))
         let board = Board(pieces: pieces)
 
         // 黑方 row=5 在前（更靠近红方）

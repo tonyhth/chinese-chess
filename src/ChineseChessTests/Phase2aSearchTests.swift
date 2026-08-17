@@ -52,7 +52,7 @@ struct Phase2aSearchTests {
     func countermoveRecordAndGet() {
         var orderer = MoveOrderer()
         let opponentMove = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
+            piece: TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
@@ -78,7 +78,7 @@ struct Phase2aSearchTests {
     func countermoveNilOpponent() {
         var orderer = MoveOrderer()
         let move = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
+            piece: TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
@@ -92,7 +92,7 @@ struct Phase2aSearchTests {
     func countermoveClear() {
         var orderer = MoveOrderer()
         let opponentMove = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
+            piece: TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil
@@ -114,7 +114,7 @@ struct Phase2aSearchTests {
         var orderer = MoveOrderer()
         let board = Board()
         let opponentMove = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
+            piece: TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
             from: Position(row: 3, col: 0),
             to: Position(row: 4, col: 0),
             captured: nil

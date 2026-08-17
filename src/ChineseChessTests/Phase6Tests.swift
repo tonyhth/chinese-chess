@@ -107,12 +107,12 @@ struct PieceTests6 {
     @Test("兵过河前 100，过河后 200")
     func testSoldierBaseValue() {
         let redHome = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 13)
-        let redCrossed = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4), id: 144)
+        let redCrossed = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 4))
         #expect(redHome.baseValue == 100)
         #expect(redCrossed.baseValue == 200)
 
         let blackHome = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4), id: 29)
-        let blackCrossed = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 4), id: 254)
+        let blackCrossed = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 5, col: 4))
         #expect(blackHome.baseValue == 100)
         #expect(blackCrossed.baseValue == 200)
     }

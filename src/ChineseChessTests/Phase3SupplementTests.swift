@@ -226,7 +226,7 @@ struct Phase3SupplementTests {
                      turnNumber: 1, notation: "砲8平5", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
             // 红车吃子
-            GameMove(id: UUID(), piece: Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 0), id: 180),
+            GameMove(id: UUID(), piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 8, col: 0)),
                      from: Position(row: 8, col: 0), to: Position(row: 5, col: 0), captured: Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 0), id: 16),
                      turnNumber: 2, notation: "车九进三", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 0),

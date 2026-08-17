@@ -111,9 +111,9 @@ struct CaptureMovesTests {
     @Test("captureMoves 只返回吃子走法")
     func captureMovesOnlyCaptures() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203)
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 3), id: 153)
-        let bs = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 3), id: 233)
+        let bg = TestPieceFactory.blackGeneral(0, 3)
+        let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 3))
+        let bs = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 3, col: 3))
         let board = makeBoard([rg, bg, rc, bs])
 
         let captures = MoveValidator.captureMoves(for: .red, on: board)
@@ -125,8 +125,8 @@ struct CaptureMovesTests {
     @Test("captureMoves 无吃子时返回少量或空")
     func captureMovesEmpty() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203)
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 5), id: 155)
+        let bg = TestPieceFactory.blackGeneral(0, 3)
+        let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 5))
         let board = makeBoard([rg, bg, rc])
 
         let captures = MoveValidator.captureMoves(for: .red, on: board)
@@ -160,8 +160,8 @@ struct CaptureMovesTests {
         // 红车阻隔将帅对面，离开后送将
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 8, col: 4), id: 184)
-        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 0), id: 280)
+        let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 8, col: 4))
+        let bc = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 8, col: 0))
         let board = makeBoard([rg, bg, rc, bc])
 
         let captures = MoveValidator.captureMoves(for: .red, on: board)
@@ -175,9 +175,9 @@ struct CaptureMovesTests {
     @Test("captureMoves 对黑方有效")
     func captureMovesForBlack() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203)
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 3), id: 153)
-        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 3, col: 3), id: 233)
+        let bg = TestPieceFactory.blackGeneral(0, 3)
+        let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 3))
+        let bc = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 3, col: 3))
         let board = makeBoard([rg, bg, rc, bc])
 
         let captures = MoveValidator.captureMoves(for: .black, on: board)

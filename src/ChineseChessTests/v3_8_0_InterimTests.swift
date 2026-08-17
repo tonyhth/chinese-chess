@@ -91,7 +91,7 @@ final class v3_8_0_InterimTests: XCTestCase {
     /// GameMove 序列化后反序列化应完整保留所有字段
     func testGameMove_Codable_RoundTrip() {
         let piece = Piece(kind: .chariot, side: .red, position: Position(row: 9, col: 0), id: 0)
-        let captured = Piece(kind: .horse, side: .black, position: Position(row: 7, col: 1), id: 271)
+        let captured = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 7, col: 1))
         let original = GameMove(
             id: UUID(),
             piece: piece,

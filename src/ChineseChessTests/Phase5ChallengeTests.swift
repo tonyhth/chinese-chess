@@ -313,9 +313,9 @@ struct ChallengeMoveRestrictionTests {
         let vm = makeCannonOnlyVM()
         // 红车从己方半场跨到对方半场吃子
         let chariotMove = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0)),
             from: Position(row: 5, col: 0), to: Position(row: 4, col: 0),
-            captured: Piece(kind: .soldier, side: .black, position: Position(row: 4, col: 0), id: 240)
+            captured: TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 4, col: 0))
         )
         #expect(vm.isChallengeMoveLegal(chariotMove) == true, "车跨区吃子应允许")
     }
@@ -326,7 +326,7 @@ struct ChallengeMoveRestrictionTests {
         let vm = makeCannonOnlyVM()
         // 红车从己方半场跨到对方半场（无吃子）
         let chariotMove = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0)),
             from: Position(row: 5, col: 0), to: Position(row: 3, col: 0),
             captured: nil
         )
@@ -350,7 +350,7 @@ struct ChallengeMoveRestrictionTests {
     func horseCrossBorderNoCapture() {
         let vm = makeCannonOnlyVM()
         let horseMove = Move(
-            piece: Piece(kind: .horse, side: .red, position: Position(row: 5, col: 1), id: 151),
+            piece: TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 5, col: 1)),
             from: Position(row: 5, col: 1), to: Position(row: 3, col: 2),
             captured: nil
         )

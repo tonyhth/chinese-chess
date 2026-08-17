@@ -62,12 +62,12 @@ struct Phase3DrawTests {
     @Test("长将检测：同一方连续 3 次将军判该方负")
     func perpetualCheckDetection() {
         // 构造 GameMove 序列：红方连续 3 次将军
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
+        let redPiece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
+            GameMove(id: UUID(), piece: TestPieceFactory.blackGeneral(0, 3),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 1, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
@@ -81,7 +81,7 @@ struct Phase3DrawTests {
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 3, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 5),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
+            GameMove(id: UUID(), piece: TestPieceFactory.blackGeneral(0, 3),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 3, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 6),
@@ -108,13 +108,13 @@ struct Phase3DrawTests {
 
     @Test("长将检测：不足 3 次将军不触发")
     func perpetualCheckNotTriggeredWithTwoChecks() {
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
+        let redPiece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
         // 只有 2 次将军
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
+            GameMove(id: UUID(), piece: TestPieceFactory.blackGeneral(0, 3),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 1, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
@@ -128,7 +128,7 @@ struct Phase3DrawTests {
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 1, col: 5),
                      captured: nil, turnNumber: 3, notation: "车五平六", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 5),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
+            GameMove(id: UUID(), piece: TestPieceFactory.blackGeneral(0, 3),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 3, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 6),
@@ -150,13 +150,13 @@ struct Phase3DrawTests {
 
     @Test("长将检测：不足 6 步不触发")
     func perpetualCheckNotTriggeredBelowThreshold() {
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
+        let redPiece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
         // 只有 4 步（不足 threshold=6）
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "车五进一", timestamp: Date(),
                      isCheck: true, isCheckmate: false, halfmoveClock: 1),
-            GameMove(id: UUID(), piece: Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203),
+            GameMove(id: UUID(), piece: TestPieceFactory.blackGeneral(0, 3),
                      from: Position(row: 0, col: 4), to: Position(row: 0, col: 3),
                      captured: nil, turnNumber: 1, notation: "将5平4", timestamp: Date(),
                      isCheck: false, isCheckmate: false, halfmoveClock: 2),
@@ -176,8 +176,8 @@ struct Phase3DrawTests {
     @Test("长将检测：黑白双方各有将军不判长将")
     func perpetualCheckBothSidesCheck() {
         // 双方交替将军 → 不属于"同一方连续将军"
-        let redPiece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
-        let blackPiece = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 4), id: 284)
+        let redPiece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
+        let blackPiece = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 8, col: 4))
         let moves: [GameMove] = [
             GameMove(id: UUID(), piece: redPiece, from: Position(row: 1, col: 4), to: Position(row: 0, col: 4),
                      captured: nil, turnNumber: 1, notation: "红将", timestamp: Date(),

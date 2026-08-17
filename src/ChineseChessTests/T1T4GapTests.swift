@@ -292,7 +292,7 @@ struct CoachSessionViewIntegrationTests {
     func testUciNotationHorse() {
         let move = GameMove(
             id: UUID(),
-            piece: Piece(kind: .horse, side: .red, position: Position(row: 0, col: 7), id: 107),
+            piece: TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 0, col: 7)),
             from: Position(row: 0, col: 7),
             to: Position(row: 2, col: 6),
             captured: nil,

@@ -37,7 +37,7 @@ struct BoardTests {
 
     @Test("吃子后撤销恢复")
     func captureAndUndo() {
-        let attacker = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let attacker = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
         let target = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)
         let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)

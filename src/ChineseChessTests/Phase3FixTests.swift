@@ -47,8 +47,8 @@ struct Phase3FixTests {
         let board = Board()
         // 标准开局：红车在 (9,0) 和 (9,8)，黑马在 (0,1) 和 (0,7)
         // 直接构造 Piece 对象（不需要实际从棋盘取）
-        let redRook = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 4), id: 9001)
-        let blackHorse = Piece(kind: .horse, side: .black, position: Position(row: 4, col: 5), id: 9002)
+        let redRook = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 4, col: 4))
+        let blackHorse = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 4, col: 5))
         // 构造吃子 Move（车吃马）
         let move = Move(piece: redRook, from: Position(row: 4, col: 4), to: Position(row: 4, col: 5), captured: blackHorse)
         // evaluateLightweight 只看 move.piece 和 move.captured 的属性，不需要 board 上实际有这个棋子
@@ -62,8 +62,8 @@ struct Phase3FixTests {
     @Test("P0-7: 马吃车（大子被小子吃）→ '马扫荡车！'")
     func lightweightCaptureSmallEatBig() {
         let board = Board()
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 4, col: 4), id: 9020)
-        let blackRook = Piece(kind: .chariot, side: .black, position: Position(row: 4, col: 5), id: 9021)
+        let redHorse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 4, col: 4))
+        let blackRook = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 4, col: 5))
         let move = Move(piece: redHorse, from: Position(row: 4, col: 4), to: Position(row: 4, col: 5), captured: blackRook)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 5, totalMoves: 80)
         #expect(result != nil)
@@ -76,8 +76,8 @@ struct Phase3FixTests {
     @Test("P0-7: 等价交换（马换炮）→ '兑换'")
     func lightweightCaptureExchange() {
         let board = Board()
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 4, col: 4), id: 9003)
-        let blackCannon = Piece(kind: .cannon, side: .black, position: Position(row: 4, col: 5), id: 9004)
+        let redHorse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 4, col: 4))
+        let blackCannon = TestPieceFactory.makePiece(kind: .cannon, side: .black, position: Position(row: 4, col: 5))
         let move = Move(piece: redHorse, from: Position(row: 4, col: 4), to: Position(row: 4, col: 5), captured: blackCannon)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 5, totalMoves: 80)
         #expect(result?.text == "兑换", "实际: \(result?.text ?? "nil")")
@@ -86,8 +86,8 @@ struct Phase3FixTests {
     @Test("P0-7: 吃兵卒 → '掠兵'")
     func lightweightCapturePawn() {
         let board = Board()
-        let redRook = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 4), id: 9005)
-        let blackPawn = Piece(kind: .soldier, side: .black, position: Position(row: 4, col: 5), id: 9006)
+        let redRook = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 4, col: 4))
+        let blackPawn = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 4, col: 5))
         // 黑卒在 row 4 = 未过河 → baseValue = 100
         let move = Move(piece: redRook, from: Position(row: 4, col: 4), to: Position(row: 4, col: 5), captured: blackPawn)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 5, totalMoves: 80)
@@ -99,8 +99,8 @@ struct Phase3FixTests {
     @Test("P1 修复: 吃士 → '吃士'（baseValue=200）")
     func lightweightCaptureAdvisor() {
         let board = Board()
-        let redRook = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 4), id: 9007)
-        let blackAdvisor = Piece(kind: .advisor, side: .black, position: Position(row: 4, col: 5), id: 9008)
+        let redRook = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 4, col: 4))
+        let blackAdvisor = TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 4, col: 5))
         let move = Move(piece: redRook, from: Position(row: 4, col: 4), to: Position(row: 4, col: 5), captured: blackAdvisor)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 5, totalMoves: 80)
         #expect(result != nil, "吃士应有点评（P1 修复点）")
@@ -110,8 +110,8 @@ struct Phase3FixTests {
     @Test("P1 修复: 吃象 → '吃象'（baseValue=200）")
     func lightweightCaptureElephant() {
         let board = Board()
-        let redRook = Piece(kind: .chariot, side: .red, position: Position(row: 4, col: 4), id: 9009)
-        let blackElephant = Piece(kind: .elephant, side: .black, position: Position(row: 4, col: 5), id: 9010)
+        let redRook = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 4, col: 4))
+        let blackElephant = TestPieceFactory.makePiece(kind: .elephant, side: .black, position: Position(row: 4, col: 5))
         let move = Move(piece: redRook, from: Position(row: 4, col: 4), to: Position(row: 4, col: 5), captured: blackElephant)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 5, totalMoves: 80)
         #expect(result != nil, "吃象应有点评（P1 修复点）")
@@ -124,9 +124,9 @@ struct Phase3FixTests {
         // 需要构造一个 position 使 hasCrossedRiver = true
         // 红方过河兵：position.row <= 4
         let board = Board()
-        let redRook = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4), id: 9011)
+        let redRook = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 4))
         // 黑方过河兵：position.row >= 5
-        let blackCrossedPawn = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 5), id: 9012)
+        let blackCrossedPawn = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 5, col: 5))
         let move = Move(piece: redRook, from: Position(row: 5, col: 4), to: Position(row: 5, col: 5), captured: blackCrossedPawn)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 5, totalMoves: 80)
         #expect(result != nil, "吃过河兵应有点评")
@@ -140,7 +140,7 @@ struct Phase3FixTests {
     func lightweightCrossingRed() {
         let board = Board()
         // 红兵从 row 5 到 row 4（红方过河 = fromRow > 4 && toRow <= 4）
-        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 5, col: 4), id: 9013)
+        let redSoldier = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 5, col: 4))
         let move = Move(piece: redSoldier, from: Position(row: 5, col: 4), to: Position(row: 4, col: 4), captured: nil)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 10, totalMoves: 80)
         #expect(isCrossing(result), "应为 crossing")
@@ -150,7 +150,7 @@ struct Phase3FixTests {
     @Test("P0-7: 黑卒过河 → '卒过河，攻势渐起'")
     func lightweightCrossingBlack() {
         let board = Board()
-        let blackSoldier = Piece(kind: .soldier, side: .black, position: Position(row: 4, col: 4), id: 9014)
+        let blackSoldier = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 4, col: 4))
         let move = Move(piece: blackSoldier, from: Position(row: 4, col: 4), to: Position(row: 5, col: 4), captured: nil)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 10, totalMoves: 80)
         #expect(isCrossing(result))
@@ -160,7 +160,7 @@ struct Phase3FixTests {
     @Test("P0-7: 兵未过河不触发 crossing")
     func lightweightNoCrossingBeforeRiver() {
         let board = Board()
-        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 9015)
+        let redSoldier = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 6, col: 4))
         let move = Move(piece: redSoldier, from: Position(row: 6, col: 4), to: Position(row: 5, col: 4), captured: nil)
         let result = CommentaryEngine.evaluateLightweight(move: move, on: board, moveIndex: 10, totalMoves: 80)
         // row 6 → row 5：红方过河条件 fromRow > 4 (6>4=true) && toRow <= 4 (5<=4=false) → 不过河

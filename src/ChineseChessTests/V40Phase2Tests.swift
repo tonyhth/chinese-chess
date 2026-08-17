@@ -167,9 +167,9 @@ struct HintCoachExplainerTests {
     func checkingMoveClassified() async {
         // 构造一个将军走法场景
         // 红车在 (5,4)，黑将在 (0,4)，走车到 (1,4) 将军
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 3), id: 193)
+        let rg = TestPieceFactory.redGeneral(9, 3)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let rc = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4), id: 154)
+        let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 4))
         let board = Board(pieces: [rg, bg, rc])
         let fen = FENParser.generate(board: board)
 
@@ -308,10 +308,10 @@ struct CanAttackUnifiedTests {
 
     @Test("canAttack 对车返回正确结果")
     func canAttackChariot() {
-        let chariot = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 4), id: 154)
+        let chariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 4))
         let target = Position(row: 3, col: 4)
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 3), id: 193)
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 5), id: 205)
+        let rg = TestPieceFactory.redGeneral(9, 3)
+        let bg = TestPieceFactory.blackGeneral(0, 5)
         let board = Board(pieces: [rg, bg, chariot])
 
         #expect(MoveValidator.canAttack(piece: chariot, target: target, on: board))
@@ -319,7 +319,7 @@ struct CanAttackUnifiedTests {
 
     @Test("canAttack 对马返回正确结果")
     func canAttackHorse() {
-        let horse = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 2), id: 152)
+        let horse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 5, col: 2))
         let target = Position(row: 3, col: 3)  // 马日字
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
@@ -330,8 +330,8 @@ struct CanAttackUnifiedTests {
 
     @Test("canAttack 对蹩马腿返回 false")
     func canAttackHorseBlocked() {
-        let horse = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 2), id: 152)
-        let blocker = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 2), id: 142)
+        let horse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 5, col: 2))
+        let blocker = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 2))
         let target = Position(row: 3, col: 3)
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)

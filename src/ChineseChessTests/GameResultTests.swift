@@ -10,8 +10,8 @@ struct GameResultTests {
     func doubleChariotCheckmate() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let bc1 = Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 3), id: 293)
-        let bc2 = Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 5), id: 295)
+        let bc1 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 3))
+        let bc2 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 5))
         let board = Board(pieces: [rg, bg, bc1, bc2])
         #expect(MoveValidator.isCheckmate(.red, on: board))
         #expect(MoveValidator.isInCheck(.red, on: board))
@@ -24,10 +24,10 @@ struct GameResultTests {
         // (9,3) (9,5) 不在车攻击范围内但需要验证
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 4), id: 284)
+        let bc = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 8, col: 4))
         // 需要额外黑子防止红帅走到 (9,3) (9,5)
-        let bc2 = Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 3), id: 293)
-        let bc3 = Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 5), id: 295)
+        let bc2 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 3))
+        let bc3 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 5))
         let board = Board(pieces: [rg, bg, bc, bc2, bc3])
         #expect(MoveValidator.isCheckmate(.red, on: board))
     }
@@ -36,7 +36,7 @@ struct GameResultTests {
     func singleChariotNotCheckmate() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let bc = Piece(kind: .chariot, side: .black, position: Position(row: 8, col: 0), id: 280)
+        let bc = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 8, col: 0))
         let board = Board(pieces: [rg, bg, bc])
         #expect(!MoveValidator.isCheckmate(.red, on: board))
     }
@@ -48,8 +48,8 @@ struct GameResultTests {
         // 使用双车将死（已验证为将死）
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let bc1 = Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 3), id: 293)
-        let bc2 = Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 5), id: 295)
+        let bc1 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 3))
+        let bc2 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 5))
         let board = Board(pieces: [rg, bg, bc1, bc2])
         #expect(MoveValidator.isCheckmate(.red, on: board))
         #expect(!MoveValidator.isStalemate(.red, on: board))
@@ -63,7 +63,7 @@ struct GameResultTests {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let ra1 = Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 3), id: 6)
         let ra2 = Piece(kind: .advisor, side: .red, position: Position(row: 9, col: 5), id: 7)
-        let ra3 = Piece(kind: .advisor, side: .red, position: Position(row: 8, col: 4), id: 184)
+        let ra3 = TestPieceFactory.makePiece(kind: .advisor, side: .red, position: Position(row: 8, col: 4))
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         // 黑方需要棋子让红仕无法移动
         // ra1 (9,3) 可走 (8,2) (8,4) — (8,2) 不在九宫，(8,4) 有 ra3
@@ -72,8 +72,8 @@ struct GameResultTests {
         // (7,3) 和 (7,5) 在九宫内且无阻挡 → ra3 有合法走法
         // 所以这不是困毙... 需要进一步限制
         // 加黑炮控制 ra3 的走位
-        let bh1 = Piece(kind: .horse, side: .black, position: Position(row: 5, col: 2), id: 252)  // 控制 (7,3)
-        let bh2 = Piece(kind: .horse, side: .black, position: Position(row: 5, col: 6), id: 256)  // 控制 (7,5)
+        let bh1 = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 5, col: 2))  // 控制 (7,3)
+        let bh2 = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 5, col: 6))  // 控制 (7,5)
         // bh1 (5,2) 攻击 (7,3): dr=2, dc=1, legRow=6, legCol=2, (6,2) 无子 → 可以
         // ra3 走 (7,3) 后被 bh1 攻击 → 送将 → 不合法 ✓
         // bh2 (5,6) 攻击 (7,5): dr=2, dc=-1, legRow=6, legCol=6, (6,6) 无子 → 可以

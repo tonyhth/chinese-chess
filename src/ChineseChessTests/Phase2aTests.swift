@@ -180,7 +180,7 @@ struct Phase2aTests {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 5, col: 0), id: 16)
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 5, col: 1), id: 151)
+        let redHorse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 5, col: 1))
         let board2 = Board(pieces: [rg, bg, blackChariot, redHorse])
         board2.setCurrentTurn(.black)
 

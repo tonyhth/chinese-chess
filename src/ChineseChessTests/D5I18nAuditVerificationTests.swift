@@ -148,13 +148,13 @@ final class D5I18nAuditVerificationTests {
         // 领域语言：棋子名称应硬编码中文，不走 L10n
         // PieceKind 枚举: general, advisor, elephant, horse, chariot, cannon, soldier
         let redPieces: [Piece] = [
-            Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100),
-            Piece(kind: .horse, side: .red, position: Position(row: 0, col: 1), id: 101),
-            Piece(kind: .elephant, side: .red, position: Position(row: 0, col: 2), id: 102),
-            Piece(kind: .advisor, side: .red, position: Position(row: 0, col: 3), id: 103),
-            Piece(kind: .general, side: .red, position: Position(row: 0, col: 4), id: 104),
-            Piece(kind: .cannon, side: .red, position: Position(row: 2, col: 1), id: 121),
-            Piece(kind: .soldier, side: .red, position: Position(row: 3, col: 0), id: 130),
+            TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 0, col: 0)),
+            TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 0, col: 1)),
+            TestPieceFactory.makePiece(kind: .elephant, side: .red, position: Position(row: 0, col: 2)),
+            TestPieceFactory.makePiece(kind: .advisor, side: .red, position: Position(row: 0, col: 3)),
+            TestPieceFactory.redGeneral(0, 4),
+            TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 2, col: 1)),
+            TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 3, col: 0)),
         ]
 
         for piece in redPieces {
@@ -165,13 +165,13 @@ final class D5I18nAuditVerificationTests {
         }
 
         let blackPieces: [Piece] = [
-            Piece(kind: .chariot, side: .black, position: Position(row: 9, col: 0), id: 290),
-            Piece(kind: .horse, side: .black, position: Position(row: 9, col: 1), id: 291),
-            Piece(kind: .elephant, side: .black, position: Position(row: 9, col: 2), id: 292),
-            Piece(kind: .advisor, side: .black, position: Position(row: 9, col: 3), id: 293),
-            Piece(kind: .general, side: .black, position: Position(row: 9, col: 4), id: 294),
-            Piece(kind: .cannon, side: .black, position: Position(row: 7, col: 1), id: 271),
-            Piece(kind: .soldier, side: .black, position: Position(row: 6, col: 0), id: 260),
+            TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 9, col: 0)),
+            TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 9, col: 1)),
+            TestPieceFactory.makePiece(kind: .elephant, side: .black, position: Position(row: 9, col: 2)),
+            TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 9, col: 3)),
+            TestPieceFactory.blackGeneral(9, 4),
+            TestPieceFactory.makePiece(kind: .cannon, side: .black, position: Position(row: 7, col: 1)),
+            TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 6, col: 0)),
         ]
 
         for piece in blackPieces {

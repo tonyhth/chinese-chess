@@ -33,7 +33,7 @@ struct V41CannonOnlyRegressionTests {
     func redChariotCrossBorderNoCaptureIllegal() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0)),
             from: Position(row: 5, col: 0), to: Position(row: 3, col: 0),
             captured: nil
         )
@@ -71,7 +71,7 @@ struct V41CannonOnlyRegressionTests {
     func redBoundaryRow5() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 6, col: 0), id: 150),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 6, col: 0)),
             from: Position(row: 6, col: 0), to: Position(row: 5, col: 0),
             captured: nil
         )
@@ -83,7 +83,7 @@ struct V41CannonOnlyRegressionTests {
     func redBoundaryRow4() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0)),
             from: Position(row: 5, col: 0), to: Position(row: 4, col: 0),
             captured: nil
         )
@@ -95,7 +95,7 @@ struct V41CannonOnlyRegressionTests {
     func blackBoundaryRow4() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .black, position: Position(row: 3, col: 0), id: 160),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 3, col: 0)),
             from: Position(row: 3, col: 0), to: Position(row: 4, col: 0),
             captured: nil
         )
@@ -107,7 +107,7 @@ struct V41CannonOnlyRegressionTests {
     func blackBoundaryRow5() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .black, position: Position(row: 4, col: 0), id: 160),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 4, col: 0)),
             from: Position(row: 4, col: 0), to: Position(row: 5, col: 0),
             captured: nil
         )
@@ -121,9 +121,9 @@ struct V41CannonOnlyRegressionTests {
     func redChariotCrossBorderCapture() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0)),
             from: Position(row: 5, col: 0), to: Position(row: 3, col: 0),
-            captured: Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 240)
+            captured: TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 3, col: 0))
         )
         #expect(vm.isChallengeMoveLegal(move) == true, "红车跨区吃子应合法")
     }
@@ -133,7 +133,7 @@ struct V41CannonOnlyRegressionTests {
     func blackChariotCrossBorderCapture() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .chariot, side: .black, position: Position(row: 4, col: 0), id: 160),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 4, col: 0)),
             from: Position(row: 4, col: 0), to: Position(row: 6, col: 0),
             captured: Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 0), id: 30)
         )
@@ -159,7 +159,7 @@ struct V41CannonOnlyRegressionTests {
     func redHorseCrossBorderNoCapture() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .horse, side: .red, position: Position(row: 5, col: 1), id: 151),
+            piece: TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 5, col: 1)),
             from: Position(row: 5, col: 1), to: Position(row: 3, col: 2),
             captured: nil
         )
@@ -223,7 +223,7 @@ struct V41CannonOnlyRegressionTests {
     func redSoldierCrossRiver() {
         let vm = makeVM()
         let move = Move(
-            piece: Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4), id: 40),
+            piece: TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 4)),
             from: Position(row: 4, col: 4), to: Position(row: 3, col: 4),
             captured: nil
         )

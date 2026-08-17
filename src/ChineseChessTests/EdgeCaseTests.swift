@@ -26,7 +26,7 @@ struct EdgeCaseTests {
     func generalsBlockedByPiece() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let blocker = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4), id: 144)
+        let blocker = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 4))
         let board = Board(pieces: [rg, bg, blocker])
         #expect(!MoveValidator.isInCheck(.red, on: board))
         #expect(!MoveValidator.isInCheck(.black, on: board))
@@ -35,7 +35,7 @@ struct EdgeCaseTests {
     @Test("将帅不同列 = 不算对面")
     func generalsDifferentColumns() {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
-        let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 3), id: 203)
+        let bg = TestPieceFactory.blackGeneral(0, 3)
         let board = Board(pieces: [rg, bg])
         #expect(!MoveValidator.isInCheck(.red, on: board))
         #expect(!MoveValidator.isInCheck(.black, on: board))
@@ -46,7 +46,7 @@ struct EdgeCaseTests {
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let p1 = Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 4), id: 13)
-        let p2 = Piece(kind: .soldier, side: .red, position: Position(row: 7, col: 4), id: 174)
+        let p2 = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 7, col: 4))
         // row 5 和 row 8 为空，有阻隔
         let board = Board(pieces: [rg, bg, p1, p2])
         #expect(!MoveValidator.isInCheck(.red, on: board))
@@ -57,7 +57,7 @@ struct EdgeCaseTests {
     @Test("马八方向蹩腿完整测试")
     func horseBlockedAllDirections() {
         // 马在 (4,4)，八个方向各测试蹩腿
-        let horse = Piece(kind: .horse, side: .red, position: Position(row: 4, col: 4), id: 144)
+        let horse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 4, col: 4))
         let blockers: [Position] = [
             Position(row: 3, col: 4),  // 蹩上
             Position(row: 5, col: 4),  // 蹩下
@@ -85,7 +85,7 @@ struct EdgeCaseTests {
 
     @Test("马无蹩腿可走全部方向")
     func horseNoBlocking() {
-        let horse = Piece(kind: .horse, side: .red, position: Position(row: 4, col: 4), id: 144)
+        let horse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 4, col: 4))
         let board = makeBoard(extra: [horse])
         let moves = MoveValidator.legalMoves(for: horse, on: board)
         let targets = Set(moves.map { $0.to })
@@ -105,12 +105,12 @@ struct EdgeCaseTests {
 
     @Test("象四个方向塞眼完整测试")
     func elephantBlockedAllEyes() {
-        let elephant = Piece(kind: .elephant, side: .red, position: Position(row: 7, col: 2), id: 172)
+        let elephant = TestPieceFactory.makePiece(kind: .elephant, side: .red, position: Position(row: 7, col: 2))
         let blockers: [Piece] = [
-            Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 1), id: 161),  // 左上眼
-            Piece(kind: .soldier, side: .red, position: Position(row: 6, col: 3), id: 163),  // 右上眼
-            Piece(kind: .soldier, side: .red, position: Position(row: 8, col: 1), id: 181),  // 左下眼
-            Piece(kind: .soldier, side: .red, position: Position(row: 8, col: 3), id: 183),  // 右下眼
+            TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 6, col: 1)),  // 左上眼
+            TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 6, col: 3)),  // 右上眼
+            TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 8, col: 1)),  // 左下眼
+            TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 8, col: 3)),  // 右下眼
         ]
         let board = makeBoard(extra: [elephant] + blockers)
         let moves = MoveValidator.legalMoves(for: elephant, on: board)
@@ -119,7 +119,7 @@ struct EdgeCaseTests {
 
     @Test("象不能过河")
     func elephantCannotCrossRiver() {
-        let elephant = Piece(kind: .elephant, side: .red, position: Position(row: 5, col: 2), id: 152)
+        let elephant = TestPieceFactory.makePiece(kind: .elephant, side: .red, position: Position(row: 5, col: 2))
         // row 5 是红方领地最后一行，合法；但 (3,0) 等过河了
         let board = makeBoard(extra: [elephant])
         let moves = MoveValidator.legalMoves(for: elephant, on: board)
@@ -136,8 +136,8 @@ struct EdgeCaseTests {
 
     @Test("炮无架不能吃子")
     func cannonCannotCaptureWithoutMount() {
-        let cannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 0), id: 170)
-        let target = Piece(kind: .soldier, side: .black, position: Position(row: 7, col: 3), id: 273)
+        let cannon = TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 7, col: 0))
+        let target = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 7, col: 3))
         let board = makeBoard(extra: [cannon, target])
         let moves = MoveValidator.legalMoves(for: cannon, on: board)
         let captureMoves = moves.filter { $0.captured != nil }
@@ -146,9 +146,9 @@ struct EdgeCaseTests {
 
     @Test("炮翻一个架可吃子")
     func cannonCaptureWithOneMount() {
-        let cannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 0), id: 170)
-        let mount = Piece(kind: .soldier, side: .red, position: Position(row: 7, col: 2), id: 172)
-        let target = Piece(kind: .soldier, side: .black, position: Position(row: 7, col: 4), id: 274)
+        let cannon = TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 7, col: 0))
+        let mount = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 7, col: 2))
+        let target = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 7, col: 4))
         let board = makeBoard(extra: [cannon, mount, target])
         let moves = MoveValidator.legalMoves(for: cannon, on: board)
         let captureTarget = moves.first { $0.captured != nil && $0.to == Position(row: 7, col: 4) }
@@ -157,10 +157,10 @@ struct EdgeCaseTests {
 
     @Test("炮翻两个架不能吃子")
     func cannonCannotCaptureWithTwoMounts() {
-        let cannon = Piece(kind: .cannon, side: .red, position: Position(row: 7, col: 0), id: 170)
-        let mount1 = Piece(kind: .soldier, side: .red, position: Position(row: 7, col: 2), id: 172)
-        let mount2 = Piece(kind: .soldier, side: .red, position: Position(row: 7, col: 3), id: 173)
-        let target = Piece(kind: .soldier, side: .black, position: Position(row: 7, col: 5), id: 275)
+        let cannon = TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 7, col: 0))
+        let mount1 = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 7, col: 2))
+        let mount2 = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 7, col: 3))
+        let target = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 7, col: 5))
         let board = makeBoard(extra: [cannon, mount1, mount2, target])
         let moves = MoveValidator.legalMoves(for: cannon, on: board)
         let captureTarget = moves.first { $0.to == Position(row: 7, col: 5) }
@@ -169,8 +169,8 @@ struct EdgeCaseTests {
 
     @Test("炮纵向翻架吃子")
     func cannonVerticalCapture() {
-        let cannon = Piece(kind: .cannon, side: .red, position: Position(row: 5, col: 4), id: 154)
-        let mount = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4), id: 144)
+        let cannon = TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 5, col: 4))
+        let mount = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 4))
         let target = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 4), id: 29)
         let board = makeBoard(extra: [cannon, mount, target])
         let moves = MoveValidator.legalMoves(for: cannon, on: board)
@@ -183,7 +183,7 @@ struct EdgeCaseTests {
 
     @Test("兵过河后不能后退")
     func soldierCannotRetreatAfterCrossing() {
-        let soldier = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 4), id: 144)
+        let soldier = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 4))
         let board = makeBoard(extra: [soldier])
         let moves = MoveValidator.legalMoves(for: soldier, on: board)
         let targets = Set(moves.map { $0.to })
@@ -196,7 +196,7 @@ struct EdgeCaseTests {
     @Test("兵在边路过河后只有两个方向")
     func soldierAtEdgeAfterCrossing() {
         // 红兵在 (4,0) 过河后，只能前进和向右（左边界）
-        let soldier = Piece(kind: .soldier, side: .red, position: Position(row: 4, col: 0), id: 140)
+        let soldier = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 4, col: 0))
         let board = makeBoard(extra: [soldier])
         let moves = MoveValidator.legalMoves(for: soldier, on: board)
         let targets = Set(moves.map { $0.to })
@@ -207,7 +207,7 @@ struct EdgeCaseTests {
 
     @Test("黑卒过河行为对称")
     func blackSoldierAfterCrossing() {
-        let soldier = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 4), id: 254)
+        let soldier = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 5, col: 4))
         let board = makeBoard(extra: [soldier])
         let moves = MoveValidator.legalMoves(for: soldier, on: board)
         let targets = Set(moves.map { $0.to })
@@ -222,8 +222,8 @@ struct EdgeCaseTests {
 
     @Test("将不能出九宫")
     func generalCannotLeavePalace() {
-        let rg = Piece(kind: .general, side: .red, position: Position(row: 8, col: 3), id: 183)
-        let board = Board(pieces: [rg, Piece(kind: .general, side: .black, position: Position(row: 0, col: 5), id: 205)])
+        let rg = TestPieceFactory.redGeneral(8, 3)
+        let board = Board(pieces: [rg, TestPieceFactory.blackGeneral(0, 5)])
         let moves = MoveValidator.legalMoves(for: rg, on: board)
         let targets = Set(moves.map { $0.to })
         // (7,2) 和 (7,3) 在九宫内，(8,2) 在九宫外
@@ -238,7 +238,7 @@ struct EdgeCaseTests {
 
     @Test("士不能出九宫")
     func advisorCannotLeavePalace() {
-        let advisor = Piece(kind: .advisor, side: .red, position: Position(row: 8, col: 4), id: 184)
+        let advisor = TestPieceFactory.makePiece(kind: .advisor, side: .red, position: Position(row: 8, col: 4))
         let board = makeBoard(extra: [advisor])
         let moves = MoveValidator.legalMoves(for: advisor, on: board)
         for move in moves {
@@ -250,9 +250,9 @@ struct EdgeCaseTests {
 
     @Test("车吃子不越过被吃子")
     func chariotCannotMoveBeyondCapture() {
-        let chariot = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let chariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
         let target = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)
-        let behind = Piece(kind: .soldier, side: .black, position: Position(row: 2, col: 0), id: 220)
+        let behind = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 2, col: 0))
         let board = makeBoard(extra: [chariot, target, behind])
         let moves = MoveValidator.legalMoves(for: chariot, on: board)
         let targets = Set(moves.map { $0.to })

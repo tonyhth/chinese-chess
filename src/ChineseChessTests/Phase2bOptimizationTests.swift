@@ -66,7 +66,7 @@ struct Phase2bOptimizationTests {
         let tt = TranspositionTable(capacity: 256)
         let hash: UInt64 = 12345
         let move = Move(
-            piece: Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100),
+            piece: TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 0, col: 0)),
             from: Position(row: 0, col: 0),
             to: Position(row: 1, col: 0),
             captured: nil

@@ -188,11 +188,11 @@ struct Phase1P0Tests {
     @Test("negamax 终局位置返回将死分而非材质分")
     func negamaxReturnsMateScoreForTerminalPosition() async {
         var testPieces: [Piece] = [
-            Piece(kind: .general, side: .black, position: Position(row: 9, col: 4), id: 294),
-            Piece(kind: .advisor, side: .black, position: Position(row: 9, col: 3), id: 293),
-            Piece(kind: .advisor, side: .black, position: Position(row: 9, col: 5), id: 295),
-            Piece(kind: .chariot, side: .black, position: Position(row: 1, col: 4), id: 214),
-            Piece(kind: .general, side: .red, position: Position(row: 0, col: 4), id: 104),
+            TestPieceFactory.blackGeneral(9, 4),
+            TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 9, col: 3)),
+            TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 9, col: 5)),
+            TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 1, col: 4)),
+            TestPieceFactory.redGeneral(0, 4),
         ]
 
         let board = Board(pieces: testPieces)

@@ -296,7 +296,7 @@ final class Bug4FallbackIdCollisionTests: XCTestCase {
 
     /// Codable 编解码 round-trip
     func testCodableRoundTrip() throws {
-        let original = Piece(kind: .cannon, side: .red, position: Position(row: 5, col: 3), id: 14037)
+        let original = TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 5, col: 3))
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(Piece.self, from: encoded)
         XCTAssertEqual(decoded.id, original.id, "编解码后 ID 应一致")

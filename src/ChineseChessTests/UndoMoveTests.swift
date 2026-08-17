@@ -38,7 +38,7 @@ struct UndoMoveTests {
 
     @Test("悔棋恢复被吃棋子")
     func undoRestoresCapturedPiece() {
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
         let blackSoldier = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
@@ -62,9 +62,9 @@ struct UndoMoveTests {
 
     @Test("连续吃子后连续悔棋")
     func multipleCapturesAndUndos() {
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
         let blackSoldier1 = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)
-        let blackSoldier2 = Piece(kind: .soldier, side: .black, position: Position(row: 2, col: 0), id: 220)
+        let blackSoldier2 = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 2, col: 0))
         let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let bg = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let board = Board(pieces: [redChariot, blackSoldier1, blackSoldier2, rg, bg])

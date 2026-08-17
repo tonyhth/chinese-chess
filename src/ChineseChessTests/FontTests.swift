@@ -107,47 +107,47 @@ struct FontTests {
     @Test("棋子显示名称包含中文字符")
     func pieceDisplayNamesAreChinese() {
         // 检查红方棋子
-        let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redGeneral = TestPieceFactory.redGeneral(0, 0)
         #expect(redGeneral.displayName == "帅")
 
-        let redAdvisor = Piece(kind: .advisor, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redAdvisor = TestPieceFactory.makePiece(kind: .advisor, side: .red, position: Position(row: 0, col: 0))
         #expect(redAdvisor.displayName == "仕")
 
-        let redElephant = Piece(kind: .elephant, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redElephant = TestPieceFactory.makePiece(kind: .elephant, side: .red, position: Position(row: 0, col: 0))
         #expect(redElephant.displayName == "相")
 
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redHorse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 0, col: 0))
         #expect(redHorse.displayName == "馬")
 
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
         #expect(redChariot.displayName == "車")
 
-        let redCannon = Piece(kind: .cannon, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redCannon = TestPieceFactory.makePiece(kind: .cannon, side: .red, position: Position(row: 0, col: 0))
         #expect(redCannon.displayName == "炮")
 
-        let redSoldier = Piece(kind: .soldier, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redSoldier = TestPieceFactory.makePiece(kind: .soldier, side: .red, position: Position(row: 0, col: 0))
         #expect(redSoldier.displayName == "兵")
 
         // 检查黑方棋子
-        let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 0), id: 200)
+        let blackGeneral = TestPieceFactory.blackGeneral(0, 0)
         #expect(blackGeneral.displayName == "将")
 
-        let blackAdvisor = Piece(kind: .advisor, side: .black, position: Position(row: 0, col: 0), id: 200)
+        let blackAdvisor = TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 0, col: 0))
         #expect(blackAdvisor.displayName == "士")
 
-        let blackElephant = Piece(kind: .elephant, side: .black, position: Position(row: 0, col: 0), id: 200)
+        let blackElephant = TestPieceFactory.makePiece(kind: .elephant, side: .black, position: Position(row: 0, col: 0))
         #expect(blackElephant.displayName == "象")
 
-        let blackHorse = Piece(kind: .horse, side: .black, position: Position(row: 0, col: 0), id: 200)
+        let blackHorse = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 0, col: 0))
         #expect(blackHorse.displayName == "馬")
 
         let blackChariot = Piece(kind: .chariot, side: .black, position: Position(row: 0, col: 0), id: 16)
         #expect(blackChariot.displayName == "車")
 
-        let blackCannon = Piece(kind: .cannon, side: .black, position: Position(row: 0, col: 0), id: 200)
+        let blackCannon = TestPieceFactory.makePiece(kind: .cannon, side: .black, position: Position(row: 0, col: 0))
         #expect(blackCannon.displayName == "砲")
 
-        let blackSoldier = Piece(kind: .soldier, side: .black, position: Position(row: 0, col: 0), id: 200)
+        let blackSoldier = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 0, col: 0))
         #expect(blackSoldier.displayName == "卒")
     }
 

@@ -38,10 +38,10 @@ struct GameViewModelTests {
         let vm = GameViewModel()
         // 设置场景：红车在 (5,0)，黑卒在 (3,0)
         let board = Board(pieces: [
-            Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150),
+            TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0)),
             Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27),
-            Piece(kind: .general, side: .red, position: Position(row: 9, col: 3), id: 193),
-            Piece(kind: .general, side: .black, position: Position(row: 0, col: 5), id: 205)
+            TestPieceFactory.redGeneral(9, 3),
+            TestPieceFactory.blackGeneral(0, 5)
         ])
         vm.board = board
 

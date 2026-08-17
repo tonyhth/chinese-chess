@@ -19,7 +19,7 @@ struct IOSToolbarAdaptationTests {
         // 模拟走棋后状态
         vm.isThinking = true
         vm.gameState = .redWon
-        let testPiece = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let testPiece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
         vm.capturedPieces = (red: [testPiece], black: [])
         vm.gameMoves = [GameMove(id: UUID(), piece: testPiece, from: Position(row: 0, col: 0), to: Position(row: 1, col: 0), captured: nil, turnNumber: 1, notation: "車九平八", timestamp: Date(), isCheck: false, isCheckmate: false, halfmoveClock: 0)]
 

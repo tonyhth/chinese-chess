@@ -153,7 +153,7 @@ struct R3R1FunctionalTests {
         // 构造一个红车将军黑将的局面
         let board = Board()
         // 清空棋盘，只留红车和黑将
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let board2 = Board(pieces: [redChariot, blackGeneral])
         #expect(MoveValidator.isInCheck(.black, on: board2), "红车在同行将军黑将")
@@ -174,7 +174,7 @@ struct R3R1FunctionalTests {
 @Test("1.5: 将杀判定 - 典型将杀局面")
     func testCheckmate() {
         // 构造将杀：红车在底线将军，黑将无路可走
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 0), id: 100)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 0, col: 0))
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let board = Board(pieces: [redChariot, blackGeneral, redGeneral])
@@ -221,8 +221,8 @@ struct R3R1FunctionalTests {
 @Test("1.6: 撤销走子 - 带吃子的撤销")
     func testUndoCaptureMove() {
         // 构造一个吃子局面
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
-        let blackSoldier = Piece(kind: .soldier, side: .black, position: Position(row: 5, col: 4), id: 254)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
+        let blackSoldier = TestPieceFactory.makePiece(kind: .soldier, side: .black, position: Position(row: 5, col: 4))
         let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
         let board = Board(pieces: [redChariot, blackSoldier, redGeneral, blackGeneral])
@@ -531,11 +531,11 @@ struct R3R1FunctionalTests {
         // 红：帅(9,4), 车(2,0), 马(3,2)
         // 黑：将(0,4), 士(1,4)
         // 马(3,2)跳到(1,3)将军 → 黑将只能(0,5) → 车(2,0)到(0,0)将军 → 黑将无路
-        let redChariot = Piece(kind: .chariot, side: .red, position: Position(row: 2, col: 0), id: 120)
-        let redHorse = Piece(kind: .horse, side: .red, position: Position(row: 3, col: 2), id: 132)
+        let redChariot = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 2, col: 0))
+        let redHorse = TestPieceFactory.makePiece(kind: .horse, side: .red, position: Position(row: 3, col: 2))
         let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8)
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let blackAdvisor = Piece(kind: .advisor, side: .black, position: Position(row: 1, col: 4), id: 214)
+        let blackAdvisor = TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 1, col: 4))
         let board = Board(pieces: [redChariot, redHorse, redGeneral, blackGeneral, blackAdvisor])
         board.setCurrentTurn(.red)
 
@@ -547,7 +547,7 @@ struct R3R1FunctionalTests {
         if result == nil {
             // 退而求其次：验证单步将杀
             let board2 = Board(pieces: [
-                Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 0), id: 110),
+                TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 1, col: 0)),
                 Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8),
                 Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
             ])

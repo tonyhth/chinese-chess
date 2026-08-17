@@ -165,7 +165,7 @@ struct GameMoveTests {
 
     @Test("GameMove 吃子记录")
     func testGameMoveWithCapture() {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 5, col: 0), id: 150)
+        let piece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
         let captured = Piece(kind: .soldier, side: .black, position: Position(row: 3, col: 0), id: 27)
         let move = GameMove(
             id: UUID(),
@@ -189,7 +189,7 @@ struct GameMoveTests {
 
     @Test("GameMove 将死标记")
     func testGameMoveCheckmate() {
-        let piece = Piece(kind: .chariot, side: .red, position: Position(row: 1, col: 4), id: 114)
+        let piece = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 1, col: 4))
         let move = GameMove(
             id: UUID(),
             piece: piece,
