@@ -152,21 +152,18 @@ struct PuzzleSelectView: View {
             // 残局列表
             let list = filteredPuzzles
             if list.isEmpty {
-                // 空状态提示
-                VStack(spacing: 8) {
-                    Image(systemName: "puzzlepiece")
-                        .font(.largeTitle)
-                        .foregroundColor(.secondary)
-                    Text(debouncedSearchText.isEmpty ? l10n.t("puzzle.empty") : l10n.t("puzzle.noMatch"))
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    if debouncedSearchText.isEmpty {
+                // 空状态提示（v6.2 P1-2: 空态统一 ContentUnavailableView，双态显式分支，Eric）
+                if debouncedSearchText.isEmpty {
+                    ContentUnavailableView {
+                        Label(l10n.t("puzzle.empty"), systemImage: "puzzlepiece")
+                    } description: {
                         Text(l10n.t("puzzle.empty.hint"))
-                            .font(.caption)
-                            .foregroundColor(.secondary.opacity(0.8))
+                    }
+                } else {
+                    ContentUnavailableView {
+                        Label(l10n.t("puzzle.noMatch"), systemImage: "magnifyingglass")
                     }
                 }
-                .frame(maxWidth: .infinity, minHeight: 120)
             } else {
                 ZStack(alignment: .bottom) {
                     ScrollView {

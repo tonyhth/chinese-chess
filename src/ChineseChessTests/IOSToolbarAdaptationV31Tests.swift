@@ -133,7 +133,7 @@ struct IOSToolbarAdaptationV31Tests {
     @MainActor
 @Test("AIDifficulty 有 5 个级别")
     func allDifficulties() {
-        #expect(AIDifficulty.allCases.count == 5)
+        #expect(AIDifficulty.allCases.count == 10) // v6.0 十级体系（业余5+棋士5），旧 5 级断言过期
     }
 
     // MARK: - newGame 全面重置

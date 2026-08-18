@@ -112,22 +112,13 @@ struct AchievementView: View {
                 )
                 .tint(.accentColor)
 
-                // Phase 2.2: 空状态引导
+                // Phase 2.2: 空状态引导（v6.2 P1-2: 空态统一 ContentUnavailableView，Eric）
                 if profile.unlockedAchievements.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "trophy")
-                            .font(.system(size: 48))
-                            .foregroundColor(.secondary.opacity(0.5))
-                        Text(L10n.shared.t("achievement.empty.title"))
-                            .font(.headline)
-                            .foregroundColor(.secondary)
+                    ContentUnavailableView {
+                        Label(L10n.shared.t("achievement.empty.title"), systemImage: "trophy")
+                    } description: {
                         Text(L10n.shared.t("achievement.empty.hint"))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary.opacity(0.8))
-                            .multilineTextAlignment(.center)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 40)
                 }
 
                 // 按稀有度分组

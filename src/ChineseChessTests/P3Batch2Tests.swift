@@ -12,11 +12,12 @@ struct P3Batch2Tests {
         let explainer = CoachExplainer()
         let analysis = MoveAnalysis(
             playerMove: "a0a1", quality: .doubtful,
-            bestMove: "b5d7", bestEval: 200, playerEval: 100,
-            evalDelta: 100, alternatives: []
+            bestMove: "b5d7", bestEval: 200, playerEval: 170,
+            evalDelta: 30, alternatives: []
         )
         let result = await explainer.explain(
-            analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "b5d7"
+            analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "b5d7",
+            moveNumber: 30, board: Board()  // v6.2 断言清偿：强制中局阶段（moveNumber=0 → 开局 → .generic）
         )
         #expect(result.scenario == .centerControl)
     }
@@ -26,11 +27,12 @@ struct P3Batch2Tests {
         let explainer = CoachExplainer()
         let analysis = MoveAnalysis(
             playerMove: "a0a1", quality: .doubtful,
-            bestMove: "h2e2", bestEval: 200, playerEval: 100,
-            evalDelta: 100, alternatives: []
+            bestMove: "h2e2", bestEval: 200, playerEval: 170,
+            evalDelta: 30, alternatives: []
         )
         let result = await explainer.explain(
-            analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "h2e2"
+            analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "h2e2",
+            moveNumber: 30, board: Board()
         )
         #expect(result.scenario == .centerControl)
     }
@@ -40,11 +42,12 @@ struct P3Batch2Tests {
         let explainer = CoachExplainer()
         let analysis = MoveAnalysis(
             playerMove: "a0a1", quality: .doubtful,
-            bestMove: "a3f3", bestEval: 200, playerEval: 100,
-            evalDelta: 100, alternatives: []
+            bestMove: "a3f3", bestEval: 200, playerEval: 170,
+            evalDelta: 30, alternatives: []
         )
         let result = await explainer.explain(
-            analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "a3f3"
+            analysis: analysis, fenBefore: "test", playerMove: "a0a1", bestMove: "a3f3",
+            moveNumber: 30, board: Board()
         )
         #expect(result.scenario == .centerControl)
     }

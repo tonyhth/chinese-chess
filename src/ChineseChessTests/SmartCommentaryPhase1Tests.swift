@@ -15,6 +15,17 @@ import XCTest
 @MainActor
 final class SmartCommentaryPhase1Tests: XCTestCase {
 
+    private var savedLang = ""
+
+    override func setUp() {
+        super.setUp()
+        savedLang = TestL10nSupport.injectZhHans()  // v6.2 断言清偿 簇1：i18n 语言污染隔离
+    }
+    override func tearDown() {
+        TestL10nSupport.restore(savedLang)
+        super.tearDown()
+    }
+
     // MARK: - 1. DemoConfig.smartCommentaryEnabled 默认值
 
     func testSmartCommentaryDisabledByDefault() {

@@ -741,13 +741,16 @@ struct Phase35Tests {
         defaults.removePersistentDomain(forName: "test.history.clear")
     }
 
-    @Test("AIDifficulty displayName localized")
+    @Test("AIDifficulty displayName 与 lvlN catalog 一致")
     func testAIDifficultyDisplayName() {
-        #expect(AIDifficulty.novice.displayName == String(localized: "difficulty.novice"))
-        #expect(AIDifficulty.beginner.displayName == String(localized: "difficulty.beginner"))
-        #expect(AIDifficulty.amateurLow.displayName == String(localized: "difficulty.amateurLow"))
-        #expect(AIDifficulty.amateurMid.displayName == String(localized: "difficulty.amateurMid"))
-        #expect(AIDifficulty.amateurHigh.displayName == String(localized: "difficulty.amateurHigh"))
+        // v6.2 断言清偿：displayName 硬编码 zh；断言 == t("difficulty.lvlN")（zh 注入后取 catalog 中文值）
+        let saved = TestL10nSupport.injectZhHans()
+        defer { TestL10nSupport.restore(saved) }
+        for diff in AIDifficulty.allCases {
+            let key = "difficulty.lvl\(diff.order + 1)"
+            #expect(diff.displayName == L10n.shared.t(key),
+                    "\(diff.rawValue).displayName=\(diff.displayName) 应等于 \(key)=\(L10n.shared.t(key))")
+        }
     }
 
     @Test("GameHistoryStore 按时间倒序")

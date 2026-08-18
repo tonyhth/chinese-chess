@@ -103,9 +103,10 @@ struct DailyChallengeView: View {
 
                     let recent = manager.recentChallenges(days: 7)
                     if recent.isEmpty {
-                        Text(L10n.shared.t("daily.view.noRecord"))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        // v6.2 P1-2: 空态统一 ContentUnavailableView（区块内轻态，Eric）
+                        ContentUnavailableView {
+                            Label(L10n.shared.t("daily.view.noRecord"), systemImage: "calendar")
+                        }
                     } else {
                         ForEach(recent, id: \.date) { challenge in
                             HStack {

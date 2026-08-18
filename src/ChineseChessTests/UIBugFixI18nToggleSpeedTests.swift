@@ -10,6 +10,17 @@ import XCTest
 @MainActor
 final class UIBugFixI18nToggleSpeedTests: XCTestCase {
 
+    private var savedLang = ""
+
+    override func setUp() {
+        super.setUp()
+        savedLang = TestL10nSupport.injectZhHans()  // v6.2 断言清偿 簇1
+    }
+    override func tearDown() {
+        TestL10nSupport.restore(savedLang)
+        super.tearDown()
+    }
+
     // MARK: - Bug A: i18n — 4 个新 key  translations
 
     func testI18nPauseOnCommentaryHasChinese() {

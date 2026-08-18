@@ -6,8 +6,12 @@ import Foundation
 
 @Suite("B3S4 MasterGameSearch", .serialized)
 final class B3S4MasterGameSearchTests {
-    private var savedLang = ""
-    init() { savedLang = TestL10nSupport.injectZhHans() }  // 基线污染单1：受害侧入口自防御（Alex L2 §1 裁定1：防三类上游残留——上批泄漏/进程未走 restore/真机运行残留）
+
+    private let savedLang: String
+
+    init() {
+        savedLang = TestL10nSupport.injectZhHans()  // v6.2 断言清偿 簇1：中文环境注入
+    }
     deinit { TestL10nSupport.restore(savedLang) }
 
     // MARK: - 搜索模型基本功能

@@ -351,7 +351,8 @@ final class V371Tests: XCTestCase {
             source: .versusAI
         )
         let pgn = PGNExporter.export(record)
-        XCTAssertTrue(pgn.contains("[Difficulty \"hard\"]"), "versusAI + difficulty=hard 应输出 [Difficulty] 标签")
+        // v6.2 断言清偿：v6.0 rawValue 体系（amateurMid.rawValue = "lvl4"），旧 5 级名 "hard" 已废弃
+        XCTAssertTrue(pgn.contains("[Difficulty \"lvl4\"]"), "versusAI + difficulty=lvl4 应输出 [Difficulty] 标签")
     }
 
     /// 非 imported 记录 + difficulty = nil 不含 [Difficulty] 标签

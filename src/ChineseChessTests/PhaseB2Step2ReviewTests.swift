@@ -171,6 +171,8 @@ final class PhaseB2Step2ReviewTests: XCTestCase {
         for cat in OpeningCategories.categories {
             for sub in cat.subcategories {
                 XCTAssertFalse(sub.id.isEmpty, "子分类 id 不应为空")
+                // v6.2 断言清偿："<openingId>_other" 系运行时追加的"其他应手"兑底桶，firstMoves 设计性为空
+                if sub.id.hasSuffix("_other") { continue }
                 XCTAssertFalse(sub.firstMoves.isEmpty,
                                "子分类 \(sub.id) 应有 firstMoves")
             }
@@ -248,6 +250,8 @@ final class PhaseB2Step2ReviewTests: XCTestCase {
         // 验证子分类的 firstMoves 比父分类更长（前缀匹配）
         let zhongPao = OpeningCategories.categories.first { $0.id == "zhong_pao" }!
         for sub in zhongPao.subcategories {
+            // v6.2 断言清偿：_other 兑底桶豁免（设计性 firstMoves 为空）
+            if sub.id.hasSuffix("_other") { continue }
             XCTAssertGreaterThan(sub.firstMoves.count, 1,
                                  "子分类 \(sub.id) 应有至少 2 步走法")
         }

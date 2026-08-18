@@ -331,7 +331,7 @@ struct Phase3DrawTests {
         let json = """
         {
             "id": "00000000-0000-0000-0000-000000000001",
-            "piece": {"id": "00000000-0000-0000-0000-000000000002", "kind": "cannon", "side": "red", "position": {"row": 7, "col": 1}},
+            "piece": {"id": 2, "kind": "cannon", "side": "red", "position": {"row": 7, "col": 1}},
             "from": {"row": 7, "col": 1},
             "to": {"row": 7, "col": 4},
             "captured": null,

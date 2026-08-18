@@ -110,6 +110,16 @@ struct SettingsView: View {
 
                 Section(l10n.t("settings.aboutSection")) {
                     NavigationLink {
+                        AboutView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "info.circle")
+                                .foregroundColor(.brown)
+                            Text(l10n.t("settings.aboutSection"))
+                        }
+                    }
+
+                    NavigationLink {
                         PrivacyPolicyView()
                     } label: {
                         HStack {
@@ -117,6 +127,18 @@ struct SettingsView: View {
                                 .foregroundColor(.brown)
                             Text(l10n.t("settings.privacyPolicy"))
                         }
+                    }
+                }
+
+                // 版本信息（v6.2：读 Bundle 真实版本，plist 已 $(MARKETING_VERSION) 化）
+                Section {
+                    HStack {
+                        Image(systemName: "tag")
+                            .foregroundColor(.brown)
+                        Text(l10n.t("settings.versionLabel"))
+                        Spacer()
+                        Text(AboutView.appVersion)
+                            .foregroundColor(.secondary)
                     }
                 }
 

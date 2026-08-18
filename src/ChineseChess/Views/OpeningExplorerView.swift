@@ -237,16 +237,12 @@ struct OpeningExplorerView: View {
     // MARK: - 锁定
 
     private var lockedView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "lock.circle")
-                .font(.system(size: 48))
-                .foregroundColor(.gray)
-
-            Text(String(format: l10n.t("opening.explorer.unlock"), l10n.t("rank.scholar")))
-                .foregroundColor(.gray)
-
+        // v6.2 P1-2: 空态统一 ContentUnavailableView（唯一带 action 场景，Eric）
+        ContentUnavailableView {
+            Label(String(format: l10n.t("opening.explorer.unlock"), l10n.t("rank.scholar")),
+                  systemImage: "lock.circle")
+        } actions: {
             Button(l10n.t("common.close")) { dismiss() }
-                .buttonStyle(.bordered)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

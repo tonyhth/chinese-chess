@@ -409,7 +409,7 @@ struct ChineseChessApp: App {
                     pendingReviewRecord = nil
                 }
             }
-            .frame(minWidth: 900, minHeight: 750)
+            .frame(minWidth: 900, minHeight: 600)  // v6.2：minHeight 750→600（v1.2 §三.2 P0-1，仅尺寸不布局）
             .onAppear {
                 TutorialViewModel.markLaunched()
                 if firstLaunchNeeded {
@@ -417,18 +417,6 @@ struct ChineseChessApp: App {
                 }
             }
             .preferredColorScheme(.dark)
-            // P1-2: 外部引擎 fallback 提示
-            .alert(
-                L10n.shared.t("engine.fallbackTitle"),
-                isPresented: Binding(
-                    get: { viewModel.engineFallbackMessage != nil },
-                    set: { if !$0 { viewModel.engineFallbackMessage = nil } }
-                )
-            ) {
-                Button(L10n.shared.t("common.ok")) { viewModel.engineFallbackMessage = nil }
-            } message: {
-                Text(viewModel.engineFallbackMessage ?? "")
-            }
             // P0-1 fix: 长将判负首次触发解释弹窗
             .alert(
                 L10n.shared.t("game.perpetualCheckTitle"),
@@ -465,7 +453,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 600, minHeight: 700)
+                    .frame(minWidth: 800, minHeight: 700)  // v6.2：600→800，演示页左右布局需 800（v1.2 P1-5，Tina §五核实仅此两个 sheet 改）
 
                 case .toolbarReplay(let record):
                     ReplayView(record: record)
@@ -600,7 +588,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 600, minHeight: 700)
+                    .frame(minWidth: 800, minHeight: 700)  // v6.2：600→800，同 .puzzles（演示页入口）
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })

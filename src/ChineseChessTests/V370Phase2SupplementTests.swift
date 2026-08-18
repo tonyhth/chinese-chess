@@ -5,11 +5,14 @@ import XCTest
 
 final class V370Phase2SupplementTests: XCTestCase {
     private var savedHumanSide: String?
+    private var savedDeveloperMode: Bool = false  // v6.2 断言清偿：隔离 DeveloperMode 泄漏
 
     override func setUp() {
         super.setUp()
         savedHumanSide = UserDefaults.standard.string(forKey: "chinesechess.humanSide")
         UserDefaults.standard.set("red", forKey: "chinesechess.humanSide")
+        savedDeveloperMode = DeveloperMode.isEnabled
+        DeveloperMode.isEnabled = false  // 段位门禁测试需真实段位状态
     }
 
     override func tearDown() {
@@ -18,6 +21,7 @@ final class V370Phase2SupplementTests: XCTestCase {
         } else {
             UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide")
         }
+        DeveloperMode.isEnabled = savedDeveloperMode
         super.tearDown()
     }
 
