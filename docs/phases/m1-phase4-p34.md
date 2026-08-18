@@ -34,7 +34,7 @@
 
 1. **无判据触发** → L0 终态 → 跳 4（冻结）
 2. **判据①（配对差 >30）** → Tina 置 `QS_STANDPAT_FULL=1` 重跑配对 ≥50 局 → 差 ≤30 = L1 终态 → 跳 4；**仍 >30 = razor/futility 残留 → L1 升格条款 → Luke 决策点**（B 实质退场重估：commit revert P4-② 或降档接受，退场形态 Luke 定——phase5 v1.1 对齐口径）
-3. **判据②观测触发（敏感局面深度左移）= 独立分支（P1-2 修）**：mid-batch 标记跑完与 ① 合判（phase4 §5 #1 口径）→ **switch on（L1）→ 重跑敏感局面深度对比（非配对重跑）→ 仍左移 = razor/futility 残留 → L1 升格条款 → Luke 决策点**（phase4 :83 原文动作链，①是否并发不改变本分支动作）。仅判据①单独触发才走步骤 2 配对重跑
+3. **判据②观测触发（敏感局面深度左移）= 独立分支（P1-2 修）**：mid-batch 标记跑完与 ① 合判（phase4 §5 #1 口径）→ **switch on（L1）→ 重跑敏感局面深度对比（非配对重跑）→ 不再左移 = L1 终态 → 跳 4；仍左移 = razor/futility 残留 → L1 升格条款 → Luke 决策点**（phase4 :83 原文动作链，①是否并发不改变本分支动作）。仅判据①单独触发才走步骤 2 配对重跑
 4. **终态冻结**：登记 `seed-registry.md` 冻结令牌二元组 = `binary hash + 关键开关终态（QS_STANDPAT_FULL 实例态与 env 值 / USE_SEARCHBOARD_V2 编译态）`（Luke 08-18 裁定：QS_STANDPAT_FULL 实例级独立、env 每次读、hash 锁不住开关行为，故记实例态+env；USE_SEARCHBOARD_V2 为编译条件 AIEngine :103，变更必致 hash 变，hash 已锁，故记编译态；phase5 v1.2 :16 同口径）；**登记后任何行为变更一律走 commit、禁开关路径**（phase5 配套规则）
 
 **P5 移交清单**：本报告 + seed-registry 二元组登记 → phase5 §3 时序锁解除 → SPRT 启动（双态全量在 SPRT 前执行，phase5 口径）。
