@@ -1,6 +1,6 @@
 # M1 Phase 4：P4-③④ 执行设计（校准双轨 + 回退裁决与终态冻结）
 
-> 依 phase4.md v1.2 全口径引用不重述（§4 判据 / §5 回退链 / §3 步骤 4）+ phase5.md v1.1 时序锁与冻结令牌二元组 · 设计 2026-08-17 夜 · Alex · 负责人 Tina 执行 / Luke 决策点
+> 依 phase4.md v1.2 全口径引用不重述（§4 判据 / §5 回退链 / §3 步骤 4）+ phase5.md v1.1 时序锁与冻结令牌二元组 · 设计 2026-08-17 夜 · v1.1 2026-08-18 夜修 Vera 快审（2×P1 + P2 + P3）· Alex · 负责人 Tina 执行 / Luke 决策点
 > 编码终态锚：P4-①② = 5817cf9 + Ruby 两轮（867e230 双向同步锚 / 987db01 UndoInfo 标量化）——**双向增量与标量化已吸收进本设计的校准对象**；P4-0 = 11214fc 通过（分层口径）
 > 快审门槛预判：本文 <150 行 + phase4 v1.2 / phase5 v1.1 / 预检 a6928c6 引用过半
 
@@ -18,15 +18,15 @@
 
 | # | 项 | 执行口径 |
 |---|---|---|
-| A | 相关性专项 | QS 轨迹 ≥1000 节点 + 构造吃子链集（8.4）；cheapEval vs 全量 Spearman **分层报**（非残局/残局不 pooled，P4-0 11214fc 口径）+ margin-flip 率 ≤5% |
-| B | 增量全等专项 | P4-① 验收已含（随机局面逐局面全等）；已绿则报告引用不重跑 |
+| A | 相关性专项 | QS 轨迹 ≥1000 节点 + 构造吃子链集（8.4）；cheapEval vs 全量 Spearman **分层报**（非残局/残局不 pooled，P4-0 11214fc 口径）+ margin-flip 率 ≤5%。**轨迹采集口径（P2 补）**：复用 P1 已加的 qsNodes 埋点字段 + IDS_DEPTH_LOG 深度埋点（phase4 :43/:66 口径），Tina harness 逐节点落盘 `calibration-results/qs-traj-<hash8>.jsonl`（每行 = FEN + cheap 评分 + 全量评分），样本即由此导出 |
+| B | 增量全等专项 | P4-① 验收已含（随机局面逐局面全等）；**合入后轻量复跑一次**（风险 #3 口径，非仅引用不重跑），报告记复跑结论 |
 | C | 双轨配对（主信号） | cheap vs full **配对 ≥50 局**：同 binary、同开局集、红黑交替；配对差 ≤30 过 / >30 触发 L0→L1。secondary = 两路 vs v4.3 绝对锚（不直接管回退，只报） |
 
 **配对执行形态（关键工程口径）**：**双进程 harness**——同 binary 两个引擎进程，一路不设 `QS_STANDPAT_FULL`（L0）、一路设 `=1`（L1 档模拟），同开局、红黑交替。⚠️ 现码 env 经 `ProcessInfo` 现读（AIEngine :416-418/:431/:712），**进程内 setenv 不保证可见——同进程 A/B 不作为依赖**；若 Tina harness 需进程内配对（省一半进程开销），报 Cody 加实例注入点（小改走变更流程，phase5 冻结令牌重算不触发——属测试注入非行为变更，以 Luke 裁为准）。
 
 **参数与噪声控制**：开局集固定并登记（与 seed-registry 同册）；时间/深度参数与 P5 SPRT 同门（协议 §4 口径），报告记录完整命令行。**长任务脱离规约照 AGENTS**：nohup 起跑 + 固定输出路径 + 不盯进程，丹妮 a3_check 双心跳监控复用。
 
-**报告模板**（`calibration-results/p4-calibration-report.md`）：binary hash + 开关终态（env 值）/ 开局集与 seed 登记 / A 分层相关系数 + flip 率 / C 配对差与逐局明细落盘路径 / secondary 两路 vs v4.3 / 判据触发结论（无触发 / ① / ②观测）。
+**报告模板**（`calibration-results/p4-calibration-report.md`）：冻结令牌二元组（§3-4 同口径逐字：binary hash + 关键开关终态（QS_STANDPAT_FULL / USE_SEARCHBOARD_V2 实例态与 env 值），phase5 :16 口径）/ 开局集与 seed 登记 / A 分层相关系数 + flip 率 / C 配对差与逐局明细落盘路径 / secondary 两路 vs v4.3 / 判据触发结论（无触发 / ① / ②观测）。
 
 ## 3. P4-④ 回退裁决与终态冻结
 
@@ -34,8 +34,8 @@
 
 1. **无判据触发** → L0 终态 → 跳 4（冻结）
 2. **判据①（配对差 >30）** → Tina 置 `QS_STANDPAT_FULL=1` 重跑配对 ≥50 局 → 差 ≤30 = L1 终态 → 跳 4；**仍 >30 = razor/futility 残留 → L1 升格条款 → Luke 决策点**（B 实质退场重估：commit revert P4-② 或降档接受，退场形态 Luke 定——phase5 v1.1 对齐口径）
-3. **判据②观测触发（敏感局面深度左移）** → mid-batch 标记跑完与 ① 合判（phase4 §5 #1 口径）→ 走 2
-4. **终态冻结**：登记 `seed-registry.md` 冻结令牌二元组 = binary hash + 开关终态（QS_STANDPAT_FULL 终值 + USE_SEARCHBOARD_V2 编译态）；**登记后任何行为变更一律走 commit、禁开关路径**（phase5 v1.1 配套规则）
+3. **判据②观测触发（敏感局面深度左移）= 独立分支（P1-2 修）**：mid-batch 标记跑完与 ① 合判（phase4 §5 #1 口径）→ **switch on（L1）→ 重跑敏感局面深度对比（非配对重跑）→ 仍左移 = razor/futility 残留 → L1 升格条款 → Luke 决策点**（phase4 :83 原文动作链，①是否并发不改变本分支动作）。仅判据①单独触发才走步骤 2 配对重跑
+4. **终态冻结**：登记 `seed-registry.md` 冻结令牌二元组 = **逐字引用 phase5 v1.1 :16 口径：`binary hash + 关键开关终态（QS_STANDPAT_FULL / USE_SEARCHBOARD_V2 实例态与 env 值）`**——两文档判等字段字面一致，P5 复用资格条件①按此二元组判等；**登记后任何行为变更一律走 commit、禁开关路径**（phase5 v1.1 配套规则）
 
 **P5 移交清单**：本报告 + seed-registry 二元组登记 → phase5 §3 时序锁解除 → SPRT 启动（双态全量在 SPRT 前执行，phase5 口径）。
 
@@ -51,5 +51,5 @@
 |---|---|---|
 | 1 | ProcessInfo env 快照语义（同进程 A/B 静默失效） | 双进程为基线形态；进程内仅作可选优化且需 Cody 注入点 + Luke 裁 |
 | 2 | 校准起跑早于 v6.2 合入 → hash 失效重跑 | §2 明示"合入完成后起跑"；Tina 开工检查单第一项 |
-| 3 | 合入后引擎行为意外变化污染校准 | 校准前双态全量 + 增量全等复跑一次（B 项轻量重验）；异常即停报 Luke |
+| 3 | 合入后引擎行为意外变化污染校准 | 校准前双态全量 + 增量全等轻量复跑一次（B 项口径，与 C 表一致）；异常即停报 Luke |
 | 4 | 开局集未登记 → 结果不可复现 | seed-registry 同册登记，报告缺登记 = 验收不通过 |
