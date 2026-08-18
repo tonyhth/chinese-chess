@@ -1,6 +1,6 @@
 # M1 Phase 5：验收设计单
 
-> 依 SPRT 协议 v1.2（docs/design/m1-sprt-protocol.md，全文引用不重述）+ m1-hotpath-redesign.md v1.2 §七/§八 + D2 判定节 + L2 回退计数门规 · 设计 2026-08-16 夜 · v1.1 08-17（Vera 快审 P1+4P2 消化） · Alex · 负责人 Tina 执行 / Cody 前置
+> 依 SPRT 协议 v1.2（docs/design/m1-sprt-protocol.md，全文引用不重述）+ m1-hotpath-redesign.md v1.2 §七/§八 + D2 判定节 + L2 回退计数门规 · 设计 2026-08-16 夜 · v1.1 08-17（Vera 快审 P1+4P2 消化） · v1.2 08-18（Luke 裁定：冻结令牌二元组两开关各记各的，:16 口径对齐 p34 v1.1） · Alex · 负责人 Tina 执行 / Cody 前置
 > P4 锚：0bdd456（v1.2 定稿入库）→ a95632c（Vera 复审 9/9 核销）→ e19e7a9（③ 补充核，HEAD = P4 设计链终态）；编码期 commit 变更走变更流程同步
 
 ## 1. 验收对象与锚
@@ -13,7 +13,7 @@
 
 **P4 回退链终态声明**（P5 启动前提）：P4-③ Tina 校准双轨完成 → L0/L1/L1.5 终态锁定 → **冻结令牌锁定**。若 L1 升格条款触发（phase4 原文：B 实质退场，Luke 决策点重估，退场形态未定）→ binary/行为已变 → SPRT 必须重跑（seed 可复用若令牌重新匹配；否则新 seed）。
 
-**冻结令牌 = 二元组**（Vera 快审 P1 修法采纳）：`binary hash + 关键开关终态（QS_STANDPAT_FULL / USE_SEARCHBOARD_V2 实例态与 env 值）`。理由：评估策略开关实例级独立、env 每次读取，开关路径回退不改变 hash——hash 单令牌锁不住开关行为。**配套规则：P4-③ 冻结后任何行为变更一律走 commit（禁开关路径）**；若编码期确需开关路径变更，冻结令牌重算、SPRT 重跑。复用资格条件①相应按二元组判等（协议 §4 条件③"同命令参数"仅覆盖 env 显式传参，不覆盖实例级默认路径，故二元组必填）。
+**冻结令牌 = 二元组**（Vera 快审 P1 修法采纳；Luke 08-18 裁定两开关各记各的）：`binary hash + 关键开关终态（QS_STANDPAT_FULL 实例态与 env 值 / USE_SEARCHBOARD_V2 编译态）`。理由：评估策略开关实例级独立、env 每次读取，开关路径回退不改变 hash——hash 单令牌锁不住开关行为；USE_SEARCHBOARD_V2 为编译条件（AIEngine.swift :103），变更必致 hash 变，hash 单令牌已锁，无需实例口径。**配套规则：P4-③ 冻结后任何行为变更一律走 commit（禁开关路径）**；若编码期确需开关路径变更，冻结令牌重算、SPRT 重跑。复用资格条件①相应按二元组判等（协议 §4 条件③"同命令参数"仅覆盖 env 显式传参，不覆盖实例级默认路径，故二元组必填）。
 
 ## 2. 验收方法（引用不重述）
 
