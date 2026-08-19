@@ -487,8 +487,11 @@ extension SelfPlayRunner {
     func runPaired(config: PairedPlayConfig,
                   progressCallback: ((Int, PairedGameRecord) -> Void)? = nil) async -> PairedPlayResult {
         let clock = ElapsedClock()
-        let engineA = AIEngine()   // L0：默认路径（override = nil，跟随 env）
+        // P1（Ruby 7ca698a 审）：A 侧显式钉 L0（override = false），
+        // 防 shell 残留 QS_STANDPAT_FULL=1 令 A/B 同档、配对信号静默失效
+        let engineA = AIEngine()   // L0：cheap 路径（显式 override = false，不跟随 env）
         let engineB = AIEngine()   // L1：QS_STANDPAT_FULL 回退档
+        await engineA.setQSStandPatFullOverride(false)
         await engineB.setQSStandPatFullOverride(true)
 
         var records: [PairedGameRecord] = []
@@ -555,13 +558,23 @@ extension SelfPlayRunner {
     private func appendGameRecord(_ record: PairedGameRecord, moveHistory: [String], seedBase: UInt64) {
         let dir = URL(fileURLWithPath: "calibration-results", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let url = dir.appendingPathComponent("paired-games-\(seedBase).jsonl")
+        let url = dir.appendingPathComponent("paired-games-\(seedBase).jsonl")  // ⚠️ 同 seedBase 重跑直接追加，注意换 seed 或先归档
         let moves = moveHistory.joined(separator: " ")
-        let line = "{\"game\":\(record.gameIndex),\"seed\":\(record.seed),\"engineARed\":\(record.engineARed),\"winner\":\"\(record.winner)\",\"reason\":\"\(record.reason.rawValue)\",\"moves\":\(record.totalMoves),\"iccs\":\"\(moves)\"}\n"
-        if FileManager.default.fileExists(atPath: url.path) {
-            if let h = try? FileHandle(forWritingTo: url) { try? h.seekToEnd(); try? h.write(contentsOf: Data(line.utf8)); try? h.close() }
-        } else {
-            try? line.write(to: url, atomically: true, encoding: .utf8)
+        let opening = record.openingFEN  // P2：逐局落盘补 openingFEN，同 seedBase 重跑可区分局面来源
+        let line = "{\"game\":\(record.gameIndex),\"seed\":\(record.seed),\"engineARed\":\(record.engineARed),\"winner\":\"\(record.winner)\",\"reason\":\"\(record.reason.rawValue)\",\"openingFEN\":\"\(opening)\",\"moves\":\(record.totalMoves),\"iccs\":\"\(moves)\"}\n"
+        do {
+            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            if FileManager.default.fileExists(atPath: url.path) {
+                let h = try FileHandle(forWritingTo: url)
+                defer { try? h.close() }
+                try h.seekToEnd()
+                try h.write(contentsOf: Data(line.utf8))
+            } else {
+                try line.write(to: url, atomically: true, encoding: .utf8)
+            }
+        } catch {
+            // P2：写失败不再静默丢局（对齐 QSTrajLogger 形态），print 留痕可重试
+            print("[paired] ⚠️ appendGameRecord 写入失败 game=\(record.gameIndex) url=\(url.path) err=\(error)")
         }
     }
 }

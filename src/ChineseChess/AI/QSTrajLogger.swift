@@ -38,6 +38,8 @@ enum QSTrajLogger {
 
     /// 追加一行 jsonl（低频：sampleRate 分之一节点，同步写可接受且无缓冲丢失）
     static func log(fen: String, cheap: Int, full: Int) {
+        // P2：FEN 字符集（棋子/数字/空格/斜杠/w b KQkq-）不含引号与反斜杠，免转义安全；
+        // 若未来 FEN 来源变化（含引号/反斜杠），必须先加 JSON escaping 再写此行
         let line = "{\"fen\":\"\(fen)\",\"cheap\":\(cheap),\"full\":\(full)}\n"
         lock.lock(); defer { lock.unlock() }
         do {

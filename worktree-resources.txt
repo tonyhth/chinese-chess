@@ -22,8 +22,7 @@
 #
 # ── 工具链/补料源（preflight 检查点，测试批需要）──
 [runtime] tools/pikafish/pikafish.nnue
-[runtime] tools/pikafish/pikafish-bmi2
-[runtime] data/dpxq_players_full.json
+# （P2 Ruby 审 08-18）tools/pikafish/pikafish-bmi2 与 data/dpxq_players_full.json 已 git 跟踪（git ls-files 实证），按规约 #2 移除
 #
 # ── iOS 门禁（可选，--ios 才拷）──
 [ios] ChineseChess-iOS

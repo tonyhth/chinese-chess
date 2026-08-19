@@ -39,7 +39,7 @@ struct AISearchConfig {
     /// false（默认）= cheapEval（M1 V2 主张路径，P4-0 通过前提已满足）；
     /// true = 全量 evaluate（回退档 L1，零 rebuild 实例切换）。
     /// 仅 V2 态生效（Legacy 六点全走原路全量，无效位）。
-    /// 回退覆盖面 = 三改点全回（razor :793 / futility :901 / standPat :1051 同读本位，
+    /// 回退覆盖面 = 三改点全回（razor 分支 / futility 分支 / QS standPat 主读位，符号锚见 AIEngine.swift 三处 P4-② 改点，同读本位，
     /// 回退档语义 = L1 整体退全量非单点退；原"razor/futility 不设开关"注释与实现
     /// 不一致，以实现为准——Ruby P4-①② 审点②修正）。入口处读 env QS_STANDPAT_FULL=1（不进程缓存）。
     var qsStandPatFullEval: Bool = false

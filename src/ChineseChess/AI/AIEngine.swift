@@ -805,7 +805,7 @@ actor AIEngine: AIEngineProtocol {
         // Razoring
         if searchConfig.enableRazoring && depth <= 2 && !board.inCheck(side) {
             let razorMargin = depth == 1 ? 300 : 500
-            // P4-② 三改点之一（:777 razor）：cheapEval 分流（V2 主路径，margin 容差吸收分值差；
+            // P4-② 三改点之一（razor 分支 staticEval）：cheapEval 分流（V2 主路径，margin 容差吸收分值差；
             // Legacy 六点全走原路全量，零行为变化）
             let staticEval: Int
             if board.supportsCheapEval && !searchConfig.qsStandPatFullEval {
@@ -912,7 +912,7 @@ actor AIEngine: AIEngineProtocol {
         let futilityEnabled = searchConfig.enableFutility
             && depth <= 3 && depth >= 1 && !selfInCheck
         let futilityMargin = futilityEnabled ? (depth == 1 ? 300 : depth == 2 ? 500 : 900) : 0
-        // P4-② 三改点之二（:877 futility）：cheapEval 分流。Optional 三元结构保持
+        // P4-② 三改点之二（futility 分支 staticEval）：cheapEval 分流。Optional 三元结构保持
         // （Ruby P2③：futilityEnabled ? eval : nil 勿提前求值；V2 分派在条件内闭合）
         let staticEvalForFutility: Int?
         if futilityEnabled {
@@ -1061,7 +1061,7 @@ actor AIEngine: AIEngineProtocol {
             return evaluator.evaluate(board, config: searchConfig.evalConfig)
         }
 
-        // P4-② 三改点之三（:1017 standPat）：cheapEval 主路径（V2 增量 O(1)）。
+        // P4-② 三改点之三（QS standPat 主读位）：cheapEval 主路径（V2 增量 O(1)）。
         // 守卫两道：qsStandPatFullEval 回退档（env 实例开关）；≤6 子 Endgame 域走全量
         // （P4-0：full eval ≤6 子 endgameScore 早返，分值体系与 material+pst 差值不同，
         // pieceCount O(1) 直读）。Legacy supportsCheapEval=false 恒走原路全量。
