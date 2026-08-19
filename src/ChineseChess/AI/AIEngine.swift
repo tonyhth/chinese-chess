@@ -114,6 +114,22 @@ actor AIEngine: AIEngineProtocol {
         boardPathOverride = value
     }
 
+    /// P4-③ C 项：QS_STANDPAT_FULL 实例级注入（校准配对用，照 boardPathOverride 同款模式）。
+    /// nil = 跟随 env（缺省，产品路径零变化）；true/false = 本实例覆盖。
+    /// 动机：ProcessInfo env 现读（不缓存）进程内 setenv 不保证可见——同进程 A/B
+    /// 配对需实例注入点（p34 v1.1 §2 风险 #1；测试注入非行为变更，Luke 08-18 批）。
+    var qsStandPatFullOverride: Bool?
+
+    /// actor 隔离 setter（外部/测试注入）
+    func setQSStandPatFullOverride(_ value: Bool?) {
+        qsStandPatFullOverride = value
+    }
+
+    /// 实例覆盖 > env 现读（:417 口径不变，仅加实例层）
+    private func resolveQSStandPatFull() -> Bool {
+        qsStandPatFullOverride ?? Self.readQSStandPatFullEnv()
+    }
+
     private func resolveBackend() -> Bool {
         boardPathOverride ?? Self.useSearchBoardV2
     }
@@ -426,9 +442,10 @@ actor AIEngine: AIEngineProtocol {
                                                   topK: Int,
                                                   depthLogLabel: String) -> [(move: Move, score: Int)]? {
         // P4-② env 接线：同 iterativeDeepeningSearch（两 IDS 口全覆盖 =
-        // bestMove/bestMoves/npsBench 三入口皆经此）
+        // bestMove/bestMoves/npsBench 三入口皆经此）。
+        // P4-③ C 项：实例覆盖 > env（resolve 口径）
         var searchConfig = searchConfig
-        searchConfig.qsStandPatFullEval = Self.readQSStandPatFullEnv()
+        searchConfig.qsStandPatFullEval = resolveQSStandPatFull()
         var bestResult: [(move: Move, score: Int)]? = nil
         var tm = timeManager
         var completedDepth = 0
@@ -707,9 +724,10 @@ actor AIEngine: AIEngineProtocol {
                                             searchConfig: AISearchConfig,
                                             depthLogLabel: String) -> Move? {
         // P4-② env 接线（phase4 §1）：QS_STANDPAT_FULL=1 → 全量评估回退档（L1），
-        // 入口读 env 不缓存（每次 bestMove 现读，零 rebuild 实例切换）
+        // 入口读 env 不缓存（每次 bestMove 现读，零 rebuild 实例切换）。
+        // P4-③ C 项：实例覆盖 > env（resolve 口径）
         var searchConfig = searchConfig
-        searchConfig.qsStandPatFullEval = Self.readQSStandPatFullEnv()
+        searchConfig.qsStandPatFullEval = resolveQSStandPatFull()
         var bestMoveSoFar: Move?
         var tm = timeManager
         var completedDepth = 0
@@ -1050,6 +1068,14 @@ actor AIEngine: AIEngineProtocol {
         let standPat: Int
         if board.supportsCheapEval && !searchConfig.qsStandPatFullEval && board.pieceCount > 6 {
             standPat = board.cheapEval(for: board.currentTurn)
+            // P4-③ A 项：QS 轨迹采样（QS_TRAJ_LOG=1 时 1/100，缺省零开销零输出）。
+            // cheap 主路径上 cheap 已算出，采样节点额外复算全量 → jsonl 差值样本。
+            if QSTrajLogger.shouldSample() {
+                QSTrajLogger.log(
+                    fen: FENDecoder.generate(pieces: board.pieces, currentTurn: board.currentTurn),
+                    cheap: standPat,
+                    full: evaluator.evaluate(board, config: searchConfig.evalConfig))
+            }
         } else {
             standPat = evaluator.evaluate(board, config: searchConfig.evalConfig)
         }

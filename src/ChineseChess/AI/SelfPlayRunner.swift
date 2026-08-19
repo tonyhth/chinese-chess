@@ -308,9 +308,20 @@ final class SelfPlayRunner {
         maxMoves: Int,
         repetitionThreshold: Int,
         redEngine: AIEngine? = nil,    // Phase 1 CrossVersion：双引擎装载（nil = self.engine，既有调用面不变）
-        blackEngine: AIEngine? = nil
+        blackEngine: AIEngine? = nil,
+        initialFEN: String? = nil      // P4-③ C 项：配对模式开局集注入（nil = 标准初始，既有调用面不变）
     ) async -> SelfPlayGameResult {
-        let board = Board()  // 标准初始局面
+        // P4-③ C 项：开局集支路。解析失败 = 配对 harness 参数 bug，静默回退标准开局
+        // 会污染同开局集前提，必须硬断
+        let board: Board
+        if let fen = initialFEN {
+            guard let parsed = FENParser.parse(fen: fen) else {
+                preconditionFailure("配对模式开局 FEN 解析失败: \(fen)")
+            }
+            board = parsed
+        } else {
+            board = Board()  // 标准初始局面
+        }
         var moveHistory: [String] = []
         var fenCounts: [String: Int] = [:]
         var endReason: GameEndReason = .normal
@@ -408,6 +419,150 @@ final class SelfPlayRunner {
             reason: endReason,
             moveHistory: moveHistory
         )
+    }
+}
+
+// MARK: - P4-③ C 项：双轨配对模式（校准主信号 harness，p34 v1.1 §2 C）
+
+/// 配对模式配置
+///
+/// 口径铁律（p34 v1.1 §2）：同 binary 双实例、同开局集、红黑交替、每局独立 seed。
+/// 两引擎唯一差异 = QS 评估路径：A = nil（L0 默认）、B = override=true（L1 档）。
+/// 开局集与 seed 运行时登记同 seed-registry 册（Tina 落，报告缺登记 = 验收不通过）。
+struct PairedPlayConfig {
+    var totalGames: Int = 50
+    /// 两侧同档（唯一差异 = QS 评估路径；缺省 lvl4）
+    var difficulty: AIDifficulty = .amateurMid
+    var maxMovesPerGame: Int = 200
+    var repetitionThreshold: Int = 6
+    /// 开局集（FEN 列表，逐局轮转取 gameIndex % openings.count）
+    var openings: [String] = [FENParser.standardInitial]
+    /// seed 基数：每局 seed = seedBase &+ UInt64(gameIndex)，每局独立（守门口径）
+    var seedBase: UInt64 = 20260818
+}
+
+/// 逐局记录（归因到引擎，与颜色无关——胜负判据看引擎不看红黑）
+struct PairedGameRecord {
+    let gameIndex: Int
+    let openingFEN: String
+    let seed: UInt64
+    let engineARed: Bool          // true = 引擎 A 执红（偶数局）
+    let result: GameState
+    let reason: GameEndReason
+    let totalMoves: Int
+    /// 本局胜者归因："A" / "B" / "draw"
+    let winner: String
+}
+
+struct PairedPlayResult {
+    let config: PairedPlayConfig
+    let games: [PairedGameRecord]
+    let engineAWins: Int
+    let engineBWins: Int
+    let draws: Int
+    /// 配对差 = |A胜 - B胜|（phase4 §4 #5 判据：≤30 过 / >30 触发 L0→L1）
+    var pairedDiff: Int { abs(engineAWins - engineBWins) }
+    var durationSeconds: Double = 0
+    var wallDurationSeconds: Double = 0
+
+    var summary: String {
+        let total = games.count
+        return """
+        双轨配对结果（L0 vs L1 档，\(total) 局）
+        引擎 A（L0 默认）胜：\(engineAWins)（\(String(format: "%.1f%%", Double(engineAWins) / Double(total) * 100))）
+        引擎 B（L1 回退档）胜：\(engineBWins)（\(String(format: "%.1f%%", Double(engineBWins) / Double(total) * 100))）
+        和棋：\(draws)
+        配对差：\(pairedDiff)（判据：≤30 过 / >30 触发 L0→L1）
+        纯计算耗时：\(String(format: "%.1f", durationSeconds))s（排除休眠）
+        墙钟耗时：\(String(format: "%.1f", wallDurationSeconds))s
+        """
+    }
+}
+
+extension SelfPlayRunner {
+
+    /// 双轨配对主信号 harness：engineA（qsStandPatFullOverride = nil，L0）vs
+    /// engineB（override = true，L1 档）。同进程实例注入（p34 v1.1 §2 配对执行形态），
+    /// 红黑交替消先手噪声，开局集轮转，每局独立 seed。
+    func runPaired(config: PairedPlayConfig,
+                  progressCallback: ((Int, PairedGameRecord) -> Void)? = nil) async -> PairedPlayResult {
+        let clock = ElapsedClock()
+        let engineA = AIEngine()   // L0：默认路径（override = nil，跟随 env）
+        let engineB = AIEngine()   // L1：QS_STANDPAT_FULL 回退档
+        await engineB.setQSStandPatFullOverride(true)
+
+        var records: [PairedGameRecord] = []
+        var aWins = 0, bWins = 0, draws = 0
+
+        for gameIndex in 0..<config.totalGames {
+            let opening = config.openings[gameIndex % config.openings.count]
+            let seed = config.seedBase &+ UInt64(gameIndex)
+            SeededRandom.configure(seed: seed)   // 每局独立 seed（守门口径）
+            let engineARed = gameIndex % 2 == 0   // 红黑交替
+
+            let result = await playGame(
+                gameIndex: gameIndex,
+                redDifficulty: config.difficulty,
+                blackDifficulty: config.difficulty,
+                maxMoves: config.maxMovesPerGame,
+                repetitionThreshold: config.repetitionThreshold,
+                redEngine: engineARed ? engineA : engineB,
+                blackEngine: engineARed ? engineB : engineA,
+                initialFEN: opening)
+
+            let winner: String
+            switch result.result {
+            case .redWon:
+                winner = engineARed ? "A" : "B"
+            case .blackWon:
+                winner = engineARed ? "B" : "A"
+            default:
+                winner = "draw"
+            }
+            if winner == "A" { aWins += 1 } else if winner == "B" { bWins += 1 } else { draws += 1 }
+
+            let record = PairedGameRecord(
+                gameIndex: gameIndex,
+                openingFEN: opening,
+                seed: seed,
+                engineARed: engineARed,
+                result: result.result,
+                reason: result.reason,
+                totalMoves: result.totalMoves,
+                winner: winner)
+            records.append(record)
+            appendGameRecord(record, moveHistory: result.moveHistory, seedBase: config.seedBase)  // 逐局即时落盘（崩溃不丢）
+            progressCallback?(gameIndex + 1, record)
+
+            // 每局之间清空双引擎状态
+            await engineA.clearHistory()
+            await engineB.clearHistory()
+        }
+
+        var playResult = PairedPlayResult(
+            config: config,
+            games: records,
+            engineAWins: aWins,
+            engineBWins: bWins,
+            draws: draws)
+        playResult.durationSeconds = clock.computeSeconds
+        playResult.wallDurationSeconds = clock.wallSeconds
+        return playResult
+    }
+
+    /// 逐局明细即时落盘：calibration-results/paired-games-<seedBase>.jsonl
+    /// （p34 v1.1 §2 报告口径：配对差与逐局明细落盘路径；A3 教训崩溃不丢已完成局）
+    private func appendGameRecord(_ record: PairedGameRecord, moveHistory: [String], seedBase: UInt64) {
+        let dir = URL(fileURLWithPath: "calibration-results", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent("paired-games-\(seedBase).jsonl")
+        let moves = moveHistory.joined(separator: " ")
+        let line = "{\"game\":\(record.gameIndex),\"seed\":\(record.seed),\"engineARed\":\(record.engineARed),\"winner\":\"\(record.winner)\",\"reason\":\"\(record.reason.rawValue)\",\"moves\":\(record.totalMoves),\"iccs\":\"\(moves)\"}\n"
+        if FileManager.default.fileExists(atPath: url.path) {
+            if let h = try? FileHandle(forWritingTo: url) { try? h.seekToEnd(); try? h.write(contentsOf: Data(line.utf8)); try? h.close() }
+        } else {
+            try? line.write(to: url, atomically: true, encoding: .utf8)
+        }
     }
 }
 
@@ -1240,7 +1395,42 @@ func runCalibrateFromCLI() async {
 }
 #endif
 
-// MARK: - 命令行入口
+// MARK: - P4-③ C 项 CLI：双轨配对入口（--paired）
+
+#if os(macOS)
+/// 双轨配对 CLI（L0 vs L1 档，同进程实例注入；ChineseChessApp.swift main 经 --paired 调用）
+func runPairedFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+    let args = CommandLine.arguments
+
+    guard args.count >= 4, let diff = AIDifficulty(rawValue: args[2]),
+          let games = Int(args[3]), games > 0 else {
+        print("""
+        用法: ChineseChess --paired <难度> <局数> [--seed-base N]
+        双轨配对：引擎 A（L0 默认）vs 引擎 B（QS_STANDPAT_FULL 回退档 L1）
+        同开局集、红黑交替、每局独立 seed（seedBase &+ gameIndex）
+        开局集与 seed 运行时登记同 seed-registry 册（Tina 落）
+        示例: ChineseChess --paired lvl4 50 --seed-base 601
+        """)
+        return
+    }
+
+    var config = PairedPlayConfig(totalGames: games, difficulty: diff)
+    if let i = args.firstIndex(of: "--seed-base"), i + 1 < args.count, let base = UInt64(args[i + 1]) {
+        config.seedBase = base
+    }
+
+    print("═══════════════════════════════════════════")
+    print("  双轨配对：L0 vs L1 档 · \(diff.rawValue) · \(games) 局 · seedBase=\(config.seedBase)")
+    print("═══════════════════════════════════════════")
+    let runner = SelfPlayRunner()
+    let result = await runner.runPaired(config: config) { done, rec in
+        print("局 \(done)/\(games) seed=\(rec.seed) A执\(rec.engineARed ? "红" : "黑") → \(rec.winner)（\(rec.totalMoves)步 \(rec.reason.rawValue)）")
+    }
+    print("")
+    print(result.summary)
+}
+#endif
 
 #if os(macOS)
 /// 命令行自对弈入口（在 ChineseChessApp.swift 的 main 中通过 --selfplay 参数调用）

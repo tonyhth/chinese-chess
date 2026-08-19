@@ -34,6 +34,15 @@ struct ChineseChessApp: App {
             RunLoop.main.run()
             fatalError("calibrate CLI should have exited")
         }
+        // P4-③ C 项：双轨配对 CLI（校准主信号 harness，p34 v1.1 §2 C）
+        if args.count >= 2 && args[1] == "--paired" {
+            Task.detached {
+                await runPairedFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("paired CLI should have exited")
+        }
         // v6.0: 纯 Pikafish 自对弈梯度验证
         if args.count >= 2 && args[1] == "--pfmatch" {
             Task.detached {

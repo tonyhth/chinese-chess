@@ -1,0 +1,29 @@
+# worktree-resources.txt — worktree 必拷 gitignored 资产清单（2026-08-17，丹妮治理包③）
+#
+# ── 维护规约（资源增减者更新，铁律）──
+# 1. 新增 gitignored 且被 project.yml 引用 / 运行时加载的资源 → 必须同步加本清单
+# 2. 资源从 gitignored 转为 git 跟踪 → 从本清单移除（避免重复拷贝）
+# 3. 本清单是 mkwt 脚本（~/DevTeam/scripts/mkwt）的唯一数据源，改动即生效
+# 4. 与 preflight-test-assets.sh 四类检查点同源校准——两处不一致 = 清单漂移，以
+#    `git status --ignored` + project.yml 引用面实核为准修正
+#
+# 格式：一行一路径（相对仓库根）；目录 = 整目录递归拷贝
+# 标记说明：[build] 缺失即编译/xcodegen 炸  [runtime] 缺失静默失效（引擎 nil-fail 等）
+#          [ios] 仅 iOS 门禁需要（mkwt --ios 才拷，体积大）
+#
+# ── 编译必需 ──
+[build] src/ChineseChess/Pikafish/lib/macos
+[build] src/ChineseChess/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.icns
+[build] data/pgn-extracted
+[build] data/opening-categories.json
+#
+# ── 运行时必需（bundle resources）──
+[runtime] src/ChineseChess/Resources/pikafish.nnue
+#
+# ── 工具链/补料源（preflight 检查点，测试批需要）──
+[runtime] tools/pikafish/pikafish.nnue
+[runtime] tools/pikafish/pikafish-bmi2
+[runtime] data/dpxq_players_full.json
+#
+# ── iOS 门禁（可选，--ios 才拷）──
+[ios] ChineseChess-iOS
