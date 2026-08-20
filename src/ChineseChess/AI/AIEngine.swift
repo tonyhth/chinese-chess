@@ -404,6 +404,16 @@ actor AIEngine: AIEngineProtocol {
     }
 
     /// v4.3 v1.2: lvl5 scored — IDS maxDepth=7, 8000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
+    /// ZD-A' 定案（Luke 08-21 批）：预算可注入——detBudgetMs() 读 env
+    /// SELFPLAY_DET_BUDGET_MS，缺省 8000（产品零变化）；killTimeLimit 同源缩放。
+    /// 门/校准跑超大预算即消墙钟抖动（CheckmateSearch 与 IDS 两截断点同治）。
+    private static func detBudgetMs() -> Int {
+        if let raw = ProcessInfo.processInfo.environment["SELFPLAY_DET_BUDGET_MS"], let v = Int(raw), v > 0 {
+            return v
+        }
+        return 8000
+    }
+
     private func masterSearchScored<B: SearchBoardProtocol>(for board: inout B, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
@@ -415,7 +425,8 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        let killTimeLimit = isIOS ? 800 : 1200
+        let budget = Self.detBudgetMs()
+        let killTimeLimit = isIOS ? budget / 10 : budget * 3 / 20   // 缺省 8000 → 800 / 1200（原值不变）
         if let killMoves = CheckmateSearch.search(board: board.asLegacyForCheckmate(), for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
             // A3r2 根治 A（同 lvl4 注释，memo 见 docs/bugs/A3r2-first-cause-root-cause.md）
             return [killMoves[0]].map { ($0, 0) }
@@ -424,7 +435,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 8000, startTime: Date())
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 7, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl5")
     }
@@ -462,7 +473,11 @@ actor AIEngine: AIEngineProtocol {
             if let result = rootSearchScored(for: &board, depth: depth, useTT: true, useMoveOrder: true,
                                               searchConfig: searchConfig,
                                               timeManager: tm, topK: topK) {
-                bestResult = result
+                // ZD-A' 消噪（Luke 08-21 批）：partial 迭代不覆盖已完成的完整迭代结果
+                // （截断迭代分随时钟抖动进 softmax = 门未过根因之一；首次无结果仍收下防空返）
+                if lastIterationFullySearched || bestResult == nil {
+                    bestResult = result
+                }
                 if lastIterationFullySearched {
                     completedDepth = depth  // D2 P0：部分迭代不进入 completedDepth
                 }
