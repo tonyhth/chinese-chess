@@ -682,13 +682,11 @@ class GameViewModel {
                 
                 // v6.0 P1-1: 专业级引擎失败时触发非静默 fallback
                 if currentDifficulty.isProfessional {
+                    // v6.2 P2-2: 通知监听通道为唯一写入方——handleEngineFailure 发 fallbackNotification，
+                    // GVM 监听（init fallbackObserver）带 userInfo 精确构造同一消息，此处手动 set 为双写冗余，已删。
                     EngineRouter.shared.handleEngineFailure(difficulty: currentDifficulty)
-                    self.engineFallbackMessage = String(
-                        format: L10n.shared.t("engine.fallbackLevel"),
-                        currentDifficulty.displayName,
-                        AIDifficulty.amateurHigh.displayName
-                    )
                 } else {
+                    // 非专业级不触发 handleEngineFailure（无通知），失败消息需直接 set，否则静默失败
                     self.engineFallbackMessage = L10n.shared.t("engine.aiMoveFailed")
                 }
             }
