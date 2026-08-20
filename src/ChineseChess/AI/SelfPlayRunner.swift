@@ -439,6 +439,9 @@ struct PairedPlayConfig {
     var openings: [String] = [FENParser.standardInitial]
     /// seed 基数：每局 seed = seedBase &+ UInt64(gameIndex)，每局独立（守门口径）
     var seedBase: UInt64 = 20260818
+    /// P5（Luke 08-19 合并单）：A 侧 QS standPat 档显式参数口径（实例注入，非 env；
+    /// false = L0 cheap 默认。与 7f3d72a P1 修复同哲学：harness 不踩 env 暴露面）
+    var engineAQSStandPatFull: Bool = false
 }
 
 /// 逐局记录（归因到引擎，与颜色无关——胜负判据看引擎不看红黑）
@@ -489,9 +492,10 @@ extension SelfPlayRunner {
         let clock = ElapsedClock()
         // P1（Ruby 7ca698a 审）：A 侧显式钉 L0（override = false），
         // 防 shell 残留 QS_STANDPAT_FULL=1 令 A/B 同档、配对信号静默失效
-        let engineA = AIEngine()   // L0：cheap 路径（显式 override = false，不跟随 env）
+        // P5：A 档改读 PairedPlayConfig 显式参数（--paired-qs-full CLI 注入，非 env）
+        let engineA = AIEngine()   // 档位 = config.engineAQSStandPatFull（缺省 L0 cheap，不跟随 env）
         let engineB = AIEngine()   // L1：QS_STANDPAT_FULL 回退档
-        await engineA.setQSStandPatFullOverride(false)
+        await engineA.setQSStandPatFullOverride(config.engineAQSStandPatFull)
         await engineB.setQSStandPatFullOverride(true)
 
         var records: [PairedGameRecord] = []
@@ -1442,6 +1446,66 @@ func runPairedFromCLI() async {
     }
     print("")
     print(result.summary)
+}
+
+/// P5（Luke 08-19 合并单）：--paired-qs-full 入口。
+/// 与 --paired 唯一差异 = A 侧 QS standPat 档经 PairedPlayConfig 显式参数注入（非 env），
+/// 供 C 重跑件/SPRT 驱动复用同一 runPaired harness。
+func runPairedQSFullFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+    let args = CommandLine.arguments
+
+    guard args.count >= 4, let diff = AIDifficulty(rawValue: args[2]),
+          let games = Int(args[3]), games > 0 else {
+        print("""
+        用法: ChineseChess --paired-qs-full <难度> <局数> [--seed-base N] [--a-full 0|1]
+        双轨配对（显式参数口径）：A 档 = --a-full（缺省 0 = L0 cheap），B 恒为 L1 回退档
+        示例: ChineseChess --paired-qs-full lvl4 50 --seed-base 601 --a-full 1
+        """)
+        return
+    }
+
+    var config = PairedPlayConfig(totalGames: games, difficulty: diff)
+    if let i = args.firstIndex(of: "--seed-base"), i + 1 < args.count, let base = UInt64(args[i + 1]) {
+        config.seedBase = base
+    }
+    if let i = args.firstIndex(of: "--a-full"), i + 1 < args.count, let v = Int(args[i + 1]), v == 0 || v == 1 {
+        config.engineAQSStandPatFull = (v == 1)
+    }
+
+    print("  双轨配对（显式参数口径）：AQS档=\(config.engineAQSStandPatFull ? "L1" : "L0") · \(diff.rawValue) · \(games) 局 · seedBase=\(config.seedBase)")
+    let runner = SelfPlayRunner()
+    let result = await runner.runPaired(config: config) { done, rec in
+        print("局 \(done)/\(games) seed=\(rec.seed) A执\(rec.engineARed ? "红" : "黑") → \(rec.winner)（\(rec.totalMoves)步 \(rec.reason.rawValue)）")
+    }
+    print(result.summary)
+}
+
+/// P5（Luke 08-19 合并单）：--engine-server 单步引擎服务。
+/// 协议：每请求一行 `<难度> <FEN...>`（难度为首 token，其余为 FEN），
+/// stdout 回一行 ICCS 走法（如 h2e2）；无合法走法/解析失败回 `none`。`quit` 退出。
+/// 供 Tina python driver 驱动 secondary vs v6.1.0 锚定对弈。
+func runEngineServerFromCLI() async {
+    setvbuf(stdout, nil, _IONBF, 0)
+    let engine = AIEngine()
+    while let line = readLine() {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        if trimmed.isEmpty { continue }
+        if trimmed == "quit" { break }
+        guard let firstSpace = trimmed.firstIndex(where: { $0 == " " }),
+              let diff = AIDifficulty(rawValue: String(trimmed[trimmed.startIndex..<firstSpace])) else {
+            print("none")
+            continue
+        }
+        let fen = String(trimmed[trimmed.index(after: firstSpace)...])
+        guard let board = FENParser.parse(fen: fen),
+              let move = await engine.bestMove(for: board, difficulty: diff) else {
+            print("none")
+            continue
+        }
+        let cols = ["a","b","c","d","e","f","g","h","i"]
+        print("\(cols[move.from.col])\(move.from.row)\(cols[move.to.col])\(move.to.row)")
+    }
 }
 #endif
 

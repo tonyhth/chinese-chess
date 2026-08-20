@@ -43,6 +43,24 @@ struct ChineseChessApp: App {
             RunLoop.main.run()
             fatalError("paired CLI should have exited")
         }
+        // P5（Luke 08-19 合并单）：配对显式参数口径（A 档 CLI 注入，非 env）
+        if args.count >= 2 && args[1] == "--paired-qs-full" {
+            Task.detached {
+                await runPairedQSFullFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("paired-qs-full CLI should have exited")
+        }
+        // P5（Luke 08-19 合并单）：单步引擎服务（stdin FEN+难度 / stdout ICCS，Tina python driver 用）
+        if args.count >= 2 && args[1] == "--engine-server" {
+            Task.detached {
+                await runEngineServerFromCLI()
+                Foundation.exit(0)
+            }
+            RunLoop.main.run()
+            fatalError("engine-server CLI should have exited")
+        }
         // v6.0: 纯 Pikafish 自对弈梯度验证
         if args.count >= 2 && args[1] == "--pfmatch" {
             Task.detached {
