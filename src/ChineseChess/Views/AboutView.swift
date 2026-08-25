@@ -6,8 +6,8 @@ import SwiftUI
 /// Settings 关于区 NavigationLink 进入，iOS/macOS 共用。
 struct AboutView: View {
     private let l10n = L10n.shared
-    /// 反馈邮箱：待 Luke 提供后填入即激活反馈行（空串=行隐藏，不放假链接）
-    static let feedbackEmail = ""  // TODO(Luke): 填反馈邮箱后反馈行自动出现
+    /// 反馈邮箱（洪涛 08-25 决策，Luke 排单激活；空串=行隐藏，不放假链接）
+    static let feedbackEmail = "tonyhth@163.com"
 
     /// Bundle 真实版本（CFBundleShortVersionString + build）
     static var appVersion: String {
