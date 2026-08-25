@@ -6,8 +6,8 @@ import SwiftUI
 /// Settings 关于区 NavigationLink 进入，iOS/macOS 共用。
 struct AboutView: View {
     private let l10n = L10n.shared
-    /// 反馈邮箱：待 Luke 提供后填入即激活反馈行（空串=行隐藏，不放假链接）
-    static let feedbackEmail = ""  // TODO(Luke): 填反馈邮箱后反馈行自动出现
+    /// 反馈邮箱（洪涛 08-25 决策，Luke 排单激活；空串=行隐藏，不放假链接）
+    static let feedbackEmail = "tonyhth@163.com"
 
     /// Bundle 真实版本（CFBundleShortVersionString + build）
     static var appVersion: String {
@@ -16,11 +16,18 @@ struct AboutView: View {
         return v == b ? v : "\(v) (\(b))"
     }
 
+    /// 版权：单一来源 NSHumanReadableCopyright（macOS/iOS 双 plist 各自维护，gitignored 物理两份）；缺失时空串隐藏该行（同 feedbackEmail 先例），不显示不可区分的假值
+    static var copyright: String {
+        Bundle.main.object(forInfoDictionaryKey: "NSHumanReadableCopyright") as? String ?? ""
+    }
+
     var body: some View {
         List {
             Section {
                 row(icon: "tag", label: l10n.t("settings.versionLabel"), value: Self.appVersion)
-                row(icon: "c.circle", label: l10n.t("settings.copyright"), value: "© 2026 中国象棋")
+                if !Self.copyright.isEmpty {
+                    row(icon: "c.circle", label: l10n.t("settings.copyright"), value: Self.copyright)
+                }
             }
 
             Section {
