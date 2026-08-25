@@ -16,11 +16,16 @@ struct AboutView: View {
         return v == b ? v : "\(v) (\(b))"
     }
 
+    /// 版权：单一来源 NSHumanReadableCopyright（双平台 Info.plist 同值维护），plist 缺失时兜底显示占位而非假值
+    static var copyright: String {
+        Bundle.main.object(forInfoDictionaryKey: "NSHumanReadableCopyright") as? String ?? "© 2026 中国象棋"
+    }
+
     var body: some View {
         List {
             Section {
                 row(icon: "tag", label: l10n.t("settings.versionLabel"), value: Self.appVersion)
-                row(icon: "c.circle", label: l10n.t("settings.copyright"), value: "© 2026 中国象棋")
+                row(icon: "c.circle", label: l10n.t("settings.copyright"), value: Self.copyright)
             }
 
             Section {
