@@ -195,11 +195,11 @@ struct V62LayoutTests {
         // 锚2：快捷键统一承载（防 ViewThatFits 变体切换丢快捷键）
         #expect(bar.contains("playbackShortcuts") && bar.contains("speedShortcuts"), "快捷键应统一承载不随变体丢夫")
 
-        // 锚3：止血值同步——rightMin 与 DemoSidePanel minWidth 一致 ≥ 340
+        // 锚3：止血值同步——rightMin 与 DemoSidePanel minWidth 一致 ≥ 380（高于零渲染阈值上界）
         let split = try Self.source("src/ChineseChess/Views/ManagedSplitView.swift")
-        #expect(split.contains("rightMin: CGFloat = 340"), "rightMin 应为 340（Luke 修复单 A 止血值）")
+        #expect(split.contains("rightMin: CGFloat = 380"), "rightMin 应为 380（Luke 正式令，高于实测阈值 ≈370）")
         let panel = try Self.source("src/ChineseChess/Views/DemoSidePanel.swift")
-        #expect(panel.contains("minWidth: 340"), "DemoSidePanel minWidth 应与 rightMin 同步 340")
+        #expect(panel.contains("minWidth: 380"), "DemoSidePanel minWidth 应与 rightMin 同步 380")
     }
 }
 
