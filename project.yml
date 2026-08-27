@@ -91,13 +91,3 @@ targets:
           - $(SRCROOT)/src/ChineseChess/Pikafish/include
         LIBRARY_SEARCH_PATHS:
           - $(SRCROOT)/src/ChineseChess/Pikafish/lib/macos
-
-schemes:
-  ChineseChess:
-    build:
-      targets:
-        ChineseChess: all
-    test:
-      targets:
-        - ChineseChessTests
-      gatherCoverageData: false

@@ -110,7 +110,7 @@ struct MoveOrderer {
     ///   - ttBestMove: 置换表中的最佳走法（如有）
     ///   - checkLegal: 是否启用将军排序（depth >= 3 时启用，低深度开销大）
     ///   - countermoveKey: 对手上一走法的 countermove 完整键（A-3，如有）
-    func order<T: SearchBoardConvertible>(_ moves: [Move], on board: T, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermoveKey: Int? = nil) -> [Move] {
+    func order<T: BoardReadable>(_ moves: [Move], on board: T, ttBestMove: Move? = nil, checkLegal: Bool = false, depth: Int? = nil, countermoveKey: Int? = nil) -> [Move] {
         let ttMove = ttBestMove
         let cmKey = countermoveKey
 
@@ -158,7 +158,7 @@ struct MoveOrderer {
 
     /// 判断走法是否会导致将军。
     /// 在原 board 上 execute/undo，避免 snapshot 深拷贝开销。
-    private func givesCheck<T: SearchBoardConvertible>(_ move: Move, on board: T) -> Bool {
+    private func givesCheck<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
         var workBoard = board.makeSearchBoard()
         workBoard.execute(move)
         let opponentSide: Side = (move.piece.side == .red) ? .black : .red
