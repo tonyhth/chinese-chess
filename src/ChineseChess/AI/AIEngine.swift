@@ -90,12 +90,7 @@ actor AIEngine: AIEngineProtocol {
         // }
     }
 
-    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
-        // ⚠️ 唯一的 Board → LegacySearchBoard 转换点
-        calibrationContempt = Self.contemptFor(difficulty)
-        var workBoard = LegacySearchBoard(from: board)
-
-    /// P4-③ C 项：QS_STANDPAT_FULL 实例级注入（校准配对用，照 boardPathOverride 同款模式）。
+    /// P4-③ C 项：QS_STANDPAT_FULL 实例级注入（校准配对用）。
     /// M1 回退适配（m1-rollback §2 适配条款）：P4-①② 已随 5817cf9 revert 退场，
     /// qsStandPatFullEval 配置位/三改点分流不存在 → 本注入点保留编译、行为 no-op
     /// （--paired-qs-full 参数链保留，置位无引擎效果）；resolveQSStandPatFull 随面删除。
@@ -105,7 +100,12 @@ actor AIEngine: AIEngineProtocol {
     func setQSStandPatFullOverride(_ value: Bool?) {
         qsStandPatFullOverride = value
     }
-    private func bestMoveOn(for board: inout LegacySearchBoard, difficulty: AIDifficulty, isIOS: Bool) -> Move? {
+
+    func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
+        // ⚠️ 唯一的 Board → LegacySearchBoard 转换点
+        calibrationContempt = Self.contemptFor(difficulty)
+        var workBoard = LegacySearchBoard(from: board)
+
         switch difficulty {
         case .novice:
             return beginnerMove(for: &workBoard)
