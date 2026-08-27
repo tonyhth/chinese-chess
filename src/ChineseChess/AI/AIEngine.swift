@@ -440,11 +440,6 @@ actor AIEngine: AIEngineProtocol {
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl5")
     }
 
-    /// P4-②：QS_STANDPAT_FULL env 现读（不缓存——回退档热切换零成本）
-    private static func readQSStandPatFullEnv() -> Bool {
-        ProcessInfo.processInfo.environment["QS_STANDPAT_FULL"] == "1"
-    }
-
     /// IDS 的 scored 变体：返回最后一轮迭代的 top-k 候选
     /// - Parameter depthLogLabel: 级别标签（如 "lvl4"），用于 IDS_DEPTH_LOG=1 时的完成深度日志
     private func iterativeDeepeningSearchScored<B: SearchBoardProtocol>(for board: inout B, maxDepth: Int,
@@ -452,11 +447,6 @@ actor AIEngine: AIEngineProtocol {
                                                   searchConfig: AISearchConfig,
                                                   topK: Int,
                                                   depthLogLabel: String) -> [(move: Move, score: Int)]? {
-        // P4-② env 接线：同 iterativeDeepeningSearch（两 IDS 口全覆盖 =
-        // bestMove/bestMoves/npsBench 三入口皆经此）。
-        // P4-③ C 项：实例覆盖 > env（resolve 口径）
-        var searchConfig = searchConfig
-        searchConfig.qsStandPatFullEval = resolveQSStandPatFull()
         var bestResult: [(move: Move, score: Int)]? = nil
         var tm = timeManager
         var completedDepth = 0
@@ -738,11 +728,6 @@ actor AIEngine: AIEngineProtocol {
                                             timeManager: TimeManager,
                                             searchConfig: AISearchConfig,
                                             depthLogLabel: String) -> Move? {
-        // P4-② env 接线（phase4 §1）：QS_STANDPAT_FULL=1 → 全量评估回退档（L1），
-        // 入口读 env 不缓存（每次 bestMove 现读，零 rebuild 实例切换）。
-        // P4-③ C 项：实例覆盖 > env（resolve 口径）
-        var searchConfig = searchConfig
-        searchConfig.qsStandPatFullEval = resolveQSStandPatFull()
         var bestMoveSoFar: Move?
         var tm = timeManager
         var completedDepth = 0
@@ -820,14 +805,7 @@ actor AIEngine: AIEngineProtocol {
         // Razoring
         if searchConfig.enableRazoring && depth <= 2 && !board.inCheck(side) {
             let razorMargin = depth == 1 ? 300 : 500
-            // P4-② 三改点之一（razor 分支 staticEval）：cheapEval 分流（V2 主路径，margin 容差吸收分值差；
-            // Legacy 六点全走原路全量，零行为变化）
-            let staticEval: Int
-            if board.supportsCheapEval && !searchConfig.qsStandPatFullEval {
-                staticEval = board.cheapEval(for: side)
-            } else {
-                staticEval = evaluator.evaluate(board, config: evalCfg)
-            }
+            let staticEval = evaluator.evaluate(board, config: evalCfg)
             if staticEval + razorMargin <= alpha {
                 let qsScore: Int
                 if searchConfig.enableQuiescence {
@@ -927,16 +905,7 @@ actor AIEngine: AIEngineProtocol {
         let futilityEnabled = searchConfig.enableFutility
             && depth <= 3 && depth >= 1 && !selfInCheck
         let futilityMargin = futilityEnabled ? (depth == 1 ? 300 : depth == 2 ? 500 : 900) : 0
-        // P4-② 三改点之二（futility 分支 staticEval）：cheapEval 分流。Optional 三元结构保持
-        // （Ruby P2③：futilityEnabled ? eval : nil 勿提前求值；V2 分派在条件内闭合）
-        let staticEvalForFutility: Int?
-        if futilityEnabled {
-            staticEvalForFutility = (board.supportsCheapEval && !searchConfig.qsStandPatFullEval)
-                ? board.cheapEval(for: board.currentTurn)
-                : evaluator.evaluate(board, config: evalCfg)
-        } else {
-            staticEvalForFutility = nil
-        }
+        let staticEvalForFutility: Int? = futilityEnabled ? evaluator.evaluate(board, config: evalCfg) : nil
 
         for (moveIndex, move) in moves.enumerated() {
             // Futility Pruning（P3-② 首着保护：legalCount==0 时不 prune——
@@ -1076,24 +1045,7 @@ actor AIEngine: AIEngineProtocol {
             return evaluator.evaluate(board, config: searchConfig.evalConfig)
         }
 
-        // P4-② 三改点之三（QS standPat 主读位）：cheapEval 主路径（V2 增量 O(1)）。
-        // 守卫两道：qsStandPatFullEval 回退档（env 实例开关）；≤6 子 Endgame 域走全量
-        // （P4-0：full eval ≤6 子 endgameScore 早返，分值体系与 material+pst 差值不同，
-        // pieceCount O(1) 直读）。Legacy supportsCheapEval=false 恒走原路全量。
-        let standPat: Int
-        if board.supportsCheapEval && !searchConfig.qsStandPatFullEval && board.pieceCount > 6 {
-            standPat = board.cheapEval(for: board.currentTurn)
-            // P4-③ A 项：QS 轨迹采样（QS_TRAJ_LOG=1 时 1/100，缺省零开销零输出）。
-            // cheap 主路径上 cheap 已算出，采样节点额外复算全量 → jsonl 差值样本。
-            if QSTrajLogger.shouldSample() {
-                QSTrajLogger.log(
-                    fen: FENDecoder.generate(pieces: board.pieces, currentTurn: board.currentTurn),
-                    cheap: standPat,
-                    full: evaluator.evaluate(board, config: searchConfig.evalConfig))
-            }
-        } else {
-            standPat = evaluator.evaluate(board, config: searchConfig.evalConfig)
-        }
+        let standPat = evaluator.evaluate(board, config: searchConfig.evalConfig)
 
         if standPat >= beta { return beta }
         var alpha = alpha

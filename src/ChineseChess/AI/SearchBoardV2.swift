@@ -16,14 +16,6 @@ struct SearchBoardV2 {
     private var pieceCodes: [Int8]   // 32 槽：槽 i 的棋子编码（死亡后保留，供 unmake 恢复）
     private var sqToSlot: [Int8]     // 90 格：格 → 槽位；-1 = 空格
     private var kingSq: [Int8]       // [红, 黑]：将帅所在格（将帅走子时更新，inCheck/照面免找将扫描）
-    // ── P4-① 增量字段族（phase4.md §1.1，v1.2 §2.1 留白兑现）──
-    /// [红, 黑] 子力和（AIEvaluator.dynamicValue 口径含相位三调整；
-    /// 增量全等专项守护与 AIEvaluator 实调全等，复刻漂移会被抓）
-    private var materialSum: [Int]
-    /// [红, 黑] 位置分（PositionTables.positionWeight 同源直调，零复刻）
-    private var pstSum: [Int]
-    /// 活子数（含将帅，同 board.pieces.count 口径；相位界碑 16 + standPat 守卫 6）
-    private(set) var pieceCount: Int
     private(set) var moveHistory: [Move]
     private var undoStack: [UndoInfo]
     private(set) var currentTurn: Side
@@ -42,11 +34,6 @@ struct SearchBoardV2 {
         let move: Move
         let movedSlot: Int8     // 走子槽位（= Piece.id，见 §2.3）
         let capturedSlot: Int8  // 被吃槽位；-1 = 无吃子
-        // P4-①：增量字段快照（回滚 = 快照恢复而非逆运算——相位切换下逆推导
-        // 易对称漂移，快照方案天然免疫；5×Int ≈ 40B）
-        let savedMaterialSum: [Int]
-        let savedPstSum: [Int]
-        let savedPieceCount: Int
     }
 
     // MARK: - 初始化
@@ -79,9 +66,6 @@ struct SearchBoardV2 {
 
         var seenIds = Set<Int>()
         var kingFound = [false, false]
-        materialSum = [0, 0]
-        pstSum = [0, 0]
-        pieceCount = 0
         for piece in pieces {
             // Debug 防御：构造源局面必须 id 唯一、位置唯一（A3 精神：输入侧拦截）
             assert((0..<32).contains(piece.id), "SearchBoardV2 构造：id \(piece.id) 越界（0..31）")
@@ -100,58 +84,6 @@ struct SearchBoardV2 {
             }
         }
         assert(kingFound[0] && kingFound[1], "SearchBoardV2 构造：将/帅缺失（交叉对比局面源应保证双方有将）")
-        recomputeIncrementalSums()
-    }
-
-    // MARK: - P4-① 增量维护（phase4.md §1.1 + P4-0 双相位发现）
-
-    /// 从零重算三字段（init / 相位跨界（16 线）/ 全等专项对照共享）。
-    /// 口径：materialSum = Σ incrementalValue（dynamicValue 逐值复刻，全等专项守护）；
-    /// pstSum = Σ PositionTables.positionWeight（同源直调零复刻）。
-    private mutating func recomputeIncrementalSums() {
-        var mat = [0, 0], pst = [0, 0], count = 0
-        let phaseCount = pieceCountForPhase
-        for slot in 0..<32 {
-            let sq = pieceSquares[slot]
-            guard sq >= 0 else { continue }
-            let code = pieceCodes[slot]
-            let side = PieceCode.side(of: code), kind = PieceCode.kind(of: code)
-            let row = Int(sq) / 9, col = Int(sq) % 9
-            let si = Self.sideIndex(of: side)
-            mat[si] += incrementalValue(code: code, at: sq, isEndgame: phaseCount <= 16)
-            pst[si] += PositionTables.positionWeight(
-                for: Piece(kind: kind, side: side, position: Position(row: row, col: col), id: 0),
-                totalPieces: phaseCount)
-            count += 1
-        }
-        materialSum = mat
-        pstSum = pst
-        pieceCount = count
-    }
-
-    /// 相位判定用活子数（本次重算前的 pieceCount 或临时计数）
-    private var pieceCountForPhase: Int {
-        (0..<32).lazy.filter { pieceSquares[$0] >= 0 }.count
-    }
-
-    /// dynamicValue 复刻（AIEvaluator.swift :82-99 逐值，含残局三调整；
-    /// base 链 = baseValueLookup（含 soldier 位置翻倍）与 Piece.baseValue 逐值一致
-    /// ——Ruby P2 实核。⚠️ 与 AIEvaluator 同步义务：增量全等专项逐局面对照实调，
-    /// 复刻漂移必被抓。
-    private func incrementalValue(code: Int8, at sq: Int8, isEndgame: Bool) -> Int {
-        let base = baseValueLookup(code, at: sq)
-        guard isEndgame else { return base }
-        let kind = PieceCode.kind(of: code)
-        switch kind {
-        case .soldier:
-            let side = PieceCode.side(of: code)
-            let row = Int(sq) / 9
-            let crossed = (side == .black) ? row >= 5 : row <= 4
-            return crossed ? base * 2 : base
-        case .elephant: return base / 2
-        case .advisor:  return base * 3 / 4
-        default:        return base
-        }
     }
 
     // MARK: - 走法执行（v1.2 §2.5，O(1)）
@@ -179,31 +111,9 @@ struct SearchBoardV2 {
         if move.piece.kind == .general {
             kingSq[Self.sideIndex(of: move.piece.side)] = toSq
         }
-        // ── P4-① 增量维护（快照 + 增量 + 相位跨界重算）──
-        let savedMaterial = materialSum, savedPst = pstSum, savedCount = pieceCount
-        let oldPhase = pieceCount <= 16
-        let moverCode = pieceCodes[Int(slot)]
-        let moverSide = Self.sideIndex(of: move.piece.side)
-        // mover：新位值 − 旧位值（soldier 过河/相位调整随位置与相位变化）
-        materialSum[moverSide] += incrementalValue(code: moverCode, at: toSq, isEndgame: oldPhase)
-                                          - incrementalValue(code: moverCode, at: fromSq, isEndgame: oldPhase)
-        pstSum[moverSide] += Self.pstWeight(code: moverCode, at: toSq, totalPieces: savedCount)
-                             - Self.pstWeight(code: moverCode, at: fromSq, totalPieces: savedCount)
-        // captured：整值减除
-        if capturedSlot >= 0 {
-            let capSide = Self.sideIndex(of: PieceCode.side(of: capturedCode))
-            materialSum[capSide] -= incrementalValue(code: capturedCode, at: toSq, isEndgame: oldPhase)
-            pstSum[capSide] -= Self.pstWeight(code: capturedCode, at: toSq, totalPieces: savedCount)
-            pieceCount -= 1
-            // 相位跨界（16 线）：全子重算（P4-0 双相位发现——表切换/系数变化影响全部子）
-            if (savedCount > 16) == (pieceCount > 16) { /* 同相位，增量有效 */ } else {
-                recomputeIncrementalSums()
-            }
-        }
         moveHistory.append(move)
         currentTurn = (currentTurn == .red) ? .black : .red
-        let undo = UndoInfo(move: move, movedSlot: slot, capturedSlot: capturedSlot,
-                            savedMaterialSum: savedMaterial, savedPstSum: savedPst, savedPieceCount: savedCount)
+        let undo = UndoInfo(move: move, movedSlot: slot, capturedSlot: capturedSlot)
         undoStack.append(undo)
         assertStructure()
         return undo
@@ -228,10 +138,6 @@ struct SearchBoardV2 {
         if undo.move.piece.kind == .general {
             kingSq[Self.sideIndex(of: undo.move.piece.side)] = fromSq
         }
-        // ── P4-① 增量回滚 = 快照恢复（相位跨界下逆推导易对称漂移，快照天然免疫）──
-        materialSum = undo.savedMaterialSum
-        pstSum = undo.savedPstSum
-        pieceCount = undo.savedPieceCount
         moveHistory.removeLast()
         undoStack.removeLast()
         currentTurn = (currentTurn == .red) ? .black : .red
@@ -253,25 +159,6 @@ struct SearchBoardV2 {
     /// 测试用：读取 undoStack 末尾（往返一致性测试的 unmake 配对需要）
     internal func undoStackLast() -> UndoInfo {
         undoStack.last!
-    }
-
-    /// P4-①：PST 单子取值（PositionTables 同源直调；make 增量用，零复刻）
-    private static func pstWeight(code: Int8, at sq: Int8, totalPieces: Int) -> Int {
-        PositionTables.positionWeight(
-            for: Piece(kind: PieceCode.kind(of: code), side: PieceCode.side(of: code),
-                        position: Position(row: Int(sq) / 9, col: Int(sq) % 9), id: 0),
-            totalPieces: totalPieces)
-    }
-
-    // MARK: - P4-① cheapEval（phase4.md §1.2，O(1)）
-
-    /// 廉价评估 = material + PST 增量直读（v1.2 §5.1 原文口径：纯差值，
-    /// 无 weights 加权无 contempt——margin 容差吸收；黑视角差 × side 符号）。
-    /// ⚠️ ≤6 子 Endgame 域 full eval 走 endgameScore 早返，分值体系不同——
-    /// 消费方 standPat 带守卫（phase4 §1 + P4-0），razor/futility 靠 margin 容差。
-    func cheapEval(for side: Side) -> Int {
-        let red = materialSum[0] + pstSum[0], black = materialSum[1] + pstSum[1]
-        return side == .red ? red - black : black - red
     }
 
     // MARK: - 结构不变式断言（v1.2 §2.5，Debug-only）
