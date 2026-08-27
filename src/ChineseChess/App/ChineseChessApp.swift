@@ -71,15 +71,6 @@ struct ChineseChessApp: App {
             fatalError("pfmatch CLI should have exited")
         }
         // 校准 v3.0: 自研内部对弈
-        // Phase 1: NPS 基线测量 CLI
-        if args.count >= 2 && args[1] == "--nps-bench" {
-            Task.detached {
-                await runNpsBenchFromCLI()
-                Foundation.exit(0)
-            }
-            RunLoop.main.run()
-            fatalError("nps-bench CLI should have exited")
-        }
         if args.count >= 2 && args[1] == "--calibrate-native" {
             Task.detached {
                 await runCalibrateNativeFromCLI()

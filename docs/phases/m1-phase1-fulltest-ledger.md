@@ -50,3 +50,7 @@
 - top 失败套件与第 2 轮同构：RankUnlock 25（段位门禁断言过期）/ BoardPlayerRefactor 6（DemoVM 异步时序）/ V223Fix 5 / Phase3 4 / P3Batch2 3 / CalibrationV3 3（v4.3 调参未跟测）
 - Phase2aTests 2 = EngineRouter 默认引擎断言（v6.0 路由演进存量，同族已知）
 - **结论**：117→93 的数字差为并行波动 + 过滤套件移除，两轮存量集合一致，无回归
+
+## M1 回退锚回填（2026-08-28，git 实证 + Luke 08-27 裁定）
+- **6b1ad26** feat(phase-1): NPS 遥测三件套（v1.2 §6 + D2 三 P0 修正）——R4 回退面（⚠️ 拆分：NPS 遥测 revert，D2 三 P0 存量修正保留，Luke 裁定②）
+- **199cc9a** feat(phase-1): seed RNG 注入 + --nps-bench CLI + CrossVersion 装载骨架——整体保留（保留资产面，Luke 裁定②）
