@@ -131,43 +131,11 @@ actor AIEngine: AIEngineProtocol {
 
     /// 后端构造统一口（三个 Board 入口的唯一分派点）
     func resolvedSearchBoard(from board: Board) -> any SearchBoardProtocol {
-        // P3 崩溃修复（2026-08-16 夜，两份崩溃报告后）：V2 槽位契约 id∈0..31 比产品
-        // Board 实际域窄（存量测试/PGN 加载存在越界 id，36 文件实测）。
-        // 入口预检：越界域局面回退 Legacy（与 off 态行为一致），V2 断言保留给
-        // 内部构造者（交叉对比/引擎自身生成的局面域必然合法）。
-        // Debug 一次性告警防静默；存量数据清偿另单（不 masking：日志可定位）
         if resolveBackend() {
-            if Self.v2Eligible(board.pieces) {
-                return SearchBoardV2(from: board)
-            }
-            #if DEBUG
-            Self.warnIneligiblePiecesOnce(board.pieces)
-            #endif
+            return SearchBoardV2(from: board)
         }
         return LegacySearchBoard(from: board)
     }
-
-    /// V2 槽位契约预检：id ∈ 0..31 且唯一、位置不双占（与 init 断言同口径）
-    private static func v2Eligible(_ pieces: [Piece]) -> Bool {
-        var seenIds = Set<Int>()
-        var seenSquares = Set<Int>()
-        for p in pieces {
-            guard (0..<32).contains(p.id), seenIds.insert(p.id).inserted else { return false }
-            let sq = p.position.row * 9 + p.position.col
-            guard (0..<90).contains(sq), seenSquares.insert(sq).inserted else { return false }
-        }
-        return true
-    }
-
-    #if DEBUG
-    private static var ineligibleWarned = false
-    private static func warnIneligiblePiecesOnce(_ pieces: [Piece]) {
-        guard !ineligibleWarned else { return }
-        ineligibleWarned = true
-        let bad = pieces.filter { !(0..<32).contains($0.id) }.map { "\($0.id)@\($0.position.row),\($0.position.col)" }
-        print("[M1] V2 入口回退 Legacy：局面含越界/冲突 id（首 \(min(bad.count, 5)) 项：\(bad.prefix(5))）——存量数据域宽于 V2 槽位契约，回退非错误")
-    }
-    #endif
 
     private func bestMoveOn<B: SearchBoardProtocol>(for board: inout B, difficulty: AIDifficulty, isIOS: Bool) -> Move? {
         switch difficulty {
