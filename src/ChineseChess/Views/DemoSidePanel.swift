@@ -5,7 +5,7 @@
 //
 // 插槽设计：头部/底部以 ViewBuilder 闭包注入（InfoBar/ControlBar 需要
 // DemoViewModel 与 onBackToList，由接入方在批次③④传入，容器不耦合 vm）。
-// 宽度约束：minWidth 300（与 ManagedSplitView.rightMin 一致）/
+// 宽度约束：minWidth 340（与 ManagedSplitView.rightMin 一致，v6.2.1 300→340 止血）/
 // idealWidth 340（v1.1 修正：DemoControlBar 不溢出）/ maxWidth 500。
 //
 // 验收锚点：T5 右侧面板容器存在 + DemoControlBar 面板内正常工作（v1.2 §七）
@@ -66,7 +66,7 @@ struct DemoSidePanel<Header: View, Footer: View>: View {
             footer()
         }
         // v1.2 §三.1：面板宽度约束（min 300 / ideal 340 / max 500）
-        .frame(minWidth: 300, idealWidth: 340, maxWidth: 500)
+        .frame(minWidth: 340, idealWidth: 340, maxWidth: 500)
     }
 }
 #endif

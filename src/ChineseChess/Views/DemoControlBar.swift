@@ -138,23 +138,66 @@ struct DemoControlBar: View {
             ProgressView(value: Double(viewModel.currentIndex), total: Double(max(viewModel.totalSteps, 1)))
                 .padding(.horizontal, 16)
 
-            HStack(spacing: 10) {
+            // v6.2.1 修复（洪涛实机回归）：速度 Menu(NSMenu 后端)在容器宽不足时
+            // label 文字整体零渲染（fixedSize 防不住，Ruby 像素差分实测阈值 ≈370pt）。
+            // 双态自适应：宽态保持原样；窄态紧凑 spacing + small 控件 + 去 Spacer。
+            // ⚠️ 快捷键统一移到 playbackShortcuts/speedShortcuts（ViewThatFits
+            // 变体切换不丢快捷键，也避免双变体重复注册）。
+            ViewThatFits(in: .horizontal) {
+                controlRow(spacing: 10, compact: false)
+                controlRow(spacing: 6, compact: true)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+
+            playbackShortcuts
+            speedShortcuts
+        }
+        .background(.bar)
+    }
+
+    /// 播放快捷键（←/空格/→），统一承载不随变体丢夫
+    @ViewBuilder
+    private var playbackShortcuts: some View {
+        Button("") { viewModel.stepBackward() }
+            .keyboardShortcut(.leftArrow, modifiers: [])
+            .hidden()
+        Button("") { viewModel.togglePlay() }
+            .keyboardShortcut(.space, modifiers: [])
+            .hidden()
+        Button("") { viewModel.stepForward() }
+            .keyboardShortcut(.rightArrow, modifiers: [])
+            .hidden()
+    }
+
+    /// 速度快捷键 1-4，统一承载不随变体丢夫
+    @ViewBuilder
+    private var speedShortcuts: some View {
+        ForEach(Array(DemoSpeed.allCases.enumerated()), id: \.offset) { index, speed in
+            Button("") {
+                config.demoSpeed = speed
+            }
+            .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
+            .hidden()
+        }
+    }
+
+    /// 控制条双态行（宽态 spacing 10 / 窄态 spacing 6 + .small + 去 Spacer）
+    private func controlRow(spacing: CGFloat, compact: Bool) -> some View {
+        HStack(spacing: spacing) {
                 Button(action: { viewModel.stepBackward() }) {
                     Image(systemName: "backward.frame")
                 }
                 .disabled(!viewModel.canGoBack)
-                .keyboardShortcut(.leftArrow, modifiers: [])
 
                 Button(action: { viewModel.togglePlay() }) {
                     Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
                 }
-                .keyboardShortcut(.space, modifiers: [])
 
                 Button(action: { viewModel.stepForward() }) {
                     Image(systemName: "forward.frame")
                 }
                 .disabled(!viewModel.canGoForward)
-                .keyboardShortcut(.rightArrow, modifiers: [])
 
                 Divider().frame(height: 20)
 
@@ -179,21 +222,12 @@ struct DemoControlBar: View {
                         Image(systemName: "chevron.down")
                             .font(.caption2)
                     }
-                    .padding(.horizontal, 6)
+                    .padding(.horizontal, compact ? 4 : 6)
                     .padding(.vertical, 3)
                     .background(Color.secondary.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 5))
                 }
                 .accessibilityLabel(L10n.shared.t("demo.speed"))
-
-                // 速度快捷键 1-4
-                ForEach(Array(DemoSpeed.allCases.enumerated()), id: \.offset) { index, speed in
-                    Button("") {
-                        config.demoSpeed = speed
-                    }
-                    .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
-                    .hidden()
-                }
 
                 Divider().frame(height: 20)
 
@@ -211,7 +245,9 @@ struct DemoControlBar: View {
                 }
                 .toggleStyle(.button)
 
-                Spacer()
+                if !compact {
+                    Spacer()
+                }
 
                 // 设置按钮
                 Button(action: { showConfig = true }) {
@@ -223,10 +259,7 @@ struct DemoControlBar: View {
                     Image(systemName: "list.bullet")
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-        }
-        .background(.bar)
+            .controlSize(compact ? .small : .regular)
     }
     #endif
 }

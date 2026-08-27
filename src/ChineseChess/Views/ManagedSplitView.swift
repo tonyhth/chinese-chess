@@ -9,7 +9,8 @@
 //    @AppStorage——禁止逐帧写 defaults（spike 已标坏味道）
 // 2. 首帧从 @AppStorage 读 = 重启精确恢复（方案 B 相对 HSplitView 的核心收益，
 //    HSplitView 公开 API 零分割参数、首帧恒 50/50 无解）
-// 3. 双侧最小宽度钳制：左 ≥ leftMin(400)、右 ≥ rightMin(300)，拖到边界不塌陷
+// 3. 双侧最小宽度钳制：左 ≥ leftMin(400)、右 ≥ rightMin(340)，拖到边界不塌陷
+//    （v6.2.1：300→340，速度 Menu 零渲染阈值 ≈370 由 DemoControlBar ViewThatFits 窄态兜底）
 // 4. NSCursor.resizeLeftRight hover 光标（spike 加分项转正）
 // 5. ⚠️ spike 缺陷修正：DragGesture 默认 coordinateSpace 为 .local（handle 局部
 //    坐标），spike 公式 location.x/total 在 handle 偏移后失准——生产版改
@@ -35,7 +36,7 @@ struct ManagedSplitView<LeftContent: View, RightContent: View>: View {
 
     private let handleWidth: CGFloat = 8
     private let leftMin: CGFloat = 400
-    private let rightMin: CGFloat = 300
+    private let rightMin: CGFloat = 340
     /// ratio 安全域（spike 同值）
     private let ratioBounds: ClosedRange<Double> = 0.15...0.85
 

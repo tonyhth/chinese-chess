@@ -178,6 +178,29 @@ struct V62LayoutTests {
             #expect(entry?.localizations["zh-Hans"] != nil, "\(key) 缺 zh-Hans")
         }
     }
+    // MARK: - T11：v6.2.1 速度菜单窄态零渲染回归锚（洪涛实机回归，Ruby 像素差分定性）
+
+    @Test("T11: 控制条 ViewThatFits 双态自适应 + rightMin/minWidth 同步 340 止血")
+    func t11SpeedMenuNarrowStateAnchors() throws {
+        // 锚1：DemoControlBar macOS 控制条接入 ViewThatFits 双态（窄态不再零渲染）
+        let bar = try Self.source("src/ChineseChess/Views/DemoControlBar.swift")
+        guard let varRange = bar.range(of: "private var macosControlBar") else {
+            throw NSError(domain: "V62Layout", code: 3,
+                          userInfo: [NSLocalizedDescriptionKey: "未找到 macosControlBar"])
+        }
+        let barRegion = String(bar[varRange.lowerBound...])
+        #expect(barRegion.contains("ViewThatFits(in: .horizontal)"), "控制条应有 ViewThatFits 水平双态自适应")
+        #expect(barRegion.contains("compact: false") && barRegion.contains("compact: true"), "应存在宽/窄双变体")
+        #expect(bar.contains("func controlRow("), "双态行应抽为 controlRow 复用")
+        // 锚2：快捷键统一承载（防 ViewThatFits 变体切换丢快捷键）
+        #expect(bar.contains("playbackShortcuts") && bar.contains("speedShortcuts"), "快捷键应统一承载不随变体丢夫")
+
+        // 锚3：止血值同步——rightMin 与 DemoSidePanel minWidth 一致 ≥ 340
+        let split = try Self.source("src/ChineseChess/Views/ManagedSplitView.swift")
+        #expect(split.contains("rightMin: CGFloat = 340"), "rightMin 应为 340（Luke 修复单 A 止血值）")
+        let panel = try Self.source("src/ChineseChess/Views/DemoSidePanel.swift")
+        #expect(panel.contains("minWidth: 340"), "DemoSidePanel minWidth 应与 rightMin 同步 340")
+    }
 }
 
 /// xcstrings 最小解码面（仅本套件断言所需字段）
