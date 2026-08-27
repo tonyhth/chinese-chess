@@ -144,7 +144,11 @@ struct DemoControlBar: View {
             // ⚠️ 快捷键统一移到 playbackShortcuts/speedShortcuts（ViewThatFits
             // 变体切换不丢快捷键，也避免双变体重复注册）。
             ViewThatFits(in: .horizontal) {
+                // wide 变体 minWidth 400（Ruby P1：VTF 布局判定 ~364 起 vs NSMenu 渲染
+                // 阈值 ~392 不对齐，364-388 死区 wide 被选中但零渲染；迫使 <~424pt 恒选
+                // compact，compact 已实测 280-420 全档安全）
                 controlRow(spacing: 10, compact: false)
+                    .frame(minWidth: 400)
                 controlRow(spacing: 6, compact: true)
             }
             .padding(.horizontal, 12)
