@@ -196,8 +196,7 @@ struct SearchBoardV2 {
             pstSum[capSide] -= Self.pstWeight(code: capturedCode, at: toSq, totalPieces: savedCount)
             pieceCount -= 1
             // 相位跨界（16 线）：全子重算（P4-0 双相位发现——表切换/系数变化影响全部子）
-            // （Ruby 4️⃣：取反条件直挂 recompute，免空真分支）
-            if (savedCount > 16) != (pieceCount > 16) {
+            if (savedCount > 16) == (pieceCount > 16) { /* 同相位，增量有效 */ } else {
                 recomputeIncrementalSums()
             }
         }

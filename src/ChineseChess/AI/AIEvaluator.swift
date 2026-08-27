@@ -79,9 +79,6 @@ struct AIEvaluator {
 
     /// 棋子动态价值：基础分 + 残局调整
     /// v3.0 Phase 3a: 残局兵/象/士价值调整
-    /// ⚠️ 双向同步锚：SearchBoardV2.incrementalValue 是本公式的增量复刻
-    /// （P4-① Ruby 3️⃣）——改此公式必须同步改 SearchBoardV2.incrementalValue，
-    /// 增量全等专项（快照 D2 :693）守护两条路径输出一致。
     func dynamicValue(for piece: Piece, totalPieces: Int) -> Int {
         let base = piece.baseValue
         let isEndgame = totalPieces <= 16
