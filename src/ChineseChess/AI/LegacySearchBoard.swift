@@ -3,8 +3,9 @@
 /// AI 搜索专用棋盘。纯值类型，无线程安全风险。
 ///
 /// **M1 Phase 2a（m1-hotpath-redesign v1.2 §7.1）**：原 SearchBoard.swift 更名
-/// LegacySearchBoard——与 SearchBoardV2（90 格信箱）双实现并存至 P2d 收敛，
-/// 交叉对比期间作为运行时参照（§8.2）。除名字外零行为改动。
+/// LegacySearchBoard。M1 回退（2026-08，m1-rollback-plan）后 SearchBoardV2 已随
+/// R3 批整体退场——本类型现为**唯一搜索后端**（原"双实现并存至 P2d 收敛"口径
+/// 已过时废止）。除名字外零行为改动。
 ///
 /// 设计要点：
 /// - 不继承 @Observable，不注册到 Observation 全局表
