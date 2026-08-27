@@ -115,19 +115,14 @@ actor AIEngine: AIEngineProtocol {
     }
 
     /// P4-③ C 项：QS_STANDPAT_FULL 实例级注入（校准配对用，照 boardPathOverride 同款模式）。
-    /// nil = 跟随 env（缺省，产品路径零变化）；true/false = 本实例覆盖。
-    /// 动机：ProcessInfo env 现读（不缓存）进程内 setenv 不保证可见——同进程 A/B
-    /// 配对需实例注入点（p34 v1.1 §2 风险 #1；测试注入非行为变更，Luke 08-18 批）。
+    /// M1 回退适配（m1-rollback §2 适配条款）：P4-①② 已随 5817cf9 revert 退场，
+    /// qsStandPatFullEval 配置位/三改点分流不存在 → 本注入点保留编译、行为 no-op
+    /// （--paired-qs-full 参数链保留，置位无引擎效果）；resolveQSStandPatFull 随面删除。
     var qsStandPatFullOverride: Bool?
 
     /// actor 隔离 setter（外部/测试注入）
     func setQSStandPatFullOverride(_ value: Bool?) {
         qsStandPatFullOverride = value
-    }
-
-    /// 实例覆盖 > env 现读（:417 口径不变，仅加实例层）
-    private func resolveQSStandPatFull() -> Bool {
-        qsStandPatFullOverride ?? Self.readQSStandPatFullEnv()
     }
 
     private func resolveBackend() -> Bool {
