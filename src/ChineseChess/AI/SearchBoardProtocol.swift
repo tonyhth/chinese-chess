@@ -112,7 +112,5 @@ extension SearchBoardV2: SearchBoardProtocol {
         LegacySearchBoard(pieces: pieces, currentTurn: currentTurn, moveHistory: moveHistory)
     }
 
-    /// P3-①（phase3.md §3.1）：givesCheckV2 快路径已建，V2 恢复 depth≥3 将军排序增益
-    /// （AIEngine 三处 "depth >= 3 && supportsCheckLegalOrder" 门控自然兑现，无需摘除）。
-    var supportsCheckLegalOrder: Bool { true }
+    var supportsCheckLegalOrder: Bool { false }
 }
