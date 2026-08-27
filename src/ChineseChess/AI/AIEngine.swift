@@ -812,8 +812,8 @@ actor AIEngine: AIEngineProtocol {
         // 走法排序
         if useMoveOrder {
             let ttBest = useTT ? transpositionTable.probeBestMove(hash: hash) : nil
-            let cmKey: Int? = searchConfig.enableCountermove ? moveOrderer.getCountermoveKey(for: board.moveHistory.last) : nil
-            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth, countermoveKey: cmKey)
+            let cm: Move? = searchConfig.enableCountermove ? moveOrderer.getCountermove(for: board.moveHistory.last) : nil
+            moves = moveOrderer.order(moves, on: board, ttBestMove: ttBest, checkLegal: depth >= 3, depth: depth, countermove: cm)
         } else if depth >= 2 {
             moves = orderMovesSimple(moves)
         }
