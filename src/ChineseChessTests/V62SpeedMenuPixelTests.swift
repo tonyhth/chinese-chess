@@ -97,11 +97,11 @@ final class V62SpeedMenuPixelTests: XCTestCase {
 
     // MARK: - 回归锚：死区边界档位全覆盖
 
-    /// 360-400 step 4（精确覆盖 Ruby 实测死区 364-388 + 恢复点 392 两侧边界）。
+    /// 360-424 step 4（覆盖 Ruby 实测死区 364-388 + 恢复点 392 两侧 + VTF 切换点 424 边界）。
     /// 修复生效 = 全档位选 compact（可用宽 <424）且文字渲染（diff > 30）。
     /// 若 ViewThatFits/minWidth400 补丁回归 → 364-388 档位 diff ≤ 30 直接红。
     func testSpeedLabelRendersAcrossDeadZoneBoundary() {
-        for w in stride(from: 360.0, through: 400.0, by: 4.0) {
+        for w in stride(from: 360.0, through: 424.0, by: 4.0) {
             let withText = darkPixelCount(Bar(speedText: "0.5x"), width: w)
             let withoutText = darkPixelCount(Bar(speedText: ""), width: w)
             XCTAssertGreaterThan(

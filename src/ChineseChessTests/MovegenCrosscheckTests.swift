@@ -24,6 +24,12 @@ import Testing
 import Foundation
 @testable import ChineseChess
 
+// M1 回退适配（m1-rollback §3 保留条款）：SearchBoardV2/MoveGenerator 已随 R3 批
+// revert 退场，本工具（Legacy↔V2 全等证据生成器）转为休眠态单边空转——编译门
+// V2_CROSSCHECK_ENABLED 永不定义即整体不参与编译；M2 若复建 V2 后端，重新启用
+// 本文件即可（五源四断言语义不变）。【Luke 08-27 裁定：保留不删】
+#if V2_CROSSCHECK_ENABLED
+
 @Suite("走法生成交叉对比（五源四断言）", .serialized)
 struct MovegenCrosscheckTests {
 
@@ -392,3 +398,4 @@ extension Array {
         enumerated().compactMap { $0.offset % n == 0 ? $0.element : nil }
     }
 }
+#endif
