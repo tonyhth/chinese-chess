@@ -1830,4 +1830,3 @@ func runCalibratePfFromCLI() async {
 }
 #endif
 
-// MARK: - Phase 1: NPS 基线测量 CLI（--nps-bench，v1.2 §6 + D2 P1-2）
