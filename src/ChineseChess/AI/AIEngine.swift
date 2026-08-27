@@ -815,10 +815,9 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        // P3-②（phase3.md v1.2 甲定案）：isTerminal 预检删除，终局判定并入循环 legalCount==0
-        // （消 legalMoves 双跑：预检一遍 + 循环前一遍）。
-        // 已知差异三条（§3 定稿块，设计接受）：depth≤0 终局走 QS / depth≥3 困毙节点
-        // NMP 可能 fail-high / mate 分永不产生（维持 v6.1.0 起 live 事实）。
+        if isTerminal(board) {
+            return evaluator.evaluate(board, config: evalCfg)
+        }
 
         if depth <= 0 {
             if searchConfig.enableQuiescence {
@@ -860,13 +859,15 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        // P3-②（phase3.md §3.2）：伪合法单遍化——每候选 make 一次同时供
-        // 送将检测+子搜索（Legacy preFiltered 集免检，行为不变）。
-        // legalCount==0 → 甲定案：static eval（live 语义维持，零 TT 写；
-        // 与被删的 :760 isTerminal 预检返回等价——Vera §3 死分支考古：
-        // 原 :804-811 mate+TT 分支 v6.1.0 起不可达，本改造行为不变声明）。
-        var moves = board.pseudoMoves(for: side)
-        var legalCount = 0
+        var moves = board.legalMoves(for: side)
+
+        if moves.isEmpty {
+            let score = board.inCheck(side) ? (-100000 - depth) : 0
+            if useTT {
+                transpositionTable.store(hash: hash, depth: depth, score: score, flag: .exact, bestMove: nil)
+            }
+            return score
+        }
 
         // IID
         if searchConfig.enableIID && useMoveOrder && depth >= 4 {
@@ -903,11 +904,8 @@ actor AIEngine: AIEngineProtocol {
         let staticEvalForFutility: Int? = futilityEnabled ? evaluator.evaluate(board, config: evalCfg) : nil
 
         for (moveIndex, move) in moves.enumerated() {
-            // Futility Pruning（P3-② 首着保护：legalCount==0 时不 prune——
-            // 杀棋局面首着必试，legalCount 语义保真；现状全跳时返 -1e8 哨兵，
-            // 新版首着必试是更保守方向，正常路径行为不变）
+            // Futility Pruning
             if futilityEnabled
-                && legalCount > 0
                 && move.captured == nil
                 && staticEvalForFutility! + futilityMargin <= alpha {
                 continue
@@ -925,14 +923,6 @@ actor AIEngine: AIEngineProtocol {
                                               captured: move.captured)
 
             let undo = board.make(move)
-
-            // P3-②：单遍送将过滤（仅未预滤集）：make 后自将 → unmake 跳过。
-            // 与搜索 make 同一次（A-1 收益核心：消过滤与搜索的重复 make）。
-            if !board.moveSetPreFiltered && board.inCheck(side) {
-                board.unmake(undo)
-                continue
-            }
-            legalCount += 1
 
             let givesCheck = board.inCheck(board.currentTurn)
             let ext: Int
@@ -1005,13 +995,6 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        // P3-② 甲定案（phase3.md v1.2 §3）：legalCount==0 = 杀棋/困毙 →
-        // static eval 维持 live 语义（零 TT 写，与被删 isTerminal 预检返回等价；
-        // 原 mate+TT 分支 v6.1.0 起不可达——Vera 死分支考古，行为不变声明）
-        if legalCount == 0 {
-            return evaluator.evaluate(board, config: evalCfg)
-        }
-
         if useTT {
             let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
             transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
@@ -1062,12 +1045,6 @@ actor AIEngine: AIEngineProtocol {
                                               captured: move.captured)
 
             let undo = board.make(move)
-            // P3-③（phase3.md §3.3 QS 行，两态同改 ungated）：吃子送将跳过。
-            // v1.2 §3.4 定调：QS 本就不该走送将着法，属修正非回退。
-            if board.inCheck(side) {
-                board.unmake(undo)
-                continue
-            }
             let score = -quiescenceSearch(board: &board, hash: childHash,
                                            alpha: -beta, beta: -alpha,
                                            qDepth: qDepth - 1, searchConfig: searchConfig)
@@ -1118,6 +1095,13 @@ actor AIEngine: AIEngineProtocol {
             }
         }
         return false
+    }
+
+    // MARK: - 终止判定
+
+    private func isTerminal<B: SearchBoardProtocol>(_ board: B) -> Bool {
+        let side = board.currentTurn
+        return board.legalMoves(for: side).isEmpty
     }
 
     // MARK: - 简单走法排序（MVV-LVA，用于初级）

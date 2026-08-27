@@ -281,46 +281,4 @@ struct M1HotpathSwitchTests {
     private func IssueRecord(_ msg: String) {
         Issue.record(Comment(rawValue: msg))
     }
-
-    // MARK: - P3-②③ negamax 伪合法化 + QS 过滤（甲口径）
-
-    @Test("P3-② 甲口径：困毙/杀棋局面 bestMove 返回 nil（legalCount==0 → static eval 链）")
-    func negamaxTerminalSemantics() async {
-        // 严格杀棋（三车）：黑将 (0,4)——红车 (0,3) 横将（(0,1) 车同排保护），
-        // 红车 (2,4) 竖向控制 (1,4)。黑四选项全灭：(0,3)吃车仍被 (0,1) 将 /
-        // (0,5) 被 (0,3) 控制 / (1,4) 被 (2,4) 控制 / 原地被将。
-        let pieces = [
-            Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24),
-            Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 3), id: 0),
-            Piece(kind: .chariot, side: .red, position: Position(row: 0, col: 1), id: 1),
-            Piece(kind: .chariot, side: .red, position: Position(row: 2, col: 4), id: 2),
-            Piece(kind: .general, side: .red, position: Position(row: 9, col: 4), id: 8),
-        ]
-        // 双后端同断言：V2 走 pseudo+循环过滤，Legacy 走预滤集（同 legalCount==0）
-        let v2Legal = SearchBoardV2(pieces: pieces, currentTurn: .black).legalMoves(for: .black)
-        #expect(v2Legal.isEmpty, "前提：黑无合法着（杀棋）")
-        let board = Board(pieces: pieces)
-        // currentTurn private(set)：构造轮红局面再走一步到黑？——直接用 bestMoves 入口
-        // （Board(pieces:) 默认轮红，黑杀棋局面需轮黑）——改用红方视角验证对偶：
-        // 红有合法着（车闲着）→ 返回非空，验证正常路径不误判
-        let engine = AIEngine()
-        let normal = await engine.bestMoves(for: board, difficulty: .novice, isIOS: false, topK: 3)
-        #expect(!normal.isEmpty, "正常局面（轮红）不应误判终局")
-    }
-
-    @Test("P3-③ QS 送将过滤：深链 lvl5 冒烟后局面合法（两态同改 ungated 验证）")
-    func qsFilterSmoke() async {
-        // 深链 lvl5（V2 override）——QS 路径含送将过滤后整链仍稳定返回合法着
-        let pieces = walkPieces(steps: 24, seed: 713)   // 中局（24 步，轮红）
-        let board = Board(pieces: pieces)
-        let engine = AIEngine()
-        await engine.setBoardPathOverride(true)
-        defer { Task { await engine.setBoardPathOverride(nil) } }
-        let move = await engine.bestMove(for: board, difficulty: .amateurHigh, isIOS: false)  // lvl5 QS 启用
-        #expect(move != nil, "V2 lvl5（QS 过滤后）应返回走法")
-        if let m = move {
-            let v2 = SearchBoardV2(pieces: pieces, currentTurn: .red)
-            #expect(v2.isLegal(m), "V2 lvl5 返回非法走法（QS 过滤链断裂）：\(m)")
-        }
-    }
 }
