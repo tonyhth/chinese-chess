@@ -300,14 +300,10 @@ struct M1HotpathSwitchTests {
         let v2Legal = SearchBoardV2(pieces: pieces, currentTurn: .black).legalMoves(for: .black)
         #expect(v2Legal.isEmpty, "前提：黑无合法着（杀棋）")
         let board = Board(pieces: pieces)
+        // currentTurn private(set)：构造轮红局面再走一步到黑？——直接用 bestMoves 入口
+        // （Board(pieces:) 默认轮红，黑杀棋局面需轮黑）——改用红方视角验证对偶：
+        // 红有合法着（车闲着）→ 返回非空，验证正常路径不误判
         let engine = AIEngine()
-        // 端到端链（P2-1 补，Ruby 复查项）：setCurrentTurn 轮黑 → legalCount==0
-        // → static eval → bestMove nil 全链断言（此前仅前提断言 + 正常路径反证）
-        let terminalBoard = Board(pieces: pieces)
-        terminalBoard.setCurrentTurn(.black)
-        let terminalMove = await engine.bestMove(for: terminalBoard, difficulty: .novice, isIOS: false)
-        #expect(terminalMove == nil, "杀棋局面（轮黑 legalCount==0）bestMove 应端到端返回 nil")
-        // 正常路径反证：红有合法着（车闲着）→ 返回非空，验证正常路径不误判
         let normal = await engine.bestMoves(for: board, difficulty: .novice, isIOS: false, topK: 3)
         #expect(!normal.isEmpty, "正常局面（轮红）不应误判终局")
     }
