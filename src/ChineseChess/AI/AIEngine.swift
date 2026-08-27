@@ -91,27 +91,10 @@ actor AIEngine: AIEngineProtocol {
     }
 
     func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
-        // ⚠️ 唯一的 Board → 后端棋盘转换点（P2c-② 接 USE_SEARCHBOARD_V2 开关）
+        // ⚠️ 唯一的 Board → 后端棋盘转换点（P2c-① 泛型化；P2c-② 接 USE_SEARCHBOARD_V2 开关）
         calibrationContempt = Self.contemptFor(difficulty)
-        var workBoard = resolvedSearchBoard(from: board)
+        var workBoard = LegacySearchBoard(from: board)
         return bestMoveOn(for: &workBoard, difficulty: difficulty, isIOS: isIOS)
-    }
-
-    /// P2c-②：后端选择（m1-hotpath-redesign v1.2 §7.4 回滚开关窗口）。
-    /// 优先级：USE_SEARCHBOARD_V2 编译条件 > 实例注入（M1_HOTPATH env 默认值/双引擎实例覆盖） > Legacy。
-    /// 开发期默认 Legacy；P5 验收才切 V2 跑全量对比。一行切回 = 翻编译条件。
-    #if USE_SEARCHBOARD_V2
-    static let useSearchBoardV2 = true
-    #else
-    static let useSearchBoardV2 = false
-    #endif
-
-    /// 实例级后端覆盖（SelfPlayRunner 双引擎实例可各自指定；nil = 跟随编译条件）
-    var boardPathOverride: Bool?
-
-    /// actor 隔离 setter（外部/测试注入；直接属性写跨 actor 不合法）
-    func setBoardPathOverride(_ value: Bool?) {
-        boardPathOverride = value
     }
 
     /// P4-③ C 项：QS_STANDPAT_FULL 实例级注入（校准配对用，照 boardPathOverride 同款模式）。
@@ -124,19 +107,6 @@ actor AIEngine: AIEngineProtocol {
     func setQSStandPatFullOverride(_ value: Bool?) {
         qsStandPatFullOverride = value
     }
-
-    private func resolveBackend() -> Bool {
-        boardPathOverride ?? Self.useSearchBoardV2
-    }
-
-    /// 后端构造统一口（三个 Board 入口的唯一分派点）
-    func resolvedSearchBoard(from board: Board) -> any SearchBoardProtocol {
-        if resolveBackend() {
-            return SearchBoardV2(from: board)
-        }
-        return LegacySearchBoard(from: board)
-    }
-
     private func bestMoveOn<B: SearchBoardProtocol>(for board: inout B, difficulty: AIDifficulty, isIOS: Bool) -> Move? {
         switch difficulty {
         case .novice:
@@ -166,9 +136,9 @@ actor AIEngine: AIEngineProtocol {
     /// 返回 top-k 候选走法，带评分。用于自对弈时回避重复局面。
     /// 仅支持自研引擎级别（novice 走 beginnerMove 逻辑，也返回 top-k）。
     func bestMoves(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false, topK: Int = 3) async -> [(move: Move, score: Int)] {
-        // ⚠️ 唯一的 Board → 后端棋盘转换点（P2c-② 同 bestMove）
+        // ⚠️ 唯一的 Board → 后端棋盘转换点（P2c-①；P2c-② 接开关）
         calibrationContempt = Self.contemptFor(difficulty)
-        var workBoard = resolvedSearchBoard(from: board)
+        var workBoard = LegacySearchBoard(from: board)
         return bestMovesOn(for: &workBoard, difficulty: difficulty, isIOS: isIOS, topK: topK)
     }
 
@@ -462,7 +432,7 @@ actor AIEngine: AIEngineProtocol {
     /// 温度随机关闭（固定取 top-1），纯搜索压力测量。
     func npsBench(board: Board, maxDepth: Int) -> (totalNodes: Int, elapsedMs: Int, completedDepth: Int)? {
         calibrationContempt = 0
-        var workBoard = resolvedSearchBoard(from: board)
+        var workBoard = LegacySearchBoard(from: board)
         return npsBenchOn(for: &workBoard, maxDepth: maxDepth)
     }
 

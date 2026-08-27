@@ -173,36 +173,4 @@ struct M1HotpathSwitchTests {
         #expect(board.currentTurn == snapTurn)
         #expect(board.moveHistory.count == snapHist)
     }
-
-    // MARK: - ② 开关行为（commit ② 交付：默认 Legacy + 注入 V2 全链走通）
-
-    @Test("后端开关：编译条件默认 off；boardPathOverride 强制 V2 走全链")
-    func backendSwitchBehavior() async {
-        let board = Board()
-        let engine = AIEngine()
-
-        // 默认态：跟随编译条件（主开发周期 USE_SEARCHBOARD_V2 未定义 → Legacy）
-        let defaultBackend = await engine.resolvedSearchBoard(from: board)
-        #expect(AIEngine.useSearchBoardV2 == (defaultBackend is SearchBoardV2),
-                "默认后端与编译条件不一致：useSearchBoardV2=\(AIEngine.useSearchBoardV2) 实际=\(type(of: defaultBackend))")
-
-        // 注入 V2：novice 全链（legalMoves→make/evaluate→unmake）走通且返回合法走法
-        await engine.setBoardPathOverride(true)
-        let v2Backend = await engine.resolvedSearchBoard(from: board)
-        #expect(v2Backend is SearchBoardV2, "注入后应构造 V2 后端，实际 \(type(of: v2Backend))")
-        let move = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
-        #expect(move != nil, "V2 后端 novice 全链应返回走法")
-        if let m = move {
-            #expect(v2Backend.isLegal(m), "V2 返回的走法应在 V2 谓词下合法：\(m)")
-        }
-        await engine.setBoardPathOverride(nil)
-
-        // 置 nil 后回落编译条件默认（flag-off 态 = Legacy；flag-on 态 = V2——
-        // 本断言双态自洽，不硬编码默认方向）
-        let restoredBackend = await engine.resolvedSearchBoard(from: board)
-        #expect((restoredBackend is SearchBoardV2) == AIEngine.useSearchBoardV2,
-                "置 nil 后应回落编译条件默认，实际 \(type(of: restoredBackend))")
-        let restoredMove = await engine.bestMove(for: board, difficulty: .novice, isIOS: false)
-        #expect(restoredMove != nil)
-    }
 }
