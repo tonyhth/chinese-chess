@@ -139,7 +139,7 @@ struct DemoControlBar: View {
                 .padding(.horizontal, 16)
 
             // v6.2.1 修复（洪涛实机回归）：速度 Menu(NSMenu 后端)在容器宽不足时
-            // label 文字整体零渲染（fixedSize 防不住，Ruby 像素差分实测阈值 ≈370pt）。
+            // label 文字整体零渲染（fixedSize 防不住；Ruby 二轮实测 VTF 死区 364-388pt、392 恢复）。
             // 双态自适应：宽态保持原样；窄态紧凑 spacing + small 控件 + 去 Spacer。
             // ⚠️ 快捷键统一移到 playbackShortcuts/speedShortcuts（ViewThatFits
             // 变体切换不丢快捷键，也避免双变体重复注册）。

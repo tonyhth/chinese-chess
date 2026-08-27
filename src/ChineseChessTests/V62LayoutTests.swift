@@ -55,7 +55,7 @@ struct V62LayoutTests {
         #expect(region.contains("ManagedSplitView"), "macosPlayLayout 应接入 ManagedSplitView（方案 B，Luke 裁定语义迁移）")
         #expect(region.contains("DemoSidePanel"), "macosPlayLayout 应接入右侧面板 DemoSidePanel")
         #expect(!region.contains("CommentaryOverlay"), "macOS 点评应由右侧面板承载，overlay 退出 macosPlayLayout（iOS 路径 overlay 不受影响）")
-        #expect(region.contains("minWidth: 800"), "页面 frame minWidth 应为 800（左右布局最低需求）")
+        #expect(region.contains("minWidth: 816"), "页面 frame minWidth 应为 816（v6.2.1 rightMin 400 后 808 最低需求）")
     }
 
     @Test("T2: PuzzleDemoView macosLayout 使用 ManagedSplitView 左右布局")
@@ -64,7 +64,7 @@ struct V62LayoutTests {
         let region = try Self.funcRegion(src, funcName: "macosLayout")
         #expect(region.contains("ManagedSplitView"), "macosLayout 应接入 ManagedSplitView（方案 B，Luke 裁定语义迁移）")
         #expect(region.contains("DemoSidePanel"), "macosLayout 应接入右侧面板 DemoSidePanel")
-        #expect(region.contains("minWidth: 800"), "页面 frame minWidth 应为 800")
+        #expect(region.contains("minWidth: 816"), "页面 frame minWidth 应为 816")
     }
 
     // MARK: - T3/T4/T5：组件存在性（类型实例化 = 编译期存在性 + 运行期可创建）
@@ -127,11 +127,11 @@ struct V62LayoutTests {
 
     // MARK: - T7：sheet minWidth（硬门槛仅 .puzzles/.studyHub=800，其余不动——Luke 裁定二）
 
-    @Test("T7: 演示 sheet minWidth=800 且其余 sheet 未动（恰好两处 800）")
+    @Test("T7: 演示 sheet minWidth=816 且其余 sheet 未动（恰好两处 816）")
     func t7SheetMinWidth() throws {
         let src = try Self.source("src/ChineseChess/App/ChineseChessApp.swift")
-        let count800 = src.components(separatedBy: "minWidth: 800").count - 1
-        #expect(count800 == 2, "minWidth: 800 应恰好 2 处（.puzzles + .studyHub），实际 \(count800)——多了=超边界，少了=布局放不下")
+        let count816 = src.components(separatedBy: "minWidth: 816").count - 1
+        #expect(count816 == 2, "minWidth: 816 应恰好 2 处（.puzzles + .studyHub），实际 \(count816)——多了=超边界，少了=布局放不下")
         #expect(src.contains("case .toolbarReplay"), "对照组存在性：toolbarReplay")
     }
 
@@ -195,11 +195,11 @@ struct V62LayoutTests {
         // 锚2：快捷键统一承载（防 ViewThatFits 变体切换丢快捷键）
         #expect(bar.contains("playbackShortcuts") && bar.contains("speedShortcuts"), "快捷键应统一承载不随变体丢夫")
 
-        // 锚3：止血值同步——rightMin 与 DemoSidePanel minWidth 一致 ≥ 380（高于零渲染阈值上界）
+        // 锚3：止血值同步——rightMin 与 DemoSidePanel minWidth 一致 = 400（VTF 恢复点 392 + 余量）
         let split = try Self.source("src/ChineseChess/Views/ManagedSplitView.swift")
-        #expect(split.contains("rightMin: CGFloat = 380"), "rightMin 应为 380（Luke 正式令，高于实测阈值 ≈370）")
+        #expect(split.contains("rightMin: CGFloat = 400"), "rightMin 应为 400（Ruby P1-1：死区 364-388、392 恢复）")
         let panel = try Self.source("src/ChineseChess/Views/DemoSidePanel.swift")
-        #expect(panel.contains("minWidth: 380"), "DemoSidePanel minWidth 应与 rightMin 同步 380")
+        #expect(panel.contains("minWidth: 400"), "DemoSidePanel minWidth 应与 rightMin 同步 400")
     }
 }
 

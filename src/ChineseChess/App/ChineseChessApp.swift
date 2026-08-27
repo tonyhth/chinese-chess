@@ -480,7 +480,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 800, minHeight: 700)  // v6.2：600→800，演示页左右布局需 800（v1.2 P1-5，Tina §五核实仅此两个 sheet 改）
+                    .frame(minWidth: 816, minHeight: 700)  // v6.2：600→800（v1.2 P1-5）；v6.2.1：800→816（rightMin 400 → 808 最低需求）
 
                 case .toolbarReplay(let record):
                     ReplayView(record: record)
@@ -615,7 +615,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 800, minHeight: 700)  // v6.2：600→800，同 .puzzles（演示页入口）
+                    .frame(minWidth: 816, minHeight: 700)  // v6.2：600→800 同 .puzzles；v6.2.1：800→816（rightMin 400）
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })

@@ -9,8 +9,9 @@
 //    @AppStorage——禁止逐帧写 defaults（spike 已标坏味道）
 // 2. 首帧从 @AppStorage 读 = 重启精确恢复（方案 B 相对 HSplitView 的核心收益，
 //    HSplitView 公开 API 零分割参数、首帧恒 50/50 无解）
-// 3. 双侧最小宽度钳制：左 ≥ leftMin(400)、右 ≥ rightMin(380)，拖到边界不塌陷
-//    （v6.2.1：300→380，Luke 正式令——止血值须高于 Ruby 实测零渲染阈值上界 ≈370；窄态另由 DemoControlBar ViewThatFits 兜底）
+// 3. 双侧最小宽度钳制：左 ≥ leftMin(400)、右 ≥ rightMin(400)，拖到边界不塌陷
+//    （v6.2.1：380→400，Ruby P1-1 第二轮 VTF 实测——死区 364-388pt、392 恢复，
+//    380 仍落死区；400 = 恢复点 392 + 余量。窄态另由 DemoControlBar ViewThatFits 兜底）
 // 4. NSCursor.resizeLeftRight hover 光标（spike 加分项转正）
 // 5. ⚠️ spike 缺陷修正：DragGesture 默认 coordinateSpace 为 .local（handle 局部
 //    坐标），spike 公式 location.x/total 在 handle 偏移后失准——生产版改
@@ -36,7 +37,7 @@ struct ManagedSplitView<LeftContent: View, RightContent: View>: View {
 
     private let handleWidth: CGFloat = 8
     private let leftMin: CGFloat = 400
-    private let rightMin: CGFloat = 380
+    private let rightMin: CGFloat = 400
     /// ratio 安全域（spike 同值）
     private let ratioBounds: ClosedRange<Double> = 0.15...0.85
 

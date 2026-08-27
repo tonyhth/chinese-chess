@@ -1383,7 +1383,7 @@ struct MasterGameBrowserView: View {
             )
         }
         // v1.2 §三.2：左右布局需 min 800（左 400 + 右 300 + handle 8）；高度 750→600
-        .frame(minWidth: 800, minHeight: 600)
+        .frame(minWidth: 816, minHeight: 600)  // v6.2.1：800→816（rightMin 400 后 400+8+400=808 最低需求）
     }
     #endif
 
