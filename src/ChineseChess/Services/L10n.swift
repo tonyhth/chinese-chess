@@ -20,24 +20,39 @@ final class L10n {
 
     private init() {
         let saved = UserDefaults.standard.string(forKey: "chinesechess.language")
-            ?? Locale.current.language.languageCode?.identifier ?? "zh-Hans"
+            ?? Self.systemLanguage()
         self.language = saved
         self.translations = [:]
         loadTranslations(for: saved)
     }
 
+    /// 用户显式选择的语言；nil = 跟随系统（P1-1 修复：回显用持久层原始值，而非已解析的 language）
+    var preferredLanguage: String? {
+        UserDefaults.standard.string(forKey: "chinesechess.language")
+    }
+
     /// 切换语言（即时生效，不需要重启）
     func setLanguage(_ lang: String) {
-        language = lang
         UserDefaults.standard.set(lang, forKey: "chinesechess.language")
-        loadTranslations(for: lang)
+        applyLanguage(lang)
     }
 
     /// 清除语言偏好，回退到系统语言
+    /// P1-1 修复：不再重写 UserDefaults（原实现 setLanguage(system) 会把偏好又持久化回去，
+    /// 导致"跟随系统"永不回显且系统语言变更后不跟随）
     func clearLanguage() {
         UserDefaults.standard.removeObject(forKey: "chinesechess.language")
-        let systemLang = Locale.current.language.languageCode?.identifier ?? "zh-Hans"
-        setLanguage(systemLang)
+        applyLanguage(Self.systemLanguage())
+    }
+
+    /// 内部：仅更新运行态，不动持久层
+    private func applyLanguage(_ lang: String) {
+        language = lang
+        loadTranslations(for: lang)
+    }
+
+    private static func systemLanguage() -> String {
+        Locale.current.language.languageCode?.identifier ?? "zh-Hans"
     }
 
     /// 翻译 key

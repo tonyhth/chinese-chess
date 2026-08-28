@@ -89,8 +89,10 @@ struct SettingsView: View {
 
                 // 语言（即时切换，无需重启）
                 Section(l10n.t("settings.languageSection")) {
+                    // P1-1 修复：回显读 preferredLanguage（持久层原始值，nil=跟随系统），
+                    // 原实现读 l10n.language（永非 nil）致"跟随系统"永不回显选中
                     Picker(l10n.t("settings.language"), selection: Binding(
-                        get: { l10n.language as String? },
+                        get: { l10n.preferredLanguage },
                         set: { newLanguage in
                             if let lang = newLanguage {
                                 l10n.setLanguage(lang)
