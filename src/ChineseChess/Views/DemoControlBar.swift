@@ -63,7 +63,7 @@ struct DemoControlBar: View {
                 Menu {
                     ForEach(DemoSpeed.allCases) { speed in
                         Button {
-                            config.demoSpeed = speed  // 通过 onChange 同步到 viewModel
+                            viewModel.speed = speed  // P2-1: 播放中调速走临时态，不覆写持久默认
                         } label: {
                             if viewModel.speed == speed {
                                 Label(speed.label, systemImage: "checkmark")
@@ -179,7 +179,7 @@ struct DemoControlBar: View {
     private var speedShortcuts: some View {
         ForEach(Array(DemoSpeed.allCases.enumerated()), id: \.offset) { index, speed in
             Button("") {
-                config.demoSpeed = speed
+                viewModel.speed = speed  // P2-1: 快捷键调速同走临时态
             }
             .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
             .hidden()
@@ -209,7 +209,7 @@ struct DemoControlBar: View {
                 Menu {
                     ForEach(DemoSpeed.allCases) { speed in
                         Button {
-                            config.demoSpeed = speed
+                            viewModel.speed = speed  // P2-1: 播放中调速走临时态，不覆写持久默认
                         } label: {
                             if viewModel.speed == speed {
                                 Label(speed.label, systemImage: "checkmark")

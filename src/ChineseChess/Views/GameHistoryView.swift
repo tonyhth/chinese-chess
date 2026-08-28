@@ -295,7 +295,10 @@ struct GameHistoryView: View {
                 }
                 return nil
             },
-            set: { _ in }
+            set: { _ in
+                // P2-2 修复：sheet 关闭时重置导入 state，避免残留 success 态使 sheet 无法再次触发
+                importViewModel.reset()
+            }
         )) { result in
             ImportResultSheet(
                 result: result,
