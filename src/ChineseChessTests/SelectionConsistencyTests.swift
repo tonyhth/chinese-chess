@@ -43,6 +43,23 @@ final class SelectionConsistencyTests {
         }
     }
 
+    @Test("①-4b 公共数据源锢定：amateur+professional 拼接 == allCases 且逐元素 isProfessional 吻合（Ruby P2 登记条）")
+    func difficultyPublicDataSources() {
+        let combined = AIDifficulty.amateurLevels + AIDifficulty.professionalLevels
+        #expect(combined == AIDifficulty.allCases,
+                "两数组拼接应等于 allCases（顺序一致）；否则 UI 词表静默漂移")
+        for d in AIDifficulty.amateurLevels {
+            #expect(!d.isProfessional, "\(d.rawValue) 在 amateurLevels 但 isProfessional=true")
+        }
+        for d in AIDifficulty.professionalLevels {
+            #expect(d.isProfessional, "\(d.rawValue) 在 professionalLevels 但 isProfessional=false")
+        }
+        #expect(Set(AIDifficulty.amateurLevels).count == AIDifficulty.amateurLevels.count,
+                "amateurLevels 不应有重复元素")
+        #expect(Set(AIDifficulty.professionalLevels).count == AIDifficulty.professionalLevels.count,
+                "professionalLevels 不应有重复元素")
+    }
+
     @Test("①-2 rawValue 持久化 tag：lvl1-lvl10 与 case 一一对应、init(rawValue:) 双向无损")
     func difficultyRawValueRoundtrip() {
         for (i, d) in AIDifficulty.allCases.enumerated() {
