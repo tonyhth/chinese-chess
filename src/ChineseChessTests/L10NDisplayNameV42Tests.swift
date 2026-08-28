@@ -21,20 +21,24 @@ struct L10NDisplayNameV42Tests {
         #expect(Set(names).count == 10, "10 个 displayName 应唯一")
     }
 
-    // MARK: - displayNameEN 英文显示名
+    // MARK: - 英文显示名（P1-2: displayNameEN 硬编码表已退场，EN 锚点 = l10n en 表经 displayName 单源读取）
 
-    @Test("displayNameEN: 10 个英文名正确且不重复")
+    @Test("en displayName: 10 个英文名正确且不重复")
     func displayNamesENAllCorrect() {
-        let names = AIDifficulty.allCases.map { $0.displayNameEN }
+        L10n.shared.setLanguage("en")
+        defer { L10n.shared.setLanguage("zh-Hans") }
+        let names = AIDifficulty.allCases.map { $0.displayName }
         let expected = ["Beginner", "Elementary", "Intermediate", "Advanced", "Proficient",
                         "Player", "Expert", "Master", "Grandmaster", "Legend"]
-        #expect(names == expected, "displayNameEN 应按顺序匹配：\(names)")
+        #expect(names == expected, "en displayName 应按顺序匹配：\(names)")
     }
 
-    @Test("displayNameEN: 10 个英文名唯一不重复")
+    @Test("en displayName: 10 个名称唯一不重复")
     func displayNamesENUnique() {
-        let names = AIDifficulty.allCases.map { $0.displayNameEN }
-        #expect(Set(names).count == 10, "10 个 displayNameEN 应唯一")
+        L10n.shared.setLanguage("en")
+        defer { L10n.shared.setLanguage("zh-Hans") }
+        let names = AIDifficulty.allCases.map { $0.displayName }
+        #expect(Set(names).count == 10, "10 个 en displayName 应唯一")
     }
 
     // MARK: - 逐个验证 displayName
@@ -53,20 +57,22 @@ struct L10NDisplayNameV42Tests {
         #expect(AIDifficulty.grandmaster.displayName == "棋圣")
     }
 
-    // MARK: - 逐个验证 displayNameEN
+    // MARK: - 逐个验证 en displayName（P1-2: 经 l10n en 表单源）
 
-    @Test("displayNameEN 逐个验证")
+    @Test("en displayName 逐个验证")
     func displayNameENIndividual() {
-        #expect(AIDifficulty.novice.displayNameEN == "Beginner")
-        #expect(AIDifficulty.beginner.displayNameEN == "Elementary")
-        #expect(AIDifficulty.amateurLow.displayNameEN == "Intermediate")
-        #expect(AIDifficulty.amateurMid.displayNameEN == "Advanced")
-        #expect(AIDifficulty.amateurHigh.displayNameEN == "Proficient")
-        #expect(AIDifficulty.amateurDan.displayNameEN == "Player")
-        #expect(AIDifficulty.proApprentice.displayNameEN == "Expert")
-        #expect(AIDifficulty.proExpert.displayNameEN == "Master")
-        #expect(AIDifficulty.proMaster.displayNameEN == "Grandmaster")
-        #expect(AIDifficulty.grandmaster.displayNameEN == "Legend")
+        L10n.shared.setLanguage("en")
+        defer { L10n.shared.setLanguage("zh-Hans") }
+        #expect(AIDifficulty.novice.displayName == "Beginner")
+        #expect(AIDifficulty.beginner.displayName == "Elementary")
+        #expect(AIDifficulty.amateurLow.displayName == "Intermediate")
+        #expect(AIDifficulty.amateurMid.displayName == "Advanced")
+        #expect(AIDifficulty.amateurHigh.displayName == "Proficient")
+        #expect(AIDifficulty.amateurDan.displayName == "Player")
+        #expect(AIDifficulty.proApprentice.displayName == "Expert")
+        #expect(AIDifficulty.proExpert.displayName == "Master")
+        #expect(AIDifficulty.proMaster.displayName == "Grandmaster")
+        #expect(AIDifficulty.grandmaster.displayName == "Legend")
     }
 
     // MARK: - 不变性验证（rawValue/order/isProfessional 不受影响）

@@ -182,8 +182,11 @@ struct ToolbarView: View {
                     Button(l10n.t("difficulty.lvl9")) { viewModel.setDifficulty(.proMaster) }
                     Button(l10n.t("difficulty.lvl10")) { viewModel.setDifficulty(.grandmaster) }
                 } label: {
-                    Text(difficultyShortName(viewModel.difficulty))
+                    // v6.2 洪涛令：级位短标签退场，顶部与设置页统一 10 级长名词汇
+                    Text(l10n.t("difficulty.\(viewModel.difficulty.rawValue)"))
                         .font(.caption.weight(.bold))
+                        .minimumScaleFactor(0.7)
+                        .lineLimit(1)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -342,20 +345,4 @@ struct ToolbarView: View {
 
     // MARK: - Helpers
 
-    /// v3.7.1 B2: 难度首字缩写（iOS 工具栏用）
-    /// v6.0: 难度短名称（10 级独立短名，用于 iOS 工具栏）
-    private func difficultyShortName(_ difficulty: AIDifficulty) -> String {
-        switch difficulty {
-        case .novice:        return l10n.t("difficulty.short.lvl1")
-        case .beginner:      return l10n.t("difficulty.short.lvl2")
-        case .amateurLow:    return l10n.t("difficulty.short.lvl3")
-        case .amateurMid:    return l10n.t("difficulty.short.lvl4")
-        case .amateurHigh:   return l10n.t("difficulty.short.lvl5")
-        case .amateurDan:    return l10n.t("difficulty.short.lvl6")
-        case .proApprentice: return l10n.t("difficulty.short.lvl7")
-        case .proExpert:     return l10n.t("difficulty.short.lvl8")
-        case .proMaster:     return l10n.t("difficulty.short.lvl9")
-        case .grandmaster:   return l10n.t("difficulty.short.lvl10")
-        }
-    }
 }

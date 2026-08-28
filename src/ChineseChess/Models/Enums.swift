@@ -126,36 +126,10 @@ enum AIDifficulty: CaseIterable, Codable {
         .amateurHigh
     }
 
-    /// 中文显示名（v6.0: 10 级统一棋力系统）
+    /// 显示名（P1-2 修复：单源 l10n 词表，key = difficulty.<rawValue>；
+    /// 原硬编码中文词表 B 与 Settings/Toolbar 词表 A 混显）
     var displayName: String {
-        switch self {
-        case .novice:        return "入门"
-        case .beginner:      return "初级"
-        case .amateurLow:    return "中级"
-        case .amateurMid:    return "高级"
-        case .amateurHigh:   return "精通"
-        case .amateurDan:    return "棋友"
-        case .proApprentice: return "棋手"
-        case .proExpert:     return "棋师"
-        case .proMaster:     return "大师"
-        case .grandmaster:   return "棋圣"
-        }
-    }
-
-    /// 英文显示名
-    var displayNameEN: String {
-        switch self {
-        case .novice:        return "Beginner"
-        case .beginner:      return "Elementary"
-        case .amateurLow:    return "Intermediate"
-        case .amateurMid:    return "Advanced"
-        case .amateurHigh:   return "Proficient"
-        case .amateurDan:    return "Player"
-        case .proApprentice: return "Expert"
-        case .proExpert:     return "Master"
-        case .proMaster:     return "Grandmaster"
-        case .grandmaster:   return "Legend"
-        }
+        L10n.shared.t("difficulty.\(rawValue)")
     }
 
     /// 难度排序值（0-9，用于比较）
