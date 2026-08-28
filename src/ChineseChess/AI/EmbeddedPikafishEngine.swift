@@ -137,7 +137,27 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
-        // 闭包不捕获 self，只捕获局部值类型（fen/movesStr/depth/timeMs/buffer）
+        // v6.2 加急: Swift 层 watchdog 硬超时——timeMs+2s 仍未返回则 resume(nil) 降级自研
+        //（C 调用不可中断会继续占 cApiQueue，但 UI 层不再无限等；先例 :82-91 quit 保护同思路）
+        let watchdogBudgetMs = timeMs + 2000
+        return await withTaskGroup(of: String?.self) { group in
+            group.addTask {
+                await self.cApiBestMove(fen: fen, movesStr: movesStr, depth: depth, timeMs: timeMs)
+            }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: UInt64(watchdogBudgetMs) * 1_000_000)
+                return nil // watchdog 超时占位（真结果若先到则被优先取用）
+            }
+            let first = await group.next() ?? nil
+            if let move = first { group.cancelAll(); return move }
+            let second = await group.next() ?? nil
+            return second
+        }
+        // withTaskGroup 返回后，defer 执行 activeSearchCount -= 1
+    }
+
+    /// C 层 best_move 调用（保持原“闭包不捕获 self”约定：闭包体只引用局部值类型）
+    private nonisolated func cApiBestMove(fen: String, movesStr: String, depth: Int, timeMs: Int) async -> String? {
         return await withCheckedContinuation { continuation in
             cApiQueue.async {
                 var buffer = [CChar](repeating: 0, count: 64)
@@ -163,7 +183,6 @@ actor EmbeddedPikafishEngine: ChessEngine {
                 }
             }
         }
-        // withCheckedContinuation 返回后，defer 执行 activeSearchCount -= 1
     }
 
     /// 立即停止搜索（原子操作，线程安全，可从任意线程调用）
