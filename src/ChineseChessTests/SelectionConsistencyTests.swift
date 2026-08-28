@@ -404,6 +404,28 @@ final class SelectionConsistencyTests {
         // 运行态 language 仍解析为可用语言（翻译链不因跟随系统断掉）
         #expect(!L10n.shared.language.isEmpty)
     }
+
+    // MARK: - ⑥ 引擎开关守卫（P1-① v6.2 阻塞档，Luke 初裁升级）
+
+    /// 开关 off + 专业级组合：用户选择自研引擎时不再被架空强拉 Pikafish。
+    /// validate 应视为可用（走自研）、engineFor 应返回自研引擎——与状态栏显示（读开关）一致。
+    @Test("⑥-1 [P1-① 已修] 开关 off + 专业级：validate 可用 + engineFor 走自研（选择不被架空）")
+    @MainActor
+    func engineSwitchGuardProfessional() async {
+        let original = EngineConfigStore.shared.useEmbeddedEngine
+        defer { EngineConfigStore.shared.useEmbeddedEngine = original }
+
+        // 开关 off + 大师级：validate 不应为专业级强拉 Pikafish（原症状：unavailable/隐式重启）
+        EngineConfigStore.shared.useEmbeddedEngine = false
+        let availability = await EngineRouter.shared.validateEngineAvailability(for: .proMaster)
+        if case .unavailable = availability {
+            Issue.record("P1-① 修复锢定失败：开关 off + 专业级不应触发 Pikafish 不可用（应直接走自研）")
+        }
+
+        // engineFor 应返回自研引擎（与状态栏显示同源：开关 off → 自研）
+        let engine = EngineRouter.shared.engineFor(difficulty: .proMaster)
+        #expect(engine is AIEngine, "开关 off + 专业级应走自研 AIEngine，实际 \(type(of: engine))")
+    }
 }
 
 // MARK: - ⑤ 独立 suite 已合并入主 suite（跨 suite L10n 竞态消除）

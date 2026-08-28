@@ -35,9 +35,11 @@ final class EngineRouter {
     /// 根据难度获取合适的引擎实例（核心路由方法）
     /// 业余级（1-5）→ 自研 AIEngine
     /// 专业级（6-10）→ EmbeddedPikafishEngine（需已启动）
+    /// v6.2 P1-①（选择↔显示同步审计）：开关守卫——useEmbeddedEngine=off 时专业级也走自研，
+    /// 不再无视用户选择强拉 Pikafish（原实现“开关被绕过”，与 6/25 假切换 P0 同族）
     func engineFor(difficulty: AIDifficulty) -> any ChessEngine {
-        if difficulty.isProfessional {
-            // 专业级需要 Pikafish
+        if difficulty.isProfessional && EngineConfigStore.shared.useEmbeddedEngine {
+            // 专业级需要 Pikafish（且用户开关允许）
             if let emb = embeddedEngine, emb.isReady {
                 return emb
             }
@@ -52,8 +54,10 @@ final class EngineRouter {
     /// 检查指定难度的引擎是否可用
     /// - 业余级：总是可用（自研引擎无需初始化）
     /// - 专业级：需要 Pikafish 已启动且就绪
+    /// v6.2 P1-①：开关 off 时专业级走自研（用户显式选择），视为可用，
+    /// 不再为专业级无视开关强拉 Pikafish（原实现致实际引擎与状态栏显示失步）
     func validateEngineAvailability(for difficulty: AIDifficulty) async -> EngineAvailability {
-        guard difficulty.isProfessional else { return .available }
+        guard difficulty.isProfessional, EngineConfigStore.shared.useEmbeddedEngine else { return .available }
 
         // 确保 Pikafish 已启动
         if embeddedEngine == nil || !embeddedEngine!.isReady {
