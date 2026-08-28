@@ -170,17 +170,14 @@ struct ToolbarView: View {
 
                 // v6.0: 10 级难度快捷菜单
                 Menu {
-                    Button(l10n.t("difficulty.lvl1")) { viewModel.setDifficulty(.novice) }
-                    Button(l10n.t("difficulty.lvl2")) { viewModel.setDifficulty(.beginner) }
-                    Button(l10n.t("difficulty.lvl3")) { viewModel.setDifficulty(.amateurLow) }
-                    Button(l10n.t("difficulty.lvl4")) { viewModel.setDifficulty(.amateurMid) }
-                    Button(l10n.t("difficulty.lvl5")) { viewModel.setDifficulty(.amateurHigh) }
+                    // P2-4: 公共数据源（与 macOS Picker/设置页同源，防第三套词汇表）
+                    ForEach(AIDifficulty.amateurLevels, id: \.self) { d in
+                        Button(l10n.t("difficulty.\(d.rawValue)")) { viewModel.setDifficulty(d) }
+                    }
                     Divider()
-                    Button(l10n.t("difficulty.lvl6")) { viewModel.setDifficulty(.amateurDan) }
-                    Button(l10n.t("difficulty.lvl7")) { viewModel.setDifficulty(.proApprentice) }
-                    Button(l10n.t("difficulty.lvl8")) { viewModel.setDifficulty(.proExpert) }
-                    Button(l10n.t("difficulty.lvl9")) { viewModel.setDifficulty(.proMaster) }
-                    Button(l10n.t("difficulty.lvl10")) { viewModel.setDifficulty(.grandmaster) }
+                    ForEach(AIDifficulty.professionalLevels, id: \.self) { d in
+                        Button(l10n.t("difficulty.\(d.rawValue)")) { viewModel.setDifficulty(d) }
+                    }
                 } label: {
                     // v6.2 洪涛令：级位短标签退场，顶部与设置页统一 10 级长名词汇
                     Text(l10n.t("difficulty.\(viewModel.difficulty.rawValue)"))
@@ -300,19 +297,12 @@ struct ToolbarView: View {
                     get: { viewModel.difficulty },
                     set: { viewModel.setDifficulty($0) }
                 )) {
-                    Group {
-                        Text(l10n.t("difficulty.lvl1")).tag(AIDifficulty.novice)
-                        Text(l10n.t("difficulty.lvl2")).tag(AIDifficulty.beginner)
-                        Text(l10n.t("difficulty.lvl3")).tag(AIDifficulty.amateurLow)
-                        Text(l10n.t("difficulty.lvl4")).tag(AIDifficulty.amateurMid)
-                        Text(l10n.t("difficulty.lvl5")).tag(AIDifficulty.amateurHigh)
+                    // P2-4: 公共数据源（与 iOS 菜单/设置页同源）
+                    ForEach(AIDifficulty.amateurLevels, id: \.self) { d in
+                        Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
                     }
-                    Group {
-                        Text(l10n.t("difficulty.lvl6")).tag(AIDifficulty.amateurDan)
-                        Text(l10n.t("difficulty.lvl7")).tag(AIDifficulty.proApprentice)
-                        Text(l10n.t("difficulty.lvl8")).tag(AIDifficulty.proExpert)
-                        Text(l10n.t("difficulty.lvl9")).tag(AIDifficulty.proMaster)
-                        Text(l10n.t("difficulty.lvl10")).tag(AIDifficulty.grandmaster)
+                    ForEach(AIDifficulty.professionalLevels, id: \.self) { d in
+                        Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
                     }
                 }
                 .pickerStyle(.menu)

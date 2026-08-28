@@ -421,6 +421,10 @@ struct ChineseChessiOSApp: App {
                     if newPhase == .background {
                         SoundEngine.shared.deactivateAudioSession()
                         Task { await EngineRouter.shared.shutdown() }
+                    } else if newPhase == .active {
+                        // P2-5: 前台预热（对齐 macOS L2-10 P1 fix——后台 shutdown 后回前台重启引擎，
+                        // 避免首次 AI 走法现场付 NNUE 加载时长）
+                        Task { await EngineRouter.shared.switchEngineIfNeeded() }
                     }
                 }
                 // v3.7.0 Phase 3: 打开 .pgn 文件

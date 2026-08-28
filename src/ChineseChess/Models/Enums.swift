@@ -103,6 +103,10 @@ enum AIDifficulty: CaseIterable, Codable {
 
     // MARK: - 计算属性
 
+    /// P2-4：难度选择器公共数据源（iOS 菜单 / macOS Picker 两实现共用，词汇表单点）
+    static let amateurLevels: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
+    static let professionalLevels: [AIDifficulty] = [.amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster]
+
     /// 是否为专业级（使用 Pikafish 引擎）
     var isProfessional: Bool {
         self == .amateurDan || self == .proApprentice || self == .proExpert

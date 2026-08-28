@@ -15,25 +15,36 @@ struct SettingsView: View {
                         get: { viewModel.difficulty },
                         set: { viewModel.setDifficulty($0) }
                     )) {
+                        // P2-4: 公共数据源（与工具栏两实现同源，词汇表单点）
                         Section(l10n.t("difficulty.amateurSection")) {
-                            Text(l10n.t("difficulty.lvl1")).tag(AIDifficulty.novice)
-                            Text(l10n.t("difficulty.lvl2")).tag(AIDifficulty.beginner)
-                            Text(l10n.t("difficulty.lvl3")).tag(AIDifficulty.amateurLow)
-                            Text(l10n.t("difficulty.lvl4")).tag(AIDifficulty.amateurMid)
-                            Text(l10n.t("difficulty.lvl5")).tag(AIDifficulty.amateurHigh)
+                            ForEach(AIDifficulty.amateurLevels, id: \.self) { d in
+                                Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
+                            }
                         }
                         Section(l10n.t("difficulty.proSection")) {
-                            Text(l10n.t("difficulty.lvl6")).tag(AIDifficulty.amateurDan)
-                            Text(l10n.t("difficulty.lvl7")).tag(AIDifficulty.proApprentice)
-                            Text(l10n.t("difficulty.lvl8")).tag(AIDifficulty.proExpert)
-                            Text(l10n.t("difficulty.lvl9")).tag(AIDifficulty.proMaster)
-                            Text(l10n.t("difficulty.lvl10")).tag(AIDifficulty.grandmaster)
+                            ForEach(AIDifficulty.professionalLevels, id: \.self) { d in
+                                Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
+                            }
                         }
                     }
                     .pickerStyle(.menu)
                 } header: {
                     Text(l10n.t("difficulty.label"))
                 }
+
+                // 引擎选择（P1-3: iOS 补入口——原仅 macOS 菜单 :685，iOS 零入口属无理由平台分叉；
+                // 消费面 iOS 全活：EngineRouter/PositionAnalyzer/StatusBarView）
+                #if os(iOS)
+                Section(l10n.t("engine.menuLabel")) {
+                    Toggle(l10n.t("engine.usePikafishMenu"), isOn: Binding(
+                        get: { EngineConfigStore.shared.useEmbeddedEngine },
+                        set: { newValue in
+                            EngineConfigStore.shared.useEmbeddedEngine = newValue
+                            Task { await EngineRouter.shared.switchEngineIfNeeded() }
+                        }
+                    ))
+                }
+                #endif
 
                 // 棋力评估（v6.0 Phase 5）
                 Section {
