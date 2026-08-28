@@ -71,24 +71,6 @@ struct StatusBarView: View {
                         .stroke(Color.yellow.opacity(0.3), lineWidth: 0.5)
                 )
 
-                #if os(macOS)
-                // P2 #12: 引擎类型提示
-                HStack(spacing: 3) {
-                    Image(systemName: EngineConfigStore.shared.useEmbeddedEngine ? "externaldrive" : "cpu")
-                        .font(.caption2)
-                    Text(EngineConfigStore.shared.useEmbeddedEngine ? "Pikafish" : l10n.t("engine.builtIn"))
-                        .font(.caption.weight(.semibold))
-                }
-                .foregroundColor(.cyan)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .frame(width: 80) // P2: 固定宽度避免引擎名长短导致棋盘微变
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
-                .background(Color.blue.opacity(0.3))
-                .cornerRadius(6)
-                #endif
-
                 Text(String(format: l10n.t("status.roundN"), max(1, viewModel.moveHistory.count / 2 + 1)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
