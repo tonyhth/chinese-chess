@@ -30,20 +30,40 @@ final class EngineRouter {
 
     private init() {}
 
+    // MARK: - v6.3 E3: 全仓唯一合法构造点
+
+    /// 统一构造/获取入口——所有需要 EmbeddedPikafishEngine 的调用面必须经此，
+    /// 禁止旁路 `EmbeddedPikafishEngine()` 直构（旁路绕过单例+可用性检查+降级，
+    /// PA-1/红二/红五同根形态）。启动失败返回 nil，调用方走层 2 native fallback。
+    func acquireEmbeddedEngine() async -> EmbeddedPikafishEngine? {
+        if let emb = embeddedEngine, emb.isReady {
+            return emb
+        }
+        let engine = EmbeddedPikafishEngine()
+        do {
+            try await engine.start()
+            embeddedEngine = engine
+            return engine
+        } catch {
+            embeddedEngine = nil
+            NSLog("[EngineRouter] acquireEmbeddedEngine: Pikafish start failed: \(error)")
+            return nil
+        }
+    }
+
     // MARK: - v6.0: 按难度路由
 
     /// 根据难度获取合适的引擎实例（核心路由方法）
     /// 业余级（1-5）→ 自研 AIEngine
-    /// 专业级（6-10）→ EmbeddedPikafishEngine（需已启动）
-    /// v6.2 P1-①（选择↔显示同步审计）：开关守卫——useEmbeddedEngine=off 时专业级也走自研，
-    /// 不再无视用户选择强拉 Pikafish（原实现“开关被绕过”，与 6/25 假切换 P0 同族）
+    /// 专业级（6-10）→ EmbeddedPikafishEngine（需已启动；不可用时 native fallback）
+    /// v6.3 E5: 引擎开关退场——专业级恒走 Pikafish（不可用降自研），
+    /// 对账 ad9126b 守卫：开关不存在后守卫恒真，仅保留可用性 fallback
     func engineFor(difficulty: AIDifficulty) -> any ChessEngine {
-        if difficulty.isProfessional && EngineConfigStore.shared.useEmbeddedEngine {
-            // 专业级需要 Pikafish（且用户开关允许）
+        if difficulty.isProfessional {
+            // 专业级需要 Pikafish（不可用时返回自研——调用方应先 validate）
             if let emb = embeddedEngine, emb.isReady {
                 return emb
             }
-            // Pikafish 不可用——返回自研（调用方应先 validate）
             return nativeEngine
         }
         return nativeEngine
@@ -54,25 +74,12 @@ final class EngineRouter {
     /// 检查指定难度的引擎是否可用
     /// - 业余级：总是可用（自研引擎无需初始化）
     /// - 专业级：需要 Pikafish 已启动且就绪
-    /// v6.2 P1-①：开关 off 时专业级走自研（用户显式选择），视为可用，
-    /// 不再为专业级无视开关强拉 Pikafish（原实现致实际引擎与状态栏显示失步）
+    /// v6.3 E5: 开关退场，专业级恒校验 Pikafish 可用性
     func validateEngineAvailability(for difficulty: AIDifficulty) async -> EngineAvailability {
-        guard difficulty.isProfessional, EngineConfigStore.shared.useEmbeddedEngine else { return .available }
+        guard difficulty.isProfessional else { return .available }
 
         // 确保 Pikafish 已启动
-        if embeddedEngine == nil || !embeddedEngine!.isReady {
-            // 尝试启动
-            do {
-                let engine = EmbeddedPikafishEngine()
-                try await engine.start()
-                embeddedEngine = engine
-            } catch {
-                NSLog("[EngineRouter] Pikafish start failed for professional level: \(error)")
-                return .unavailable(reason: .engineNotReady)
-            }
-        }
-
-        if let emb = embeddedEngine, emb.isReady {
+        if let emb = await acquireEmbeddedEngine(), emb.isReady {
             return .available
         }
         return .unavailable(reason: .engineNotReady)
@@ -112,38 +119,18 @@ final class EngineRouter {
     }
 
     /// 检查并执行引擎切换（如有必要）——在对局开始前调用
-    /// v6.0: 根据难度和 useEmbeddedEngine 开关路由
+    /// v6.0: 根据难度和 引擎开关路由
     /// - Returns: 切换后的活跃引擎。启动失败时 fallback 到自研引擎。
+    /// v6.3 E3/E5: 开关退场——统一经 acquireEmbeddedEngine 确保引擎就绪，
+    /// 失败 → fallbackNotification + native fallback（层 2 降级）
     func switchEngineIfNeeded() async -> any ChessEngine {
-        let store = EngineConfigStore.shared
-
-        if store.useEmbeddedEngine {
-            if embeddedEngine == nil {
-                let engine = EmbeddedPikafishEngine()
-                do {
-                    try await engine.start()
-                    embeddedEngine = engine
-                } catch {
-                    // NNUE 加载失败或其他初始化错误——fallback
-                    NSLog("[EngineRouter] Embedded pikafish failed to start, falling back to native")
-                    embeddedEngine = nil
-                    // 通知 UI 层引擎启动失败已 fallback
-                    NotificationCenter.default.post(name: Self.fallbackNotification, object: nil)
-                    return nativeEngine
-                }
-            }
-            guard let engine = embeddedEngine else {
-                return nativeEngine
-            }
+        if let engine = await acquireEmbeddedEngine() {
             return engine
-        } else {
-            // 使用自研引擎——清理嵌入式引擎
-            if let emb = embeddedEngine {
-                await emb.shutdown()
-                embeddedEngine = nil
-            }
-            return nativeEngine
         }
+        NSLog("[EngineRouter] Embedded pikafish failed to start, falling back to native")
+        // 通知 UI 层引擎启动失败已 fallback
+        NotificationCenter.default.post(name: Self.fallbackNotification, object: nil)
+        return nativeEngine
     }
 
     /// 获取自研引擎（直接访问，不受路由影响）

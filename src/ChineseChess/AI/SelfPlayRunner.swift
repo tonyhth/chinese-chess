@@ -728,12 +728,9 @@ extension SelfPlayRunner {
         var pikafishWins = 0
         var totalMoves = 0
 
-        // 确保 Pikafish 引擎可用
-        let pikafishEngine = EmbeddedPikafishEngine()
-        do {
-            try await pikafishEngine.start()
-        } catch {
-            NSLog("[MixedEngine] Pikafish failed to start: \(error)")
+        // v6.3 E3: 收敛经 EngineRouter 单例获取（旁路直构属同根逃逸面），失败即空结果返回
+        guard let pikafishEngine = await EngineRouter.shared.acquireEmbeddedEngine() else {
+            NSLog("[MixedEngine] Pikafish failed to start via router")
             return MixedEngineSessionResult(
                 games: [], redWins: 0, blackWins: 0, draws: 0,
                 avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0,
@@ -802,7 +799,8 @@ extension SelfPlayRunner {
             await pikafishEngine.newGame()
         }
 
-        await pikafishEngine.shutdown()
+        // v6.3 E3: 会话结束只复位，不 shutdown Router 共享实例
+        await pikafishEngine.newGame()
 
         let elapsed = clock.computeSeconds
         let avg = config.totalGames > 0 ? Double(totalMoves) / Double(config.totalGames) : 0
@@ -1034,11 +1032,9 @@ extension SelfPlayRunner {
         var redWins = 0, blackWins = 0, draws = 0, totalMoves = 0
         var redSkillWins = 0, blackSkillWins = 0
 
-        let engine = EmbeddedPikafishEngine()
-        do {
-            try await engine.start()
-        } catch {
-            print("❌ Pikafish failed to start: \(error)")
+        // v6.3 E3: 收敛经 Router 单例获取
+        guard let engine = await EngineRouter.shared.acquireEmbeddedEngine() else {
+            print("❌ Pikafish failed to start via router")
             return MixedEngineSessionResult(
                 games: [], redWins: 0, blackWins: 0, draws: 0,
                 avgMoves: 0, durationSeconds: 0, bayesEloDelta: 0,
@@ -1103,7 +1099,8 @@ extension SelfPlayRunner {
             await engine.newGame()
         }
 
-        await engine.shutdown()
+        // v6.3 E3: 引擎归 Router 管生命周期——会话结束只复位状态不 shutdown 共享实例
+        await engine.newGame()
 
         let elapsed = clock.computeSeconds
         let wallElapsed = clock.wallSeconds
@@ -1545,11 +1542,9 @@ func runPikafishMatchFromCLI() async {
     print("═══════════════════════════════════════════")
     print("")
     
-    let engine = EmbeddedPikafishEngine()
-    do {
-        try await engine.start()
-    } catch {
-        print("❌ Pikafish 启动失败: \(error)")
+    // v6.3 E3: 收敛经 Router 单例获取
+    guard let engine = await EngineRouter.shared.acquireEmbeddedEngine() else {
+        print("❌ Pikafish 启动失败 via router")
         return
     }
     
