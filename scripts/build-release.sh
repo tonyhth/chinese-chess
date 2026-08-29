@@ -268,11 +268,11 @@ echo "  Contents/Resources/Localizable.xcstrings"
 echo "  Contents/Resources/LXGWWenKai-Regular.ttf"
 echo "  Contents/Resources/pikafish.nnue"
 echo "  Contents/Resources/Sounds/ ($(ls "$APP_DIR/Contents/Resources/"*.wav 2>/dev/null | wc -l | tr -d ' ') wavs)"
-# 摘要与 manifest 同源展示（PKG-1）：0 files 类异常已在 [5.5] 显式 fail，不静默通过
-OB_N=$(ls "$APP_DIR/Contents/Resources/OpeningBook/" 2>/dev/null | wc -l | tr -d ' ')
-PZ_N=$(ls "$APP_DIR/Contents/Resources/Puzzles/" 2>/dev/null | wc -l | tr -d ' ')
-echo "  Contents/Resources/OpeningBook/ ($OB_N files)"
-echo "  Contents/Resources/Puzzles/ ($PZ_N files)"
+# 摘要与 manifest 同源展示（PKG-1，Ruby P2①：真包资源 flat 布局，不再数不存在的
+# OpeningBook/Puzzles 子目录——改列 manifest 同源资产实测在位，0 files 形态已在 [5.5] 显式 fail）
+echo "  Contents/Resources/opening_book_v2.json ($(stat -f%z "$APP_DIR/Contents/Resources/opening_book_v2.json" 2>/dev/null || echo MISSING) bytes)"
+echo "  Contents/Resources/openings.json ($(stat -f%z "$APP_DIR/Contents/Resources/openings.json" 2>/dev/null || echo MISSING) bytes)"
+echo "  Contents/Resources/Puzzles/puzzles.json → Resources/puzzles.json ($(stat -f%z "$APP_DIR/Contents/Resources/puzzles.json" 2>/dev/null || echo MISSING) bytes)"
 echo "=========================================="
 
 open "$PROJECT_ROOT"

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "comment": "v6.3 Step 4 manifest 单源（L1/L4/E1 三消费）。assets=文件级(bytes+sha256)，repoOnly=L4 不查产物侧（xcstrings v6.2 起有意不入包，i18n 走 lproj strings fallback）；generated=true=L4 产物侧仅体量 sanity（iconutil hash 不稳定）；dirs=目录级(minFiles)。E1（EmbeddedPikafishEngine.verifyNNUEAsset）消费 assets 中 pikafish.nnue；L1=verify_delivery.sh 源侧；L4=build-release.sh 产物侧。三处期望值禁止另立。",
+  "comment": "v6.3 Step 4 manifest 单源（L1/L4/E1 三消费）。assets=文件级(bytes+sha256)，repoOnly=L4 不查产物侧（xcstrings v6.2 起有意不入包，i18n 走 lproj strings fallback）；generated=true=L4 产物侧仅体量 sanity（iconutil hash 不稳定）；dirs=目录级(minFiles，repoGlob/bundleGlob 两侧同基准)。E1 消费=nnue 条目的 bytes/sha256（app 内 Bundle API 自行定位文件，bundlePath 字段对 E1 不适用）；L1=verify_delivery.sh 源侧；L4=build-release.sh 产物侧。三处期望值禁止另立。",
   "assets": [
     {
       "name": "pikafish.nnue",
@@ -60,7 +60,8 @@
       "repoPath": "src/ChineseChess/Resources/Sounds",
       "bundlePath": "Contents/Resources",
       "bundleGlob": "*.wav",
-      "minFiles": 7
+      "minFiles": 7,
+      "repoGlob": "*.wav"
     }
   ]
 }
