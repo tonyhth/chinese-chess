@@ -4,6 +4,7 @@
 # 用法：
 #   bash scripts/run-tests-mutex.sh <Suite1> [Suite2 ...]   # 每 suite 独立 xcodebuild 进程，全局互斥排队
 #   bash scripts/run-tests-mutex.sh --h1-verify              # H-1 验证批：四 suite 混跑（L10n 敏感组）
+#   bash scripts/run-tests-mutex.sh --full                   # r 系全量批：skip 单源消费即过滤器，总对账门禁
 #
 # 机制（v6.3-plan §2 Step 1 首选 a，Luke 08-29 派单）：
 #   1. flock 进程互斥：锁文件固定路径 ~/DevTeam/.locks/xcode-tests.lock，
@@ -119,8 +120,30 @@ main() {
   if [ "${1:-}" = "--h1-verify" ]; then
     shift
     SUITES=(SelectionConsistencyTests L10NDisplayNameV42Tests V223FixTests DifficultyV42Tests RunnerHygieneTests)
+  elif [ "${1:-}" = "--full" ]; then
+    # r 系全量批（08-29 Luke 放行）：skip 名单即过滤器（DEVTEAM 过滤铁律由 skip 单源满足）
+    flog="$LOG_DIR/full-$(date +%H%M%S).log"
+    echo "▶ [full] r 系全量批起跑 $(date '+%F %T')，日志 $flog"
+    ( cd "$PROJECT" && \
+      bash ~/DevTeam/scripts/preflight-test-assets.sh "$PROJECT" >/dev/null || { echo "preflight 失败"; exit 3; } ; \
+      xcodebuild test -scheme ChineseChess -sdk macosx \
+        -derivedDataPath "$DD" \
+        $(skip_args) 2>&1 | tee "$flog" )
+    frc=${PIPESTATUS[0]:-$?}
+    # 汇总对账门禁：总 Executed N>=500（r3g 冻结基线 623 量级），低于即批次作废
+    ftotal=$(grep -oE "Executed [0-9]+ tests" "$flog" | tail -1 | grep -oE "[0-9]+" || echo 0)
+    if [ "${ftotal:-0}" -lt 500 ]; then
+      echo "❌ [full] 对账门禁：总 Executed=${ftotal} <500，批次作废"
+      EXIT_SUMMARY+=("FAIL(zero-run total=${ftotal}) full $flog")
+      echo "锁释放 $(date '+%F %T')"; exit 5
+    fi
+    if [ "$frc" -eq 0 ]; then echo "✅ [full] rc=0"; else echo "❌ [full] rc=$frc"; fi
+    echo "[full] 总对账 Executed=${ftotal} tests $(date '+%T')"
+    EXIT_SUMMARY+=("rc=$frc full total=${ftotal} $flog")
+    echo "锁释放 $(date '+%F %T')"
+    exit "$frc"
   else
-    [ $# -ge 1 ] || { echo "用法: $0 <Suite...> | --h1-verify"; exit 2; }
+    [ $# -ge 1 ] || { echo "用法: $0 <Suite...> | --h1-verify | --full"; exit 2; }
     SUITES=("$@")
   fi
 
