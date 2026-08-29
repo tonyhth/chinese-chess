@@ -1,11 +1,66 @@
 {
-  "version": 1,
-  "comment": "v6.3 E1 资产校验单源（manifest 单源）。E1 app 内启动校验消费 nnue 条目；Step 4 L1(verify_delivery.sh)/L4(deploy) 双侧消费同本文件，禁止各自另立期望值。",
+  "version": 2,
+  "comment": "v6.3 Step 4 manifest 单源（L1/L4/E1 三消费）。assets=文件级(bytes+sha256)，repoOnly=L4 不查产物侧（xcstrings v6.2 起有意不入包，i18n 走 lproj strings fallback）；generated=true=L4 产物侧仅体量 sanity（iconutil hash 不稳定）；dirs=目录级(minFiles)。E1（EmbeddedPikafishEngine.verifyNNUEAsset）消费 assets 中 pikafish.nnue；L1=verify_delivery.sh 源侧；L4=build-release.sh 产物侧。三处期望值禁止另立。",
   "assets": [
     {
       "name": "pikafish.nnue",
+      "repoPath": "src/ChineseChess/Resources/pikafish.nnue",
+      "bundlePath": "Contents/Resources/pikafish.nnue",
       "bytes": 50760458,
       "sha256": "a2f41d4d0b9f59c5b5ecb3ca129fe24e3a722ea2f00ee252ae14d5dc08899f6a"
+    },
+    {
+      "name": "Localizable.xcstrings",
+      "repoPath": "src/ChineseChess/Resources/Localizable.xcstrings",
+      "bundlePath": "Contents/Resources/Localizable.xcstrings",
+      "bytes": 296350,
+      "sha256": "601fd20dc706dba9d444c988b9e058fcd441f57df15f98d1de7e42faf3dbbe80",
+      "repoOnly": true
+    },
+    {
+      "name": "LXGWWenKai-Regular.ttf",
+      "repoPath": "src/ChineseChess/Resources/LXGWWenKai-Regular.ttf",
+      "bundlePath": "Contents/Resources/LXGWWenKai-Regular.ttf",
+      "bytes": 25575676,
+      "sha256": "39ad71264b588165b469e35e6afb162a378dacd1f95348160240ba9038ac3009"
+    },
+    {
+      "name": "opening_book_v2.json",
+      "repoPath": "src/ChineseChess/Resources/OpeningBook/opening_book_v2.json",
+      "bundlePath": "Contents/Resources/opening_book_v2.json",
+      "bytes": 3867407,
+      "sha256": "19c8983efb0fb8037ab39ca39f4fcf4f901a95521aaaa12bae931422de86f70e"
+    },
+    {
+      "name": "openings.json",
+      "repoPath": "src/ChineseChess/Resources/OpeningBook/openings.json",
+      "bundlePath": "Contents/Resources/openings.json",
+      "bytes": 4817,
+      "sha256": "01955b3a3b289851f0a44fa8fb30b38a2f8bb9d9ed4885e186003d714c3adb76"
+    },
+    {
+      "name": "puzzles.json",
+      "repoPath": "src/ChineseChess/Resources/Puzzles/puzzles.json",
+      "bundlePath": "Contents/Resources/puzzles.json",
+      "bytes": 275401,
+      "sha256": "9afc8f8247808d13fddbe63520b3989a987155da54062e558b39a7979ec57e09"
+    },
+    {
+      "name": "AppIcon.icns",
+      "repoPath": "src/ChineseChess/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.icns",
+      "bundlePath": "Contents/Resources/AppIcon.icns",
+      "bytes": 2475326,
+      "sha256": "6dd8e637c25b727da9d7b01f2a0725ed037b33fde61803eaf3ff8618f9da44ad",
+      "generated": true
+    }
+  ],
+  "dirs": [
+    {
+      "name": "Sounds",
+      "repoPath": "src/ChineseChess/Resources/Sounds",
+      "bundlePath": "Contents/Resources",
+      "bundleGlob": "*.wav",
+      "minFiles": 7
     }
   ]
 }

@@ -169,6 +169,55 @@ echo "📋 [5/6] 更新 Info.plist..."
     -c "Set :CFBundleDisplayName 中国象棋" \
     "$APP_DIR/Contents/Info.plist" 2>/dev/null
 echo "   ✅ 版本号已更新为 $VERSION_NUM"
+
+echo ""
+
+# ============ 5.5. 产物 manifest 对账（v6.3 Step 4：L4 消费，与 L1/E1 同源） ============
+echo "🧾 [5.5/6] 产物对 asset-manifest.json 对账（L4）..."
+MANIFEST="$PROJECT_ROOT/src/ChineseChess/Resources/asset-manifest.json"
+if [[ ! -f "$MANIFEST" ]]; then
+    echo "❌ asset-manifest.json 不存在，无法对账"
+    exit 1
+fi
+if ! MANIFEST="$MANIFEST" APP="$APP_DIR" python3 - <<'PYEOF'
+import glob, hashlib, json, os, sys
+m = json.load(open(os.environ["MANIFEST"]))
+app = os.environ["APP"]
+bad = 0
+for a in m.get("assets", []):
+    if a.get("repoOnly"):
+        continue  # xcstrings 等：v6.2 起有意不入包，仅 L1 源侧对账
+    p = os.path.join(app, a["bundlePath"])
+    if not os.path.isfile(p):
+        print(f"   ❌ [{a['name']}] 产物缺失: {a['bundlePath']}"); bad += 1; continue
+    sz = os.path.getsize(p)
+    if a.get("generated"):
+        # 生成件（icns）：iconutil 产物 hash 不稳定，只做存在 + 体量 sanity
+        if sz < 500_000:
+            print(f"   ❌ [{a['name']}] 体量异常: {sz} bytes（疑空/坏 icon）"); bad += 1
+        continue
+    if sz != a["bytes"]:
+        print(f"   ❌ [{a['name']}] 大小不符: bundle={sz} manifest={a['bytes']}"); bad += 1; continue
+    h = hashlib.sha256(open(p, "rb").read()).hexdigest()
+    if h != a["sha256"]:
+        print(f"   ❌ [{a['name']}] sha256 不符: bundle={h[:16]}… manifest={a['sha256'][:16]}…"); bad += 1
+for d in m.get("dirs", []):
+    p = os.path.join(app, d["bundlePath"])
+    if not os.path.isdir(p):
+        print(f"   ❌ [{d['name']}] 产物目录缺失: {d['bundlePath']}"); bad += 1; continue
+    g = d.get("bundleGlob")
+    n = len(glob.glob(os.path.join(p, g))) if g else len([f for f in os.listdir(p) if not f.startswith(".")])
+    if n == 0:
+        print(f"   ❌ [{d['name']}] 0 files（PKG-1 形态：拷贝落空/资源未入包，显式 fail 不静默通过）"); bad += 1
+    elif n < d["minFiles"]:
+        print(f"   ❌ [{d['name']}] 文件数 {n} < minFiles {d['minFiles']}"); bad += 1
+sys.exit(1 if bad else 0)
+PYEOF
+then
+    echo "❌ 产物 manifest 对账失败（上方 ❌ 条目）——坏包阻断，不进入签名/分发"
+    exit 1
+fi
+echo "   ✅ manifest 对账通过（assets+dirs 全量）"
 echo ""
 
 # ============ 6. 签名 + 最终验证 ============
@@ -219,8 +268,11 @@ echo "  Contents/Resources/Localizable.xcstrings"
 echo "  Contents/Resources/LXGWWenKai-Regular.ttf"
 echo "  Contents/Resources/pikafish.nnue"
 echo "  Contents/Resources/Sounds/ ($(ls "$APP_DIR/Contents/Resources/"*.wav 2>/dev/null | wc -l | tr -d ' ') wavs)"
-echo "  Contents/Resources/OpeningBook/ ($(ls "$APP_DIR/Contents/Resources/OpeningBook/" 2>/dev/null | wc -l | tr -d ' ') files)"
-echo "  Contents/Resources/Puzzles/ ($(ls "$APP_DIR/Contents/Resources/Puzzles/" 2>/dev/null | wc -l | tr -d ' ') files)"
+# 摘要与 manifest 同源展示（PKG-1）：0 files 类异常已在 [5.5] 显式 fail，不静默通过
+OB_N=$(ls "$APP_DIR/Contents/Resources/OpeningBook/" 2>/dev/null | wc -l | tr -d ' ')
+PZ_N=$(ls "$APP_DIR/Contents/Resources/Puzzles/" 2>/dev/null | wc -l | tr -d ' ')
+echo "  Contents/Resources/OpeningBook/ ($OB_N files)"
+echo "  Contents/Resources/Puzzles/ ($PZ_N files)"
 echo "=========================================="
 
 open "$PROJECT_ROOT"
