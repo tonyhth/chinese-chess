@@ -127,7 +127,7 @@ main() {
     ( cd "$PROJECT" && \
       bash ~/DevTeam/scripts/preflight-test-assets.sh "$PROJECT" >/dev/null || { echo "preflight 失败"; exit 3; } ; \
       xcodebuild test -scheme ChineseChess -sdk macosx \
-        -derivedDataPath "$DD" \
+        -derivedDataPath "$DD" -parallel-testing-enabled NO \
         $(skip_args) 2>&1 | tee "$flog" )
     frc=${PIPESTATUS[0]:-$?}
     # 汇总对账门禁：总 Executed N>=500（r3g 冻结基线 623 量级），低于即批次作废
