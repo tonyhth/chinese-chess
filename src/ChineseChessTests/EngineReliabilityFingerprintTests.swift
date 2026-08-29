@@ -109,6 +109,26 @@ struct EngineReliabilityFingerprintTests {
         }
     }
 
+    // ---------- P1 锢定：acquire 重入单飞 ----------
+
+    @Test("P1锢定: acquireEmbeddedEngine 并发重入返回同一实例（无双 start/假活）", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：环境破缺 skip"))
+    func acquireReentrancySingleInstance() async throws {
+        let results = await withTaskGroup(of: EmbeddedPikafishEngine?.self, returning: [EmbeddedPikafishEngine?].self) { group in
+            for _ in 0..<8 {
+                group.addTask { await EngineRouter.shared.acquireEmbeddedEngine() }
+            }
+            var out: [EmbeddedPikafishEngine?] = []
+            for await r in group { out.append(r) }
+            return out
+        }
+        let nonNil = try #require(results.compactMap { $0 }.first, "应至少一个非 nil")
+        for r in results {
+            #expect(r != nil, "重入调用不得拿到 nil（应 await 同一 in-flight Task）")
+        }
+        let ids = Set(results.compactMap { $0 }.map { ObjectIdentifier($0) })
+        #expect(ids.count == 1, "并发重入必须单实例（Ruby P1：双实例并发 start + 落败 deinit quit 假活），实际 \(ids.count) 个")
+    }
+
     // ---------- 附：E1 资产校验（manifest 单源） ----------
 
     @Test("E1: nnue 资产与 asset-manifest.json 单源一致（大小+sha256）", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：环境破缺 skip"))

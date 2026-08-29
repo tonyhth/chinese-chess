@@ -27,6 +27,9 @@ final class EngineRouter {
 
     private let nativeEngine = AIEngine()
     private var embeddedEngine: EmbeddedPikafishEngine?
+    /// 启动 in-flight 单飞（Ruby P1 消项：start 挂起点重入会双实例并发 start，
+    /// 落败实例 deinit 防御 quit 杀全局 C 引擎→存活方假活）
+    private var embeddedStartTask: Task<EmbeddedPikafishEngine?, Never>?
 
     private init() {}
 
@@ -39,16 +42,27 @@ final class EngineRouter {
         if let emb = embeddedEngine, emb.isReady {
             return emb
         }
-        let engine = EmbeddedPikafishEngine()
-        do {
-            try await engine.start()
-            embeddedEngine = engine
-            return engine
-        } catch {
-            embeddedEngine = nil
-            NSLog("[EngineRouter] acquireEmbeddedEngine: Pikafish start failed: \(error)")
-            return nil
+        // P1 修复：首启期间后续重入调用 await 同一 in-flight Task（单飞），
+        // 物理消除双实例并发 start + 落败 deinit quit 假活竞态
+        if let inflight = embeddedStartTask {
+            return await inflight.value
         }
+        let task = Task<EmbeddedPikafishEngine?, Never> { [weak self] in
+            guard let self else { return nil }
+            let engine = EmbeddedPikafishEngine()
+            do {
+                try await engine.start()
+                await MainActor.run { self.embeddedEngine = engine }
+                return engine
+            } catch {
+                NSLog("[EngineRouter] acquireEmbeddedEngine: Pikafish start failed: \(error)")
+                return nil
+            }
+        }
+        embeddedStartTask = task
+        let result = await task.value
+        embeddedStartTask = nil
+        return result
     }
 
     // MARK: - v6.0: 按难度路由
