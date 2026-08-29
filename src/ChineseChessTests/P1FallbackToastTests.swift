@@ -55,33 +55,12 @@ struct P1FallbackToastTests {
     @MainActor
     @Test("EngineRouter fallback 时发送通知")
     func engineRouterFallbackSendsNotification() async throws {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        // 尝试启动嵌入式引擎（可能失败或成功）
-        store.useEmbeddedEngine = true
+        // v6.3 E5: 开关退场——无开关前置，直接验证路由返回可用引擎句柄
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
 
         // 无论成功还是失败，引擎都应返回
         #expect(!engine.displayName.isEmpty, "引擎应有显示名称")
-
-        store.useEmbeddedEngine = original
     }
 
-    @MainActor
-    @Test("SettingsView macOS Toggle 绑定正确")
-    func settingsViewToggleBinding() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        // 验证 SettingsView 中 Toggle 的 Binding 逻辑
-        // Toggle isOn 绑定 EngineConfigStore.shared.useEmbeddedEngine
-        store.useEmbeddedEngine = true
-        #expect(store.useEmbeddedEngine == true)
-
-        store.useEmbeddedEngine = false
-        #expect(store.useEmbeddedEngine == false)
-
-        store.useEmbeddedEngine = original
-    }
+    // v6.3 E5: SettingsView Toggle 绑定用例随开关退场移除（无绑定可验证）
 }

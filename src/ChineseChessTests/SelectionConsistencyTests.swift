@@ -422,26 +422,21 @@ final class SelectionConsistencyTests {
         #expect(!L10n.shared.language.isEmpty)
     }
 
-    // MARK: - ⑥ 引擎开关守卫（P1-① v6.2 阻塞档，Luke 初裁升级）
+    // MARK: - ⑥ 引擎开关守卫（v6.2 P1-① → v6.3 E5 开关退场对账）
 
-    /// 开关 off + 专业级组合：用户选择自研引擎时不再被架空强拉 Pikafish。
-    /// validate 应视为可用（走自研）、engineFor 应返回自研引擎——与状态栏显示（读开关）一致。
-    @Test("⑥-1 [P1-① 已修] 开关 off + 专业级：validate 可用 + engineFor 走自研（选择不被架空）")
+    /// E5 后开关不存在：专业级恒走 Pikafish；不可用时 validate 如实 unavailable（层 2 由调用方降级）。
+    /// 本用例锢定退场后的路由契约，对账 ad9126b 守卫（开关面已删，可用性守卫仍在）。
+    @Test("⑥-1 [E5 对账] 专业级路由：engineFor 嵌入式可用时返回 Pikafish，不可用时 native 降级")
     @MainActor
     func engineSwitchGuardProfessional() async {
-        let original = EngineConfigStore.shared.useEmbeddedEngine
-        defer { EngineConfigStore.shared.useEmbeddedEngine = original }
-
-        // 开关 off + 大师级：validate 不应为专业级强拉 Pikafish（原症状：unavailable/隐式重启）
-        EngineConfigStore.shared.useEmbeddedEngine = false
         let availability = await EngineRouter.shared.validateEngineAvailability(for: .proMaster)
-        if case .unavailable = availability {
-            Issue.record("P1-① 修复锢定失败：开关 off + 专业级不应触发 Pikafish 不可用（应直接走自研）")
-        }
-
-        // engineFor 应返回自研引擎（与状态栏显示同源：开关 off → 自研）
+        // 引擎可用（正常环境）：engineFor 应返回嵌入式；不可用：native 降级
         let engine = EngineRouter.shared.engineFor(difficulty: .proMaster)
-        #expect(engine is AIEngine, "开关 off + 专业级应走自研 AIEngine，实际 \(type(of: engine))")
+        if case .available = availability {
+            #expect(engine is EmbeddedPikafishEngine, "可用时专业级应走 Pikafish，实际 \(type(of: engine))")
+        } else {
+            #expect(engine is AIEngine, "不可用时应降级自研，实际 \(type(of: engine))")
+        }
     }
 }
 

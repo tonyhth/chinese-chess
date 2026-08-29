@@ -112,23 +112,12 @@ actor PositionAnalyzer {
 
     static let shared = PositionAnalyzer()
 
-    /// 引擎实例引用——复用 EngineRouter 的引擎，不创建独立实例
+    /// 引擎实例引用——经 EngineRouter 单例获取，不创建独立实例
     /// C 层 g_engine 是全局单例，两个 EmbeddedPikafishEngine 实例共享同一个 C 引擎
     /// PositionAnalyzer 通过 EngineRouter 获取已初始化的引擎，不管理生命周期
+    /// v6.3 E5: 引擎开关退场——不再按开关空转返回 nil
     private func getEngine() async -> EmbeddedPikafishEngine? {
-        // 先检查配置：未启用嵌入式引擎时不分析
-        let useEmbedded = await MainActor.run {
-            EngineConfigStore.shared.useEmbeddedEngine
-        }
-        guard useEmbedded else {
-            #if DEBUG
-            AppLog.engine.info("[PositionAnalyzer] useEmbeddedEngine=false, abort")
-            #endif
-            NSLog("[PositionAnalyzer] Embedded engine disabled in config")
-            return nil
-        }
-
-        // 通过 EngineRouter 确保引擎已启动
+        // 通过 EngineRouter 确保引擎已启动（E3 单例收敛；不可用时 nil 交上层降级）
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
 
         if let embedded = engine as? EmbeddedPikafishEngine, embedded.isReady {

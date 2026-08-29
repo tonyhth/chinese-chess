@@ -63,9 +63,7 @@ struct EngineTimeContractTests {
     @MainActor
     func swiftWatchdogContract() async throws {
         // 经 EngineRouter 取共享引擎（保持开关保存/还原，无跨用例污染）
-        let original = EngineConfigStore.shared.useEmbeddedEngine
-        EngineConfigStore.shared.useEmbeddedEngine = true
-        defer { EngineConfigStore.shared.useEmbeddedEngine = original }
+        // v6.3 E5: 开关退场——原开关保存/还原移除
 
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
         guard let emb = engine as? EmbeddedPikafishEngine, emb.isReady else {

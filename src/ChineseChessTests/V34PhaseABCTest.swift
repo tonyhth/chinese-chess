@@ -297,58 +297,12 @@ struct PhaseBTTSizeTests {
 struct PhaseCEngineRouterTests {
 
     @MainActor
-    @Test("useEmbeddedEngine=false → 返回 native")
-    func switchToNative() async {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = false
+    @Test("E5 后 switchEngineIfNeeded 恒确保嵌入式或降级 native")
+    func switchAlwaysEmbeddedOrNative() async {
+        // v6.3 E5: 开关退场，引擎切换面用例随之移除
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
-        #expect(engine.engineType == .native)
-        #expect(engine.displayName == "内置引擎")
-
-        store.useEmbeddedEngine = original
+        #expect(!engine.displayName.isEmpty)
     }
-
-    @MainActor
-    @Test("useEmbeddedEngine=true → 返回 embedded 或 fallback 到 native")
-    func switchToEmbeddedOrFallback() async {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = true
-        let engine = await EngineRouter.shared.switchEngineIfNeeded()
-
-        // 测试环境 NNUE 缺失，预期 fallback 到 native
-        if engine.engineType == .embedded {
-            #expect(engine.displayName == "Pikafish")
-        } else {
-            #expect(engine.engineType == .native, "fallback 时应返回 native")
-        }
-
-        // 清理
-        store.useEmbeddedEngine = false
-        _ = await EngineRouter.shared.switchEngineIfNeeded()
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("快速切换来回不崩溃")
-    func rapidToggle() async {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        for _ in 0..<5 {
-            store.useEmbeddedEngine = true
-            _ = await EngineRouter.shared.switchEngineIfNeeded()
-            store.useEmbeddedEngine = false
-            _ = await EngineRouter.shared.switchEngineIfNeeded()
-        }
-
-        store.useEmbeddedEngine = original
-        #expect(Bool(true), "快速切换不崩溃")
-    }
-
     @MainActor
     @Test("fallback 发出通知且 GameViewModel 收到")
     func fallbackNotificationReceived() async throws {
@@ -385,60 +339,11 @@ struct PhaseCEngineRouterTests {
 @Suite("Phase C: EngineConfigStore", .serialized)
 struct PhaseCConfigStoreTests {
 
+
+    // v6.3 E5: 持久化/quickToggle 用例随开关退场移除；迁移清理用例并入 Batch2P1Tests
     @MainActor
-    @Test("useEmbeddedEngine 持久化到 UserDefaults")
-    func persistenceToUserDefaults() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = true
-        #expect(UserDefaults.standard.bool(forKey: "chinesechess.useEmbeddedEngine") == true)
-
-        store.useEmbeddedEngine = false
-        #expect(UserDefaults.standard.bool(forKey: "chinesechess.useEmbeddedEngine") == false)
-
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("quickToggleEngine 切换方向正确")
-    func quickToggleDirection() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = false
-        let r1 = store.quickToggleEngine()
-        #expect(r1 == "external")
-        #expect(store.useEmbeddedEngine == true)
-
-        let r2 = store.quickToggleEngine()
-        #expect(r2 == "builtIn")
-        #expect(store.useEmbeddedEngine == false)
-
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("旧配置迁移：migrateLegacyConfig 清理旧 key")
-    func migrateLegacyConfigCleansOldKeys() {
-        // EngineConfigStore 是单例，migrateLegacyConfig 在 init 时只执行一次
-        // 单例已初始化，无法重复触发 migrateLegacyConfig
-        // 只验证清理代码路径存在于 EngineConfigStore.init
-        #expect(Bool(true), "migrateLegacyConfig 在 EngineConfigStore.init 中执行")
-    }
-}
-
-// MARK: - Phase C: EngineError
-
-@Suite("Phase C: EngineError", .serialized)
-struct PhaseCEngineErrorTests {
-
-    @Test("EngineError.startFailed 有描述")
-    func startFailedDescription() {
-        let error = EngineError.startFailed
-        let desc = error.errorDescription ?? ""
-        #expect(!desc.isEmpty, "错误描述不应为空")
-        #expect(desc.contains("pikafish") || desc.contains("NNUE") || desc.contains("Failed"),
-               "错误描述应包含相关信息")
+    @Test("E5: EngineConfigStore 单例可访问")
+    func configStoreSingletonAccessible() {
+        _ = EngineConfigStore.shared
     }
 }

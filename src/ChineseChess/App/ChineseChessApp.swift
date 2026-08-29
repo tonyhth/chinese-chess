@@ -194,17 +194,6 @@ struct ChineseChessApp: App {
 
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
-    // Phase C: 引擎开关绑定(简化版)
-    private var useEmbeddedEngineBinding: Binding<Bool> {
-        Binding(
-            get: { EngineConfigStore.shared.useEmbeddedEngine },
-            set: { newValue in
-                EngineConfigStore.shared.useEmbeddedEngine = newValue
-                Task { await EngineRouter.shared.switchEngineIfNeeded() }
-            }
-        )
-    }
-
     var body: some Scene {
         WindowGroup(L10n.shared.t("app.title")) {
             ZStack {
@@ -680,12 +669,8 @@ struct ChineseChessApp: App {
                 .keyboardShortcut("o", modifiers: [.command, .shift])
             }
 
-            // Phase C: 引擎菜单（简化版，仅 macOS）
+            // v6.3 E5: 引擎开关退场（Toggle/binding 删除），菜单仅保留配置入口
             CommandMenu(L10n.shared.t("engine.menuLabel")) {
-                Toggle(L10n.shared.t("engine.usePikafishMenu"), isOn: useEmbeddedEngineBinding)
-
-                Divider()
-
                 Button(L10n.shared.t("engine.configureLabel")) {
                     activeSheet = .settings
                 }

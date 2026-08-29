@@ -45,62 +45,24 @@ struct Phase2cP1Tests {
     // ============================
 
     @MainActor
-    @Test("EngineConfigStore 是 @Observable")
+    @Test("v6.3 E5: EngineConfigStore 开关退场（单例可访问，无状态面）")
     func engineConfigStoreIsObservable() {
-        let store = EngineConfigStore.shared
-        // @Observable 属性应有 getter/setter
-        let original = store.useEmbeddedEngine
-        store.useEmbeddedEngine = !original
-        #expect(store.useEmbeddedEngine == !original)
-        store.useEmbeddedEngine = original
+        _ = EngineConfigStore.shared
     }
 
-    @MainActor
-    @Test("useEmbeddedEngine UserDefaults 持久化")
-    func useEmbeddedEngineUserDefaults() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = true
-        let stored = UserDefaults.standard.bool(forKey: "chinesechess.useEmbeddedEngine")
-        #expect(stored == true, "应持久化到 UserDefaults")
-
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("quickToggleEngine 切换逻辑")
-    func quickToggleEngineSwitches() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = false
-        let result1 = store.quickToggleEngine()
-        #expect(result1 == "external")
-        #expect(store.useEmbeddedEngine == true)
-
-        let result2 = store.quickToggleEngine()
-        #expect(result2 == "builtIn")
-        #expect(store.useEmbeddedEngine == false)
-
-        store.useEmbeddedEngine = original
-    }
+    // v6.3 E5: 开关持久化/切换用例随退场移除
 
     // ============================
     // MARK: - v3.4 Phase C: EngineRouter 统一
     // ============================
 
     @MainActor
-    @Test("EngineRouter.switchEngineIfNeeded 无外部引擎时返回 native")
-    func switchEngineReturnsNativeWhenNoEmbedded() async {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = false
+    @Test("E5 后 switchEngineIfNeeded 恒确保嵌入式（不可用降 native）")
+    func switchEngineAlwaysEmbeddedOrNative() async {
+        // 开关退场：不再有 （开关已退场）false 返回 native 的路径，
+        // 只有启动失败降级路径（正常环境应返回 embedded）
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
-        #expect(engine.engineType == .native, "useEmbeddedEngine=false 时应返回 native")
-
-        store.useEmbeddedEngine = original
+        #expect(!engine.displayName.isEmpty)
     }
 
     @MainActor

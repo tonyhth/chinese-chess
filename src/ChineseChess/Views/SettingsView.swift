@@ -32,19 +32,7 @@ struct SettingsView: View {
                     Text(l10n.t("difficulty.label"))
                 }
 
-                // 引擎选择（P1-3: iOS 补入口——原仅 macOS 菜单 :685，iOS 零入口属无理由平台分叉；
-                // 消费面 iOS 全活：EngineRouter/PositionAnalyzer/StatusBarView）
-                #if os(iOS)
-                Section(l10n.t("engine.menuLabel")) {
-                    Toggle(l10n.t("engine.usePikafishMenu"), isOn: Binding(
-                        get: { EngineConfigStore.shared.useEmbeddedEngine },
-                        set: { newValue in
-                            EngineConfigStore.shared.useEmbeddedEngine = newValue
-                            Task { await EngineRouter.shared.switchEngineIfNeeded() }
-                        }
-                    ))
-                }
-                #endif
+                // v6.3 E5: iOS 引擎 Toggle 退场（开关全清，58b384a 对账移除）
 
                 // 棋力评估（v6.0 Phase 5）
                 Section {

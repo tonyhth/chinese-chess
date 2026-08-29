@@ -42,27 +42,15 @@ struct HumanSideSelectionTests {
     }
 }
 
-@Suite("v3.4 Phase C: 引擎菜单 Toggle")
+@Suite("v6.3 E5: 引擎开关退场后的路由契约")
 struct EngineMenuToggleTests {
 
     @MainActor
-    @Test("useEmbeddedEngineBinding 切换触发 switchEngineIfNeeded")
-    func toggleTriggersEngineSwitch() async {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        // 切换到嵌入式引擎
-        store.useEmbeddedEngine = true
+    @Test("E5 退场后 switchEngineIfNeeded 恒确保 Pikafish（不可用则 native 降级）")
+    func switchAlwaysEnsuresEmbedded() async {
+        // 开关退场：无用户切换面，路由仅按难度/可用性
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
-
-        // 切换回内置引擎
-        store.useEmbeddedEngine = false
-        let engine2 = await EngineRouter.shared.switchEngineIfNeeded()
-
-        #expect(engine2.engineType == .native, "切换回内置后应返回 native")
-
-        // 恢复
-        store.useEmbeddedEngine = original
+        _ = engine.engineType // 可为 embedded（正常）或 native（启动失败降级）
     }
 }
 

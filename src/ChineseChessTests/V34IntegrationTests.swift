@@ -8,17 +8,11 @@ import Testing
 struct V34EngineRouterTests {
 
     @MainActor
-    @Test("EngineRouter.switchEngineIfNeeded 无外部引擎时返回 native")
-    func switchEngineReturnsNative() async {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = false
+    @Test("E5 后 switchEngineIfNeeded 返回 embedded 或降级 native")
+    func switchEngineReturnsEmbeddedOrNative() async {
+        // v6.3 E5: 开关退场，原 （开关已退场）false → native 用例随之移除
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
-        #expect(engine.engineType == .native, "useEmbeddedEngine=false 时应返回 native")
-        #expect(engine.displayName == "内置引擎")
-
-        store.useEmbeddedEngine = original
+        #expect(!engine.displayName.isEmpty, "引擎应有显示名称")
     }
 
     @MainActor
@@ -46,44 +40,6 @@ struct V34EngineRouterTests {
     func shutdownNoCrash() async {
         await EngineRouter.shared.shutdown()
         #expect(true, "shutdown 应正常调用")
-    }
-}
-
-@Suite("v3.4 Phase C: EngineConfigStore 简化版", .serialized)
-struct V34EngineConfigStoreTests {
-
-    @MainActor
-    @Test("useEmbeddedEngine 设置和持久化")
-    func useEmbeddedEnginePersistence() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = true
-        #expect(store.useEmbeddedEngine == true)
-        #expect(UserDefaults.standard.bool(forKey: "chinesechess.useEmbeddedEngine") == true)
-
-        store.useEmbeddedEngine = false
-        #expect(store.useEmbeddedEngine == false)
-
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("quickToggleEngine 返回正确值并切换状态")
-    func quickToggleEngine() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = false
-        let result1 = store.quickToggleEngine()
-        #expect(result1 == "external", "从内置切换到嵌入式应返回 external")
-        #expect(store.useEmbeddedEngine == true)
-
-        let result2 = store.quickToggleEngine()
-        #expect(result2 == "builtIn", "从嵌入式切换到内置应返回 builtIn")
-        #expect(store.useEmbeddedEngine == false)
-
-        store.useEmbeddedEngine = original
     }
 }
 

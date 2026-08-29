@@ -197,16 +197,12 @@ final class V371Tests: XCTestCase {
         }
     }
 
-    // MARK: - B3. iOS 设置引擎 Toggle disabled
+    // MARK: - B3. iOS 设置引擎 Toggle（v6.3 E5 退场）
 
-    /// EngineConfigStore.useEmbeddedEngine 可读写
+    /// E5 后无开关可读写——锢定 EngineConfigStore 单例仍可访问
     @MainActor
-    func testB3_EngineConfigStore_Readable() {
-        let original = EngineConfigStore.shared.useEmbeddedEngine
-        EngineConfigStore.shared.useEmbeddedEngine = !original
-        let changed = EngineConfigStore.shared.useEmbeddedEngine
-        XCTAssertEqual(changed, !original, "切换后应变化")
-        EngineConfigStore.shared.useEmbeddedEngine = original
+    func testB3_EngineConfigStore_StillAvailable() {
+        _ = EngineConfigStore.shared
     }
 
     // MARK: - B4. 回放标题栏不重叠

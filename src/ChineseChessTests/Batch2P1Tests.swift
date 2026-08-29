@@ -98,70 +98,31 @@ struct UCIParseIdLineTests {
     }
 }
 
-// MARK: - v3.4.0 Phase C: EngineConfigStore 简化版测试
+// MARK: - v3.4 Phase C → v6.3 E5: EngineConfigStore 开关退场后的残余面测试
 
-@Suite("v3.4 Phase C: EngineConfigStore 简化版")
+@Suite("v6.3 E5: EngineConfigStore 开关退场")
 struct EngineConfigStoreSimplifiedTests {
 
     @MainActor
-    @Test("useEmbeddedEngine 默认值")
-    func useEmbeddedEngineDefault() {
-        let store = EngineConfigStore.shared
-        // 默认应为 false（使用内置引擎）
-        // 注：单例状态可能受之前测试影响
-        _ = store.useEmbeddedEngine
+    @Test("v6.3 E5: 引擎开关退场（单例仍可用，编译锢定属性已删）")
+    func engineSwitchRemoved() {
+        // E5 全清：属性已删，本用例锢定单例仍可访问（迁移清理职责仍在）
+        _ = EngineConfigStore.shared
     }
 
     @MainActor
-    @Test("useEmbeddedEngine 设置和持久化")
-    func useEmbeddedEnginePersistence() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        store.useEmbeddedEngine = true
-        #expect(store.useEmbeddedEngine == true, "应更新为 true")
-
-        let stored = UserDefaults.standard.bool(forKey: "chinesechess.useEmbeddedEngine")
-        #expect(stored == true, "应持久化到 UserDefaults")
-
-        // 恢复
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("quickToggleEngine 返回正确值")
-    func quickToggleEngine() {
-        let store = EngineConfigStore.shared
-        let original = store.useEmbeddedEngine
-
-        // 场景 1: 当前用内置 → 切换到嵌入式
-        store.useEmbeddedEngine = false
-        let result1 = store.quickToggleEngine()
-        #expect(result1 == "external", "从内置切换到嵌入式应返回 external")
-        #expect(store.useEmbeddedEngine == true)
-
-        // 场景 2: 当前用嵌入式 → 切换到内置
-        let result2 = store.quickToggleEngine()
-        #expect(result2 == "builtIn", "从嵌入式切换到内置应返回 builtIn")
-        #expect(store.useEmbeddedEngine == false)
-
-        // 恢复
-        store.useEmbeddedEngine = original
-    }
-
-    @MainActor
-    @Test("旧配置迁移：清理 legacy keys")
+    @Test("旧配置迁移：清理 legacy keys（含 v6.3 E5 并入的退场 key）")
     func legacyConfigMigration() {
-        // 设置旧 key
+        // 设置旧 key（含开关本体——E5 后属 legacy，防脏 key 复活）
         let defaults = UserDefaults.standard
         defaults.set("test", forKey: "chinesechess.externalEngines")
         defaults.set("test", forKey: "chinesechess.selectedEngine")
         defaults.set("test", forKey: "chinesechess.pendingEngine")
         defaults.set(true, forKey: "chinesechess.pendingNative")
         defaults.set(true, forKey: "chinesechess.wantsExternalEngine")
+        defaults.set(true, forKey: "chinesechess.useEmbeddedEngine")
 
-        // EngineConfigStore.init() 会调用 migrateLegacyConfig()
-        // 由于是单例，我们手动验证旧 key 已存在
+        // 迁移由 init 调用；单例已初始化，此处验证旧 key 已写入后清理路径不炸
         #expect(defaults.object(forKey: "chinesechess.externalEngines") != nil)
 
         // 清理（模拟迁移后状态）
@@ -170,7 +131,9 @@ struct EngineConfigStoreSimplifiedTests {
         defaults.removeObject(forKey: "chinesechess.pendingEngine")
         defaults.removeObject(forKey: "chinesechess.pendingNative")
         defaults.removeObject(forKey: "chinesechess.wantsExternalEngine")
+        defaults.removeObject(forKey: "chinesechess.useEmbeddedEngine")
 
         #expect(defaults.object(forKey: "chinesechess.externalEngines") == nil, "旧 key 应被清理")
+        #expect(defaults.object(forKey: "chinesechess.useEmbeddedEngine") == nil, "E5 退场 key 应被清理")
     }
 }
