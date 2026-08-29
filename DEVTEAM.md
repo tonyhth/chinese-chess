@@ -64,6 +64,7 @@ git diff --stat        # 确认 working tree 干净
 - **Test run 计数与基线比对 = 常规门规（2026-08-16 起）**：每测试批 Test run 总数与比对锚核对——**锚 = 同 commit 预期起跑数**（套件清单变更只走 docs commit 同步更新，禁运行时自适应锚）；**缺口 = 批次作废（hard fail）**非警告；误报处置序 = 先查环境再查清单，不允许补录豁免
   - 背景：`.disabled` 静默性双向刃（对 CI 不可见，任何人静默 disable 用例同样无痕——dc4653d 三跑实录是运气不是机制）+ 本版 swift-testing xcresult `skippedTests` 恒 0（verify4 实测）→ Test run 总数缺位 = 唯一可见信号
   - 谱系呼应：与 aa35f46 存量对账账目同源——静态账目 vs 动态起跑数，同一对账原则的运行时延伸
+- **派单单通道（2026-08-29 起）**：测试类工单派发只走单通道（群 @ 或 agentId 二选一）——双投递会唤醒多个 tester 会话双起跑（08-29 实证，known-issues 在案）；**一切 xcodebuild 跑（含审查/修复取证）一律经 runner 通道**（取证批可自起但必须过 runner，正式批归 tester 单点）
 - **禁止全量 `xcodebuild test`**（不带过滤参数）— Intel Mac 必定超时；确需手跑时 **必须用** `xcodebuild test -skip-testing:EloBaselineTests` 且 skip 名单从 docs/test/skip-registry.md 复制
 - 专项测试：`bash scripts/run-tests-mutex.sh <TestClassName>`（多 suite 逐个串行、独立进程）
 - EloBaselineTests 是自对弈 5 局 × 30+ 分钟，会锁死构建目录（已在 skip 单源清单）
