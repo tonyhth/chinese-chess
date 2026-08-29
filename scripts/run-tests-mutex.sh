@@ -87,6 +87,12 @@ run_suite() {
       $(skip_args) \
       -only-testing:"ChineseChessTests/$suite" 2>&1 | tee "$log" )
   local rc=${PIPESTATUS[0]:-$?}
+  # 静默零跑门规（2026-08-29 Step2 终报批实证：filter 名不符 → Executed 0 tests 假绿）
+  if ! grep -qE "Test run with [1-9][0-9]* test|Executed [1-9][0-9]* test" "$log" 2>/dev/null; then
+    echo "❌ [$suite] 静默零跑：日志无 'N≥1 tests' 对账行（filter 名与实际 suite 名不符嫌疑），批次作废"
+    EXIT_SUMMARY+=("FAIL(zero-run) $suite $log")
+    return 5
+  fi
   local n
   n=$(grep -cE "Executed [0-9]+ test" "$log" 2>/dev/null || true)
   if [ "$rc" -eq 0 ]; then
