@@ -30,6 +30,25 @@ if [[ -z "$VERSION" ]]; then
     exit 1
 fi
 
+# ============ 版本号三处同步检查（v6.3 加急：双 project.yml MARKETING/CURRENT + 产物 Info.plist） ============
+VERSION_NUM_PRE="${VERSION#v}"
+echo "🔢 [0/6] 版本号三处同步检查（期望 $VERSION_NUM_PRE）..."
+VER_FAIL=0
+for YML in "$PROJECT_ROOT/project.yml" "$PROJECT_ROOT/ChineseChess-iOS/project.yml"; do
+    MV=$(grep -m1 'MARKETING_VERSION' "$YML" | sed 's/.*: *"\{0,1\}\([0-9.]*\)"\{0,1\}\s*$/\1/')
+    CV=$(grep -m1 'CURRENT_PROJECT_VERSION' "$YML" | sed 's/.*: *"\{0,1\}\([0-9.]*\)"\{0,1\}\s*$/\1/')
+    if [[ "$MV" != "$VERSION_NUM_PRE" || "$CV" != "$VERSION_NUM_PRE" ]]; then
+        echo "   ❌ $YML: MARKETING=$MV CURRENT=$CV 期望=$VERSION_NUM_PRE"
+        VER_FAIL=1
+    fi
+done
+# 产物 Info.plist 在构建后复查（见 [6/6] 后置断言），此处先锢定源侧
+if [[ $VER_FAIL -gt 0 ]]; then
+    echo "❌ 版本号三处同步检查失败——先同步双 project.yml 再打包（根治反复错位，Luke 08-29 加急）"
+    exit 1
+fi
+echo "   ✅ 双 project.yml MARKETING/CURRENT 均为 $VERSION_NUM_PRE（产物 Info.plist 在 [6/6] 后置复查）"
+
 # ============ 路径定义 ============
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # 去掉参数可能带的 v 前缀，避免输出 vv3.5.0
@@ -169,6 +188,15 @@ echo "📋 [5/6] 更新 Info.plist..."
     -c "Set :CFBundleDisplayName 中国象棋" \
     "$APP_DIR/Contents/Info.plist" 2>/dev/null
 echo "   ✅ 版本号已更新为 $VERSION_NUM"
+
+# 产物 Info.plist 实测后置断言（三处同步第三处）
+PLIST_MV=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_DIR/Contents/Info.plist" 2>/dev/null)
+PLIST_CV=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP_DIR/Contents/Info.plist" 2>/dev/null)
+if [[ "$PLIST_MV" != "$VERSION_NUM" || "$PLIST_CV" != "$VERSION_NUM" ]]; then
+    echo "❌ 产物 Info.plist 版本错位: Short=$PLIST_MV Build=$PLIST_CV 期望=$VERSION_NUM（三处同步第三处）"
+    exit 1
+fi
+echo "   ✅ 产物 Info.plist Short/Build = $VERSION_NUM（三处同步齐）"
 
 echo ""
 
