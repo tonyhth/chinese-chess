@@ -53,8 +53,11 @@ scripts/*
 # Other projects (should not exist here)
 projects/
 
-# 项目特定
-ChineseChess-iOS/
+# 项目特定（C1 收编例外 v6.3 Step 3：I4I6RegressionUITests 入库，2026-08-29）
+ChineseChess-iOS/*
+!ChineseChess-iOS/UITests/
+ChineseChess-iOS/UITests/*
+!ChineseChess-iOS/UITests/I4I6RegressionUITests.swift
 src/.swiftpm/
 data/
 tools/__pycache__/
