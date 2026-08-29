@@ -73,4 +73,47 @@ struct FingerprintReplayPipelineTests {
             fenBefore: fen2, playerMove: "a0a1", moveHistory: Array(uciSeq[0..<2]))
         NSLog("[fingerprint-replay] 双写形态 quickClassify=\(doubled == nil ? "nil（C 仍拒收，与根因实证一致）" : "non-nil（C 契约已变，检查 set_position 容忍性！）")")
     }
+
+    // ---------- 评估面两触发形态（Luke 裁定：红 2 玩家着 / 黑 1 玩家着各一） ----------
+
+    @Test("指纹: 评估面红方第 2 玩家着非 nil（AssessmentSession 构造同款）", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：环境破缺 skip"))
+    func assessmentRedSecondPlayerMove() async throws {
+        let analyzer = PositionAnalyzer.shared
+        let board = Board()  // 红先，玩家=红
+        let engine = AIEngine()
+        // AssessmentSession 同款：棋盘执行式推进 + FENParser.generate 精确 fenBefore
+        for _ in 0..<3 {  // 红黑红三着后 = 红方第 2 玩家着位（原 bug 触发形态①）
+            let mv = try #require(await engine.bestMove(for: board, difficulty: .beginner))
+            board.execute(mv)
+        }
+        let fenBefore = FENParser.generate(board: board)
+        let mv4 = try #require(await engine.bestMove(for: board, difficulty: .beginner))
+        let analysis = await analyzer.analyzeMoveLite(
+            fenBefore: fenBefore, playerMove: uciFrom(mv4), moveHistory: [],
+            depth: 8, timeMs: 300, multiPVCount: 2)
+        #expect(analysis != nil, "红方第 2 玩家着评估非 nil（原 bug：currentBoard 精确 FEN + 全量历史双写 → 静默 nil）")
+    }
+
+    @Test("指纹: 评估面对手先手黑方第 1 玩家着非 nil", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：环境破缺 skip"))
+    func assessmentBlackFirstPlayerMove() async throws {
+        let analyzer = PositionAnalyzer.shared
+        let board = Board()
+        board.setCurrentTurn(.black)  // 对手先手场景：黑先走一着（对手），随后红方第 1 玩家着即触发
+        let engine = AIEngine()
+        let oppo = try #require(await engine.bestMove(for: board, difficulty: .beginner))
+        board.execute(oppo)  // 对手先手着入盘
+        let fenBefore = FENParser.generate(board: board)
+        let player = try #require(await engine.bestMove(for: board, difficulty: .beginner))
+        let analysis = await analyzer.analyzeMoveLite(
+            fenBefore: fenBefore, playerMove: uciFrom(player), moveHistory: [],
+            depth: 8, timeMs: 300, multiPVCount: 2)
+        #expect(analysis != nil, "对手先手后玩家第 1 着评估非 nil（原 bug：黑方第 1 玩家着即双写触发）")
+    }
+
+    /// UCI 坐标换算对齐 GameMove.uciNotation（rank = 9 - row）
+    private func uciFrom(_ move: Move) -> String {
+        let cols = Array("abcdefghi")
+        return String(cols[move.from.col]) + String(9 - move.from.row)
+             + String(cols[move.to.col]) + String(9 - move.to.row)
+    }
 }
