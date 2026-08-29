@@ -107,13 +107,19 @@ run_suite() {
 }
 
 # ---------- 主流程：抢锁 → 逐 suite 串行 ----------
+OWNER="${RUNNER_OWNER:-}"
+if [ -z "$OWNER" ]; then
+  echo "❌ 无 owner 拒起跑：export RUNNER_OWNER=<agent名> 后再调用（2026-08-29 Luke 裁定：一切 xcodebuild 跑留痕可溯）"
+  exit 6
+fi
+
 main() {
   exec 9>"$LOCK_FILE"
   echo "⏳ [mutex] 等待测试锁 $LOCK_FILE $(date '+%F %T')"
   if ! flock -w 14400 9; then   # 最长排队 4h
     echo "❌ 抢锁超时（4h），放弃起跑"; exit 4
   fi
-  echo "🔒 [mutex] 获得锁 $(date '+%F %T') (holder=$$)"
+  echo "🔒 [mutex] 获得锁 $(date '+%F %T') (holder=$$, owner=$OWNER)"
   trap 'unlock_language' EXIT
   lock_language   # 语言锁整批只加一次（每 suite 重复加锁会把注入值误当原值备份 → 批后残留）
 
