@@ -16,6 +16,8 @@
 - [ ] **语言锁**：由 runner 统一注入 `AppleLanguages=(zh-Hans)`，禁各批自设/依赖系统语言（跨 suite L10n 竞态假红指纹："前1英文后4中文"，08-28 二次实证）。
 - [ ] **skip 单源**：skip 名单以 `docs/test/skip-registry.md` 为准，不复制粘贴到工单正文；新增/移除 skip 须同 commit 更新该表（含 reason）。
 - [ ] **长跑脱离**：预计 >3 分钟的批必须 `nohup` 脱离 + 固定日志路径（`~/DevTeam/workdirs/logs/` 下，禁 /tmp 存产物），禁止盯进程轮询。
+- [ ] **通道全覆盖**：一切 xcodebuild 跑（含审查/修复取证复跑）一律经 `run-tests-mutex.sh` 通道（flock 串行化消除共享 DerivedData 冲突）；取证批可自起但必须过 runner，正式批归 tester 单点（2026-08-29 Luke 修正口径）。
+- [ ] **派单单通道**：测试类工单派发只走单通道（群 @ 或 agentId 二选一）——双投递会唤醒多个 tester 会话双起跑（08-29 实证）。
 - [ ] **静默零跑门规**：结果宣告前对账 "Executed N tests / Test run with N tests"，N 与预期不符 = 批次作废。
 - [ ] **产物持久**：长跑 binary/日志/登记表一律 `~/DevTeam/` 持久目录；发射必登记 LAUNCH-REGISTRY。
 
