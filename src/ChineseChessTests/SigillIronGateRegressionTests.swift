@@ -17,7 +17,7 @@ import Testing
 //   3. 车将同格 → isIronGate minRow(=row+1) > maxRow(=row) → SIGILL
 //
 // 修复双件套：
-//   A. TestPieceFactory 池迁 64..127（与字面量 0..31 物理隔离）——根因层
+//   A. TestPieceFactory 池迁 128..191（避开字面量带 0..31 与 100..121）——根因层
 //   B. isIronGate 空 Range 防御（dump + return false）——防御层
 //
 // 本 suite 钉两层指纹：根因层（id 区段隔离）+ 防御层（腐败局面评估不杀进程）。
@@ -28,14 +28,16 @@ struct SigillIronGateRegressionTests {
 
     // MARK: - 根因层：工厂 id 区段隔离
 
-    @Test("工厂 id 全轮转周期（129 次分配）永不落入 0..31 字面量区")
+    @Test("工厂 id 全轮转周期（129 次分配）永不落入 0..31 / 100..121 字面量带")
     func factoryIdsNeverCollideWithLiteralRange() {
+        // resetForFreshPosition 豁免依据（Ruby P2①）：本套无任何跨 suite 存活棋盘，
+        // 归零只影响本套自身的分配起点，不与其它 suite 的工厂件同盘共存
         TestPieceFactory.resetForFreshPosition()
         var seen = Set<Int>()
         for i in 0..<129 {  // > 2× 池位，覆盖整轮转周期
             let p = TestPieceFactory.makePiece(kind: .soldier, side: .red,
                                                position: Position(row: 6, col: i % 9))
-            #expect(p.id >= 64 && p.id <= 127, "工厂 id \(p.id) 越出 64..127 隔离区（第 \(i) 次分配）")
+            #expect(p.id >= 128 && p.id <= 191, "工厂 id \(p.id) 越出 128..191 隔离区（第 \(i) 次分配）")
             seen.insert(p.id)
         }
         // 单轮转周期（64 池位）内不重复
@@ -62,7 +64,7 @@ struct SigillIronGateRegressionTests {
         // 黑车与红将同格 (4,4)；同列同格 = 原 SIGILL 的精确前置条件
         let redGeneral = Piece(kind: .general, side: .red, position: Position(row: 4, col: 4), id: 8)
         let blackGeneral = Piece(kind: .general, side: .black, position: Position(row: 0, col: 4), id: 24)
-        let chariot = Piece(kind: .chariot, side: .black, position: Position(row: 4, col: 4), id: 64)
+        let chariot = Piece(kind: .chariot, side: .black, position: Position(row: 4, col: 4), id: 128)
         let board = LegacySearchBoard(pieces: [redGeneral, blackGeneral, chariot], currentTurn: .black)
 
         // 双视角评估：黑方视角 isIronGate(黑车, 红将) 同格 → 原 trap 点

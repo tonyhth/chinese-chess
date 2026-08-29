@@ -299,7 +299,7 @@ struct PatternRecognizer {
         guard minRow <= maxRow else {
             BoardIntegrityLogger.dumpOverlap(reason: "PatternRecognizer.isIronGate",
                                              pieces: board.pieces,
-                                             recentMoves: [],
+                                             recentMoves: Array(board.moveHistory.suffix(10)),
                                              detail: "车(row:\(chariot.position.row),col:\(chariot.position.col)) 与将(row:\(general.row),col:\(general.col)) 同格——腐败棋盘，铁门栓按无棋型处理")
             return false
         }
