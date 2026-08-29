@@ -49,6 +49,11 @@ struct AIEngineTimingContractTests {
                 let move = await engine.bestMove(for: snapshot, difficulty: diff)
                 let ms = Date().timeIntervalSince(t) * 1000
                 let mv = try #require(move, "\(label) 应有走法")
+                // 丹妮复核②：lvl3 秒回=浅层档设计行为（开局库/浅搜索），须排除假快——
+                // 返回着非空且合法（对全档生效，重点锢定 lvl3 秒回路径）
+                let legal = MoveValidator.allLegalMoves(for: board.currentTurn, on: LegacySearchBoard(from: board))
+                #expect(legal.contains { $0.from == mv.from && $0.to == mv.to },
+                        "\(label) 第\(elapsed.count+1)着返回着不合法（假快嫌疑：秒回但非合法着法）")
                 board.execute(mv)
                 elapsed.append(ms)
                 let cap = Double(budget) * 1.5 + 500
@@ -65,9 +70,11 @@ struct AIEngineTimingContractTests {
             if isObserved {
                 // 登记观察档（v6.4 立案）：违约已知在案，只记录不硬断言（确定性形态，
                 // 修复落地时本分支删除、回归全档硬断言）
-                let viol = elapsed.filter { $0 > cap }.count
-                if viol > 0 {
-                    NSLog("[amateur-timing] \(label) VIOLATION-REGISTERED(v6.4 难度重设计工作包): \(viol)/10 着超帽，max=\(Int(mx))ms（修复后此标记应消失）")
+                let violIdx = elapsed.enumerated().filter { $0.element > cap }.map { $0.offset + 1 }
+                if !violIdx.isEmpty {
+                    // 丹妮复核定位锚：违约集中在第 8-10 着连续深局段（lvl5 末两着 40s+ 连坐）
+                    // ——迭代加深深局段 TimeManager 失效形态，v6.4 堵漏从层内 deadline 截断入手
+                    NSLog("[amateur-timing] \(label) VIOLATION-REGISTERED(v6.4 难度重设计工作包/issue=difficulty-redesign): \(violIdx.count)/10 着超帽 @着序\(violIdx)，max=\(Int(mx))ms（修复后此标记应消失）")
                 }
             } else {
                 // 硬断言档（1-3）

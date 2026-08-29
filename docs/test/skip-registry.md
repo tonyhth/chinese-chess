@@ -28,4 +28,4 @@
 - **MovegenCrosscheck 休眠 → Test run 计数漂移**：基线登记行须注记"MovegenCrosscheck 休眠，run 计数口径以用例级为准"（Ruby 复核口径，08-28）。
 - **锁屏挂死 ×2**（r3/r3b，9.5h 0% CPU）：环境案非 suite 案，处置 = 起跑带 `caffeinate` + 长跑 nohup 规约，不入 skip 表。
 - **正式批与 r 系长跑基线互斥起跑**：经 `run-tests-mutex.sh` 的 flock 全局锁强制（08-29 Luke 口径），规约同时固化在工单模板 docs/general/ticket-template.md。
-| AIEngineTimingContractTests | active | suite 不整 skip（Luke 08-29 二裁）：lvl1-3 硬断言 + lvl4/5 登记观察档（测试内确定性豁免，实测照常入表带 VIOLATION-REGISTERED 标记）。lvl4 max 13.5s / lvl5 max 45.4s（预算 5.7 倍）违约实锤；初判根因 TimeManager 层间检查、层内无 deadline 截断（28s 案同族）；lvl3 秒回=开局库全命中路径同包定性 | v6.4 难度重设计工作包（P1，与 depth 阶梯校准/V2 前史锚点合并同域），证据 evidence/engine-timing-0829/ |
+| AIEngineTimingContractTests | active | suite 不整 skip（Luke 08-29 二裁）：lvl1-3 硬断言 + lvl4/5 登记观察档（测试内确定性豁免，实测照常入表带 VIOLATION-REGISTERED 标记）。lvl4 max 13.5s / lvl5 max 45.4s（预算 5.7 倍）违约实锤，违约集中第 8-10 着连续深局段（丹妮复核定位锚：迭代加深深局段 TimeManager 失效，lvl5 末两着 40s+ 连坐）；初判根因 TimeManager 层间检查、层内无 deadline 截断（28s 案同族）；lvl3 秒回=浅层档设计行为，测试已加返回着非空且合法断言排除假快 | v6.4 难度重设计工作包（P1，issue=difficulty-redesign，与 depth 阶梯校准/V2 前史锚点合并同域），证据 evidence/engine-timing-0829/（丹妮复核三点 08-29 入注） |
