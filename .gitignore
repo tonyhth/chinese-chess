@@ -41,6 +41,7 @@ plans/
 proposals/
 /*.md
 !README.md
+!DEVTEAM.md
 
 # Scripts (not project code)
 scripts/*

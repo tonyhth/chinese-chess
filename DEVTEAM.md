@@ -59,14 +59,14 @@ git diff --stat        # 确认 working tree 干净
 - **⚠️ 不再使用 `swift build` / `swift test`**（Package.swift 已删除，SPM 已废弃）
 
 ### ⚠️ 测试命令（铁律）
-- **起跑前预检（2026-08-16 起，基线污染单2）**：`~/DevTeam/scripts/preflight-test-assets.sh <worktree根>`——四类 gitignored 资产（nnue / Pikafish 引擎 / data JSON / Accessibility 源）缺一即退出码 3 终止，不烧批次；隔离 worktree 必跑（资产不随 git 走，dc4653d §五.2 实证四轮补资产的学费）
+- **🚨 统一入口（2026-08-29 起，v6.3 H-1）**：一切测试批经 `bash scripts/run-tests-mutex.sh <Suite...>` 起跑（flock 全局互斥 + AppleLanguages 语言锁，批后自动恢复；预检由 runner 内置）。**裸 `xcodebuild test` 起跑会被哨兵 RunnerHygieneTests 判红**（纪律测试面，commit 1b70818）；正式测试批与 r 系长跑基线禁止同机并行（08-29 Luke 口径）。skip 名单单源：docs/test/skip-registry.md（修复落地同 commit 更新，勿在命令行手抄 skip 清单）
+- **起跑前预检（2026-08-16 起，基线污染单2）**：`~/DevTeam/scripts/preflight-test-assets.sh <worktree根>`——四类 gitignored 资产（nnue / Pikafish 引擎 / data JSON / Accessibility 源）缺一即退出码 3 终止，不烧批次；隔离 worktree 必跑（资产不随 git 走，dc4653d §五.2 实证四轮补资产的学费）；runner 已内置，绕过 runner 者必自跑
 - **Test run 计数与基线比对 = 常规门规（2026-08-16 起）**：每测试批 Test run 总数与比对锚核对——**锚 = 同 commit 预期起跑数**（套件清单变更只走 docs commit 同步更新，禁运行时自适应锚）；**缺口 = 批次作废（hard fail）**非警告；误报处置序 = 先查环境再查清单，不允许补录豁免
   - 背景：`.disabled` 静默性双向刃（对 CI 不可见，任何人静默 disable 用例同样无痕——dc4653d 三跑实录是运气不是机制）+ 本版 swift-testing xcresult `skippedTests` 恒 0（verify4 实测）→ Test run 总数缺位 = 唯一可见信号
   - 谱系呼应：与 aa35f46 存量对账账目同源——静态账目 vs 动态起跑数，同一对账原则的运行时延伸
-- **禁止全量 `xcodebuild test`**（不带过滤参数）— Intel Mac 必定超时
-- **必须用** `xcodebuild test -skip-testing:EloBaselineTests`
-- 专项测试：`xcodebuild test -only-testing:<TestClassName>`
-- EloBaselineTests 是自对弈 5 局 × 30+ 分钟，会锁死构建目录
+- **禁止全量 `xcodebuild test`**（不带过滤参数）— Intel Mac 必定超时；确需手跑时 **必须用** `xcodebuild test -skip-testing:EloBaselineTests` 且 skip 名单从 docs/test/skip-registry.md 复制
+- 专项测试：`bash scripts/run-tests-mutex.sh <TestClassName>`（多 suite 逐个串行、独立进程）
+- EloBaselineTests 是自对弈 5 局 × 30+ 分钟，会锁死构建目录（已在 skip 单源清单）
 
 ### iOS 编译门禁（Phase 合入前必跑）
 
