@@ -28,3 +28,19 @@
 - 3a 段总对账 ≥2100（270+ suite 口径）且 SIGILL/ trap/ crash 零命中；3b SUCCEEDED
 - 4 段 9 行对账
 - 全程 owner=tina 留痕，日志固定 ~/DevTeam/workdirs/logs/v62-release/
+
+## 附：真机抽检段（洪涛工单④，随回归批/复测执行）
+
+> 前置：iOS 真机连接（devicectl coredevice 可见）。装机：deploy-ios.sh 部署重打包产物。
+
+### A. 难度 6→10 各走 2 着（专业级路由真机抽检）
+- 操作：真机逐级（lvl6 棋友 → lvl10 棋圣）开新局，每级人机各走 ≥2 着，确认引擎应着非挂死/非秒败
+- 判据：每级 2 着内引擎应着、无"Pikafish引擎未准备就绪" toast、无 ANR 感知卡死
+- 记录：每级截图 1 张（难度选择 + 棋面），入 v62-release/ 目录
+
+### B. ③运行时遥测日志行确认（Cody 侧③实现后生效；指引先占位）
+- 目标格式（占位，以 Cody 实现为准）：
+  `[Engine] move#N lvl=X engine=embedded budget=Yms elapsed=Zms`
+- 取证：真机抽检期间 Console.app 抓 ChineseChess 进程日志，或 idevicesyslog/`log stream` 等价通道
+- 判据：lvl6-10 每级 ≥2 条遥测行；engine=embedded 恒成立（E5 后专业级恒路由）；elapsed ≤ budget+2s（watchdog 契约）
+- 未实现时处置：标注"③遥测未上线，格式占位待 Cody 工单"跳过 B 段不阻塞 A 段
