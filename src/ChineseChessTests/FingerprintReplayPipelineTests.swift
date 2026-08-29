@@ -34,7 +34,6 @@ struct FingerprintReplayPipelineTests {
         let uciSeq = gameMoves.map { $0.uciNotation }
 
         // 玩家着位（idx 0/2/4，同 analyzeAll 只析玩家着口径）
-        var nilCount = 0
         for idx in [0, 2, 4] {
             let fenBefore = FENRebuilder.computeFEN(initialFEN: initial, moves: gameMoves, before: idx)
             // 修复后口径：fenBefore 已精确，moveHistory 传 []
@@ -42,14 +41,12 @@ struct FingerprintReplayPipelineTests {
                 fenBefore: fenBefore, playerMove: uciSeq[idx], moveHistory: [])
             #expect(pre != nil,
                     "idx=\(idx) quickClassify 返回 nil——双写历史回归（原症状：首着后 20-40ms 快失败连珠 nil）")
-            if pre == nil { nilCount += 1 }
         }
         // 完整 analyzeMove 序列指纹：首着成功 + 后续不再全败
         let fen2 = FENRebuilder.computeFEN(initialFEN: initial, moves: gameMoves, before: 2)
         let full = await PositionAnalyzer.shared.analyzeMove(
             fenBefore: fen2, playerMove: uciSeq[2], moveHistory: [])
         #expect(full != nil, "非首着 analyzeMove 非 nil（修复核心断言）")
-        _ = nilCount
     }
 
     @Test("反证锚: 双写历史形态仍被 C 层拒收（根因证据锢定，防未来误改回双写）", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：环境破缺 skip"))
@@ -69,11 +66,11 @@ struct FingerprintReplayPipelineTests {
         }
         let uciSeq = gameMoves.map { $0.uciNotation }
         let fen2 = FENRebuilder.computeFEN(initialFEN: initial, moves: gameMoves, before: 2)
-        // 双写（fen2 已含历史 + 再传历史）→ C 拒收 → nil：此形态即原 bug，
-        // 锢定为"已知拒收"，若某天 C 层变容忍此形态，本用例红=契约变化预警
+        // 双写（fen2 已含历史 + 再传历史）→ C 拒收 → nil：此形态即原 bug。
+        // Ruby P2①：纯 NSLog 探针（无 #expect——恒真断言 D4 同族，不污染 pass 计数）；
+        // 若某天 C 层变容忍此形态，日志非 nil = 契约变化预警
         let doubled = await PositionAnalyzer.shared.quickClassify(
             fenBefore: fen2, playerMove: "a0a1", moveHistory: Array(uciSeq[0..<2]))
-        #expect(doubled == nil || doubled != nil)  // 形态记录不硬断言（C 契约演进自由），nilCount 意义在日志
         NSLog("[fingerprint-replay] 双写形态 quickClassify=\(doubled == nil ? "nil（C 仍拒收，与根因实证一致）" : "non-nil（C 契约已变，检查 set_position 容忍性！）")")
     }
 }
