@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "comment": "v6.3 E1 资产校验单源（manifest 单源）。E1 app 内启动校验消费 nnue 条目；Step 4 L1(verify_delivery.sh)/L4(deploy) 双侧消费同本文件，禁止各自另立期望值。",
+  "assets": [
+    {
+      "name": "pikafish.nnue",
+      "bytes": 50760458,
+      "sha256": "a2f41d4d0b9f59c5b5ecb3ca129fe24e3a722ea2f00ee252ae14d5dc08899f6a"
+    }
+  ]
+}

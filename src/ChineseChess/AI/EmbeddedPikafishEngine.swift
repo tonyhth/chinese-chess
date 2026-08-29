@@ -4,6 +4,7 @@
 //  Phase B: v3.4.0 macOS Static Embed - unified iOS/macOS, direct C API calls
 
 import Foundation
+import CryptoKit
 import Pikafish  // 通过 modulemap 导入 C API（iOS + macOS 统一）
 
 /// Swift actor that directly calls pikafish C API to implement ChessEngine protocol.
@@ -16,7 +17,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
     nonisolated let displayName: String = "Pikafish"
     // .external 表示非自研引擎。嵌入式 Pikafish 复用此值：
     // - 与 .native（自研 AIEngine）区分
-    // - StatusBarView/ToolbarView 用 useEmbeddedEngine 判断 UI 显示，不依赖 engineType
+    // - StatusBarView/ToolbarView （原开关判断已退场），不依赖 engineType
     nonisolated let engineType: EngineType = .embedded
     // nonisolated(unsafe): 只在 actor 方法内写入，deinit 时无并发访问
     nonisolated(unsafe) private(set) var isReady = false
@@ -33,10 +34,131 @@ actor EmbeddedPikafishEngine: ChessEngine {
     // evaluate 和 bestMove 并发进入 C 层全局单例 g_engine。串行队列物理上阻止并发。
     private nonisolated let cApiQueue = DispatchQueue(label: "com.chinesechess.pikafish.capi")
 
+    // MARK: - v6.3 E2: watchdog 硬超时统一口径
+    // 全调用点（bestMove/evaluate/multiPV）统一 15s 硬帽；超时 resume(nil) 走层 2 降级。
+    // nonisolated(unsafe)：默认值不可变语义，仅测试（串行 suite）注入短帽验证超时路径。
+    nonisolated(unsafe) static var watchdogHardCapMs: Int = 15_000
+
+    /// 一次性 resume 守卫（NSLock 保护，跨 detached task 竞速）
+    private final class ResumeOnce: @unchecked Sendable {
+        private let lock = NSLock()
+        private var resumed = false
+        func claim() -> Bool {
+            lock.lock(); defer { lock.unlock() }
+            if resumed { return false }
+            resumed = true
+            return true
+        }
+    }
+
+    /// watchdog 超时后中止在途 C 搜索——否则残留搜索继续占 cApiQueue，
+    /// 连坐后续调用（指纹③复现：前一调用残留 8s 占队列，后一 bestMove 5s 超时 →nil，红二/红五同形）
+    private nonisolated static func abortInFlightSearch() {
+        pikafish_stop()
+    }
+
+    /// 通用 watchdog：body 与定时器竞速，先到先 resume（超时 nil + 中止在途搜索）。
+    /// ⚠️ body 必须跑在 detached task（非子任务）——withTaskGroup 超时路径会隐式等
+    /// 不可取消的 C 调用跑完，兜底形同虚设（指纹②复现修正：原实现超时后仍等 8s）。
+    /// C 调用不可中断会继续占 cApiQueue，但调用方即刻拿到降级值（72571fb 先例，扩全调用点）。
+    private func withWatchdog<T: Sendable>(
+        budgetMs: Int,
+        body: @escaping @Sendable () async -> T?
+    ) async -> T? {
+        let once = ResumeOnce()
+        return await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
+            Task.detached {
+                let result = await body()
+                if once.claim() { continuation.resume(returning: result) }
+            }
+            Task.detached {
+                try? await Task.sleep(nanoseconds: UInt64(budgetMs) * 1_000_000)
+                if once.claim() {
+                    Self.abortInFlightSearch()
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+
+    // MARK: - v6.3 E1: NNUE 资产前置校验（期望值引 asset-manifest.json 单源）
+
+    struct NNUEAssetExpectation: Codable {
+        let name: String
+        let bytes: Int
+        let sha256: String
+    }
+
+    private struct AssetManifest: Codable {
+        struct Entry: Codable { let name: String; let bytes: Int; let sha256: String }
+        let version: Int
+        let assets: [Entry]
+    }
+
+    /// E1 校验结果（测试/诊断消费）
+    enum NNUEAssetCheck: Equatable {
+        case ok(bytes: Int)
+        case failed(reason: String)
+    }
+
+    /// 校验 bundle 内 pikafish.nnue 与 manifest 单源（大小+sha256）一致。
+    /// 任一不符 → .failed → start() 抛错 → EngineRouter 层 2 降级自研（不挂死不空转）。
+    nonisolated static func verifyNNUEAsset() -> NNUEAssetCheck {
+        // 宿主 bundle 定位（xctest 下 main bundle 是 xctest runner，优先 app bundle——对齐 C 层口径）
+        let bundle = Bundle(identifier: "com.chinesechess.app") ?? .main
+        guard let nnueURL = bundle.url(forResource: "pikafish", withExtension: "nnue")
+            ?? Bundle.main.url(forResource: "pikafish", withExtension: "nnue") else {
+            return .failed(reason: "pikafish.nnue missing in bundle")
+        }
+        guard let manifestURL = bundle.url(forResource: "asset-manifest", withExtension: "json")
+            ?? Bundle.main.url(forResource: "asset-manifest", withExtension: "json") else {
+            return .failed(reason: "asset-manifest.json missing in bundle")
+        }
+        do {
+            let data = try Data(contentsOf: manifestURL)
+            let manifest = try JSONDecoder().decode(AssetManifest.self, from: data)
+            guard let entry = manifest.assets.first(where: { $0.name == "pikafish.nnue" }) else {
+                return .failed(reason: "manifest has no pikafish.nnue entry")
+            }
+            let attrs = try FileManager.default.attributesOfItem(atPath: nnueURL.path)
+            let size = attrs[.size] as? Int ?? -1
+            guard size == entry.bytes else {
+                return .failed(reason: "nnue size mismatch: bundle=\(size) manifest=\(entry.bytes)")
+            }
+            let hash = try sha256Hex(fileURL: nnueURL)
+            guard hash == entry.sha256 else {
+                return .failed(reason: "nnue sha256 mismatch: bundle=\(hash) manifest=\(entry.sha256)")
+            }
+            return .ok(bytes: size)
+        } catch {
+            return .failed(reason: "manifest read/decode error: \(error)")
+        }
+    }
+
+    private nonisolated static func sha256Hex(fileURL: URL) throws -> String {
+        let handle = try FileHandle(forReadingFrom: fileURL)
+        defer { try? handle.close() }
+        var hasher = SHA256()
+        while let chunk = try handle.read(upToCount: 1 << 20), !chunk.isEmpty {
+            hasher.update(data: chunk)
+        }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
+    }
+
     // MARK: - Lifecycle
 
     func start() async throws {
         guard !isReady else { return }
+
+        // v6.3 E1: NNUE 资产前置校验（manifest 单源）——缺失/损坏即抛错走层 2 降级，
+        // 不再让 C 层静默 nil-fail（拔 nnue 冷启动 → 启动即标注不可用）
+        switch Self.verifyNNUEAsset() {
+        case .ok:
+            break
+        case .failed(let reason):
+            NSLog("[Pikafish] E1 nnue asset check failed: \(reason)")
+            throw EngineError.startFailed
+        }
 
         #if os(iOS)
         // 诊断：检查 NNUE 文件是否在 bundle 中
@@ -137,23 +259,12 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
-        // v6.2 加急: Swift 层 watchdog 硬超时——timeMs+2s 仍未返回则 resume(nil) 降级自研
-        //（C 调用不可中断会继续占 cApiQueue，但 UI 层不再无限等；先例 :82-91 quit 保护同思路）
-        let watchdogBudgetMs = timeMs + 2000
-        return await withTaskGroup(of: String?.self) { group in
-            group.addTask {
-                await self.cApiBestMove(fen: fen, movesStr: movesStr, depth: depth, timeMs: timeMs)
-            }
-            group.addTask {
-                try? await Task.sleep(nanoseconds: UInt64(watchdogBudgetMs) * 1_000_000)
-                return nil // watchdog 超时占位（真结果若先到则被优先取用）
-            }
-            let first = await group.next() ?? nil
-            if let move = first { group.cancelAll(); return move }
-            let second = await group.next() ?? nil
-            return second
+        // v6.3 E2: watchdog 统一 15s 硬帽（soft budget = timeMs+2s 先行降级，封顶 hard cap）
+        let hardCap = Self.watchdogHardCapMs
+        let budgetMs = min(timeMs + 2000, hardCap)
+        return await withWatchdog(budgetMs: budgetMs) {
+            await self.cApiBestMove(fen: fen, movesStr: movesStr, depth: depth, timeMs: timeMs)
         }
-        // withTaskGroup 返回后，defer 执行 activeSearchCount -= 1
     }
 
     /// C 层 best_move 调用（保持原“闭包不捕获 self”约定：闭包体只引用局部值类型）
@@ -272,6 +383,14 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
+        // v6.3 E2: evaluate 补 watchdog（原仅 bestMove 有）——15s 硬帽超时返回 nil
+        return await withWatchdog(budgetMs: Self.watchdogHardCapMs) {
+            await self.cApiEvaluate(fen: fen, movesStr: movesStr, depth: depth, timeMs: timeMs)
+        }
+    }
+
+    /// C 层单 PV 评估（原 evaluate 内联体，拆出供 watchdog 包裹）
+    private nonisolated func cApiEvaluate(fen: String, movesStr: String, depth: Int, timeMs: Int) async -> AnalysisLine? {
         return await withCheckedContinuation { (continuation: CheckedContinuation<AnalysisLine?, Never>) in
             cApiQueue.async {
                 let result = UnsafeMutablePointer<PikafishEvalResult>.allocate(capacity: 1)
@@ -315,6 +434,15 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
+        // v6.3 E2: multiPV 补 watchdog（原仅 bestMove 有）——15s 硬帽超时返回空数组
+        let result: [AnalysisLine]? = await withWatchdog(budgetMs: Self.watchdogHardCapMs) {
+            await self.cApiMultiPV(fen: fen, movesStr: movesStr, count: count, depth: depth, timeMs: timeMs)
+        }
+        return result ?? []
+    }
+
+    /// C 层多 PV 评估（原 multiPV 内联体，拆出供 watchdog 包裹）
+    private nonisolated func cApiMultiPV(fen: String, movesStr: String, count: Int, depth: Int, timeMs: Int) async -> [AnalysisLine]? {
         return await withCheckedContinuation { (continuation: CheckedContinuation<[AnalysisLine], Never>) in
             cApiQueue.async {
                 let results = UnsafeMutablePointer<PikafishEvalResult>.allocate(capacity: count)
