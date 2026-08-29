@@ -51,12 +51,14 @@ std::string g_last_error;
 
 // Last search info — written by set_on_update_full callback, read by API functions
 int  g_last_eval = 0;       // centipawn (±100000 - plies for mate)
+int  g_last_depth = 0;      // v6.2: 最后一次 update_full 报告的搜索深度
 std::string g_last_pv;      // space-separated UCI moves
 
 // MultiPV results — collected from update_full callback
 struct MultiPVEntry {
     int score_cp;
     std::string pv;
+    int depth; // v6.2: 该 PV 线最后一次迭代的搜索深度
 };
 std::vector<MultiPVEntry> g_multi_pv_results;
 
@@ -172,6 +174,7 @@ int pikafish_init(void) {
             });
             g_last_eval = eval_cp;
             g_last_pv = std::string(info.pv);
+            g_last_depth = info.depth; // v6.2: 采集深度（原“简化：不单独追踪”致 depth 恒 0）
 
             // Collect MultiPV entries (1-indexed)
             size_t pvIdx = info.multiPV > 0 ? info.multiPV - 1 : 0;
@@ -179,7 +182,7 @@ int pikafish_init(void) {
                 if (g_multi_pv_results.size() <= pvIdx) {
                     g_multi_pv_results.resize(pvIdx + 1);
                 }
-                g_multi_pv_results[pvIdx] = { eval_cp, std::string(info.pv) };
+                g_multi_pv_results[pvIdx] = { eval_cp, std::string(info.pv), info.depth };
             }
         });
 
@@ -240,6 +243,7 @@ int pikafish_best_move(const char* fen, const char* moves,
         g_searching = true;
         g_stopping = false;
         g_multi_pv_results.clear();
+        g_last_depth = 0; // v6.2: 每次新搜索重置，避免读到上次搜索的深度
 
         // Set position
         auto move_vec = parse_moves(moves);
@@ -474,7 +478,7 @@ int pikafish_eval(const char* fen, const char* moves,
     {
         std::lock_guard<std::mutex> lock(g_mutex);
         result->score_cp = g_last_eval;
-        result->depth = 0;  // depth 从 update_full callback 中获取（简化：不单独追踪）
+        result->depth = g_last_depth; // v6.2: 从 update_full 采集（原硬编码 0 回归修复）
         std::strncpy(result->best_move, move_buf, sizeof(result->best_move) - 1);
         result->best_move[sizeof(result->best_move) - 1] = '\0';
         std::strncpy(result->pv, g_last_pv.c_str(), sizeof(result->pv) - 1);
@@ -523,7 +527,7 @@ int pikafish_multi_pv(const char* fen, const char* moves,
         for (int i = 0; i < result_count && i < max_results; i++) {
             const auto& entry = g_multi_pv_results[i];
             results[i].score_cp = entry.score_cp;
-            results[i].depth = 0;
+            results[i].depth = entry.depth; // v6.2: 从 update_full 采集（原硬编码 0 回归修复）
 
             // 从 PV 中提取第一步作为 best_move
             std::string pv = entry.pv;
@@ -542,7 +546,7 @@ int pikafish_multi_pv(const char* fen, const char* moves,
             results[0].best_move[sizeof(results[0].best_move) - 1] = '\0';
             std::strncpy(results[0].pv, g_last_pv.c_str(), sizeof(results[0].pv) - 1);
             results[0].pv[sizeof(results[0].pv) - 1] = '\0';
-            results[0].depth = 0;
+            results[0].depth = g_last_depth;
             filled = 1;
         }
 

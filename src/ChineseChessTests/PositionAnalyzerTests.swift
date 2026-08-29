@@ -260,7 +260,10 @@ struct PositionAnalyzerTests {
     @Test("analyzeMove: 完整单步分析返回有效结构", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：引擎不可用，环境破缺 skip（门规：批次 Test run 计数必须等于全量数，少计=环境破缺批次作废）"))  // 基线污染单2：skip 第三态
     func testAnalyzeMoveComplete() async throws {
         let fenBefore = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
-        let playerMove = "h2e2"
+        // v6.2 PA-1: 原用 h2e2（引擎最优解）——quickClassify 预筛命中 brilliant
+        // → alternatives 设计性为空，用例先天值依赖（引擎换评 h2e2 即红）。
+        // 改用确定性劣着（边车巡河开局亏 >100cp），锢定完整 multiPV 路径。
+        let playerMove = "a0a1"
 
         let analysis = await PositionAnalyzer.shared.analyzeMove(
             fenBefore: fenBefore,
@@ -270,11 +273,38 @@ struct PositionAnalyzerTests {
 
         try #require(analysis != nil, "引擎应返回分析结果")
         let a = try #require(analysis)
-        #expect(a.playerMove == "h2e2")
+        #expect(a.playerMove == "a0a1")
         #expect(!a.bestMove.isEmpty)
         #expect(a.quality.rawValue >= 0 && a.quality.rawValue <= 5)
         #expect(a.evalDelta >= 0, "评估损失应 ≥ 0")
         #expect(!a.alternatives.isEmpty, "应有候选走法")
+        #expect(!a.isQuickResult, "劣着必须走完整 multiPV 路径（非预筛命中）")
+    }
+
+    // MARK: - v6.2 PA-1 回归锢定（C 层 depth 未追踪修复，L5 规约）
+    // 原症状指纹：pikafish_eval/multi_pv 自 3ce9fa4 起 depth 硬编码 0
+    // （update_full 回调未采集 info.depth），分析链全线 depth=0。
+
+    @Test("回归指纹①: evaluate 耗满预算返回完整数据（非 depth=0 空结果）", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：引擎不可用，环境破缺 skip（门规：批次 Test run 计数必须等于全量数，少计=环境破缺批次作废）"))
+    func testFingerprintEvaluateDepthNotZero() async throws {
+        let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
+        let line = try #require(
+            await PositionAnalyzer.shared.evaluate(fen: fen, moveHistory: []),
+            "evaluate 应返回非空结果"
+        )
+        #expect(line.depth > 0, "原症状：恰好 2.003s 返回 depth=0（C 层未追踪 depth 回归）")
+        #expect(!line.bestMove.isEmpty)
+        #expect(!line.pv.isEmpty)
+    }
+
+    @Test("回归指纹②: multiPV 候选线各自 depth>0（非三候选全 depth=0）", .disabled(if: !TestEnvPreflight.nnuePresent, "NNUE 资产缺失：引擎不可用，环境破缺 skip（门规：批次 Test run 计数必须等于全量数，少计=环境破缺批次作废）"))
+    func testFingerprintMultiPVDepthNotZero() async throws {
+        let fen = "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"
+        let lines = await PositionAnalyzer.shared.topMoves(fen: fen, moveHistory: [], count: 3)
+        try #require(!lines.isEmpty, "multiPV 应返回候选线")
+        for line in lines {
+            #expect(line.depth > 0, "原症状：三候选全 depth=0（MultiPVEntry 未采集 depth 回归）")
+        }
     }
 
     // MARK: - 边界场景
