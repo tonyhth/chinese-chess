@@ -24,6 +24,10 @@ actor EmbeddedPikafishEngine: ChessEngine {
     private var cachedVersion: String = "unknown"
 
     // 在途搜索计数（actor 上下文内安全操作）
+    // ⚠️ Ruby P2①语义声明：watchdog 超时路径提前 defer 递减，而 C 搜索仍在途——
+    // 此计数语义为「已认领调用」（非「C 层在途」）。shutdown() 因此可能看到 0 后 quit，
+    // 安全依赖 C 层 quit 自带 stop+CV 等待（pikafish_api.cpp:334 起，不 UAF），仅存在
+    // 「quit 等 stray 搜索」的时长放大，无正确性风险。如需真在途计数，另立 cApi 层计数器。
     private var activeSearchCount = 0
 
     // 校准 v3.0: 记录外部手动设置的 Skill Level，用于 bestMove 判断是否强制 depth=0
@@ -61,6 +65,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
     /// ⚠️ body 必须跑在 detached task（非子任务）——withTaskGroup 超时路径会隐式等
     /// 不可取消的 C 调用跑完，兜底形同虚设（指纹②复现修正：原实现超时后仍等 8s）。
     /// C 调用不可中断会继续占 cApiQueue，但调用方即刻拿到降级值（72571fb 先例，扩全调用点）。
+    /// ⚠️ Ruby P2②stray-stop 窗口声明：timer claim 后至 stop() 生效间，若目标 C 调用恰好
+    /// 返回且下一个搜索已在 cApiQueue 开跑，stop 会误杀无戁1搜索（受方 →nil 降级自愈）。
+    /// 窗口 µs 级，且 C 层 g_stopping 每次 go 起跑重置（:244），不残留毒化。备档知悉。
     private func withWatchdog<T: Sendable>(
         budgetMs: Int,
         body: @escaping @Sendable () async -> T?
@@ -101,6 +108,11 @@ actor EmbeddedPikafishEngine: ChessEngine {
         case failed(reason: String)
     }
 
+    /// Ruby P2④：sha256 快路径缓存——同文件（路径+大小+mtime）进程内只算一次全量哈希，
+    /// 后续 start()（预热/回前台反复调）秒回；任一特征变化即重算全量
+    private static let nnueVerifyCacheLock = NSLock()
+    private nonisolated(unsafe) static var nnueVerifyCache: (path: String, size: Int, mtime: TimeInterval, verified: Bool)?
+
     /// 校验 bundle 内 pikafish.nnue 与 manifest 单源（大小+sha256）一致。
     /// 任一不符 → .failed → start() 抛错 → EngineRouter 层 2 降级自研（不挂死不空转）。
     nonisolated static func verifyNNUEAsset() -> NNUEAssetCheck {
@@ -125,10 +137,24 @@ actor EmbeddedPikafishEngine: ChessEngine {
             guard size == entry.bytes else {
                 return .failed(reason: "nnue size mismatch: bundle=\(size) manifest=\(entry.bytes)")
             }
+            let mtime = (attrs[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0
+            // P2④快路径：特征命中且已验证过 → 跳过 50MB sha256（~0.3-1s）
+            nnueVerifyCacheLock.lock()
+            let cached = nnueVerifyCache
+            nnueVerifyCacheLock.unlock()
+            if let c = cached, c.path == nnueURL.path, c.size == size, c.mtime == mtime, c.verified {
+                return .ok(bytes: size)
+            }
             let hash = try sha256Hex(fileURL: nnueURL)
             guard hash == entry.sha256 else {
+                nnueVerifyCacheLock.lock()
+                nnueVerifyCache = nil
+                nnueVerifyCacheLock.unlock()
                 return .failed(reason: "nnue sha256 mismatch: bundle=\(hash) manifest=\(entry.sha256)")
             }
+            nnueVerifyCacheLock.lock()
+            nnueVerifyCache = (nnueURL.path, size, mtime, true)
+            nnueVerifyCacheLock.unlock()
             return .ok(bytes: size)
         } catch {
             return .failed(reason: "manifest read/decode error: \(error)")
@@ -383,8 +409,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
-        // v6.3 E2: evaluate 补 watchdog（原仅 bestMove 有）——15s 硬帽超时返回 nil
-        return await withWatchdog(budgetMs: Self.watchdogHardCapMs) {
+        // v6.3 E2: evaluate 补 watchdog（原仅 bestMove 有）——soft=timeMs+2s，封顶 15s 硬帽
+        //（Ruby P2③：直用 15s 帽会截断 movetime>13s 的合法自定义搜索，与 bestMove 口径归一）
+        return await withWatchdog(budgetMs: min(timeMs + 2000, Self.watchdogHardCapMs)) {
             await self.cApiEvaluate(fen: fen, movesStr: movesStr, depth: depth, timeMs: timeMs)
         }
     }
@@ -434,8 +461,8 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
-        // v6.3 E2: multiPV 补 watchdog（原仅 bestMove 有）——15s 硬帽超时返回空数组
-        let result: [AnalysisLine]? = await withWatchdog(budgetMs: Self.watchdogHardCapMs) {
+        // v6.3 E2: multiPV 补 watchdog（原仅 bestMove 有）——soft=timeMs+2s，封顶 15s 硬帽（P2③归一）
+        let result: [AnalysisLine]? = await withWatchdog(budgetMs: min(timeMs + 2000, Self.watchdogHardCapMs)) {
             await self.cApiMultiPV(fen: fen, movesStr: movesStr, count: count, depth: depth, timeMs: timeMs)
         }
         return result ?? []
