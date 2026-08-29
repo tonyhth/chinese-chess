@@ -131,7 +131,7 @@ main() {
         $(skip_args) 2>&1 | tee "$flog" )
     frc=${PIPESTATUS[0]:-$?}
     # 汇总对账门禁：总 Executed N>=500（r3g 冻结基线 623 量级），低于即批次作废
-    ftotal=$(grep -oE "Executed [0-9]+ tests" "$flog" | tail -1 | grep -oE "[0-9]+" || echo 0)
+    ftotal=$(grep -oE "Test run with [0-9]+ tests in [0-9]+ suites|Executed [0-9]+ tests" "$flog" | tail -1 | grep -oE "[0-9]+" | head -1 || echo 0)
     if [ "${ftotal:-0}" -lt 500 ]; then
       echo "❌ [full] 对账门禁：总 Executed=${ftotal} <500，批次作废"
       EXIT_SUMMARY+=("FAIL(zero-run total=${ftotal}) full $flog")

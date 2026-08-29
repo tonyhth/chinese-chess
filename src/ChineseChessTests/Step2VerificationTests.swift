@@ -68,6 +68,12 @@ struct Step2E1ColdStartTests {
            FileManager.default.fileExists(atPath: bak.path) {
             try FileManager.default.moveItem(at: bak, to: nnue)
         }
+        // 08-29 全量批实证：DD 产物内残留 stale .h1bak（增量 build 不清理未知文件）
+        // → E1-1 rename 撞 File exists。nnue 在位时 stale bak 必须清除。
+        if FileManager.default.fileExists(atPath: nnue.path),
+           FileManager.default.fileExists(atPath: bak.path) {
+            try FileManager.default.removeItem(at: bak)
+        }
         try #require(TestEnvPreflight.nnuePresent, "自愈后 nnue 应在位")
     }
 

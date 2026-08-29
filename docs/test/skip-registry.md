@@ -14,6 +14,7 @@
 | V370Phase4Tests | skip | 同上 | 08-28 §4.3 r3 |
 | V371Tests | skip | 同上 | 08-28 §4.3 r3 |
 | UILayoutOptTests | skip | 大师级 AI 用例构造第二 Pikafish 实例 init 死锁（r3d/r3e 同点定位） | 08-28 r3f 定位；TOOLS.md 历史口径"常规 skip 六件之一"，r3 系曾漏配 |
+| CalibrationV3Tests | skip（全量批） | 全量批内 180s×2 超时挂点（08-29 r3 #2 实测：newGame 清除 lastSkillOverride 180s 超时 → 引擎楔死 → 下游 10 红连坐；隔离复跑全绿 23/23）——单跑/定向批不受限，全量批 skip | r3 #2 line 2743 首崩点 + Step 2 隔离绿 |
 | PikafishCAPITests | skip | r3f 挂点嫌疑 + 08-28 selcons 并行批 2 红（result=-1 启动失败形态，并行干扰） | 08-29 Luke 裁定 skip，2 红不采信 |
 
 <!-- 表格仅收整 suite 级 skip（供脚本 awk 消费）；用例级 skip 记在下方，不入机器可读表 -->
