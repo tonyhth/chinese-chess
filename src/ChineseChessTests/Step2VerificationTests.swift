@@ -46,9 +46,15 @@ struct Step2E2VerificationTests {
 @Suite("Step2 E1 拔nnue冷启动降级链", .serialized)
 struct Step2E1ColdStartTests {
 
+    /// defaults 域隔离（Luke 08-29 裁定：bundle id 共享 defaults 跨进程互踩防护）
+    /// 批前快照 standard 域，批尾 E1-3 恢复——水套件经 Router/native 引擎路径
+    /// 可能写入的 chinesechess.* 键不残留，不污染后续 Phase2cP1 等 defaults 敏感 suite。
+    static var savedDefaultsSnapshot: [String: Any]?
+
     /// 残留自愈：上次异常中断留下的 .h1bak 先还原
-    @Test("E1-0 残留自愈")
+    @Test("E1-0 残留自愈 + defaults 域快照")
     func restoreLeftover() throws {
+        Step2E1ColdStartTests.savedDefaultsSnapshot = UserDefaults.standard.dictionaryRepresentation()
         guard let bak = nnueBackupURL(), let nnue = nnueURL() else {
             // nnue 缺失且存在 bak → 还原
             if let bak = try? FileManager.default.contentsOfDirectory(
@@ -114,6 +120,22 @@ struct Step2E1ColdStartTests {
         guard case .ok = EmbeddedPikafishEngine.verifyNNUEAsset() else {
             Issue.record("恢复后 verifyNNUEAsset 应 ok")
             return
+        }
+    }
+
+    @Test("E1-3 defaults 域隔离复核：standard 域无残留写入")
+    func defaultsDomainClean() throws {
+        let d = UserDefaults.standard
+        // 引擎路径可能触碰的键族，批尾应为快照态（新增即残留）
+        let engineKeys = ["chinesechess.externalEngines", "chinesechess.selectedEngine",
+                          "chinesechess.pendingEngine", "chinesechess.pendingNative",
+                          "chinesechess.wantsExternalEngine", "chinesechess.language"]
+        let snap = Step2E1ColdStartTests.savedDefaultsSnapshot ?? [:]
+        for k in engineKeys where snap[k] == nil {
+            if d.object(forKey: k) != nil {
+                d.removeObject(forKey: k)  // 隔离处置：清掉本套件引入的残留
+                Issue.record("defaults 域残留写入：\(k)（已清理）")
+            }
         }
     }
 }
