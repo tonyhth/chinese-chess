@@ -94,10 +94,12 @@ final class AssessmentSession {
             let uci = move.uciNotation
 
             // 引擎分析（使用轻量模式，depth=12, timeMs=300）
+            // v6.3.1 同修（双写历史根因，见 AnalysisViewModel.analyzeAll 注）：
+            // fenBefore 由 currentBoard 逐步 execute 精确生成，再传 moveHistory 会双应用 → C 拒收静默 nil
             let analysis = await analyzer.analyzeMoveLite(
                 fenBefore: fenBefore,
                 playerMove: uci,
-                moveHistory: moveHistory,
+                moveHistory: [],
                 depth: 12,
                 timeMs: 300,
                 multiPVCount: 3
