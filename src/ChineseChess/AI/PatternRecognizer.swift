@@ -198,6 +198,13 @@ struct PatternRecognizer {
 
         // 飞将威胁：双方将在同一列，中间无子
         if let mg = myGeneral, let og = opGeneral, mg.col == og.col {
+            // 2026-08-29 SIGILL 案防御：双将同格 = 腐败棋盘，minR+1..<maxR 空 Range 是 trap
+            if mg == og {
+                BoardIntegrityLogger.dumpOverlap(reason: "PatternRecognizer.flyingGeneralThreat",
+                                                 pieces: board.pieces,
+                                                 recentMoves: Array(board.moveHistory.suffix(10)),
+                                                 detail: "双将同格(\(mg.row),\(mg.col))——腐败棋盘，飞将威胁按无棋型处理")
+            } else {
             var blocked = false
             let minR = min(mg.row, og.row) + 1
             let maxR = max(mg.row, og.row)
@@ -207,6 +214,7 @@ struct PatternRecognizer {
             if !blocked {
                 // 飞将——轮到谁走谁有利，简化给当前行加分
                 bonus += w.flyingGeneralBonus
+            }
             }
         }
 
@@ -285,6 +293,16 @@ struct PatternRecognizer {
         guard chariot.position.col == general.col else { return false }
         let minRow = min(chariot.position.row, general.row) + 1
         let maxRow = max(chariot.position.row, general.row)
+        // 2026-08-29 SIGILL 案防御：车/将同格 = 棋盘腐败（重复 ID 的 execute 错移所致）。
+        // 空 Range（lowerBound > upperBound）在 Swift 是 runtime trap——腐败棋盘宁可
+        // dump 后按无棋型处理，绝不让评估器杀进程（同 A3 canAttack 防御语义）。
+        guard minRow <= maxRow else {
+            BoardIntegrityLogger.dumpOverlap(reason: "PatternRecognizer.isIronGate",
+                                             pieces: board.pieces,
+                                             recentMoves: [],
+                                             detail: "车(row:\(chariot.position.row),col:\(chariot.position.col)) 与将(row:\(general.row),col:\(general.col)) 同格——腐败棋盘，铁门栓按无棋型处理")
+            return false
+        }
         for row in minRow..<maxRow {
             if board.piece(at: Position(row: row, col: general.col)) != nil { return false }
         }

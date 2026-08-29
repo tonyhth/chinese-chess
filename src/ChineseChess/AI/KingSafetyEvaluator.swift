@@ -118,6 +118,16 @@ struct KingSafetyEvaluator {
     // MARK: - 辅助方法
 
     static func isAttackingPosition<T: BoardReadable>(_ piece: Piece, target: Position, on board: T) -> Bool {
+        // 2026-08-29 SIGILL 案防御（与 MoveValidator.countPiecesBetween/A3 同语义）：
+        // 攻击子与目标同格 = 棋盘腐败（重复 ID 错移产物）——min+1..<max 空 Range 是
+        // runtime trap，宁可 dump 后按无攻击处理，绝不让评估器杀进程。
+        if piece.position == target {
+            BoardIntegrityLogger.dumpOverlap(reason: "KingSafetyEvaluator.isAttackingPosition",
+                                             pieces: board.pieces,
+                                             recentMoves: Array(board.moveHistory.suffix(10)),
+                                             detail: "piece(id:\(piece.id) \(piece.kind)) 与 target(\(target.row),\(target.col)) 同格——腐败棋盘，按无攻击处理")
+            return false
+        }
         let pr = piece.position.row, pc = piece.position.col
         let tr = target.row, tc = target.col
 

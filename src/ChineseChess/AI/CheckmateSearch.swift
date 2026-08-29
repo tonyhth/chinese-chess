@@ -151,6 +151,15 @@ struct CheckmateSearch {
 
     /// 计算两个位置之间（不含两端）的棋子数量（仅限同行或同列）
     private static func countPiecesBetween(_ a: Position, _ b: Position, on board: LegacySearchBoard) -> Int {
+        // 2026-08-29 SIGILL 案防御（与 MoveValidator/A3 同语义）：同格 = 腐败棋盘，
+        // 空 Range 是 runtime trap——dump 后按 0 个阻挡子处理
+        if a == b {
+            BoardIntegrityLogger.dumpOverlap(reason: "CheckmateSearch.countPiecesBetween",
+                                             pieces: board.pieces,
+                                             recentMoves: Array(board.moveHistory.suffix(10)),
+                                             detail: "a==b==(\(a.row),\(a.col)) 腐败棋盘，按 0 阻挡子处理")
+            return 0
+        }
         var count = 0
         if a.row == b.row {
             let minCol = min(a.col, b.col) + 1
