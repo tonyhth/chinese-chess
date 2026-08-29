@@ -104,13 +104,15 @@ final class AnalysisViewModel {
             // 跳过非玩家走法
             guard isPlayerMove(at: index) else { continue }
 
-            let moveHistory = Array(moves[0..<index])
             let fenBefore = computeFEN(before: index)
 
+            // v6.3.1 发布阻塞修复：fenBefore 已由 FENRebuilder 烘焙全部历史（v3.7.0 起精确重建），
+            // 此前另传 moveHistory 致 C 层着法双重应用 → set_position 非法 → r=-1 → 静默 nil
+            // （复盘第 2 着起全空指纹；C 探针实证 fen2+history=-1，洪涛 PROBE 日志 20-40ms 快失败同形）
             let analysis = await PositionAnalyzer.shared.analyzeMove(
                 fenBefore: fenBefore,
                 playerMove: move,
-                moveHistory: moveHistory
+                moveHistory: []
             )
             analyses[index] = analysis
             done += 1
@@ -148,13 +150,13 @@ final class AnalysisViewModel {
         guard analyses[index] == nil else { return }
         if !force && !isPlayerMove(at: index) { return }
 
-        let moveHistory = Array(moves[0..<index])
         let fenBefore = computeFEN(before: index)
 
+        // v6.3.1 同修（双写历史根因见 analyzeAll 注）
         let analysis = await PositionAnalyzer.shared.analyzeMove(
             fenBefore: fenBefore,
             playerMove: moves[index],
-            moveHistory: moveHistory
+            moveHistory: []
         )
         analyses[index] = analysis
     }

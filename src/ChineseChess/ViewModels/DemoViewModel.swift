@@ -281,14 +281,15 @@ class DemoViewModel {
 
         let idx = currentIndex
         let fenBefore = fenList[idx]
-        let history = Array(uciMoves[0..<idx])
         let playerMove = uciMoves[idx]
 
         Task { [weak self] in
+            // v6.3.1 同修：fenList[idx] 已烘焙历史，双传 moveHistory 会致 C 层双应用静默 nil
+            // （与 AnalysisViewModel 同根因，见其 analyzeAll 注释）
             guard let commentary = await MasterGameCommentator.shared.analyzeStep(
                 fenBefore: fenBefore,
                 playerMove: playerMove,
-                moveHistory: history
+                moveHistory: []
             ) else { return }
 
             await MainActor.run {
