@@ -30,6 +30,16 @@ if [[ -z "$VERSION" ]]; then
     exit 1
 fi
 
+
+
+# ============ 路径定义 ============
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# 去掉参数可能带的 v 前缀，避免输出 vv3.5.0
+VERSION_NUM="${VERSION#v}"
+APP_NAME="中国象棋-v${VERSION_NUM}.app"
+APP_DIR="$PROJECT_ROOT/$APP_NAME"
+ICONSET_DIR="$PROJECT_ROOT/src/ChineseChess/Resources/Assets.xcassets/AppIcon.appiconset"
+
 # ============ 版本号三处同步检查（v6.3 加急：双 project.yml MARKETING/CURRENT + 产物 Info.plist） ============
 VERSION_NUM_PRE="${VERSION#v}"
 echo "🔢 [0/6] 版本号三处同步检查（期望 $VERSION_NUM_PRE）..."
@@ -49,13 +59,6 @@ if [[ $VER_FAIL -gt 0 ]]; then
 fi
 echo "   ✅ 双 project.yml MARKETING/CURRENT 均为 $VERSION_NUM_PRE（产物 Info.plist 在 [6/6] 后置复查）"
 
-# ============ 路径定义 ============
-PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-# 去掉参数可能带的 v 前缀，避免输出 vv3.5.0
-VERSION_NUM="${VERSION#v}"
-APP_NAME="中国象棋-v${VERSION_NUM}.app"
-APP_DIR="$PROJECT_ROOT/$APP_NAME"
-ICONSET_DIR="$PROJECT_ROOT/src/ChineseChess/Resources/Assets.xcassets/AppIcon.appiconset"
 
 # xcodegen 产物路径
 BUILD_DIR="$PROJECT_ROOT/build"
