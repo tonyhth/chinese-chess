@@ -410,8 +410,10 @@ actor EmbeddedPikafishEngine: ChessEngine {
         defer { activeSearchCount -= 1 }
 
         // v6.3 E2: evaluate 补 watchdog（原仅 bestMove 有）——soft=timeMs+2s，封顶 15s 硬帽
-        //（Ruby P2③：直用 15s 帽会截断 movetime>13s 的合法自定义搜索，与 bestMove 口径归一）
-        return await withWatchdog(budgetMs: min(timeMs + 2000, Self.watchdogHardCapMs)) {
+        //（Ruby P2③：直用 15s 帽会截断 movetime>13s 的合法自定义搜索，与 bestMove 口径归一；
+        //  Ruby 复审④：timeMs<=0 视为「不限时深搜」→ 归 hardCap，防 0+2s 静默截断语义）
+        let evalBudgetMs = timeMs > 0 ? min(timeMs + 2000, Self.watchdogHardCapMs) : Self.watchdogHardCapMs
+        return await withWatchdog(budgetMs: evalBudgetMs) {
             await self.cApiEvaluate(fen: fen, movesStr: movesStr, depth: depth, timeMs: timeMs)
         }
     }
@@ -461,8 +463,10 @@ actor EmbeddedPikafishEngine: ChessEngine {
         activeSearchCount += 1
         defer { activeSearchCount -= 1 }
 
-        // v6.3 E2: multiPV 补 watchdog（原仅 bestMove 有）——soft=timeMs+2s，封顶 15s 硬帽（P2③归一）
-        let result: [AnalysisLine]? = await withWatchdog(budgetMs: min(timeMs + 2000, Self.watchdogHardCapMs)) {
+        // v6.3 E2: multiPV 补 watchdog（原仅 bestMove 有）——soft=timeMs+2s，封顶 15s 硬帽
+        //（P2③归一；Ruby 复审④：timeMs<=0 归 hardCap，防 0+2s 静默截断「不限时」语义）
+        let mpvBudgetMs = timeMs > 0 ? min(timeMs + 2000, Self.watchdogHardCapMs) : Self.watchdogHardCapMs
+        let result: [AnalysisLine]? = await withWatchdog(budgetMs: mpvBudgetMs) {
             await self.cApiMultiPV(fen: fen, movesStr: movesStr, count: count, depth: depth, timeMs: timeMs)
         }
         return result ?? []

@@ -1,7 +1,7 @@
 # C4 `#if os()` 分支定性表（v6.3 Step 3）
 
 > 消化底料：docs/test/platform-branch-matrix.md（Eric 08-28 快照，124 处 @ aa74fe7）
-> 本表时点：HEAD e579fdc（E5 开关退场后全量重扫，产品码 96 处/40 文件：
+> 本表时点：HEAD e579fdc（E5 开关退场后全量重扫，产品码 96 处/38 文件（Ruby P2① 更正，原 40 为底料快照口径）：
 > `grep -rn '#if os(' src/ChineseChess --include='*.swift'` 亲核）
 > 定性口径：**A**=平台 API 必要（UIKit/AppKit/硬件/系统服务，无分叉即编译失败）
 > **B**=平台 UI 惯例（HStack vs toolbar、navBarTitleDisplayMode 等，iOS 分支 macOS 不可编译验证）
@@ -68,7 +68,8 @@
 - **A（平台 API 必要）**：15 处 —— 无分叉即不可编译/无对应 API，全部合理
 - **B（平台 UI 惯例）**：61 处 —— 双布局/导航/控件惯例；macOS test target 编译隔离 iOS 分支，上限 🟡，真运行时依赖 C1 UITests 收编扩容
 - **C（桌面工具链限定）**：11 处 —— CLI/NSPasteboard 等桌面场景，iOS 缺失合理
-- **D（历史债）**：**9 处归并后 0 处待拍板** —— 原候选（SettingsView:37 iOS 引擎开关入口）已随 v6.3 E5 开关全清退场删除；DemoControlBar 速度菜单形态差异已入 v6.4-ui-debt-ledger 不在 v6.3 scope
+- **D（历史债）**：0 处待拍板 —— 唯一候选（SettingsView:37 iOS 引擎开关入口）已随 v6.3 E5 开关全清退场删除；DemoControlBar 速度菜单形态差异已入 v6.4-ui-debt-ledger 不在 v6.3 scope
+- **账目对账（Ruby P2①）**：96 = 87 处独立定性行（A15+B61+C11）+ 9 处组内归并行（如 ToolbarView macOS ×5 计 1 行、SelfPlayRunner ×6 计 1 行等——归并行各分量已在行内 ×N 标注，分类随组行）；38 文件（表头原 40 系底料快照时点口径，E5 删 SettingsView 开关等已漂移）
 - ⭐ 三个逃逸史现场（ToolbarView/StatusBarView/SettingsView）全部落 L2 补桩锢定（ST1/ST2/ST3）
 - 🔴→🟡 提升：Eric 热点排行 #2-#10 全部落桩（#1 SoundEngine 静态桩 + XCUITest 遗留）
 

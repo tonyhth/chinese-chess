@@ -27,15 +27,33 @@ struct L2PlatformBranchStubTests {
     }
 
     /// 提取 `#if os(X)` … #endif 块集合（按出现顺序）
+    /// Ruby P2②：嵌套深度计数——块内再有 #if DEBUG 等内层条件时，须匹配到
+    /// 同深度的 #endif，否则块被内层 endif 截断 → 漏检假绿面
     private static func osBlocks(_ source: String, os: String) -> [String] {
         var blocks: [String] = []
         var searchRange = source.startIndex..<source.endIndex
         let marker = "#if os(\(os))"
         while let r = source.range(of: marker, range: searchRange) {
             let rest = source[r.lowerBound...]
-            guard let end = rest.range(of: "#endif") else { break }
-            blocks.append(String(source[r.lowerBound..<end.upperBound]))
-            searchRange = end.upperBound..<source.endIndex
+            // 嵌套扫描：起始深度 1（本块 #if），遇任何 #if 系列前缀 +1，遇 #endif -1，归零即块尾
+            var depth = 1
+            var idx = rest.index(after: r.upperBound)
+            var blockEnd: String.Index?
+            while idx < rest.endIndex {
+                let line = rest[idx...].prefix(while: { $0 != "\n" })
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                if trimmed.hasPrefix("#if") { depth += 1 }
+                else if trimmed.hasPrefix("#endif") {
+                    depth -= 1
+                    if depth == 0 { blockEnd = rest.index(after: idx); break }
+                }
+                guard let nl = rest[idx...].firstIndex(of: "\n") else { break }
+                idx = rest.index(after: nl)
+                _ = line
+            }
+            guard let end = blockEnd else { break }
+            blocks.append(String(rest[..<end]))
+            searchRange = end..<source.endIndex
         }
         return blocks
     }
@@ -141,8 +159,9 @@ struct L2PlatformBranchStubTests {
         ]
         for rel in navBarFiles {
             let src = try Self.source(rel)
-            #expect(src.contains("navigationBarTitleDisplayMode") || src.contains("#if os(iOS)"),
-                    "\(rel) 应含 iOS navBar 惯例分支")
+            // Ruby P2③：单锚锢定——删去 "#if os(iOS)" 恒真析取支
+            #expect(src.contains("navigationBarTitleDisplayMode"),
+                    "\(rel) 应含 navigationBarTitleDisplayMode（navBar 惯例单锚锢定）")
         }
         // ChessBoardView 触感（iOS 硬件）
         let board = try Self.source("src/ChineseChess/Views/ChessBoardView.swift")
