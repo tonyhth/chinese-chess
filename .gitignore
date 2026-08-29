@@ -43,10 +43,11 @@ proposals/
 !README.md
 
 # Scripts (not project code)
-scripts/
+scripts/*
 *.py
 *.sh
 !run_tests.sh
+!scripts/run-tests-mutex.sh
 
 # Other projects (should not exist here)
 projects/
