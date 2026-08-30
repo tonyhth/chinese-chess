@@ -34,6 +34,8 @@ xcrun devicectl list devices
 # 确认 Tony's iPhone 出现在列表中，记下设备 ID
 ```
 
+> ⚠️ 双 ID 坑（2026-08-30 实战）：devicectl 列出的 Identifier 是 **coredevice ID**（如 0BB3D5AF-…，仅 devicectl install/info 用），**xcodebuild -destination 不认它**。构建前用 `xcodebuild -project … -showdestinations | grep iPhone` 实测取 **USB UDID**（如 00008130-…）填入 -destination。
+
 ### 4. 构建 iOS 版
 ```bash
 cd ~/DevTeam/projects/chinese-chess/ChineseChess-iOS
