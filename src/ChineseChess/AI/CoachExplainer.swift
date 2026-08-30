@@ -398,7 +398,7 @@ actor CoachExplainer {
 
     /// 是否是杀棋分数
     private func isMateScore(_ cp: Int) -> Bool {
-        abs(cp) >= 90000
+        abs(cp) >= EvalScaleConstants.mateThreshold  // v6.4 A-Phase2：引用唯一事实源（Ruby P2 清偿）
     }
 
     /// 是否是将军走法（简化判断：目标位置在九宫格附近）

@@ -367,7 +367,7 @@ actor PositionAnalyzer {
     }
 
     /// topN multiPV 线 → Variation[]（截取入档，视角转换唯一发生点）
-    private static func buildVariations(lines: [AnalysisLine], fenBefore: String) -> [Variation]? {
+    static func buildVariations(lines: [AnalysisLine], fenBefore: String) -> [Variation]? {  // internal：验收锚测试直测视角转换
         guard !lines.isEmpty else { return nil }
         guard let parsed = FENDecoder.parse(fen: fenBefore) else { return nil }
         let board = Board(pieces: parsed.pieces)
