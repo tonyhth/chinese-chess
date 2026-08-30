@@ -17,6 +17,18 @@ struct AssessedMove {
 /// 六维评分器
 enum SixDimensionScorer {
 
+    // MARK: - mate delta 归一化（v6.3.2 热修链，Ruby P1-1）
+
+    /// mate 分数（|s|≥90000，与 EvalChartScale.mateThreshold 同口径）的 evalDelta≈99000
+    /// 直接进均值/方差/连续失误检测会把六维整体砸塌。归一为固定重损惩罚值（700cp）
+    /// ——语义：将死一步重于普通失误，但不至于单步摧毁整维。
+    static let mateDeltaPenalty = 700
+
+    static func normalizedDelta(_ delta: Int) -> Int {
+        abs(delta) >= EvalChartScale.mateThreshold ? mateDeltaPenalty : delta
+    }
+
+
     // MARK: - 维度 1：开局水平（权重 15%）
 
     static func evaluateOpening(moves: [AssessedMove]) -> SixDimensionScores.ScoreBreakdown {
@@ -32,8 +44,8 @@ enum SixDimensionScorer {
         let bookMatches = openingMoves.filter { $0.isBookMove }.count
         let bookMatchRate = Double(bookMatches) / Double(openingMoves.count)
 
-        // 指标 2：开局阶段平均 delta
-        let avgDelta = openingMoves.map { Double($0.analysis.evalDelta) }.reduce(0, +) / Double(openingMoves.count)
+        // 指标 2：开局阶段平均 delta（mate 分数归一，v6.3.2 P1-1）
+        let avgDelta = openingMoves.map { Double(normalizedDelta($0.analysis.evalDelta)) }.reduce(0, +) / Double(openingMoves.count)
 
         // delta 为主（70%），匹配率为辅（30%）
         let deltaScore = max(0, 70 - Int(avgDelta / 3))
@@ -98,7 +110,7 @@ enum SixDimensionScorer {
             )
         }
 
-        let avgDelta = endgameMoves.map { Double($0.analysis.evalDelta) }.reduce(0, +) / Double(endgameMoves.count)
+        let avgDelta = endgameMoves.map { Double(normalizedDelta($0.analysis.evalDelta)) }.reduce(0, +) / Double(endgameMoves.count)
         let blunders = endgameMoves.filter {
             $0.analysis.quality == .blunder || $0.analysis.quality == .losing
         }.count
@@ -119,7 +131,7 @@ enum SixDimensionScorer {
     // MARK: - 维度 4：稳定性（权重 20%）
 
     static func evaluateConsistency(moves: [AssessedMove]) -> SixDimensionScores.ScoreBreakdown {
-        let deltas = moves.map { Double($0.analysis.evalDelta) }
+        let deltas = moves.map { Double(normalizedDelta($0.analysis.evalDelta)) }
         guard deltas.count >= 10 else {
             return SixDimensionScores.ScoreBreakdown(
                 score: 50, label: "数据不足",
