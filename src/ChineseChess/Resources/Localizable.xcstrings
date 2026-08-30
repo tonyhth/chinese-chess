@@ -1858,6 +1858,86 @@
         }
       }
     },
+    "analysis.lossCp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loss %d cp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "亏 %d 分"
+          }
+        }
+      }
+    },
+    "analysis.noReviewData": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No review data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该步暂无回顾数据"
+          }
+        }
+      }
+    },
+    "analysis.noVariationPosition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a player move position"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择玩家着局面后显示变招"
+          }
+        }
+      }
+    },
+    "analysis.noVariations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High-quality quick-screen hit — no variation suggestions (or legacy analysis data)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该着为高质量预筛命中，无变招建议（或为旧版分析数据）"
+          }
+        }
+      }
+    },
+    "analysis.variationsTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variations:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变招："
+          }
+        }
+      }
+    },
     "analysis.completed": {
       "localizations": {
         "en": {

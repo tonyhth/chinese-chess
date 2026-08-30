@@ -44,6 +44,9 @@ struct AnalysisView: View {
 
                 if hasExpertAnalysis {
                     evalChart
+                    // v6.4 A-Phase2 §3.2：当前局面 top3 变招（金锚点局面）。
+                    // 降级链统一（v1.1 §3.5）：预筛命中步 nil 与老档 nil 同文案轻提示
+                    variationsBar
                 }
             }
         }
@@ -197,6 +200,16 @@ struct AnalysisView: View {
                                 replayVM.jumpTo(index: index + 1)
                                 proxy.scrollTo(index, anchor: .center)
                             }
+                            // v6.4 A-Phase2 §3.1：徽章点开三要素小卡（长按/右键）
+                            .contextMenu {
+                                if let review = analysisVM.moveReview(atMove: index) {
+                                    Text("实际：\(review.played)")
+                                    Text("推荐：\(review.recommended)")
+                                    Text(String(format: l10n.t("analysis.lossCp"), review.lossCp))
+                                } else {
+                                    Text(l10n.t("analysis.noReviewData"))
+                                }
+                            }
                     }
                 }
                 .padding(.horizontal, 12)
@@ -252,6 +265,47 @@ struct AnalysisView: View {
     }
 
     // MARK: - 评估曲线
+
+    /// v6.4 A-Phase2：当前局面变招条（top3 / 统一降级轻提示）
+    private var variationsBar: some View {
+        let k = replayVM.currentIndex
+        let vars = analysisVM.variations(atPosition: k)
+        return Group {
+            if vars.isEmpty {
+                if k == 0 || !analysisVM.isPlayerMove(at: k - 1) {
+                    Text(l10n.t("analysis.noVariationPosition"))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                } else {
+                    // 预筛命中步（高质量无 multiPV）与老档（无 variations 字段）统一降级
+                    Text(l10n.t("analysis.noVariations"))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            } else {
+                HStack(spacing: 12) {
+                    Text(l10n.t("analysis.variationsTitle"))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    ForEach(vars, id: \.rank) { v in
+                        HStack(spacing: 3) {
+                            Text("\(v.rank).")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                            Text(v.sanZh)
+                                .font(.caption.weight(.medium))
+                                .foregroundColor(Color(red: 200/255, green: 160/255, blue: 100/255))
+                            Text("\(v.cpAfter > 0 ? "+" : "")\(v.cpAfter)")
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+            }
+        }
+    }
 
     private var evalChart: some View {
         let sequence = analysisVM.evalSequence
