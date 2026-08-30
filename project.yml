@@ -59,8 +59,8 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: src/ChineseChess/Resources/Info.plist
-        MARKETING_VERSION: 6.3.2
-        CURRENT_PROJECT_VERSION: 6.3.2
+        MARKETING_VERSION: 6.3.3
+        CURRENT_PROJECT_VERSION: 6.3.3
         INFOPLIST_KEY_CFBundleDisplayName: 中国象棋
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.board-games
         INFOPLIST_KEY_NSHighResolutionCapable: YES
