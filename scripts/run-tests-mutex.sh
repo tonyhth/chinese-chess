@@ -27,6 +27,8 @@ PROJECT=~/DevTeam/projects/chinese-chess
 LOCK_DIR=~/DevTeam/.locks
 LOCK_FILE="$LOCK_DIR/xcode-tests.lock"
 DD=/tmp/xc-mutex-dd
+# 超时方案①（Luke 2026-08-30 采纳）：外层 timeout 防挂起无限占锁（os_log 类）。默认 1800s，env 可覆盖（自证用）
+RUNNER_TIMEOUT="${RUNNER_TIMEOUT:-1800}"
 LOG_DIR=~/DevTeam/workdirs/logs/h1
 SKIP_REGISTRY="$PROJECT/docs/test/skip-registry.md"
 EXIT_SUMMARY=()
@@ -99,11 +101,17 @@ run_suite() {
   # TEST FAILED 也报 rc=0 假 PASS 隐患），现子 shell 传递 xcodebuild 真实 rc
   ( set -o pipefail; cd "$PROJECT" && \
     bash ~/DevTeam/scripts/preflight-test-assets.sh "$PROJECT" >/dev/null || { echo "preflight 失败（资产缺失）"; exit 3; } ; \
-    xcodebuild test -scheme ChineseChess -sdk macosx \
+    timeout "$RUNNER_TIMEOUT" xcodebuild test -scheme ChineseChess -sdk macosx \
       -derivedDataPath "$DD" \
       $(skip_args) \
       -only-testing:"ChineseChessTests/$suite" 2>&1 | tee "$log" )
   local rc=$?
+  if [ "$rc" -eq 124 ]; then
+    echo "⏱️ [$suite] TIMEOUT：超 ${RUNNER_TIMEOUT}s 被 kill（防挂起占锁），日志尾部标记 ↓" | tee -a "$log"
+    echo "=== RUNNER TIMEOUT ${RUNNER_TIMEOUT}s ($suite) $(date '+%F %T') ===" >> "$log"
+    EXIT_SUMMARY+=("FAIL(timeout ${RUNNER_TIMEOUT}s) $suite $log")
+    return 124
+  fi
   # 静默零跑门规（2026-08-29 Step2 终报批实证：filter 名不符 → Executed 0 tests 假绿）
   # 2026-08-30 Tina 复核：双框架对账——XCTest（Executed N）/ Swift Testing（Test run with N tests）任一侧 N≥1 即真跑；
   # 纯 0 计数（含 'Test run with 0 tests'）自然落入零跑分支被拦
@@ -153,10 +161,14 @@ main() {
     echo "▶ [full] r 系全量批起跑 $(date '+%F %T')，日志 $flog"
     ( cd "$PROJECT" && \
       bash ~/DevTeam/scripts/preflight-test-assets.sh "$PROJECT" >/dev/null || { echo "preflight 失败"; exit 3; } ; \
-      xcodebuild test -scheme ChineseChess -sdk macosx \
+      timeout "$RUNNER_TIMEOUT" xcodebuild test -scheme ChineseChess -sdk macosx \
         -derivedDataPath "$DD" -parallel-testing-enabled NO \
         $(skip_args) 2>&1 | tee "$flog" )
-    frc=${PIPESTATUS[0]:-$?}
+    frc=$?
+    if [ "$frc" -eq 124 ]; then
+      echo "⏱️ [full] TIMEOUT：超 ${RUNNER_TIMEOUT}s 被 kill" | tee -a "$flog"
+      echo "=== RUNNER TIMEOUT ${RUNNER_TIMEOUT}s (full) $(date '+%F %T') ===" >> "$flog"
+    fi
     # 汇总对账门禁：总 Executed N>=500（r3g 冻结基线 623 量级），低于即批次作废
     ftotal=$(grep -oE "Test run with [0-9]+ tests in [0-9]+ suites|Executed [0-9]+ tests" "$flog" | tail -1 | grep -oE "[0-9]+" | head -1 || echo 0)
     if [ "${ftotal:-0}" -lt 500 ]; then
