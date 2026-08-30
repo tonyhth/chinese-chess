@@ -1874,6 +1874,22 @@
         }
       }
     },
+    "analysis.engineUpgraded": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engine upgraded, re-analyzing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "引擎已升级，重新分析中"
+          }
+        }
+      }
+    },
     "analysis.engineUnavailable": {
       "localizations": {
         "en": {

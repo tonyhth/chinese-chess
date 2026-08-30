@@ -128,6 +128,12 @@ struct AnalysisView: View {
 
     private var analysisControls: some View {
         HStack(spacing: 12) {
+            // v6.4 A2①：引擎/深度口径过期轻提示（后台静默重算中，不弹窗阻塞）
+            if analysisVM.staleEngineProfile {
+                Text(l10n.t("analysis.engineUpgraded"))
+                    .font(.caption2)
+                    .foregroundColor(.orange)
+            }
             if analysisVM.isAnalyzing {
                 ProgressView()
                     .scaleEffect(0.8)
@@ -366,7 +372,8 @@ struct AnalysisView: View {
 
         let fen = replayVM.record.initialFEN ?? FENParser.standardInitial
         // v3.7.0 Phase 2: 传入 gameMoves 用于 FEN 精确推算
-        analysisVM.load(moves: moves, initialFEN: fen, gameMoves: gameMoves)
+        // v6.4 A2①: 传 recordId 启用 sidecar 持久化（二次打开 0 引擎调用）
+        analysisVM.load(moves: moves, initialFEN: fen, gameMoves: gameMoves, recordId: replayVM.record.id)
         await analysisVM.analyzeAll()
     }
 

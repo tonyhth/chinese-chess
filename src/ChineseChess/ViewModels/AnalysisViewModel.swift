@@ -47,11 +47,37 @@ final class AnalysisViewModel {
 
     /// 初始化分析会话（v3.7.0: 新增 gameMoves 参数用于 FEN 推算）
     /// v4.0 Phase 3 #8: 新增 playerColorOverride 参数
-    func load(moves: [String], initialFEN: String, gameMoves: [GameMove] = [], playerColorOverride: Side? = nil) {
+    /// v6.4 A2①: 新增 recordId——启用 sidecar 持久化恢复（nil = 不启用，如临时分析）
+    private(set) var persistenceRecordId: UUID?
+    /// v6.4 A2①: 恢复的信封（movesHash/口径判定结果）
+    private(set) var restoredEnvelope: AnalysisEnvelope?
+    /// v6.4 A2①: 引擎/深度口径过期（后台静默重算 + 轻提示）
+    private(set) var staleEngineProfile = false
+    /// v6.4 A2①: 本分析批实际使用的引擎版本（落盘用，防止过期判定/落盘双取不一致）
+    private var analysisRunEngineVersion = "unknown"
+    /// v6.4 A2①: 持久化 store（默认 shared；测试注入临时目录 store）
+    var persistenceStore: GameRecordStore = .shared
+
+    func load(moves: [String], initialFEN: String, gameMoves: [GameMove] = [], playerColorOverride: Side? = nil, recordId: UUID? = nil) {
         self.moves = moves
         self.initialFEN = initialFEN
         self.analyses = Array(repeating: nil, count: moves.count)
         self.currentIndex = 0
+        self.persistenceRecordId = recordId
+        self.restoredEnvelope = nil
+        self.staleEngineProfile = false
+
+        // v6.4 A2①：恢复持久化分析（movesHash 匹配才恢复；异常/不匹配走全量重跑）
+        if let rid = recordId {
+            let expectedHash = AnalysisMovesHash.compute(initialFEN: initialFEN, uciMoves: moves)
+            if let env = persistenceStore.loadAnalysisEnvelope(recordId: rid),
+               env.movesHash == expectedHash {
+                for (idx, a) in env.analyses where idx >= 0 && idx < analyses.count {
+                    analyses[idx] = a
+                }
+                restoredEnvelope = env
+            }
+        }
 
         // v4.0 Phase 3 #8: 从 FEN 解析先手方
         let fenParts = initialFEN.split(separator: " ")
@@ -94,15 +120,34 @@ final class AnalysisViewModel {
 
         isAnalyzing = true
 
+        // v6.4 A2①：引擎/深度口径过期判定（decision v1.1 P2-2）——不匹配则丢弃恢复值后台静默重算 + 轻提示
+        let currentEngineVersion = await AnalysisProfile.engineVersion()
+        analysisRunEngineVersion = currentEngineVersion
+        if let env = restoredEnvelope {
+            if env.engineVersion != currentEngineVersion || env.depthSetting != AnalysisProfile.depth {
+                staleEngineProfile = true
+                analyses = Array(repeating: nil, count: moves.count)
+                restoredEnvelope = nil
+            }
+        }
+
         // v4.0 Phase 3 #8: 进度总数改为玩家走法数
         let playerMoveCount = moves.indices.filter { isPlayerMove(at: $0) }.count
         analysisProgress = (0, playerMoveCount)
 
-        var done = 0
+        // v6.4 A2①：恢复后剩余待分析数（增量从 analyzedMoveCount 起算；非玩家着不计数）
+        let alreadyAnalyzed = moves.indices.filter { isPlayerMove(at: $0) && analyses[$0] != nil }.count
+        let pendingCount = playerMoveCount - alreadyAnalyzed
+        // 批 >30 步（待分析面）时半程 checkpoint（decision 待决点 2）
+        let checkpointAt = pendingCount > 30 ? alreadyAnalyzed + pendingCount / 2 : -1
+
+        var done = alreadyAnalyzed
         var nilCount = 0
         for (index, move) in moves.enumerated() {
             // 跳过非玩家走法
             guard isPlayerMove(at: index) else { continue }
+            // v6.4 A2①：增量——已恢复/已分析的跳过（续弈仅新增着法有新分析）
+            guard analyses[index] == nil else { continue }
 
             let fenBefore = computeFEN(before: index)
 
@@ -124,6 +169,11 @@ final class AnalysisViewModel {
                 AppLog.analysis.warning("[Analysis] Move #\(index) returned nil (\(nilCount)/\(done) nil so far)")
             }
             #endif
+
+            // v6.4 A2①：批中半程 checkpoint（analyzedMoveCount 单调不回退由 store 侧保证）
+            if done == checkpointAt {
+                persistAnalysisEnvelope()
+            }
         }
 
         #if DEBUG
@@ -139,7 +189,39 @@ final class AnalysisViewModel {
             analysisUnavailableMessage = L10n.shared.t("analysis.engineUnavailable")
         }
 
+        // v6.4 A2①：批尾落盘（写序：先棋谱后 analysis——棋谱由对局流程保存，
+        // 分析信封仅在分析批末尾写，天然满足先后序）
+        persistAnalysisEnvelope()
+
         isAnalyzing = false
+    }
+
+    // MARK: - v6.4 A2① 持久化落盘
+
+    /// 将当前分析结果写入 sidecar（仅 recordId 启用时）
+    /// analyzedMoveCount = 已 non-nil 的玩家着数（尾部追加语义，单调不回退由 store 侧保证）
+    private func persistAnalysisEnvelope() {
+        guard let rid = persistenceRecordId, !moves.isEmpty else { return }
+        var dict: [Int: MoveAnalysis] = [:]
+        var analyzed = 0
+        for i in moves.indices where isPlayerMove(at: i) {
+            if let a = analyses[i] {
+                dict[i] = a
+                analyzed += 1
+            }
+        }
+        guard analyzed > 0 else { return }
+        let envelope = AnalysisEnvelope(
+            schemaVersion: AnalysisProfile.schemaVersion,
+            recordId: rid,
+            movesHash: AnalysisMovesHash.compute(initialFEN: initialFEN, uciMoves: moves),
+            analyzedMoveCount: analyzed,
+            engineVersion: analysisRunEngineVersion,
+            depthSetting: AnalysisProfile.depth,
+            analyses: dict
+        )
+        persistenceStore.saveAnalysisEnvelope(envelope)
+        restoredEnvelope = envelope
     }
 
     /// 分析单步（按需分析）
