@@ -354,8 +354,9 @@ struct AnalysisView: View {
                                 .allowsHitTesting(false)
                         }
 
-                        // 当前位置标记
-                        if let matched = sequence.first(where: { $0.index == replayVM.currentIndex - 1 }) {
+                        // 当前位置标记（v6.4 P2-1：索引口径收敛到 currentMoveIndex 单源）
+                        if let moveIndex = currentMoveIndex,
+                           let matched = sequence.first(where: { $0.index == moveIndex }) {
                             let totalSteps = sequence.last?.index ?? sequence.count
                             let stepWidth = totalSteps > 0
                                 ? geo.size.width / CGFloat(totalSteps)
@@ -386,9 +387,13 @@ struct AnalysisView: View {
 
     /// 当前选中步对应的分析结果（步子条与曲线同源：MoveAnalysis）
     private var selectedAnalysis: MoveAnalysis? {
-        let idx = replayVM.currentIndex - 1
-        guard idx >= 0, idx < analysisVM.analyses.count else { return nil }
+        guard let idx = currentMoveIndex, idx < analysisVM.analyses.count else { return nil }
         return analysisVM.analyses[idx]
+    }
+
+    /// v6.4 P2-1：选中步索引单源（曲线标记/步子条/标签共用同一口径）
+    private var currentMoveIndex: Int? {
+        replayVM.currentIndex >= 1 ? replayVM.currentIndex - 1 : nil
     }
 
     /// 「第 N 手 · 标签 · 掉 X 分」——三段均来自 MoveAnalysis 现成字段
@@ -434,7 +439,7 @@ struct AnalysisView: View {
                 }
             }
             .padding(10)
-            .frame(width: 140)
+            .frame(minWidth: 140)   // v6.4 P2-2：不封顶，AX 特大字号不截断
         }
     }
 

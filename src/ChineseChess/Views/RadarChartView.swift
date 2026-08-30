@@ -96,7 +96,8 @@ struct RadarChartView: View {
     // MARK: - 辅助
 
     /// v6.4 B2（Vera P3）：脏值清洗——NaN/±inf 归 0，越界 clamp 到 0...max。绘制层唯一入口，脏值不入 Canvas
-    static func sanitizedScore(_ value: Double, max: Double = 100) -> Double {
+    /// v6.4 P2-3：max 必传（单一事实源 maxScore，不留第二事实源默认值）
+    static func sanitizedScore(_ value: Double, max: Double) -> Double {
         guard value.isFinite else { return 0 }
         return Swift.min(Swift.max(value, 0), max)
     }

@@ -48,26 +48,26 @@ struct V64BLineTests {
 
     @Test("RadarChartView 脏值清洗：NaN/±inf 归 0")
     func radarNaNGuard() {
-        #expect(RadarChartView.sanitizedScore(Double.nan) == 0)
-        #expect(RadarChartView.sanitizedScore(.infinity) == 0)
-        #expect(RadarChartView.sanitizedScore(-.infinity) == 0)
+        #expect(RadarChartView.sanitizedScore(Double.nan, max: 100) == 0)
+        #expect(RadarChartView.sanitizedScore(.infinity, max: 100) == 0)
+        #expect(RadarChartView.sanitizedScore(-.infinity, max: 100) == 0)
     }
 
     @Test("RadarChartView 越界钳制：负值归 0、超上限封顶")
     func radarClamp() {
-        #expect(RadarChartView.sanitizedScore(-50) == 0)
-        #expect(RadarChartView.sanitizedScore(-0.1) == 0)
-        #expect(RadarChartView.sanitizedScore(0) == 0)
-        #expect(RadarChartView.sanitizedScore(55.5) == 55.5)
-        #expect(RadarChartView.sanitizedScore(100) == 100)
-        #expect(RadarChartView.sanitizedScore(1000) == 100)
+        #expect(RadarChartView.sanitizedScore(-50, max: 100) == 0)
+        #expect(RadarChartView.sanitizedScore(-0.1, max: 100) == 0)
+        #expect(RadarChartView.sanitizedScore(0, max: 100) == 0)
+        #expect(RadarChartView.sanitizedScore(55.5, max: 100) == 55.5)
+        #expect(RadarChartView.sanitizedScore(100, max: 100) == 100)
+        #expect(RadarChartView.sanitizedScore(1000, max: 100) == 100)
         #expect(RadarChartView.sanitizedScore(120, max: 80) == 80)
     }
 
     @Test("RadarChartView 清洗值可直接 Int 转换不崩（防 Int(NaN) trap）")
     func radarSanitizedIntConvertible() {
         for dirty in [Double.nan, .infinity, -.infinity, -1, 1e9] {
-            let safe = RadarChartView.sanitizedScore(dirty)
+            let safe = RadarChartView.sanitizedScore(dirty, max: 100)
             #expect(safe.isFinite)
             _ = Int(safe) // NaN 时这里会 trap，清洗后不应崩
         }
@@ -103,7 +103,7 @@ extension V64BLineTests {
     @Test("sanitizedScore 对全 NaN 输入序列仍可安全整表清洗（count<3 场景前置）")
     func radarAllNaNSafe() {
         let dirty: [Double] = [.nan, .infinity, -42]
-        let cleaned = dirty.map { RadarChartView.sanitizedScore($0) }
+        let cleaned = dirty.map { RadarChartView.sanitizedScore($0, max: 100) }
         #expect(cleaned == [0, 0, 0], "全脏序列清洗后应全 0，不崩不越界")
     }
 }
