@@ -276,9 +276,11 @@ struct AnalysisView: View {
                 }
             } else {
                 GeometryReader { geo in
-                    let scores = sequence.map { $0.score }
-                    let minScore = min(scores.min() ?? 0, -200)
-                    let maxScore = max(scores.max() ?? 0, 200)
+                    // v6.3.2 热修：mate 分数（|s|≥90000）不参与 y 量程，绘制时钉到量程边界（数据点保留原值）。
+                    // 根因：真局将死终局 playerEval=-99999 直接进量程 → range≈10 万，正常分压成贴顶直线（视觉"归零"）。
+                    let domain = EvalChartScale.yDomain(sequence.map { $0.score })
+                    let minScore = domain.min
+                    let maxScore = domain.max
                     let range = max(maxScore - minScore, 1)
 
                     ZStack {
@@ -299,7 +301,10 @@ struct AnalysisView: View {
 
                             for (i, item) in sequence.enumerated() {
                                 let x = CGFloat(item.index) * stepWidth
-                                let normalized = CGFloat(maxScore - item.score) / CGFloat(range)
+                                let drawScore = EvalChartScale.isMateScore(item.score)
+                                    ? EvalChartScale.pinnedScore(item.score, domain: domain)
+                                    : item.score
+                                let normalized = CGFloat(maxScore - drawScore) / CGFloat(range)
                                 let y = normalized * height
 
                                 if i == 0 {
@@ -311,6 +316,20 @@ struct AnalysisView: View {
                         }
                         .stroke(Color(red: 200/255, green: 160/255, blue: 100/255), lineWidth: 1.5)
 
+                        // v6.3.2 热修：mate 点视觉标记（钉边的红色小三角，不引入新依赖）
+                        ForEach(sequence.filter { EvalChartScale.isMateScore($0.score) }, id: \.index) { item in
+                            let totalSteps = sequence.last?.index ?? sequence.count
+                            let stepWidth = totalSteps > 0
+                                ? geo.size.width / CGFloat(totalSteps)
+                                : 0
+                            let x = CGFloat(item.index) * stepWidth
+                            let pinned = EvalChartScale.pinnedScore(item.score, domain: domain)
+                            let y = height * CGFloat(maxScore - pinned) / CGFloat(range)
+                            MateFlagMarker()
+                                .position(x: x, y: y)
+                                .allowsHitTesting(false)
+                        }
+
                         // 当前位置标记
                         if let matched = sequence.first(where: { $0.index == replayVM.currentIndex - 1 }) {
                             let totalSteps = sequence.last?.index ?? sequence.count
@@ -318,8 +337,10 @@ struct AnalysisView: View {
                                 ? geo.size.width / CGFloat(totalSteps)
                                 : 0
                             let x = CGFloat(matched.index) * stepWidth
-                            let normalized = CGFloat(maxScore - matched.score) / CGFloat(range)
-                            let y = normalized * height
+                            let drawScore = EvalChartScale.isMateScore(matched.score)
+                                ? EvalChartScale.pinnedScore(matched.score, domain: domain)
+                                : matched.score
+                            let y = height * CGFloat(maxScore - drawScore) / CGFloat(range)
 
                             Circle()
                                 .fill(Color.white)
@@ -359,5 +380,59 @@ struct AnalysisView: View {
         #else
         UIPasteboard.general.string = pgn
         #endif
+    }
+}
+
+// MARK: - v6.3.2 评估曲线量程（mate 分数特判）
+
+/// 评估曲线 y 轴量程计算——mate 分数不参与量程，绘制时钉到边界。
+/// 根因（2026-08-30 真局复现，evidence/probe-truegame-0830/）：
+/// 将死终局 playerEval=-99999 直接进 min/max → range≈10 万，
+/// 正常分（23~736cp）被压成贴顶 0~0.6px 直线（视觉"归零"+右侧残迹）。
+/// mate 值本身是语义数据（losing 定级等消费方需真值），故只在绘制层处理。
+enum EvalChartScale {
+    /// Pikafish mate 分数特征阈值（|s| ≥ 90000 视为 mate）
+    static let mateThreshold = 90_000
+    /// 非 mate 分参与量程的 clamp 边界（±2000cp，超出按边界计）
+    static let clampBound = 2_000
+
+    static func isMateScore(_ score: Int) -> Bool {
+        abs(score) >= mateThreshold
+    }
+
+    /// y 量程：mate 点剔除、非 mate 分 clamp 后与 ±200 保底合并（与旧口径兼容）
+    static func yDomain(_ scores: [Int]) -> (min: Int, max: Int) {
+        let bounded = scores
+            .filter { !isMateScore($0) }
+            .map { min(max($0, -clampBound), clampBound) }
+        let lo = bounded.min() ?? 0
+        let hi = bounded.max() ?? 0
+        return (min(lo, -200), max(hi, 200))
+    }
+
+    /// mate 点绘制值：钉到量程边界（正 mate=图顶，负 mate=图底）
+    static func pinnedScore(_ score: Int, domain: (min: Int, max: Int)) -> Int {
+        score > 0 ? domain.max : domain.min
+    }
+}
+
+/// mate 点视觉标记：钉边位置的红色小三角（指向盘外=对局终结），最简实现
+private struct MateFlagMarker: View {
+    var body: some View {
+        Triangle()
+            .fill(Color.red.opacity(0.85))
+            .frame(width: 7, height: 7)
+    }
+}
+
+/// 等腰小三角（朝下：负 mate 钉底时指向曲线终点；朝上翻转由调用方 rotation 处理，此处固定朝下）
+private struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: rect.midX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        p.closeSubpath()
+        return p
     }
 }
