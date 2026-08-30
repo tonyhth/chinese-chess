@@ -46,6 +46,15 @@ enum MoveQuality: Int, CaseIterable, Codable {
         case .losing:    return "red"
         }
     }
+
+    // MARK: - 定级阈值常量（v6.4 B1：单一事实源，UI 展示与定级共用，禁止另抄数字）
+
+    /// 各等级 evalDelta(cp) 上限；losing 无上限
+    static let brilliantMaxCp = 10
+    static let goodMaxCp = 50
+    static let normalMaxCp = 100
+    static let doubtfulMaxCp = 300
+    static let blunderMaxCp = 700
 }
 
 /// 单条 PV 线分析结果
@@ -197,11 +206,11 @@ actor PositionAnalyzer {
 
         let delta = abs(bestEval - playerEval)
         switch delta {
-        case 0...10:   return .brilliant
-        case 11...50:  return .good
-        case 51...100: return .normal
-        case 101...300: return .doubtful
-        case 301...700: return .blunder
+        case 0...MoveQuality.brilliantMaxCp:   return .brilliant
+        case (MoveQuality.brilliantMaxCp + 1)...MoveQuality.goodMaxCp:     return .good
+        case (MoveQuality.goodMaxCp + 1)...MoveQuality.normalMaxCp:        return .normal
+        case (MoveQuality.normalMaxCp + 1)...MoveQuality.doubtfulMaxCp:    return .doubtful
+        case (MoveQuality.doubtfulMaxCp + 1)...MoveQuality.blunderMaxCp:   return .blunder
         default:        return .losing
         }
     }
@@ -245,7 +254,7 @@ actor PositionAnalyzer {
         let delta = abs(bestEval - adjustedPlayerEval)
 
         // 3. 分类（与 classifyMove 阈值对齐）
-        if playerMove == bestMove || delta <= 10 {
+        if playerMove == bestMove || delta <= MoveQuality.brilliantMaxCp {
             // brilliant：预筛命中
             return QuickClassifyResult(
                 quality: .brilliant, bestMove: bestMove, bestEval: bestEval,
@@ -383,11 +392,11 @@ actor PositionAnalyzer {
 
         // 3. 质量分级
         let quality: MoveQuality
-        if playerMove == bestMove || delta <= 10 { quality = .brilliant }
-        else if delta <= 50 { quality = .good }
-        else if delta <= 100 { quality = .normal }
-        else if delta <= 300 { quality = .doubtful }
-        else if delta <= 700 { quality = .blunder }
+        if playerMove == bestMove || delta <= MoveQuality.brilliantMaxCp { quality = .brilliant }
+        else if delta <= MoveQuality.goodMaxCp { quality = .good }
+        else if delta <= MoveQuality.normalMaxCp { quality = .normal }
+        else if delta <= MoveQuality.doubtfulMaxCp { quality = .doubtful }
+        else if delta <= MoveQuality.blunderMaxCp { quality = .blunder }
         else { quality = .losing }
 
         // 4. 失误走法获取候选

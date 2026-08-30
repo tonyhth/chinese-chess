@@ -1922,6 +1922,54 @@
         }
       }
     },
+    "analysis.legend": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legend"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图例"
+          }
+        }
+      }
+    },
+    "analysis.selectedMove": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move %d · %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第 %d 手 · %@"
+          }
+        }
+      }
+    },
+    "analysis.selectedMoveLoss": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "-%d cp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "掉 %d 分"
+          }
+        }
+      }
+    },
     "analysis.title": {
       "localizations": {
         "en": {

@@ -9,6 +9,8 @@ struct AnalysisView: View {
 
     private let l10n = L10n.shared
     private let profile = PlayerProfileStore.shared.profile
+    // v6.4 B1：图例 popover 状态
+    @State private var showLegend = false
 
     // 段位门禁（FINAL-001: 改用 analysisEntry，语义匹配复盘分析）
     // v5.5.9: 改为走 isFeatureUnlocked，使 DeveloperMode 绕过生效
@@ -258,9 +260,25 @@ struct AnalysisView: View {
         let height: CGFloat = 80
 
         return VStack(alignment: .leading, spacing: 4) {
-            Text(l10n.t("analysis.evalChart"))
-                .font(.caption)
-                .foregroundColor(.gray)
+            // v6.4 B1（②b 洪涛定案：标签为主、图例为辅）
+            HStack(spacing: 8) {
+                Text(l10n.t("analysis.evalChart"))
+                    .font(.caption)
+                    .foregroundColor(.gray)
+
+                // 主方案：选中步文字标签「第 N 手 · 标签 · 掉 X 分」
+                if let label = selectedMoveLabel {
+                    Text(label)
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(selectedMoveColor)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 4)
+
+                // 辅方案："?" 一行式图例入口
+                legendButton
+            }
 
             if sequence.isEmpty {
                 if let msg = analysisVM.analysisUnavailableMessage {
@@ -362,6 +380,62 @@ struct AnalysisView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
+    }
+
+    // MARK: - v6.4 B1：选中步标签 + 图例（②b）
+
+    /// 当前选中步对应的分析结果（步子条与曲线同源：MoveAnalysis）
+    private var selectedAnalysis: MoveAnalysis? {
+        let idx = replayVM.currentIndex - 1
+        guard idx >= 0, idx < analysisVM.analyses.count else { return nil }
+        return analysisVM.analyses[idx]
+    }
+
+    /// 「第 N 手 · 标签 · 掉 X 分」——三段均来自 MoveAnalysis 现成字段
+    private var selectedMoveLabel: String? {
+        guard let a = selectedAnalysis else { return nil }
+        var text = String(format: l10n.t("analysis.selectedMove"), replayVM.currentIndex, l10n.t(a.quality.l10nKey))
+        if a.evalDelta > 0 {
+            text += " · " + String(format: l10n.t("analysis.selectedMoveLoss"), a.evalDelta)
+        }
+        return text
+    }
+
+    private var selectedMoveColor: Color {
+        guard let a = selectedAnalysis else { return .gray }
+        return qualityColor(a.quality)
+    }
+
+    /// "?" 图例入口：一行式（图标+含义），六级全覆盖，文案复用 move.quality.*
+    private var legendButton: some View {
+        Button {
+            showLegend.toggle()
+        } label: {
+            Image(systemName: "questionmark.circle")
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $showLegend, arrowEdge: .bottom) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(l10n.t("analysis.legend"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.primary)
+                ForEach(MoveQuality.allCases, id: \.rawValue) { q in
+                    HStack(spacing: 6) {
+                        Image(systemName: q.symbolName)
+                            .font(.caption)
+                            .foregroundColor(qualityColor(q))
+                        Text(l10n.t(q.l10nKey))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+            .padding(10)
+            .frame(width: 140)
+        }
     }
 
     // MARK: - 分析启动
