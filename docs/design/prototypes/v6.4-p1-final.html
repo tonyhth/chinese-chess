@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>v6.4 对局页 · 横向布局定稿 · 功能精修 v2（棋盘最大化 + 右通栏 · 8pt 栅格 · 交互反馈）</title>
+<style>
+  :root{--bg:#f5f1e8;--panel:#fbf8f1;--wood:#b07a45;--wood-d:#8a5a2e;--ink:#2c2418;--ink2:#6b5d48;
+    --line:#e2d9c8;--line2:#d4c8b0;--accent:#b03a2e;--gold:#c9a227;--ok:#3a7d44;
+    /* 8pt 系栅格 token（间距全部 4/8 倍数） */
+    --s1:4px;--s2:8px;--s3:16px;--s4:24px;
+    --p-radius:10px;--p-head-h:32px;--fs-cap:12px;--fs-body:13px;--fs-title:15px;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",system-ui,sans-serif;overflow:hidden}
+  #wbadge{position:fixed;top:8px;right:8px;z-index:99;background:var(--ink);color:#fff;padding:4px 12px;
+    border-radius:12px;font-size:12px;font-family:ui-monospace,monospace}
+  #wbadge b{color:var(--gold)}
+  .note{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:99;max-width:960px;width:calc(100% - 16px);
+    background:rgba(44,36,24,.94);color:#f3ecd9;border-radius:12px;padding:8px 16px;font-size:12.3px;line-height:1.65;text-align:center}
+  .note b{color:var(--gold)}
+  .titlebar{height:32px;background:#e9e2d2;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2);gap:8px}
+  .dot{width:10px;height:10px;border-radius:50%;background:#d0c6b0}
+  .toolbar{height:48px;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3);background:var(--panel);border-bottom:1px solid var(--line)}
+  .tb{height:32px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:var(--fs-body);
+    display:flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;transition:all .12s ease}
+  .tb:hover{border-color:var(--wood);background:#fdf7ee;transform:translateY(-1px);box-shadow:0 2px 6px rgba(138,90,46,.18)}
+  .tb:active{transform:translateY(0);box-shadow:none}
+  .tb.hot{border-color:var(--wood);color:var(--wood-d);background:#fdf7ee}
+  .tb .k{font-size:11px;color:#fff;background:var(--wood);border-radius:4px;padding:1px 5px;font-family:ui-monospace,monospace}
+  .tb.overflow{margin-left:auto}
+  .infoband{height:40px;display:flex;align-items:center;justify-content:center;gap:32px;background:linear-gradient(#fffdf7,#f7f0e0);
+    border-bottom:1px solid var(--line);font-size:var(--fs-body)}
+  .clock{font-family:ui-monospace,monospace;font-size:var(--fs-title);background:var(--ink);color:var(--gold);padding:2px 12px;border-radius:6px}
+  .clock.low{color:#ff9f6b;animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.55}}
+  .turn-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:6px;vertical-align:-1px}
+  .app{display:flex;flex-direction:column;height:100vh}
+  .main{display:flex;flex:1;padding:var(--s3);gap:var(--s3);min-height:0;position:relative}
+  .zone{position:relative;display:flex;align-items:center;justify-content:center;flex:1;min-width:0;min-height:0}
+  .board{background:var(--wood);border:5px solid var(--wood-d);border-radius:10px;box-shadow:0 8px 28px rgba(90,60,20,.25);transition:box-shadow .2s}
+  .board:hover{box-shadow:0 10px 34px rgba(90,60,20,.35)}
+  .grid{display:grid}
+  .cell{position:relative;cursor:pointer}.cell::after{content:"";position:absolute;inset:8%;border:1px solid rgba(255,248,230,.35);border-radius:6px}
+  .cell.legal::after{border-color:var(--gold);border-width:2px}
+  .pc{position:absolute;inset:8%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;
+    background:#fdf3dc;border:2px solid #caa;box-shadow:0 1px 2px rgba(0,0,0,.3);color:var(--accent);transition:transform .1s}
+  .pc:hover{transform:scale(1.06)}
+  .pc.b{background:#3a332a;border-color:#111;color:#eee}
+  .pc.sel{outline:3px solid var(--gold);outline-offset:1px}
+  /* 右通栏：大师库面板语言 + 折叠态 + 滚动体验 */
+  .rail{width:264px;display:flex;flex-direction:column;gap:var(--s2);flex:none;min-height:0;overflow-y:auto;scrollbar-width:thin}
+  .rail::-webkit-scrollbar{width:6px}.rail::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);display:flex;flex-direction:column;overflow:hidden;flex:none}
+  .panel.grow{flex:1}
+  .panel-h{height:var(--p-head-h);display:flex;align-items:center;padding:0 var(--s3);border-bottom:1px solid var(--line);
+    font-size:var(--fs-body);font-weight:600;color:var(--ink2);gap:var(--s2);cursor:pointer;user-select:none;flex:none}
+  .panel-h:hover{background:#f6efe0}
+  .panel-h .tab{width:3px;height:14px;background:var(--wood);border-radius:2px}
+  .panel-h .chev{margin-left:auto;font-size:10px;color:var(--ink2);transition:transform .15s}
+  .panel.closed .chev{transform:rotate(-90deg)}
+  .panel.closed .panel-b{display:none}
+  .panel-b{padding:var(--s2) var(--s3);font-size:var(--fs-body);line-height:1.8;overflow:auto}
+  /* 走法记录：回合双列 + 当前行高亮 + 滚动渐隐 + 回跳 */
+  .moves{font-family:ui-monospace,monospace;font-size:12.5px;display:flex;flex-direction:column;gap:2px;position:relative}
+  .mvrow{display:grid;grid-template-columns:28px 1fr 1fr;padding:2px 6px;border-radius:6px;cursor:pointer;line-height:1.7}
+  .mvrow:hover{background:#f3ebd9}
+  .mvrow.cur{background:var(--gold);color:#fff}
+  .mvrow.cur .no{color:#fff}
+  .no{color:var(--ink2)}
+  .mvjump{position:sticky;bottom:0;align-self:flex-end;margin-top:6px;background:var(--wood);color:#fff;border:none;
+    font-size:12px;padding:4px 12px;border-radius:12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .mvjump:hover{background:var(--wood-d)}
+  .evalbar{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--ink) 38%,#e8ddc4 38%);border:1px solid var(--line);cursor:pointer}
+  .evalline{height:68px;background:#fff;border:1px solid var(--line);border-radius:6px;position:relative;overflow:hidden;cursor:crosshair}
+  .evalline svg{position:absolute;inset:0;width:100%;height:100%}
+  .evalline .pt{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--accent);border:2px solid #fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.4);transform:translate(-50%,-50%)}
+  .stat{display:flex;justify-content:space-between;font-size:var(--fs-cap);color:var(--ink2);padding:2px 0}
+  .stat .v{color:var(--ink)}
+  .dot-ok{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+  .hint{display:none;position:absolute;inset:auto 16px 16px 16px;color:var(--ink2);font-size:var(--fs-body);
+    border:1px dashed var(--line);border-radius:10px;padding:10px;text-align:center;line-height:1.8;background:rgba(245,241,232,.95);z-index:5}
+  body.n .rail{display:none} body.n .hint{display:block}
+  .bsize{position:absolute;top:8px;left:8px;background:rgba(44,36,24,.85);color:var(--gold);
+    font-size:11px;font-family:ui-monospace,monospace;padding:2px 8px;border-radius:8px}
+  .srctag{position:absolute;bottom:8px;left:8px;background:rgba(44,36,24,.85);color:#f3ecd9;font-size:11px;padding:2px 8px;border-radius:8px}
+  .kbd-tip{position:absolute;top:8px;right:8px;background:rgba(44,36,24,.7);color:#f3ecd9;font-size:11px;padding:2px 8px;border-radius:8px}
+</style>
+</head>
+<body>
+<div id="wbadge">宽 <b id="wv">1280</b>｜棋盘 <b id="bs">—</b>｜<b id="mode">完整</b></div>
+<div class="app">
+  <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">中国象棋 · 对局 — 横向布局定稿 · 功能精修 v2</span></div>
+  <div class="toolbar"><div class="tb hot">🎴 新局</div><div class="tb hot">↩ 悔棋 <span class="k">⌘Z</span></div><div class="tb hot">💡 提示 <span class="k">⌘H</span></div><div class="tb hot">📈 难度·五级</div><div class="tb hot">🎯 模式·人机</div><div class="tb overflow">⋯ 溢出菜单（调速/音效/翻转…）</div></div>
+  <div class="infoband"><span><span class="turn-dot"></span>轮到红方</span><span id="roundNo">第 24 回合</span><span class="clock" id="clk">⏱ 00:14:32</span><span style="color:var(--ink2)">先手·五级</span></div>
+  <div class="main">
+    <div class="zone"><span class="bsize"></span><span class="srctag">面板语言与 v6.2 大师库同源 · 8pt 栅格</span><span class="kbd-tip">←/→ 回跳走法 · 点棋子看合法位</span>
+      <div class="board"><div class="grid bd"></div></div></div>
+    <div class="hint">右通栏已收起（&lt;1000）——面板入溢出菜单，棋盘独占（←/→ 回跳仍可用）</div>
+    <div class="rail">
+      <div class="panel"><div class="panel-h"><span class="tab"></span>♟ 对局信息<span class="chev">▼</span></div>
+        <div class="panel-b"><div class="stat"><span>回合</span><span class="v" id="r2">24</span></div><div class="stat"><span>红方</span><span class="v">00:14:32</span></div><div class="stat"><span>黑方</span><span class="v">00:16:05</span></div><div class="stat"><span>用时落后</span><span class="v" style="color:var(--accent)">−1:33</span></div></div></div>
+      <div class="panel grow"><div class="panel-h"><span class="tab"></span>📜 走法记录<span class="chev">▼</span></div>
+        <div class="panel-b"><div class="moves" id="mvs"></div><button class="mvjump" id="jump">↩ 回到最新</button></div></div>
+      <div class="panel"><div class="panel-h"><span class="tab"></span>📊 分析<span class="chev">▼</span></div>
+        <div class="panel-b" style="display:flex;flex-direction:column;gap:8px"><div class="evalbar" title="形势条：点击任意处回跳该着"></div><div class="evalline" id="ev"><svg viewBox="0 0 200 60" preserveAspectRatio="none"><polyline points="0,30 20,26 40,32 60,18 80,34 100,22 120,38 140,20 160,30 180,14 200,26" fill="none" stroke="#b07a45" stroke-width="2"/><line x1="140" y1="0" x2="140" y2="60" stroke="#c9a227" stroke-dasharray="3,3" stroke-width="1"/></svg><span class="pt" style="left:70%;top:33%"></span></div><div class="stat"><span>当前着：红略优 +0.8</span><span>深度 18</span></div></div></div>
+      <div class="panel"><div class="panel-h"><span class="tab"></span>⚙ 引擎状态<span class="chev">▼</span></div>
+        <div class="panel-b"><div class="stat"><span><span class="dot-ok"></span>引擎</span><span class="v">内嵌 Pikafish</span></div><div class="stat"><span><span class="dot-ok"></span>NNUE</span><span class="v">已加载</span></div><div class="stat"><span>路由</span><span class="v">EngineRouter 单例</span></div></div></div>
+    </div>
+  </div>
+</div>
+<div class="note"><b>功能精修 v2</b>：面板可折叠（头行点击）｜走法双列+当前着金标+「回到最新」快速回跳｜分析曲线当前着锚点+点击回跳｜键盘 ←/→ 回跳｜按钮 hover/按压反馈｜8pt 栅格与字阶 12/13/15 体系｜<b>非协商基线不动</b>（横向/棋盘最大化/收敛公式/最小可用宽≈660/连续缩放/大师库同源）</div>
+<script>
+const rows='rnbakabnr__________c_____c_p_p_p_p______________________P_P_P_P_P_C_____C__________RNBAKABNR'.slice(0,90).split('');
+const zh={r:'車',n:'馬',b:'象',a:'士',k:'將',c:'砲',p:'卒',R:'車',N:'馬',B:'相',A:'仕',K:'帥',C:'炮',P:'兵'};
+const g=document.querySelector('.grid.bd');
+for(let i=0;i<90;i++){const c=document.createElement('div');c.className='cell';
+  const ch=rows[i];if(ch&&ch!=='_'){const p=document.createElement('div');p.className='pc'+(i<45?' b':'');p.textContent=zh[ch]||'?';c.appendChild(p);}
+  c.onclick=()=>{c.classList.toggle('legal');};
+  g.appendChild(c);}
+/* 走法记录：长对局生成 + 当前着回跳 */
+const mvsEl=document.getElementById('mvs');
+const mvs=[['炮二平五','马8进7'],['马二进三','车9平8'],['车一平二','卒7进1'],['兵七进一','卒3进1'],
+  ['马八进七','马2进3'],['车九平六','炮2平4'],['仕六进五','士4进5'],['炮八平九','车1平2'],
+  ['车二进六','马7进6'],['兵三进一','卒9进1'],['马三进四','卒9平8'],['车二平三','炮8平7'],
+  ['车三进一','炮7进3'],['仕四进五','象7进5'],['车三退一','马6进4'],['车六平八','车2进4'],
+  ['兵九进一','卒3进1'],['炮九退一','士5进6'],['车八平六','马4退3'],['炮五进四','马3进5']];
+let curIdx=2;
+function renderMoves(){mvsEl.innerHTML='';
+  mvs.forEach((r,i)=>{const d=document.createElement('div');d.className='mvrow'+(i===curIdx?' cur':'');
+    d.innerHTML=`<span class="no">${i+1}.</span><span>${r[0]}</span><span>${r[1]||''}</span>`;
+    d.onclick=()=>{curIdx=i;renderMoves();sync();};mvsEl.appendChild(d);});
+  const c=mvsEl.querySelector('.cur');if(c)c.scrollIntoView({block:'nearest'});}
+function sync(){document.getElementById('roundNo').textContent=`第 ${curIdx+1} 回合`;
+  document.getElementById('r2').textContent=curIdx+1;
+  document.getElementById('clk').classList.toggle('low',curIdx>15);}
+document.getElementById('jump').onclick=()=>{curIdx=mvs.length-1;renderMoves();sync();};
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft'&&curIdx>0){curIdx--;renderMoves();sync();}
+  if(e.key==='ArrowRight'&&curIdx<mvs.length-1){curIdx++;renderMoves();sync();}});
+document.querySelectorAll('.panel-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('closed'));
+document.getElementById('ev').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();
+  curIdx=Math.min(mvs.length-1,Math.max(0,Math.round((e.clientX-r.left)/r.width*(mvs.length-1))));renderMoves();sync();};
+function fit(){const z=document.querySelector('.zone'),b=document.querySelector('.board');
+  const W=z.clientWidth-24,H=z.clientHeight-24;
+  const cell=Math.max(22,Math.floor(Math.min((W-22)/9,(H-22)/10)));
+  g.style.gridTemplateColumns=`repeat(9,${cell}px)`;g.style.gridTemplateRows=`repeat(10,${cell}px)`;
+  const pad=Math.max(Math.min(W,H)*0.04,cell*0.45);b.style.padding=`${Math.min(pad,14)}px`;
+  g.querySelectorAll('.pc').forEach(p=>p.style.fontSize=Math.round(cell*0.52)+'px');
+  document.querySelector('.bsize').textContent=`棋盘 ${cell*9}×${cell*10}`;
+  document.getElementById('bs').textContent=`${cell*9}×${cell*10}`;document.getElementById('wv').textContent=innerWidth;}
+function layout(){const n=document.body.classList.contains('n'),w=innerWidth;
+  if(!n&&w<1000)document.body.classList.add('n');else if(n&&w>1080)document.body.classList.remove('n');
+  document.getElementById('mode').textContent=document.body.classList.contains('n')?'右通栏收起':'完整';}
+addEventListener('resize',()=>{layout();fit();});
+new ResizeObserver(fit).observe(document.body);
+layout();fit();renderMoves();sync();
+</script>
+</body>
+</html>

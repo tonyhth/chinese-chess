@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>v6.4 对局页 · 三方案对比原型（棋盘弹性吃满 · 可拖宽度看持续缩放）</title>
+<style>
+  :root{--bg:#f5f1e8;--panel:#fbf8f1;--wood:#b07a45;--wood-d:#8a5a2e;--ink:#2c2418;--ink2:#6b5d48;
+    --line:#e2d9c8;--accent:#b03a2e;--gold:#c9a227}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",system-ui,sans-serif;overflow:hidden}
+  #hud{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:8px;align-items:center;
+    background:rgba(44,36,24,.92);padding:5px 12px;border-radius:16px}
+  #hud button{border:none;border-radius:10px;padding:4px 12px;font-size:13px;cursor:pointer;background:#6b5d48;color:#eee}
+  #hud button.on{background:var(--gold);color:#2c2418;font-weight:700}
+  #wbadge{position:fixed;top:8px;right:10px;z-index:99;background:var(--ink);color:#fff;padding:3px 11px;
+    border-radius:12px;font-size:12px;font-family:ui-monospace,monospace}
+  #wbadge b{color:var(--gold)}
+  .procon{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:99;max-width:960px;width:calc(100% - 32px);
+    background:rgba(44,36,24,.94);color:#f3ecd9;border-radius:11px;padding:7px 14px;font-size:12.3px;line-height:1.65;text-align:center}
+  .procon b{color:var(--gold)}
+  .titlebar{height:30px;background:#e9e2d2;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2);gap:7px;flex:none}
+  .dot{width:9px;height:9px;border-radius:50%;background:#d0c6b0}
+  .toolbar{height:44px;display:flex;align-items:center;gap:6px;padding:0 14px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
+  .tb{height:29px;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+  .tb.hot{border-color:var(--wood);color:var(--wood-d);background:#fdf7ee}
+  .tb.overflow{margin-left:auto}
+  .infoband{height:36px;display:flex;align-items:center;justify-content:center;gap:24px;background:linear-gradient(#fffdf7,#f7f0e0);
+    border-bottom:1px solid var(--line);font-size:14px;flex:none}
+  .clock{font-family:ui-monospace,monospace;font-size:15px;background:var(--ink);color:var(--gold);padding:2px 10px;border-radius:6px}
+  .turn-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:5px;vertical-align:-1px}
+  .app{display:flex;flex-direction:column;height:100vh}
+  .main{display:flex;flex:1;padding:12px;gap:12px;min-height:0}
+  .zone{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
+  .board{background:var(--wood);border:5px solid var(--wood-d);border-radius:10px;box-shadow:0 8px 28px rgba(90,60,20,.25)}
+  .grid{display:grid}
+  .cell{position:relative}.cell::after{content:"";position:absolute;inset:8%;border:1px solid rgba(255,248,230,.35);border-radius:6px}
+  .pc{position:absolute;inset:8%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;
+    background:#fdf3dc;border:2px solid #caa;box-shadow:0 1px 2px rgba(0,0,0,.3);color:var(--accent)}
+  .pc.b{background:#3a332a;border-color:#111;color:#eee}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+  .panel-h{height:30px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink2);flex:none}
+  .panel-b{padding:8px 12px;font-size:13px;line-height:1.8;overflow:auto}
+  .moves{font-family:ui-monospace,monospace}.mv.cur{background:var(--gold);color:#fff;border-radius:4px;padding:0 4px}
+  .evalbar{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--ink) 38%,#e8ddc4 38%);border:1px solid var(--line);flex:none}
+  .evalline{height:64px;background:#fff;border:1px solid var(--line);border-radius:6px;position:relative;overflow:hidden}
+  .evalline svg{position:absolute;inset:0;width:100%;height:100%}
+  .stat{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2)}
+  .ctrl{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .ctrl .tb{justify-content:center}
+  /* 方案布局：面板定宽让位，棋盘弹性吃满 */
+  #v1 .sidecol{width:292px;display:flex;flex-direction:column;gap:10px;flex:none}
+  #v1 .zone{flex:1}
+  #v2 .zone{flex:1}
+  #v2 .rail{width:262px;display:flex;flex-direction:column;gap:8px;flex:none}
+  #v2 .rail .panel{flex:1}
+  #v3 .leftcol{width:232px;display:flex;flex-direction:column;gap:10px;flex:none}
+  #v3 .zone{flex:1}
+  #v3 .sidecol{width:272px;display:flex;flex-direction:column;gap:10px;flex:none}
+  .hint{display:none;flex:1;align-items:center;justify-content:center;color:var(--ink2);font-size:13px;
+    border:1px dashed var(--line);border-radius:10px;padding:12px;text-align:center;line-height:1.8}
+  body.n1 #v1 .sidecol{display:none} body.n1 #v1 .hint1{display:flex}
+  body.n2 #v2 .rail{display:none}    body.n2 #v2 .hint2{display:flex}
+  body.nL #v3 .leftcol{display:none}
+  body.n3 #v3 .sidecol{display:none} body.n3 #v3 .hint3{display:flex}
+  .variant{display:none}.variant.on{display:flex;flex-direction:column;height:100vh}
+  .bsize{position:absolute;top:10px;left:10px;background:rgba(44,36,24,.85);color:var(--gold);
+    font-size:11px;font-family:ui-monospace,monospace;padding:2px 9px;border-radius:9px}
+</style>
+</head>
+<body>
+<div id="hud">
+  <button data-v="v1" class="on">方案1 居中+右挂</button>
+  <button data-v="v2">方案2 左置+右通栏</button>
+  <button data-v="v3">方案3 左右对称</button>
+</div>
+<div id="wbadge">宽 <b id="wv">1280</b>｜棋盘 <b id="bs">—</b>｜<b id="mode">完整</b></div>
+
+<div class="variant on" id="v1">
+  <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">中国象棋 · 对局 — 方案1 居中主视觉</span></div>
+  <div class="toolbar"><div class="tb hot">🎴 新局</div><div class="tb hot">↩ 悔棋</div><div class="tb hot">💡 提示</div><div class="tb hot">📈 难度·五级</div><div class="tb hot">🎯 模式·人机</div><div class="tb overflow">⋯</div></div>
+  <div class="infoband"><span><span class="turn-dot"></span>轮到红方</span><span>第 24 回合</span><span class="clock">⏱ 00:14:32</span><span style="color:var(--ink2)">先手·五级</span></div>
+  <div class="main">
+    <div class="zone" data-b="v1"><span class="bsize"></span><div class="board"><div class="grid bd"></div></div></div>
+    <div class="hint hint1">右挂面板已收起（&lt;1000）——棋盘独占，信息入溢出菜单</div>
+    <div class="sidecol">
+      <div class="panel" style="flex:1.25"><div class="panel-h">📜 走法记录</div><div class="panel-b moves">1. 炮二平五 马8进7<br>2. 马二进三 车9平8<br>3. 车一平二 <span class="mv cur">卒7进1</span><br>4. …</div></div>
+      <div class="panel" style="flex:1"><div class="panel-h">📊 分析</div><div class="panel-b" style="display:flex;flex-direction:column;gap:7px"><div class="evalbar"></div><div class="evalline"><svg viewBox="0 0 200 60" preserveAspectRatio="none"><polyline points="0,30 20,26 40,32 60,18 80,34 100,22 120,38 140,20 160,30 180,14 200,26" fill="none" stroke="#b07a45" stroke-width="2"/></svg></div><div class="stat"><span>红略优 +0.8</span><span>Pikafish</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="variant" id="v2">
+  <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">中国象棋 · 对局 — 方案2 左置+右通栏</span></div>
+  <div class="toolbar"><div class="tb hot">🎴 新局</div><div class="tb hot">↩ 悔棋</div><div class="tb hot">💡 提示</div><div class="tb hot">📈 难度·五级</div><div class="tb hot">🎯 模式·人机</div><div class="tb overflow">⋯</div></div>
+  <div class="main">
+    <div class="zone" data-b="v2"><span class="bsize"></span><div class="board"><div class="grid bd"></div></div></div>
+    <div class="hint hint2">右通栏已收起（&lt;1000）——四块面板全部入溢出菜单</div>
+    <div class="rail">
+      <div class="panel"><div class="panel-h">♟ 对局信息</div><div class="panel-b"><div class="stat"><span>回合</span><span>24</span></div><div class="stat"><span>红方</span><span class="clock">00:14:32</span></div><div class="stat"><span>黑方</span><span class="clock">00:16:05</span></div></div></div>
+      <div class="panel"><div class="panel-h">📜 棋谱</div><div class="panel-b moves">1. 炮二平五 马8进7<br>2. 马二进三 车9平8<br>3. 车一平二 <span class="mv cur">卒7进1</span><br>4. …</div></div>
+      <div class="panel"><div class="panel-h">📊 分析</div><div class="panel-b" style="display:flex;flex-direction:column;gap:6px"><div class="evalbar"></div><div class="stat"><span>红略优 +0.8</span><span>深度 18</span></div></div></div>
+      <div class="panel"><div class="panel-h">⚙ 引擎状态</div><div class="panel-b"><div class="stat"><span>引擎</span><span>内嵌 Pikafish</span></div><div class="stat"><span>NNUE</span><span>✓ 已加载</span></div><div class="stat"><span>路由</span><span>EngineRouter</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="variant" id="v3">
+  <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">中国象棋 · 对局 — 方案3 左右对称</span></div>
+  <div class="infoband"><span><span class="turn-dot"></span>轮到红方</span><span>第 24 回合</span><span class="clock">⏱ 00:14:32</span></div>
+  <div class="main">
+    <div class="leftcol">
+      <div class="panel"><div class="panel-h">🎛 对局控制</div><div class="panel-b ctrl"><div class="tb">🎴 新局</div><div class="tb">↩ 悔棋</div><div class="tb">💡 提示</div><div class="tb">🏳 认输</div></div></div>
+      <div class="panel"><div class="panel-h">⚙ 设置</div><div class="panel-b"><div class="stat"><span>难度</span><span>五级 ▾</span></div><div class="stat"><span>模式</span><span>人机 ▾</span></div><div class="stat"><span>调速</span><span>1× ▾</span></div></div></div>
+    </div>
+    <div class="zone" data-b="v3"><span class="bsize"></span><div class="board"><div class="grid bd"></div></div></div>
+    <div class="hint hint3">左右面板均已收起（&lt;1100 左让位 / &lt;1000 右让位）</div>
+    <div class="sidecol">
+      <div class="panel" style="flex:1.2"><div class="panel-h">📜 走法记录</div><div class="panel-b moves">1. 炮二平五 马8进7<br>2. 马二进三 车9平8<br>3. 车一平二 <span class="mv cur">卒7进1</span><br>4. …</div></div>
+      <div class="panel" style="flex:1"><div class="panel-h">📊 分析</div><div class="panel-b" style="display:flex;flex-direction:column;gap:7px"><div class="evalbar"></div><div class="evalline"><svg viewBox="0 0 200 60" preserveAspectRatio="none"><polyline points="0,30 20,26 40,32 60,18 80,34 100,22 120,38 140,20 160,30 180,14 200,26" fill="none" stroke="#b07a45" stroke-width="2"/></svg></div><div class="stat"><span>红略优 +0.8</span><span>Pikafish</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="procon" id="procon"></div>
+<script>
+const rows='rnbakabnr__________c_____c_p_p_p_p______________________P_P_P_P_P_C_____C__________RNBAKABNR'.slice(0,90).split('');
+const zh={r:'車',n:'馬',b:'象',a:'士',k:'將',c:'砲',p:'卒',R:'車',N:'馬',B:'相',A:'仕',K:'帥',C:'炮',P:'兵'};
+document.querySelectorAll('.grid.bd').forEach(g=>{
+  for(let i=0;i<90;i++){const c=document.createElement('div');c.className='cell';
+    const ch=rows[i];if(ch&&ch!=='_'){const p=document.createElement('div');p.className='pc'+(i<45?' b':'');p.textContent=zh[ch]||'?';c.appendChild(p);}
+    g.appendChild(c);}
+});
+/* ===== 棋盘弹性：吃满可用区，连续缩放（v2.2.20n 收敛公式同族：padding=max(minDim*0.04, cell*0.45)）===== */
+function fitBoards(){
+  document.querySelectorAll('.zone').forEach(z=>{
+    if(!z.offsetParent)return;
+    const b=z.querySelector('.board'),g=z.querySelector('.grid');
+    const W=z.clientWidth-24,H=z.clientHeight-24;           // 呼吸留白
+    const cell=Math.max(22,Math.floor(Math.min((W-22)/9,(H-22)/10)));
+    g.style.gridTemplateColumns=`repeat(9,${cell}px)`;
+    g.style.gridTemplateRows=`repeat(10,${cell}px)`;
+    const pad=Math.max(Math.min(W,H)*0.04,cell*0.45);        // 历史基线公式
+    b.style.padding=`${Math.min(pad,14)}px`;
+    g.querySelectorAll('.pc').forEach(p=>p.style.fontSize=Math.round(cell*0.52)+'px');
+    z.querySelector('.bsize').textContent=`棋盘 ${cell*9}×${cell*10}`;
+  });
+  document.getElementById('bs').textContent=document.querySelector('.variant.on .bsize').textContent.replace('棋盘 ','');
+}
+const PRO={
+ v1:'<b>方案1 居中+右挂</b>：✔ 一致性最高（大师库同语言）✔ 密度适中｜✘ 小屏代价中（&lt;1000 右挂收起信息入溢出）｜<b>棋盘最小可用宽 ≈620</b>（再窄牺牲棋盘格，面板已在 1000 让位）',
+ v2:'<b>方案2 左置+右通栏</b>：✔ 密度最高（四块全露）✘ 一致性偏离 ✘ 小屏代价最高（&lt;1000 四块全收）｜<b>棋盘最小可用宽 ≈660</b>（右通栏 262 定宽让位后棋盘吃满）',
+ v3:'<b>方案3 左右对称</b>：✔ 控制/信息语义最清晰 ✔ 小屏代价最低（&lt;1100 左让位→&lt;1000 右让位，渐进退化）✘ 密度偏低｜<b>棋盘最小可用宽 ≈700</b>（双面板 232+272 均让位后）'};
+let cur='v1';
+function setV(v){cur=v;document.querySelectorAll('.variant').forEach(e=>e.classList.toggle('on',e.id===v));
+  document.querySelectorAll('#hud button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.getElementById('procon').innerHTML=PRO[v];layout();fitBoards();}
+function layout(){const w=innerWidth;
+  document.body.classList.toggle('n1',cur==='v1'&&w<1000);
+  document.body.classList.toggle('n2',cur==='v2'&&w<1000);
+  document.body.classList.toggle('nL',cur==='v3'&&w<1100);
+  document.body.classList.toggle('n3',cur==='v3'&&w<1000);
+  document.getElementById('mode').textContent=
+    (cur==='v1'&&document.body.classList.contains('n1'))||(cur==='v2'&&document.body.classList.contains('n2'))||(cur==='v3'&&document.body.classList.contains('n3'))?'面板收起':
+    (cur==='v3'&&document.body.classList.contains('nL'))?'左让位':'完整';}
+document.querySelectorAll('#hud button').forEach(b=>b.onclick=()=>{setV(b.dataset.v);location.hash=b.dataset.v;});
+addEventListener('resize',()=>{layout();fitBoards();});
+if(location.hash)setV(location.hash.slice(1));else document.getElementById('procon').innerHTML=PRO.v1;
+new ResizeObserver(fitBoards).observe(document.body);
+layout();fitBoards();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v6.4 对局页高保真原型 · 1280 标准（可拖宽度看自适应）</title>
+<style>
+  :root{
+    --bg:#f5f1e8; --panel:#fbf8f1; --wood:#b07a45; --wood-d:#8a5a2e;
+    --ink:#2c2418; --ink-2:#6b5d48; --line:#e2d9c8; --accent:#b03a2e;
+    --gold:#c9a227; --ok:#3a7d44;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",system-ui,sans-serif;min-height:100vh}
+  /* 宽度指示器 */
+  #widthBadge{position:fixed;top:10px;right:12px;z-index:99;background:var(--ink);color:#fff;
+    padding:4px 12px;border-radius:14px;font-size:12px;font-family:ui-monospace,monospace}
+  #widthBadge b{color:var(--gold)}
+  /* 页框架 */
+  .app{display:flex;flex-direction:column;min-height:100vh;transition:padding .25s}
+  .titlebar{height:34px;background:#e9e2d2;border-bottom:1px solid var(--line);display:flex;align-items:center;
+    padding:0 12px;font-size:12px;color:var(--ink-2);gap:8px;flex:none}
+  .dot{width:10px;height:10px;border-radius:50%;background:#d0c6b0}
+  /* 工具栏：高频5项+溢出 */
+  .toolbar{height:48px;display:flex;align-items:center;gap:6px;padding:0 14px;background:var(--panel);
+    border-bottom:1px solid var(--line);flex:none}
+  .tb{height:32px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;
+    font-size:13px;color:var(--ink);display:flex;align-items:center;gap:5px;cursor:default;white-space:nowrap}
+  .tb.hot{border-color:var(--wood);color:var(--wood-d);background:#fdf7ee}
+  .tb .k{font-size:11px;color:#fff;background:var(--wood);border-radius:4px;padding:0 4px}
+  .tb.overflow{margin-left:auto}
+  .spacer{flex:1}
+  /* 棋盘上方单行信息带 = 状态+棋钟合并 */
+  .infoband{height:40px;display:flex;align-items:center;justify-content:center;gap:28px;
+    background:linear-gradient(#fffdf7,#f7f0e0);border-bottom:1px solid var(--line);font-size:14px;flex:none}
+  .clock{font-family:ui-monospace,monospace;font-size:16px;background:var(--ink);color:var(--gold);
+    padding:2px 10px;border-radius:6px}
+  .turn-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block;margin-right:5px;vertical-align:-1px}
+  .turn-dot.b{background:var(--ink)}
+  /* 主区 */
+  .main{display:flex;flex:1;padding:16px;gap:16px;align-items:stretch}
+  .board-wrap{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .board{background:var(--wood);border:6px solid var(--wood-d);border-radius:10px;
+    box-shadow:0 8px 28px rgba(90,60,20,.25);position:relative}
+  .grid{display:grid;grid-template-columns:repeat(9,34px);grid-template-rows:repeat(10,34px)}
+  .cell{border:0;position:relative}
+  .cell::after{content:"";position:absolute;inset:4px;border:1px solid rgba(255,248,230,.35);border-radius:6px}
+  .pc{position:absolute;inset:3px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:700;background:#fdf3dc;border:2px solid #caa;border-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .pc.r{color:var(--accent);border-color:#c96a5a}
+  .pc.b{color:#222;background:#3a332a;border-color:#111;color:#eee}
+  .pc.sel{outline:3px solid var(--gold);outline-offset:1px}
+  /* 右栏：走法记录 + 分析面板 */
+  .sidecol{display:flex;flex-direction:column;gap:12px;min-width:230px;flex:1;overflow:hidden}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
+  .panel-h{height:34px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line);
+    font-size:13px;font-weight:600;color:var(--ink-2)}
+  .panel-h .fold{margin-left:auto;font-size:11px;color:var(--wood-d)}
+  .moves{flex:1.4;overflow:auto;padding:8px 12px;font-size:13px;line-height:1.9;font-family:ui-monospace,monospace}
+  .mv{color:var(--ink)} .mv.no{color:var(--ink-2);margin-right:4px} .mv.cur{background:var(--gold);color:#fff;border-radius:4px;padding:0 4px}
+  .analysis{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+  .evalbar{height:14px;border-radius:7px;background:linear-gradient(90deg,var(--ink) 38%,#e8ddc4 38%);border:1px solid var(--line)}
+  .evalline{flex:1;background:#fff;border:1px solid var(--line);border-radius:6px;position:relative;overflow:hidden}
+  .evalline svg{position:absolute;inset:0;width:100%;height:100%}
+  .an-hint{font-size:12px;color:var(--ink-2)}
+  /* 窄屏态 <1000 收起右栏 */
+  .collapsed-note{display:none;flex:1;align-items:center;justify-content:center;
+    color:var(--ink-2);font-size:13px;border:1px dashed var(--line);border-radius:10px;padding:12px;text-align:center;line-height:1.8}
+  body.narrow .sidecol{display:none}
+  body.narrow .collapsed-note{display:flex}
+  body.narrow .main{justify-content:center}
+  /* ===== 标注层 ===== */
+  #annoToggle{position:fixed;left:12px;top:10px;z-index:99;background:var(--accent);color:#fff;border:none;
+    padding:5px 14px;border-radius:14px;font-size:13px;cursor:pointer}
+  .anno{position:absolute;z-index:50;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+    font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 3px rgba(176,58,46,.25)}
+  #legend{position:fixed;bottom:14px;left:14px;z-index:99;max-width:360px;background:rgba(44,36,24,.94);color:#f3ecd9;
+    border-radius:12px;padding:14px 16px;font-size:12.5px;line-height:1.75;display:none;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  #legend h4{font-size:13px;color:var(--gold);margin-bottom:6px}
+  #legend b{color:var(--gold)}
+  #legend .row{margin:2px 0}
+</style>
+</head>
+<body>
+<button id="annoToggle">①②③ 标注：关</button>
+<div id="widthBadge">宽 <b id="wv">1280</b> ｜ 布局：<b id="mode">三栏（展开）</b></div>
+
+<div class="app">
+  <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span style="margin-left:10px">中国象棋 · 对局（人机）</span></div>
+
+  <div class="toolbar" style="position:relative">
+    <span class="anno" style="left:-8px;top:-8px">A</span>
+    <div class="tb hot">🎴 新局</div>
+    <div class="tb hot">↩ 悔棋 <span class="k">⌘Z</span></div>
+    <div class="tb hot">💡 提示 <span class="k">⌘H</span></div>
+    <div class="tb hot">📈 难度 · 五级</div>
+    <div class="tb hot">🎯 模式 · 人机</div>
+    <span class="anno" style="right:64px;top:-8px">B4</span>
+    <div class="tb overflow">⋯ 溢出菜单（调速/引擎状态/音效/翻转棋盘…）</div>
+  </div>
+
+  <div class="infoband" style="position:relative">
+    <span class="anno" style="left:24px;top:-8px">C</span>
+    <span><span class="turn-dot"></span>轮到红方</span>
+    <span>第 24 回合</span>
+    <span class="clock">⏱ 00:14:32</span>
+    <span style="color:var(--ink-2)">先手 · 五级</span>
+  </div>
+
+  <div class="main">
+    <div class="board-wrap" style="position:relative">
+      <span class="anno" style="left:6px;top:6px">B1</span>
+      <div class="board"><div class="grid" id="grid"></div></div>
+    </div>
+    <div class="collapsed-note">右栏（走法记录 / 分析面板）已随窗口收窄自动收起<br>拖宽窗口回到 1080px 以上自动展开（迟滞防抖，1000–1080 之间保持原状态）</div>
+    <div class="sidecol">
+      <div class="panel" style="flex:1.35">
+        <div class="panel-h" style="position:relative">📜 走法记录
+          <span class="anno" style="right:8px;top:-8px">B2</span>
+          <span class="fold">⌄</span></div>
+        <div class="moves">
+          <span class="mv no">1.</span><span class="mv">炮二平五</span> <span class="mv">马8进7</span><br>
+          <span class="mv no">2.</span><span class="mv">马二进三</span> <span class="mv">车9平8</span><br>
+          <span class="mv no">3.</span><span class="mv">车一平二</span> <span class="mv cur">卒7进1</span><br>
+          <span class="mv no">4.</span><span class="mv">…</span>
+        </div>
+      </div>
+      <div class="panel" style="flex:1">
+        <div class="panel-h" style="position:relative">📊 分析面板
+          <span class="anno" style="right:8px;top:-8px">B3</span>
+          <span class="fold">⌄ 可折叠</span></div>
+        <div class="analysis">
+          <div class="evalbar"></div>
+          <div class="evalline">
+            <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+              <polyline points="0,30 20,26 40,32 60,18 80,34 100,22 120,38 140,20 160,30 180,14 200,26"
+                fill="none" stroke="#b07a45" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="an-hint">形势：红略优 +0.8 ｜ 引擎：内嵌 Pikafish</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="legend">
+  <h4>标注说明（洪涛确认要点）</h4>
+  <div class="row"><b>① 棋盘主视觉权重</b>：1280 标准宽下棋盘连同边框约 <b>340px 实体 + 居中留白</b>，为画面第一视觉锚点；右栏两面板合计 ≤ 40% 宽，永远弱于棋盘（面板窄底色浅、无重边框）。</div>
+  <div class="row"><b>B1 走子</b>：点棋子→点落点，2 次交互/步（棋盘本体即控件，无额外按钮）。</div>
+  <div class="row"><b>B2 步进</b>：走法记录点任意回合跳转（1 次）；配合键盘 ←→（0 次移动手）。</div>
+  <div class="row"><b>B3 分析</b>：默认折叠可展开，不与走子抢注意力（0 次必要交互）。</div>
+  <div class="row"><b>B4 换局</b>：工具栏首项「新局」1 次点击；<b>调速</b>：溢出菜单内 2 次（点开→选档）。高频五项常驻=1 次直达，低频收溢出。</div>
+  <div class="row"><b>C 信息带</b>：状态栏+棋钟合并为棋盘上方单行，替代旧两行堆叠。</div>
+  <div class="row"><b>A 工具栏</b>：与 v6.2 大师库页同构——同高度/同圆角按钮/同密度；<b>右栏走法+分析双面板与大师库播放页「棋盘左+右侧 ManagedSplitView」左右布局同族</b>，配色留白同源，跨页不换气质。</div>
+  <div class="row" style="color:#c9a227">自适应：拖窗口宽度 &lt;1000 收起右栏，&gt;1080 展开（迟滞防抖）。</div>
+</div>
+
+<script>
+const grid=document.getElementById('grid');
+const rows=('rnbakabnr'+'_________'+'_c_____c_'+'p_p_p_p_p'+'_________'+'_________'+'P_P_P_P_P'+'_C_____C_'+'_________'+'RNBAKABNR').split('');
+const redRows=[0,1,2,3,4]; // 上黑下红
+for(let i=0;i<90;i++){
+  const c=document.createElement('div');c.className='cell';
+  const ch=rows[i];
+  if(ch && ch!=='_'){
+    const p=document.createElement('div');
+    p.className='pc '+(i<45?'b':'r')+(ch==='P'&&i===45?' sel':'');
+    p.textContent=ch==='P'?'兵':ch==='R'?'車':ch==='N'?'馬':ch==='B'?'相':ch==='A'?'仕':ch==='K'?'帥':ch==='C'?'炮':ch==='p'?'卒':ch==='r'?'車':ch==='n'?'馬':ch==='b'?'象':ch==='a'?'士':ch==='k'?'將':'砲';
+    c.appendChild(p);
+  }
+  grid.appendChild(c);
+}
+const wv=document.getElementById('wv'),mode=document.getElementById('mode');
+function onResize(){
+  const w=window.innerWidth;wv.textContent=w;
+  const narrow=document.body.classList.contains('narrow');
+  if(!narrow && w<1000){document.body.classList.add('narrow');mode.textContent='单栏（右栏收起）';}
+  else if(narrow && w>1080){document.body.classList.remove('narrow');mode.textContent='三栏（展开）';}
+  else mode.textContent=narrow?'单栏（右栏收起·迟滞保持）':'三栏（展开）';
+}
+window.addEventListener('resize',onResize);onResize();
+const t=document.getElementById('annoToggle'),lg=document.getElementById('legend');
+let annoOn=false;
+t.onclick=()=>{annoOn=!annoOn;
+  document.querySelectorAll('.anno').forEach(e=>e.style.display=annoOn?'flex':'none');
+  lg.style.display=annoOn?'block':'none';
+  t.textContent=annoOn?'①②③ 标注：开':'①②③ 标注：关';};
+document.querySelectorAll('.anno').forEach(e=>e.style.display='none');
+lg.style.display='none';
+</script>
+</body>
+</html>
