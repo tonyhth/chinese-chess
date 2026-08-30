@@ -227,6 +227,15 @@ final class AnalysisViewModel {
         moves.indices.filter { isPlayerMove(at: $0) && analyses[$0] != nil }.count
     }
 
+    #if DEBUG
+    /// 测试注入面（仅 DEBUG）：直接铺设 moves/analyses/fenList
+    func loadForTest(moves: [String], analyses: [MoveAnalysis?]) {
+        self.moves = moves
+        self.analyses = analyses
+        self.fenList = [FENParser.standardInitial]
+    }
+    #endif
+
     // MARK: - v6.4 A2① 持久化落盘
 
     /// 将当前分析结果写入 sidecar（仅 recordId 启用时）
@@ -322,7 +331,8 @@ extension AnalysisViewModel: AnalysisPresentationProvider {
     /// 局面 k 的 top3 变招。k 域（v1.1 钉死）：k∈[1, N] 有效；k=0/k>N 返回 []，
     /// debug assert 防遇外不叫。变招数据属第 k 着分析结果（i=k-1）。
     func variations(atPosition k: Int) -> [Variation] {
-        assert(k >= 0 && k <= moves.count, "k 域越界：k=\(k)，N=\(moves.count)")
+        // v1.1 语义精读：k=0/k>N 属规格内边界（一律返 [] 不炸）；assert 仅防真正非法负 k
+        assert(k >= 0, "k 域非法：负 k=\(k)")
         guard k >= 1, k <= moves.count else { return [] }
         let i = k - 1
         guard i < analyses.count else { return [] }
