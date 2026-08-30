@@ -40,10 +40,10 @@ struct RadarChartView: View {
                 context.stroke(linePath, with: .color(.gray.opacity(0.2)), lineWidth: 0.5)
             }
 
-            // 数据多边形
+            // 数据多边形（v6.4 B2：NaN/inf 脏值不入绘制，clamp 到 0...maxScore）
             let dataPoints = scores.enumerated().map { i, kv in
                 let angle = angleFor(index: i, total: count)
-                let r = radius * (kv.value / maxScore)
+                let r = radius * (Self.sanitizedScore(kv.value, max: maxScore) / maxScore)
                 return CGPoint(
                     x: center.x + r * cos(angle),
                     y: center.y + r * sin(angle)
@@ -76,9 +76,8 @@ struct RadarChartView: View {
                     .foregroundColor(.primary)
                 context.draw(text, at: pos)
 
-                // 分值标签
                 let scorePos = CGPoint(x: pos.x, y: pos.y + 14)
-                let scoreText = Text("\(Int(kv.value))")
+                let scoreText = Text("\(Int(Self.sanitizedScore(kv.value, max: maxScore)))")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                 context.draw(scoreText, at: scorePos)
@@ -88,6 +87,12 @@ struct RadarChartView: View {
     }
 
     // MARK: - 辅助
+
+    /// v6.4 B2（Vera P3）：脏值清洗——NaN/±inf 归 0，越界 clamp 到 0...max。绘制层唯一入口，脏值不入 Canvas
+    static func sanitizedScore(_ value: Double, max: Double = 100) -> Double {
+        guard value.isFinite else { return 0 }
+        return Swift.min(Swift.max(value, 0), max)
+    }
 
     private func angleFor(index: Int, total: Int) -> Double {
         -Double.pi / 2 + Double(index) * 2 * .pi / Double(total)
