@@ -15,6 +15,8 @@ final class AnalysisPersistenceTests: XCTestCase {
     }
 
     override func tearDown() {
+        // P2-1：全局静态注入复位，防测试间泄漏（Ruby 08-30）
+        EngineVersionProvider.override = nil
         try? FileManager.default.removeItem(at: tmpDir)
         super.tearDown()
     }

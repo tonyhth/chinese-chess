@@ -48,7 +48,8 @@ final class AssessmentStore {
         guard let data = try? JSONEncoder().encode(report) else { return }
         defaults.set(data, forKey: storageKey)
         // v6.4 A1：追加历史（去重同局集重复保存，保留最近 historyLimit 条）
-        var h = reportHistory.filter { $0.sourceGames != report.sourceGames }
+        // P2-4：按局集去重（Set 比较，顺序不敏感——同局集不同顺序不产生重复条目，Ruby 08-30）
+        var h = reportHistory.filter { Set($0.sourceGames) != Set(report.sourceGames) }
         h.append(report)
         if h.count > historyLimit { h.removeFirst(h.count - historyLimit) }
         let encoded: [Data] = h.compactMap { try? JSONEncoder().encode($0) }

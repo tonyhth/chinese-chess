@@ -69,7 +69,14 @@ extension GameRecordStore {
     func loadAnalysisEnvelope(recordId: UUID) -> AnalysisEnvelope? {
         let url = baseURL.appendingPathComponent("\(recordId.uuidString).analysis.json")
         guard let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(AnalysisEnvelope.self, from: data)
+        // P2-2：损坏 sidecar 静默全量重跑排查不可见——补 DEBUG 日志（Ruby 08-30）
+        if let env = try? JSONDecoder().decode(AnalysisEnvelope.self, from: data) {
+            return env
+        }
+        #if DEBUG
+        AppLog.history.warning("analysis sidecar \(recordId.uuidString) corrupt, falling back to full re-analysis")
+        #endif
+        return nil
     }
 
     /// 落盘分析信封（writeQueue 串行；analyzedMoveCount 单调不回退）

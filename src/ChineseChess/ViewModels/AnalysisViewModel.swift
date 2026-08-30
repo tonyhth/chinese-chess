@@ -143,6 +143,7 @@ final class AnalysisViewModel {
 
         var done = alreadyAnalyzed
         var nilCount = 0
+        var checkpointTaken = false
         for (index, move) in moves.enumerated() {
             // 跳过非玩家走法
             guard isPlayerMove(at: index) else { continue }
@@ -171,8 +172,10 @@ final class AnalysisViewModel {
             #endif
 
             // v6.4 A2①：批中半程 checkpoint（analyzedMoveCount 单调不回退由 store 侧保证）
-            if done == checkpointAt {
+            // P2-3：用 >= 防将来循环 skip 逻辑变化时严格相等静默丢 checkpoint（Ruby 08-30）
+            if checkpointAt >= 0 && done >= checkpointAt && !checkpointTaken {
                 persistAnalysisEnvelope()
+                checkpointTaken = true
             }
         }
 
