@@ -95,3 +95,15 @@ struct V64BLineTests {
         #expect(profile.rankProgress == 1.0, "超额完成封顶 1.0")
     }
 }
+
+// MARK: - B3 A7-1：雷达 count<3 占位（不再静默空白，绘制层不崩验收锚）
+
+extension V64BLineTests {
+
+    @Test("sanitizedScore 对全 NaN 输入序列仍可安全整表清洗（count<3 场景前置）")
+    func radarAllNaNSafe() {
+        let dirty: [Double] = [.nan, .infinity, -42]
+        let cleaned = dirty.map { RadarChartView.sanitizedScore($0) }
+        #expect(cleaned == [0, 0, 0], "全脏序列清洗后应全 0，不崩不越界")
+    }
+}

@@ -14,7 +14,14 @@ struct RadarChartView: View {
             let radius = min(size.width, size.height) / 2 - 30
             let count = scores.count
 
-            guard count >= 3 else { return }
+            // v6.4 B3 A7-1：count<3 不再静默空白，占位提示
+            guard count >= 3 else {
+                let placeholder = Text(L10n.shared.t("analysis.noData"))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                context.draw(placeholder, at: center)
+                return
+            }
 
             // 网格（5 层多边形）
             for layer in stride(from: 0.2, through: 1.0, by: 0.2) {
