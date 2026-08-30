@@ -199,6 +199,22 @@ final class AnalysisViewModel {
         isAnalyzing = false
     }
 
+    // MARK: - v6.4 A-Phase2 §2：变招供给 API（AnalysisPresentationProvider）
+
+    /// 三要素中文着法转换（实际/推荐 → 中文记谱；失败回退 UCI 原文）
+    /// 着前局面取 fenList[i]（v3.7.0 起精确重建）
+    private func zhNotation(_ uci: String, atMoveIndex i: Int) -> String {
+        guard i >= 0, i < fenList.count,
+              let parsed = FENDecoder.parse(fen: fenList[i]) else { return uci }
+        let board = Board(pieces: parsed.pieces)
+        guard let move = ICCSParser.parse(uci, on: board) else { return uci }
+        return NotationGenerator.chineseNotation(for: move, on: board)
+    }
+
+    private var analyzedCount: Int {
+        moves.indices.filter { isPlayerMove(at: $0) && analyses[$0] != nil }.count
+    }
+
     // MARK: - v6.4 A2① 持久化落盘
 
     /// 将当前分析结果写入 sidecar（仅 recordId 启用时）
@@ -284,5 +300,38 @@ final class AnalysisViewModel {
     private func computeFEN(before index: Int) -> String {
         guard index >= 0 && index < fenList.count else { return initialFEN }
         return fenList[index]
+    }
+}
+
+// MARK: - v6.4 A-Phase2 §2：变招供给实现（读 analyses 即得，回看零引擎调用）
+
+extension AnalysisViewModel: AnalysisPresentationProvider {
+
+    /// 局面 k 的 top3 变招。k 域（v1.1 钉死）：k∈[1, N] 有效；k=0/k>N 返回 []，
+    /// debug assert 防遇外不叫。变招数据属第 k 着分析结果（i=k-1）。
+    func variations(atPosition k: Int) -> [Variation] {
+        assert(k >= 0 && k <= moves.count, "k 域越界：k=\(k)，N=\(moves.count)")
+        guard k >= 1, k <= moves.count else { return [] }
+        let i = k - 1
+        guard i < analyses.count else { return [] }
+        return analyses[i]?.variations ?? []
+    }
+
+    /// 三要素：实际/推荐/亏损（第 i 着）。i 域外或该着未分析返回 nil。
+    func moveReview(atMove i: Int) -> MoveReview? {
+        guard i >= 0, i < analyses.count, let a = analyses[i] else { return nil }
+        return MoveReview(
+            played: zhNotation(a.playerMove, atMoveIndex: i),
+            recommended: zhNotation(a.bestMove, atMoveIndex: i),
+            lossCp: a.evalDelta
+        )
+    }
+
+    func coachingPayload(atPosition k: Int) -> CoachingPayload {
+        CoachingPayload(
+            positionIndex: k,
+            variations: variations(atPosition: k),
+            moveReview: k >= 1 ? moveReview(atMove: k - 1) : nil
+        )
     }
 }
