@@ -131,6 +131,18 @@ const panel=(title,body,grow)=>`<div class="panel"${grow?' style="flex:1"':''}><
 
 /* ============ 13 页定义 ============ */
 const PAGES={
+P1:{t:'中国象棋 · 对局（P1 定稿 v2.1 合并）',n:'P1 对局｜棋盘最大化弹性吃满 + 右通栏四块；<1000 收右栏（迟滞 1000/1080）；实时像素角标；职责分工=本页形势速览/P9 分析主体；⌘Z 悔棋 ⌘I 提示',h:`
+ ${T('中国象棋 · 对局（人机）')}
+ <div class="toolbar"><div class="tb hot">🎴 新局</div><div class="tb hot">↩ 悔棋 <span class="k">⌘Z</span></div><div class="tb hot">💡 提示 <span class="k">⌘I</span></div><div class="tb hot">📈 难度·五级</div><div class="tb hot">🎯 模式·人机</div><div class="tb overflow">⋯ 溢出菜单（调速/音效/翻转…）</div></div>
+ <div class="infoband" style="height:40px;display:flex;align-items:center;justify-content:center;gap:32px;background:linear-gradient(#fffdf7,#f7f0e0);border-bottom:1px solid var(--line);font-size:13px;flex:none"><span>轮到红方</span><span>第 24 回合</span><span style="font-family:ui-monospace,monospace;font-size:15px;background:var(--ink);color:var(--gold);padding:2px 12px;border-radius:6px">⏱ 00:14:32</span><span style="color:var(--ink2)">先手·五级</span></div>
+ <div class="body">
+  <div class="z2" style="flex:1;display:flex;align-items:center;justify-content:center;min-width:0;position:relative"><span style="position:absolute;top:8px;left:8px;background:rgba(44,36,24,.85);color:var(--gold);font-size:11px;font-family:ui-monospace,monospace;padding:2px 8px;border-radius:8px">棋盘自适应吃满</span><span style="position:absolute;top:8px;right:8px;background:rgba(44,36,24,.7);color:#f3ecd9;font-size:11px;padding:2px 8px;border-radius:8px">←/→ 回跳</span>${boardHTML()}</div>
+  <div style="width:264px;display:flex;flex-direction:column;gap:8px;flex:none">
+   ${panel('♟ 对局信息','<div class="stat"><span>回合</span><span class="v">24</span></div><div class="stat"><span>红方</span><span class="v">00:14:32</span></div><div class="stat"><span>黑方</span><span class="v">00:16:05</span></div><div class="stat"><span>用时落后</span><span class="v" style="color:var(--accent)">−1:33</span></div>')}
+   ${panel('📜 走法记录','<div class="moves">'+movesHTML(8,2)+'</div><button style="position:sticky;bottom:0;align-self:flex-end;margin-top:6px;background:var(--wood);color:#fff;border:none;font-size:12px;padding:4px 12px;border-radius:12px;cursor:pointer">↩ 回到最新</button>',1)}
+   ${panel('📊 分析','<div style="display:flex;flex-direction:column;gap:8px"><div class="evalbar"></div><div class="chart" style="height:68px">'+evalSVG+'</div><div class="stat"><span>红略优 +0.8</span><span>深度 18</span></div></div>')}
+   ${panel('⚙ 引擎状态','<div class="stat"><span><span class="dot-ok"></span>引擎</span><span class="v">内嵌 Pikafish</span></div><div class="stat"><span><span class="dot-ok"></span>NNUE</span><span class="v">已加载</span></div><div class="stat"><span>路由</span><span class="v">EngineRouter 单例</span></div>')}
+  </div></div>`},
 P2:{t:'中国象棋 · 大师库 — 浏览（P2）',n:'P2 大师库·浏览｜sidebar 化统一语言（治横滚标签栏）+ 搜索入 sidebar 顶 + 行式列表',h:`
  ${T('中国象棋 · 大师库 — 浏览')}
  <div class="toolbar"><div class="tb hot">🔙 返回</div><div class="tb">⭐ 收藏</div><div class="tb">🕘 历史</div><div class="tb" style="margin-left:auto">📥 导入棋谱</div></div>
@@ -285,10 +297,10 @@ P14:{t:'中国象棋 · 排位/关于（P14）',n:'P14 排位/关于/隐私｜�
 /* ============ 渲染框架 ============ */
 const nav=document.getElementById('nav'),stage=document.getElementById('stage'),note=document.getElementById('note');
 Object.entries(PAGES).forEach(([k,p])=>{
-  const b=document.createElement('button');b.textContent=k+' '+({P2:'大师库·浏览',P3:'库·播放',P4:'演示页',P5:'学棋中心',P6:'教程四步',P7:'开局教练',P8:'探索器',P9:'复盘·独立窗',P10:'设置',P11:'成就统计',P12:'每日挑战',P13:'残局战术',P14:'排位关于'}[k]);
+  const b=document.createElement('button');b.textContent=k+' '+({P1:'对局页★',P2:'大师库·浏览',P3:'库·播放',P4:'演示页',P5:'学棋中心',P6:'教程四步',P7:'开局教练',P8:'探索器',P9:'复盘·独立窗',P10:'设置',P11:'成就统计',P12:'每日挑战',P13:'残局战术',P14:'排位关于'}[k]);
   b.dataset.k=k;b.onclick=()=>{location.hash=k;};nav.appendChild(b);
   const d=document.createElement('div');d.className='page';d.id='pg'+k;d.innerHTML=p.h;stage.appendChild(d);});
-function show(k){if(!PAGES[k])k='P2';
+function show(k){if(!PAGES[k])k='P1';
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='pg'+k));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
   const narrow='｜全局窄窗口径：sidebar 页（P2/P7/P13）复用 1000/1080 迟滞收左栏；卡片页（P5/P11/P12）auto-fill 天然弹性；P8 <1080 收右侧统计栏、<900 棋树折叠为顶部下拉；P3/P4/P9 同 P1（<1000 收右栏）｜←/→ 步进口径覆盖 P1/P3/P4/P9（全局交互规范）';
