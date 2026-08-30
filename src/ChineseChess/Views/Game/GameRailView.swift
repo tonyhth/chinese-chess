@@ -6,7 +6,7 @@ import SwiftUI
 // 定宽 264（LayoutSpec.p1RailWidth），细滚动条，面板头行可点击折叠（chevron 旋转）。
 // 打样边界声明：
 // - 走法记录为实时只读 + 自动跟焦（live 对局回跳属复盘域，复盘页已有；防 P1 打样越界）
-// - 分析面板：引擎状态走既有展示位（EngineConfigStore，不绕 EngineRouter 直取引擎）；
+// - 引擎状态面板：按难度路由展示（E5 语义：业余→自研 / 专业→Pikafish，无用户开关）；
 //   形势条/曲线骨架位随 v6.4 ①持久化上线（届时 P9 独立窗口 Phase 4 一并接）
 
 struct GameRailView: View {
@@ -19,6 +19,7 @@ struct GameRailView: View {
     @State private var infoCollapsed = false
     @State private var movesCollapsed = false
     @State private var analysisCollapsed = false
+    @State private var engineCollapsed = false
 
     var body: some View {
         VStack(spacing: LayoutSpec.space2) {
@@ -46,14 +47,9 @@ struct GameRailView: View {
                 MoveRecordList(viewModel: viewModel)
             }
 
-            // 分析（引擎状态 + 复盘入口；形势条随①持久化上线）
+            // 分析（复盘入口；形势条随①持久化上线）
             RailPanel(title: l10n.t("p1.rail.analysis"), collapsed: $analysisCollapsed) {
                 VStack(spacing: LayoutSpec.space2) {
-                    #if os(macOS)
-                    railStat(l10n.t("p1.rail.engine"),
-                             EngineConfigStore.shared.useEmbeddedEngine ? "Pikafish" : l10n.t("engine.builtIn"))
-                    #endif
-
                     Button {
                         onReplayRequest?()
                     } label: {
@@ -70,6 +66,20 @@ struct GameRailView: View {
                         .font(.system(size: LayoutSpec.fontSizeCaption))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                }
+            }
+
+            // 引擎状态（第四面板：绿点状态行，refine#6）
+            RailPanel(title: l10n.t("p1.rail.engine"), collapsed: $engineCollapsed) {
+                VStack(spacing: 2) {
+                    #if os(macOS)
+                    statusRow(ok: true, label: l10n.t("p1.rail.engine"),
+                              value: viewModel.difficulty.isProfessional
+                                  ? l10n.t("p1.rail.enginePikafish")
+                                  : l10n.t("engine.builtIn"))
+                    statusRow(ok: true, label: "NNUE", value: l10n.t("p1.rail.nnueLoaded"))
+                    statusRow(ok: true, label: l10n.t("p1.rail.route"), value: "EngineRouter")
+                    #endif
                 }
             }
         }
@@ -105,6 +115,20 @@ struct GameRailView: View {
                 .lineLimit(1)
                 .truncationMode(.tail)   // LJ-1 截断规范
                 .help(pieces.map(\.displayName).joined(separator: " "))
+        }
+    }
+
+    // MARK: - 状态行（绿点语义色，refine#6）
+
+    private func statusRow(ok: Bool, label: String, value: String) -> some View {
+        HStack(spacing: 4) {
+            Circle().fill(Color.green).frame(width: 8, height: 8)
+            Text(label)
+                .font(.system(size: LayoutSpec.fontSizeCaption))
+                .foregroundColor(.secondary)
+            Spacer()
+            Text(value)
+                .font(.system(size: LayoutSpec.fontSizeCaption))
         }
     }
 

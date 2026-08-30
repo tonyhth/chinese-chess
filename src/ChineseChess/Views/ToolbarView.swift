@@ -252,6 +252,8 @@ struct ToolbarView: View {
 
                 Button(action: { viewModel.undoMove() }) {
                     Label(l10n.t("game.undoMove"), systemImage: "arrow.uturn.backward")
+                    // v6.4 C1 refine#1：键帽常驻（⌘Z）
+                    Text("⌘Z").font(.system(size: 10, design: .monospaced)).foregroundColor(.secondary)
                 }
                 #if os(macOS)
                 .keyboardShortcut("z", modifiers: .command)
@@ -265,9 +267,11 @@ struct ToolbarView: View {
 
                 Button(action: { viewModel.requestHint() }) {
                     Label(l10n.t("game.hint"), systemImage: "lightbulb")
+                    // v6.4 C1 refine#1：键帽常驻（⌘I；v2.1 定案：⌘H 与 macOS Hide 冲突弃用）
+                    Text("⌘I").font(.system(size: 10, design: .monospaced)).foregroundColor(.secondary)
                 }
                 #if os(macOS)
-                .keyboardShortcut("h", modifiers: [.command, .shift])
+                .keyboardShortcut("i", modifiers: .command)
                 .controlSize(.small)
                 .help(l10n.t("game.hintTooltip"))
                 #endif
