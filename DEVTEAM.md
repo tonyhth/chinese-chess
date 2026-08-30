@@ -217,3 +217,7 @@ working tree 不为空 → 不算验收通过。
 - 飞书群 bot 路由实测（Danny bot 230002 前鉴）
 - HIG P1-1 练手单全升级链走真：编码→Ruby 审→Tina 验
 - HIG P1-1 的 alert 文案过 Vera 增量 HIG 对照（触发式 HIG 规约首例实践）
+
+## 提审清单补丁（2026-09-01，Ruby 建议/Luke 采纳：并行线冲掉落盘事故）
+- **提审前重跑 `git status` 并把终态附进提审报告**（防落盘被并行线工作区操作冲掉的时间差假象；08-31 Cody PositionAnalyzer 重打实证）
+- commit 前做落盘断言：grep 关键标识符确认改动仍在文件内
