@@ -69,16 +69,19 @@ struct GameRailView: View {
                 }
             }
 
-            // 引擎状态（第四面板：绿点状态行，refine#6）
+            // 引擎状态（第四面板：真实状态行，Ruby P1 清偿——去伪状态）
             RailPanel(title: l10n.t("p1.rail.engine"), collapsed: $engineCollapsed) {
                 VStack(spacing: 2) {
                     #if os(macOS)
+                    // 引擎：按难度路由实时展示（E5 语义，真实值非静态）
                     statusRow(ok: true, label: l10n.t("p1.rail.engine"),
                               value: viewModel.difficulty.isProfessional
                                   ? l10n.t("p1.rail.enginePikafish")
                                   : l10n.t("engine.builtIn"))
-                    statusRow(ok: true, label: "NNUE", value: l10n.t("p1.rail.nnueLoaded"))
-                    statusRow(ok: true, label: l10n.t("p1.rail.route"), value: "EngineRouter")
+                    // NNUE：接真实校验（EmbeddedPikafishEngine.verifyNNUEAsset，sha256 快路径缓存）
+                    // 异步查（首次全量哈希 ~0.3-1s 不卡 UI），结果落地前中性"校验中…"灰点，不假绿
+                    statusRow(ok: nnueCheck.ok, label: "NNUE",
+                              value: nnueCheck.text)
                     #endif
                 }
             }
@@ -86,6 +89,36 @@ struct GameRailView: View {
         .padding(.vertical, LayoutSpec.space2)
         .frame(width: LayoutSpec.p1RailWidth)
         .frame(maxHeight: .infinity, alignment: .top)
+        .task { await refreshNNUECheck() }
+    }
+
+    // MARK: - NNUE 真实校验状态（Ruby P1：伪状态面板清偿）
+
+    private enum NNUECheckState {
+        case pending
+        case ok
+        case failed
+
+        var ok: Bool? {
+            switch self { case .pending: nil; case .ok: true; case .failed: false }
+        }
+
+        var text: String {
+            switch self {
+            case .pending: L10n.shared.t("p1.rail.nnueChecking")
+            case .ok: L10n.shared.t("p1.rail.nnueLoaded")
+            case .failed: L10n.shared.t("p1.rail.nnueMissing")
+            }
+        }
+    }
+
+    @State private var nnueCheck: NNUECheckState = .pending
+
+    private func refreshNNUECheck() async {
+        let r = await Task.detached(priority: .utility) {
+            EmbeddedPikafishEngine.verifyNNUEAsset()
+        }.value
+        if case .ok = r { nnueCheck = .ok } else { nnueCheck = .failed }
     }
 
     // MARK: - 行组件
@@ -120,9 +153,12 @@ struct GameRailView: View {
 
     // MARK: - 状态行（绿点语义色，refine#6）
 
-    private func statusRow(ok: Bool, label: String, value: String) -> some View {
+    private func statusRow(ok: Bool?, label: String, value: String) -> some View {
         HStack(spacing: 4) {
-            Circle().fill(Color.green).frame(width: 8, height: 8)
+            // ok 消费真实状态：nil=待定灰 / true=绿 / false=红（Ruby P1：死参数清偿）
+            Circle()
+                .fill(ok == true ? Color.green : ok == false ? Color.red : Color.gray)
+                .frame(width: 8, height: 8)
             Text(label)
                 .font(.system(size: LayoutSpec.fontSizeCaption))
                 .foregroundColor(.secondary)
