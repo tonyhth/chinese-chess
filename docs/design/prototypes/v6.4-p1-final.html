@@ -91,7 +91,7 @@
 <div id="wbadge">宽 <b id="wv">1280</b>｜棋盘 <b id="bs">—</b>｜<b id="mode">完整</b></div>
 <div class="app">
   <div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">中国象棋 · 对局 — 横向布局定稿 · 功能精修 v2</span></div>
-  <div class="toolbar"><div class="tb hot">🎴 新局</div><div class="tb hot">↩ 悔棋 <span class="k">⌘Z</span></div><div class="tb hot">💡 提示 <span class="k">⌘H</span></div><div class="tb hot">📈 难度·五级</div><div class="tb hot">🎯 模式·人机</div><div class="tb overflow">⋯ 溢出菜单（调速/音效/翻转…）</div></div>
+  <div class="toolbar"><div class="tb hot">🎴 新局</div><div class="tb hot">↩ 悔棋 <span class="k">⌘Z</span></div><div class="tb hot">💡 提示 <span class="k">⌘I</span></div><div class="tb hot">📈 难度·五级</div><div class="tb hot">🎯 模式·人机</div><div class="tb overflow">⋯ 溢出菜单（调速/音效/翻转…）</div></div>
   <div class="infoband"><span><span class="turn-dot"></span>轮到红方</span><span id="roundNo">第 24 回合</span><span class="clock" id="clk">⏱ 00:14:32</span><span style="color:var(--ink2)">先手·五级</span></div>
   <div class="main">
     <div class="zone"><span class="bsize"></span><span class="srctag">面板语言与 v6.2 大师库同源 · 8pt 栅格</span><span class="kbd-tip">←/→ 回跳走法 · 点棋子看合法位</span>
@@ -139,7 +139,9 @@ addEventListener('keydown',e=>{if(e.key==='ArrowLeft'&&curIdx>0){curIdx--;render
   if(e.key==='ArrowRight'&&curIdx<mvs.length-1){curIdx++;renderMoves();sync();}});
 document.querySelectorAll('.panel-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('closed'));
 document.getElementById('ev').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();
-  curIdx=Math.min(mvs.length-1,Math.max(0,Math.round((e.clientX-r.left)/r.width*(mvs.length-1))));renderMoves();sync();};
+  /* 口径：点曲线=跳到该局面；走法高亮=产生该局面的那一着（局面 k 由第 k 着产生，高亮 k-1，与①analyzedMoveCount 前缀口径对齐） */
+  const k=Math.min(mvs.length,Math.max(1,Math.round((e.clientX-r.left)/r.width*mvs.length)));
+  curIdx=k-1;renderMoves();sync();};
 function fit(){const z=document.querySelector('.zone'),b=document.querySelector('.board');
   const W=z.clientWidth-24,H=z.clientHeight-24;
   const cell=Math.max(22,Math.floor(Math.min((W-22)/9,(H-22)/10)));
