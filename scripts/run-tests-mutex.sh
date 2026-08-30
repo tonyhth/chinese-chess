@@ -76,19 +76,37 @@ unlock_language() {
   fi
 }
 
+# ---------- dd 产物自检（2026-08-30 Tina 修①：陈旧/缺失测试产物强制重建，防 up-to-date 误判空跑） ----------
+check_dd_artifacts() {
+  local app="$DD/Build/Products/Debug/ChineseChess.app"
+  local xctest="$app/Contents/PlugIns/ChineseChessTests.xctest"
+  if [ ! -d "$app" ] || [ ! -d "$xctest" ]; then
+    echo "⚠️ [dd自检] 测试产物缺失（app/xctest），清理 Products 强制重建：$DD/Build/Products"
+    rm -rf "$DD/Build/Products" 2>/dev/null
+  else
+    echo "[dd自检] 测试产物在位（$(stat -f '%Sm' "$xctest" 2>/dev/null)）"
+  fi
+}
+
 # ---------- 单 suite 起跑（独立进程） ----------
 run_suite() {
   local suite="$1"
-  local log="$LOG_DIR/${suite}-$(date +%H%M%S).log"
+  # 2026-08-30 Tina 修②a：用例级路径（含 /）不得进日志文件名（目录不存在→ tee 写丢→ 假零跑）
+  local tag="${suite//\//_}"   # 文件名安全化，filter 仍用原 suite
+  local log="$LOG_DIR/${tag}-$(date +%H%M%S).log"
   echo "▶ [$suite] 起跑 $(date '+%F %T')，日志 $log"
-  ( cd "$PROJECT" && \
+  # 2026-08-30 Tina 修②c：子 shell 加 pipefail——旧版 rc 取自 PIPESTATUS[0] 实为 tee 退出码（恒 0，
+  # TEST FAILED 也报 rc=0 假 PASS 隐患），现子 shell 传递 xcodebuild 真实 rc
+  ( set -o pipefail; cd "$PROJECT" && \
     bash ~/DevTeam/scripts/preflight-test-assets.sh "$PROJECT" >/dev/null || { echo "preflight 失败（资产缺失）"; exit 3; } ; \
     xcodebuild test -scheme ChineseChess -sdk macosx \
       -derivedDataPath "$DD" \
       $(skip_args) \
       -only-testing:"ChineseChessTests/$suite" 2>&1 | tee "$log" )
-  local rc=${PIPESTATUS[0]:-$?}
+  local rc=$?
   # 静默零跑门规（2026-08-29 Step2 终报批实证：filter 名不符 → Executed 0 tests 假绿）
+  # 2026-08-30 Tina 复核：双框架对账——XCTest（Executed N）/ Swift Testing（Test run with N tests）任一侧 N≥1 即真跑；
+  # 纯 0 计数（含 'Test run with 0 tests'）自然落入零跑分支被拦
   if ! grep -qE "Test run with [1-9][0-9]* test|Executed [1-9][0-9]* test" "$log" 2>/dev/null; then
     echo "❌ [$suite] 静默零跑：日志无 'N≥1 tests' 对账行（filter 名与实际 suite 名不符嫌疑），批次作废"
     EXIT_SUMMARY+=("FAIL(zero-run) $suite $log")
@@ -96,6 +114,8 @@ run_suite() {
   fi
   local n
   n=$(grep -cE "Executed [0-9]+ test" "$log" 2>/dev/null || true)
+  n2=$(grep -cE "Test run with [0-9]+ test" "$log" 2>/dev/null || true)
+  echo "[对账] XCTest Executed 行=$n / Swift Testing run 行=$n2"
   if [ "$rc" -eq 0 ]; then
     echo "✅ [$suite] rc=0 $(date '+%T')"
     EXIT_SUMMARY+=("PASS $suite $log")
@@ -122,6 +142,7 @@ main() {
   echo "🔒 [mutex] 获得锁 $(date '+%F %T') (holder=$$, owner=$OWNER)"
   trap 'unlock_language' EXIT
   lock_language   # 语言锁整批只加一次（每 suite 重复加锁会把注入值误当原值备份 → 批后残留）
+  check_dd_artifacts   # 2026-08-30 Tina 修①：dd 产物自检/强制重建
 
   if [ "${1:-}" = "--h1-verify" ]; then
     shift
