@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>v6.4 全页面原型 · P2-P14（布局语言=v6.4-p1-final v2.1：8pt 栅格/字阶 token/面板规格）</title>
+<style>
+  :root{--bg:#f5f1e8;--panel:#fbf8f1;--wood:#b07a45;--wood-d:#8a5a2e;--ink:#2c2418;--ink2:#6b5d48;
+    --line:#e2d9c8;--line2:#d4c8b0;--accent:#b03a2e;--gold:#c9a227;--ok:#3a7d44;
+    --s1:4px;--s2:8px;--s3:16px;--s4:24px;
+    --p-radius:10px;--p-head-h:32px;--fs-cap:12px;--fs-body:13px;--fs-title:15px;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",system-ui,sans-serif;overflow:hidden}
+  #nav{position:fixed;top:0;left:0;bottom:0;width:150px;background:var(--ink);z-index:99;display:flex;flex-direction:column;padding:12px 8px;gap:3px;overflow:auto}
+  #nav .brand{color:var(--gold);font-size:12px;font-weight:700;padding:4px 8px 10px}
+  #nav button{border:none;background:none;color:#cfc4ac;font-size:12px;text-align:left;padding:6px 10px;border-radius:7px;cursor:pointer;line-height:1.4}
+  #nav button:hover{background:rgba(255,255,255,.08)}
+  #nav button.on{background:var(--gold);color:var(--ink);font-weight:600}
+  .stage{position:fixed;inset:0 0 0 150px;display:flex;flex-direction:column}
+  .page{display:none;flex-direction:column;height:100vh}
+  .page.on{display:flex}
+  .titlebar{height:32px;background:#e9e2d2;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2);gap:8px;flex:none}
+  .dot{width:9px;height:9px;border-radius:50%;background:#d0c6b0}
+  .toolbar{height:48px;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3);background:var(--panel);border-bottom:1px solid var(--line);flex:none}
+  .tb{height:32px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:var(--fs-body);display:flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;transition:all .12s}
+  .tb:hover{border-color:var(--wood);background:#fdf7ee;transform:translateY(-1px);box-shadow:0 2px 6px rgba(138,90,46,.18)}
+  .tb.hot{border-color:var(--wood);color:var(--wood-d);background:#fdf7ee}
+  .tb .k{font-size:11px;color:#fff;background:var(--wood);border-radius:4px;padding:1px 5px;font-family:ui-monospace,monospace}
+  .search{flex:0 0 220px;height:32px;border:1px solid var(--line);border-radius:8px;background:#fff;display:flex;align-items:center;padding:0 10px;color:var(--ink2);font-size:13px;gap:6px}
+  .body{flex:1;display:flex;min-height:0;padding:var(--s3);gap:var(--s3)}
+  /* sidebar 分类（P2/P7/P13 统一语言） */
+  .sidebar{width:200px;background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);padding:var(--s2);display:flex;flex-direction:column;gap:2px;flex:none;overflow:auto}
+  .sidebar .cat{padding:7px 10px;border-radius:7px;font-size:var(--fs-body);color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .sidebar .cat:hover{background:#f3ebd9}
+  .sidebar .cat.on{background:var(--wood);color:#fff;font-weight:600}
+  .sidebar .cat .n{font-size:11px;opacity:.7}
+  .sidebar .search{flex:none;margin-bottom:6px}
+  /* 列表（右主区） */
+  .list{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);overflow:auto;padding:var(--s2);display:flex;flex-direction:column;gap:var(--s2)}
+  .row{display:flex;align-items:center;gap:var(--s3);padding:10px var(--s3);border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;transition:all .12s}
+  .row:hover{border-color:var(--wood);transform:translateY(-1px);box-shadow:0 2px 6px rgba(138,90,46,.14)}
+  .row .t{font-size:var(--fs-body);font-weight:600}
+  .row .d{font-size:var(--fs-cap);color:var(--ink2);margin-top:2px}
+  .row .badge{margin-left:auto;font-size:11px;background:#f3ebd9;color:var(--wood-d);border-radius:10px;padding:2px 8px;white-space:nowrap}
+  /* 面板（大师库同源） */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);display:flex;flex-direction:column;overflow:hidden}
+  .panel-h{height:var(--p-head-h);display:flex;align-items:center;padding:0 var(--s3);border-bottom:1px solid var(--line);font-size:var(--fs-body);font-weight:600;color:var(--ink2);gap:var(--s2);cursor:pointer;flex:none}
+  .panel-h:hover{background:#f6efe0}
+  .panel-h .tab{width:3px;height:14px;background:var(--wood);border-radius:2px}
+  .panel-h .chev{margin-left:auto;font-size:10px;color:var(--ink2)}
+  .panel-b{padding:var(--s2) var(--s3);font-size:var(--fs-body);line-height:1.8;overflow:auto}
+  /* 棋盘组件（P1 语言） */
+  .board{background:var(--wood);border:5px solid var(--wood-d);border-radius:10px;box-shadow:0 8px 28px rgba(90,60,20,.25)}
+  .grid{display:grid}
+  .cell{position:relative}.cell::after{content:"";position:absolute;inset:8%;border:1px solid rgba(255,248,230,.35);border-radius:6px}
+  .pc{position:absolute;inset:8%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;background:#fdf3dc;border:2px solid #caa;box-shadow:0 1px 2px rgba(0,0,0,.3);color:var(--accent)}
+  .pc.b{background:#3a332a;border-color:#111;color:#eee}
+  /* tab 组（P3/P4 右面板三 tab） */
+  .tabs{display:flex;gap:var(--s1);padding:var(--s2) var(--s3) 0}
+  .tabs .t2{padding:6px 12px;font-size:var(--fs-body);border-radius:8px 8px 0 0;cursor:pointer;color:var(--ink2);border:1px solid transparent}
+  .tabs .t2:hover{background:#f3ebd9}
+  .tabs .t2.on{background:var(--panel);border:1px solid var(--line);border-bottom-color:var(--panel);color:var(--wood-d);font-weight:600}
+  /* 卡片（P5/P11/P12） */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--s3);overflow:auto;flex:1;align-content:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);padding:var(--s3);cursor:pointer;transition:all .12s;display:flex;flex-direction:column;gap:var(--s2)}
+  .card:hover{border-color:var(--wood);transform:translateY(-2px);box-shadow:0 4px 12px rgba(138,90,46,.16)}
+  .card.hero{grid-column:1/-1;flex-direction:row;align-items:center;background:linear-gradient(120deg,#fdf7ee,#f7ecd7);border-color:var(--wood)}
+  .card .ic{font-size:26px}
+  .card .t{font-size:var(--fs-title);font-weight:700}
+  .card .d{font-size:var(--fs-cap);color:var(--ink2);line-height:1.6}
+  .card .go{margin-left:auto;background:var(--wood);color:#fff;border-radius:14px;font-size:12px;padding:6px 14px;white-space:nowrap}
+  /* 进度/步骤（P5/P6） */
+  .steps{display:flex;gap:var(--s2)}
+  .step{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);padding:var(--s3);text-align:center}
+  .step.on{border-color:var(--gold);background:#fdf8ea}
+  .step .n{font-size:18px;font-weight:800;color:var(--wood-d)}
+  .step .t{font-size:var(--fs-body);font-weight:600;margin-top:4px}
+  .step .d{font-size:var(--fs-cap);color:var(--ink2);margin-top:2px}
+  .bar{height:8px;background:#eee5d2;border-radius:4px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--wood);border-radius:4px}
+  /* 棋树（P8） */
+  .tree{flex:0 0 320px;background:var(--panel);border:1px solid var(--line);border-radius:var(--p-radius);overflow:auto;padding:var(--s2)}
+  .tn{display:flex;gap:8px;padding:4px 8px;border-radius:6px;font-family:ui-monospace,monospace;font-size:12.5px;cursor:pointer;align-items:center}
+  .tn:hover{background:#f3ebd9}.tn.on{background:var(--gold);color:#fff}
+  .tn .in{width:14px;color:var(--ink2);font-size:10px}
+  .tn .ev{margin-left:auto;font-size:11px;color:var(--ink2)}
+  /* 图表（P11） */
+  .chart{height:90px;background:#fff;border:1px solid var(--line);border-radius:6px;position:relative;overflow:hidden}
+  .chart svg{position:absolute;inset:0;width:100%;height:100%}
+  .radar{width:110px;height:110px;flex:none}
+  .stat{display:flex;justify-content:space-between;font-size:var(--fs-cap);color:var(--ink2);padding:2px 0}
+  .stat .v{color:var(--ink)}
+  .dot-ok{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+  .moves{font-family:ui-monospace,monospace;font-size:12.5px}
+  .mvrow{display:grid;grid-template-columns:28px 1fr 1fr;padding:2px 6px;border-radius:6px;cursor:pointer;line-height:1.7}
+  .mvrow:hover{background:#f3ebd9}.mvrow.cur{background:var(--gold);color:#fff}.mvrow.cur .no{color:#fff}
+  .no{color:var(--ink2)}
+  .note{position:fixed;bottom:8px;left:158px;right:8px;z-index:99;background:rgba(44,36,24,.94);color:#f3ecd9;border-radius:11px;padding:7px 14px;font-size:12px;line-height:1.6;text-align:center}
+  .note b{color:var(--gold)}
+  .win{background:#fff;border:1px solid var(--line2);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.22);display:flex;flex-direction:column;overflow:hidden}
+  .win .wh{height:34px;background:#eee7d6;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2);gap:8px;flex:none}
+  .evalbar{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--ink) 38%,#e8ddc4 38%);border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div id="nav"><div class="brand">v6.4 · 14 页<br><span style="font-weight:400;font-size:10px;color:#cfc4ac">P1 已定稿</span></div></div>
+<div class="stage" id="stage"></div>
+<div class="note" id="note"></div>
+<script>
+/* ============ 共用资产 ============ */
+const rows='rnbakabnr__________c_____c_p_p_p_p______________________P_P_P_P_P_C_____C__________RNBAKABNR'.slice(0,90).split('');
+const zh={r:'車',n:'馬',b:'象',a:'士',k:'將',c:'砲',p:'卒',R:'車',N:'馬',B:'相',A:'仕',K:'帥',C:'炮',P:'兵'};
+function boardHTML(){return '<div class="board"><div class="grid bd"></div></div>'}
+function buildBoards(root){root.querySelectorAll('.grid.bd').forEach(g=>{g.innerHTML='';
+  for(let i=0;i<90;i++){const c=document.createElement('div');c.className='cell';
+    const ch=rows[i];if(ch&&ch!=='_'){const p=document.createElement('div');p.className='pc'+(i<45?' b':'');p.textContent=zh[ch]||'?';c.appendChild(p);}
+    g.appendChild(c);}
+  const zone=g.closest('.z2')||g.parentElement.parentElement;
+  function fit(){const W=zone.clientWidth-16,H=zone.clientHeight-16;
+    const cell=Math.max(16,Math.floor(Math.min((W-14)/9,(H-14)/10)));
+    g.style.gridTemplateColumns=`repeat(9,${cell}px)`;g.style.gridTemplateRows=`repeat(10,${cell}px)`;
+    const b=g.parentElement,pad=Math.max(Math.min(W,H)*0.04,cell*0.45);b.style.padding=`${Math.min(pad,12)}px`;
+    g.querySelectorAll('.pc').forEach(p=>p.style.fontSize=Math.round(cell*0.5)+'px');}
+  new ResizeObserver(fit).observe(zone);setTimeout(fit,30);});}
+function movesHTML(n,start){let h='';for(let i=0;i<n;i++){h+=`<div class="mvrow${i===start?' cur':''}"><span class="no">${i+1}.</span><span>炮二平五</span><span>马8进7</span></div>`}return h}
+const evalSVG='<svg viewBox="0 0 200 60" preserveAspectRatio="none"><polyline points="0,30 20,26 40,32 60,18 80,34 100,22 120,38 140,20 160,30 180,14 200,26" fill="none" stroke="#b07a45" stroke-width="2"/></svg>';
+const radarSVG='<svg viewBox="0 0 100 100"><polygon points="50,8 88,35 74,80 26,80 12,35" fill="none" stroke="#d4c8b0"/><polygon points="50,20 76,39 67,70 33,68 24,39" fill="rgba(176,122,69,.35)" stroke="#b07a45"/><line x1="50" y1="50" x2="50" y2="8" stroke="#e2d9c8"/><line x1="50" y1="50" x2="88" y2="35" stroke="#e2d9c8"/><line x1="50" y1="50" x2="74" y2="80" stroke="#e2d9c8"/><line x1="50" y1="50" x2="26" y2="80" stroke="#e2d9c8"/><line x1="50" y1="50" x2="12" y2="35" stroke="#e2d9c8"/></svg>';
+const T=(t)=>`<div class="titlebar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">${t}</span></div>`;
+const cat=(name,n,on)=>`<div class="cat${on?' on':''}"><span>${name}</span><span class="n">${n}</span></div>`;
+const panel=(title,body,grow)=>`<div class="panel"${grow?' style="flex:1"':''}><div class="panel-h"><span class="tab"></span>${title}<span class="chev">▼</span></div><div class="panel-b" style="${grow?'overflow:auto':''}">${body}</div></div>`;
+
+/* ============ 13 页定义 ============ */
+const PAGES={
+P2:{t:'中国象棋 · 大师库 — 浏览（P2）',n:'P2 大师库·浏览｜sidebar 化统一语言（治横滚标签栏）+ 搜索入 sidebar 顶 + 行式列表',h:`
+ ${T('中国象棋 · 大师库 — 浏览')}
+ <div class="toolbar"><div class="tb hot">🔙 返回</div><div class="tb">⭐ 收藏</div><div class="tb">🕘 历史</div><div class="tb" style="margin-left:auto">📥 导入棋谱</div></div>
+ <div class="body">
+  <div class="sidebar"><div class="search">🔍 搜索大师/开局…</div>${cat('全部','1,248',1)}${cat('按大师','312')}${cat('按开局','486')}${cat('按年份','204')}${cat('收藏','36')}</div>
+  <div class="list">
+   <div class="row"><div><div class="t">胡荣华 vs 杨官璘 · 1960 全国个人赛</div><div class="d">中炮过河车对屏风马平炮兑车 · 37 回合 · 红胜</div></div><div class="badge">经典 ⭐4.9</div></div>
+   <div class="row"><div><div class="t">许银川 vs 吕钦 · 1996 五羊杯</div><div class="d">飞相局对士角炮 · 41 回合 · 和棋</div></div><div class="badge">⭐4.8</div></div>
+   <div class="row"><div><div class="t">王天一 vs 郑惟桐 · 2018 象甲</div><div class="d">起马局 · 28 回合 · 黑胜</div></div><div class="badge">⭐4.7</div></div>
+   <div class="row"><div><div class="t">柳大华 vs 李来群 · 1984</div><div class="d">顺炮直车对横车 · 53 回合 · 红胜</div></div><div class="badge">⭐4.6</div></div>
+  </div></div>`},
+P3:{t:'中国象棋 · 大师库 — 播放（P3）',n:'P3 播放｜棋盘最大化 + 右三tab（信息/点评/走法）密度调优；单屏零滚动目标',h:`
+ ${T('中国象棋 · 大师库 — 播放')}
+ <div class="toolbar"><div class="tb hot">🔙 库</div><div class="tb">⭐ 收藏</div><div class="tb">◀ 上一步</div><div class="tb">▶ 播放</div><div class="tb">▶▶ 下一步</div><div class="tb" style="margin-left:auto">调速 1× ▾</div></div>
+ <div class="body">
+  <div class="z2" style="flex:1;display:flex;align-items:center;justify-content:center;min-width:0">${boardHTML()}</div>
+  <div style="width:280px;display:flex;flex-direction:column;gap:8px;flex:none">
+   <div class="panel" style="flex:none"><div class="tabs"><div class="t2 on">信息</div><div class="t2">点评</div><div class="t2">走法</div></div>
+    <div class="panel-b"><div class="stat"><span>对局</span><span class="v">胡荣华 vs 杨官璘</span></div><div class="stat"><span>赛事</span><span class="v">1960 全国个人赛</span></div><div class="stat"><span>开局</span><span class="v">中炮过河车</span></div><div class="stat"><span>当前</span><span class="v">第 12 回合 · 黑行棋</span></div></div></div>
+   ${panel('📜 走法记录','<div class="moves">'+movesHTML(8,4)+'</div>',1)}
+  </div></div>`},
+P4:{t:'中国象棋 · 演示页（P4 · 重点区A）',n:'P4 演示｜重点区A：三tab信息密度重排+控制条，1440×900 单屏"看棋+读评+步进"零滚动',h:`
+ ${T('中国象棋 · 演示 — 大师局/残局')}
+ <div class="toolbar"><div class="tb hot">🔙 列表</div><div class="tb">◀ 上一步</div><div class="tb">▶ 播放</div><div class="tb">▶▶ 下一步</div><div class="tb">🔁 重头</div><div class="tb" style="margin-left:auto">调速 1× ▾</div></div>
+ <div class="body">
+  <div class="z2" style="flex:1;display:flex;align-items:center;justify-content:center;min-width:0">${boardHTML()}</div>
+  <div style="width:300px;display:flex;flex-direction:column;gap:8px;flex:none">
+   <div class="panel"><div class="tabs"><div class="t2">信息</div><div class="t2 on">点评</div><div class="t2">走法</div></div>
+    <div class="panel-b" style="max-height:220px;overflow:auto;font-size:12.5px;line-height:1.75">第 11 回合红方弃马抢先，看似失子实则暗藏车九平六的先手链条——胡氏"鬼魅残功"的早期雏形。黑方若应以马3退4则中路门户洞开……<br><span style="color:var(--ink2)">（点评区滚动高度自适应，头部信息卡压缩为一条）</span></div></div>
+   ${panel('📜 走法（双列）','<div class="moves">'+movesHTML(12,9)+'</div>',1)}
+   <div class="panel"><div class="panel-b" style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--ink2)">进度</span><div class="bar" style="flex:1"><i style="width:62%"></i></div><span style="font-size:12px">23/37</span></div></div>
+  </div></div>`},
+P5:{t:'中国象棋 · 学棋中心（P5 · 重点区B）',n:'P5 学棋中心｜教程并入引导流 + 主卡"继续上次学习" + 卡片栅格；进度环克制不加（洪涛拍板）',h:`
+ ${T('中国象棋 · 学棋中心')}
+ <div class="toolbar"><div class="tb hot">🎯 继续：中炮入门 · 第 3 节</div><div class="tb" style="margin-left:auto">📊 学习统计</div></div>
+ <div class="body"><div class="cards">
+  <div class="card hero"><div class="ic">▶️</div><div><div class="t">继续上次学习</div><div class="d">中炮入门 · 第 3 节"过河车的攻防" · 已学 60%</div><div class="bar" style="margin-top:8px;width:280px"><i style="width:60%"></i></div></div><div class="go">继续 ▸</div></div>
+  <div class="card"><div class="ic">📘</div><div class="t">新手教程四步</div><div class="d">规则 → 基本杀法 → 开局原则 → 入门实战</div></div>
+  <div class="card"><div class="ic">♟️</div><div class="t">残局挑战</div><div class="d">每日三题 · 当前连对 5</div></div>
+  <div class="card"><div class="ic">🧩</div><div class="t">战术专项</div><div class="d">双重威胁 / 闪击 / 牵制 12 关</div></div>
+  <div class="card"><div class="ic">👑</div><div class="t">大师模仿局</div><div class="d">跟胡荣华学中局 8 局</div></div>
+  <div class="card"><div class="ic">📈</div><div class="t">我的成长</div><div class="d">胜率趋势 / 弱点雷达</div></div>
+ </div></div>`},
+P6:{t:'中国象棋 · 教程（P6 · 并入重点区B）',n:'P6 教程四步｜作为学棋中心引导流（首访），分步页与 P5 动线打通',h:`
+ ${T('中国象棋 · 新手教程')}
+ <div class="toolbar"><div class="tb hot">🔙 学棋中心</div><div class="tb">⏭ 跳过教程</div></div>
+ <div class="body" style="flex-direction:column;gap:16px">
+  <div class="steps">
+   <div class="step on"><div class="n">1</div><div class="t">棋规速览</div><div class="d">走法与胜负 · 3 分钟</div></div>
+   <div class="step"><div class="n">2</div><div class="t">基本杀法</div><div class="d">卧槽马/铁门栓 · 5 分钟</div></div>
+   <div class="step"><div class="n">3</div><div class="t">开局原则</div><div class="d">出子快/占要道 · 4 分钟</div></div>
+   <div class="step"><div class="n">4</div><div class="t">入门实战</div><div class="d">跟 AI 下一盘 · 实战</div></div>
+  </div>
+  <div style="flex:1;display:flex;gap:16px;min-height:0">
+   <div class="z2" style="flex:1;display:flex;align-items:center;justify-content:center">${boardHTML()}</div>
+   <div style="width:320px;display:flex;flex-direction:column;gap:8px;flex:none">
+    ${panel('📖 本节要点','<ul style="padding-left:18px;font-size:13px;line-height:2"><li>马走"日"字，可被蹩马腿</li><li>象走"田"字，不过河界</li><li>车直行无阻，火力最强</li><li>炮吃子须隔一个"炮架"</li></ul>',1)}
+    <div class="panel"><div class="panel-b" style="display:flex;gap:8px"><div class="tb hot" style="flex:1;justify-content:center">✓ 我记住了 · 下一步</div></div></div>
+   </div>
+  </div></div>`},
+P7:{t:'中国象棋 · 开局教练选择（P7）',n:'P7 开局教练｜HSplitView 改 sidebar 统一（与 P2/P13 同语言，治分类三态不一）',h:`
+ ${T('中国象棋 · 开局教练')}
+ <div class="toolbar"><div class="tb hot">🔙 学棋中心</div><div class="search">🔍 搜开局…</div></div>
+ <div class="body">
+  <div class="sidebar">${cat('热门开局','18',1)}${cat('中炮系','6')}${cat('飞相系','4')}${cat('起马局','3')}${cat('仙人指路','3')}${cat('士角炮','2')}</div>
+  <div class="list">
+   <div class="row"><div><div class="t">中炮过河车</div><div class="d">急攻型 · 攻击 ★★★★ · 上手中等 · 12 课</div></div><div class="badge">已学 30%</div></div>
+   <div class="row"><div><div class="t">屏风马</div><div class="d">稳健型 · 防守 ★★★★ · 上手易 · 10 课</div></div><div class="badge">新</div></div>
+   <div class="row"><div><div class="t">飞相局</div><div class="d">柔中带刚 · 先手 ★★★ · 上手难 · 8 课</div></div><div class="badge">推荐</div></div>
+   <div class="row"><div><div class="t">起马局</div><div class="d">散手型 · 灵活 ★★★ · 上手易 · 6 课</div></div><div class="badge">新</div></div>
+  </div></div>`},
+P8:{t:'中国象棋 · 开局探索器（P8）',n:'P8 探索器｜棋树固定窄栏 320 + 棋盘吃满余量；节点行高压缩带胜率',h:`
+ ${T('中国象棋 · 开局探索器')}
+ <div class="toolbar"><div class="tb hot">🔙 学棋中心</div><div class="tb">↺ 回起始</div><div class="tb">⬅ 后退</div><div class="search">🔍 搜局面…</div></div>
+ <div class="body">
+  <div class="tree">
+   <div class="tn on"><span class="in">▾</span>起始局面<span class="ev">—</span></div>
+   <div class="tn" style="padding-left:22px"><span class="in">▾</span>炮二平五<span class="ev">红 41%</span></div>
+   <div class="tn on" style="padding-left:36px"><span class="in">▸</span>马8进7<span class="ev">红 38%</span></div>
+   <div class="tn" style="padding-left:50px"><span class="in">·</span>车一平二<span class="ev">红 40%</span></div>
+   <div class="tn" style="padding-left:50px"><span class="in">·</span>车9平8<span class="ev">红 37%</span></div>
+   <div class="tn" style="padding-left:36px"><span class="in">·</span>卒7进1<span class="ev">红 39%</span></div>
+   <div class="tn" style="padding-left:22px"><span class="in">▸</span>相三进五<span class="ev">红 36%</span></div>
+   <div class="tn" style="padding-left:22px"><span class="in">▸</span>兵七进一<span class="ev">红 38%</span></div>
+  </div>
+  <div class="z2" style="flex:1;display:flex;align-items:center;justify-content:center">${boardHTML()}</div>
+  <div style="width:240px;display:flex;flex-direction:column;gap:8px;flex:none">
+   ${panel('📊 当前局面','<div class="stat"><span>胜率（大师库）</span><span class="v">红 40%</span></div><div class="stat"><span>出现局数</span><span class="v">1,862</span></div><div class="stat"><span>常见应手</span><span class="v">马8进7 · 64%</span></div>',1)}
+  </div></div>`},
+P9:{t:'中国象棋 · 复盘/分析 — 独立窗口（P9）',n:'P9 复盘｜独立窗口 760×820 起步可最大化（图内演示高度压缩）；分析侧 25% 带；控制条=对局页语言移植；**职责分工：对局页=引擎状态+形势速览（轻量，不打断下棋）；P9=复盘分析主体（①持久化/②变招展示主场）**；评估曲线=单 SwiftUI 组件跨页复用（含 EvalChartScale mate 特判）',h:`
+ ${T('中国象棋 · 主窗口（演示：复盘已开独立窗口）')}
+ <div class="body" style="align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#f5f1e8,#f5f1e8 12px,#efe9db 12px,#efe9db 24px)">
+  <div class="win" style="width:760px;height:560px">
+   <div class="wh"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span style="margin-left:8px">复盘 · 胡荣华 vs 杨官璘（独立窗口 760×820 起步 · 可最大化）</span></div>
+   <div style="display:flex;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);align-items:center;flex:none"><div class="tb hot" style="height:28px">◀ 上一步</div><div class="tb" style="height:28px">▶ 播放</div><div class="tb" style="height:28px">▶▶ 下一步</div><div class="tb" style="height:28px">↩ 回到最新</div><div class="tb" style="height:28px;margin-left:auto">调速 1× ▾</div></div>
+   <div style="flex:1;display:flex;min-height:0">
+    <div class="z2" style="flex:3;display:flex;align-items:center;justify-content:center">${boardHTML()}</div>
+    <div style="flex:1;min-width:190px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:6px;padding:8px">
+     <div class="evalbar"></div>
+     ${panel('📈 评估','<div class="chart">'+evalSVG+'</div>')}
+     <div class="panel"><div class="panel-b" style="display:flex;flex-direction:column;gap:4px"><div class="mvrow cur"><span class="no">12.</span><span>车9平8</span><span></span></div><div class="mvrow"><span class="no">13.</span><span>车二进六</span><span></span></div><div class="mvrow"><span class="no">14.</span><span>马7进6</span><span></span></div></div></div>
+     <div class="panel" style="flex:1"><div class="panel-h" style="height:28px"><span class="tab"></span>🌲 分支<span class="chev">▼</span></div><div class="panel-b" style="font-size:12px;color:var(--ink2)">① 主变 …<br>② 变着：卒7进1</div></div>
+    </div>
+   </div>
+  </div></div>`},
+P10:{t:'中国象棋 · 设置（P10）',n:'P10 设置｜低优：tab 表单规范（8pt 间距/统一控件规格）',h:`
+ ${T('中国象棋 · 设置')}
+ <div class="toolbar"><div class="tb hot on">通用</div><div class="tb">对局</div><div class="tb">引擎</div><div class="tb">外观</div><div class="tb">关于</div></div>
+ <div class="body"><div style="flex:1;max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:8px">
+  ${panel('通用','<div class="stat"><span>启动时打开</span><span class="v">上次的页面 ▾</span></div><div class="stat"><span>音效</span><span class="v">开</span></div><div class="stat"><span>自动保存对局</span><span class="v">开</span></div><div class="stat"><span>语言</span><span class="v">简体中文</span></div>')}
+  ${panel('数据','<div class="stat"><span>棋谱存储位置</span><span class="v">~/Documents/ChineseChess</span></div><div class="stat"><span>分析结果缓存</span><span class="v">12.4 MB</span></div><div style="display:flex;gap:8px;margin-top:8px"><div class="tb">🧹 清理缓存</div><div class="tb">📤 导出全部棋谱</div></div>')}
+  ${panel('Elo 展示（校准期）','<div class="stat"><span>水平评估</span><span class="v">相对模式（超过 62% 对局水平）</span></div><div style="font-size:12px;color:var(--ink2);margin-top:4px">校准完成后恢复绝对值 · 见 v6.4 ④</div>')}
+ </div></div>`},
+P11:{t:'中国象棋 · 成就/统计（P11）',n:'P11 成就/统计｜低优：卡片+图表套语言；雷达=Vera 极端值 B2 修复位（clamp+NaN）',h:`
+ ${T('中国象棋 · 成就与统计')}
+ <div class="toolbar"><div class="tb hot">📊 统计</div><div class="tb">🏆 成就</div></div>
+ <div class="body"><div class="cards">
+  <div class="card"><div class="t">对局总数</div><div style="font-size:28px;font-weight:800;color:var(--wood-d)">326</div><div class="d">本月 +24</div></div>
+  <div class="card"><div class="t">胜率（五级）</div><div style="font-size:28px;font-weight:800;color:var(--wood-d)">58%</div><div class="bar" style="margin-top:6px"><i style="width:58%"></i></div></div>
+  <div class="card"><div class="t">连胜纪录</div><div style="font-size:28px;font-weight:800;color:var(--wood-d)">7</div><div class="d">当前 3</div></div>
+  <div class="card" style="flex-direction:row;align-items:center;gap:16px"><div class="radar">${radarSVG}</div><div><div class="t">六维雷达</div><div class="d">杀棋敏感度 72<br>开局 64 · 中局 58<br>残局 61 · 防守 55<br>战术 68</div></div></div>
+  <div class="card"><div class="t">月度胜率</div><div class="chart" style="height:70px">${evalSVG}</div></div>
+  <div class="card"><div class="t">成就进度</div><div class="d">38/52 枚</div><div class="bar" style="margin-top:6px"><i style="width:73%"></i></div></div>
+ </div></div>`},
+P12:{t:'中国象棋 · 每日挑战（P12）',n:'P12 每日挑战｜低优：卡片入口套语言',h:`
+ ${T('中国象棋 · 每日挑战')}
+ <div class="body"><div class="cards" style="max-width:720px;margin:0 auto">
+  <div class="card hero"><div class="ic">🗓️</div><div><div class="t">今日残局 · 第 241 期</div><div class="d">红先胜 · 难度 ★★★ · 已连对 5 天</div></div><div class="go">开始 ▸</div></div>
+  <div class="card"><div class="ic">🔥</div><div class="t">连对奖励</div><div class="d">7 天连对 → "七步追魂" 称号</div></div>
+  <div class="card"><div class="ic">🕰️</div><div class="t">补签</div><div class="d">本月还可补 2 次</div></div>
+ </div></div>`},
+P13:{t:'中国象棋 · 残局/战术（P13）',n:'P13 残局/战术｜与 P2 同病同治：横滚过滤栏 → sidebar 化统一',h:`
+ ${T('中国象棋 · 残局与战术')}
+ <div class="toolbar"><div class="tb hot">🔙 学棋中心</div><div class="search">🔍 搜残局…</div></div>
+ <div class="body">
+  <div class="sidebar">${cat('全部残局','96',1)}${cat('一步杀','24')}${cat('双将杀','18')}${cat('战术·闪击','20')}${cat('战术·牵制','16')}${cat('已通关','31')}</div>
+  <div class="list">
+   <div class="row"><div><div class="t">残局 001 · 老兵建功</div><div class="d">一步杀 · ★ · 红先</div></div><div class="badge">✓ 已通关</div></div>
+   <div class="row"><div><div class="t">残局 024 · 双车错</div><div class="d">双将杀 · ★★★ · 红先</div></div><div class="badge">进行中</div></div>
+   <div class="row"><div><div class="t">战术 007 · 闪击抽车</div><div class="d">闪击 · ★★ · 红先</div></div><div class="badge">新</div></div>
+   <div class="row"><div><div class="t">战术 012 · 丝线牵牛</div><div class="d">牵制 · ★★★ · 黑先</div></div><div class="badge">新</div></div>
+  </div></div>`},
+P14:{t:'中国象棋 · 排位/关于（P14）',n:'P14 排位/关于/隐私｜静态页：套风格语言即可（排位分=R3 拍板相对指标口径）',h:`
+ ${T('中国象棋 · 排位与关于')}
+ <div class="body"><div style="flex:1;max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:8px">
+  ${panel('🏅 排位（校准期口径）','<div class="stat"><span>当前段位</span><span class="v">三级 · 中游</span></div><div class="stat"><span>相对水平</span><span class="v">超过 62% 对局水平 ↗</span></div><div class="bar" style="margin-top:6px"><i style="width:62%"></i></div><div style="font-size:12px;color:var(--ink2);margin-top:6px">rankProgress 下限钳制（B2 修复位）：进度不出现负值</div>')}
+  ${panel('ℹ️ 关于','<div class="stat"><span>版本</span><span class="v">6.4 (原型期)</span></div><div class="stat"><span>引擎</span><span class="v">内嵌 Pikafish · 自研混合</span></div><div class="stat"><span>反馈</span><span class="v">support@example.com</span></div>')}
+  ${panel('🔒 隐私','<div style="font-size:12.5px;color:var(--ink2);line-height:1.8">棋谱与学习记录仅存储于本机；不含任何追踪或广告 SDK。分析结果缓存可随时在设置中清除。</div>')}
+ </div></div>`}
+};
+
+/* ============ 渲染框架 ============ */
+const nav=document.getElementById('nav'),stage=document.getElementById('stage'),note=document.getElementById('note');
+Object.entries(PAGES).forEach(([k,p])=>{
+  const b=document.createElement('button');b.textContent=k+' '+({P2:'大师库·浏览',P3:'库·播放',P4:'演示页',P5:'学棋中心',P6:'教程四步',P7:'开局教练',P8:'探索器',P9:'复盘·独立窗',P10:'设置',P11:'成就统计',P12:'每日挑战',P13:'残局战术',P14:'排位关于'}[k]);
+  b.dataset.k=k;b.onclick=()=>{location.hash=k;};nav.appendChild(b);
+  const d=document.createElement('div');d.className='page';d.id='pg'+k;d.innerHTML=p.h;stage.appendChild(d);});
+function show(k){if(!PAGES[k])k='P2';
+  document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='pg'+k));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+  const narrow='｜全局窄窗口径：sidebar 页（P2/P7/P13）复用 1000/1080 迟滞收左栏；卡片页（P5/P11/P12）auto-fill 天然弹性；P8 <1080 收右侧统计栏、<900 棋树折叠为顶部下拉；P3/P4/P9 同 P1（<1000 收右栏）｜←/→ 步进口径覆盖 P1/P3/P4/P9（全局交互规范）';
+  note.innerHTML='<b>'+k+'｜</b>'+PAGES[k].n+narrow;
+  buildBoards(document.getElementById('pg'+k));}
+addEventListener('hashchange',()=>show(location.hash.slice(1)));
+show(location.hash.slice(1));
+</script>
+</body>
+</html>
