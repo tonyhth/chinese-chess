@@ -398,8 +398,8 @@ struct AnalysisView: View {
 /// 正常分（23~736cp）被压成贴顶 0~0.6px 直线（视觉"归零"+右侧残迹）。
 /// mate 值本身是语义数据（losing 定级等消费方需真值），故只在绘制层处理。
 enum EvalChartScale {
-    /// Pikafish mate 分数特征阈值（|s| ≥ 90000 视为 mate）
-    static let mateThreshold = 90_000
+    /// Pikafish mate 分数特征阈值——v6.4 A-Phase2 A1：宿主上提至 Model 层，此处转发引用
+    static let mateThreshold = EvalScaleConstants.mateThreshold
     /// 非 mate 分参与量程的 clamp 边界（±2000cp，超出按边界计）
     static let clampBound = 2_000
 

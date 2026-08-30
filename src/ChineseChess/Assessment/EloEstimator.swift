@@ -10,10 +10,10 @@ enum EloEstimator {
 
     /// 单步 delta → Elo 贡献
     /// delta = |bestEval - playerEval|（cp）
-    /// v6.3.2 热修链（Ruby P1-1）：mate delta（≥90000，与 EvalChartScale.mateThreshold 同口径）
+    /// v6.3.2 热修链（Ruby P1-1）：mate delta（≥EvalScaleConstants.mateThreshold 评估域唯一事实源）
     /// 归一为 700cp 重损惩罚（无此特判时单步 log(99999) 砸 1200+ 分，trimOutliers 截 10% 救不回）
     static func eloFromDelta(_ delta: Int) -> Double {
-        let d = abs(delta) >= EvalChartScale.mateThreshold ? 700 : delta
+        let d = abs(delta) >= EvalScaleConstants.mateThreshold ? 700 : delta
         if d <= 0 { return 2500 }
         return 2500.0 - 120.0 * log(Double(d) + 1.0)
     }

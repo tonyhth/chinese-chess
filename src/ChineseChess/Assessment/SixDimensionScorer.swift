@@ -19,13 +19,13 @@ enum SixDimensionScorer {
 
     // MARK: - mate delta 归一化（v6.3.2 热修链，Ruby P1-1）
 
-    /// mate 分数（|s|≥90000，与 EvalChartScale.mateThreshold 同口径）的 evalDelta≈99000
+    /// mate 分数（|s|≥EvalScaleConstants.mateThreshold，评估域唯一事实源）的 evalDelta≈99000
     /// 直接进均值/方差/连续失误检测会把六维整体砸塌。归一为固定重损惩罚值（700cp）
     /// ——语义：将死一步重于普通失误，但不至于单步摧毁整维。
     static let mateDeltaPenalty = 700
 
     static func normalizedDelta(_ delta: Int) -> Int {
-        abs(delta) >= EvalChartScale.mateThreshold ? mateDeltaPenalty : delta
+        abs(delta) >= EvalScaleConstants.mateThreshold ? mateDeltaPenalty : delta
     }
 
 
