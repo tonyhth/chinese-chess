@@ -66,16 +66,19 @@ struct MoveAnalysis: Codable {
     let evalDelta: Int           // 评估损失（bestEval - playerEval，正数=损失）
     let alternatives: [AnalysisLine]  // 候选走法（multiPV）
     let isQuickResult: Bool      // v4.0 Phase 3 #8: true=预筛快速分析(单PV精度), false=完整 multiPV
+    /// v6.4 A-Phase2（§1）：top3 变招（预筛命中步/老档无此字段 → nil，降级链统一）
+    let variations: [Variation]?
 
-    // Codable 兼容：旧存档无 isQuickResult 字段时默认 false
+    // Codable 兼容：旧存档无 isQuickResult 字段时默认 false；无 variations 时默认 nil（同先例）
     enum CodingKeys: String, CodingKey {
         case playerMove, quality, bestMove, bestEval, playerEval, evalDelta
-        case alternatives, isQuickResult
+        case alternatives, isQuickResult, variations
     }
 
     init(playerMove: String, quality: MoveQuality, bestMove: String,
          bestEval: Int, playerEval: Int, evalDelta: Int,
-         alternatives: [AnalysisLine], isQuickResult: Bool = false) {
+         alternatives: [AnalysisLine], isQuickResult: Bool = false,
+         variations: [Variation]? = nil) {
         self.playerMove = playerMove
         self.quality = quality
         self.bestMove = bestMove
@@ -84,6 +87,7 @@ struct MoveAnalysis: Codable {
         self.evalDelta = evalDelta
         self.alternatives = alternatives
         self.isQuickResult = isQuickResult
+        self.variations = variations
     }
 
     init(from decoder: Decoder) throws {
@@ -96,7 +100,17 @@ struct MoveAnalysis: Codable {
         evalDelta = try c.decode(Int.self, forKey: .evalDelta)
         alternatives = try c.decodeIfPresent([AnalysisLine].self, forKey: .alternatives) ?? []
         isQuickResult = try c.decodeIfPresent(Bool.self, forKey: .isQuickResult) ?? false
+        variations = try c.decodeIfPresent([Variation].self, forKey: .variations)
     }
+}
+
+/// v6.4 A-Phase2 §1：变招（top3，随 MoveAnalysis 入 envelope）
+/// cpAfter 入档即红方视角（视角转换发生在截取入档时，消费方零换算——v1.1 钉死）
+struct Variation: Codable, Equatable {
+    let uci: String        // 如 "h9g7"
+    let sanZh: String       // 如 "马8进7"
+    let cpAfter: Int        // 该变招后引擎评估（红方视角）
+    let rank: Int           // 1...3
 }
 
 // MARK: - PositionAnalyzer
@@ -344,8 +358,28 @@ actor PositionAnalyzer {
             playerEval: adjustedPlayerEval,
             evalDelta: abs(bestEval - adjustedPlayerEval),
             alternatives: lines,
-            isQuickResult: false
+            isQuickResult: false,
+            // v6.4 A-Phase2 §1：定级本就得 multiPV，顺手截 top3 入档（零额外引擎调用）。
+            // cpAfter 入档即红方视角（v1.1 钉死：side-relative → red-relative 转换在此发生）；
+            // sanZh 由 fenBefore 重建棋盘生成。生成失败不阻断分析（降级 nil 同统一链路）。
+            variations: Self.buildVariations(lines: Array(lines.prefix(3)), fenBefore: fenBefore)
         )
+    }
+
+    /// topN multiPV 线 → Variation[]（截取入档，视角转换唯一发生点）
+    private static func buildVariations(lines: [AnalysisLine], fenBefore: String) -> [Variation]? {
+        guard !lines.isEmpty else { return nil }
+        guard let parsed = FENDecoder.parse(fen: fenBefore) else { return nil }
+        let board = Board(pieces: parsed.pieces)
+        let movingSideRed = (parsed.currentTurn == .red)
+        var result: [Variation] = []
+        for (i, line) in lines.enumerated() {
+            guard let move = ICCSParser.parse(line.bestMove, on: board) else { continue }
+            let sanZh = NotationGenerator.chineseNotation(for: move, on: board)
+            let cpAfter = movingSideRed ? line.scoreCp : -line.scoreCp
+            result.append(Variation(uci: line.bestMove, sanZh: sanZh, cpAfter: cpAfter, rank: i + 1))
+        }
+        return result.isEmpty ? nil : result
     }
 
     // MARK: - 轻量分析（MasterGameCommentator 专用）
