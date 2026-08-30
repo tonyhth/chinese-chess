@@ -144,6 +144,14 @@ actor PositionAnalyzer {
     private let analysisTimeMs = 2000
     /// MultiPV 数量
     private let multiPVCount = 3
+    /// v6.4（Eric 指纹修复）：multiPV C 层预算余量系数。
+    /// 根因：analyzeMove 串联 = quickClassify 两次 evaluate（各 2s）→ multiPV（2s 预算
+    /// count=3 depth18），负载下 2s 贴边 → C 层 pikafish_multi_pv 超预算 actualCount 返 0
+    /// → alternatives=[] 降级（V-B7 兜底）→ testAnalyzeMoveComplete 基线红。
+    /// 修法：预算加成 ×1.5（3000ms）。复盘离线场景可接受；不降 depth（损精度）
+    /// 不加异步重试（复杂度不值）。单 PV evaluate 无贴边日志证据不动。
+    /// watchdog soft 帽（timeMs+2s）随余量自动放大，不冲突。
+    private let multiPVBudgetHeadroom = 1.5
 
     // MARK: - 单局面分析
 
@@ -160,9 +168,11 @@ actor PositionAnalyzer {
     func topMoves(fen: String, moveHistory: [String] = [], count: Int = 3) async -> [AnalysisLine] {
         guard let engine = await getEngine() else { return [] }
         let n = min(count, multiPVCount)
+        // v6.4：C 层硬时限带余量（multiPVBudgetHeadroom），防负载下 actualCount=0
+        let budgetMs = Int(Double(analysisTimeMs) * multiPVBudgetHeadroom)
         return await engine.multiPV(
             fen: fen, moveHistory: moveHistory,
-            count: n, depth: analysisDepth, timeMs: analysisTimeMs
+            count: n, depth: analysisDepth, timeMs: budgetMs
         )
     }
 
