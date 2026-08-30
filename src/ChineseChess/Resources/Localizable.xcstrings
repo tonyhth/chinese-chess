@@ -12547,6 +12547,22 @@
         }
       }
     },
+    "assessment.calibrationNote": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calibration period: level is estimated from recent games for reference only"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "校准期：档位基于近期对局样本估算，仅供参考"
+          }
+        }
+      }
+    },
     "assessment.confidence": {
       "localizations": {
         "en": {
@@ -12911,6 +12927,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%d 步"
+          }
+        }
+      }
+    },
+    "assessment.trendVsLast": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vs last"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "较上次"
           }
         }
       }

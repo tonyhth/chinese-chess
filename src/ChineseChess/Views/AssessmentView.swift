@@ -60,19 +60,22 @@ struct AssessmentView: View {
     @ViewBuilder
     private func reportCard(_ report: StrengthReport) -> some View {
         VStack(spacing: 16) {
-            // Elo 数字 + 标注
+            // v6.4 A1（Elo 诚信降级）：主展示降为推荐档位（相对指标）+ 趋势箭头，
+            // 不再展示 Elo 绝对值/±区间（校准期禁令，plan §8）。
+            // 趋势方向由内部 estimate 差值推导，仅取符号不展示数值。
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("\(report.eloEstimate.estimate)")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                Text(report.recommendedLevel.displayName)
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundColor(.accentColor)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("±\(report.eloEstimate.upperBound - report.eloEstimate.estimate)")
-                        .font(.title3.weight(.semibold))
-                        .foregroundColor(.secondary)
-                    Text("*估算值")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                if let prev = AssessmentStore.shared.previousReport {
+                    let delta = report.eloEstimate.estimate - prev.eloEstimate.estimate
+                    HStack(spacing: 2) {
+                        Image(systemName: delta > 0 ? "arrow.up.right" : (delta < 0 ? "arrow.down.right" : "minus"))
+                        Text(l10n.t("assessment.trendVsLast"))
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundColor(delta > 0 ? .green : (delta < 0 ? .orange : .secondary))
                 }
 
                 Spacer()
@@ -87,7 +90,7 @@ struct AssessmentView: View {
             }
 
             // 小字说明
-            Text("*基于有限样本估算，仅供参考")
+            Text(l10n.t("assessment.calibrationNote"))
                 .font(.caption2)
                 .foregroundColor(.secondary)
 

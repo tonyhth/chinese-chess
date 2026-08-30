@@ -45,7 +45,8 @@ struct SettingsView: View {
                             Text(l10n.t("settings.assessment"))
                             Spacer()
                             if let report = AssessmentStore.shared.lastReport {
-                                Text("\(report.eloEstimate.estimate) ±\(report.eloEstimate.upperBound - report.eloEstimate.estimate)")
+                                // v6.4 A1：Elo 诚信降级——展示相对档位替代绝对值
+                                Text(report.recommendedLevel.displayName)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             } else {
