@@ -55,8 +55,20 @@ final class AnalysisViewModel {
     private(set) var staleEngineProfile = false
     /// v6.4 A2①: 本分析批实际使用的引擎版本（落盘用，防止过期判定/落盘双取不一致）
     private var analysisRunEngineVersion = "unknown"
-    /// v6.4 A2①: 持久化 store（默认 shared；测试注入临时目录 store）
-    var persistenceStore: GameRecordStore = .shared
+    /// v6.4 A2①: 持久化 store（测试注入临时目录 store；nil = 尚未触碰）。
+    /// ⚠️ @Observable 宏不允许 lazy，用可选延迟解析实现同语义：
+    /// GameRecordStore.shared.init 会 open ~/Documents/GameRecords/index.json，无 Documents
+    /// TCC 授权的环境（测试宿主）open 无限阻塞（08-30 实测 103 分钟挂起根因）。
+    /// 首次持久化访问（load recordId / 落盘）才解析，临时分析路径零触碰。
+    var persistenceStore: GameRecordStore?
+
+    /// 延迟解析共享 store（唯一触碰点）
+    private func resolveStore() -> GameRecordStore {
+        if let s = persistenceStore { return s }
+        let s = GameRecordStore.shared
+        persistenceStore = s
+        return s
+    }
 
     func load(moves: [String], initialFEN: String, gameMoves: [GameMove] = [], playerColorOverride: Side? = nil, recordId: UUID? = nil) {
         self.moves = moves
@@ -70,7 +82,7 @@ final class AnalysisViewModel {
         // v6.4 A2①：恢复持久化分析（movesHash 匹配才恢复；异常/不匹配走全量重跑）
         if let rid = recordId {
             let expectedHash = AnalysisMovesHash.compute(initialFEN: initialFEN, uciMoves: moves)
-            if let env = persistenceStore.loadAnalysisEnvelope(recordId: rid),
+            if let env = resolveStore().loadAnalysisEnvelope(recordId: rid),
                env.movesHash == expectedHash {
                 for (idx, a) in env.analyses where idx >= 0 && idx < analyses.count {
                     analyses[idx] = a
@@ -239,7 +251,7 @@ final class AnalysisViewModel {
             depthSetting: AnalysisProfile.depth,
             analyses: dict
         )
-        persistenceStore.saveAnalysisEnvelope(envelope)
+        resolveStore().saveAnalysisEnvelope(envelope)
         restoredEnvelope = envelope
     }
 
