@@ -398,3 +398,13 @@ actor PositionAnalyzer {
         )
     }
 }
+
+// MARK: - v6.4 A2①：引擎版本（分析持久化过期判定锚）
+
+extension PositionAnalyzer {
+    /// 当前嵌入式引擎版本字符串（不可用时 "unknown"）
+    func currentEngineVersion() async -> String {
+        guard let engine = await getEngine() else { return "unknown" }
+        return await engine.version
+    }
+}

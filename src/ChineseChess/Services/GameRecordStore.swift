@@ -34,7 +34,7 @@ struct RecordSummary: Codable, Identifiable {
 final class GameRecordStore {
     static let shared = GameRecordStore()
 
-    private let fileManager = FileManager.default
+    let fileManager = FileManager.default
     let baseURL: URL           // Documents/GameRecords/
     private let indexURL: URL  // Documents/GameRecords/index.json
 
@@ -42,7 +42,7 @@ final class GameRecordStore {
     private(set) var summaries: [RecordSummary] = []
 
     /// 串行写入队列，防止并发写坏文件
-    private let writeQueue = DispatchQueue(label: "com.chinesechess.recordstore", qos: .userInitiated)
+    let writeQueue = DispatchQueue(label: "com.chinesechess.recordstore", qos: .userInitiated)
 
     private init() {
         let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -146,6 +146,9 @@ final class GameRecordStore {
             // 1. 删除单条文件
             let fileURL = baseURL.appendingPathComponent("\(id.uuidString).json")
             try? fileManager.removeItem(at: fileURL)
+            // v6.4 A2①：连带删 sidecar analysis（生命周期归本 store）
+            let analysisURL = baseURL.appendingPathComponent("\(id.uuidString).analysis.json")
+            try? fileManager.removeItem(at: analysisURL)
 
             // 2. 更新内存摘要
             summaries.removeAll { $0.id == id }
@@ -158,10 +161,12 @@ final class GameRecordStore {
     /// 清空全部
     func clearAll() {
         writeQueue.sync {
-            // 1. 删除所有 .json 文件（不删除 .tmp 等）
+            // 1. 删除所有 .json 文件与 sidecar analysis（不删除 .tmp 等）
             for summary in summaries {
                 let fileURL = baseURL.appendingPathComponent("\(summary.id.uuidString).json")
                 try? fileManager.removeItem(at: fileURL)
+                let analysisURL = baseURL.appendingPathComponent("\(summary.id.uuidString).analysis.json")
+                try? fileManager.removeItem(at: analysisURL)
             }
             summaries = []
             persistIndex()
@@ -271,6 +276,25 @@ final class GameRecordStore {
             AppLog.history.warning("orphan file \(filename) recovered, adding to index")
             #endif
             orphans.append(RecordSummary(from: record))
+        }
+
+        // v6.4 A2①：孤立 analysis sidecar 回收——棋谱已不存在的 analysis 文件删除
+        // （可再生态数据，不回收只占磁盘；目录 stat 判定零加载成本）
+        let indexedIDsAfterRecovery = indexedIDs.union(orphans.map { $0.id })
+        for fileURL in files {
+            let filename = fileURL.lastPathComponent
+            guard filename.hasSuffix(".analysis.json") else { continue }
+            let uuidStr = filename.replacingOccurrences(of: ".analysis.json", with: "")
+            guard let uuid = UUID(uuidString: uuidStr) else {
+                try? fileManager.removeItem(at: fileURL)
+                continue
+            }
+            if !indexedIDsAfterRecovery.contains(uuid) {
+                #if DEBUG
+                AppLog.history.warning("orphan analysis sidecar \(filename) removed")
+                #endif
+                try? fileManager.removeItem(at: fileURL)
+            }
         }
 
         // 将孤立记录补充到摘要（按日期排序后插入）
