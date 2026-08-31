@@ -166,7 +166,9 @@ final class AnalysisPersistenceTests: XCTestCase {
         // loadSummaries 路径不加载 analysis 内容（结构保证：summaries 仅读 index.json，
         // envelope 加载只有显式 loadAnalysisEnvelope）——此锚固化 API 边界
         XCTAssertEqual(store.loadSummaries().count, store.summaries.count)
-        XCTAssertNil(GameRecordStore.shared.loadAnalysisEnvelope(recordId: UUID()))
+        // 注意：用注入 store 断言同语义（不存在 recordId → nil）。勿直触 GameRecordStore.shared——
+        // 测试宿主无 Documents TCC 授权，shared 首触 init open() 无限阻塞（08-30/08-31 两案同模式）
+        XCTAssertNil(store.loadAnalysisEnvelope(recordId: UUID()))
     }
 }
 
