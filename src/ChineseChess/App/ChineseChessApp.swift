@@ -4,6 +4,23 @@ import AppKit
 
 // macOS 退出钩子兜底：scenePhase 在 macOS 上不保证触发
 private final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // v6.4 C0：截图 harness 骨架——LAYOUT_WIDTH 启动参数钉窗口宽（五档锚图 900/1000/1080/1280/1920）
+        // 与 LAYOUT_DUMP 对偶：harness 设宽 → 采样流断言。仅 macOS，产品路径不受影响。
+        #if DEBUG
+        if let wStr = ProcessInfo.processInfo.environment["LAYOUT_WIDTH"], let w = Double(wStr), w >= 900 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                for window in NSApplication.shared.windows where window.identifier?.rawValue != "ABPOverlay" {
+                    var frame = window.frame
+                    frame.origin.x = max(40, frame.origin.x)
+                    frame.size.width = w
+                    window.setFrame(frame, display: true, animate: false)
+                }
+            }
+        }
+        #endif
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         // 同步紧急关闭引擎，不走 actor isolation 避免 MainActor 死锁
         EngineRouter.shared.emergencyShutdown()
@@ -190,9 +207,54 @@ struct ChineseChessApp: App {
     @State private var reviewCardData: GameReviewCard?
     @State private var pendingReviewRecord: GameRecord?  // RankUpView dismiss 后检查
 
+    // v6.4 C0：对局页右通栏自适应状态机（迟滞 <1000 收 / >1080 展）
+    @State private var railState = AdaptiveRailState()
+
     @Environment(\.scenePhase) private var scenePhase
 
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+    // v6.4 C1（LJ-2 根治）：低频操作收敛工具栏溢出菜单（原底部操作栏整栏入册）
+    private func p1OverflowItems() -> [ToolbarOverflowItem] {
+        let l10n = L10n.shared
+        return [
+            .init(id: "resign", title: l10n.t("game.resign"), icon: "flag.fill",
+                  disabled: viewModel.isThinking || viewModel.gameState != .playing,
+                  action: { viewModel.requestResign() }),
+            .init(id: "replay", title: l10n.t("game.replay"), icon: "arrow.uturn.forward.circle",
+                  disabled: viewModel.gameMoves.isEmpty,
+                  action: { if let r = viewModel.buildGameRecord() { activeSheet = .toolbarReplay(r) } }),
+            .divider(id: "d1"),
+            .init(id: "analysis", title: l10n.t("toolbar.analysis"), icon: "chart.line.uptrend.xyaxis",
+                  disabled: viewModel.gameMoves.isEmpty,
+                  action: { if let r = viewModel.buildGameRecord() { activeSheet = .analysis(r) } }),
+            .init(id: "coach", title: l10n.t("toolbar.coach"), icon: "brain.head.profile",
+                  disabled: viewModel.gameMoves.isEmpty,
+                  action: { if let r = viewModel.buildGameRecord() { activeSheet = .coach(r) } }),
+            .init(id: "record", title: l10n.t("toolbar.record"), icon: "doc.text",
+                  disabled: false, action: { activeSheet = .record }),
+            .divider(id: "d2"),
+            .init(id: "puzzles", title: l10n.t("toolbar.puzzle"), icon: "puzzlepiece",
+                  disabled: false, action: { activeSheet = .puzzles }),
+            .init(id: "studyHub", title: l10n.t("toolbar.study"), icon: "graduationcap.fill",
+                  disabled: false, action: { activeSheet = .studyHub }),
+            .init(id: "dailyChallenge", title: l10n.t("toolbar.dailyChallenge"), icon: "calendar.badge.clock",
+                  disabled: false, action: { activeSheet = .dailyChallenge }),
+            .divider(id: "d3"),
+            .init(id: "stats", title: l10n.t("toolbar.stats"), icon: "chart.bar",
+                  disabled: false, action: { activeSheet = .stats }),
+            .init(id: "history", title: l10n.t("toolbar.history"), icon: "clock.arrow.circlepath",
+                  disabled: false, action: { activeSheet = .history }),
+            .init(id: "theme", title: l10n.t("toolbar.theme"), icon: "paintpalette",
+                  disabled: false, action: { activeSheet = .themePicker }),
+            .init(id: "achievements", title: l10n.t("toolbar.achievements"), icon: "trophy",
+                  disabled: false, action: { activeSheet = .achievements }),
+            .init(id: "rankPrivilege", title: l10n.t("toolbar.rankPrivilege"), icon: "medal",
+                  disabled: false, action: { activeSheet = .rankPrivilege }),
+            .init(id: "settings", title: l10n.t("toolbar.settings"), icon: "gearshape",
+                  disabled: false, action: { activeSheet = .settings }),
+        ]
+    }
 
     var body: some Scene {
         WindowGroup(L10n.shared.t("app.title")) {
@@ -206,139 +268,42 @@ struct ChineseChessApp: App {
                         if let record = viewModel.buildGameRecord() {
                             activeSheet = .toolbarReplay(record)
                         }
-                    })
+                    }, overflowItems: p1OverflowItems())
 
-                    ChessClockView(viewModel: viewModel)
+                    // v6.4 C1：状态栏+棋钟合并单行信息带（原 ChessClockView+StatusBarView）
+                    GameInfoBandView(viewModel: viewModel)
 
-                    BoardView(viewModel: viewModel)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .frame(minHeight: 280)
-                        .layoutPriority(1)
+                    // v6.4 C1：大屏三栏——棋盘最大化 + 右通栏（窄屏收起走 C0 状态机）
+                    HStack(spacing: 0) {
+                        BoardView(viewModel: viewModel)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .frame(minHeight: 280)
+                            .layoutPriority(1)
 
-                    StatusBarView(viewModel: viewModel)
-
-                    // 底部操作栏
-                    HStack(spacing: 8) {
-                        Button(action: { activeSheet = (activeSheet?.id == "record") ? nil : .record }) {
-                            Image(systemName: "doc.text")
+                        if railState.isExpanded {
+                            Divider().opacity(0.4)
+                            GameRailView(viewModel: viewModel, onReplayRequest: {
+                                if let record = viewModel.buildGameRecord() {
+                                    activeSheet = .toolbarReplay(record)
+                                }
+                            })
                         }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.record"))
-
-                        Button(action: {
-                            if let record = viewModel.buildGameRecord() {
-                                activeSheet = .toolbarReplay(record)
-                            }
-                        }) {
-                            Image(systemName: "play.circle")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .disabled(viewModel.gameMoves.isEmpty)
-                        .help(L10n.shared.t("toolbar.replay"))
-
-                        Button(action: {
-                            if let record = viewModel.buildGameRecord() {
-                                activeSheet = .analysis(record)
-                            }
-                        }) {
-                            Image(systemName: "chart.line.uptrend.xyaxis")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .disabled(viewModel.gameMoves.isEmpty)
-                        .help(L10n.shared.t("toolbar.analysis"))
-                        .keyboardShortcut("a", modifiers: [.command, .shift])
-
-                        Button(action: {
-                            if let record = viewModel.buildGameRecord() {
-                                activeSheet = .coach(record)
-                            }
-                        }) {
-                            Image(systemName: "brain.head.profile")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .disabled(viewModel.gameMoves.isEmpty)
-                        .help(L10n.shared.t("toolbar.coach"))
-                        .keyboardShortcut("t", modifiers: [.command, .shift])
-
-                        Divider().frame(height: 24)
-
-                        // 学棋组
-                        Button(action: { activeSheet = .puzzles }) {
-                            Image(systemName: "puzzlepiece")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.puzzle"))
-                        .keyboardShortcut("p", modifiers: [.command, .shift])
-
-                        Button(action: {
-                            activeSheet = .studyHub
-                        }) {
-                            Image(systemName: "graduationcap.fill")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.study"))
-                        .keyboardShortcut("s", modifiers: [.command, .shift])
-
-                        Button(action: { activeSheet = .dailyChallenge }) {
-                            Image(systemName: "calendar.badge.clock")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.dailyChallenge"))
-
-                        Divider().frame(height: 24)
-
-                        // 设置组
-                        Button(action: { activeSheet = (activeSheet?.id == "stats") ? nil : .stats }) {
-                            Image(systemName: "chart.bar")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.stats"))
-
-                        Button(action: { activeSheet = .history }) {
-                            Image(systemName: "clock.arrow.circlepath")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.history"))
-
-                        Button(action: { activeSheet = .themePicker }) {
-                            Image(systemName: "paintpalette")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.theme"))
-
-                        Button(action: { activeSheet = .achievements }) {
-                            Image(systemName: "trophy")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.achievements"))
-
-                        Button(action: { activeSheet = .rankPrivilege }) {
-                            Image(systemName: "medal")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.rankPrivilege"))
-
-                        Button(action: { activeSheet = .settings }) {
-                            Image(systemName: "gearshape")
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.brown)
-                        .help(L10n.shared.t("toolbar.settings"))
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, LayoutSpec.space3)
+                    .padding(.vertical, LayoutSpec.space3)
+                    .background(
+                        // v6.4 C0：状态机输入通道 = background GeometryReader + onChange
+                        // （Ruby R2 约束：禁用 onGeometryChange，部署目标 macOS 14 不达）
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear { railState.update(width: geo.size.width) }
+                                .onChange(of: geo.size.width) { _, w in
+                                    railState.update(width: w)
+                                    LayoutDump.sample(page: "P1", width: w,
+                                      params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                                }
+                        }
+                    )
                 }
 
                 // 游戏结束弹窗
@@ -416,7 +381,8 @@ struct ChineseChessApp: App {
                     pendingReviewRecord = nil
                 }
             }
-            .frame(minWidth: 900, minHeight: 600)  // v6.2：minHeight 750→600（v1.2 §三.2 P0-1，仅尺寸不布局）
+            // v6.2 minHeight 600 口径（m1 定案）+ v6.4 C1 横向打样 ideal（合并窗口各取所长）
+            .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1280, minHeight: 600, idealHeight: 860)
             .onAppear {
                 TutorialViewModel.markLaunched()
                 if firstLaunchNeeded {
@@ -624,8 +590,11 @@ struct ChineseChessApp: App {
             }
         }
         .windowStyle(.titleBar)
-        .windowResizability(.contentSize)
-        .defaultSize(width: 760, height: 860)
+        // v6.4 C1：主窗改为 automatic（contentSize 会把窗口钉在内容理想宽=900，
+        // 横向三栏默认窗宽出不来；min 仍由内容 frame(minWidth:900) 兜底）
+        .windowResizability(.automatic)
+        // v6.4 C1：横向布局打样默认窗宽 1280（三栏可见；窄窗收起走 C0 状态机）
+        .defaultSize(width: 1280, height: 860)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {
                 Task { await EngineRouter.shared.shutdown() }

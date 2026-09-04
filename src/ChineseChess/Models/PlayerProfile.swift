@@ -291,6 +291,7 @@ extension PlayerProfile {
         let puzzlesProgress = targetPuzzles > currentPuzzles
             ? Double(effectivePuzzles - currentPuzzles) / Double(targetPuzzles - currentPuzzles)
             : 1.0
-        return min(1.0, min(winsProgress, puzzlesProgress))
+        // v6.4 B2：下限钳制，不为负不穿底（脏档/回退场景）
+        return min(1.0, max(0.0, min(winsProgress, puzzlesProgress)))
     }
 }

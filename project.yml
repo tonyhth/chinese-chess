@@ -26,6 +26,7 @@ targets:
         type: group
       - path: src/ChineseChess/Accessibility
         type: group
+        optional: true   # v6.4 卫生件（Luke 令）：worktree 重建时该目录可能缺失，防 xcodegen 报错
       - path: src/ChineseChess/App
         type: group
       - path: src/ChineseChess/Helpers

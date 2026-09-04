@@ -14,7 +14,14 @@ struct RadarChartView: View {
             let radius = min(size.width, size.height) / 2 - 30
             let count = scores.count
 
-            guard count >= 3 else { return }
+            // v6.4 B3 A7-1：count<3 不再静默空白，占位提示
+            guard count >= 3 else {
+                let placeholder = Text(L10n.shared.t("analysis.noData"))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                context.draw(placeholder, at: center)
+                return
+            }
 
             // 网格（5 层多边形）
             for layer in stride(from: 0.2, through: 1.0, by: 0.2) {
@@ -40,10 +47,10 @@ struct RadarChartView: View {
                 context.stroke(linePath, with: .color(.gray.opacity(0.2)), lineWidth: 0.5)
             }
 
-            // 数据多边形
+            // 数据多边形（v6.4 B2：NaN/inf 脏值不入绘制，clamp 到 0...maxScore）
             let dataPoints = scores.enumerated().map { i, kv in
                 let angle = angleFor(index: i, total: count)
-                let r = radius * (kv.value / maxScore)
+                let r = radius * (Self.sanitizedScore(kv.value, max: maxScore) / maxScore)
                 return CGPoint(
                     x: center.x + r * cos(angle),
                     y: center.y + r * sin(angle)
@@ -76,9 +83,8 @@ struct RadarChartView: View {
                     .foregroundColor(.primary)
                 context.draw(text, at: pos)
 
-                // 分值标签
                 let scorePos = CGPoint(x: pos.x, y: pos.y + 14)
-                let scoreText = Text("\(Int(kv.value))")
+                let scoreText = Text("\(Int(Self.sanitizedScore(kv.value, max: maxScore)))")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                 context.draw(scoreText, at: scorePos)
@@ -88,6 +94,13 @@ struct RadarChartView: View {
     }
 
     // MARK: - 辅助
+
+    /// v6.4 B2（Vera P3）：脏值清洗——NaN/±inf 归 0，越界 clamp 到 0...max。绘制层唯一入口，脏值不入 Canvas
+    /// v6.4 P2-3：max 必传（单一事实源 maxScore，不留第二事实源默认值）
+    static func sanitizedScore(_ value: Double, max: Double) -> Double {
+        guard value.isFinite else { return 0 }
+        return Swift.min(Swift.max(value, 0), max)
+    }
 
     private func angleFor(index: Int, total: Int) -> Double {
         -Double.pi / 2 + Double(index) * 2 * .pi / Double(total)

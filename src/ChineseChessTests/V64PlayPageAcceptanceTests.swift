@@ -20,16 +20,25 @@ import Testing
 // ---------- 1. 单点配置（打样落地时填） ----------
 enum V64AcceptanceRegistry {
     /// 打样落地标记：打样视图合入后置 true（由验收人改这一行，全部 PENDING 锚转为硬断言）
-    static let prototypeLanded = false
+    /// v6.4 C1 打样落地（Eric，2026-09-01，dc6c4ac 合入链）
+    static let prototypeLanded = true
 
     /// 对局页新视图文件（打样落地后填，如 "src/ChineseChess/Views/PlayPageV64View.swift"）
-    static let playPageViewFile: String? = nil
+    static let playPageViewFile: String? = "src/ChineseChess/Views/Game/GameRailView.swift"
     /// 残局视图 BoardSizing 接入文件（残局=三视图之③；对弈/回放已有共享锚）
-    static let puzzleViewFile: String? = nil
+    /// 接入链：DemoBoardView（薄壳）→ BoardCanvasView → BoardSizing.calculate（与对弈/回放同源）
+    static let puzzleViewFile: String? = "src/ChineseChess/Views/DemoBoardView.swift"
     /// 四面板折叠：面板头锚点符号名（打样落地后填 4 个）
-    static let collapsiblePanelSymbols: [String] = []
+    /// v6.4 C1：右通栏四面板（对局信息/走法记录/分析/引擎状态），头行点击折叠 + chevron 旋转
+    static let collapsiblePanelSymbols: [String] = [
+        "p1.rail.info",
+        "p1.rail.moves",
+        "p1.rail.analysis",
+        "p1.rail.engine",
+    ]
     /// ⌘I 目标动作符号名（v2.1：⌘H 弃用、⌘I 常驻键帽）
-    static let cmdITargetSymbol: String? = nil
+    /// v6.4 C1：ToolbarView 提示按钮改 ⌘I + 键帽常驻
+    static let cmdITargetSymbol: String? = "ToolbarView.requestHint(cmd:I)"
 }
 
 @Suite("v6.4 对局页验收框架", .serialized)
@@ -128,7 +137,11 @@ struct V64PlayPageAcceptanceTests {
             return
         }
         let src = try Self.source(f)
-        #expect(src.contains("BoardSizing.calculate"), "残局视图须与对弈/回放同一套 BoardSizing（三视图同源缩放）")
+        // 残局视图与回放同为薄壳（框架首跑实证结构）：接入锚 = 委托链，与 ①a 同口径
+        // （薄壳 → BoardCanvasView → BoardSizing.calculate，三视图同一套缩放）
+        #expect(src.contains("BoardCanvasView"), "残局视图薄壳须委托 BoardCanvasView（同回放链）")
+        let canvas = try Self.source("src/ChineseChess/Views/BoardCanvasView.swift")
+        #expect(canvas.contains("BoardSizing.calculate"), "残局链终点 BoardCanvasView 须消费 BoardSizing.calculate（三视图同源缩放）")
     }
 
     // MARK: - ③ 快捷键行为（←/→ 跨页同键同义现在即锚；⌘I PENDING）

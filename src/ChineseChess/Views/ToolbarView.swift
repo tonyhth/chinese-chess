@@ -1,8 +1,24 @@
 import SwiftUI
 
+/// v6.4 C1：工具栏溢出菜单项（LJ-2 根治——低频操作收敛 ⋯ 菜单）
+struct ToolbarOverflowItem: Identifiable {
+    let id: String
+    let title: String
+    let icon: String
+    var disabled: Bool = false
+    var isDivider: Bool = false
+    var action: () -> Void = {}
+
+    static func divider(id: String) -> ToolbarOverflowItem {
+        ToolbarOverflowItem(id: id, title: "", icon: "", isDivider: true)
+    }
+}
+
 struct ToolbarView: View {
     let viewModel: GameViewModel
     var onReplayRequest: (() -> Void)? = nil
+    // v6.4 C1（LJ-2 根治）：低频操作入溢出菜单（macOS；iOS 本期不动）
+    var overflowItems: [ToolbarOverflowItem] = []
 
     private let l10n = L10n.shared
 
@@ -236,6 +252,8 @@ struct ToolbarView: View {
 
                 Button(action: { viewModel.undoMove() }) {
                     Label(l10n.t("game.undoMove"), systemImage: "arrow.uturn.backward")
+                    // v6.4 C1 refine#1：键帽常驻（⌘Z）
+                    Text("⌘Z").font(.system(size: 10, design: .monospaced)).foregroundColor(.secondary)
                 }
                 #if os(macOS)
                 .keyboardShortcut("z", modifiers: .command)
@@ -249,9 +267,11 @@ struct ToolbarView: View {
 
                 Button(action: { viewModel.requestHint() }) {
                     Label(l10n.t("game.hint"), systemImage: "lightbulb")
+                    // v6.4 C1 refine#1：键帽常驻（⌘I；v2.1 定案：⌘H 与 macOS Hide 冲突弃用）
+                    Text("⌘I").font(.system(size: 10, design: .monospaced)).foregroundColor(.secondary)
                 }
                 #if os(macOS)
-                .keyboardShortcut("h", modifiers: [.command, .shift])
+                .keyboardShortcut("i", modifiers: .command)
                 .controlSize(.small)
                 .help(l10n.t("game.hintTooltip"))
                 #endif
@@ -260,31 +280,7 @@ struct ToolbarView: View {
                 .tint(.brown)
                 .accessibilityHint(l10n.t("accessibility.hintActionHint"))
 
-                Button(action: { viewModel.requestResign() }) {
-                    Label(l10n.t("game.resign"), systemImage: "flag.fill")
-                }
-                #if os(macOS)
-                .keyboardShortcut("r", modifiers: [.command, .shift])
-                .controlSize(.small)
-                .help(l10n.t("game.resign"))
-                #endif
-                .disabled(viewModel.isThinking || viewModel.gameState != .playing)
-                .buttonStyle(.bordered)
-                .tint(.red)
-
-                // FINAL-002: 对局结束后显示复盘按钮
-                if viewModel.gameState != .playing, let onReplayRequest = onReplayRequest {
-                    Button(action: onReplayRequest) {
-                        Label(l10n.t("game.replay"), systemImage: "arrow.uturn.forward.circle")
-                    }
-                    #if os(macOS)
-                    .keyboardShortcut("l", modifiers: [.command, .shift])
-                    .controlSize(.small)
-                    .help(l10n.t("game.replay"))
-                    #endif
-                    .buttonStyle(.bordered)
-                    .tint(.brown)
-                }
+                // v6.4 C1：认输/复盘/低频项全部入溢出菜单（下方 overflowMenu）
             }
 
             // 自然分隔（替换 Divider）
@@ -326,6 +322,31 @@ struct ToolbarView: View {
                 .controlSize(.small)
                 .help(l10n.t("game.sideTooltip", l10n.t(viewModel.humanSide == .red ? "game.redSide" : "game.blackSide")))
                 .accessibilityLabel(l10n.t("game.sideLabel"))
+
+                // v6.4 C1：溢出菜单（低频操作收纳，LJ-2 根治）
+                if !overflowItems.isEmpty {
+                    Menu {
+                        ForEach(overflowItems) { item in
+                            if item.isDivider {
+                                Divider()
+                            } else {
+                                Button(action: item.action) {
+                                    Label(item.title, systemImage: item.icon)
+                                }
+                                .disabled(item.disabled)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .frame(width: 28, height: 28)
+                            .contentShape(Rectangle())
+                    }
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
+                    .help(l10n.t("p1.overflow"))
+                    .accessibilityLabel(l10n.t("p1.overflow"))
+                }
             }
         }
         .padding(.horizontal, 16)
