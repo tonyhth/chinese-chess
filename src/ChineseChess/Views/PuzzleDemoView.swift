@@ -455,6 +455,8 @@ struct PuzzleDemoView: View {
                 notations: vm.moveNotations,
                 currentIndex: vm.currentIndex,
                 onMoveTap: { row in vm.jumpToMove(at: row + 1) },
+                progress: Double(vm.currentIndex) / Double(max(vm.totalSteps, 1)),
+                progressText: vm.progressText,
                 header: {
                     DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
                 },
