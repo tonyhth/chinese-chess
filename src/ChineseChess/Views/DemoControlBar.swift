@@ -203,6 +203,14 @@ struct DemoControlBar: View {
                 }
                 .disabled(!viewModel.canGoForward)
 
+                // v6.4 C2（all14 P4）：🔁 重头——跳回起始局面
+                Button(action: { viewModel.goToStart() }) {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+                .disabled(!viewModel.canGoBack)
+                .accessibilityLabel(L10n.shared.t("demo.restart"))
+                .help(L10n.shared.t("demo.restart"))
+
                 Divider().frame(height: 20)
 
                 // 速度选择器：Menu 替代 segmented Picker（和 iOS 统一，节省空间）

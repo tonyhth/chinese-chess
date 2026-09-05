@@ -48,23 +48,24 @@ struct V62LayoutTests {
 
     // MARK: - T1/T2：两演示页面接入 ManagedSplitView（语义迁移版，见文件头裁定注记）
 
-    @Test("T1: MasterGameBrowserView macosPlayLayout 使用 ManagedSplitView 左右布局")
+    @Test("T1: MasterGameBrowserView macosPlayLayout 左右布局（v6.4 C2：迟滞收展取代 ManagedSplitView）")
     func t1MasterBrowserUsesManagedSplit() throws {
         let src = try Self.source("src/ChineseChess/Views/MasterGameBrowserView.swift")
         let region = try Self.funcRegion(src, funcName: "macosPlayLayout")
-        #expect(region.contains("ManagedSplitView"), "macosPlayLayout 应接入 ManagedSplitView（方案 B，Luke 裁定语义迁移）")
+        // v6.4 C2（all14 P3）：棋盘吃满 + 迟滞收展右栏，v6.2 ManagedSplitView 语义退役
+        #expect(region.contains("AdaptiveRailState") || region.contains("railState.isExpanded"), "macosPlayLayout 应接 C0 迟滞状态机（v6.4 C2 口径）")
         #expect(region.contains("DemoSidePanel"), "macosPlayLayout 应接入右侧面板 DemoSidePanel")
         #expect(!region.contains("CommentaryOverlay"), "macOS 点评应由右侧面板承载，overlay 退出 macosPlayLayout（iOS 路径 overlay 不受影响）")
-        #expect(region.contains("minWidth: 816"), "页面 frame minWidth 应为 816（v6.2.1 rightMin 400 后 808 最低需求）")
+        #expect(region.contains("LayoutSpec.compactWindowMin"), "页面 frame minWidth 应走 LayoutSpec 单源（v6.4 六b）")
     }
 
-    @Test("T2: PuzzleDemoView macosLayout 使用 ManagedSplitView 左右布局")
+    @Test("T2: PuzzleDemoView macosLayout 左右布局（v6.4 C2：迟滞收展取代 ManagedSplitView）")
     func t2PuzzleDemoUsesManagedSplit() throws {
         let src = try Self.source("src/ChineseChess/Views/PuzzleDemoView.swift")
         let region = try Self.funcRegion(src, funcName: "macosLayout")
-        #expect(region.contains("ManagedSplitView"), "macosLayout 应接入 ManagedSplitView（方案 B，Luke 裁定语义迁移）")
+        #expect(region.contains("railState.isExpanded"), "macosLayout 应由迟滞状态机驱动（v6.4 C2 口径）")
         #expect(region.contains("DemoSidePanel"), "macosLayout 应接入右侧面板 DemoSidePanel")
-        #expect(region.contains("minWidth: 816"), "页面 frame minWidth 应为 816")
+        #expect(region.contains("LayoutSpec.compactWindowMin"), "页面 frame minWidth 应走 LayoutSpec 单源（v6.4 六b）")
     }
 
     // MARK: - T3/T4/T5：组件存在性（类型实例化 = 编译期存在性 + 运行期可创建）

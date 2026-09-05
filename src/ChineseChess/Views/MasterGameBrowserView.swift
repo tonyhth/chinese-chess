@@ -35,6 +35,9 @@ enum SidebarSelection: Hashable {
 /// iOS：全屏列表 → 棋谱播放
 struct MasterGameBrowserView: View {
     @State private var viewModel: DemoViewModel?
+
+    // v6.4 C2：P3 播放页右栏自适应状态机（迟滞 下阈值收 / 上阈值展，C0 单源）
+    @State private var railState = AdaptiveRailState()
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isDemoFocused: Bool
 
@@ -1353,9 +1356,9 @@ struct MasterGameBrowserView: View {
 
     #if os(macOS)
     private func macosPlayLayout(viewModel vm: DemoViewModel) -> some View {
-        // v6.2 左右布局（v1.2 §三.1）：棋盘左（等比缩放）+ 右侧信息面板
-        // 点评从底部 overlay 改右侧常驻（P1-3），走法记录面板本页新增（P1-2）
-        ManagedSplitView {
+        // v6.4 C2（all14 P3）：棋盘最大化 + 右栏三 tab 面板；窄窗迟滞（窄收宽展，同 P1 口径）
+        // v6.2 ManagedSplitView 已被 v6.4 C2 迟滞布局取代（棋盘吃满 + 右栏收展）
+        HStack(spacing: 0) {
             ZStack {
                 DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
 
@@ -1368,24 +1371,40 @@ struct MasterGameBrowserView: View {
             }
             .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } right: {
-            DemoSidePanel(
-                commentary: vm.showCommentary ? vm.currentCommentary : nil,
-                notations: vm.moveNotations,
-                currentIndex: vm.currentIndex,
-                onMoveTap: { row in vm.jumpToMove(at: row + 1) },
-                progress: Double(vm.currentIndex) / Double(max(vm.totalSteps, 1)),
-                progressText: vm.progressText,
-                header: {
-                    DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
-                },
-                footer: {
-                    DemoControlBar(viewModel: vm, onBackToList: { backToList() })
-                }
-            )
+
+            // v6.4 C2：迟滞状态机驱动（下阈值收 / 上阈值展，带内保持——C0 状态机单源）
+            if railState.isExpanded {
+                Divider().opacity(0.4)
+                DemoSidePanel(
+                    commentary: vm.showCommentary ? vm.currentCommentary : nil,
+                    notations: vm.moveNotations,
+                    currentIndex: vm.currentIndex,
+                    onMoveTap: { row in vm.jumpToMove(at: row + 1) },
+                    progress: Double(vm.currentIndex) / Double(max(vm.totalSteps, 1)),
+                    progressText: vm.progressText,
+                    header: {
+                        DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
+                    },
+                    footer: {
+                        DemoControlBar(viewModel: vm, onBackToList: { backToList() })
+                    }
+                )
+            }
         }
-        // v1.2 §三.2：左右布局需 min 800（左 400 + 右 300 + handle 8）；高度 750→600
-        .frame(minWidth: 816, minHeight: 600)  // v6.2.1：800→816（rightMin 400 后 400+8+400=808 最低需求）
+        // v6.4 C2：窄窗基线降 816→900 内可收（面板收起后棋盘单栏）；迟滞带内不跳变
+        .frame(minWidth: LayoutSpec.compactWindowMin, minHeight: 600)
+        .background(
+            // v6.4 C0/C2：状态机输入通道 = background GeometryReader + onChange（Ruby R2 约束）
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { railState.update(width: geo.size.width) }
+                    .onChange(of: geo.size.width) { _, w in
+                        railState.update(width: w)
+                        LayoutDump.sample(page: "P3", width: w,
+                          params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                    }
+            }
+        )
     }
     #endif
 

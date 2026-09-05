@@ -219,6 +219,11 @@ class DemoViewModel {
         playState = .idle
     }
 
+    /// v6.4 C2：重头（all14 P4 工具栏语言 🔁 重头）——跳回起始局面，停连播
+    func goToStart() {
+        jumpToMove(at: 0)
+    }
+
     // MARK: - BoardPlayer 回调
 
     private func handleMoveExecuted(move: Move, moveIndex: Int) {

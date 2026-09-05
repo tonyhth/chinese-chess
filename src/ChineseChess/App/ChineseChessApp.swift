@@ -426,7 +426,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 816, minHeight: 700)  // v6.2：600→800（v1.2 P1-5）；v6.2.1：800→816（rightMin 400 → 808 最低需求）
+                    .frame(minWidth: 816, minHeight: 700)  // v6.4 C2：P3/P4 sheet 容器允许窄至 900 内（面板 <1000 迟滞收起，棋盘吃满）
 
                 case .toolbarReplay(let record):
                     ReplayView(record: record)
@@ -561,7 +561,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 816, minHeight: 700)  // v6.2：600→800 同 .puzzles；v6.2.1：800→816（rightMin 400）
+                    .frame(minWidth: 816, minHeight: 700)  // v6.4 C2：sheet 容器同 .puzzles 口径（P3/P4 迟滞收起后棋盘吃满）
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })
