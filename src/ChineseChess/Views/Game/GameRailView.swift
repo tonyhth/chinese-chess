@@ -73,11 +73,11 @@ struct GameRailView: View {
             RailPanel(title: l10n.t("p1.rail.engine"), collapsed: $engineCollapsed) {
                 VStack(spacing: 2) {
                     #if os(macOS)
-                    // 引擎：按难度路由实时展示（E5 语义，真实值非静态）
-                    statusRow(ok: true, label: l10n.t("p1.rail.engine"),
-                              value: viewModel.difficulty.isProfessional
-                                  ? l10n.t("p1.rail.enginePikafish")
-                                  : l10n.t("engine.builtIn"))
+                    // 引擎：按难度路由真实展示（E5 语义）——Ruby P2 清偿：去硬编码绿点，
+                    // 接 EngineRouter.validateEngineAvailability 真实校验
+                    // （业余=自研恒可用；专业=Pikafish 就绪度，未就绪红点+降级文案）
+                    statusRow(ok: engineCheck.ok, label: l10n.t("p1.rail.engine"),
+                              value: engineCheck.text(pro: viewModel.difficulty.isProfessional))
                     // NNUE：接真实校验（EmbeddedPikafishEngine.verifyNNUEAsset，sha256 快路径缓存）
                     // 异步查（首次全量哈希 ~0.3-1s 不卡 UI），结果落地前中性"校验中…"灰点，不假绿
                     statusRow(ok: nnueCheck.ok, label: "NNUE",
@@ -89,7 +89,40 @@ struct GameRailView: View {
         .padding(.vertical, LayoutSpec.space2)
         .frame(width: LayoutSpec.p1RailWidth)
         .frame(maxHeight: .infinity, alignment: .top)
-        .task { await refreshNNUECheck() }
+        .task {
+            await refreshEngineCheck()
+            await refreshNNUECheck()
+        }
+    }
+
+    // MARK: - 引擎路由真实状态（Ruby P2：最后一个伪状态点清偿）
+
+    private enum EngineCheckState {
+        case pending
+        case ok        // 路由目标就绪（业余=自研 / 专业=Pikafish）
+        case degraded  // 专业级 Pikafish 未就绪，降级自研
+
+        var ok: Bool? {
+            switch self { case .pending: nil; case .ok: true; case .degraded: false }
+        }
+
+        func text(pro: Bool) -> String {
+            switch self {
+            case .pending: L10n.shared.t("p1.rail.nnueChecking")  // 复用"校验中…"中性文案
+            case .ok: pro ? L10n.shared.t("p1.rail.enginePikafish")
+                          : L10n.shared.t("engine.builtIn")
+            case .degraded: L10n.shared.t("engine.builtIn")
+            }
+        }
+    }
+
+    @State private var engineCheck: EngineCheckState = .pending
+
+    private func refreshEngineCheck() async {
+        switch await EngineRouter.shared.validateEngineAvailability(for: viewModel.difficulty) {
+        case .available: engineCheck = .ok
+        case .unavailable: engineCheck = .degraded
+        }
     }
 
     // MARK: - NNUE 真实校验状态（Ruby P1：伪状态面板清偿）
