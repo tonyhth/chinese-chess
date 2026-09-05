@@ -168,6 +168,9 @@ struct ChineseChessApp: App {
         case studyHub
         case tutorial
         case openingExplorer   // FINAL-003: ⌘⇧O 快捷键入口
+        #if DEBUG
+        case harnessPlay(String)   // v6.4 C2：截图 harness 直达 P3/P4（仅 Debug）
+        #endif
 
         var id: String {
             switch self {
@@ -188,6 +191,9 @@ struct ChineseChessApp: App {
             case .studyHub: return "studyHub"
             case .tutorial: return "tutorial"
             case .openingExplorer: return "openingExplorer"
+            #if DEBUG
+            case .harnessPlay(let mode): return "harnessPlay-\(mode)"
+            #endif
             }
         }
     }
@@ -383,6 +389,16 @@ struct ChineseChessApp: App {
             }
             // v6.2 minHeight 600 口径（m1 定案）+ v6.4 C1 横向打样 ideal（合并窗口各取所长）
             .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1280, minHeight: 600, idealHeight: 860)
+            // v6.4 C2：harness 入口——LAYOUT_PLAY=master/puzzle 直达 P3/P4
+            // （master→MasterGameBrowserView 自带 onAppear 钩子进播放态；puzzle→PuzzleDemoView 演示态）
+            .onAppear {
+                #if DEBUG
+                if let play = ProcessInfo.processInfo.environment["LAYOUT_PLAY"],
+                   ["master", "puzzle"].contains(play), activeSheet == nil {
+                    activeSheet = .harnessPlay(play)
+                }
+                #endif
+            }
             .onAppear {
                 TutorialViewModel.markLaunched()
                 if firstLaunchNeeded {
@@ -562,6 +578,21 @@ struct ChineseChessApp: App {
                             }
                     }
                     .frame(minWidth: 816, minHeight: 700)  // v6.4 C2：sheet 容器同 .puzzles 口径（P3/P4 迟滞收起后棋盘吃满）
+
+                #if DEBUG
+                case .harnessPlay(let mode):
+                    Group {
+                        if mode == "master" {
+                            NavigationStack { MasterGameBrowserView() }
+                        } else {
+                            NavigationStack { PuzzleDemoView() }
+                        }
+                    }
+                    // v6.4 C2：harness sheet 须全宽——迟滞状态机测的是 sheet 宽（harness 钉的 LAYOUT_WIDTH），
+                    // 若沿 sheet 默认尺寸则 1920 档 sheet 内容仍窄、宽度采样失真（v1 误收根因之一）
+                    .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1920,
+                           minHeight: 700, idealHeight: 900)
+                #endif
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })

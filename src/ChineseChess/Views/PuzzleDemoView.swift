@@ -37,6 +37,7 @@ struct PuzzleDemoView: View {
     }
 
     var body: some View {
+        Group {
         if let vm = viewModel {
             // 有选中残局 → 显示演示
             #if os(iOS)
@@ -48,7 +49,27 @@ struct PuzzleDemoView: View {
             // 无选中残局 → 显示列表模式
             listLayout
         }
+        }
+        // v6.4 C2：截图 harness 钩子——LAYOUT_PLAY=puzzle 自动进首题演示态
+        // （与 LAYOUT_WIDTH 对偶，仅 Debug；需列表缓存就绪，未就绪静默不进）
+        .onAppear(perform: autoEnterPlayForHarness)
     }
+
+    #if DEBUG
+    /// 仅 Debug 生效：harness 环境变量 LAYOUT_PLAY=puzzle 时自动点首题
+    /// v2 修正（同 P3 根因）：列表缓存异步就绪——onAppear 单次调用恒空被 guard 掉，
+    /// 改轮询等待（上限 10s），到即进首题演示态
+    private func autoEnterPlayForHarness() {
+        guard ProcessInfo.processInfo.environment["LAYOUT_PLAY"] == "puzzle",
+              viewModel == nil else { return }
+        Task { @MainActor in
+            for _ in 0..<50 {
+                if !cachedListItems.isEmpty { playItem(cachedListItems[0]); return }
+                try? await Task.sleep(nanoseconds: 200_000_000)
+            }
+        }
+    }
+    #endif
 
     // MARK: - 列表缓存重建
 

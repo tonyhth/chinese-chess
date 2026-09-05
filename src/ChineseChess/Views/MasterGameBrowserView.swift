@@ -108,6 +108,7 @@ struct MasterGameBrowserView: View {
     }
 
     var body: some View {
+        Group {
         if let vm = viewModel {
             #if os(iOS)
             iosPlayLayout(viewModel: vm)
@@ -117,7 +118,38 @@ struct MasterGameBrowserView: View {
         } else {
             browserLayout
         }
+        }
+        // v6.4 C2：截图 harness 钩子——LAYOUT_PLAY=master 自动进首局播放态
+        // （与 LAYOUT_WIDTH 对偶，仅 Debug；列表页需有缓存项才进，无则静默不进）
+        .onAppear(perform: autoEnterPlayForHarness)
     }
+
+    #if DEBUG
+    /// 仅 Debug 生效：harness 环境变量 LAYOUT_PLAY=master 时自动进首局播放态
+    /// v3 修正：opening 模式未选分类时 rebuildCache 会清空 cachedItems（轮询恒等不到），
+    /// 改为：索引就绪后自动选首个开局分类（触发 rebuildCache 填页）→ 等缓存 → 进播放态
+    private func autoEnterPlayForHarness() {
+        guard ProcessInfo.processInfo.environment["LAYOUT_PLAY"] == "master",
+              viewModel == nil else { return }
+        Task { @MainActor in
+            // 等索引（masterStore.isLoaded，上限 10s）
+            for _ in 0..<50 {
+                if masterStore.isLoaded { break }
+                try? await Task.sleep(nanoseconds: 200_000_000)
+            }
+            guard masterStore.isLoaded else { return }
+            // 未选分类 → 自动选首分类（cachedItems 由 rebuildCache 填充）
+            if selectedOpening == nil && selectedSubcategory == nil && browseMode == .opening {
+                selectedOpening = OpeningCategories.categories.first
+                try? await Task.sleep(nanoseconds: 400_000_000)  // 等 onChange→rebuildCache
+            }
+            for _ in 0..<25 {
+                if !cachedItems.isEmpty { playGame(cachedItems[0]); return }
+                try? await Task.sleep(nanoseconds: 200_000_000)
+            }
+        }
+    }
+    #endif
 
     // Phase D: 支持从开局探索联动传入走法序列
     init(initialMoveSequence: [String] = []) {
