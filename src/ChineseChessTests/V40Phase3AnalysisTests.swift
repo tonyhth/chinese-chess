@@ -5,6 +5,7 @@ import Testing
 // MARK: - v4.0 Phase 3 #8: AnalysisViewModel 性能优化测试
 
 @Suite("v4.0 Phase 3 #8 玩家方判断", .serialized)
+@MainActor  // v6.4 P1: AnalysisViewModel 标 @MainActor，套件随注
 struct PlayerColorTests {
 
     @Test("默认红先手 FEN → 玩家为红方")
@@ -66,6 +67,7 @@ struct PlayerColorTests {
 }
 
 @Suite("v4.0 Phase 3 #8 AI 走法跳过", .serialized)
+@MainActor  // v6.4 P1: AnalysisViewModel 标 @MainActor，套件随注
 struct AISkipTests {
 
     @Test("analyzeAll 进度 total 为玩家走法数")
@@ -239,6 +241,7 @@ struct QuickClassifyTests {
 }
 
 @Suite("v4.0 Phase 3 #8 evalCurve 完整性", .serialized)
+@MainActor  // v6.4 P1: AnalysisViewModel 标 @MainActor，套件随注
 struct EvalCurveTests {
 
     @Test("evalSequence 只包含有分析结果的步")
@@ -266,6 +269,7 @@ struct EvalCurveTests {
 }
 
 @Suite("v4.0 Phase 3 #8 进度与 UI", .serialized)
+@MainActor  // v6.4 P1: AnalysisViewModel 标 @MainActor，套件随注
 struct AnalysisProgressTests {
 
     @Test("红先手 4 步棋 → 玩家走法 2 步")

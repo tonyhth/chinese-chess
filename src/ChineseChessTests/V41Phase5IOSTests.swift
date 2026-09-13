@@ -38,6 +38,7 @@ struct V41OpeningExplorerTests {
 */
 
 @Suite("v4.1 Phase 5: Analysis 引擎调用逻辑", .serialized)
+@MainActor  // v6.4 P1: AnalysisViewModel 标 @MainActor，套件随注
 struct V41AnalysisEngineTests {
 
     @Test("AnalysisViewModel 初始化状态")

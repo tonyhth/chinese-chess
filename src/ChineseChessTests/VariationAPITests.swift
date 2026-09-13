@@ -2,6 +2,8 @@ import XCTest
 @testable import ChineseChess
 
 /// v6.4 A-Phase2 验收锚（设计单 §5，Luke 钉死：锚 3 覆盖"预筛 nil + 老档 nil"两来源）
+/// v6.4 P1 并发修复：AnalysisViewModel 已标 @MainActor，测试类随注
+@MainActor
 final class VariationAPITests: XCTestCase {
 
     private func makeAnalysis(variations: [Variation]?, quick: Bool = false,

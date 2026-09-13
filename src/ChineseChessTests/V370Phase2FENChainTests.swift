@@ -219,6 +219,7 @@ final class V370Phase2FENChainTests: XCTestCase {
 
     // MARK: - AnalysisViewModel FEN 缓存集成
 
+    @MainActor  // v6.4 P1: AnalysisViewModel 标 @MainActor，用例随注
     func testAnalysisViewModel_FENCache() {
         let vm = AnalysisViewModel()
         let initialFEN = FENParser.standardInitial

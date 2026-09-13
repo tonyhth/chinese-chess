@@ -3,6 +3,10 @@ import Foundation
 // MARK: - v3.6.0 Phase 1.2: 复盘分析 ViewModel
 
 /// 复盘/分析会话状态管理
+/// v6.4 P1 并发修复：标 @MainActor——analyzeAll 跨 await 在非主线程写
+/// analyses/analysisProgress/isAnalyzing，与主线程读（AnalysisView/CoachSessionView/
+/// ChineseChessApp）构成理论数据竞争；调用方均已在主线程上下文，隔离标注即可闭竞争面
+@MainActor
 @Observable
 final class AnalysisViewModel {
 
@@ -110,13 +114,24 @@ final class AnalysisViewModel {
         }
     }
 
+    /// v6.4 P1 重入防护：分析批代号。每次 analyzeAll 入口自增并捕获快照；
+    /// 旧批在每个 await 恢复点检测到代号被取代（或宿主 Task 被取消）即静默退场，
+    /// 不再触碰任何共享状态（isAnalyzing/analyses/progress/落盘均归新批所有）
+    private var analysisBatchToken = 0
+
     /// 执行完整分析（逐步）
     /// v4.0 Phase 3 #8: 只分析玩家方走法（策略 B）
     func analyzeAll() async {
         guard !moves.isEmpty else { return }
 
+        // 重入防护：新批取代旧批（选型 = 项目既有"过期后台静默重算+轻提示"口径——
+        // 最新请求权威，旧批静默退场；拒绝式会卡死新棋谱的分析起跑）
+        analysisBatchToken += 1
+        let token = analysisBatchToken
+
         // 检查引擎是否可用
         let engine = await EngineRouter.shared.switchEngineIfNeeded()
+        guard token == analysisBatchToken, !Task.isCancelled else { return }
         if engine as? EmbeddedPikafishEngine == nil {
             #if DEBUG
             AppLog.analysis.error("[Analysis] Engine is not EmbeddedPikafishEngine: \(String(describing: type(of: engine)))")
@@ -134,6 +149,7 @@ final class AnalysisViewModel {
 
         // v6.4 A2①：引擎/深度口径过期判定（decision v1.1 P2-2）——不匹配则丢弃恢复值后台静默重算 + 轻提示
         let currentEngineVersion = await AnalysisProfile.engineVersion()
+        guard token == analysisBatchToken, !Task.isCancelled else { return }
         analysisRunEngineVersion = currentEngineVersion
         if let env = restoredEnvelope {
             if env.engineVersion != currentEngineVersion || env.depthSetting != AnalysisProfile.depth {
@@ -157,6 +173,8 @@ final class AnalysisViewModel {
         var nilCount = 0
         var checkpointTaken = false
         for (index, move) in moves.enumerated() {
+            // 重入防护：await 恢复点复核（被新批取代 / 宿主 Task 取消 → 静默退场）
+            guard token == analysisBatchToken, !Task.isCancelled else { return }
             // 跳过非玩家走法
             guard isPlayerMove(at: index) else { continue }
             // v6.4 A2①：增量——已恢复/已分析的跳过（续弈仅新增着法有新分析）
@@ -172,6 +190,8 @@ final class AnalysisViewModel {
                 playerMove: move,
                 moveHistory: []
             )
+            // 重入防护：写共享状态前复核（analyzeMove 内部有 await）
+            guard token == analysisBatchToken, !Task.isCancelled else { return }
             analyses[index] = analysis
             done += 1
             analysisProgress = (done, playerMoveCount)
@@ -195,6 +215,9 @@ final class AnalysisViewModel {
         let nonNil = done - nilCount
         AppLog.analysis.info("[Analysis] Complete: \(done) analyzed, \(nonNil) non-nil, \(nilCount) nil")
         #endif
+
+        // 重入防护：批尾收口前复核（此后无 await，双保险防将来插入挂起点）
+        guard token == analysisBatchToken, !Task.isCancelled else { return }
 
         // Bug 1 fix: 引擎存在但分析全 nil（NNUE 未加载成功等），设置不可用提示
         if analyses.allSatisfy({ $0 == nil }) {
