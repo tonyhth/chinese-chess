@@ -996,7 +996,7 @@ struct PatternRecognizerExtendedTests6 {
     func testDoubleChariotPattern() {
         let fen = "4k4/4R4/4R4/9/9/9/9/9/9/4K4 w"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
         #expect(bonus > 0)
     }
 
@@ -1004,7 +1004,7 @@ struct PatternRecognizerExtendedTests6 {
     func testNoSpecialPatterns() {
         let fen = "4k4/9/9/9/9/9/9/9/9/4K4 w"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
         // v3.0: 双方无炮（防空 +100）+ 将在同列无遮挡（飞将 +300）
         #expect(bonus <= 500, "只有将帅时棋型加分应很小（防空+飞将）")
     }

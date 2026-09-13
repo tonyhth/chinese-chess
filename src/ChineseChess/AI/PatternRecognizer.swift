@@ -51,7 +51,10 @@ struct PatternRecognizer {
 
     /// 识别当前局面中 side 方的棋型，返回加分。
     /// 加分相对于 side 方：正值 = side 方优势。
-    static func bonusPatterns<T: BoardReadable>(on board: T, for side: Side, weights: EvalWeights = EvalConfigManager.shared.weights) -> Int {
+    /// v6.4 P1 并发修复：删除 `= EvalConfigManager.shared.weights` 缺省参数——
+    /// 任意线程调用即直读无锁单例，与 setWeights 构成数据竞争（TD-001 注入改造扫尾）；
+    /// 权重一律显式传入（生产路径 AIEvaluator 已显式传 w）
+    static func bonusPatterns<T: BoardReadable>(on board: T, for side: Side, weights: EvalWeights) -> Int {
         var bonus = 0
         let w = weights
 

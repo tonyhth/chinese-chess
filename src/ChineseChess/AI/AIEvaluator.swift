@@ -8,7 +8,10 @@ struct AIEvaluator {
 
     let weights: EvalWeights
 
-    init(weights: EvalWeights = EvalConfigManager.shared.weights) {
+    /// v6.4 P1 并发修复：删除 `= EvalConfigManager.shared.weights` 缺省参数——
+    /// 任意线程构造即直读无锁单例，与 setWeights 构成数据竞争（TD-001 注入改造扫尾）；
+    /// 权重一律显式传入（AIEngine 两个 init 均已显式注入）
+    init(weights: EvalWeights) {
         self.weights = weights
     }
 

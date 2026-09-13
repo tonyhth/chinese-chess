@@ -13,7 +13,7 @@ struct Phase3bEvaluationTests {
         // 换一个：黑卒在 row 7 col 4，红将在 row 9 col 4，距离 = 2
         let fen = "4k4/9/9/9/9/9/4p4/9/9/3K5 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         // 过河兵 200 + 接近将位 dist=2 → +100 = 至少 300
         #expect(bonus >= 300, "过河兵接近将位应有额外加分")
     }
@@ -23,7 +23,7 @@ struct Phase3bEvaluationTests {
         // 两黑卒过河且相邻
         let fen = "4k4/9/9/9/9/9/4p4/4p4/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         // 过河兵 200×2 + 相邻 80 + 接近将位加分 ≥ 480
         #expect(bonus >= 400, "相邻兵应有结构加分")
     }
@@ -33,7 +33,7 @@ struct Phase3bEvaluationTests {
         // 两个孤立黑卒（间距大）
         let fen = "4k4/9/9/9/9/p7p/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         // 孤立兵：-30×2 = -60，但有其他加分（过河等）
         // 只验证不崩溃且返回整数值
         #expect(bonus >= -100 || bonus <= 1000, "孤立兵评估应在合理范围")
@@ -78,7 +78,7 @@ struct Phase3bEvaluationTests {
         // 黑象在 (0,2)，象眼在 (1,1)
         let fen = "1bakab3/9/9/9/9/9/9/9/n8/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         // 应有减分但不崩溃
         #expect(bonus >= -1000, "马塞象眼减分应在合理范围")
     }
@@ -87,7 +87,7 @@ struct Phase3bEvaluationTests {
     func noElephantNoPenalty() {
         let fen = "4k4/9/9/9/9/9/9/9/n8/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         // 无象，不应有象眼减分
         #expect(bonus >= 0, "无象时不应有象眼减分")
     }

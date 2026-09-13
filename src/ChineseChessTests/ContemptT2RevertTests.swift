@@ -29,7 +29,7 @@ struct ContemptT2RevertTests {
     @Test("Contempt: contempt=0 时均势局面无偏置")
     func evaluatorNoContempt() {
         let board = Board()  // 初始局面（均势）
-        let evaluator = AIEvaluator()
+        let evaluator = AIEvaluator(weights: EvalConfigManager.shared.weights)  // v6.4 P1: 缺省参数已删，显式传
         let scoreNoContempt = evaluator.evaluate(board, config: .basic)
         // basic 默认 contempt=0，分数应不含 contempt bonus
         // 验证不崩溃且返回合理值
@@ -39,7 +39,7 @@ struct ContemptT2RevertTests {
     @Test("Contempt: contempt>0 时均势局面有正向偏置")
     func evaluatorWithContempt() {
         let board = Board()
-        let evaluator = AIEvaluator()
+        let evaluator = AIEvaluator(weights: EvalConfigManager.shared.weights)  // v6.4 P1: 缺省参数已删，显式传
 
         let cfgNoContempt = AIEvalConfig(mobility: false, safety: true, contempt: 0)
         let cfgWithContempt = AIEvalConfig(mobility: false, safety: true, contempt: 30)
@@ -59,7 +59,7 @@ struct ContemptT2RevertTests {
     func evaluatorContemptOnlyDrawish() {
         // 构造一个大优局面（红方多车）
         let board = Board(fen: "r3kabnr/9/9/9/9/9/9/9/9/4KAB1R w - - 0 1")
-        let evaluator = AIEvaluator()
+        let evaluator = AIEvaluator(weights: EvalConfigManager.shared.weights)  // v6.4 P1: 缺省参数已删，显式传
 
         let cfgNoContempt = AIEvalConfig(mobility: false, safety: true, contempt: 0)
         let cfgWithContempt = AIEvalConfig(mobility: false, safety: true, contempt: 50)
@@ -76,7 +76,7 @@ struct ContemptT2RevertTests {
     // Helper: 评估初始局面分数（红方视角）
     private func evaluateInitialScore(_ contempt: Int) -> Int {
         let board = Board()
-        let evaluator = AIEvaluator()
+        let evaluator = AIEvaluator(weights: EvalConfigManager.shared.weights)  // v6.4 P1: 缺省参数已删，显式传
         let cfg = AIEvalConfig(mobility: false, safety: true, contempt: contempt)
         return evaluator.evaluate(board, config: cfg)
     }
@@ -232,7 +232,7 @@ struct ContemptT2RevertTests {
     @Test("Contempt: AIEvalConfig contempt 为负值时不崩溃")
     func contemptNegativeNoCrash() {
         let board = Board()
-        let evaluator = AIEvaluator()
+        let evaluator = AIEvaluator(weights: EvalConfigManager.shared.weights)  // v6.4 P1: 缺省参数已删，显式传
         let cfg = AIEvalConfig(mobility: false, safety: true, contempt: -20)
         let score = evaluator.evaluate(board, config: cfg)
         // 不崩溃即通过
@@ -242,7 +242,7 @@ struct ContemptT2RevertTests {
     @Test("Contempt: 大 contempt 值不崩溃")
     func contemptLargeNoCrash() {
         let board = Board()
-        let evaluator = AIEvaluator()
+        let evaluator = AIEvaluator(weights: EvalConfigManager.shared.weights)  // v6.4 P1: 缺省参数已删，显式传
         let cfg = AIEvalConfig(mobility: false, safety: true, contempt: 1000)
         let score = evaluator.evaluate(board, config: cfg)
         // 不崩溃即通过

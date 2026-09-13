@@ -69,7 +69,7 @@ struct PatternRecognizerTests {
         let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 4))
         let board = Board(pieces: [rg, bg, rc])
 
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
         // 红方有铁门栓（车在将正前方同列无阻挡）+ 单车胜
         #expect(bonus > 0)
     }
@@ -81,7 +81,7 @@ struct PatternRecognizerTests {
         let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 5, col: 0))
         let board = Board(pieces: [rg, bg, rc])
 
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 800)  // 单车胜 +800
     }
 
@@ -89,8 +89,8 @@ struct PatternRecognizerTests {
     func noPatternInInitialBoard() {
         let board = Board()
         // 初始局面双方都有士象，不应触发"单车胜"等模式
-        let redBonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
-        let blackBonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let redBonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
+        let blackBonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         // 双方都有双车，会触发双车模式加分——这是正常的
         // 关键是不崩溃
         _ = (redBonus, blackBonus)
@@ -104,7 +104,7 @@ struct PatternRecognizerTests {
         let rc2 = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 4, col: 5))
         let board = Board(pieces: [rg, bg, rc1, rc2])
 
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 600)  // 双车错 +600
     }
 }

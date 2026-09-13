@@ -68,8 +68,8 @@ struct SigillIronGateRegressionTests {
         let board = LegacySearchBoard(pieces: [redGeneral, blackGeneral, chariot], currentTurn: .black)
 
         // 双视角评估：黑方视角 isIronGate(黑车, 红将) 同格 → 原 trap 点
-        _ = PatternRecognizer.bonusPatterns(on: board, for: .red)
-        _ = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        _ = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
+        _ = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(true)  // 到达即未 trap
     }
 

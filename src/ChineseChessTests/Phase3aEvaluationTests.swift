@@ -16,7 +16,7 @@ struct Phase3aEvaluationTests {
         // 黑马在红方九宫角附近
         let fen = "4ka3/9/9/9/9/9/9/9/4n4/3K5 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus > 0, "拐角马应有加分")
     }
 
@@ -25,7 +25,7 @@ struct Phase3aEvaluationTests {
         // 两黑炮在同列（小写 c = 黑炮）
         let fen = "4k4/9/9/9/9/4c4/9/9/4c4/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 300, "担子炮应至少 300 加分")
     }
 
@@ -34,7 +34,7 @@ struct Phase3aEvaluationTests {
         // 黑炮在 row 4（己方河沿）
         let fen = "4k4/9/9/9/4c4/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 200, "巡河炮应至少 200 加分")
     }
 
@@ -43,7 +43,7 @@ struct Phase3aEvaluationTests {
         // 黑炮在中路 col 4，红将在 col 4
         let fen = "4k4/9/9/9/4c4/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 400, "当头炮+巡河炮应有加分")
     }
 
@@ -52,7 +52,7 @@ struct Phase3aEvaluationTests {
         // 两黑炮同列且相邻
         let fen = "4k4/9/9/9/9/9/4c4/4c4/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 250, "叠炮应至少 250 加分")
     }
 
@@ -61,7 +61,7 @@ struct Phase3aEvaluationTests {
         // 黑方双士在九宫
         let fen = "3akab2/9/9/9/9/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus > 0, "双士在九宫应有加分")
     }
 
@@ -70,7 +70,7 @@ struct Phase3aEvaluationTests {
         // 黑象在河沿好位置
         let fen = "4k4/9/9/9/2b1c4/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus > 0, "象在好位置应有加分")
     }
 
@@ -79,7 +79,7 @@ struct Phase3aEvaluationTests {
         // 黑卒过河（row >= 5 才算过河）
         let fen = "4k4/9/9/9/9/4p4/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 200, "过河兵应至少 200 加分")
     }
 
@@ -88,7 +88,7 @@ struct Phase3aEvaluationTests {
         // 两个黑卒在同一行（过河 row >= 5）
         let fen = "4k4/9/9/9/9/1p1p5/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 300, "双卒同行应至少 300 加分（过河+协同）")
     }
 
@@ -97,7 +97,7 @@ struct Phase3aEvaluationTests {
         // 双将在同一列，中间无子
         let fen = "4k4/9/9/9/9/9/9/9/9/4K4 w"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .red, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 300, "飞将威胁应至少 300 加分")
     }
 
@@ -106,7 +106,7 @@ struct Phase3aEvaluationTests {
         // 黑车和炮在同一行（小写 r=车, c=炮）
         let fen = "4k4/9/9/9/rc7/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 180, "车炮同行应至少 180 加分")
     }
 
@@ -115,7 +115,7 @@ struct Phase3aEvaluationTests {
         // 黑马和炮相邻
         let fen = "4k4/9/9/9/9/9/9/nc7/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 150, "马炮相邻应至少 150 加分")
     }
 
@@ -124,7 +124,7 @@ struct Phase3aEvaluationTests {
         // 两黑车不同行不同列
         let fen = "4k4/9/9/9/r7r/9/9/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 350, "双车联动应至少 350 加分")
     }
 
@@ -133,7 +133,7 @@ struct Phase3aEvaluationTests {
         // 两黑马在日字互保位置
         let fen = "4k4/9/9/9/9/9/n1n7/9/9/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus >= 250, "双马互保应至少 250 加分")
     }
 
@@ -142,7 +142,7 @@ struct Phase3aEvaluationTests {
         // 红方无炮，黑方有炮
         let fen = "4k4/9/9/9/9/9/9/9/4c4/4K4 b"
         let board = Board(fen: fen)
-        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black)
+        let bonus = PatternRecognizer.bonusPatterns(on: board, for: .black, weights: EvalConfigManager.shared.weights)
         #expect(bonus > 0, "对方无炮时应有防空加分")
     }
 
