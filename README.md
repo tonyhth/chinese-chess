@@ -2,7 +2,7 @@
 
 macOS / iOS 原生中国象棋应用，Swift + SwiftUI 实现，支持人机对战、棋局分析、开局浏览、题库训练与大师对局研习。
 
-当前版本：**v5.1.0**
+当前版本：**v6.3.3**（稳定版，v6.4 开发中）
 
 ![应用截图](docs/assets/app-screenshot.png)
 
@@ -37,27 +37,27 @@ xcodebuild -target ChineseChess -configuration Debug build
 # Release 构建
 xcodebuild -target ChineseChess -configuration Release build
 
-# 打包 .app（输出到 releases/）
+# 打包 .app（产物归档于 releases/）
 ./scripts/build-release.sh
 ```
 
 > ⚠️ 本项目**不再使用 SPM**（`Package.swift` 已废弃删除），请勿使用 `swift build` / `swift test`。
+> ⚠️ 打包产物输出到 `releases/`，永不输出到桌面。
 
 ## 测试
 
 ```bash
-# 标准测试（必须跳过 EloBaselineTests，否则 Intel Mac 必定超时）
-xcodebuild test -skip-testing:EloBaselineTests
+# 统一入口：一切测试批经 runner 通道（H-1 互斥 + 语言锁 + 预检全套）
+bash scripts/run-tests-mutex.sh <Suite1> [Suite2 ...]
 
-# 专项测试
-xcodebuild test -only-testing:<TestClassName>
-
-# 分批测试脚本（推荐）
-./scripts/test-runner.sh
-./scripts/test-batch.sh
+# skip 名单单源：docs/test/skip-registry.md（runner --full 自动消费，套件级 skip）
+# 修复落地同 commit 更新该表；禁止命令行手抄 skip 清单
 ```
 
-> ⚠️ **铁律**：禁止不带过滤参数的全量 `xcodebuild test`。`EloBaselineTests` 是自对弈 5 局 × 30+ 分钟，会锁死构建目录。
+> ⚠️ **铁律**：
+> - 禁止裸 `xcodebuild test` 起跑——会被哨兵 RunnerHygieneTests 判红；一切测试批经 `run-tests-mutex.sh`。
+> - 禁止不带过滤参数的全量 `xcodebuild test`。`EloBaselineTests` 是自对弈 5 局 × 30+ 分钟，会锁死构建目录。
+> - 跨进程语言态污染：通过 runner 的 `AppleLanguages=(zh-Hans)` 注入与批后恢复规避；详见 `scripts/run-tests-mutex.sh` 头部说明。
 
 ## 架构
 
@@ -98,7 +98,7 @@ AI                  — EngineRouter 统一调度
 ├── tools/                     # 开局库构建等数据管线脚本
 ├── scripts/                   # 构建/打包/测试/交付脚本
 ├── docs/                      # 设计文档、审计、调研、归档
-├── releases/                  # 历史版本 .app 归档
+├── releases/                  # 历史版本 .app 归档（产物归档于 releases/）
 ├── project.yml                # XcodeGen 工程定义
 └── DEVTEAM.md                 # 开发规范（构建/测试/打包/版本管理铁律）
 ```
