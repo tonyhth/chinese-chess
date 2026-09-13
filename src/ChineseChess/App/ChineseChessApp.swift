@@ -298,11 +298,17 @@ struct ChineseChessApp: App {
                     .padding(.horizontal, LayoutSpec.space3)
                     .padding(.vertical, LayoutSpec.space3)
                     .background(
-                        // v6.4 C0：状态机输入通道 = background GeometryReader + onChange
+                        // v6.4 C0/C2：状态机输入通道 = background GeometryReader + onChange
                         // （Ruby R2 约束：禁用 onGeometryChange，部署目标 macOS 14 不达）
+                        // C2 健壮化：onAppear 也 emit 一行（初始 width + rail 真实态），
+                        // 无外部 resize 也能见至少 1 行，便于 Tina 判 harness 通断
                         GeometryReader { geo in
                             Color.clear
-                                .onAppear { railState.update(width: geo.size.width) }
+                                .onAppear {
+                                    railState.update(width: geo.size.width)
+                                    LayoutDump.sample(page: "P1", width: geo.size.width,
+                                      params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                                }
                                 .onChange(of: geo.size.width) { _, w in
                                     railState.update(width: w)
                                     LayoutDump.sample(page: "P1", width: w,
@@ -592,6 +598,20 @@ struct ChineseChessApp: App {
                     // 若沿 sheet 默认尺寸则 1920 档 sheet 内容仍窄、宽度采样失真（v1 误收根因之一）
                     .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1920,
                            minHeight: 700, idealHeight: 900)
+                    // C2 harness 健壮化：sheet attach 补一行 "ready @WxH"（mode+宽高真值），
+                    // 即便外部无 resize 也至少给 Tina 一行可判 harness 通断
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear.onAppear {
+                                let h = Int(geo.size.height)
+                                let w = Int(geo.size.width)
+                                LayoutDump.sample(
+                                    page: mode == "master" ? "P3" : "P4",
+                                    width: geo.size.width,
+                                    params: ["ready": "\(w)x\(h)", "h": String(h)])
+                            }
+                        }
+                    )
                 #endif
 
                 case .tutorial:

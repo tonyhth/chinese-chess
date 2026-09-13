@@ -1427,9 +1427,15 @@ struct MasterGameBrowserView: View {
         .frame(minWidth: LayoutSpec.compactWindowMin, minHeight: 600)
         .background(
             // v6.4 C0/C2：状态机输入通道 = background GeometryReader + onChange（Ruby R2 约束）
+            // C2 健壮化：onAppear 也 emit 一行（初始 width + rail 真实态），
+            // 与 P1 同口径；无外部 resize 也能见至少 1 行
             GeometryReader { geo in
                 Color.clear
-                    .onAppear { railState.update(width: geo.size.width) }
+                    .onAppear {
+                        railState.update(width: geo.size.width)
+                        LayoutDump.sample(page: "P3", width: geo.size.width,
+                          params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                    }
                     .onChange(of: geo.size.width) { _, w in
                         railState.update(width: w)
                         LayoutDump.sample(page: "P3", width: w,

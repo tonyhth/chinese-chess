@@ -69,15 +69,16 @@ struct GameRailView: View {
                 }
             }
 
-            // 引擎状态（第四面板：真实状态行，Ruby P1 清偿——去伪状态）
+            // 引擎状态（第四面板：真实状态行，Ruby P1/P2 清偿——去伪状态）
             RailPanel(title: l10n.t("p1.rail.engine"), collapsed: $engineCollapsed) {
                 VStack(spacing: 2) {
                     #if os(macOS)
-                    // 引擎：按难度路由实时展示（E5 语义，真实值非静态）
-                    statusRow(ok: true, label: l10n.t("p1.rail.engine"),
-                              value: viewModel.difficulty.isProfessional
-                                  ? l10n.t("p1.rail.enginePikafish")
-                                  : l10n.t("engine.builtIn"))
+                    // 引擎路由行：按难度实时真值，业余=自研恒可用，专业=Pikafish 可用性
+                    // 跟随难度变化重校验（Ruby P1 补：会话内可变输入需 .task(id:) 反应，
+                    // 与 NNUE 资产静态校验不同；mount 时一次性 .task 会令 amateur↔pro 切换时
+                    // 灯与文案滞留在旧态，红点语义失真）。
+                    statusRow(ok: engineCheck.ok, label: l10n.t("p1.rail.engine"),
+                              value: engineCheck.text(pro: viewModel.difficulty.isProfessional))
                     // NNUE：接真实校验（EmbeddedPikafishEngine.verifyNNUEAsset，sha256 快路径缓存）
                     // 异步查（首次全量哈希 ~0.3-1s 不卡 UI），结果落地前中性"校验中…"灰点，不假绿
                     statusRow(ok: nnueCheck.ok, label: "NNUE",
@@ -89,7 +90,45 @@ struct GameRailView: View {
         .padding(.vertical, LayoutSpec.space2)
         .frame(width: LayoutSpec.p1RailWidth)
         .frame(maxHeight: .infinity, alignment: .top)
-        .task { await refreshNNUECheck() }
+        // Ruby P1：难度是会话内可变输入（newGame 段位推荐 / setDifficulty / DailyChallengeView 直改），
+        // 用 .task(id:) 在 mount 与难度变化时都重校验；非 .task 单次挂载。
+        // EngineCheckState 永不回退到 pending（refreshEngineCheck 不重置），保持已有 ok/degraded 终态显示。
+        .task(id: viewModel.difficulty) {
+            await refreshEngineCheck()
+            await refreshNNUECheck()
+        }
+    }
+
+    // MARK: - 引擎路由真实状态（Ruby P1 补：随难度刷新）
+
+    private enum EngineCheckState {
+        case pending
+        case ok        // 路由目标就绪（业余=自研 / 专业=Pikafish）
+        case degraded  // 专业级 Pikafish 未就绪，降级自研
+
+        var ok: Bool? {
+            switch self { case .pending: nil; case .ok: true; case .degraded: false }
+        }
+
+        func text(pro: Bool) -> String {
+            switch self {
+            case .pending: L10n.shared.t("p1.rail.nnueChecking")  // 复用"校验中…"中性文案
+            case .ok: pro ? L10n.shared.t("p1.rail.enginePikafish")
+                          : L10n.shared.t("engine.builtIn")
+            case .degraded: L10n.shared.t("engine.builtIn")
+            }
+        }
+    }
+
+    @State private var engineCheck: EngineCheckState = .pending
+
+    private func refreshEngineCheck() async {
+        // 三态不回退：不重置 pending（已有 ok/degraded 终态保持显示，
+        // 仅在新一次校验完成时覆写），因此 onAppear 与难度切换都不会闪灰。
+        switch await EngineRouter.shared.validateEngineAvailability(for: viewModel.difficulty) {
+        case .available: engineCheck = .ok
+        case .unavailable: engineCheck = .degraded
+        }
     }
 
     // MARK: - NNUE 真实校验状态（Ruby P1：伪状态面板清偿）
