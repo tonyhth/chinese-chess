@@ -68,18 +68,24 @@ func evaluatePopulationParallel() async {
 - 10个体并行 → 5-8分钟/代
 - 30代 → 2.5-4小时（提速 8-10倍）
 
-### 状态
+### 状态（2026-09-13 对账更新：修复已落地，Ruby/Tina 交叉结论）
 
 - [x] 问题识别
-- [ ] 等当前进程跑完验证单线程结果
-- [ ] 重构 SelfPlayRunner
-- [ ] 重构 CMAESOptimizer.evaluatePopulation()
-- [ ] 并行测试验证
-- [ ] 更新 CLI 参数（可选：支持 `--parallel`）
+- [x] ~~等当前进程跑完验证单线程结果~~（2026-06 运行中进程早已结束，事项失效）
+- [x] 重构 SelfPlayRunner
+- [x] 重构 CMAESOptimizer.evaluatePopulation()
+- [x] 并行测试验证（Batch1P0CMAESTests/CMAESWeightInjectionTests 固化注入→使用→恢复语义；并行一致性由注入闭竞争面收敛，无专项对照用例）
+- [x] 更新 CLI 参数（可选：支持 `--parallel`）→ 不再适用：TaskGroup 并行已是 evaluatePopulation 唯一路径，开关无必要（CLI 入口 runCMAESFromCLI 无开关，CMAESOptimizer.swift:462）
+
+### 修复证据（2026-09-13 台账对账补登，commit d2ac85e）
+
+- `src/ChineseChess/AI/SelfPlayRunner.swift:95-97` — `init(weights:)` 权重注入构造器（独立引擎实例）
+- `src/ChineseChess/AI/AIEngine.swift:46-49` — `init(weights:)` 独立实例构造器（CMA-ES 并行评估专用，不读全局单例）
+- `src/ChineseChess/AI/CMAESOptimizer.swift:302-341` — `evaluatePopulation()` TaskGroup 并行（动态调度，并发度 = CPU 核数）
+- `src/ChineseChess/AI/CMAESOptimizer.swift:345-367` — `evaluateFitness(weights:)` 每个体独立 `SelfPlayRunner(weights:)`
 
 ### 备注
 
-- 当前 CMA-ES 进程 PID 83785，已运行 ~12小时，预计还需 ~12小时
 - 单线程结果可作为基线对照
 - 并行化后需验证结果一致性（权重参数注入不能影响评估准确性）
 
@@ -138,18 +144,25 @@ func withTimeout<T>(seconds: Int, operation: @escaping () async throws -> T) asy
 }
 ```
 
-### 状态
+### 状态（2026-09-13 对账更新：问题已消，条目转备档）
 
 - [x] 问题识别
-- [ ] 记录到 tech-debt.md
-- [ ] 重构 UCITransceiver.waitForBestMove
-- [ ] 重构 UCITransceiver.waitForToken
-- [ ] 验证超时机制生效
+- [x] 记录到 tech-debt.md
+- [x] 重构 UCITransceiver.waitForBestMove → 以文件退场方式消解（见对账结论）
+- [x] 重构 UCITransceiver.waitForToken → 同上
+- [x] 验证超时机制生效（迁移后机制：EmbeddedPikafishEngine.withWatchdog）
 
-### 备注
+### 对账结论（2026-09-13）
 
-- 当前临时方案：跳过真实引擎测试（`--skip Phase2bUCITests`）
-- 长期必须修复，否则外部引擎功能不可靠
+问题已消，非原地修复：
+
+- `UCITransceiver.swift` 已于 commit d2ac85e 随 7 个 legacy 外置引擎源文件一并删除（外置 UCI 引擎链路整体退场）
+- 超时机制迁移至 `EmbeddedPikafishEngine.withWatchdog`（`src/ChineseChess/AI/EmbeddedPikafishEngine.swift:71-89`）：ResumeOnce 守卫 + 双 `Task.detached` 竞速（工作体 vs sleep 超时），等待有界——旧"continuation 永不 resume → 永久阻塞"形态不复存在
+
+### 备档声明
+
+- **Task.cancel 不响应 withCheckedContinuation 阻塞中的 Task，属 Swift 语言限制**（非本项目缺陷）。withWatchdog 以竞速超时绕开该限制；若未来重启外置引擎链路，须沿用同模式，勿回到无界 continuation 等待
+- 原备注"当前临时方案：跳过真实引擎测试（`--skip Phase2bUCITests`）"为陈旧引用，2026-09-13 清除：Phase2bUCITests 已随 d2ac85e 删除（4 个 legacy 测试文件之一），当前代码库无此 suite（grep 全 src/ 无匹配），skip-registry（docs/test/skip-registry.md）逐行核对亦无此登记，无需补登
 
 ---
 
