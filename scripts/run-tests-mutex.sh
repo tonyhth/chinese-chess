@@ -23,6 +23,10 @@
 
 set -uo pipefail
 
+# PATH 健壮化（v6.4 P1④，Tina 09 实证）：flock 装在 /usr/local/bin（Intel Homebrew），
+# 非交互 shell 默认 PATH 不含 → 首跑抢锁 4h 超时。前置补全两处 Homebrew bin。
+export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+
 PROJECT=~/DevTeam/projects/chinese-chess
 LOCK_DIR=~/DevTeam/.locks
 LOCK_FILE="$LOCK_DIR/xcode-tests.lock"
