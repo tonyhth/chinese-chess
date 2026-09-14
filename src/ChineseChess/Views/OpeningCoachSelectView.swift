@@ -4,7 +4,7 @@ import SwiftUI
 
 /// 开局教练 — 开局选择视图
 ///
-/// macOS: 左侧分类列表 + 右侧开局线路列表
+/// macOS: v6.4 C3-3 sidebar 统一语言（CategorySidebarView，HSplitView 退役）
 /// iOS: 折叠式列表
 struct OpeningCoachSelectView: View {
     @State private var selectedCategory: OpeningCategory? = OpeningCategories.categories.first { !$0.subcategories.isEmpty }
@@ -14,6 +14,8 @@ struct OpeningCoachSelectView: View {
     @State private var showNoCoachToast: Bool = false
     /// 导航到教练对弈视图
     @State private var navigateToGame: Bool = false
+    /// v6.4 C3-3: sidebar 搜索（过滤右侧线路列表）
+    @State private var searchText = ""
 
     private let practiceStore = OpeningPracticeStore.shared
     private let l10n = L10n.shared
@@ -26,19 +28,17 @@ struct OpeningCoachSelectView: View {
         #endif
     }
 
-    // MARK: - macOS Layout
+    // MARK: - macOS Layout（v6.4 C3-3：HSplitView 退役，统一 sidebar 语言）
     #if os(macOS)
     private var macOSLayout: some View {
-        HSplitView {
-            // 左侧分类列表
-            List(OpeningCategories.categories, selection: $selectedCategory) { category in
-                categoryRow(category)
-                    .tag(category)
-            }
-            .frame(minWidth: 160, idealWidth: 200)
-            .listStyle(.sidebar)
-
-            // 右侧线路列表 + 设置
+        CategorySidebarView(
+            categories: sidebarItems,
+            isSelected: { $0.id == selectedCategory?.id },
+            onSelect: { selectCategory($0) },
+            searchPlaceholder: l10n.t("coach.sidebar.searchHint"),
+            searchText: $searchText,
+            page: "P7"
+        ) {
             VStack(spacing: 0) {
                 if let category = selectedCategory {
                     subcategoryList(category: category)
@@ -65,6 +65,20 @@ struct OpeningCoachSelectView: View {
                 onBack: { navigateToGame = false }
             )
         }
+    }
+
+    // sidebar 数据：分类 flat 列表（P7 原型无组头），badge = 线路数（三页统一计数语言）
+    private var sidebarItems: [SidebarItem] {
+        OpeningCategories.categories.map { category in
+            SidebarItem(id: category.id, title: category.name,
+                        badge: String(category.subcategories.count))
+        }
+    }
+
+    private func selectCategory(_ item: SidebarItem) {
+        // 切分类清线路选择（对齐旧 List selection 行为）
+        selectedSubcategory = nil
+        selectedCategory = OpeningCategories.categories.first { $0.id == item.id }
     }
     #endif
 
@@ -113,27 +127,7 @@ struct OpeningCoachSelectView: View {
         }
     }
 
-    // MARK: - 分类行
-
-    @ViewBuilder
-    private func categoryRow(_ category: OpeningCategory) -> some View {
-        HStack {
-            Text(category.name)
-            if category.subcategories.isEmpty {
-                Spacer()
-                Text(l10n.t("coach.select.noCoach"))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else if let record = practiceTotalRecord(for: category), record.totalSessions > 0 {
-                Spacer()
-                Text("✅\(Int(record.bestAccuracy * 100))%")
-                    .font(.caption)
-                    .foregroundColor(.green)
-            }
-        }
-    }
-
-    // MARK: - 线路列表
+    // MARK: - 线路列表（含 sidebar 搜索过滤）
 
     @ViewBuilder
     private func subcategoryList(category: OpeningCategory) -> some View {
@@ -147,11 +141,27 @@ struct OpeningCoachSelectView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            List(category.subcategories, selection: $selectedSubcategory) { sub in
-                subcategoryRow(sub)
-                    .tag(sub)
+            // v6.4 C3-3: sidebar 搜索框过滤线路名（不区分大小写，含子串）
+            let keyword = searchText.trimmingCharacters(in: .whitespaces)
+            let filtered = keyword.isEmpty
+                ? category.subcategories
+                : category.subcategories.filter { $0.name.localizedCaseInsensitiveContains(keyword) }
+            if filtered.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                    Text(l10n.t("coach.sidebar.noMatch"))
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List(filtered, selection: $selectedSubcategory) { sub in
+                    subcategoryRow(sub)
+                        .tag(sub)
+                }
+                .listStyle(.inset)
             }
-            .listStyle(.inset)
         }
     }
 

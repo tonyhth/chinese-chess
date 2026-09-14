@@ -7,8 +7,11 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // v6.4 C0：截图 harness 骨架——LAYOUT_WIDTH 启动参数钉窗口宽（五档锚图 900/1000/1080/1280/1920）
         // 与 LAYOUT_DUMP 对偶：harness 设宽 → 采样流断言。仅 macOS，产品路径不受影响。
+        // v6.4 C3-3：env 优先、文件桥兜底（open -a 通道 env 丢失；桥= /tmp/v64c2-layout-harness.json）
         #if DEBUG
-        if let wStr = ProcessInfo.processInfo.environment["LAYOUT_WIDTH"], let w = Double(wStr), w >= 900 {
+        let bridge = LayoutDump.bridgeParams
+        let widthStr = ProcessInfo.processInfo.environment["LAYOUT_WIDTH"] ?? bridge?["width"]
+        if let wStr = widthStr, let w = Double(wStr), w >= 900 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 for window in NSApplication.shared.windows where window.identifier?.rawValue != "ABPOverlay" {
                     var frame = window.frame
@@ -216,6 +219,11 @@ struct ChineseChessApp: App {
     // v6.4 C0：对局页右通栏自适应状态机（迟滞 <1000 收 / >1080 展）
     @State private var railState = AdaptiveRailState()
 
+    #if DEBUG
+    /// v6.4 C3-3：harness sheet 挂载确认（sheet 内容 onAppear 置位；失挂重试用）
+    @State private var harnessSheetShown = false
+    #endif
+
     @Environment(\.scenePhase) private var scenePhase
 
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
@@ -398,11 +406,28 @@ struct ChineseChessApp: App {
             // v6.4 C2：harness 入口——LAYOUT_PLAY=master/puzzle 直达 P3/P4
             // （master→MasterGameBrowserView 自带 onAppear 钩子进播放态；puzzle→PuzzleDemoView 演示态）
             // v6.4 C3：扩 p13 → PuzzleSelectView（无章节，全部残局）锚图采集
+            // v6.4 C3-3：扩 p7 → OpeningCoachSelectView；env 优先、文件桥兜底（open -a 通道 env 丢失）
             .onAppear {
                 #if DEBUG
-                if let play = ProcessInfo.processInfo.environment["LAYOUT_PLAY"],
-                   ["master", "puzzle", "p13"].contains(play), activeSheet == nil {
+                let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
+                let bridgePlay = LayoutDump.bridgeParams?["play"]
+                if let play = envPlay ?? bridgePlay,
+                   ["master", "puzzle", "p13", "p7"].contains(play), activeSheet == nil {
                     activeSheet = .harnessPlay(play)
+                    // v6.4 C3-3 竞态加固：启动期 sheet 挂载有实测概率被窗口初始化吞掉
+                    // （2026-09-14 A/B 六连跑 4 成 2 败，同二进制同 env）。
+                    // 加固策略：sheet 内容 onAppear 置 harnessSheetShown；未置位则 nil→set
+                    // 强制重呈现，最多 3 次。仅 harness 会话生效，产品路径零影响。
+                    Task { @MainActor in
+                        for attempt in 0..<3 {
+                            try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 + attempt * 500_000_000))
+                            guard !Task.isCancelled, !harnessSheetShown else { return }
+                            activeSheet = nil
+                            try? await Task.sleep(nanoseconds: 200_000_000)
+                            guard !Task.isCancelled, !harnessSheetShown else { return }
+                            activeSheet = .harnessPlay(play)
+                        }
+                    }
                 }
                 #endif
             }
@@ -594,9 +619,16 @@ struct ChineseChessApp: App {
                         } else if mode == "p13" {
                             // v6.4 C3：P13 残局列表锚图采集（无章节 = 全部残局池）
                             NavigationStack { PuzzleSelectView() }
+                        } else if mode == "p7" {
+                            // v6.4 C3-3：P7 开局教练选择锚图采集
+                            NavigationStack { OpeningCoachSelectView() }
                         } else {
                             NavigationStack { PuzzleDemoView() }
                         }
+                    }
+                    .onAppear {
+                        // v6.4 C3-3：挂载确认——重试 Task 见此置位即停
+                        harnessSheetShown = true
                     }
                     // v6.4 C2：harness sheet 须全宽——迟滞状态机测的是 sheet 宽（harness 钉的 LAYOUT_WIDTH），
                     // 若沿 sheet 默认尺寸则 1920 档 sheet 内容仍窄、宽度采样失真（v1 误收根因之一）
@@ -610,7 +642,7 @@ struct ChineseChessApp: App {
                                 let h = Int(geo.size.height)
                                 let w = Int(geo.size.width)
                                 LayoutDump.sample(
-                                    page: ["master": "P3", "p13": "P13"][mode] ?? "P4",
+                                    page: ["master": "P3", "p13": "P13", "p7": "P7"][mode] ?? "P4",
                                     width: geo.size.width,
                                     params: ["ready": "\(w)x\(h)", "h": String(h)])
                             }

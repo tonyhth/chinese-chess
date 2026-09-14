@@ -3762,6 +3762,38 @@
         }
       }
     },
+    "coach.sidebar.searchHint": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜开局…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search openings…"
+          }
+        }
+      }
+    },
+    "coach.sidebar.noMatch": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到匹配的开局"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching opening"
+          }
+        }
+      }
+    },
     "coach.title": {
       "localizations": {
         "en": {
