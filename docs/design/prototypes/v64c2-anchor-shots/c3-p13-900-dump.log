@@ -1,0 +1,8 @@
+LAYOUT_DUMP {"page":"P1","rail":"expanded","width":"1280"}
+LAYOUT_DUMP {"page":"P1","rail":"expanded","width":"1440"}
+LAYOUT_DUMP {"page":"P13","part":"sidebar","width":"320"}
+LAYOUT_DUMP {"page":"P13","part":"sidebar","width":"320"}
+LAYOUT_DUMP {"h":"700","page":"P13","ready":"900x700","width":"900"}
+LAYOUT_DUMP {"page":"P13","sel":"全部","sidebar":"shown","width":"900"}
+LAYOUT_DUMP {"page":"P1","rail":"collapsed","width":"900"}
+2026-09-14 16:08:35.313 ChineseChess[92365:1433697] [Pikafish] pikafish_init() success, version: unknown
