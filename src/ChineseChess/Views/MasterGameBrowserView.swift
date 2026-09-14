@@ -167,13 +167,22 @@ struct MasterGameBrowserView: View {
 
     private var browserLayout: some View {
         #if os(macOS)
-        VStack(spacing: 0) {
-            browserTopBar
-            if !isSearching && masterStore.isLoaded && browseMode == .opening {
-                categoryFilterBar
+        // v6.4 C3-4：sidebar 化（治横滚）——categoryFilterBar/subcategoryFilterBar 两处
+        // 横滚条退役，分类/子分类/棋手/赛事筛选全部上 sidebar（三页统一语言）。
+        // 搜索框置顶 sidebar（CategorySidebarView 原生位）；mode Picker 留 detail 顶栏。
+        CategorySidebarView(
+            categories: sidebarItems,
+            isSelected: { isSidebarSelected($0) },
+            onSelect: { applySidebarSelection($0) },
+            searchPlaceholder: L10n.shared.t("master.search.placeholder"),
+            searchText: $searchText,
+            page: "P2"
+        ) {
+            VStack(spacing: 0) {
+                browserTopBar
+                Divider()
+                listContent
             }
-            Divider()
-            listContent
         }
         .frame(minWidth: 600, minHeight: 700)
         .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
@@ -211,6 +220,149 @@ struct MasterGameBrowserView: View {
         #endif
     }
 
+    // MARK: - v6.4 C3-4 sidebar 数据（三 mode 映射 + 分段加载承接）
+
+    #if os(macOS)
+    /// sidebar 数据源：按 browseMode 动态生成。
+    /// - opening: 一级分类（badge=对局数）；选中带子分类的分类后追加子分类 section（含"全部"）
+    /// - player/event: 棋手/赛事列表（badge=对局数，前 categoryDisplayCount 项 + "加载更多"承接分段）
+    private var sidebarItems: [SidebarItem] {
+        var items: [SidebarItem] = []
+        switch browseMode {
+        case .opening:
+            let section = L10n.shared.t("master.mode.opening")
+            let available = OpeningCategories.categories.filter { opening in
+                opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
+            }
+            for opening in available {
+                items.append(SidebarItem(id: "open:\(opening.id)", title: opening.name,
+                                         badge: String(masterStore.gameCount(for: opening)),
+                                         section: section))
+            }
+            // 选中分类带子分类 → 追加子分类 section（横滚② subcategoryFilterBar 退役承接）
+            if let sel = selectedOpening, !sel.subcategories.isEmpty {
+                let subSection = sel.name
+                items.append(SidebarItem(id: "sub:all", title: L10n.shared.t("puzzle.all"),
+                                         badge: String(masterStore.gameCount(for: sel)),
+                                         section: subSection))
+                for sub in sel.subcategories {
+                    items.append(SidebarItem(id: "sub:\(sub.id)", title: sub.name,
+                                             badge: String(masterStore.gameCount(for: sub)),
+                                             section: subSection))
+                }
+            }
+        case .player:
+            let section = L10n.shared.t("master.mode.player")
+            if let players = masterStore.stats?.players {
+                let sorted = players.sorted { $0.count > $1.count }
+                let visible = Array(sorted.prefix(categoryDisplayCount))
+                for p in visible {
+                    items.append(SidebarItem(id: "player:\(p.stableId)", title: p.localizedName,
+                                             badge: String(p.count), section: section))
+                }
+                if visible.count < sorted.count {
+                    // 分段加载承接：伪项，点击扩 categoryDisplayCount
+                    items.append(SidebarItem(
+                        id: "player:more",
+                        title: String(format: L10n.shared.t("master.loadMorePlayers"), visible.count, sorted.count),
+                        badge: nil, section: section))
+                }
+            }
+        case .event:
+            let section = L10n.shared.t("master.mode.event")
+            if let events = masterStore.stats?.events {
+                let sorted = events.sorted { $0.count > $1.count }
+                let visible = Array(sorted.prefix(categoryDisplayCount))
+                for e in visible {
+                    items.append(SidebarItem(id: "event:\(e.stableId)", title: e.localizedName,
+                                             badge: String(e.count), section: section))
+                }
+                if visible.count < sorted.count {
+                    items.append(SidebarItem(
+                        id: "event:more",
+                        title: String(format: L10n.shared.t("master.loadMoreEvents"), visible.count, sorted.count),
+                        badge: nil, section: section))
+                }
+            }
+        }
+        return items
+    }
+
+    private func isSidebarSelected(_ item: SidebarItem) -> Bool {
+        switch (browseMode, item.id) {
+        case (.opening, "sub:all"):
+            return selectedOpening != nil && selectedSubcategory == nil
+        case (.opening, let id) where id.hasPrefix("open:"):
+            return selectedOpening?.id == String(id.dropFirst(5))
+        case (.opening, let id) where id.hasPrefix("sub:"):
+            return selectedSubcategory?.id == String(id.dropFirst(4))
+        case (.player, let id) where id.hasPrefix("player:"):
+            return selectedPlayer?.stableId == String(id.dropFirst(7))
+        case (.event, let id) where id.hasPrefix("event:"):
+            return selectedEvent?.stableId == String(id.dropFirst(6))
+        default:
+            return false
+        }
+    }
+
+    private func applySidebarSelection(_ item: SidebarItem) {
+        switch (browseMode, item.id) {
+        case (.opening, "sub:all"):
+            selectedSubcategory = nil
+            currentPage = 1
+            rebuildCache()
+        case (.opening, "player:more"), (.opening, "event:more"),
+             (.player, "player:more"), (.event, "event:more"):
+            break  // 占位（不会到达，见下方统一处理）
+        case (.opening, let id) where id.hasPrefix("open:"):
+            let cat = OpeningCategories.categories.first { $0.id == String(id.dropFirst(5)) }
+            guard let cat else { return }
+            if viewModel != nil { cleanupViewModel() }
+            selectedOpening = cat
+            selectedSubcategory = nil
+            selectedPlayer = nil
+            selectedEvent = nil
+            currentPage = 1
+            rebuildCache()
+        case (.opening, let id) where id.hasPrefix("sub:"):
+            let sub = selectedOpening?.subcategories.first { $0.id == String(id.dropFirst(4)) }
+            guard let sub else { return }
+            if viewModel != nil { cleanupViewModel() }
+            selectedSubcategory = sub
+            selectedPlayer = nil
+            selectedEvent = nil
+            currentPage = 1
+            rebuildCache()
+        case (.player, "player:more"):
+            categoryDisplayCount += categoryPageSize
+        case (.player, let id) where id.hasPrefix("player:"):
+            let players = masterStore.stats?.players ?? []
+            guard let p = players.first(where: { $0.stableId == String(id.dropFirst(7)) }) else { return }
+            if viewModel != nil { cleanupViewModel() }
+            selectedPlayer = p
+            selectedOpening = nil
+            selectedSubcategory = nil
+            selectedEvent = nil
+            currentPage = 1
+            rebuildCache()
+        case (.event, "event:more"):
+            categoryDisplayCount += categoryPageSize
+        case (.event, let id) where id.hasPrefix("event:"):
+            let events = masterStore.stats?.events ?? []
+            guard let e = events.first(where: { $0.stableId == String(id.dropFirst(6)) }) else { return }
+            if viewModel != nil { cleanupViewModel() }
+            selectedEvent = e
+            selectedOpening = nil
+            selectedSubcategory = nil
+            selectedPlayer = nil
+            currentPage = 1
+            rebuildCache()
+        default:
+            break
+        }
+    }
+    #endif
+
     // MARK: - 模式 Picker
 
     private var modePicker: some View {
@@ -229,186 +381,24 @@ struct MasterGameBrowserView: View {
     // MARK: - macOS 顶部工具栏
 
     #if os(macOS)
-    /// modePicker + searchField 水平排列
+    /// v6.4 C3-4：mode Picker 独占（搜索框已上 sidebar，CategorySidebarView 原生位）
     private var browserTopBar: some View {
         HStack(spacing: 8) {
             modePicker
                 .frame(maxWidth: 240)
-            searchField
-                .frame(maxWidth: .infinity)
+            Spacer()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(.bar)
     }
+    #endif
 
-    /// 开局模式一级分类标签栏
-    private var categoryFilterBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(OpeningCategories.categories.filter { opening in
-                    opening.firstMove.isEmpty || masterStore.byOpening(opening.firstMove).count > 0
-                }) { opening in
-                    let isSelected = selectedOpening != nil && selectedOpening == opening
-                    Button(action: {
-                        if viewModel != nil { cleanupViewModel() }
-                        selectedOpening = opening
-                        selectedSubcategory = nil
-                        selectedPlayer = nil
-                        selectedEvent = nil
-                        currentPage = 1
-                        rebuildCache()
-                    }) {
-                        HStack(spacing: 4) {
-                            Text(opening.name)
-                                .font(.subheadline)
-                            Text("\(masterStore.gameCount(for: opening))")
-                                .font(.caption2)
-                                .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.08))
-                        )
-                        .foregroundColor(isSelected ? .white : .primary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-        }
-        .background(Color.secondary.opacity(0.05))
-    }
+    // v6.4 C3-4：categoryFilterBar（横滚①）/ playerListContent / eventListContent 退役——
+    // 筛选全部上 sidebar（sidebarItems/applySidebarSelection 承接，治横滚 + 三页统一语言）
 
-    /// macOS 棋手列表（browserLayout 中显示）
-    private var playerListContent: some View {
-        Group {
-            if let players = masterStore.stats?.players {
-                let sorted = players.sorted { $0.count > $1.count }
-                let visible = Array(sorted.prefix(categoryDisplayCount))
-                List {
-                    ForEach(visible, id: \.stableId) { player in
-                        Button(action: {
-                            selectedPlayer = player
-                            selectedOpening = nil
-                            selectedSubcategory = nil
-                            selectedEvent = nil
-                            currentPage = 1
-                            rebuildCache()
-                        }) {
-                            HStack {
-                                Image(systemName: "person.fill")
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 20)
-                                Text(player.localizedName)
-                                    .font(.body)
-                                Spacer()
-                                Text("\(player.count)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.secondary.opacity(0.12))
-                                    .clipShape(Capsule())
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    if visible.count < sorted.count {
-                        HStack {
-                            Spacer()
-                            Button(String(format: L10n.shared.t("master.loadMorePlayers"), visible.count, sorted.count)) {
-                                categoryDisplayCount += categoryPageSize
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(.brown)
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                    }
-                }
-            } else {
-                Text(L10n.shared.t("master.statsUnavailable"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-    }
-
-    /// macOS 赛事列表（browserLayout 中显示）
-    private var eventListContent: some View {
-        Group {
-            if let events = masterStore.stats?.events {
-                let sorted = events.sorted { $0.count > $1.count }
-                let visible = Array(sorted.prefix(categoryDisplayCount))
-                List {
-                    ForEach(visible, id: \.stableId) { event in
-                        Button(action: {
-                            selectedEvent = event
-                            selectedOpening = nil
-                            selectedSubcategory = nil
-                            selectedPlayer = nil
-                            currentPage = 1
-                            rebuildCache()
-                        }) {
-                            HStack {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 20)
-                                Text(event.localizedName)
-                                    .font(.body)
-                                if let year = event.year {
-                                    Text("\(year)")
-                                        .font(.caption)
-                                        .foregroundStyle(.tertiary)
-                                }
-                                Spacer()
-                                Text("\(event.count)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.secondary.opacity(0.12))
-                                    .clipShape(Capsule())
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    if visible.count < sorted.count {
-                        HStack {
-                            Spacer()
-                            Button(String(format: L10n.shared.t("master.loadMoreEvents"), visible.count, sorted.count)) {
-                                categoryDisplayCount += categoryPageSize
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(.brown)
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                    }
-                }
-            } else {
-                Text(L10n.shared.t("master.statsUnavailable"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-    }
-
-    /// macOS 搜索结果列表（browserLayout 中显示）
+    /// macOS 搜索结果列表（detail 区呈现；搜索框在 sidebar 顶）
+    #if os(macOS)
     private var searchResultListContent: some View {
         List {
             if searchResults.isEmpty {
@@ -448,10 +438,12 @@ struct MasterGameBrowserView: View {
             }
         }
     }
+    #endif
 
     // MARK: - 搜索 UI 组件
 
-    /// macOS/iOS 共用搜索框
+    /// macOS 搜索框（v6.4 C3-4：主位在 sidebar 顶，此组件供 detail 备用位）
+    #if os(macOS)
     private var searchField: some View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
@@ -938,71 +930,12 @@ struct MasterGameBrowserView: View {
 
     // MARK: - 列表内容
 
-    /// 开局子分类过滤栏（macOS，显示在 gameListContent 顶部）
-    #if os(macOS)
-    private func subcategoryFilterBar(_ opening: OpeningCategory) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                // "全部"选项
-                Button(action: {
-                    selectedSubcategory = nil
-                    currentPage = 1
-                    rebuildCache()
-                }) {
-                    Text(L10n.shared.t("puzzle.all"))
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(selectedSubcategory == nil ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.08))
-                        )
-                        .foregroundColor(selectedSubcategory == nil ? .accentColor : .primary)
-                }
-                .buttonStyle(.plain)
-
-                ForEach(opening.subcategories) { sub in
-                    let isSelected = selectedSubcategory == sub
-                    Button(action: {
-                        selectedSubcategory = sub
-                        currentPage = 1
-                        rebuildCache()
-                    }) {
-                        HStack(spacing: 3) {
-                            Text(sub.name)
-                                .font(.caption)
-                            Text("\(masterStore.gameCount(for: sub))")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 5)
-                                .fill(isSelected ? Color.accentColor.opacity(0.2) : Color.secondary.opacity(0.08))
-                        )
-                        .foregroundColor(isSelected ? .accentColor : .primary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
-        }
-        .background(Color.secondary.opacity(0.05))
-    }
-    #endif
+    // v6.4 C3-4：subcategoryFilterBar（横滚②）退役——子分类筛选上 sidebar
+    // （sidebarItems 选中带子分类的分类后追加子分类 section）
 
     /// 对局列表（选中分类/棋手/赛事后显示）
     private var gameListContent: some View {
         Group {
-            // 开局模式：有子分类时显示子分类过滤栏
-            #if os(macOS)
-            if browseMode == .opening, let opening = selectedOpening, !opening.subcategories.isEmpty {
-                subcategoryFilterBar(opening)
-            }
-            #endif
-
             if cachedItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
@@ -1056,44 +989,10 @@ struct MasterGameBrowserView: View {
     private var listContent: some View {
         Group {
             #if os(macOS)
-            // 搜索模式
+            // v6.4 C3-4：筛选已上 sidebar，detail 只呈现对局列表/搜索结果/空态
             if isSearching {
                 searchResultListContent
-            } else if masterStore.isLoaded {
-                switch browseMode {
-                case .opening:
-                    // 开局模式：选中分类后显示对局列表
-                    if selectedOpening == nil && selectedSubcategory == nil {
-                        // 未选分类 → 提示选择
-                        VStack(spacing: 12) {
-                            Image(systemName: "rectangle.grid.2x2")
-                                .font(.system(size: 40))
-                                .foregroundStyle(.secondary)
-                            Text(L10n.shared.t("demo.selectCategory"))
-                                .font(.title3)
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        gameListContent
-                    }
-                case .player:
-                    // 棋手模式：未选棋手 → 显示棋手列表；已选 → 显示对局
-                    if selectedPlayer == nil {
-                        playerListContent
-                    } else {
-                        gameListContent
-                    }
-                case .event:
-                    // 赛事模式
-                    if selectedEvent == nil {
-                        eventListContent
-                    } else {
-                        gameListContent
-                    }
-                }
-            } else {
-                // 未加载索引
+            } else if !masterStore.isLoaded {
                 VStack(spacing: 12) {
                     Image(systemName: "crown")
                         .font(.system(size: 40))
@@ -1113,6 +1012,18 @@ struct MasterGameBrowserView: View {
                     .padding(.top, 8)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if browseMode == .opening && selectedOpening == nil && selectedSubcategory == nil {
+                VStack(spacing: 12) {
+                    Image(systemName: "rectangle.grid.2x2")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
+                    Text(L10n.shared.t("demo.selectCategory"))
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                gameListContent
             }
             #else
             if !masterStore.isLoaded {
