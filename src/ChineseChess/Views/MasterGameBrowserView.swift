@@ -121,7 +121,11 @@ struct MasterGameBrowserView: View {
         }
         // v6.4 C2：截图 harness 钩子——LAYOUT_PLAY=master 自动进首局播放态
         // （与 LAYOUT_WIDTH 对偶，仅 Debug；列表页需有缓存项才进，无则静默不进）
+        // C3 修正：Release 门补 #if DEBUG——函数体 Debug-only 而 onAppear 无条件引用，
+        // 基线 Release 构建即编译失败（C3 双构建门首次跑暴露的存量缺陷）
+        #if DEBUG
         .onAppear(perform: autoEnterPlayForHarness)
+        #endif
     }
 
     #if DEBUG

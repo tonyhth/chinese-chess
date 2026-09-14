@@ -397,10 +397,11 @@ struct ChineseChessApp: App {
             .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1280, minHeight: 600, idealHeight: 860)
             // v6.4 C2：harness 入口——LAYOUT_PLAY=master/puzzle 直达 P3/P4
             // （master→MasterGameBrowserView 自带 onAppear 钩子进播放态；puzzle→PuzzleDemoView 演示态）
+            // v6.4 C3：扩 p13 → PuzzleSelectView（无章节，全部残局）锚图采集
             .onAppear {
                 #if DEBUG
                 if let play = ProcessInfo.processInfo.environment["LAYOUT_PLAY"],
-                   ["master", "puzzle"].contains(play), activeSheet == nil {
+                   ["master", "puzzle", "p13"].contains(play), activeSheet == nil {
                     activeSheet = .harnessPlay(play)
                 }
                 #endif
@@ -590,6 +591,9 @@ struct ChineseChessApp: App {
                     Group {
                         if mode == "master" {
                             NavigationStack { MasterGameBrowserView() }
+                        } else if mode == "p13" {
+                            // v6.4 C3：P13 残局列表锚图采集（无章节 = 全部残局池）
+                            NavigationStack { PuzzleSelectView() }
                         } else {
                             NavigationStack { PuzzleDemoView() }
                         }
@@ -606,7 +610,7 @@ struct ChineseChessApp: App {
                                 let h = Int(geo.size.height)
                                 let w = Int(geo.size.width)
                                 LayoutDump.sample(
-                                    page: mode == "master" ? "P3" : "P4",
+                                    page: ["master": "P3", "p13": "P13"][mode] ?? "P4",
                                     width: geo.size.width,
                                     params: ["ready": "\(w)x\(h)", "h": String(h)])
                             }

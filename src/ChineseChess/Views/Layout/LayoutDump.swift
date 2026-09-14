@@ -32,6 +32,9 @@ enum LayoutDump {
             .map { "\"\($0.key)\":\"\($0.value)\"" }
             .joined(separator: ",")
         print("LAYOUT_DUMP {\(pairs)}")
+        // C3 健壮化：stdout 走管道时为全缓冲，进程被 kill 会丢整段缓冲
+        // （C2 采集多次 0 行的根因）——每行采样即刷，kill-safe
+        fflush(stdout)
         #endif
     }
 }

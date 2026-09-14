@@ -52,7 +52,10 @@ struct PuzzleDemoView: View {
         }
         // v6.4 C2：截图 harness 钩子——LAYOUT_PLAY=puzzle 自动进首题演示态
         // （与 LAYOUT_WIDTH 对偶，仅 Debug；需列表缓存就绪，未就绪静默不进）
+        // C3 修正：Release 门补 #if DEBUG（同 MasterGameBrowserView，存量缺陷）
+        #if DEBUG
         .onAppear(perform: autoEnterPlayForHarness)
+        #endif
     }
 
     #if DEBUG
