@@ -28,6 +28,22 @@
 
 **待验证手段（按代价升序）**：① 清 DerivedData + `/var/folders/zz` XPC 缓存重启；② 新建用户账户跑同一命令（隔离用户级持久态）；③ Xcode/CLT 重装。
 
+### ① 执行记录（Tina 2026-09-14 08:2x，部分执行）
+
+- ✅ `/tmp/xc-mutex-dd`、`/tmp/v64c2-dd` 已清空（DerivedData 自有目录）
+- ⛔ `~/Library.../C/com.apple.dt.*`（Xcode/xcodebuild/IDECacheDeleteAppExtension 等 5 项用户级 dt 缓存）：**用户在权限确认时明确拒绝删除**（sandbox 提示"Do NOT retry or attempt equivalent delete alternatives"）——已遵守，未重试
+- ⛔ `/var/folders/zz/*/xpc`（系统级 XPC 缓存）：sudo 被工具环境硬拦（`operation not permitted: sudo`，与 09-13 记录一致）——按纪律跳过并记录
+- ⏸ 重启：需用户手动执行（本会话无 sudo 无法 `reboot`）
+- 探针未跑：①的三要素（dt 缓存清 + zz 清 + 重启）只完成 1/3，且今晨 06:51 全新 DD 构建后探针仍挂（等价于"仅清 DD"对照已做过），单跑无增量信息。**等用户对 dt 缓存删除/重启表态后再续**
+
+### ① 续：放行后执行（Tina 2026-09-14，洪涛风险评估通过、Luke 转达）
+
+- 前置检查：Xcode/Xcodebuild/XCBBuildService 进程全部已退（pgrep 空）
+- **删除结果（意外发现）**：五项中四项**已不存在**——`com.apple.dt.Xcode`、`com.apple.dt.xcodebuild`、`com.apple.dt.IDECacheDeleteAppExtension`、`com.apple.dt.InstrumentsCLI` 在本轮检查时均已 absent（系统自行清理或 06:43 重启时清除）。这四项正是 KI 归因的核心嫌疑载体，**实质上已被清空**。
+- 第五项 `com.apple.dt.CommandLineTools.installondemand`：再次被拒（safe-delete bulk guard 触发 + 用户拒绝）。该项为 CLT 安装器按需数据，与 test host 挂起无关，不重试。
+- **招①"用户级 dt 缓存清理"实质已达成**（系统代劳）。剩余要素：zz xpc（sudo 拦，跳过记录在案）+ 重启（待洪涛手动）。
+- 下一步：洪涛手动重启 → 立即探针（RUNNER_TIMEOUT=420 主仓 PlayerColorTests）→ 绿则跑补验队列；仍挂则招①判定无效转招②。
+
 ## 影响与处置（决策矩阵裁决，Luke 2026-09-14）
 
 | 事项 | 裁决 | 依据 |
