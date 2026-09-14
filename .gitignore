@@ -49,6 +49,10 @@ scripts/*
 *.sh
 !run_tests.sh
 !scripts/run-tests-mutex.sh
+!scripts/accept-gate.sh
+
+# DevTeam 侧证据目录（归属 ~/DevTeam 仓，主仓不纳管——Batch A，Luke 预告的坑）
+/evidence/
 
 # Other projects (should not exist here)
 projects/
