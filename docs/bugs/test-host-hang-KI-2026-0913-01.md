@@ -42,7 +42,21 @@
 - **删除结果（意外发现）**：五项中四项**已不存在**——`com.apple.dt.Xcode`、`com.apple.dt.xcodebuild`、`com.apple.dt.IDECacheDeleteAppExtension`、`com.apple.dt.InstrumentsCLI` 在本轮检查时均已 absent（系统自行清理或 06:43 重启时清除）。这四项正是 KI 归因的核心嫌疑载体，**实质上已被清空**。
 - 第五项 `com.apple.dt.CommandLineTools.installondemand`：再次被拒（safe-delete bulk guard 触发 + 用户拒绝）。该项为 CLT 安装器按需数据，与 test host 挂起无关，不重试。
 - **招①"用户级 dt 缓存清理"实质已达成**（系统代劳）。剩余要素：zz xpc（sudo 拦，跳过记录在案）+ 重启（待洪涛手动）。
-- 下一步：洪涛手动重启 → 立即探针（RUNNER_TIMEOUT=420 主仓 PlayerColorTests）→ 绿则跑补验队列；仍挂则招①判定无效转招②。
+
+### ① 裁决：无效（Luke 2026-09-14，依据 Tina 被动排除推理）
+
+06:43 重启 + dt 缓存四项 absent 的组合**已被被动测过且探针仍挂**（08:0x PlayerColorTests 5m30s 挂起）——再重启信息增量为零。招①关闭，转招②。
+
+### ② 状态：清单就位，等洪涛 GUI 执行（Tina 2026-09-14）
+
+- 清单：`~/DevTeam/evidence/v64c2-alpha3-verify/KI-move2-test-ki-checklist.md`（建户/登入/一行探针/权限预检/判读口径/事后清理全流程）
+- 权限预检（test-ki chmod）Luke 已代做
+- 判读：**绿** = 坐实 hth 用户级 Xcode 服务注册坏态 → 修复 = 重置 hth 账户 com.apple.dt.* 服务注册（比招③便宜一级）；**挂** = 转招③
+
+### ③ 预置：工具链修复清单已备（Tina 2026-09-14 13:50，招②挂了即用）
+
+- 清单：`~/DevTeam/evidence/v64c2-alpha3-verify/KI-move3-toolchain-repair-checklist.md`（3a 缓存重建 → 3b 原地修复安装 → 3c 完整重装+用户级 Xcode 状态重置，每子级后探针，绿了即停）
+- 本机工具链事实（已核实）：Xcode 26.3 (17C529) 单实例、开发者目录指向完整 Xcode、CLT 26.3.0.0.1 与 Xcode 同源共存、无备用 toolchain——**`xcode-select --install` 重装 CLT 无意义（真身在 Xcode 内），直接走 3a→3b**
 
 ## 影响与处置（决策矩阵裁决，Luke 2026-09-14）
 
