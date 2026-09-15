@@ -1,9 +1,58 @@
 # Known Issue：测试宿主挂起（xcodebuild test 全通道 hung before establishing connection）
 
 - **编号**：KI-2026-0913-01
-- **状态**：OPEN（延期验收挂账，解除条件见下）
-- **登记**：Luke 2026-09-14 08:15（收口裁决日）；首发现 2026-09-13
+- **状态**：RESOLVED（根因已锁定：代理会话沙箱；2026-09-15 23:2x Luke 破案，销单条件见文末）
+- **登记**：Luke 2026-09-14 08:15（收口裁决日）；首发现 2026-09-13；根因改判 2026-09-15 23:2x
 - **影响范围**：本机全部 xcodebuild test 运行（主仓 m1 与 worktree 双通道）；不影响 xcodebuild build、直 exec、screencapture、screenshot 采集
+
+## ✅ 根因（2026-09-15 23:2x 破案，Luke）
+
+**代理会话沙箱阻断测试宿主建连。** xcodebuild 经 LaunchServices 拉起测试宿主后，沙箱策略随进程树继承到宿主进程，宿主回连 xctest 所需的文件/Mach 操作被拒 → 挂起至超时。日志佐证：挂起轮的最后一次成功操作恒为 lsregister（LS 注册），随后 321s 静默；每轮沙箱内探针 stderr 恒见 `~/.swiftpm/security (file-write-unlink)` 拦截。
+
+### 决定性对照实验（2026-09-15 晚，同命令同机同用户态）
+
+| 轮 | 执行环境 | 宏旗标 | 结果 |
+|---|---|---|---|
+| 09-13 起蒂娜全部探针 + 今晚 22:53 / 23:03（用户态全隔离两轮） | 沙箱内 | 有 | 🔴 挂（7m20s+ 同指纹） |
+| 今晚 23:17 / 23:19 | **沙箱外**（escalation-approved） | 有 / 无 | 🟢 **TEST SUCCEEDED ×2** |
+
+### 由此获得解释的既往反常
+
+- 整机重启无效（重启换不掉沙箱）｜env -i 无效（仍在沙箱内）｜新用户态隔离无效（今晚两轮行为零变化）
+- build 恒绿（不需要宿主握手）｜直 exec 正常（不需要 xctest 回连）
+- KI 始发 09-13 = 团队测试批全面由沙箱化代理会话发起的时点
+- `OTHER_SWIFT_FLAGS='-Xfrontend -disable-sandbox'` 的历史"必要性"同为沙箱伪装（治的是 `~/.swiftpm/security` 拦截；沙箱外无旗标亦绿）
+
+### 排除链八项的重新解读
+
+八项实验全部真实有效，但全部在沙箱内执行 → 对"沙箱"这一共同变量盲。09-14 归因"Xcode 工具链持久层"作废；招③（重装 Xcode 三级清单）作废不执行；招②（test-ki 账户分岔）被今晚的用户态隔离等效实验替代，无需执行。
+
+## 处置与纪律（2026-09-15 起）
+
+1. **一切 `xcodebuild test` 必须沙箱外执行**（用户本地终端，或代理会话中逐次申请沙箱豁免）——写入 DEVTEAM.md 测试铁律
+2. `OTHER_SWIFT_FLAGS` 旗标仅沙箱内需要，沙箱外不传（避免宏旗标常态化污染）
+3. KI 单销单条件：补验队列全绿（见下），随后本单转 RESOLVED-CLOSED
+
+## 解除条件（48h 时钟自补验批起跑）
+
+测试通道恢复（上述任一验证手段生效）后 **48h 内**补跑补验队列，全绿即销本单并回填验收记录：
+
+- Cody #7 剩余 7 套件（主仓 b3fa0a7）
+- Eric #8 三个 V64 套件（worktree 8077dc0：V64C0LayoutTests 等已绿者免）
+
+## 证据索引
+
+- 排除链全程日志：`~/DevTeam/evidence/v64c2-alpha3-verify/`（RESTART-PENDING.md 含接手便签与索引）
+- 根因破案对照日志：`~/DevTeam/workdirs/logs/h1/PlayerColorTests-231732.log`（沙箱外绿）与 `PlayerColorTests-225348.log`（沙箱内挂，同夜同机）
+- 最后一搏探针日志：`~/DevTeam/logs/v64c2/PlayerColorTests-finalprobe.log`
+- p4-1920 终版：worktree `docs/design/prototypes/v64c2-anchor-shots/p4-1920-final-postreboot.png`（3.4MB）+ `p4-1920-recap-note.md`（含误诊链修正）
+- P3 复查截图：`p3-1920-opena-postreboot.png`
+- 持久化脚本：`~/DevTeam/scripts/`（run-tests-mutex-v64c2-wt.sh / run-tests-mutex-bisect-6e38573.sh / capture-p4-1920.sh / queue-cody-eric-recap.sh）
+
+## 归因演进史（保留供审计）
+
+- ~~09-14 终态归因：Xcode 工具链自身的持久层（最可疑 /var/folders XPC 缓存）~~ → **作废**（09-15：该层已被隔离实验证伪，沙箱外绿）
+- 招①无效（被动排除）→ 招②（test-ki 账户）被用户态隔离等效实验替代并作废 → 招③（工具链修复三级清单）作废
 
 ## 现象
 
