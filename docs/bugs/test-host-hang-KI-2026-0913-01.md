@@ -25,7 +25,20 @@
 - **Swift 编译器沙箱**（宏插件展开）→ 冷编译宏错，旗标 `-Xfrontend -disable-sandbox` 治这个，**沙箱内外冷编译都需要**
 - 暖 DD 下测试阶段不带旗标可绿（23:17 实证）
 
-**修正二：后台任务的沙箱豁免不生效。** Tina 队列（dangerouslyDisableSandbox=true 启动）内主仓两套仍以经典指纹挂起（ContemptT2Revert 5m49s / Phase2b 5m43s，~/DevTeam/logs/ContemptT2RevertTests-recap.log / Phase2bTests-recap.log）；Luke 侧独立佐证：23:10 RG8kaF 后台任务（带豁免启动）stderr 仍见 [sandbox] 拦截行。四象限（沙箱×前后台）只有"**前台+豁免**"是绿格；**run_in_background 的豁免不继承**。
+**修正二：后台任务的沙箱豁免不生效。** Tina 队列（dangerouslyDisableSandbox=true 启动）内主仓两套仍以经典指纹挂起（ContemptT2Revert 5m49s / Phase2b 5m43s，~/DevTeam/logs/ContemptT2RevertTests-recap.log / Phase2bTests-recap.log）；Luke 侧独立佐证：23:10 RG8kaF 后台任务（带豁免启动）stderr 仍见 [sandbox] 拦截行。
+
+### 四象限终局表（2026-09-15 深夜，Tina 止损轮补完，每格有日志实证）
+
+| 象限 | 结果 | 证据 |
+|---|---|---|
+| 前台 + 豁免获批 + 暖 DD | ✅ 绿 | PlayerColorTests-fg-probe.log（rc=0/5 passed）+ Luke 23:17（231732.log） |
+| 前台 + 豁免未获批（用户未应答超时=沙箱内） | ❌ 挂 | ContemptT2RevertTests-recap.log（hung + .swiftpm/security 拦截并行出现） |
+| 后台 + 启动带豁免旗标 | ❌ 挂 | Contempt/Phase2b 队列 5m49s/5m43s；Luke RG8kaF 佐证 |
+| 后台 + 沙箱内 | ❌ 挂 | 09-13 起全部历史探针 |
+
+**结论**：豁免必须逐次获批且仅前台生效。逐套件 10 次批准要求用户实时在场——不可持续（09-16 00:02 第二次申请时用户在睡眠中，未应答超时被系统记为拒绝；实测坐实"逐次批准"通道形态依赖用户作息）。可持续通道形态待用户拍板（白名单/单批授权），销单条件随之悬置。
+
+**权限系统语义坑（09-16 洪涛澄清后补记）**：权限卡的"未应答超时"与"明确拒绝"在系统层面同义（均回 "explicitly denied" + "Do NOT retry"）——代理侧无法区分，会把"用户不在场"误读为"用户反对"。今后夜间/长跑批次的设计必须避免依赖实时人工批准（改白名单，或安排在用户活跃时段）。
 
 ### 执行纪律（修正版，覆盖前文"处置与纪律"）
 
