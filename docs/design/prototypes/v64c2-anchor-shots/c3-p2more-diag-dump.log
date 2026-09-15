@@ -1,0 +1,9 @@
+LAYOUT_DUMP {"page":"P1","rail":"expanded","width":"1280"}
+LAYOUT_DUMP {"h":"700","page":"P2","ready":"900x700","width":"900"}
+LAYOUT_DUMP {"after":"100","before":"50","ok":"1","page":"P2","width":"900"}
+LAYOUT_DUMP {"page":"P2","probe":"set","width":"900"}
+LAYOUT_DUMP {"page":"P2","results":"0","t":"t400","width":"900"}
+LAYOUT_DUMP {"page":"P2","results":"1","t":"t1000","width":"900"}
+LAYOUT_DUMP {"page":"P2","results":"1","t":"t2500","width":"900"}
+LAYOUT_DUMP {"page":"P2","results":"1","t":"t5500","width":"900"}
+LAYOUT_DUMP {"direct":"1","page":"P2","results":"1","search":"active","stats":"100","width":"900"}

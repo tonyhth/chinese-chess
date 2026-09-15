@@ -1,0 +1,5 @@
+LAYOUT_DUMP {"page":"P1","rail":"expanded","width":"1280"}
+LAYOUT_DUMP {"h":"700","page":"P2","ready":"900x700","width":"900"}
+LAYOUT_DUMP {"after":"100","before":"50","ok":"1","page":"P2","width":"900"}
+LAYOUT_DUMP {"page":"P2","results":"0","searchProbe":"debouncing","width":"900"}
+LAYOUT_DUMP {"direct":"1","ok":"1","page":"P2","results":"1","search":"active","searchProbe":"settled","width":"900"}

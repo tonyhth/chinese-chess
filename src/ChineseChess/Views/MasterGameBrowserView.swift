@@ -125,8 +125,58 @@ struct MasterGameBrowserView: View {
         // 基线 Release 构建即编译失败（C3 双构建门首次跑暴露的存量缺陷）
         #if DEBUG
         .onAppear(perform: autoEnterPlayForHarness)
+        .onAppear(perform: autoExpandSidebarForHarness)
         #endif
     }
+
+    #if DEBUG
+    /// 仅 Debug 生效：harness LAYOUT_PLAY=p2more 自测 P0-1 修复——
+    /// player 模式点击"加载更多"（player:more）验证扩容分支真实可达。
+    /// dump 语义：before/after = categoryDisplayCount，ok = after > before。
+    private func autoExpandSidebarForHarness() {
+        let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
+        let bridgePlay = LayoutDump.bridgeParams?["play"]
+        guard (envPlay ?? bridgePlay) == "p2more" else { return }
+        Task { @MainActor in
+            for _ in 0..<50 {
+                if masterStore.isLoaded { break }
+                try? await Task.sleep(nanoseconds: 200_000_000)
+            }
+            guard masterStore.isLoaded else { return }
+            browseMode = .player
+            try? await Task.sleep(nanoseconds: 300_000_000)  // 等 sidebarItems 重算
+            let before = categoryDisplayCount
+            let moreItem = SidebarItem(id: "player:more", title: "more", badge: nil, section: nil)
+            let exists = sidebarItems.contains { $0.id == "player:more" }
+            guard exists else {
+                LayoutDump.sample(page: "P2", width: 900, params: ["p2more": "no-more-item", "before": String(before)])
+                return
+            }
+            applySidebarSelection(moreItem)
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            let after = categoryDisplayCount
+            LayoutDump.sample(page: "P2", width: 900,
+                              params: ["before": String(before), "after": String(after),
+                                       "ok": after > before ? "1" : "0"])
+            // P0-2 自测：sidebar 搜索框 onChange → debounceSearch 触发链
+            // （修复前唯一 onChange 挂载在零引用僵尸 searchField 内，输入死路）
+            // query=吕钦（真实棋手名，hasPrefix 命中）。采样两点：debounce 中(t400)+
+            // 结果期(t1200)——时序依据 2026-09-15 实测（结果 400-1000ms 间落盘）。
+            searchText = "吕钦"
+            try? await Task.sleep(nanoseconds: 400_000_000)
+            LayoutDump.sample(page: "P2", width: 900,
+                              params: ["searchProbe": "debouncing", "results": String(searchResults.count)])
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            let direct = searcher.search(query: "吕钦").count
+            LayoutDump.sample(page: "P2", width: 900,
+                              params: ["searchProbe": "settled",
+                                       "search": isSearchActive ? "active" : "dead",
+                                       "results": String(searchResults.count),
+                                       "direct": String(direct),
+                                       "ok": (searchResults.count == direct && direct > 0) ? "1" : "0"])
+        }
+    }
+    #endif
 
     #if DEBUG
     /// 仅 Debug 生效：harness LAYOUT_PLAY=master 自动进首局播放态（env 优先、文件桥兜底）
@@ -185,6 +235,9 @@ struct MasterGameBrowserView: View {
                 Divider()
                 listContent
             }
+        }
+        .onChange(of: searchText) { _, newValue in
+            debounceSearch(query: newValue)
         }
         .frame(minWidth: 600, minHeight: 700)
         .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
@@ -313,9 +366,6 @@ struct MasterGameBrowserView: View {
             selectedSubcategory = nil
             currentPage = 1
             rebuildCache()
-        case (.opening, "player:more"), (.opening, "event:more"),
-             (.player, "player:more"), (.event, "event:more"):
-            break  // 占位（不会到达，见下方统一处理）
         case (.opening, let id) where id.hasPrefix("open:"):
             let cat = OpeningCategories.categories.first { $0.id == String(id.dropFirst(5)) }
             guard let cat else { return }
@@ -443,46 +493,17 @@ struct MasterGameBrowserView: View {
     #endif
 
     // MARK: - 搜索 UI 组件
-
-    /// macOS 搜索框（v6.4 C3-4：主位在 sidebar 顶，此组件供 detail 备用位）
-    #if os(macOS)
-    private var searchField: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "magnifyingglass")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            TextField(L10n.shared.t("master.search.placeholder"), text: $searchText)
-                .textFieldStyle(.plain)
-                .font(.subheadline)
-                .onChange(of: searchText) { _, newValue in
-                    debounceSearch(query: newValue)
-                }
-            if !searchText.isEmpty {
-                Button(action: {
-                    searchText = ""
-                    searchResults = []
-                    isSearchActive = false
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(Color.primary.opacity(0.06))
-        .cornerRadius(6)
-    }
-    #endif
+    // v6.4 C3-4 P0-2：原 macOS searchField（零引用僵尸，内含唯一的
+    // debounceSearch onChange 挂载）已删——搜索框主位在 sidebar 顶，
+    // onChange 已移挂 browserLayout 的 CategorySidebarView 实例（P13 同款）。
 
     // MARK: - iOS 搜索 Sheet（独立块，不在 macOS sidebar 块内）
     #if os(iOS)
     private var iosSearchSheet: some View {
         NavigationStack {
             List {
-                // 内联搜索框（searchField 在 macOS 块内定义，iOS 直接内联）
+                // 内联搜索框（macOS 主位在 sidebar 顶 + browserLayout onChange；
+                // iOS 无 sidebar，搜索入口在此 sheet 内联）
                 HStack(spacing: 6) {
                     Image(systemName: "magnifyingglass")
                         .font(.caption)
