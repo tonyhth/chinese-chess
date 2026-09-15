@@ -16,6 +16,23 @@
 | 09-13 起蒂娜全部探针 + 今晚 22:53 / 23:03（用户态全隔离两轮） | 沙箱内 | 有 | 🔴 挂（7m20s+ 同指纹） |
 | 今晚 23:17 / 23:19 | **沙箱外**（escalation-approved） | 有 / 无 | 🟢 **TEST SUCCEEDED ×2** |
 
+### 补录修正（2026-09-15 深夜，Tina 止损回报触发，Luke 采纳）
+
+破案通报两处过强论断，经补验队列实证修正：
+
+**修正一：宏旗标 ≠ 沙箱伪装，两者是独立轴。** 23:17/23:19 双绿均为**暖 DD**（231732 日志 27KB 零编译行），不构成"无旗标也绿"的充分证据。Tina 冷编译实证：沙箱外、无旗标，worktree 三套全部死于 ObservationMacros 32 error（~/DevTeam/logs/v64c2/V64C2LayoutTests-recap.log）。正确模型：
+- **代理会话沙箱** → 杀宿主建连（本 KI 本体）
+- **Swift 编译器沙箱**（宏插件展开）→ 冷编译宏错，旗标 `-Xfrontend -disable-sandbox` 治这个，**沙箱内外冷编译都需要**
+- 暖 DD 下测试阶段不带旗标可绿（23:17 实证）
+
+**修正二：后台任务的沙箱豁免不生效。** Tina 队列（dangerouslyDisableSandbox=true 启动）内主仓两套仍以经典指纹挂起（ContemptT2Revert 5m49s / Phase2b 5m43s，~/DevTeam/logs/ContemptT2RevertTests-recap.log / Phase2bTests-recap.log）；Luke 侧独立佐证：23:10 RG8kaF 后台任务（带豁免启动）stderr 仍见 [sandbox] 拦截行。四象限（沙箱×前后台）只有"**前台+豁免**"是绿格；**run_in_background 的豁免不继承**。
+
+### 执行纪律（修正版，覆盖前文"处置与纪律"）
+
+1. `xcodebuild test` 必须**前台 + 沙箱豁免**（确认 "Sandbox bypassed" 横幅）；禁止 run_in_background 跑测试批
+2. 宏旗标 `OTHER_SWIFT_FLAGS='-Xfrontend -disable-sandbox'`：冷编译/强制重编场景必带（与代理沙箱无关）；暖 DD 测试阶段可省
+3. 挂起复发时第一检查项：执行环境四象限定位（沙箱内/外 × 前/后台），再查其他
+
 ### 由此获得解释的既往反常
 
 - 整机重启无效（重启换不掉沙箱）｜env -i 无效（仍在沙箱内）｜新用户态隔离无效（今晚两轮行为零变化）
@@ -27,10 +44,10 @@
 
 八项实验全部真实有效，但全部在沙箱内执行 → 对"沙箱"这一共同变量盲。09-14 归因"Xcode 工具链持久层"作废；招③（重装 Xcode 三级清单）作废不执行；招②（test-ki 账户分岔）被今晚的用户态隔离等效实验替代，无需执行。
 
-## 处置与纪律（2026-09-15 起）
+## 处置与纪律（2026-09-15 起，修正版见上方"补录修正"节，以修正版为准）
 
-1. **一切 `xcodebuild test` 必须沙箱外执行**（用户本地终端，或代理会话中逐次申请沙箱豁免）——写入 DEVTEAM.md 测试铁律
-2. `OTHER_SWIFT_FLAGS` 旗标仅沙箱内需要，沙箱外不传（避免宏旗标常态化污染）
+1. **一切 `xcodebuild test` 必须前台 + 沙箱豁免执行**（确认豁免横幅）——写入 DEVTEAM.md 测试铁律；后台任务豁免不继承，禁止后台跑测试批
+2. `OTHER_SWIFT_FLAGS` 旗标：冷编译必带（编译器自身沙箱，与代理沙箱独立）；暖 DD 测试阶段可省
 3. KI 单销单条件：补验队列全绿（见下），随后本单转 RESOLVED-CLOSED
 
 ## 解除条件（48h 时钟自补验批起跑）
