@@ -38,6 +38,10 @@ enum LayoutSpec {
     /// P1 最小可用宽 ≈660（非协商基线：900 窗宽 - 通栏 264 - 边距 24*2 ≈ 588 棋盘带 + 通栏）
     static let p1MinUsableWidth: CGFloat = 660
 
+    // MARK: P3/P4 播放/演示页（v6.4-pages-all14 原型：P3 右栏 280 / P4 300，统一 300）
+
+    static let p34RailWidth: CGFloat = 300
+
     // MARK: 收纳态迟滞带（原则二b：仅 P1/P3/P4 辅助信息侧栏适用）
 
     static let railCollapseBelow: CGFloat = 1000   // <1000 收

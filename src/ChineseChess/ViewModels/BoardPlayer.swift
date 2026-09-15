@@ -127,6 +127,7 @@ class BoardPlayer {
         lastMove = currentIndex > 0 ? moveSource.lastMovePosition(at: currentIndex - 1) : nil
     }
 
+    /// 跳到某一步（0-based 全量索引，含 0=起始局面）
     func jumpTo(index: Int) {
         stopAutoPlay()
         isPlaying = false

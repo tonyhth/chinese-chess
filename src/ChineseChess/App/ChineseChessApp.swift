@@ -7,8 +7,11 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // v6.4 C0：截图 harness 骨架——LAYOUT_WIDTH 启动参数钉窗口宽（五档锚图 900/1000/1080/1280/1920）
         // 与 LAYOUT_DUMP 对偶：harness 设宽 → 采样流断言。仅 macOS，产品路径不受影响。
+        // v6.4 C3-3：env 优先、文件桥兜底（open -a 通道 env 丢失；桥= /tmp/v64c2-layout-harness.json）
         #if DEBUG
-        if let wStr = ProcessInfo.processInfo.environment["LAYOUT_WIDTH"], let w = Double(wStr), w >= 900 {
+        let bridge = LayoutDump.bridgeParams
+        let widthStr = ProcessInfo.processInfo.environment["LAYOUT_WIDTH"] ?? bridge?["width"]
+        if let wStr = widthStr, let w = Double(wStr), w >= 900 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 for window in NSApplication.shared.windows where window.identifier?.rawValue != "ABPOverlay" {
                     var frame = window.frame
@@ -168,6 +171,9 @@ struct ChineseChessApp: App {
         case studyHub
         case tutorial
         case openingExplorer   // FINAL-003: ⌘⇧O 快捷键入口
+        #if DEBUG
+        case harnessPlay(String)   // v6.4 C2：截图 harness 直达 P3/P4（仅 Debug）
+        #endif
 
         var id: String {
             switch self {
@@ -188,6 +194,9 @@ struct ChineseChessApp: App {
             case .studyHub: return "studyHub"
             case .tutorial: return "tutorial"
             case .openingExplorer: return "openingExplorer"
+            #if DEBUG
+            case .harnessPlay(let mode): return "harnessPlay-\(mode)"
+            #endif
             }
         }
     }
@@ -209,6 +218,11 @@ struct ChineseChessApp: App {
 
     // v6.4 C0：对局页右通栏自适应状态机（迟滞 <1000 收 / >1080 展）
     @State private var railState = AdaptiveRailState()
+
+    #if DEBUG
+    /// v6.4 C3-3：harness sheet 挂载确认（sheet 内容 onAppear 置位；失挂重试用）
+    @State private var harnessSheetShown = false
+    #endif
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -292,11 +306,17 @@ struct ChineseChessApp: App {
                     .padding(.horizontal, LayoutSpec.space3)
                     .padding(.vertical, LayoutSpec.space3)
                     .background(
-                        // v6.4 C0：状态机输入通道 = background GeometryReader + onChange
+                        // v6.4 C0/C2：状态机输入通道 = background GeometryReader + onChange
                         // （Ruby R2 约束：禁用 onGeometryChange，部署目标 macOS 14 不达）
+                        // C2 健壮化：onAppear 也 emit 一行（初始 width + rail 真实态），
+                        // 无外部 resize 也能见至少 1 行，便于 Tina 判 harness 通断
                         GeometryReader { geo in
                             Color.clear
-                                .onAppear { railState.update(width: geo.size.width) }
+                                .onAppear {
+                                    railState.update(width: geo.size.width)
+                                    LayoutDump.sample(page: "P1", width: geo.size.width,
+                                      params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                                }
                                 .onChange(of: geo.size.width) { _, w in
                                     railState.update(width: w)
                                     LayoutDump.sample(page: "P1", width: w,
@@ -383,6 +403,34 @@ struct ChineseChessApp: App {
             }
             // v6.2 minHeight 600 口径（m1 定案）+ v6.4 C1 横向打样 ideal（合并窗口各取所长）
             .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1280, minHeight: 600, idealHeight: 860)
+            // v6.4 C2：harness 入口——LAYOUT_PLAY=master/puzzle 直达 P3/P4
+            // （master→MasterGameBrowserView 自带 onAppear 钩子进播放态；puzzle→PuzzleDemoView 演示态）
+            // v6.4 C3：扩 p13 → PuzzleSelectView（无章节，全部残局）锚图采集
+            // v6.4 C3-3：扩 p7 → OpeningCoachSelectView；env 优先、文件桥兜底（open -a 通道 env 丢失）
+            .onAppear {
+                #if DEBUG
+                let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
+                let bridgePlay = LayoutDump.bridgeParams?["play"]
+                if let play = envPlay ?? bridgePlay,
+                   ["master", "puzzle", "p13", "p7", "p2", "p2more", "p5"].contains(play), activeSheet == nil {
+                    activeSheet = .harnessPlay(play)
+                    // v6.4 C3-3 竞态加固：启动期 sheet 挂载有实测概率被窗口初始化吞掉
+                    // （2026-09-14 A/B 六连跑 4 成 2 败，同二进制同 env）。
+                    // 加固策略：sheet 内容 onAppear 置 harnessSheetShown；未置位则 nil→set
+                    // 强制重呈现，最多 3 次。仅 harness 会话生效，产品路径零影响。
+                    Task { @MainActor in
+                        for attempt in 0..<3 {
+                            try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 + attempt * 500_000_000))
+                            guard !Task.isCancelled, !harnessSheetShown else { return }
+                            activeSheet = nil
+                            try? await Task.sleep(nanoseconds: 200_000_000)
+                            guard !Task.isCancelled, !harnessSheetShown else { return }
+                            activeSheet = .harnessPlay(play)
+                        }
+                    }
+                }
+                #endif
+            }
             .onAppear {
                 TutorialViewModel.markLaunched()
                 if firstLaunchNeeded {
@@ -426,7 +474,7 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 816, minHeight: 700)  // v6.2：600→800（v1.2 P1-5）；v6.2.1：800→816（rightMin 400 → 808 最低需求）
+                    .frame(minWidth: 816, minHeight: 700)  // v6.4 C2：P3/P4 sheet 容器允许窄至 900 内（面板 <1000 迟滞收起，棋盘吃满）
 
                 case .toolbarReplay(let record):
                     ReplayView(record: record)
@@ -561,7 +609,53 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 816, minHeight: 700)  // v6.2：600→800 同 .puzzles；v6.2.1：800→816（rightMin 400）
+                    .frame(minWidth: 816, minHeight: 700)  // v6.4 C2：sheet 容器同 .puzzles 口径（P3/P4 迟滞收起后棋盘吃满）
+
+                #if DEBUG
+                case .harnessPlay(let mode):
+                    Group {
+                        if mode == "master" {
+                            NavigationStack { MasterGameBrowserView() }
+                        } else if mode == "p2" || mode == "p2more" {
+                            // v6.4 C3-4：P2 浏览态锚图（不触发 autoEnterPlay——那是 master=播放态通道）
+                            // p2more：P0-1 修复自测通道（player:more 扩容分支可达性验证）
+                            NavigationStack { MasterGameBrowserView() }
+                        } else if mode == "p5" {
+                            // v6.4 C3-5：P5 学棋中心锚图（hero 卡 + 卡片栅格）
+                            NavigationStack { StudyHubView() }
+                        } else if mode == "p13" {
+                            // v6.4 C3：P13 残局列表锚图采集（无章节 = 全部残局池）
+                            NavigationStack { PuzzleSelectView() }
+                        } else if mode == "p7" {
+                            // v6.4 C3-3：P7 开局教练选择锚图采集
+                            NavigationStack { OpeningCoachSelectView() }
+                        } else {
+                            NavigationStack { PuzzleDemoView() }
+                        }
+                    }
+                    .onAppear {
+                        // v6.4 C3-3：挂载确认——重试 Task 见此置位即停
+                        harnessSheetShown = true
+                    }
+                    // v6.4 C2：harness sheet 须全宽——迟滞状态机测的是 sheet 宽（harness 钉的 LAYOUT_WIDTH），
+                    // 若沿 sheet 默认尺寸则 1920 档 sheet 内容仍窄、宽度采样失真（v1 误收根因之一）
+                    .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1920,
+                           minHeight: 700, idealHeight: 900)
+                    // C2 harness 健壮化：sheet attach 补一行 "ready @WxH"（mode+宽高真值），
+                    // 即便外部无 resize 也至少给 Tina 一行可判 harness 通断
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear.onAppear {
+                                let h = Int(geo.size.height)
+                                let w = Int(geo.size.width)
+                                LayoutDump.sample(
+                                    page: ["master": "P3", "p13": "P13", "p7": "P7", "p2": "P2", "p2more": "P2", "p5": "P5"][mode] ?? "P4",
+                                    width: geo.size.width,
+                                    params: ["ready": "\(w)x\(h)", "h": String(h)])
+                            }
+                        }
+                    )
+                #endif
 
                 case .tutorial:
                     TutorialView(onComplete: { activeSheet = nil })

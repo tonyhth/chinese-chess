@@ -31,6 +31,237 @@ struct PuzzleSelectView: View {
     private let l10n = L10n.shared
 
     var body: some View {
+        #if os(macOS)
+        macOSSidebarLayout
+        #else
+        iOSStackLayout
+        #endif
+    }
+
+    // MARK: - v6.4 C3-2：macOS sidebar 布局（治横滚，P13 统一语言）
+
+    #if os(macOS)
+    /// sidebar 三段：分类 / 难度 / 通关状态（多维度筛选 → 每 section 单选，
+    /// 过滤能力对齐旧四重过滤无回退）；搜索框置顶；右侧行式列表保留
+    private var macOSSidebarLayout: some View {
+        CategorySidebarView(
+            categories: sidebarItems,
+            isSelected: { isSelected($0) },
+            onSelect: { apply($0) },
+            searchPlaceholder: l10n.t("puzzle.sidebar.searchHint"),
+            searchText: $searchText,
+            page: "P13"
+        ) {
+            puzzleList
+        }
+        .onChange(of: searchText) { _, newValue in
+            searchDebounceTask?.cancel()
+            searchDebounceTask = Task {
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                guard !Task.isCancelled else { return }
+                debouncedSearchText = newValue
+            }
+        }
+    }
+
+    // sidebar 数据：三 section 串联（分类 nil=全部；难度 nil=全部；通关 all/un/com）
+    private var sidebarItems: [SidebarItem] {
+        var items: [SidebarItem] = []
+        // 分类段
+        let catSection = l10n.t("puzzle.sidebar.category")
+        items.append(SidebarItem(id: "cat:all", title: l10n.t("puzzle.all"),
+                                 badge: String(allCount), section: catSection))
+        for cat in PuzzleStore.shared.categories {
+            items.append(SidebarItem(id: "cat:\(cat)", title: cat,
+                                     badge: String(count(in: cat)), section: catSection))
+        }
+        // 难度段
+        let diffSection = l10n.t("puzzle.sidebar.difficulty")
+        items.append(SidebarItem(id: "stars:all", title: l10n.t("puzzle.all"),
+                                 badge: nil, section: diffSection))
+        for stars in 1...5 {
+            items.append(SidebarItem(id: "stars:\(stars)",
+                                     title: String(repeating: "★", count: stars),
+                                     badge: nil, section: diffSection))
+        }
+        // 通关状态段
+        let statusSection = l10n.t("puzzle.sidebar.status")
+        items.append(SidebarItem(id: "comp:all", title: l10n.t("puzzle.all"),
+                                 badge: nil, section: statusSection))
+        items.append(SidebarItem(id: "comp:completed", title: l10n.t("puzzle.filterCompleted"),
+                                 badge: nil, section: statusSection))
+        items.append(SidebarItem(id: "comp:uncompleted", title: l10n.t("puzzle.filterUncompleted"),
+                                 badge: nil, section: statusSection))
+        return items
+    }
+
+    private func isSelected(_ item: SidebarItem) -> Bool {
+        switch item.id {
+        case "cat:all": return selectedCategory == nil
+        case let id where id.hasPrefix("cat:"): return selectedCategory == String(id.dropFirst(4))
+        case "stars:all": return selectedStars == nil
+        case let id where id.hasPrefix("stars:"): return selectedStars == Int(id.dropFirst(6))
+        case "comp:all": return completionFilter == .all
+        case "comp:completed": return completionFilter == .completed
+        case "comp:uncompleted": return completionFilter == .uncompleted
+        default: return false
+        }
+    }
+
+    private func apply(_ item: SidebarItem) {
+        switch item.id {
+        case "cat:all":
+            selectedCategory = nil
+        case let id where id.hasPrefix("cat:"):
+            selectedCategory = String(id.dropFirst(4))
+        case "stars:all":
+            selectedStars = nil
+        case let id where id.hasPrefix("stars:"):
+            selectedStars = Int(id.dropFirst(6))
+        case "comp:all":
+            completionFilter = .all
+        case "comp:completed":
+            completionFilter = .completed
+        case "comp:uncompleted":
+            completionFilter = .uncompleted
+        default:
+            break
+        }
+    }
+
+    private var allCount: Int {
+        (chapter?.puzzles ?? PuzzleStore.shared.puzzles).count
+    }
+
+    private func count(in category: String) -> Int {
+        (chapter?.puzzles ?? PuzzleStore.shared.puzzles)
+            .filter { $0.category == category }.count
+    }
+
+    /// 右侧：残局列表（行式列表保留，v6.2 空态/分组/底部统计原样）
+    private var puzzleList: some View {
+        let list = filteredPuzzles
+        return Group {
+            if list.isEmpty {
+                if debouncedSearchText.isEmpty {
+                    ContentUnavailableView {
+                        Label(l10n.t("puzzle.empty"), systemImage: "puzzlepiece")
+                    } description: {
+                        Text(l10n.t("puzzle.empty.hint"))
+                    }
+                } else {
+                    ContentUnavailableView {
+                        Label(l10n.t("puzzle.noMatch"), systemImage: "magnifyingglass")
+                    }
+                }
+            } else {
+                ZStack(alignment: .bottom) {
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 8) {
+                            let groups = groupedPuzzles(from: list)
+                            ForEach(Array(groups.enumerated()), id: \.offset) { _, group in
+                                if groups.count > 1 {
+                                    HStack {
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(height: 0.5)
+                                        Text(String(format: l10n.t("puzzle.groupLabel"), group.rangeLabel))
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(height: 0.5)
+                                    }
+                                    .padding(.top, 4)
+                                }
+                                ForEach(group.puzzles) { puzzle in
+                                    PuzzleRow(
+                                        puzzle: puzzle,
+                                        progress: PuzzleStore.shared.progress(for: puzzle.id)
+                                    ) {
+                                        selectedPuzzle = puzzle
+                                    }
+                                }
+                            }
+                        }
+                        Color.clear.frame(height: fadeHeight + 28)
+                    }
+
+                    VStack(spacing: 0) {
+                        LinearGradient(
+                            colors: [
+                                panelBackground.opacity(0),
+                                panelBackground
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: fadeHeight)
+                        .allowsHitTesting(false)
+
+                        HStack {
+                            let completed = list.filter { PuzzleStore.shared.progress(for: $0.id)?.isCompleted == true }.count
+                            Text(String(format: l10n.t("stats.completedCount"), completed, list.count))
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            let groups = groupedPuzzles(from: list)
+                            Text(String(format: l10n.t("stats.totalGroups"), groups.count))
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(panelBackground)
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(panelBackground)
+        .sheet(item: $selectedPuzzle) { puzzle in
+            PuzzlePlayView(puzzle: puzzle, onShowDemo: { demoPuzzle in
+                selectedPuzzle = nil
+                DispatchQueue.main.async {
+                    demoTargetPuzzle = demoPuzzle
+                    showPuzzleDemo = true
+                }
+            })
+            .frame(minWidth: 600, minHeight: 700)
+        }
+        .sheet(isPresented: $showPuzzleDemo) {
+            if let puzzle = demoTargetPuzzle {
+                PuzzleDemoView(initialPuzzle: puzzle)
+                    .frame(minWidth: 720, minHeight: 520)
+            }
+        }
+        // v3.0 gap fix P1-2: 连续登录奖励残局解锁状态横幅（sidebar 化后保留，置列表顶部）
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if PlayerProfileStore.shared.profile.bonusPuzzlesUnlocked {
+                HStack(spacing: 6) {
+                    Image(systemName: "flame.fill")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text(l10n.t("bonus.puzzleProgressBanner"))
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                    Spacer()
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(6)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+            }
+        }
+    }
+    #endif
+
+    // MARK: - iOS 布局（原栈式布局保留，iOS 零投入口径）
+
+    #if os(iOS)
+    private var iOSStackLayout: some View {
         VStack(alignment: .leading, spacing: 12) {
             // 标题栏 + 搜索按钮
             HStack {
@@ -88,8 +319,7 @@ struct PuzzleSelectView: View {
             }
 
             // 分类选择
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+            ScrollView(.horizontal, showsIndicators: false) {                HStack(spacing: 8) {
                     CategoryButton(title: l10n.t("puzzle.all"), isSelected: selectedCategory == nil) {
                         selectedCategory = nil
                         selectedStars = nil
@@ -147,7 +377,6 @@ struct PuzzleSelectView: View {
                 .background(Color.orange.opacity(0.1))
                 .cornerRadius(6)
             }
-        }
 
             // 残局列表
             let list = filteredPuzzles
@@ -236,7 +465,6 @@ struct PuzzleSelectView: View {
         .padding(12)
         .background(panelBackground)
         .cornerRadius(8)
-        #if os(iOS)
         .fullScreenCover(item: $selectedPuzzle) { puzzle in
             PuzzlePlayView(puzzle: puzzle, onShowDemo: { demoPuzzle in
                 selectedPuzzle = nil
@@ -251,25 +479,9 @@ struct PuzzleSelectView: View {
                 PuzzleDemoView(initialPuzzle: puzzle)
             }
         }
-        #else
-        .sheet(item: $selectedPuzzle) { puzzle in
-            PuzzlePlayView(puzzle: puzzle, onShowDemo: { demoPuzzle in
-                selectedPuzzle = nil
-                DispatchQueue.main.async {
-                    demoTargetPuzzle = demoPuzzle
-                    showPuzzleDemo = true
-                }
-            })
-            .frame(minWidth: 600, minHeight: 700)
-        }
-        .sheet(isPresented: $showPuzzleDemo) {
-            if let puzzle = demoTargetPuzzle {
-                PuzzleDemoView(initialPuzzle: puzzle)
-                    .frame(minWidth: 720, minHeight: 520)
-            }
-        }
-        #endif
     }
+    }
+    #endif
 
     // MARK: - 筛选逻辑
 

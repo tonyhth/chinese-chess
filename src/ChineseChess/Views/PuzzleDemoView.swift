@@ -4,6 +4,9 @@ import SwiftUI
 
 struct PuzzleDemoView: View {
     @State private var viewModel: DemoViewModel?
+
+    // v6.4 C2：P4 演示页右栏自适应状态机（迟滞 下阈值收 / 上阈值展，C0 单源）
+    @State private var railState = AdaptiveRailState()
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isDemoFocused: Bool
 
@@ -34,6 +37,7 @@ struct PuzzleDemoView: View {
     }
 
     var body: some View {
+        Group {
         if let vm = viewModel {
             // 有选中残局 → 显示演示
             #if os(iOS)
@@ -45,7 +49,32 @@ struct PuzzleDemoView: View {
             // 无选中残局 → 显示列表模式
             listLayout
         }
+        }
+        // v6.4 C2：截图 harness 钩子——LAYOUT_PLAY=puzzle 自动进首题演示态
+        // （与 LAYOUT_WIDTH 对偶，仅 Debug；需列表缓存就绪，未就绪静默不进）
+        // C3 修正：Release 门补 #if DEBUG（同 MasterGameBrowserView，存量缺陷）
+        #if DEBUG
+        .onAppear(perform: autoEnterPlayForHarness)
+        #endif
     }
+
+    #if DEBUG
+    /// 仅 Debug 生效：harness 环境变量 LAYOUT_PLAY=puzzle 时自动点首题
+    /// v2 修正（同 P3 根因）：列表缓存异步就绪——onAppear 单次调用恒空被 guard 掉，
+    /// 改轮询等待（上限 10s），到即进首题演示态
+    private func autoEnterPlayForHarness() {
+        let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
+        let bridgePlay = LayoutDump.bridgeParams?["play"]
+        guard (envPlay ?? bridgePlay) == "puzzle",
+              viewModel == nil else { return }
+        Task { @MainActor in
+            for _ in 0..<50 {
+                if !cachedListItems.isEmpty { playItem(cachedListItems[0]); return }
+                try? await Task.sleep(nanoseconds: 200_000_000)
+            }
+        }
+    }
+    #endif
 
     // MARK: - 列表缓存重建
 
@@ -442,29 +471,51 @@ struct PuzzleDemoView: View {
     // MARK: - macOS 布局
     #if os(macOS)
     private func macosLayout(viewModel vm: DemoViewModel) -> some View {
-        // v6.2 左右布局（v1.2 §三.1，与 MasterGameBrowserView 同构）：
-        // 棋盘左（等比缩放）+ 右侧信息面板；点评从 iOS overlay 语境改为右侧常驻
-        // （macOS 此前无点评显示，v6.2 面板化补齐）；走法记录面板新增（P1-2）
-        ManagedSplitView {
+        // v6.4 C2（all14 P4）：棋盘最大化 + 右栏三 tab；窄窗迟滞（窄收宽展，同 P1/P3 口径）
+        // v6.2 左右布局（v1.2 §三.1，与 MasterGameBrowserView 同构）：点评右侧常驻。
+        HStack(spacing: 0) {
             DemoBoardView(board: vm.board, lastMove: vm.lastMove, isFlipped: vm.item.shouldFlipBoard)
                 .aspectRatio(CGFloat(BoardSizing.gridCols) / CGFloat(BoardSizing.gridRows), contentMode: .fit)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } right: {
-            DemoSidePanel(
-                commentary: vm.showCommentary ? vm.currentCommentary : nil,
-                notations: vm.moveNotations,
-                currentIndex: vm.currentIndex,
-                onMoveTap: { row in vm.jumpToMove(at: row + 1) },
-                header: {
-                    DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
-                },
-                footer: {
-                    DemoControlBar(viewModel: vm, onBackToList: { backToList() })
-                }
-            )
+
+            // v6.4 C2：迟滞状态机驱动（下阈值收 / 上阈值展，带内保持——C0 状态机单源）
+            if railState.isExpanded {
+                Divider().opacity(0.4)
+                DemoSidePanel(
+                    commentary: vm.showCommentary ? vm.currentCommentary : nil,
+                    notations: vm.moveNotations,
+                    currentIndex: vm.currentIndex,
+                    onMoveTap: { row in vm.jumpToMove(at: row + 1) },
+                    progress: Double(vm.currentIndex) / Double(max(vm.totalSteps, 1)),
+                    progressText: vm.progressText,
+                    header: {
+                        DemoInfoBar(item: vm.item, viewModel: vm, onBackToList: { backToList() })
+                    },
+                    footer: {
+                        DemoControlBar(viewModel: vm, onBackToList: { backToList() })
+                    }
+                )
+            }
         }
-        // v1.2 §三.2：左右布局需 min 800；高度 700→600
-        .frame(minWidth: 816, minHeight: 600)  // v6.2.1：800→816（rightMin 400 后 400+8+400=808 最低需求）
+        // v6.4 C2：窄窗基线 816→900 内可收（面板收起后棋盘单栏）；迟滞带内不跳变
+        .frame(minWidth: LayoutSpec.compactWindowMin, minHeight: 600)
+        .background(
+            // v6.4 C0/C2：状态机输入通道 = background GeometryReader + onChange（Ruby R2 约束）
+            // C2 健壮化：onAppear 也 emit 一行（初始 width + rail 真实态），无 resize 也至少 1 行可见
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        railState.update(width: geo.size.width)
+                        LayoutDump.sample(page: "P4", width: geo.size.width,
+                          params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                    }
+                    .onChange(of: geo.size.width) { _, w in
+                        railState.update(width: w)
+                        LayoutDump.sample(page: "P4", width: w,
+                          params: ["rail": railState.isExpanded ? "expanded" : "collapsed"])
+                    }
+            }
+        )
     }
     #endif
 

@@ -48,23 +48,24 @@ struct V62LayoutTests {
 
     // MARK: - T1/T2：两演示页面接入 ManagedSplitView（语义迁移版，见文件头裁定注记）
 
-    @Test("T1: MasterGameBrowserView macosPlayLayout 使用 ManagedSplitView 左右布局")
+    @Test("T1: MasterGameBrowserView macosPlayLayout 左右布局（v6.4 C2：迟滞收展取代 ManagedSplitView）")
     func t1MasterBrowserUsesManagedSplit() throws {
         let src = try Self.source("src/ChineseChess/Views/MasterGameBrowserView.swift")
         let region = try Self.funcRegion(src, funcName: "macosPlayLayout")
-        #expect(region.contains("ManagedSplitView"), "macosPlayLayout 应接入 ManagedSplitView（方案 B，Luke 裁定语义迁移）")
+        // v6.4 C2（all14 P3）：棋盘吃满 + 迟滞收展右栏，v6.2 ManagedSplitView 语义退役
+        #expect(region.contains("AdaptiveRailState") || region.contains("railState.isExpanded"), "macosPlayLayout 应接 C0 迟滞状态机（v6.4 C2 口径）")
         #expect(region.contains("DemoSidePanel"), "macosPlayLayout 应接入右侧面板 DemoSidePanel")
         #expect(!region.contains("CommentaryOverlay"), "macOS 点评应由右侧面板承载，overlay 退出 macosPlayLayout（iOS 路径 overlay 不受影响）")
-        #expect(region.contains("minWidth: 816"), "页面 frame minWidth 应为 816（v6.2.1 rightMin 400 后 808 最低需求）")
+        #expect(region.contains("LayoutSpec.compactWindowMin"), "页面 frame minWidth 应走 LayoutSpec 单源（v6.4 六b）")
     }
 
-    @Test("T2: PuzzleDemoView macosLayout 使用 ManagedSplitView 左右布局")
+    @Test("T2: PuzzleDemoView macosLayout 左右布局（v6.4 C2：迟滞收展取代 ManagedSplitView）")
     func t2PuzzleDemoUsesManagedSplit() throws {
         let src = try Self.source("src/ChineseChess/Views/PuzzleDemoView.swift")
         let region = try Self.funcRegion(src, funcName: "macosLayout")
-        #expect(region.contains("ManagedSplitView"), "macosLayout 应接入 ManagedSplitView（方案 B，Luke 裁定语义迁移）")
+        #expect(region.contains("railState.isExpanded"), "macosLayout 应由迟滞状态机驱动（v6.4 C2 口径）")
         #expect(region.contains("DemoSidePanel"), "macosLayout 应接入右侧面板 DemoSidePanel")
-        #expect(region.contains("minWidth: 816"), "页面 frame minWidth 应为 816")
+        #expect(region.contains("LayoutSpec.compactWindowMin"), "页面 frame minWidth 应走 LayoutSpec 单源（v6.4 六b）")
     }
 
     // MARK: - T3/T4/T5：组件存在性（类型实例化 = 编译期存在性 + 运行期可创建）
@@ -101,6 +102,8 @@ struct V62LayoutTests {
             notations: [],
             currentIndex: 0,
             onMoveTap: { _ in },
+            progress: 0,
+            progressText: "0/0",
             header: { Text("h") },
             footer: { Text("f") }
         )
@@ -140,8 +143,10 @@ struct V62LayoutTests {
     @Test("T8: 主窗口 minHeight 600")
     func t8MainWindowMinHeight() throws {
         let src = try Self.source("src/ChineseChess/App/ChineseChessApp.swift")
-        #expect(src.contains("minWidth: 900, minHeight: 600"), "主窗口应为 (900, 600)——v1.2 P0-1 仅降 minHeight")
+        // v6.4 C1（all14 定稿）：minWidth 走 LayoutSpec.compactWindowMin 单源（=900），minHeight 600 口径不变
+        #expect(src.contains("minHeight: 600"), "主窗口 minHeight 应为 600——v1.2 P0-1 仅降 minHeight")
         #expect(!src.contains("minWidth: 900, minHeight: 750"), "旧 750 约束应已移除")
+        #expect(src.contains("LayoutSpec.compactWindowMin"), "minWidth 应引 LayoutSpec 单源（v6.4 六b：禁单边散调）")
     }
 
     // MARK: - T9：DemoControlBar 适配（macOS 控制条在面板宽度下工作，源码面）
@@ -195,11 +200,14 @@ struct V62LayoutTests {
         // 锚2：快捷键统一承载（防 ViewThatFits 变体切换丢快捷键）
         #expect(bar.contains("playbackShortcuts") && bar.contains("speedShortcuts"), "快捷键应统一承载不随变体丢夫")
 
-        // 锚3：止血值同步——rightMin 与 DemoSidePanel minWidth 一致 = 400（VTF 恢复点 392 + 余量）
+        // 锚3：止血值同步——rightMin 400 不变（VTF 死区口径）；
+        // v6.4 C2（all14 定稿）：DemoSidePanel 改定宽 300（p34RailWidth 单源），
+        // 独立面板非 ManagedSplitView 侧栏，旧「panel minWidth 400 与 rightMin 配对」锚作废；
+        // 面板 300 < rightMin 400，恒在恢复点之上，VTF compact 常态化（设计意图）
         let split = try Self.source("src/ChineseChess/Views/ManagedSplitView.swift")
         #expect(split.contains("rightMin: CGFloat = 400"), "rightMin 应为 400（Ruby P1-1：死区 364-388、392 恢复）")
         let panel = try Self.source("src/ChineseChess/Views/DemoSidePanel.swift")
-        #expect(panel.contains("minWidth: 400"), "DemoSidePanel minWidth 应与 rightMin 同步 400")
+        #expect(panel.contains("LayoutSpec.p34RailWidth"), "v6.4 C2：面板定宽应引 p34RailWidth（300，all14 P4）")
     }
 }
 

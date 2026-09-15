@@ -229,6 +229,8 @@ class TutorialViewModel {
 
     static func markTutorialCompleted() {
         UserDefaults.standard.set(true, forKey: "chinesechess.tutorialCompleted")
+        // v6.4 C3-5：完成时进度归满（P5 hero 卡百分比封顶；12=课程总数，与 lessons.count 一致）
+        UserDefaults.standard.set(11, forKey: "chinesechess.tutorialLessonProgress")
         // v3.0 Phase 6: 联动成就 + 段位
         let store = PlayerProfileStore.shared
         store.update { profile in
@@ -250,17 +252,32 @@ class TutorialViewModel {
         UserDefaults.standard.set(true, forKey: "chinesechess.hasLaunched")
     }
 
-    /// 下一课
+    /// 下一课（v6.4 C3-5：进度持久化——P5 hero 卡"继续上次学习"数据源）
     func nextLesson() {
         if currentLesson < lessons.count - 1 {
             currentLesson += 1
+            persistProgress()
         }
     }
 
-    /// 上一课
+    /// 上一课（进度同步持久化）
     func previousLesson() {
         if currentLesson > 0 {
             currentLesson -= 1
+            persistProgress()
+        }
+    }
+
+    /// v6.4 C3-5：进度落 UserDefaults（P5 hero 卡读取；完成态由 markTutorialCompleted 管）
+    private func persistProgress() {
+        UserDefaults.standard.set(currentLesson, forKey: "chinesechess.tutorialLessonProgress")
+    }
+
+    /// v6.4 C3-5：恢复上次进度（P5 hero"继续上次学习"入口调用）
+    func restoreProgress() {
+        let saved = UserDefaults.standard.integer(forKey: "chinesechess.tutorialLessonProgress")
+        if saved > 0 && saved < lessons.count {
+            currentLesson = saved
         }
     }
 
