@@ -129,11 +129,13 @@ struct MasterGameBrowserView: View {
     }
 
     #if DEBUG
-    /// 仅 Debug 生效：harness 环境变量 LAYOUT_PLAY=master 时自动进首局播放态
+    /// 仅 Debug 生效：harness LAYOUT_PLAY=master 自动进首局播放态（env 优先、文件桥兜底）
     /// v3 修正：opening 模式未选分类时 rebuildCache 会清空 cachedItems（轮询恒等不到），
     /// 改为：索引就绪后自动选首个开局分类（触发 rebuildCache 填页）→ 等缓存 → 进播放态
     private func autoEnterPlayForHarness() {
-        guard ProcessInfo.processInfo.environment["LAYOUT_PLAY"] == "master",
+        let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
+        let bridgePlay = LayoutDump.bridgeParams?["play"]
+        guard (envPlay ?? bridgePlay) == "master",
               viewModel == nil else { return }
         Task { @MainActor in
             // 等索引（masterStore.isLoaded，上限 10s）

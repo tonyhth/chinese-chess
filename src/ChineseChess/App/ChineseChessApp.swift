@@ -412,7 +412,7 @@ struct ChineseChessApp: App {
                 let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
                 let bridgePlay = LayoutDump.bridgeParams?["play"]
                 if let play = envPlay ?? bridgePlay,
-                   ["master", "puzzle", "p13", "p7"].contains(play), activeSheet == nil {
+                   ["master", "puzzle", "p13", "p7", "p2"].contains(play), activeSheet == nil {
                     activeSheet = .harnessPlay(play)
                     // v6.4 C3-3 竞态加固：启动期 sheet 挂载有实测概率被窗口初始化吞掉
                     // （2026-09-14 A/B 六连跑 4 成 2 败，同二进制同 env）。
@@ -616,6 +616,9 @@ struct ChineseChessApp: App {
                     Group {
                         if mode == "master" {
                             NavigationStack { MasterGameBrowserView() }
+                        } else if mode == "p2" {
+                            // v6.4 C3-4：P2 浏览态锚图（不触发 autoEnterPlay——那是 master=播放态通道）
+                            NavigationStack { MasterGameBrowserView() }
                         } else if mode == "p13" {
                             // v6.4 C3：P13 残局列表锚图采集（无章节 = 全部残局池）
                             NavigationStack { PuzzleSelectView() }
@@ -642,7 +645,7 @@ struct ChineseChessApp: App {
                                 let h = Int(geo.size.height)
                                 let w = Int(geo.size.width)
                                 LayoutDump.sample(
-                                    page: ["master": "P3", "p13": "P13", "p7": "P7"][mode] ?? "P4",
+                                    page: ["master": "P3", "p13": "P13", "p7": "P7", "p2": "P2"][mode] ?? "P4",
                                     width: geo.size.width,
                                     params: ["ready": "\(w)x\(h)", "h": String(h)])
                             }

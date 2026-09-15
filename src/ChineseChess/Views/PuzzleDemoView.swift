@@ -63,7 +63,9 @@ struct PuzzleDemoView: View {
     /// v2 修正（同 P3 根因）：列表缓存异步就绪——onAppear 单次调用恒空被 guard 掉，
     /// 改轮询等待（上限 10s），到即进首题演示态
     private func autoEnterPlayForHarness() {
-        guard ProcessInfo.processInfo.environment["LAYOUT_PLAY"] == "puzzle",
+        let envPlay = ProcessInfo.processInfo.environment["LAYOUT_PLAY"]
+        let bridgePlay = LayoutDump.bridgeParams?["play"]
+        guard (envPlay ?? bridgePlay) == "puzzle",
               viewModel == nil else { return }
         Task { @MainActor in
             for _ in 0..<50 {
