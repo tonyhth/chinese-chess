@@ -52,6 +52,10 @@ struct TutorialView: View {
         #if os(iOS)
         .frame(maxWidth: 400)
         #endif
+        // v6.4 C3-5：进入即恢复上次进度（P6 并入引导流——P5 hero"继续"落点）
+        .onAppear {
+            viewModel.restoreProgress()
+        }
     }
 
     // MARK: - 顶部导航栏

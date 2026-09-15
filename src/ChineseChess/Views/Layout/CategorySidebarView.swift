@@ -139,9 +139,9 @@ struct CategorySidebarView<C: SidebarCategory, Detail: View>: View {
         }
     }
 
-    private struct SectionGroup<C: SidebarCategory> {
+    private struct SectionGroup<Item: SidebarCategory> {
         let section: String?
-        var items: [C]
+        var items: [Item]
     }
 
     private func groupBySection(_ items: [C]) -> [SectionGroup<C>] {
