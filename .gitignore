@@ -78,3 +78,6 @@ calibration-results/
 # A3 崩溃遥测与自对弈运行时产物（可随时再生）
 overlap-dumps/
 selfplay-results/
+
+# WorkBuddy 会话目录（运行时产物，不入库）
+.workbuddy/
