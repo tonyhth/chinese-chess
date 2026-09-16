@@ -1,8 +1,8 @@
 # Known Issue：测试宿主挂起（xcodebuild test 全通道 hung before establishing connection）
 
 - **编号**：KI-2026-0913-01
-- **状态**：RESOLVED（根因已锁定：代理会话沙箱；2026-09-15 23:2x Luke 破案，销单条件见文末）
-- **登记**：Luke 2026-09-14 08:15（收口裁决日）；首发现 2026-09-13；根因改判 2026-09-15 23:2x
+- **状态**：RESOLVED-CLOSED（2026-09-16 21:1x 销单，Luke——补验队列全绿回填，见文末"销单记录"）
+- **登记**：Luke 2026-09-14 08:15（收口裁决日）；首发现 2026-09-13；根因改判 2026-09-15 23:2x；销单 2026-09-16 21:1x
 - **影响范围**：本机全部 xcodebuild test 运行（主仓 m1 与 worktree 双通道）；不影响 xcodebuild build、直 exec、screencapture、screenshot 采集
 
 ## ✅ 根因（2026-09-15 23:2x 破案，Luke）
@@ -45,6 +45,20 @@
 - **机制辨明**：四象限"前台+豁免获批"的"豁免"实体 = `~/.workbuddy/settings.json` → `sandbox.commandSafety.allow` 前缀白名单。白名单命令**免卡且沙箱外执行**（20:5x 实测：`git-safe-commit.sh` 首用自证，系统横幅 "Sandbox bypassed (escalation-approved)"，提交 7a405e2 零卡片、零锁残留）。此前悬置的"可持续通道形态"就此解决——runner 脚本（run-tests-mutex 系）本就在白名单内，**验证批次不再结构性依赖用户在场点卡**。
 - **晨间连挂消解**：09-16 晨"黄金象限连挂"三事件实为两种东西——① 09:45 selfverify **不是挂起**，是旧版 strippedSource 的 UnicodeScalarView 类型错误 ×4 编译失败（自验只跑 swiftc -parse 不做类型检查 → 误报"就绪"；教训：自验至少 -typecheck）；② 10:23 与 09:03（Checkmate+PatternRecognizer）为真挂起，与系统环境劣化窗重合（testmanagerd PID 3886 自开机累积 2.5 天 + swap 9.3→11G 近满 + load 2.74→6.46 爬升）。12:16 击杀旧 testmanagerd 后 load 6.46→4.03 回落，launchd 已拉起干净实例。**环境轴因素不动摇四象限表**。
 - **销单条件解锁**：终局三套件批（CheckmateSearch 第二数据点 + PatternRecognizer 补跑 + V64C2 修正版验证）经白名单 runner 免卡执行，结果回填后销单。
+
+### 销单记录（2026-09-16 21:0x-21:1x，Luke）
+
+**终局三套件批全绿**（白名单通道 `scripts/run-tests-mutex.sh`，RUNNER_OWNER=luke，旗标同带，暖 DD，前台逐套件）：
+
+| 套件 | 结果 | 日志 |
+|---|---|---|
+| V64C2LayoutTests（77b2894 修正版） | ✅ 5 tests passed, 0.063s | ~/DevTeam/logs/final0916-V64C2.log |
+| CheckmateSearchTests（第二数据点） | ✅ 4 tests passed, 0.045s | ~/DevTeam/logs/final0916-CheckmateSearch.log |
+| PatternRecognizerTests | ✅ 4 tests passed, 0.004s | ~/DevTeam/logs/final0916-PatternRecognizer.log |
+
+- CheckmateSearch 今晨黄金象限挂起（5m38s）→ 今晚同象限绿：残差确认为环境轴（陈旧 testmanagerd PID 3886 + swap 9.3→11G），非 KI 回归。12:16 击杀旧实例 + launchd 拉新 + 白名单通道 = 全绿组合。
+- **闭案口径**：Cody #7 七套件（09-16 晨 6 绿 + Phase2b 实名双套件今晚绿）+ Eric #8 三套件（09-16 晨绿）+ 今晚三套件 = 补验队列全绿。本 KI 转 RESOLVED-CLOSED。
+- 遗留观察项（不阻塞）：① runner `scripts/run-tests-mutex.sh` 执行位曾丢（16:31 编辑事故，已修）；② 环境卫生纪律新增：长跑批前查 testmanagerd 实例龄与 swap 水位（已写入执行纪律 #3）。
 
 ### 执行纪律（修正版，覆盖前文"处置与纪律"）
 
