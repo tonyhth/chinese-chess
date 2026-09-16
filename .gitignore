@@ -34,19 +34,22 @@ tmp/
 *.temp
 
 # Design/Docs (not code)
+# 2026-09-16 修正：裸 plans/ 误伤 docs/plans/（计划文档已入库存证，charter/排期先例在库）——
+# 改为锚定根目录，保留"根目录不散放"原意；scripts/* 同理只锚根（见下）
 design/
 designs/
 knowledge/
-plans/
+/plans/
 proposals/
 /*.md
 !README.md
 !DEVTEAM.md
 
 # Scripts (not project code)
-scripts/*
-*.py
-*.sh
+# 2026-09-16 修正：裸 scripts/* 连 docs/ 内脚本一起吞——改为锚定根目录 scripts/
+/scripts/*
+/*.py
+/*.sh
 !run_tests.sh
 !scripts/run-tests-mutex.sh
 !scripts/accept-gate.sh
