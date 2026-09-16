@@ -1,9 +1,19 @@
 # 工程化质量保障规范 v1（Engineering Quality Charter v1）
 
 > 起草：Alex（architect）｜2026-09-13｜依据：Luke 三方体检交叉裁决（Ruby 代码审查 / Tina 测试体系 / Vera 流程治理）
-> 状态：**v1.2（2026-09-14 洪涛批准生效，Batch A 两件套启动）**
-> 修订记录：v1（09-13 初稿）→ v1.1（09-13 Vera 审查修复 + Luke 定稿：P0×2/P1×7/P2×6，逐条见各节「v1.1」标记）→ v1.2（09-14 洪涛批准，看门狗方案换轨，变更记录见下）
+> 状态：**v1.3（2026-09-17 Batch B T-0916-1 ⓪ 适配生效：gate 六 type + 非主仓任务双轨口径 + 正则自测固化入库）**
+> 修订记录：v1（09-13 初稿）→ v1.1（09-13 Vera 审查修复 + Luke 定稿：P0×2/P1×7/P2×6，逐条见各节「v1.1」标记）→ v1.2（09-14 洪涛批准，看门狗方案换轨，变更记录见下）→ v1.3（09-17 Batch B ⓪ 四件套，变更记录见下）
 > 定位：把"靠自觉的口头规范"变成"有机制兜底的制度"。本文是**规范正文 + 机制设计**，机制脚本的设计规格内嵌各节，实施归属见 §9 排期。
+
+### v1.2 → v1.3 变更记录（2026-09-17，Batch B T-0916-1 ⓪，Luke 派单/洪涛 B-1/B-3 拍板背景）
+
+| 项 | 变更 | 理由 |
+|----|------|------|
+| §3.1 第 2 查 type 枚举 | 四 type（feat/fix/refactor/test）扩为**六 type（+chore+docs）** | 基建批 commit 形态 chore/docs 首跑必红的枚举缺陷（Batch B 排期 §0 基线快照坐实） |
+| §3.1 非主仓任务口径 | 台账备注列 `no-main-commit` 标记（**仅派发者可写**，RB-6 权限隔离，巡检抽查 DevTeam 仓 commit 真实性）→ gate 跳第 2 查并标注"非主仓任务型" | ②类任务（worktree/登记簿域）无主仓 commit，第 2 查恒零命中——单靠扩 type 救不回的结构性缺口 |
+| §11 判据 8（双轨验收） | 主仓 commit 型过 gate 绿后销账；非主仓任务以 DevTeam 仓 commit+登记簿行验收 | 判据 5 自举死锁的双层修复收口（Batch B 排期 P0-1，Luke 批准维拉方案） |
+| 正则自测固化入库 | scripts/accept-gate-regex-selftest.sh 随 gate 同 commit，16 断言含 RB-7 旧四型回归 | Batch A 自测跑在 /tmp 未固化——枚举缺陷存活至今的直接原因；"改 gate 前先跑旧自测"从此制度化 |
+| git 只读纪律 | gate 内 git 只读命令一律 --no-optional-locks | 沙箱 index.lock 残留锁死提交通道（knowledge/known-issues.md 09-14 条目，Tina 根因溯源） |
 
 ### v1.1 → v1.2 变更记录（2026-09-14，批准人：洪涛）
 
@@ -172,7 +182,8 @@ dispatched（派发）──→ wip（在制）──→ returned（回传）─
 | # | 检查 | 实现 | 治什么 |
 |---|------|------|--------|
 | 1 | 树净 | `git status --porcelain` 为空（未提交+未跟踪都算不净） | 当前 2 个未跟踪文件卡验收无人处理的形态；`verify_delivery.sh [2/5]` warn-only 的洞（69-75 行） |
-| 2 | Phase commit 存在 | `git log --extended-regexp --grep="^(feat\|fix\|refactor\|test)\(${label}\)"`（v1.1 修：ERE + 锚定行首 + 四 type 全含 + label 做正则转义）至少 1 条命中 | DEVTEAM 铁律"Phase 完成必须提交"从清单条文变成脚本判定。原草案 BRE 裸括号永不匹配——首跑必红且会被随手改宽松（Vera P1-③），此查的正则正确性本身列 gate 脚本自测用例 |
+| 2 | Phase commit 存在 | `git log --extended-regexp --grep="^(feat\|fix\|refactor\|test\|chore\|docs)\(${label}\)"`（v1.1 立 ERE + 锚定行首 + label 转义；**v1.3 扩 chore/docs 六 type**——基建批 commit 形态不再误拦）至少 1 条命中。**正则自测固化：scripts/accept-gate-regex-selftest.sh 随 gate 同 commit（16 断言：六 type 正反例+右锚+元字符+RB-7 旧四型回归），改 gate 前必跑（RB-7 铁律）** | DEVTEAM 铁律"Phase 完成必须提交"从清单条文变成脚本判定。原草案 BRE 裸括号永不匹配——首跑必红且会被随手改宽松（Vera P1-③），此查的正则正确性本身列 gate 脚本自测用例 |
+| 2b | 非主仓任务型判定（v1.3 增） | 台账行备注列含 `no-main-commit` 标记（**仅派发者/Luke 可写**，与 cancelled 同权设计；RB-6：巡检抽查带标记行的 DevTeam 仓 commit 真实存在）→ gate **跳过第 2 查**并在输出标注"非主仓任务型" | ②类任务（worktree 退役/登记簿维护）无主仓 commit，第 2 查恒零命中——type 修了也救不回的结构性缺口。验收口径转 DevTeam 仓 commit+登记簿行（判据 8 双轨） |
 | 3 | 台账已回传 | TASK-LEDGER 中 `<task-id>` 行状态 = **returned 且证据路径非空**（v1.1 修：不查 accepted） | 验收与任务闭环咬合。**v1.1 两段式（治 P0-1 时序自指）**：若查 accepted，则"验收第一步跑 gate"时销账尚未发生，第 3 查必红——验收动作本身会改变它查询的状态。改为查 returned 后，时序成立：人工审查→gate 三查（returned 在场）→gate 绿→Luke 才写 accepted 完成销账 |
 
 - **审计留痕**：每次运行把完整输出追加到 `~/DevTeam/evidence/accept-gate/gate-<phase>-<date>.log`。验收报告必须粘贴 gate 输出——**无 gate 输出的验收报告无效**（Vera 流程审查的检查点）。
@@ -410,3 +421,10 @@ gate 日志留痕（evidence/accept-gate/）+ 验收报告必须附输出 → Ve
 7. 8.4MB 违规产物出库，scripts/ 收编 commit 完成（Vera 验）。
 
 > 以上 1-7 项本身登记为 TASK-LEDGER 首批任务行（含 m1 树 2 个未跟踪文件清理行——它同时是 DoD-3 的实测样本）——**规范从诞生第一刻起用自己的机制管理自己**。
+
+### 11.1 判据 8：双轨验收口径（v1.3 增，Batch B ⓪(c)）
+
+- **主仓 commit 型任务**（默认）：过 accept-gate 三查全绿后销账（accepted）。
+- **非主仓任务型**：台账备注列 `no-main-commit` 标记（仅派发者可写）→ gate 第 2 查跳过并标注"非主仓任务型"，验收以 **DevTeam 仓 commit + 登记簿行**（WT-REGISTRY/TASK-LEDGER 证据路径）为准。
+- **防滥用（RB-6）**：标记权限与 cancelled 同权（仅 Luke/派发者）；每日巡检对带标记行抽查其 DevTeam 仓 commit 真实存在，标记与事实不符 = 流程违规件进月报。
+- 结构理由：②类任务（worktree 退役/登记簿维护/对账机制）交付物不在主仓，第 2 查（主仓 Phase commit）对其恒零命中——若不设口径，这类任务要么永远过不了 gate、要么被迫伪造主仓 commit，两者都背离 gate 初衷。双轨让"查什么"与"任务是什么"对齐。
