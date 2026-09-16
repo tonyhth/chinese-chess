@@ -88,3 +88,6 @@ selfplay-results/
 # v1.3 清退配套（Batch B ①a）：根目录 PNG 与测试缓存目录
 /*.png
 .build-test-cache/
+# 清退收尾（09-17）：releases/ 物理归档区内的历史构建截图（内容已在 git 史，
+# 15aaff9 前后可回取；物理件随同区 .app 归档）
+releases/*.png
