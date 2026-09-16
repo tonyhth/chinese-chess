@@ -5,6 +5,12 @@
 #   bash scripts/run-tests-mutex.sh <Suite1> [Suite2 ...]   # 每 suite 独立 xcodebuild 进程，全局互斥排队
 #   bash scripts/run-tests-mutex.sh --h1-verify              # H-1 验证批：四 suite 混跑（L10n 敏感组）
 #   bash scripts/run-tests-mutex.sh --full                   # r 系全量批：skip 单源消费即过滤器，总对账门禁
+#   bash scripts/run-tests-mutex.sh --check-sandbox         # 沙箱守卫自检：只检测不跑批（exit 0 放行 / 3 拒）
+#
+# 沙箱守卫（KI-2026-0913-01 落地，Luke 2026-09-16 批准）：
+#   代理会话沙箱会阻断测试宿主建连（hung before establishing connection）。
+#   检测到代理会话环境（OPENCLAW_*）即默认拒起跑；唯一放行通道
+#   RUNTESTS_SANDBOX_EXEMPT=1（人工确认 Sandbox bypassed 横幅后设置）。
 #
 # 机制（v6.3-plan §2 Step 1 首选 a，Luke 08-29 派单）：
 #   1. flock 进程互斥：锁文件固定路径 ~/DevTeam/.locks/xcode-tests.lock，
@@ -26,6 +32,37 @@ set -uo pipefail
 # PATH 健壮化（v6.4 P1④，Tina 09 实证）：flock 装在 /usr/local/bin（Intel Homebrew），
 # 非交互 shell 默认 PATH 不含 → 首跑抢锁 4h 超时。前置补全两处 Homebrew bin。
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+
+# ---------- 沙箱守卫（KI-2026-0913-01，Luke 2026-09-16 批准“防呆不防贼”） ----------
+# 根因：代理会话沙箱随进程树继承到测试宿主，宿主回连 xctest 的文件/Mach 操作被拒
+# → 7m20s+ hung（四象限唯“前台+豁免获批”绿，后台豁免不继承）。
+# 检测特征实测（Cody 09-16）：shell 层无可靠 seatbelt 签名（~/.swiftpm 写探针无区分度），
+# 代理会话 env 标记（OPENCLAW_*）是可得的最强信号——沙箱内外同带，故默认拒为安全侧。
+sandbox_guard() {
+  if [ "${RUNTESTS_SANDBOX_EXEMPT:-0}" = "1" ]; then
+    echo "[sandbox-guard] 白名单放行（RUNTESTS_SANDBOX_EXEMPT=1，豁免横幅已人工确认）"
+    return 0
+  fi
+  if [ -n "${OPENCLAW_SERVICE_MARKER:-}" ] || [ -n "${OPENCLAW_GATEWAY_PORT:-}" ]; then
+    echo "❌ [sandbox-guard] 检测到代理会话环境（OPENCLAW_*），拒起跑——KI-2026-0913-01："
+    echo "   代理沙箱阻断测试宿主建连（hung before establishing connection，四象限唯前台+豁免获批绿）。"
+    echo "   走沙箱外/前台+豁免通道（确认 Sandbox bypassed 横幅后）：RUNTESTS_SANDBOX_EXEMPT=1 再起跑。"
+    return 3
+  fi
+  echo "[sandbox-guard] 未检测到代理会话标记，放行"
+  return 0
+}
+
+case "${1:-}" in
+  --check-sandbox)
+    sandbox_guard
+    rc=$?
+    [ $rc -eq 0 ] && echo "[sandbox-guard] 自检结论：可跑" || echo "[sandbox-guard] 自检结论：拒起跑（rc=$rc）"
+    exit $rc
+    ;;
+esac
+
+sandbox_guard || exit $?
 
 PROJECT=~/DevTeam/projects/chinese-chess
 LOCK_DIR=~/DevTeam/.locks
