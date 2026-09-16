@@ -66,12 +66,13 @@ fi
 # --------------------------------------------------
 echo ""
 echo "📂 [2/5] Git 工作区状态"
-UNCOMMITTED=$(cd "$PROJECT_DIR" && git status --porcelain | wc -l | tr -d ' ')
+UNCOMMITTED=$(cd "$PROJECT_DIR" && git --no-optional-locks status --porcelain | wc -l | tr -d ' ')
 if [ "$UNCOMMITTED" -eq 0 ]; then
     ok "工作区干净，无未提交改动"
 else
-    warn "有 $UNCOMMITTED 个未提交/未跟踪文件"
-    cd "$PROJECT_DIR" && git status --short | head -10
+    # v1.3 warn→fail 升格（charter §3.2）：交付时树不净=版本边界对不上（v3.8.2→v5.0.1 86 文件教训）
+    fail "有 $UNCOMMITTED 个未提交/未跟踪文件（交付门 fail 升格，warn 档已废止）"
+    cd "$PROJECT_DIR" && git --no-optional-locks status --short | head -10
 fi
 
 # --------------------------------------------------
@@ -85,6 +86,8 @@ FORBIDDEN_PATTERNS=(
     "*.profraw"
     "debug.log"
     "training.log"
+    # v1.3 扩充（charter §3.2 v1.1 补 Vera P1-①，Batch B ①a）：根目录级 PNG——8.4MB 违规件主体恰在原检查面外
+    "/*.png"
 )
 FORBIDDEN_DIRS=(
     ".build"
@@ -92,21 +95,37 @@ FORBIDDEN_DIRS=(
     ".build-release"
     "DerivedData"
     "*.xcodeproj"
+    # v1.3 扩充（同上）：测试缓存诊断目录
+    ".build-test-cache"
 )
 
 FOUND_FORBIDDEN=0
 cd "$PROJECT_DIR"
 
 for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
-    if git ls-files -- "$pattern" 2>/dev/null | grep -q .; then
-        fail "Git 跟踪了禁止文件: $pattern"
-        git ls-files -- "$pattern" | head -5
-        FOUND_FORBIDDEN=1
-    fi
+    # v1.3：根目录级检查（pattern 以 / 前缀标记）——git pathspec 对 / 前缀 glob 报 outside-repository，
+    # 改用管道过滤："仓库根级" = 路径不含 /（docs/assets 等子目录合法 PNG 不误伤）
+    case "$pattern" in
+      /*)
+        bare="${pattern#\/*}"
+        if git --no-optional-locks ls-files -- "$bare" 2>/dev/null | grep -vE "/" | grep -q .; then
+            fail "Git 跟踪了禁止文件: ${pattern}（仓库根级）"
+            git --no-optional-locks ls-files -- "$bare" | grep -vE "/" | head -5
+            FOUND_FORBIDDEN=1
+        fi
+        ;;
+      *)
+        if git --no-optional-locks ls-files -- "$pattern" 2>/dev/null | grep -q .; then
+            fail "Git 跟踪了禁止文件: $pattern"
+            git --no-optional-locks ls-files -- "$pattern" | head -5
+            FOUND_FORBIDDEN=1
+        fi
+        ;;
+    esac
 done
 
 for dir in "${FORBIDDEN_DIRS[@]}"; do
-    if git ls-files -- "$dir/" 2>/dev/null | grep -q .; then
+    if git --no-optional-locks ls-files -- "$dir/" 2>/dev/null | grep -q .; then
         fail "Git 跟踪了禁止目录: $dir/"
         FOUND_FORBIDDEN=1
     fi

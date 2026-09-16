@@ -84,3 +84,7 @@ selfplay-results/
 
 # WorkBuddy 会话目录（运行时产物，不入库）
 .workbuddy/
+
+# v1.3 清退配套（Batch B ①a）：根目录 PNG 与测试缓存目录
+/*.png
+.build-test-cache/
