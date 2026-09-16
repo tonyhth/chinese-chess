@@ -31,8 +31,11 @@ struct V64C2LayoutTests {
 
     @Test("P3/P4 迟滞窗口径与 P1 同源（LayoutSpec 单源，无散调字面量）")
     func railThresholdsSingleSource() throws {
-        let browser = try Self.source("src/ChineseChess/Views/MasterGameBrowserView.swift")
-        let puzzle = try Self.source("src/ChineseChess/Views/PuzzleDemoView.swift")
+        // 2026-09-16 伪红修正：扫描前剥离注释（// 与 /* */）——
+        // 1939217 的 p2more 时序注释「结果 400-1000ms 间落盘」曾误触裸 contains；
+        // 阈值散调断言只看真实代码，注释里的数字不是散调（含字符串感知，防误剥 URL 的 //）
+        let browser = try Self.strippedSource("src/ChineseChess/Views/MasterGameBrowserView.swift")
+        let puzzle = try Self.strippedSource("src/ChineseChess/Views/PuzzleDemoView.swift")
         // 禁单边散调：两文件不得出现 1000/1080 字面量（阈值只活在 LayoutSpec + AdaptiveRailState）
         for src in [browser, puzzle] {
             #expect(!src.contains("1000"), "P3/P4 禁阈值字面量散调（走 AdaptiveRailState 默认 LayoutSpec 单源）")
@@ -73,5 +76,67 @@ struct V64C2LayoutTests {
     private static func source(_ relative: String) throws -> String {
         let url = repoRoot.appendingPathComponent(relative)
         return try String(contentsOfFile: url.path, encoding: .utf8)
+    }
+
+    /// 注释剥离源（2026-09-16 伪红修正）：移除 // 行注释与 /* */ 块注释。
+    /// 字符串感知：跳过双引号字符串字面量（含 \" 转义），避免误剥 URL 的 "//" 与字符串内的 /*。
+    private static func strippedSource(_ relative: String) throws -> String {
+        let raw = try Self.source(relative)
+        var out = ""
+        out.reserveCapacity(raw.utf8.count)
+        var i = raw.startIndex
+        let end = raw.endIndex
+        var inString = false
+        while i < end {
+            let c = raw[i]
+            if inString {
+                out.append(c)
+                if c == "\\" {
+                    // 转义：连下一个字符一起保留
+                    if let next = raw.index(i, offsetBy: 1, limitedBy: end), next < end {
+                        out.append(raw[next])
+                        i = raw.index(after: next)
+                        continue
+                    }
+                } else if c == "\"" {
+                    inString = false
+                }
+                i = raw.index(after: i)
+                continue
+            }
+            if c == "\"" {
+                inString = true
+                out.append(c)
+                i = raw.index(after: i)
+                continue
+            }
+            if c == "/", let next = raw.index(i, offsetBy: 1, limitedBy: end), next < end {
+                let n = raw[next]
+                if n == "/" {
+                    // 行注释：跳到行尾（保留换行，行号语义不变）
+                    while i < end, raw[i] != "\n" { i = raw.index(after: i) }
+                    continue
+                }
+                if n == "*" {
+                    // 块注释：跳到 */
+                    i = raw.index(after: next)
+                    var closed = false
+                    while i < end {
+                        if raw[i] == "*", let nn = raw.index(i, offsetBy: 1, limitedBy: end), nn < end, raw[nn] == "/" {
+                            i = raw.index(after: nn)
+                            closed = true
+                            break
+                        }
+                        if raw[i] == "\n" { out.append("\n") }  // 保行数
+                        i = raw.index(after: i)
+                    }
+                    _ = closed  // 未闭合则吞到文件尾（编译器也会报错，不另处理）
+                    continue
+                }
+            }
+            out.append(c)
+            i = raw.index(after: i)
+        }
+        return String(out)
     }
 }

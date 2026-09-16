@@ -161,7 +161,7 @@ struct MasterGameBrowserView: View {
             // P0-2 自测：sidebar 搜索框 onChange → debounceSearch 触发链
             // （修复前唯一 onChange 挂载在零引用僵尸 searchField 内，输入死路）
             // query=吕钦（真实棋手名，hasPrefix 命中）。采样两点：debounce 中(t400)+
-            // 结果期(t1200)——时序依据 2026-09-15 实测（结果 400-1000ms 间落盘）。
+            // 结果期(t1200)——时序依据 2026-09-15 实测（结果 0.4–1s 间落盘）。
             searchText = "吕钦"
             try? await Task.sleep(nanoseconds: 400_000_000)
             LayoutDump.sample(page: "P2", width: 900,
