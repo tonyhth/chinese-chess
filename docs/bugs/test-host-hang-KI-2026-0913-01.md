@@ -43,7 +43,7 @@
 ### 执行纪律（修正版，覆盖前文"处置与纪律"）
 
 1. `xcodebuild test` 必须**前台 + 沙箱豁免**（确认 "Sandbox bypassed" 横幅）；禁止 run_in_background 跑测试批
-2. 宏旗标 `OTHER_SWIFT_FLAGS='-Xfrontend -disable-sandbox'`：冷编译/强制重编场景必带（与代理沙箱无关）；暖 DD 测试阶段可省
+2. 宏旗标 `OTHER_SWIFT_FLAGS='-Xfrontend -disable-sandbox'`：**预热与测试调用一律同带**（Tina 09-16 指纹一致性裁定）——旗标是构建设置、参与构建指纹，预热带/测试不带 = 指纹不匹配 → xcodebuild 判产物过期 → 全量重编 → 宏 flake 回归（09-15 晚 worktree 三套即此死法）。旗标语义务=禁 Swift 编译器子进程沙箱，沙箱外无害（无编译时 no-op，有编译时防 flake）。前版"暖 DD 测试阶段可省"作废。
 3. 挂起复发时第一检查项：执行环境四象限定位（沙箱内/外 × 前/后台），再查其他
 
 ### 由此获得解释的既往反常
