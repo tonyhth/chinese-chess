@@ -41,6 +41,15 @@ final class AssessmentStore {
         return h.count >= 2 ? h[h.count - 2] : nil
     }
 
+    // v6.4 A3（T-0917-7 1c）：跨版本语义钩子——只留判定接口，不实现消费侧逻辑。
+    // 校准参数升级递增 currentCalibrationVersion 后，接线方式（校准落地批）：
+    //   趋势对比前 filter { $0.calibrationVersion == StrengthReport.currentCalibrationVersion }
+    //   ——跨版本 estimate 不可比（绝对值坐标系已换），混比=新报告对旧档的伪趋势。
+    /// 报告是否与当前校准版本同系（A3 钩子；nil=legacy 恒 false）
+    func isCurrentCalibration(_ report: StrengthReport) -> Bool {
+        report.calibrationVersion == StrengthReport.currentCalibrationVersion
+    }
+
     // MARK: - 写入
 
     /// 保存评估报告

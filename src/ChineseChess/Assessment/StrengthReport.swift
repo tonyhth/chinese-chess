@@ -12,6 +12,13 @@ struct StrengthReport: Codable, Identifiable {
     let eloEstimate: EloEstimate
     let recommendedLevel: AIDifficulty
 
+    // v6.4 A3（T-0917-7 1c）：跨版本语义钩子——校准参数升级 ⇒ 旧估算标过期的机制，
+    // 与 asset-manifest 的 engineVersion 过期机制同构，**只留接口不实现判定**（校准落地批接线）。
+    // - Codable 可选字段：旧档解码为 nil = legacy（eloFromDelta 未标定期产物）
+    // - 当前唯一常量 currentCalibrationVersion：校准参数真实变更时才递增（现在不动）
+    // - 消费侧接线（ AssessmentView 趋势对比前过滤）在本批只留注释锚点，不实现
+    let calibrationVersion: Int?
+
     // 六维评分（0-100）
     let dimensions: SixDimensionScores
 
@@ -23,12 +30,16 @@ struct StrengthReport: Codable, Identifiable {
     let weaknesses: [String]
     let trainingSuggestions: [TrainingSuggestion]
 
+    /// 语义版本（A3 钩子）：nil=legacy（v6.4 校准前估算，未标定口径）
+    static let currentCalibrationVersion: Int = 1
+
     init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
         sourceGames: [UUID] = [],
         eloEstimate: EloEstimate,
         recommendedLevel: AIDifficulty,
+        calibrationVersion: Int? = StrengthReport.currentCalibrationVersion,
         dimensions: SixDimensionScores,
         moveStats: MoveStatistics,
         strengths: [String] = [],
@@ -40,6 +51,7 @@ struct StrengthReport: Codable, Identifiable {
         self.sourceGames = sourceGames
         self.eloEstimate = eloEstimate
         self.recommendedLevel = recommendedLevel
+        self.calibrationVersion = calibrationVersion
         self.dimensions = dimensions
         self.moveStats = moveStats
         self.strengths = strengths
