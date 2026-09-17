@@ -180,3 +180,12 @@
 - p4-1920 终版：worktree `docs/design/prototypes/v64c2-anchor-shots/p4-1920-final-postreboot.png`（3.4MB）+ `p4-1920-recap-note.md`（含误诊链修正）
 - P3 复查截图：`p3-1920-opena-postreboot.png`
 - 持久化脚本：`~/DevTeam/scripts/`（run-tests-mutex-v64c2-wt.sh / run-tests-mutex-bisect-6e38573.sh / capture-p4-1920.sh / queue-cody-eric-recap.sh）
+
+## 附录 C：sandbox_guard 探针假阴性（2026-09-17 实测数据点）
+
+Tina 两次实测（13:14 / 15:18）均为「OPENCLAW_* 环境标记阴性 + 会话实际在沙箱内 → 挂」：
+guard 靠 env 标记判代理会话存在 **假阴性盲区**——标记 0 ≠ 非沙箱。Cody 注释自述「shell 层无可靠
+seatbelt 签名」属已知局限，本次拿到两个实测反例数据点。
+
+**判定纪律修正**：guard 放行 ≠ 非沙箱；实际判定以运行结果/授权拒绝为准（用户显式拒绝
+~/.swiftpm/security 路径 = 会话在沙箱内的直接证据）。不改变 KI 主根因结论（环境轴），仅探针精度注记。
