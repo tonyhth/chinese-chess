@@ -290,14 +290,15 @@ exit 0
 ### 状态
 
 - [x] 问题识别（v2.2.17、v3.2 打包时均发现）
-- [ ] 创建 ~/DevTeam/scripts/ 目录
-- [ ] 编写 verify_delivery.sh 脚本
-- [ ] 集成到打包流程
+- [x] 创建 ~/DevTeam/scripts/ 目录（2026-06 已建，2026-09-14 DevTeam 仓 git 化收编 a322e5f）
+- [x] 编写 verify_delivery.sh 脚本（主仓版 project-dir 五查版为单源，v1.3 扩面 [3/5]+warn→fail=15aaff9；DevTeam 侧薄 wrapper 化=8bbbce7）
+- [x] 集成到打包流程（charter §3.2 交付门：verify_delivery 为打包发版必跑门禁，[3/5] 禁止清单+fail 档已制度化；techdebt-reconcile 同入口挂发版 checklist=Batch B ③b）
 
 ### 备注
 
 - 历史版本（v2.2.17、v3.1、v3.2）均采用手动等价验证通过
 - 不阻塞当前交付，但需尽快补建避免重复劳动
+- **勾销记录（2026-09-17 Batch B ③b，T-0917-1）**：三框清偿证据——目录（DevTeam 仓 a322e5f）/脚本（主仓 15aaff9 v1.3 扩面版）/流程集成（charter §3.2+reconcile 同入口）。双份裁并：docs/general/tech-debt.md（290 行旧副本）出库归档 ~/DevTeam/analysis/doc-merges-20260917/，本文件（303 行现行版）为唯一单源
 
 ---
 
