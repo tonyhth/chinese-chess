@@ -8,8 +8,12 @@
 #   - 【教训 2】run_in_background 后台任务疑不继承沙箱豁免（Contempt/Phase2b 后台挂起实证）——
 #     本队列必须前台执行或每套件显式豁免确认
 # 纪律：runner 单通道、EloBaselineTests 必跳（runner 内 skip 单源）、RUNNER_OWNER=tina 留痕
+# 2026-09-17 补（T-0917-4 P2-3）：authored 头——每份日志与终端总输出首行带
+#   "AUTHORED <ISO8601> RUNNER_OWNER=<owner> SUITE=<suite>"，单次调用单指纹（多日志
+#   同指纹无法归因时先看头行）；RUNNER_OWNER 未设时显式标 unknown，不再静默。
 set -u
 ts() { date '+%H:%M:%S'; }
+AUTHORED_HEADER() { date "+AUTHORED %Y-%m-%dT%H:%M:%S%z RUNNER_OWNER=${RUNNER_OWNER:-unknown}"; }
 WT_RUNNER=/Users/hth/DevTeam/scripts/run-tests-mutex-v64c2-wt.sh
 MAIN_RUNNER=/Users/hth/DevTeam/projects/chinese-chess/scripts/run-tests-mutex.sh
 
@@ -32,9 +36,11 @@ if [ "${PREWARM_MAIN:-0}" = "1" ]; then
 fi
 
 # Eric #8: 3 suites on worktree v6.4-phase1-C2
+AUTHORED_HEADER   # 终端总输出 authored 头（P2-3）
 for s in V64C2LayoutTests V64C0LayoutTests V62LayoutTests; do
   echo "[$(ts)] wt: $s"
-  RUNNER_OWNER=tina bash "$WT_RUNNER" "$s" > ~/DevTeam/logs/v64c2/$s-recap.log 2>&1
+  { AUTHORED_HEADER; echo "SUITE=$s REPO=wt-v64c2"; RUNNER_OWNER="${RUNNER_OWNER:-tina}" bash "$WT_RUNNER" "$s"; } \
+    > ~/DevTeam/logs/v64c2/$s-recap.log 2>&1
   rc=$?
   echo "[$(ts)] wt: $s exit=$rc"
   grep -oE "Test run with [0-9]+ tests? in [0-9]+ suites? (passed|failed)|\\*\\* TEST (SUCCEEDED|FAILED) \\*\\*|hung before establishing|signal term" ~/DevTeam/logs/v64c2/$s-recap.log | tail -1
@@ -43,7 +49,8 @@ done
 # Cody #7: 7 suites on main repo (m1 HEAD——代码面 Ruby 已增量审, 运行时只看套件健康)
 for s in ContemptT2RevertTests Phase2bTests Phase3aEvaluationTests Phase3bEvaluationTests Phase6Tests SigillIronGateRegressionTests VariationAPITests; do
   echo "[$(ts)] main: $s"
-  RUNNER_OWNER=tina bash "$MAIN_RUNNER" "$s" > ~/DevTeam/logs/$s-recap.log 2>&1
+  { AUTHORED_HEADER; echo "SUITE=$s REPO=main"; RUNNER_OWNER="${RUNNER_OWNER:-tina}" bash "$MAIN_RUNNER" "$s"; } \
+    > ~/DevTeam/logs/$s-recap.log 2>&1
   rc=$?
   echo "[$(ts)] main: $s exit=$rc"
   grep -oE "Test run with [0-9]+ tests? in [0-9]+ suites? (passed|failed)|\\*\\* TEST (SUCCEEDED|FAILED) \\*\\*|hung before establishing|signal term" ~/DevTeam/logs/$s-recap.log | tail -1

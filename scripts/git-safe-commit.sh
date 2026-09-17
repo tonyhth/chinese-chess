@@ -30,6 +30,13 @@ git add -- "$@"
 git commit -m "$MSG"
 
 # 终态对账（DEVTEAM 铁律：提审附终态）
+# 2026-09-17 补（T-0917-4 P2-2）：--stat+name-only 两行证据形态（Ruby P2）——提交通道输出
+#   即回传素材，重量级 diff 内容走 DevTeam 仓 evidence 目录，不刷屏。
 echo "=== 终态 ==="
 git log --oneline -1
+echo "--- stat ---"
+git show --stat --oneline HEAD | tail -n +2
+echo "--- name-only ---"
+git show --name-only --oneline HEAD | tail -n +2
+echo "--- status ---"
 git status --short | head -5

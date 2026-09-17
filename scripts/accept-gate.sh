@@ -1,5 +1,5 @@
 #!/bin/bash
-# accept-gate.sh —— Phase 验收门（charter v1.3 §3.1；Batch A 两件套 + Batch B T-0916-1 ⓪ 适配）
+# accept-gate.sh —— Phase 验收门（charter v1.3 §3.1；Batch A 两件套 + Batch B T-0916-1 ⓪ 适配 + T-0917-4 维护）
 # 用法：bash scripts/accept-gate.sh <phase-label> [<task-id>]
 # 例：  bash scripts/accept-gate.sh phase-2a T-0913-1
 #
@@ -26,8 +26,9 @@ set -u
 
 # ---- 常量 ----
 # TASK_LEDGER_PATH 可覆盖（默认真台账；自测/演练用它指向临时台账，避免污染真表）
+# GATE_EVIDIR 可覆盖（默认真留痕目录；自测同理）
 LEDGER="${TASK_LEDGER_PATH:-$HOME/DevTeam/TASK-LEDGER.md}"
-EVIDIR="$HOME/DevTeam/evidence/accept-gate"
+EVIDIR="${GATE_EVIDIR:-$HOME/DevTeam/evidence/accept-gate}"
 GIT="git --no-optional-locks"
 
 usage() {
@@ -43,13 +44,23 @@ TASK_ID="${2:-}"
 
 # 正则元字符转义（label 做字面量）
 esc() { printf '%s' "$1" | sed 's/[][\.*^$(){}?+|\/]/\\&/g'; }
+# 六 type 单源口径（与 selftest 的 RX_TYPES 同步改——v1.4 提示串引用）
+RX_TYPES='feat|fix|refactor|test|chore|docs'
 
 TS="$(date '+%Y-%m-%d %H:%M:%S')"
 
 # ── 审计留痕：完整输出 tee 进 evidence（charter §3.1）──
+# v1.4（T-0917-4 P2-5）：并发收口——同日多 gate 实例 tee 交错行=假失败形态（0916 selftest 与正跑同窗实证）。
+# 方案：锁文件 fd 持锁（exec N>> + flock N，锁在整个脚本生命周期持有——无命令形态的 flock
+# 即取即释不能用于持锁段）；抢锁 30s 超时则静默退终端直显（丢留痕不丢验收，rc 不受影响）。
 mkdir -p "$EVIDIR" 2>/dev/null || true
 LOGF="$EVIDIR/gate-$(printf '%s' "$LABEL" | tr '/' '_')-$(date +%Y%m%d).log"
-exec > >(tee -a "$LOGF") 2>&1
+exec 9>>"$EVIDIR/.gate-write.lock"
+if flock -w 30 9; then
+  exec > >(tee -a "$LOGF") 2>&1
+else
+  echo "⚠️ evidence 写锁超时（30s），本次仅终端输出（不留痕）——同日并发过密或锁残留" >&2
+fi
 
 echo "════ accept-gate ═══════════════════════════════════════"
 echo "时刻: $TS   仓: $($GIT rev-parse --show-toplevel 2>/dev/null || echo 'NOT-IN-GIT')"
@@ -99,6 +110,8 @@ else
     printf '%s\n' "$HITS" | sed 's/^/      /'
   else
     echo "  ❌ 零命中：^(feat|fix|refactor|test|chore|docs)\\($(esc "$LABEL")\\)"
+    # v1.4（T-0917-4 P2-1）：回显完整可执行复查命令——复制即可跑，省去人工拼引号/转义（Ruby P1 降 P2 件）
+    echo "      复查命令：git log -E --oneline --grep=$(printf '%q' "^(${RX_TYPES})\($(esc "$LABEL")\)")"
     fail "❌ [2/3] Phase commit 缺失：label=<${LABEL}> 零命中"
   fi
 fi

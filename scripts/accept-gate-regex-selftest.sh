@@ -61,6 +61,31 @@ ck 4 "$OLD_N" "RB-7 回归：旧四型正则仍恰好 4（Batch A 语义不破�
 LOOSE="$(git -C "$SELFTEST_REPO" log -E --oneline --grep="(feat|fix|refactor|test|chore|docs)\(rx\)" | wc -l | tr -d ' ')"
 if [ "$LOOSE" -ge 7 ]; then echo "PASS  对照：去掉行首锚定命中 $LOOSE 条（误收 prefix-feat 等），锚定必要性实证"; pass=$((pass+1)); else echo "FAIL  对照异常（宽松正则仅 $LOOSE）"; fail=$((fail+1)); fi
 
+# ── v1.4 断言（T-0917-4 维护批）：提示串可执行性 + tee 并发收口 ──
+# P2-1：零命中时回显的复查命令必须 (a)含 printf %q 转义形态 (b)粘回车即跑且与 gate 第 2 查语义等价
+GATE_DIR="$(cd "$(dirname "$0")" && pwd)"
+GATE_OUT="$(GATE_EVIDIR="$SELFTEST_REPO/evi" TASK_LEDGER_PATH=/dev/null bash "$GATE_DIR/accept-gate.sh" 'meta.l+x' 2>/dev/null || true)"
+CMDLINE="$(printf '%s\n' "$GATE_OUT" | grep -oE 'git log -E --oneline --grep=.*' | head -1)"
+if [ -n "$CMDLINE" ] && printf '%s' "$CMDLINE" | grep -qE '\\\.'; then
+  echo "PASS  P2-1：提示串含 %q 转义形态（可执行复查命令在位）"; pass=$((pass+1))
+else
+  echo "FAIL  P2-1：零命中提示串缺失或未转义"; fail=$((fail+1))
+fi
+# 提示串字面执行=单次解析（zsh -c 模拟粘贴），零命中语义与 gate 第 2 查一致
+if [ -n "$CMDLINE" ]; then
+  RECHECK="$(cd "$SELFTEST_REPO" && zsh -c "$CMDLINE" 2>/dev/null | wc -l | tr -d ' ')"
+  ck 0 "$RECHECK" "P2-1：提示串粘回车即跑，零命中与 gate 一致（元字符 label=meta.l+x）"
+else
+  echo "FAIL  P2-1：无提示串可验"; fail=$((fail+1))
+fi
+# P2-5：tee 留痕完整性——单文件不含外来 label 行（并发收口后应恒成立；此处验正路无污染）
+GELOG="$SELFTEST_REPO/evi/gate-meta.l+x-$(date +%Y%m%d).log"
+if [ -f "$GELOG" ] && [ "$(grep -cE 'label=<' "$GELOG")" -ge 1 ] && ! grep -E 'label=<' "$GELOG" | grep -vq 'label=<meta.l+x>'; then
+  echo "PASS  P2-5：留痕自洽（无外来 label 行）"; pass=$((pass+1))
+else
+  echo "FAIL  P2-5：留痕缺失或含外来行"; fail=$((fail+1))
+fi
+
 echo "────"
 echo "PASS=$pass FAIL=$fail"
 [ "$fail" -eq 0 ]
