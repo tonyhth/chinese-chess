@@ -45,14 +45,18 @@ proposals/
 !README.md
 !DEVTEAM.md
 
-# Scripts (not project code)
-# 2026-09-16 修正：裸 scripts/* 连 docs/ 内脚本一起吞——改为锚定根目录 scripts/
-/scripts/*
-/*.py
-/*.sh
-!run_tests.sh
-!scripts/run-tests-mutex.sh
-!scripts/accept-gate.sh
+# Scripts —— 白名单制（Batch B ①c 翻转，2026-09-17）
+# 原形态（全局 /scripts/* + *.py + *.sh + 逐项 ! 豁免）已废弃：新增基建默认被忽略、
+# 入库靠记得加豁免行——与"规范靠自觉"同构的问题（charter §5.1 结构性风险）。
+# 新形态：/scripts/ 默认跟踪，产物型/一次性分析件显式黑名单。
+# 黑名单初稿（P2-7）：analyze_* 二进制与源码已物理移出至 ~/DevTeam/analysis/（20260917 批），
+# 此处规则防再生。
+/scripts/analyze_*
+/scripts/*.app/
+/scripts/*.json
+/scripts/*.md
+/scripts/__pycache__/
+/scripts/traditional-puzzles/
 
 # DevTeam 侧证据目录（归属 ~/DevTeam 仓，主仓不纳管——Batch A，Luke 预告的坑）
 /evidence/
