@@ -64,7 +64,12 @@ esac
 
 sandbox_guard || exit $?
 
-PROJECT=~/DevTeam/projects/chinese-chess
+# PROJECT 改脚本位置推导（Luke 2026-09-18 18:17 裁定）：主仓行为零变更（推导结果即原绝对路径），
+# worktree 副本起跑指向 worktree 工程；推导失败显式报错退出——禁止回退硬编码路径（09-17 坑根源）。
+PROJECT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && git rev-parse --show-toplevel) || {
+    echo "[run-tests-mutex] PROJECT 推导失败（脚本脱离 git 仓）——拒绝回退硬编码路径，退出" >&2
+    exit 9
+}
 LOCK_DIR=~/DevTeam/.locks
 LOCK_FILE="$LOCK_DIR/xcode-tests.lock"
 DD=/tmp/xc-mutex-dd
