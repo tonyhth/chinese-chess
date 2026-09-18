@@ -1,6 +1,11 @@
 import SwiftUI
 
 // MARK: - v5.0 开局树探索 UI（懒展开 + PositionSnapshot + 搜索）
+// v6.4 C4a：macOS 按 all14 原型 V15 重排——棋树固定窄栏 320 + 棋盘吃满余量 + 右侧统计栏 240；
+// 窄窗口径（all14 narrow 注记）：<1080 收统计栏（迟滞 1080/1120）、<900 棋树折叠为顶部下拉（迟滞 900/940）。
+// 数据诚信口径：开局库仅含 weight（出现局数），无胜率字段——节点徽章与统计栏展示真实局数，
+// 不按原型"红 41%"造假胜率（偏差回传 Luke 知悉）。
+// iOS 分支本期不动（v6.4 平台口径：iOS 零投入）。
 
 struct OpeningExplorerView: View {
     @State private var rootNodes: [OpeningExplorerNode] = []
@@ -14,6 +19,16 @@ struct OpeningExplorerView: View {
     @State private var isSearching: Bool = false
     @State private var showRelatedGames: Bool = false
 
+    // v6.4 C4a：窄窗收展双迟滞（C0 状态机，阈值 LayoutSpec 单源）
+    @State private var statsRail = AdaptiveRailState(
+        initiallyExpanded: true,
+        collapseBelow: LayoutSpec.p8StatsCollapseBelow,
+        expandAbove: LayoutSpec.p8StatsExpandAbove)
+    @State private var treeRail = AdaptiveRailState(
+        initiallyExpanded: true,
+        collapseBelow: LayoutSpec.p8TreeCollapseBelow,
+        expandAbove: LayoutSpec.p8TreeExpandAbove)
+
     @Environment(\.dismiss) private var dismiss
 
     private let l10n = L10n.shared
@@ -26,15 +41,16 @@ struct OpeningExplorerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            #if os(iOS)
             headerBar
+            #else
+            toolbarRow   // v6.4 C4a：all14 V15 工具行（返回/回起始/后退/搜索）
+            #endif
 
             if !hasAccess {
                 lockedView
             } else {
-                // 搜索栏
-                searchBar
-
-                // 搜索结果或开局名称标注栏
+                // 搜索结果或开局名称标注栏（既有交互保留，v6.4 token 化样式）
                 if isSearching && !searchResults.isEmpty {
                     searchResultsList
                 } else {
@@ -42,7 +58,7 @@ struct OpeningExplorerView: View {
                 }
 
                 #if os(iOS)
-                // v5.5.1 fix 问题3: iOS 改上下布局，棋盘获得更多空间
+                // v5.5.1 fix 问题3: iOS 改上下布局，棋盘获得更多空间（本期不动）
                 VStack(spacing: 0) {
                     treeList
                         .frame(maxHeight: 280)
@@ -50,23 +66,49 @@ struct OpeningExplorerView: View {
                     boardPreview
                 }
                 #else
-                HStack(spacing: 0) {
-                    // 左侧：开局树列表
-                    treeList
-
-                    // 右侧：棋盘预览
-                    boardPreview
+                // v6.4 C4a：<900 棋树折叠为顶部下拉（all14 narrow 条款）
+                if !treeRail.isExpanded {
+                    treePicker
                 }
+
+                HStack(spacing: LayoutSpec.space3) {
+                    if treeRail.isExpanded {
+                        treeList
+                            .frame(width: LayoutSpec.p8TreeWidth)   // T1：固定窄栏 320 单源
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+
+                    // 棋盘吃满余量（T1）
+                    boardPreview
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // 右侧统计栏（<1080 迟滞收起，T3）
+                    if statsRail.isExpanded {
+                        statsColumn
+                            .frame(width: LayoutSpec.p8StatsWidth)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                }
+                .padding(LayoutSpec.space3)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 #endif
             }
         }
-        .background(Color(red: 44/255, green: 24/255, blue: 16/255))
+        .background(Color(NSColor.controlBackgroundColor))
         .task {
             // 首次加载根节点
             if rootNodes.isEmpty {
                 rootNodes = OpeningExplorerService.shared.rootMoves()
             }
         }
+        // v6.4 C4a：页级宽度采样喂双迟滞 + LAYOUT_DUMP（C0 通道，参数名只增不改）
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { feed(width: geo.size.width) }
+                    .onChange(of: geo.size.width) { _, w in feed(width: w) }
+            }
+        )
         .sheet(isPresented: $showRelatedGames) {
             NavigationStack {
                 MasterGameBrowserView(initialMoveSequence: currentMoveSequence)
@@ -79,8 +121,23 @@ struct OpeningExplorerView: View {
         }
     }
 
-    // MARK: - 标题栏
+    // v6.4 C4a：双迟滞喂入 + 页级 dump
+    private func feed(width: CGFloat) {
+        statsRail.update(width: width)
+        treeRail.update(width: width)
+        guard LayoutDump.isEnabled else { return }
+        LayoutDump.sample(
+            page: "P8", width: width,
+            params: [
+                "stats": statsRail.isExpanded ? "shown" : "hidden",
+                "tree": treeRail.isExpanded ? "shown" : "hidden",
+                "sel": selectedNode?.moveName ?? "—",
+            ])
+    }
 
+    // MARK: - 标题栏（iOS 保留原样）
+
+    #if os(iOS)
     private var headerBar: some View {
         ZStack {
             Text(l10n.t("opening.explorer.title"))
@@ -97,66 +154,146 @@ struct OpeningExplorerView: View {
         .padding(.vertical, 6)
         .background(Color(red: 50/255, green: 30/255, blue: 20/255))
     }
+    #endif
 
-    // MARK: - 搜索栏（Phase 3）
+    // MARK: - 工具行（v6.4 C4a，all14 V15：返回学棋中心 | 回起始 | 后退 | 搜索）
 
-    private var searchBar: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .font(.caption)
-                .foregroundColor(.gray)
+    #if os(macOS)
+    private var toolbarRow: some View {
+        HStack(spacing: LayoutSpec.space2) {
+            // 🔙 学棋中心（hot 主操作：dismiss 回宿主页）
+            Button {
+                dismiss()
+            } label: {
+                Label(l10n.t("opening.explorer.backToHub"), systemImage: "chevron.backward")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
 
-            TextField(l10n.t("opening.explorer.search.placeholder"), text: $searchText)
-                .font(.caption)
-                .foregroundColor(.white)
-                .disableAutocorrection(true)
-                .onSubmit { performSearch() }
+            Divider().frame(height: 18)
 
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                    searchResults = []
-                    isSearching = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+            // ↺ 回起始（棋盘回初始局面，清选择）
+            Button {
+                resetToRoot()
+            } label: {
+                Label(l10n.t("opening.explorer.resetRoot"), systemImage: "arrow.counterclockwise")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(selectedNode == nil && moveHistory.isEmpty)
+
+            // ⬅ 后退（选父节点）
+            Button {
+                stepBack()
+            } label: {
+                Label(l10n.t("opening.explorer.stepBack"), systemImage: "backward.frame")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .disabled(selectedNode?.parent == nil)
+
+            Spacer(minLength: LayoutSpec.space2)
+
+            // 🔍 搜局面（原搜索逻辑保留，T5）
+            HStack(spacing: LayoutSpec.space2) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: LayoutSpec.fontSizeCaption))
+                    .foregroundStyle(.secondary)
+                TextField(l10n.t("opening.explorer.search.placeholder"), text: $searchText)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.small)
+                    .frame(width: 220)   // all14 .search flex-basis 220
+                    .onSubmit { performSearch() }
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                        searchResults = []
+                        isSearching = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: LayoutSpec.fontSizeCaption))
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .help(l10n.t("common.clear"))
+                }
+                Button(l10n.t("opening.explorer.search")) { performSearch() }
+                    .controlSize(.small)
+                    .disabled(searchText.isEmpty)
+            }
+        }
+        .padding(.horizontal, LayoutSpec.space3)
+        .padding(.vertical, LayoutSpec.space2)
+        .background(.bar)
+    }
+    #endif
+
+    // MARK: - 窄窗棋树下拉（<900 折叠态，all14 narrow：棋树折叠为顶部下拉）
+
+    #if os(macOS)
+    private var treePicker: some View {
+        HStack(spacing: LayoutSpec.space2) {
+            Image(systemName: "list.bullet.indent")
+                .font(.system(size: LayoutSpec.fontSizeCaption))
+                .foregroundStyle(.secondary)
+            Menu(l10n.t("opening.explorer.treeMenu")) {
+                Button(l10n.t("opening.explorer.rootPosition")) { resetToRoot() }
+                Divider()
+                ForEach(rootNodes) { node in
+                    Menu(node.moveName) {
+                        Button(l10n.t("common.select")) { selectNode(node) }
+                        ForEach(node.children.prefix(6)) { child in
+                            Button(child.moveName) { selectNode(child) }
+                        }
+                    }
                 }
             }
-
-            Button(l10n.t("opening.explorer.search")) { performSearch() }
-                .font(.caption)
-                .foregroundColor(.orange)
-                .disabled(searchText.isEmpty)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .controlSize(.small)
+            if let node = selectedNode {
+                Spacer()
+                Text(node.moveName)
+                    .font(.system(size: LayoutSpec.fontSizeCaption))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .help(node.moveName)   // LJ-1 三件套
+            }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Color(red: 36/255, green: 18/255, blue: 12/255))
+        .padding(.horizontal, LayoutSpec.space3)
+        .padding(.vertical, LayoutSpec.space1)
+        .background(.bar)
     }
+    #endif
 
-    // MARK: - 搜索结果列表（Phase 3）
+    // MARK: - 搜索结果列表（Phase 3 保留，样式 token 化）
 
     private var searchResultsList: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 2) {
+            LazyVStack(alignment: .leading, spacing: LayoutSpec.space1) {
                 ForEach(searchResults) { result in
                     Button {
                         jumpToSearchResult(result)
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: result.iconName)
-                                .font(.caption2)
-                                .foregroundColor(result.iconColor)
+                                .font(.system(size: LayoutSpec.fontSizeCaption))
+                                .foregroundStyle(.tint)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(result.title)
-                                    .font(.caption.weight(.medium))
-                                    .foregroundColor(.white)
+                                    .font(.system(size: LayoutSpec.fontSizeBody))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                                    .help(result.title)   // LJ-1 三件套
 
                                 if let subtitle = result.subtitle {
                                     Text(subtitle)
                                         .font(.system(size: 9))
-                                        .foregroundColor(.gray)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .help(subtitle)
                                 }
                             }
 
@@ -164,22 +301,21 @@ struct OpeningExplorerView: View {
 
                             Image(systemName: "arrow.right")
                                 .font(.system(size: 9))
-                                .foregroundColor(.gray)
+                                .foregroundStyle(.secondary)
                         }
-                        .padding(.vertical, 4)
-                        .padding(.horizontal, 8)
+                        .padding(.vertical, LayoutSpec.space1)
+                        .padding(.horizontal, LayoutSpec.space2)
                         .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.white.opacity(0.05))
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.primary.opacity(0.04))
                         )
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(8)
+            .padding(LayoutSpec.space2)
         }
         .frame(maxHeight: 200)
-        .background(Color(red: 38/255, green: 20/255, blue: 14/255))
     }
 
     // MARK: - 开局名称标注栏
@@ -202,28 +338,33 @@ struct OpeningExplorerView: View {
             if let name = currentOpeningName {
                 HStack(spacing: 4) {
                     Image(systemName: "bookmark.fill")
-                        .font(.caption2)
-                        .foregroundColor(.orange)
+                        .font(.system(size: LayoutSpec.fontSizeCaption))
+                        .foregroundStyle(.orange)
                     Text(name)
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.white)
+                        .font(.system(size: LayoutSpec.fontSizeBody))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .help(name)   // LJ-1 三件套
                 }
                 .padding(.vertical, 4)
                 .padding(.horizontal, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.white.opacity(0.1))
+                        .fill(Color.primary.opacity(0.05))
                 )
                 .padding(.vertical, 4)
             } else if let node = selectedNode {
                 // 无匹配时 fallback 显示走法名
                 HStack(spacing: 4) {
                     Image(systemName: "bookmark")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+                        .font(.system(size: LayoutSpec.fontSizeCaption))
+                        .foregroundStyle(.secondary)
                     Text(node.moveName)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
+                        .font(.system(size: LayoutSpec.fontSizeBody))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .help(node.moveName)
                 }
                 .padding(.vertical, 4)
                 .padding(.horizontal, 10)
@@ -231,7 +372,7 @@ struct OpeningExplorerView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .background(Color(red: 40/255, green: 22/255, blue: 14/255))
+        .background(.bar)
     }
 
     // MARK: - 锁定
@@ -247,11 +388,13 @@ struct OpeningExplorerView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - 开局树列表
+    // MARK: - 开局树列表（v6.4 C4a：固定窄栏 + 行高压缩 + 局数徽章）
 
     private var treeList: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 2) {
+            LazyVStack(alignment: .leading, spacing: 1) {
+                // 根行：起始局面（all14 .tn 首行）
+                treeRootRow
                 ForEach(rootNodes) { node in
                     ExplorerNodeRow(
                         node: node,
@@ -263,47 +406,193 @@ struct OpeningExplorerView: View {
                     )
                 }
             }
-            .padding(8)
+            .padding(LayoutSpec.space2)
         }
-        .frame(maxWidth: .infinity)
-        .background(Color(red: 38/255, green: 20/255, blue: 14/255))
+        .frame(maxHeight: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
+                .fill(Color(NSColor.controlBackgroundColor))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius))
+        .background(
+            // 树实宽采样（验收锚：树宽=320 档）
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { dumpTreeWidth(geo.size.width) }
+                    .onChange(of: geo.size.width) { _, w in dumpTreeWidth(w) }
+            }
+        )
     }
 
-    // MARK: - 棋盘预览
+    private func dumpTreeWidth(_ w: CGFloat) {
+        guard LayoutDump.isEnabled else { return }
+        LayoutDump.sample(page: "P8", width: w, params: ["part": "tree"])
+    }
+
+    private var treeRootRow: some View {
+        let isRoot = selectedNode == nil
+        return Button {
+            resetToRoot()
+        } label: {
+            HStack(spacing: LayoutSpec.space2) {
+                Text(l10n.t("opening.explorer.rootPosition"))
+                    .font(.system(size: LayoutSpec.fontSizeCaption))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .help(l10n.t("opening.explorer.rootPosition"))
+                Spacer(minLength: LayoutSpec.space1)
+                Text("—")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, LayoutSpec.space2)
+            .padding(.vertical, 3)   // T2：行高压缩 4→3
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(
+            isRoot ? AnyShapeStyle(Color.accentColor)
+                   : AnyShapeStyle(Color.clear),
+            in: RoundedRectangle(cornerRadius: 6)
+        )
+        .foregroundStyle(isRoot ? AnyShapeStyle(.white) : AnyShapeStyle(.primary))
+    }
+
+    // MARK: - 棋盘预览（v6.4 C4a：吃满余量，路径/相关大师局保留）
 
     private var boardPreview: some View {
-        VStack(spacing: 8) {
-            Text(l10n.t("opening.explorer.preview"))
-                .font(.caption)
-                .foregroundColor(.gray)
-
-            // 棋盘渲染（从当前 board 状态渲染）
+        VStack(spacing: LayoutSpec.space2) {
             OpeningBoardPreview(board: board)
                 .cornerRadius(6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.top, LayoutSpec.space1)
 
             // 走法路径
             if !moveHistory.isEmpty {
                 Text(moveHistory.joined(separator: " → "))
-                    .font(.caption2)
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(.system(size: LayoutSpec.fontSizeCaption))
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
+                    .truncationMode(.tail)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, LayoutSpec.space2)
             }
 
-            // Phase D: 查看相关大师对局
+            // Phase D: 查看相关大师对局（T5 保留）
             if !currentMoveSequence.isEmpty {
                 Button(action: { showRelatedGames = true }) {
                     Label(l10n.t("opening.relatedGames"), systemImage: "crown.fill")
-                        .font(.caption)
-                        .foregroundColor(.yellow)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             }
         }
-        .padding(8)
-        .frame(maxWidth: .infinity)
-        .background(Color(red: 30/255, green: 16/255, blue: 10/255))
+        .padding(LayoutSpec.space2)
+    }
+
+    // MARK: - 右侧统计栏（v6.4 C4a：all14 V15 "当前局面"面板；数据诚信=真实局数）
+
+    #if os(macOS)
+    private var statsColumn: some View {
+        VStack(spacing: LayoutSpec.space2) {
+            // 面板头（all14 .panel-h 语言：色签+标题）
+            HStack(spacing: LayoutSpec.space2) {
+                RoundedRectangle(cornerRadius: 1.5)
+                    .fill(Color.accentColor)
+                    .frame(width: 3, height: 14)
+                Text(l10n.t("opening.explorer.stats.current"))
+                    .font(.system(size: LayoutSpec.fontSizeBody))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, LayoutSpec.space2)
+            .padding(.top, LayoutSpec.space2)
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: LayoutSpec.space2) {
+                statRow(l10n.t("opening.explorer.stats.move"),
+                        selectedNode?.moveName ?? l10n.t("opening.explorer.rootPosition"))
+                statRow(l10n.t("opening.explorer.stats.games"),
+                        selectedNode.map { formatCount($0.weight) } ?? "—")
+                if let reply = topReply {
+                    statRow(l10n.t("opening.explorer.stats.reply"), reply)
+                }
+                if let name = currentOpeningName {
+                    statRow(l10n.t("opening.explorer.stats.opening"), name)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(LayoutSpec.space2)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
+                .fill(Color(NSColor.controlBackgroundColor))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius))
+    }
+
+    /// 常见应手：同层最高 weight 子着法 + 其层内占比（真实数据，非胜率）
+    private var topReply: String? {
+        let siblings: [OpeningExplorerNode]
+        if let node = selectedNode {
+            siblings = node.children
+        } else {
+            siblings = rootNodes
+        }
+        guard let top = siblings.max(by: { $0.weight < $1.weight }), top.weight > 0 else {
+            return nil
+        }
+        let total = siblings.reduce(0) { $0 + $1.weight }
+        let pct = total > 0 ? Int(Double(top.weight) / Double(total) * 100) : 0
+        return "\(top.moveName) · \(pct)%"
+    }
+
+    @ViewBuilder
+    private func statRow(_ label: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(label)
+                .font(.system(size: LayoutSpec.fontSizeCaption))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.system(size: LayoutSpec.fontSizeBody))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .help(value)   // LJ-1 三件套
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func formatCount(_ n: Int) -> String {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        return f.string(from: NSNumber(value: n)) ?? String(n)
+    }
+    #endif
+
+    // MARK: - 走法操作（v6.4 C4a 工具行配套）
+
+    private func resetToRoot() {
+        board = Board(fen: FENParser.standardInitial)
+        moveHistory = []
+        selectedNode = nil
+    }
+
+    private func stepBack() {
+        guard let node = selectedNode else { return }
+        if let parent = node.parent {
+            selectNode(parent)
+        } else {
+            resetToRoot()
+        }
     }
 
     // MARK: - 选择节点（v5.0：用 PositionSnapshot + parent 回溯，无需 DFS）
@@ -527,7 +816,7 @@ struct OpeningBoardPreview: View {
     }
 }
 
-// MARK: - 开局树节点行（v5.0：适配 OpeningExplorerNode）
+// MARK: - 开局树节点行（v5.0：适配 OpeningExplorerNode；v6.4 C4a 行高压缩+局数徽章）
 
 struct ExplorerNodeRow: View {
     let node: OpeningExplorerNode
@@ -550,43 +839,53 @@ struct ExplorerNodeRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 6) {
-                // 缩进
+                // 缩进（all14 .tn padding-left 14px/级）
                 if depth > 0 {
-                    Spacer().frame(width: CGFloat(depth) * 16)
+                    Spacer().frame(width: CGFloat(depth) * 14)
                 }
 
                 // 展开/折叠图标
                 if !node.isLeaf {
                     Image(systemName: node.isExpanded ? "chevron.down" : "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                        .frame(width: 18, height: 18)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 14, height: 14)
                         .contentShape(Rectangle())
                         .onTapGesture { onToggle() }
+                } else {
+                    Color.clear.frame(width: 14, height: 14)
                 }
 
-                // 走法名
+                // 走法名（LJ-1 三件套）
                 Text(node.moveName)
-                    .font(.caption.weight(depth == 0 ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .orange : (depth == 0 ? .white : .white.opacity(0.8)))
+                    .font(.system(size: LayoutSpec.fontSizeCaption,
+                                  weight: depth == 0 ? .semibold : .regular))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .help(node.moveName)
 
-                // 权重数值
+                Spacer(minLength: LayoutSpec.space1)
+
+                // v6.4 C4a：局数徽章（真实数据；all14 .ev 位——原型为胜率，本机库无此字段，
+                // 数据诚信口径展示出现局数，偏差已回传）
                 if node.weight > 0 {
-                    Text("w:\(node.weight)")
-                        .font(.system(size: 9))
-                        .foregroundColor(.gray)
+                    Text("\(node.weight)")
+                        .font(.system(size: 11).monospacedDigit())
+                        .foregroundStyle(isSelected ? AnyShapeStyle(Color.white.opacity(0.75))
+                                                    : AnyShapeStyle(.secondary))
+                        .lineLimit(1)
                 }
-
-                Spacer()
             }
             .contentShape(Rectangle())
             .onTapGesture { onSelectNode(node) }
-            .padding(.vertical, 4)
-            .padding(.leading, 4)
+            .padding(.vertical, 3)      // T2：行高压缩 4→3
+            .padding(.leading, LayoutSpec.space1)
+            .padding(.trailing, LayoutSpec.space2)
             .background(
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(isSelected ? Color.orange.opacity(0.15) : Color.clear)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isSelected ? Color.accentColor.opacity(0.9) : Color.clear)
             )
+            .foregroundStyle(isSelected ? Color.white : Color.primary)
 
             // 子节点（P1 fix: 透传 selectedNodeID）
             if node.isExpanded {
