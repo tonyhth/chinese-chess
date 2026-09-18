@@ -94,7 +94,7 @@ struct OpeningExplorerView: View {
                 #endif
             }
         }
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(Color.controlBackground)
         .task {
             // 首次加载根节点
             if rootNodes.isEmpty {
@@ -190,7 +190,7 @@ struct OpeningExplorerView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
-            .disabled(selectedNode?.parent == nil)
+            .disabled(selectedNode == nil)  // P3-7：首层可回起始（stepBack 已处理 parent==nil→resetToRoot），仅未选中才禁用
 
             Spacer(minLength: LayoutSpec.space2)
 
@@ -278,7 +278,7 @@ struct OpeningExplorerView: View {
                         HStack(spacing: 6) {
                             Image(systemName: result.iconName)
                                 .font(.system(size: LayoutSpec.fontSizeCaption))
-                                .foregroundStyle(.tint)
+                                .foregroundStyle(result.iconColor)  // P3-11：恢复结果类型语义色（moveSequence=蓝/openingName=橙）
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(result.title)
@@ -411,7 +411,7 @@ struct OpeningExplorerView: View {
         .frame(maxHeight: .infinity)
         .background(
             RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(Color.controlBackground)
         )
         .overlay(
             RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)

@@ -125,11 +125,13 @@ struct MasterGameBrowserView: View {
         // 基线 Release 构建即编译失败（C3 双构建门首次跑暴露的存量缺陷）
         #if DEBUG
         .onAppear(perform: autoEnterPlayForHarness)
+        #if os(macOS)
         .onAppear(perform: autoExpandSidebarForHarness)
+        #endif
         #endif
     }
 
-    #if DEBUG
+    #if DEBUG && os(macOS)  // iOS 无 sidebar 布局，本 harness 仅 macOS（C4a 返工 iOS 门禁暴露的存量缺口）
     /// 仅 Debug 生效：harness LAYOUT_PLAY=p2more 自测 P0-1 修复——
     /// player 模式点击"加载更多"（player:more）验证扩容分支真实可达。
     /// dump 语义：before/after = categoryDisplayCount，ok = after > before。

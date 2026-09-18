@@ -232,7 +232,10 @@ struct ChineseChessApp: App {
         let uuid = UUID().uuidString
         do {
             let data = try JSONEncoder().encode(record)
-            guard let json = String(data: data, encoding: .utf8) else { return }
+            guard let json = String(data: data, encoding: .utf8) else {
+                // P3-8：编码降级不再静默 return，统一入 catch 走 sheet 回退（与 catch 对称）
+                throw CocoaError(.fileReadNoPermission)
+            }
             try replayPayloadStore.insert(uuidString: uuid, recordJSON: json)
             openWindow(id: "replayWindow", value: uuid)
         } catch {
@@ -773,10 +776,16 @@ struct ChineseChessApp: App {
     // AnalysisPresentationProvider 注入（本壳默认 Stub）。投递链：主窗
     // openReplayWindow() → SwiftData 中转件 → openWindow(value: uuid)。
     private var replayWindowScene: some Scene {
-        WindowGroup("replayWindow", id: "replayWindow", for: String.self) { uuid in
-            ReplayWindow()
-                .environment(\.replayWindowPayloadID, uuid.wrappedValue)
-                .modelContainer(replayPayloadStore.container)
+        WindowGroup(L10n.shared.t("p9.window.title"), id: "replayWindow", for: String.self) { uuid in
+            // P2-5：容器降级 nil 时省挂 modelContainer（视图空态兑底），不炸 scene 构建
+            if let container = replayPayloadStore.container {
+                ReplayWindow()
+                    .environment(\.replayWindowPayloadID, uuid.wrappedValue)
+                    .modelContainer(container)
+            } else {
+                ReplayWindow()
+                    .environment(\.replayWindowPayloadID, uuid.wrappedValue)
+            }
         }
         .windowResizability(.contentMinSize)
         .defaultSize(width: LayoutSpec.p9WindowMinWidth, height: LayoutSpec.p9WindowMinHeight)

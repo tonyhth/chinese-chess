@@ -46,37 +46,48 @@ extension EnvironmentValues {
 
 /// GameRecord 跨 scene 投递：主窗 insert(uuid, json) → P9 窗按 uuid fetch → 关窗即删。
 /// 独立 ModelContainer（仅 ReplayWindowPayload 一表），不与主数据域混容器。
+/// P2-5：瞬态投递队列——isStoredInMemoryOnly（同进程跨 scene 无需落盘，无孤儿行/免启动 GC）；
+/// 容器失败降级 nil（scene 侧 modelContainer(nil) 无副作用），不再 fatalError 炸启动路径。
 @MainActor
 final class ReplayWindowPayloadStore {
     static let shared = ReplayWindowPayloadStore()
 
-    let container: ModelContainer
+    let container: ModelContainer?
 
     private init() {
         do {
-            container = try ModelContainer(for: ReplayWindowPayload.self)
+            container = try ModelContainer(
+                for: ReplayWindowPayload.self,
+                configurations: ModelConfiguration(isStoredInMemoryOnly: true))
         } catch {
-            fatalError("ReplayWindowPayloadStore ModelContainer 创建失败: \(error)")
+            assertionFailure("ReplayWindowPayloadStore 容器创建失败: \(error)")
+            container = nil
         }
     }
 
-    private var context: ModelContext {
-        ModelContext(container)
+    private var context: ModelContext? {
+        guard let container else { return nil }
+        return ModelContext(container)
     }
 
     func insert(uuidString: String, recordJSON: String) throws {
+        guard let context else {
+            throw CocoaError(.userActivityConnectionUnavailable)  // 容器不可用→调用侧 catch 走 sheet 降级
+        }
         let payload = ReplayWindowPayload(uuidString: uuidString, recordJSON: recordJSON)
         context.insert(payload)
         try context.save()
     }
 
     func fetch(uuidString: String) -> ReplayWindowPayload? {
+        guard let context else { return nil }
         let desc = FetchDescriptor<ReplayWindowPayload>(
             predicate: #Predicate { $0.uuidString == uuidString })
         return try? context.fetch(desc).first
     }
 
     func delete(uuidString: String) {
+        guard let context else { return }
         if let payload = fetch(uuidString: uuidString) {
             context.delete(payload)
             try? context.save()
@@ -84,11 +95,16 @@ final class ReplayWindowPayloadStore {
     }
 }
 
+// P9 独立窗口：macOS-only scene（iOS 无多窗口语义）——仅 View 层平台门；
+// SwiftData/@Model 投递层保持跨平台（Ruby 13:21 修正：勿一刀切锁全文件）
+#if os(macOS)
 struct ReplayWindow: View {
     @Environment(\.dismissWindow) private var dismissWindow
     @Environment(\.replayWindowPayloadID) private var replayWindowPayloadID
 
     @State private var record: GameRecord? = nil
+    /// P3-9：投递解码失败标记——与"空投递"空态可区分
+    @State private var deliveryCorrupt = false
 
     /// 壳芯注入边界（C4a stub / C4b 替换实现）
     @State private var analysisProvider: AnalysisPresentationProvider = StubAnalysisPresentationProvider()
@@ -105,8 +121,8 @@ struct ReplayWindow: View {
                 shellBody(record: record)
             } else {
                 ContentUnavailableView(
-                    l10n.t("p9.shell.empty"),
-                    systemImage: "rectangle.on.rectangle.slash"
+                    deliveryCorrupt ? l10n.t("p9.shell.corrupt") : l10n.t("p9.shell.empty"),
+                    systemImage: deliveryCorrupt ? "exclamationmark.triangle" : "rectangle.on.rectangle.slash"
                 )
             }
         }
@@ -116,10 +132,10 @@ struct ReplayWindow: View {
                idealHeight: LayoutSpec.p9WindowMinHeight)
         .task {
             guard record == nil, let pid = replayWindowPayloadID else { return }
-            if let payload = ReplayWindowPayloadStore.shared.fetch(uuidString: pid),
-               let data = payload.recordJSON.data(using: .utf8),
-               let decoded = try? JSONDecoder().decode(GameRecord.self, from: data) {
-                record = decoded
+            // P3-9：投递竞态重试一次（主窗 insert 与窗口启动并行）；解码失败与空投递分态
+            if !fetchDelivered(pid: pid) {
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                _ = fetchDelivered(pid: pid)
             }
         }
         .onDisappear {
@@ -139,7 +155,7 @@ struct ReplayWindow: View {
             Divider()
             mainArea(record: record)
         }
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(Color.controlBackground)
     }
 
     /// 窗口头（all14 .wh 语义：标题 + 局信息）
@@ -170,29 +186,34 @@ struct ReplayWindow: View {
     /// 控制条 = 对局页语言移植（all14 P9：上一步/播放/下一步/回到最新/调速）
     private var controlBar: some View {
         HStack(spacing: LayoutSpec.space2) {
+            // 壳期降级：prev/next/toLatest 空 action、play 无实效——统一禁用态防误判（Ruby P3-10；C4b 芯接入解禁）
             Button { } label: {
                 Label(l10n.t("p9.shell.prev"), systemImage: "backward.frame")
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .disabled(true)
 
             Button { isPlaying.toggle() } label: {
                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .disabled(true)
 
             Button { } label: {
                 Label(l10n.t("p9.shell.next"), systemImage: "forward.frame")
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .disabled(true)
 
             Button { } label: {
                 Label(l10n.t("p9.shell.toLatest"), systemImage: "arrow.uturn.forward")
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .disabled(true)
 
             Spacer(minLength: 0)
 
@@ -212,9 +233,12 @@ struct ReplayWindow: View {
         .background(.bar)
     }
 
-    /// 主区：棋盘 flex:3 + 分析侧 flex:1（min 190）
+    /// 主区：棋盘 flex:3 + 分析侧 flex:1 = 25% 带（min-width 190 下限，all14 比例语义）
     private func mainArea(record: GameRecord) -> some View {
-        HStack(spacing: 0) {
+        GeometryReader { geo in
+            let analysisW = max(geo.size.width * LayoutSpec.p9AnalysisMinRatio,
+                                LayoutSpec.p9AnalysisMinWidth)
+            HStack(spacing: 0) {
             // 棋盘区（复用既有 ReplayBoardView 需 ReplayViewModel——C4a 壳期先占位容器，
             // C4b 芯合入时接入；占位显式标注，非静默零渲染（原则六b））
             boardPlaceholder
@@ -222,29 +246,44 @@ struct ReplayWindow: View {
 
             Divider()
 
-            // 分析侧（≥25% 带下限）
-            analysisSidebar(record: record)
-                .frame(minWidth: LayoutSpec.p9AnalysisMinWidth,
-                       idealWidth: 260)
-                .fixedSize(horizontal: true, vertical: false)
+                // 分析侧（flex:1 = 25% 带，190 下限）
+                analysisSidebar(record: record)
+                    .frame(width: analysisW)
+                    .frame(maxHeight: .infinity)
+                    // LAYOUT_DUMP：侧栏实宽采样（验收锚 ≥25%，实测非推算）
+                    .background(
+                        GeometryReader { g in
+                            Color.clear
+                                .onAppear { dumpRatio(measured: g.size.width, total: geo.size.width) }
+                                .onChange(of: g.size.width) { _, w in
+                                    dumpRatio(measured: w, total: geo.size.width)
+                                }
+                        }
+                    )
+            }
         }
         .padding(LayoutSpec.space3)
-        // LAYOUT_DUMP：分析侧带宽比采样（验收锚：≥25%）
-        .background(
-            GeometryReader { geo in
-                Color.clear
-                    .onAppear { dumpRatio(total: geo.size.width) }
-                    .onChange(of: geo.size.width) { _, w in dumpRatio(total: w) }
-            }
-        )
     }
 
-    private func dumpRatio(total: CGFloat) {
+    /// P3-9：单次投递拉取——false=暂无投递（可重试），true=终态（成功或解码失败已分态标记）
+    private func fetchDelivered(pid: String) -> Bool {
+        guard let payload = ReplayWindowPayloadStore.shared.fetch(uuidString: pid) else { return false }
+        guard let data = payload.recordJSON.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode(GameRecord.self, from: data) else {
+            deliveryCorrupt = true
+            return true
+        }
+        record = decoded
+        return true
+    }
+
+    private func dumpRatio(measured: CGFloat, total: CGFloat) {
         guard LayoutDump.isEnabled else { return }
-        let ratio = total > 0 ? LayoutSpec.p9AnalysisMinWidth / total : 0
+        let ratio = total > 0 ? measured / total : 0
         LayoutDump.sample(
             page: "P9", width: total,
             params: [
+                "analysisMeasured": String(Int(measured)),
                 "analysisMin": String(Int(LayoutSpec.p9AnalysisMinWidth)),
                 "ratioFloor": String(format: "%.2f", LayoutSpec.p9AnalysisMinRatio),
                 "actual": String(format: "%.2f", ratio),
@@ -333,7 +372,7 @@ struct ReplayWindow: View {
         }
         .background(
             RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
-                .fill(Color(NSColor.controlBackgroundColor))
+                .fill(Color.controlBackground)
         )
         .overlay(
             RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius)
@@ -342,3 +381,4 @@ struct ReplayWindow: View {
         .clipShape(RoundedRectangle(cornerRadius: LayoutSpec.panelCornerRadius))
     }
 }
+#endif  // os(macOS) P9 View 层平台门（SwiftData 投递层跨平台）
