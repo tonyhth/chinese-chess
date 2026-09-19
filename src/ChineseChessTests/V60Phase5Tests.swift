@@ -29,11 +29,13 @@ struct V60Phase5ViewTests {
     // MARK: - UI 标注规范验证（§4.4）
     // ============================
 
-    @Test("报告卡片包含 *估算值 标注")
+    @Test("报告卡片主指标为推荐档位（A1 诚信降级口径）")
     func eloEstimatedAnnotation() {
-        // 验证代码中包含 "*估算值" 文本（通过源码检查）
+        // v6.4 A1（3ecf656）：Elo 绝对值出口清零——主展示降为 recommendedLevel 相对指标，
+        // 原 "*估算值" 标注随绝对值展示一并移除。断言随口径更新（09-18 首跑抓出，过期 19 天）。
         let source = SourceChecker.source(for: "AssessmentView")
-        #expect(source.contains("*估算值"), "AssessmentView 应包含 '*估算值' 标注")
+        #expect(source.contains("recommendedLevel.displayName"), "主指标应为推荐档位大字（A1 口径）")
+        #expect(!source.contains("Elo约"), "不应再出现 Elo 绝对值出口（校准期禁令，plan §8）")
     }
 
     @Test("报告卡片包含置信度展示")
@@ -48,10 +50,13 @@ struct V60Phase5ViewTests {
         #expect(source.contains("sampleSize") || source.contains("步"), "应展示样本步数")
     }
 
-    @Test("报告卡片包含 '基于有限样本估算' 小字说明")
+    @Test("报告卡片包含校准期小字说明（A1 口径替代'基于有限样本'）")
     func disclaimerText() {
+        // v6.4 A1（3ecf656）：小字说明改为 assessment.calibrationNote（"校准期：档位基于近期
+        // 对局样本估算，仅供参考"）——旧 "基于有限样本" 文案随 A1 移除，断言随口径更新。
         let source = SourceChecker.source(for: "AssessmentView")
-        #expect(source.contains("基于有限样本"), "应有 '基于有限样本估算，仅供参考' 小字说明")
+        #expect(source.contains("assessment.calibrationNote"), "应有校准期小字说明（l10n key）")
+        #expect(!source.contains("基于有限样本"), "旧'基于有限样本'文案不应残留")
     }
 
     // ============================
@@ -94,10 +99,13 @@ struct V60Phase5ViewTests {
         #expect(source.contains("AssessmentView"), "SettingsView 应 NavigationLink 到 AssessmentView")
     }
 
-    @Test("SettingsView 有报告时显示 Elo 摘要")
+    @Test("SettingsView 有报告时显示推荐档位摘要（A1 口径）")
     func settingsShowsEloSummary() {
+        // v6.4 A1（3ecf656）：SettingsView 出口从 eloEstimate 绝对值改为
+        // recommendedLevel.displayName 相对指标——断言随口径更新。
         let source = SourceChecker.source(for: "SettingsView")
-        #expect(source.contains("eloEstimate"), "SettingsView 应显示 Elo 摘要")
+        #expect(source.contains("recommendedLevel.displayName"), "应显示推荐档位摘要（A1 口径）")
+        #expect(!source.contains("eloEstimate"), "不应再消费 eloEstimate 绝对值出口")
     }
 
     @Test("SettingsView 无报告时显示 '未评估'")
