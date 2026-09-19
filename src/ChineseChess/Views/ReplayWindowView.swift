@@ -48,26 +48,30 @@ extension EnvironmentValues {
 /// 独立 ModelContainer（仅 ReplayWindowPayload 一表），不与主数据域混容器。
 /// P2-5：瞬态投递队列——isStoredInMemoryOnly（同进程跨 scene 无需落盘，无孤儿行/免启动 GC）；
 /// 容器失败降级 nil（scene 侧 modelContainer(nil) 无副作用），不再 fatalError 炸启动路径。
+/// R2（P2-5 缺陷修复）：**单一长寿命 ModelContext**——原实现 context 为计算属性，
+/// 每次访问新建上下文，delete() 跨上下文删除 SwiftData 静默无效 + try? 吞错，
+/// 关窗清投递为哑操作（载荷内存累积）。@MainActor 单例单线程，三方法同源 context 一次根治。
 @MainActor
 final class ReplayWindowPayloadStore {
     static let shared = ReplayWindowPayloadStore()
 
     let container: ModelContainer?
 
+    /// 长寿命单一 context：insert/fetch/delete 同源，跨上下文操作不再可能
+    private let context: ModelContext?
+
     private init() {
         do {
-            container = try ModelContainer(
+            let c = try ModelContainer(
                 for: ReplayWindowPayload.self,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+            container = c
+            context = ModelContext(c)
         } catch {
             assertionFailure("ReplayWindowPayloadStore 容器创建失败: \(error)")
             container = nil
+            context = nil
         }
-    }
-
-    private var context: ModelContext? {
-        guard let container else { return nil }
-        return ModelContext(container)
     }
 
     func insert(uuidString: String, recordJSON: String) throws {
@@ -76,21 +80,24 @@ final class ReplayWindowPayloadStore {
         }
         let payload = ReplayWindowPayload(uuidString: uuidString, recordJSON: recordJSON)
         context.insert(payload)
-        try context.save()
+        try context.save()   // insert 语义保持 throws（调用点走 sheet 降级路径）
     }
 
     func fetch(uuidString: String) -> ReplayWindowPayload? {
         guard let context else { return nil }
         let desc = FetchDescriptor<ReplayWindowPayload>(
             predicate: #Predicate { $0.uuidString == uuidString })
-        return try? context.fetch(desc).first
+        return try? context.fetch(desc).first   // 读路径保持宽容语义（既有绿路径不破坏）
     }
 
     func delete(uuidString: String) {
-        guard let context else { return }
-        if let payload = fetch(uuidString: uuidString) {
-            context.delete(payload)
-            try? context.save()
+        // R2：fetch 与 delete 同一长寿命 context——payload 注册本上下文，删除必然生效
+        guard let context, let payload = fetch(uuidString: uuidString) else { return }
+        context.delete(payload)
+        do {
+            try context.save()   // 显式处理，禁 try? 吞错（一次性投递语义的落库点）
+        } catch {
+            assertionFailure("P9 投递删除落库失败（一次性投递语义破坏）: \(error)")
         }
     }
 }
