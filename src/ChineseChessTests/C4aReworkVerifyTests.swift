@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import XCTest   // R3：XCTSkip 所需框架（本文件 @Test 风格，XCTSkip 不在 Testing/Foundation 面）
 import SwiftUI
 @testable import ChineseChess
 
@@ -191,10 +192,13 @@ struct C4aReworkVerifyTests {
 
     // MARK: - P9 runtime 实测锚（无头 hosting，LAYOUT_DUMP 文件桥）
     //
-    // R2：headless 无窗环境 onAppear 不触发 → 本锚环境面阻断。处置=条件跳过（合法 skip）：
-    // - 无窗（dump 不产出）：Skip.record() 留档（swift-testing 原生跳过，非 XCTSkip——
-    //   既往形态实证：XCTSkip 在 async test 被本版 swift-testing 记红，更糟）；
-    // - 有窗/CI 图形会话：真跑断言（≥25% 占比 + 下限兜底），不假绿。
+    // R3：headless 无窗环境 onAppear 不触发 → 本锚环境面阻断。处置=条件跳过（合法 skip）：
+    // - 无窗（dump 不产出）：throw XCTSkip 留档（按仓内 7 处先例形态选型：TestEnvPreflight
+    //   模板 + PhaseA1/A2/A3Exit132 实用件——R2 曾误选 swift-testing Skip.record，
+    //   编译实证本工具链无此 API，R3 回归仓内先例；教训：传闻风险先实证再选型）；
+    // - 有窗/CI 图形会话：真跑断言（≥25% 占比 + 下限兜底），不假绿；
+    // - async 记录形态由本批复跑日志实证：若记红走 R3b 环境探测前置
+    //   （有窗才注册断言路径——静态面用例先判环境再挂 @Test）。
     // 锚本身的断言面不变：1512 档≈378 / 760 档下限 190。
 
     @Test("P9 实测锚：侧栏实宽占比 ≥25%（1512 档≈378 / 760 档下限 190；无窗环境条件跳过）")
@@ -253,10 +257,11 @@ struct C4aReworkVerifyTests {
             }
             guard let found else {
                 // 无窗环境（headless CI / 无图形会话）：onAppear 链路不触发 = 环境面阻断，
-                // 非产品缺陷信号。条件跳过留档——有窗会话跑则真断言，禁假绿。
-                throw Skip.record(
+                // 非产品缺陷信号。XCTSkip 条件跳过留档——有窗会话跑则真断言，禁假绿
+                //（R3：Skip.record 编译实证不存在，回归 XCTSkip 仓内先例形态）。
+                throw XCTSkip(
                     "P9 runtime 锚环境面阻断：headless 无窗 hosting 不触发 onAppear，dump 无产出"
-                    + "（真跑需图形会话；本 suite 其余 9 用例覆盖静态面+数学锚+投递回路）")
+                    + "——断言面 1512/760 保留待图形会话；本 suite 其余 9 用例覆盖静态面+数学锚+投递回路")
             }
             return found
         }
