@@ -411,7 +411,7 @@ struct ReplayWindow: View {
     /// 当前局面评估（红方视角 cp；未分析段 nil → 中性条）
     private var currentEvalCp: Int? {
         guard let vm = analysisVM, currentIndex >= 1, currentIndex <= vm.analyses.count else { return nil }
-        return vm.analyses[currentIndex - 1]??.playerEval
+        return vm.analyses[currentIndex - 1]?.playerEval
     }
 
     /// 评估条：cp → 红方优势占比（±600cp 饱和；mate 域暂以饱和呈现，芯域曲线组件
