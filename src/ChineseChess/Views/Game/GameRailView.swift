@@ -13,6 +13,12 @@ struct GameRailView: View {
     let viewModel: GameViewModel
     var onReplayRequest: (() -> Void)? = nil
 
+    // v6.4 C4b 件2：P1 步子条徽章三要素 UI（v6.4-plan:49 归 C 线窗口）
+    // 数据面不写死——经 AnalysisPresentationProvider 注入（Cody A 线供给）：
+    // 对局进行中 nil（对局页无持久化分析，打样边界不变）；复盘回看侧注入真芯后徽章激活。
+    // 三要素 = MoveReview（实际着法/引擎推荐/亏损 cp），variations top3 同 provider 口径。
+    var analysisProvider: AnalysisPresentationProvider? = nil
+
     private let l10n = L10n.shared
 
     // 面板折叠态（默认全展，走法记录占主）
@@ -48,8 +54,13 @@ struct GameRailView: View {
             }
 
             // 分析（复盘入口；形势条随①持久化上线）
+            // v6.4 C4b 件2：provider 注入后追加三要素徽章条（着法/评值/深度口径），
+            // 未注入保持原复盘入口占位（对局进行中无持久化分析，打样边界不变）
             RailPanel(title: l10n.t("p1.rail.analysis"), collapsed: $analysisCollapsed) {
                 VStack(spacing: LayoutSpec.space2) {
+                    if let provider = analysisProvider {
+                        p1ReviewBadgeStrip(provider: provider)
+                    }
                     Button {
                         onReplayRequest?()
                     } label: {
@@ -62,10 +73,12 @@ struct GameRailView: View {
                     .tint(.brown)
                     .disabled(viewModel.gameMoves.isEmpty)
 
-                    Text(l10n.t("p1.rail.analysisPlaceholder"))
-                        .font(.system(size: LayoutSpec.fontSizeCaption))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+                    if analysisProvider == nil {
+                        Text(l10n.t("p1.rail.analysisPlaceholder"))
+                            .font(.system(size: LayoutSpec.fontSizeCaption))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
                 }
             }
 
@@ -97,6 +110,55 @@ struct GameRailView: View {
             await refreshEngineCheck()
             await refreshNNUECheck()
         }
+    }
+
+    // MARK: - v6.4 C4b 件2：三要素徽章条（provider 注入式）
+
+    /// 最新着的三要素徽章条：实际着法 / 引擎推荐 / 亏损 cp（P1 速览语义——
+    /// 对局页轻量速览不打断下棋，深度分析归 P9；v6.4-review-analysis-requirements
+    /// §2"质量标注点开显示三要素"P1 落地面）。
+    /// 数据源 = MoveReview（i=k-1，k=当前着数），无数据（未分析段/老档 nil 降级）隐藏。
+    @ViewBuilder
+    private func p1ReviewBadgeStrip(provider: AnalysisPresentationProvider) -> some View {
+        let k = viewModel.gameMoves.count
+        if let review = provider.moveReview(atMove: k - 1) {
+            VStack(spacing: LayoutSpec.space1) {
+                HStack(spacing: 4) {
+                    badgeChip(title: l10n.t("p1.rail.review.played"), value: review.played)
+                    badgeChip(title: l10n.t("p1.rail.review.best"), value: review.recommended)
+                }
+                HStack(spacing: 4) {
+                    badgeChip(title: l10n.t("p1.rail.review.loss"),
+                              value: review.lossCp > 0 ? "+\(review.lossCp)" : "0",
+                              prominent: review.lossCp > 0)
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+        // 无 review（AI 着/未分析/k=0）：不显示（对局页不打扰原则，非空态占位）
+    }
+
+    /// 徽章芯片：标题小字 + 值等宽（LJ-1 三件套：单行截断+尾部省略+help 全文）
+    private func badgeChip(title: String, value: String, prominent: Bool = false) -> some View {
+        VStack(spacing: 1) {
+            Text(title)
+                .font(.system(size: LayoutSpec.fontSizeCaption - 2))
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Text(value)
+                .font(.system(size: LayoutSpec.fontSizeBody, design: .monospaced))
+                .foregroundColor(prominent ? .orange : .primary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, LayoutSpec.space1)
+        .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.primary.opacity(0.05))
+        )
+        .help("\(title): \(value)")
     }
 
     // MARK: - 引擎路由真实状态（Ruby P1 补：随难度刷新）

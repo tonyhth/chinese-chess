@@ -43,6 +43,48 @@ struct C4aReworkVerifyTests {
         hay.ranges(of: needle).count
     }
 
+    // MARK: - C4b 件3-②：条件编译门栈式解析（Ruby P2 加固）
+
+    /// 判断 offset 处的代码是否位于 `#if os(macOS)` 生效域内（栈式解析，替代 head.contains 弱断言）。
+    ///
+    /// 原 :57-60 用 `head.contains("#if os(macOS)")` 判存量 NSColor 在门内——弱点：
+    /// ①只查 os(macOS) 单一条件词，#if os(iOS)/#if DEBUG 等兄弟门不识别，嵌套时假绿；
+    /// ②只看头半段文本有没有出现，不校验 #endif 已否闭合（出现在已闭合段也算命中）。
+    ///
+    /// 栈式解析语义：扫到 offset 为止，遇 `#if` 入栈（记录条件含 os(macOS) 与否）、
+    /// 遇 `#endif` 弹栈、遇 `#else`/`#elseif` 翻转栈顶（else 段与 if 段互斥，保守置
+    /// false——macOS 门的 else 段是 iOS 侧）。预处理指令允许前导空白（Swift 语法：
+    /// 缩进的 #if 合法，Explorer :499 实存缩进门）。返回 true = 未闭合层中有 macOS 门。
+    static func isInsideMacOSGate(_ source: String, at offset: String.Index) -> Bool {
+        var stack: [Bool] = []   // 每层：当前分支是否 os(macOS) 生效
+        var idx = source.startIndex
+        while idx < offset {
+            // 行首判定：#if/#else/#elseif/#endif 允许前导空白（跳过空格/tab 后识别）
+            let lineStart: String.Index
+            if let r = source[..<idx].lastIndex(of: "\n") { lineStart = source.index(after: r) }
+            else { lineStart = source.startIndex }
+            if idx == lineStart {
+                var p = idx
+                while p < offset, source[p] == " " || source[p] == "\t" {
+                    p = source.index(after: p)
+                }
+                let rest = source[p...]
+                if rest.hasPrefix("#if") {
+                    let cond = rest.dropFirst(3).prefix(while: { $0 != "\n" })
+                    stack.append(cond.contains("os(macOS)"))
+                } else if rest.hasPrefix("#else") || rest.hasPrefix("#elseif") {
+                    if !stack.isEmpty { stack[stack.count - 1] = false }
+                } else if rest.hasPrefix("#endif") {
+                    if !stack.isEmpty { stack.removeLast() }
+                }
+                // 快进到行尾（条件词同行不再扫）
+                if let nl = source[idx...].firstIndex(of: "\n") { idx = nl; }
+            }
+            idx = source.index(after: idx)
+        }
+        return stack.contains(true)
+    }
+
     // MARK: - P1-1 平台门四点
 
     @Test("P1-1 平台门：token 两处 + :534 存量门内 + Replay View 门/投递层跨平台 + 存量 harness 门")
@@ -52,11 +94,13 @@ struct C4aReworkVerifyTests {
         #expect(explorer.contains(".background(Color.controlBackground)"), ":97 应为 Color.controlBackground token")
         #expect(explorer.contains(".fill(Color.controlBackground)"), ":414 应为 Color.controlBackground token")
         // 点2：:534 唯一存量 NSColor，且在 os(macOS) 门内（原形态零 diff）
+        // C4b 件3-②：head.contains 弱断言改栈式解析（数 :534 前未闭合 #if 层，
+        // os(iOS)/DEBUG 兄弟门与已闭合段不再假绿）
         #expect(Self.count("NSColor.controlBackgroundColor", in: explorer) == 1,
                 "Explorer 应仅剩 :534 一处存量 NSColor（原形态）")
         if let r = explorer.range(of: "NSColor.controlBackgroundColor") {
-            let head = String(explorer[..<r.lowerBound])
-            #expect(head.contains("#if os(macOS)"), ":534 存量应位于 os(macOS) 门内（statsColumn）")
+            #expect(Self.isInsideMacOSGate(explorer, at: r.lowerBound),
+                    ":534 存量应位于 os(macOS) 门内（栈式解析，statsColumn）")
         }
 
         let replay = try Self.source("src/ChineseChess/Views/ReplayWindowView.swift")

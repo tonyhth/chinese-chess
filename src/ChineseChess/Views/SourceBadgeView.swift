@@ -31,7 +31,10 @@ struct SourceBadgeView: View {
 
     private var iconName: String {
         switch source {
-        case .versusAI:  return "sword.fill"
+        // C4b 件4：原 "sword.fill" 非 SF Symbol（运行时 console 噪声 "No symbol named
+        // 'sword.fill' found"，Image 静默降级空图标）——改 "person.fill.wave.2.fill"
+        //（人对 AI 对抗语义：人形+挥手致意 AI 对手）
+        case .versusAI:  return "person.fill.wave.2.fill"
         case .puzzle:    return "puzzlepiece.fill"
         case .imported:  return "arrow.down.doc.fill"
         case .freePlay:  return "person.2.fill"

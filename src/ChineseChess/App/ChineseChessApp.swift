@@ -234,12 +234,17 @@ struct ChineseChessApp: App {
             let data = try JSONEncoder().encode(record)
             guard let json = String(data: data, encoding: .utf8) else {
                 // P3-8：编码降级不再静默 return，统一入 catch 走 sheet 回退（与 catch 对称）
-                throw CocoaError(.fileReadNoPermission)
+                // C4b 件3：原借 CocoaError(.fileReadNoPermission)——语义借用（既无文件也无权限
+                // 问题，误导日志归因）；utf8 编码失败属"输入值不可转化"语义，改近义码
+                // .coderInvalidValue（仍走同一 catch 面回退 sheet，行为零变更）
+                throw CocoaError(.coderInvalidValue)
             }
             try replayPayloadStore.insert(uuidString: uuid, recordJSON: json)
             openWindow(id: "replayWindow", value: uuid)
         } catch {
             // 投递失败回退旧 sheet 通道（降级不断链）
+            // 分型注释（C4b 件3）：①编码失败（coderInvalidValue，JSONEncoder 罕见路径）
+            // ②insert 抛错（userActivityConnectionUnavailable，容器不可用）③两者均降级 sheet
             activeSheet = .toolbarReplay(record)
         }
     }
