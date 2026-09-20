@@ -36,16 +36,24 @@ final class AssessmentStore {
     }
 
     /// 上一份报告（趋势对比用；无历史时 nil）
+    /// v6.4 C4b（T-0918 接线，8dd48a7 注释锚点落地）：跨版本 estimate 不可比
+    /// （校准参数升级=绝对值坐标系已换，混比=伪趋势）——趋势对比只认**同校准版本**
+    /// 的前一份报告；旧版本/legacy（nil）报告不参与趋势（消费侧拿 nil=不显示趋势箭头）。
     var previousReport: StrengthReport? {
+        let current = lastReport
         let h = reportHistory
-        return h.count >= 2 ? h[h.count - 2] : nil
+        // 同版本旧→新序列里，当前报告的前一份（严格同 calibrationVersion）
+        guard let cur = current else { return nil }
+        let sameSeries = h.filter { $0.calibrationVersion == cur.calibrationVersion }
+        guard let curIdx = sameSeries.firstIndex(where: { $0.id == cur.id }),
+              curIdx > 0 else { return nil }
+        return sameSeries[curIdx - 1]
     }
 
-    // v6.4 A3（T-0917-7 1c）：跨版本语义钩子——只留判定接口，不实现消费侧逻辑。
-    // 校准参数升级递增 currentCalibrationVersion 后，接线方式（校准落地批）：
-    //   趋势对比前 filter { $0.calibrationVersion == StrengthReport.currentCalibrationVersion }
-    //   ——跨版本 estimate 不可比（绝对值坐标系已换），混比=新报告对旧档的伪趋势。
-    /// 报告是否与当前校准版本同系（A3 钩子；nil=legacy 恒 false）
+    // v6.4 A3（T-0917-7 1c）：跨版本语义钩子——判定接口（C4b 起为消费侧供给面）。
+    // 校准参数升级递增 currentCalibrationVersion 后，isCurrentCalibration 即翻 false
+    // （旧档），previousReport 过滤同版本序列（上方），趋势不可比口径闭环。
+    /// 报告是否与当前校准版本同系（nil=legacy 恒 false）
     func isCurrentCalibration(_ report: StrengthReport) -> Bool {
         report.calibrationVersion == StrengthReport.currentCalibrationVersion
     }

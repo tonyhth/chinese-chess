@@ -214,13 +214,20 @@ struct C4aReworkVerifyTests {
         #expect(replay.contains("p9.shell.empty"), "empty 文案保留（两态可区分）")
     }
 
-    // MARK: - P3-10 壳期四钮禁用
+    // MARK: - P3-10 控制条四钮（C4b 件1 后：解禁态）
 
-    @Test("P3-10 壳期四钮禁用视觉（prev/play/next/toLatest）")
+    @Test("P3-10 控制条四钮解禁（真芯在位，controlsReady 驱动；record 未落地禁用）")
     func p3_10_shellButtonsDisabled() throws {
         let replay = try Self.source("src/ChineseChess/Views/ReplayWindowView.swift")
-        #expect(Self.count(".disabled(true)", in: replay) == 4,
-                "控制条四颗操作钮应统一 disabled（C4b 芯接入解禁）")
+        // C4b 件1（680016c）四钮解禁：.disabled(true) 壳期形态退役，
+        // 改 !controlsReady 条件禁用（record 未落地仍禁——空窗态防误触）。
+        // 断言随口径更新（V60 P5 同类：过期断言，非回归）：
+        #expect(Self.count(".disabled(true)", in: replay) == 0,
+                "壳期硬禁用形态应退役（680016c 件1 四钮解禁）")
+        #expect(Self.count("!controlsReady", in: replay) >= 4,
+                "四颗操作钮均应接 controlsReady 条件禁用")
+        #expect(replay.contains("controlsReady: Bool { record != nil }"),
+                "record 未落地禁用（空窗态防误触）")
     }
 
     // MARK: - P3-11 语义色
