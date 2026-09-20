@@ -93,7 +93,9 @@ struct C4bCalibrationHookTests {
     }
 
     private func makeReport(calibrationVersion: Int?, games: [UUID] = []) -> StrengthReport {
+        // 参数序按 StrengthReport init 声明序（:36-58）：sourceGames 在 eloEstimate 之前
         StrengthReport(
+            sourceGames: games,
             eloEstimate: EloEstimate(estimate: 1500, lowerBound: 1400, upperBound: 1600, sampleSize: 80, confidence: .high),
             recommendedLevel: .amateurMid,
             calibrationVersion: calibrationVersion,
@@ -104,8 +106,7 @@ struct C4bCalibrationHookTests {
                 consistency: .init(score: 80, label: "良好", detail: "", metrics: [:]),
                 checkmate: .init(score: 40, label: "待提升", detail: "", metrics: [:])
             ),
-            moveStats: MoveStatistics(totalMoves: 80, qualityDistribution: [.brilliant: 10, .good: 30, .normal: 30, .blunder: 10], avgDelta: 45.0),
-            sourceGames: games)
+            moveStats: MoveStatistics(totalMoves: 80, qualityDistribution: [.brilliant: 10, .good: 30, .normal: 30, .blunder: 10], avgDelta: 45.0))
     }
 
     @Test("同版本序列：previousReport 取同 calibrationVersion 的前一份")
