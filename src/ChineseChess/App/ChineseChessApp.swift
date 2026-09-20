@@ -1,6 +1,7 @@
 #if os(macOS)
 import SwiftUI
 import AppKit
+import SwiftData
 
 // macOS 退出钩子兜底：scenePhase 在 macOS 上不保证触发
 private final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -219,6 +220,30 @@ struct ChineseChessApp: App {
     // v6.4 C0：对局页右通栏自适应状态机（迟滞 <1000 收 / >1080 展）
     @State private var railState = AdaptiveRailState()
 
+    // v6.4 C4a：P9 复盘独立窗口
+    @Environment(\.openWindow) private var openWindow
+    /// P9 窗口投递中转（mainActor 隔离；uuid 传窗，GameRecord 走 SwiftData 检索）
+    @MainActor private let replayPayloadStore = ReplayWindowPayloadStore.shared
+
+    /// 打开 P9 独立窗口（GameRecord → JSON → SwiftData → openWindow(uuid)）
+    @MainActor
+    private func openReplayWindow() {
+        guard let record = viewModel.buildGameRecord(), !record.moves.isEmpty else { return }
+        let uuid = UUID().uuidString
+        do {
+            let data = try JSONEncoder().encode(record)
+            guard let json = String(data: data, encoding: .utf8) else {
+                // P3-8：编码降级不再静默 return，统一入 catch 走 sheet 回退（与 catch 对称）
+                throw CocoaError(.fileReadNoPermission)
+            }
+            try replayPayloadStore.insert(uuidString: uuid, recordJSON: json)
+            openWindow(id: "replayWindow", value: uuid)
+        } catch {
+            // 投递失败回退旧 sheet 通道（降级不断链）
+            activeSheet = .toolbarReplay(record)
+        }
+    }
+
     #if DEBUG
     /// v6.4 C3-3：harness sheet 挂载确认（sheet 内容 onAppear 置位；失挂重试用）
     @State private var harnessSheetShown = false
@@ -237,7 +262,7 @@ struct ChineseChessApp: App {
                   action: { viewModel.requestResign() }),
             .init(id: "replay", title: l10n.t("game.replay"), icon: "arrow.uturn.forward.circle",
                   disabled: viewModel.gameMoves.isEmpty,
-                  action: { if let r = viewModel.buildGameRecord() { activeSheet = .toolbarReplay(r) } }),
+                  action: { openReplayWindow() }),
             .divider(id: "d1"),
             .init(id: "analysis", title: l10n.t("toolbar.analysis"), icon: "chart.line.uptrend.xyaxis",
                   disabled: viewModel.gameMoves.isEmpty,
@@ -271,8 +296,12 @@ struct ChineseChessApp: App {
     }
 
     var body: some Scene {
-        WindowGroup(L10n.shared.t("app.title")) {
-            ZStack {
+        mainWindowScene
+        replayWindowScene
+    }
+
+    private var mainWindowScene: some Scene {
+        WindowGroup(L10n.shared.t("app.title")) {            ZStack {
                 // 窗口背景
                 Color(red: 44/255, green: 24/255, blue: 16/255)
                     .ignoresSafeArea()
@@ -670,7 +699,8 @@ struct ChineseChessApp: App {
                                 }
                             }
                     }
-                    .frame(minWidth: 600, minHeight: 700)
+                    // v6.4 C4a：P8 三区（树 320+统计 240+边距 48）起步宽；窄窗迟滞区间可收至 900 内
+                    .frame(minWidth: LayoutSpec.compactWindowMin, idealWidth: 1280, minHeight: 700)
                 }
             }
             // v3.7.0 Phase 3: 打开 .pgn 文件
@@ -739,6 +769,26 @@ struct ChineseChessApp: App {
                 }
             }
         }
+    }
+
+    // v6.4 C4a：P9 复盘独立窗口（壳——洪涛 R3 拍板“一步到位”）。
+    // 760×820 起步可最大化；芯（评估/回跳/变招）C4b Cody 域，经
+    // AnalysisPresentationProvider 注入（本壳默认 Stub）。投递链：主窗
+    // openReplayWindow() → SwiftData 中转件 → openWindow(value: uuid)。
+    private var replayWindowScene: some Scene {
+        WindowGroup(L10n.shared.t("p9.window.title"), id: "replayWindow", for: String.self) { uuid in
+            // P2-5：容器降级 nil 时省挂 modelContainer（视图空态兑底），不炸 scene 构建
+            if let container = replayPayloadStore.container {
+                ReplayWindow()
+                    .environment(\.replayWindowPayloadID, uuid.wrappedValue)
+                    .modelContainer(container)
+            } else {
+                ReplayWindow()
+                    .environment(\.replayWindowPayloadID, uuid.wrappedValue)
+            }
+        }
+        .windowResizability(.contentMinSize)
+        .defaultSize(width: LayoutSpec.p9WindowMinWidth, height: LayoutSpec.p9WindowMinHeight)
     }
 
     // MARK: - 导出辅助

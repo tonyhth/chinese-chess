@@ -42,6 +42,25 @@ enum LayoutSpec {
 
     static let p34RailWidth: CGFloat = 300
 
+    // MARK: P8 探索器（v6.4 C4a，all14 原型唯一真相源）
+    // 窄窗口径（all14 show() narrow 注记）：<1080 收右侧统计栏、<900 棋树折叠为顶部下拉
+    // 迟滞带 ±40 防抖沿用原则二b 语义（P8 收展为 all14 明示条款，属收纳态切换例外族）
+
+    static let p8TreeWidth: CGFloat = 320        // all14 .tree flex-basis 320
+    static let p8StatsWidth: CGFloat = 240       // all14 P8 右侧统计栏 width:240
+    static let p8StatsCollapseBelow: CGFloat = 1080
+    static let p8StatsExpandAbove: CGFloat = 1120
+    static let p8TreeCollapseBelow: CGFloat = 900
+    static let p8TreeExpandAbove: CGFloat = 940
+
+    // MARK: P9 复盘独立窗口壳（v6.4 C4a，洪涛 R3 拍板：一步到位独立窗口）
+
+    static let p9WindowMinWidth: CGFloat = 760   // 设计单 §3.5：760×820 起步 + 可最大化
+    static let p9WindowMinHeight: CGFloat = 820
+    /// 分析侧（评估+分支）带宽下限——设计单："分析侧给足 25% 带"
+    static let p9AnalysisMinRatio: CGFloat = 0.25
+    static let p9AnalysisMinWidth: CGFloat = 190 // all14 P9 分析列 min-width:190
+
     // MARK: 收纳态迟滞带（原则二b：仅 P1/P3/P4 辅助信息侧栏适用）
 
     static let railCollapseBelow: CGFloat = 1000   // <1000 收
