@@ -313,6 +313,39 @@ struct CalibrationV3Tests {
     }
 
     // ============================
+    // MARK: - 7b. 换手 override 随持方同步交换（T-0921-3 / KI-2026-0921-02）
+    // ============================
+
+    @Test("runPikafishSelfPlay 奇数局换手：override 随难度交换，标签持方真实", .timeLimit(.minutes(2)))
+    func runPikafishSelfPlaySwapsOverrides() async {
+        // KI-2026-0921-02：此前换手只换占位难度、override 直传，红方恒 skillA
+        // 黑方恒 skillB（30 局从未真换手），而 redIsRedSkill 标签按"已换手"谎报。
+        // 修复（调用点同步交换）后：奇数局红持 skillB、黑持 skillA，引擎名标签
+        // 应真实反映持方——本测试锚定标签面（引擎调用面由重跑批数据验证）。
+        let runner = SelfPlayRunner()
+        let result = await runner.runPikafishSelfPlay(
+            redDifficulty: .amateurDan,
+            blackDifficulty: .amateurDan,
+            games: 2,          // 偶数局(0)不换 + 奇数局(1)换手
+            maxMoves: 6,       // 极小步数：只验标签接线，不等待终局
+            moveTimeMs: 100,
+            redSkillOverride: 7,
+            blackSkillOverride: 10
+        )
+        #expect(result.games.count == 2, "应完成 2 局对弈")
+        // 第 1 局（gameIndex=0，不换手）：红=Skill7 黑=Skill10
+        #expect(result.games[0].redEngineName == "Skill7",
+                "偶数局红持 redSkill（skillA）")
+        #expect(result.games[0].blackEngineName == "Skill10",
+                "偶数局黑持 blackSkill（skillB）")
+        // 第 2 局（gameIndex=1，换手）：红=Skill10 黑=Skill7——标签即换手事实
+        #expect(result.games[1].redEngineName == "Skill10",
+                "奇数局红应持 skillB（换手后；bug 期恒 Skill7=谎报）")
+        #expect(result.games[1].blackEngineName == "Skill7",
+                "奇数局黑应持 skillA（换手后；bug 期恒 Skill10=谎报）")
+    }
+
+    // ============================
     // MARK: - 8. redWinRate 计算验证
     // ============================
 

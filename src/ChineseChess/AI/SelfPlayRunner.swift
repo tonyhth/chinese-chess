@@ -1051,13 +1051,24 @@ extension SelfPlayRunner {
         for gameIndex in 0..<games {
             let actualRed: AIDifficulty
             let actualBlack: AIDifficulty
+            let actualRedSkillOverride: Int?
+            let actualBlackSkillOverride: Int?
             // 交换先后手
             if gameIndex % 2 == 1 {
                 actualRed = blackDifficulty
                 actualBlack = redDifficulty
+                // T-0921-3（KI-2026-0921-02）：override 必须随难度同步交换。
+                // 此前 override 不换手直传，而 playPikafishSelfPlayGame 内
+                // （skillOverride != nil ? .amateurLow : baseDifficulty）会旁路
+                // 占位难度——红方每局恒 skillA、黑方恒 skillB，30 局从未真换手；
+                // 下方 redIsRedSkill 标签按"已换手"口径谎报，B6 报告奇数局标签失实。
+                actualRedSkillOverride = blackSkillOverride
+                actualBlackSkillOverride = redSkillOverride
             } else {
                 actualRed = redDifficulty
                 actualBlack = blackDifficulty
+                actualRedSkillOverride = redSkillOverride
+                actualBlackSkillOverride = blackSkillOverride
             }
 
             let result = await playPikafishSelfPlayGame(
@@ -1067,8 +1078,8 @@ extension SelfPlayRunner {
                 maxMoves: maxMoves,
                 moveTimeMs: moveTimeMs,
                 engine: engine,
-                redSkillOverride: redSkillOverride,
-                blackSkillOverride: blackSkillOverride
+                redSkillOverride: actualRedSkillOverride,
+                blackSkillOverride: actualBlackSkillOverride
             )
 
             let redIsRedSkill = (gameIndex % 2 == 0)
