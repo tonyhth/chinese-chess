@@ -221,3 +221,20 @@ working tree 不为空 → 不算验收通过。
 ## 提审清单补丁（2026-09-01，Ruby 建议/Luke 采纳：并行线冲掉落盘事故）
 - **提审前重跑 `git status` 并把终态附进提审报告**（防落盘被并行线工作区操作冲掉的时间差假象；08-31 Cody PositionAnalyzer 重打实证）
 - commit 前做落盘断言：grep 关键标识符确认改动仍在文件内
+
+## 双线身份治理（2026-09-22 起，洪涛裁 C 职能分层落地）
+
+### 线标识（必守）
+- **WorkBuddy 线=执行线**（唯一写者：派单/编码/commit/台账翻牌）；**OpenClaw 线=审计线**（只读：审查/复核/哨网，零 commit 零台账写入；紧急通道=洪涛显式授权临时执行）
+- commit message 尾部必带 `Line: WB` 或 `Line: OC` trailer（git log --grep="Line: WB" 可溯）；台账新行加"线"列（存量行不追溯）
+- **commit 自述禁引未亲验叙事**（889ebf7 教训："Luke 核验"类引用必须本线当日记录在案）
+- 时间戳精确到分（弃"13:0x"近似——T-0917-8 时标争议根因）
+
+### 验证门升格（2026-09-22 起，KI 4fb0312 落地）
+- **swiftc -parse 只验语法不验类型**（09-20 两段红窗实证）——交付验证门最低标准=xcodebuild build（typecheck 级）或真跑测试
+- 沙箱内 swift-plugin-server 不可用属环境轴已知限制：沙箱内验证结论必须标注"环境受限"，绿证须非沙箱通道复验
+- 沙箱下跑 git 会留 0 字节 index.lock 残留（当日三次实证）——git 写操作用单条复合命令（rm -f .git/index.lock 前置），中断窗口最小化；commit 落地与否以 git log 亲验为准
+
+### RUNNER_OWNER 参数化（2026-09-22 起）
+- wrapper 脚本一律 `RUNNER_OWNER="${RUNNER_OWNER:-<默认>}"` 形态（默认=通道真实所有者）；调用方可 export 覆盖；mutex 契约（无 owner 拒起跑）不变
+- 跨线任务号格式：`T-MMDD-WB-xx` / `T-MMDD-OC-xx`（新任务启用；同日双线并行时歧义消除）
