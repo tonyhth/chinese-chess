@@ -69,8 +69,9 @@ struct AssessmentView: View {
                     .foregroundColor(.accentColor)
 
                 // T-0923-OC-01 ⑤（Alex P1 修法 a·消费侧门控）：当前报告过期（legacy/异版本）不显趋势。
-                // 双保险设计——wb 批 P1-A 已把 previousReport 过滤基准改为全局常量（旧系自动 nil），
-                // 此处显式挂 isCurrentCalibration 使消费意图可见；两层任一拦截即不渲染。
+                // 防线状态自锚定（P3-1 清偿，Ruby 12:13 审单）：本门控独立成立（单保险即关 W1/W2）；
+                // 与 previousReport 全局常量基准（wb 批 P1-A，f25c573 已入祖先链）收敛后为双保险——
+                // 两层任一拦截即不渲染。
                 if let prev = AssessmentStore.shared.previousReport,
                    AssessmentStore.shared.isCurrentCalibration(report) {
                     let delta = report.eloEstimate.estimate - prev.eloEstimate.estimate
