@@ -123,6 +123,11 @@ struct ReplayWindow: View {
     // 降级形态（pendingPanel 保留），无需 stub 兜底对象。
     @State private var analysisVM: AnalysisViewModel? = nil
 
+    /// 棋盘区真渲染（P2 清偿：C4b 芯合入后 ReplayBoardView 接入——原占位退役）
+    // 索引同步单点收敛：壳 currentIndex 为唯一驱动源，boardPlayer.jumpTo 经
+    // syncBoardIndexIfNeeded 对齐；.task 落地 record 时建 VM（board 初始态=开局）。
+    @State private var replayVM: ReplayViewModel? = nil
+
     // 回放驱动（真芯接入后步进/跳转需驱动棋盘与走法列表同步；C4a 壳期四钮
     // 禁用解禁的宿主）
     @State private var currentIndex = 0
@@ -163,6 +168,8 @@ struct ReplayWindow: View {
             if let rec = record {
                 let vm = AnalysisViewModel()
                 analysisVM = vm
+                // P2 清偿：棋盘区真渲染——同批建 ReplayViewModel（board 初始态=开局面）
+                replayVM = ReplayViewModel(record: rec)
                 let gameMoves = rec.moves
                 let fen = rec.initialFEN ?? FENParser.standardInitial
                 vm.load(moves: gameMoves.uciMoves, initialFEN: fen,
@@ -245,7 +252,7 @@ struct ReplayWindow: View {
             .controlSize(.small)
             .disabled(!controlsReady || currentIndex >= (record?.moves.count ?? 0))
 
-            Button { jumpTo((record?.moves.count ?? 1) - 1) } label: {
+            Button { jumpTo(record?.moves.count ?? 0) } label: {
                 Label(l10n.t("p9.shell.toLatest"), systemImage: "arrow.uturn.forward")
             }
             .buttonStyle(.bordered)
@@ -283,6 +290,14 @@ struct ReplayWindow: View {
         guard let rec = record else { return }
         let clamped = min(max(index, 0), rec.moves.count)
         if clamped != currentIndex { currentIndex = clamped }
+        syncBoardIndexIfNeeded()
+    }
+
+    /// 棋盘索引同步（P2 接入）：壳 currentIndex 为唯一驱动源——jumpTo/自动播放
+    /// 步进后对齐 boardPlayer；VM 未建（空窗态）静默跳过，不炸。
+    private func syncBoardIndexIfNeeded() {
+        guard let vm = replayVM, vm.currentIndex != currentIndex else { return }
+        vm.jumpTo(index: currentIndex)
     }
 
     private func toggleAutoPlay() {
@@ -300,6 +315,7 @@ struct ReplayWindow: View {
                 guard !Task.isCancelled else { return }
                 if currentIndex < rec.moves.count {
                     currentIndex += 1
+                    syncBoardIndexIfNeeded()   // P2 接入：自动播放步进同步棋盘
                 }
                 if currentIndex >= rec.moves.count { break }
             }
@@ -319,10 +335,15 @@ struct ReplayWindow: View {
             let analysisW = max(geo.size.width * LayoutSpec.p9AnalysisMinRatio,
                                 LayoutSpec.p9AnalysisMinWidth)
             HStack(spacing: 0) {
-            // 棋盘区（复用既有 ReplayBoardView 需 ReplayViewModel——C4a 壳期先占位容器，
-            // C4b 芯合入时接入；占位显式标注，非静默零渲染（原则六b））
-            boardPlaceholder
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // 棋盘区（P2 清偿：C4b 芯合入，ReplayBoardView 真渲染接入——占位退役；
+            // 只读模式渲染棋盘+棋子+上一步高亮，BoardCanvasView 委托，AG 安全）
+            if let vm = replayVM {
+                ReplayBoardView(viewModel: vm)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                boardPlaceholder
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
 
             Divider()
 

@@ -42,9 +42,11 @@ final class AssessmentStore {
     var previousReport: StrengthReport? {
         let current = lastReport
         let h = reportHistory
-        // 同版本旧→新序列里，当前报告的前一份（严格同 calibrationVersion）
+        // 跨版本趋势隔离（8dd48a7 锚注释处方·贴锚逐字）：过滤基准=全局常量
+        // currentCalibrationVersion，非报告自身版本——校准升级后旧系报告全部出局，
+        // W1（新版首报告前）/W2（存量 legacy）两窗口旧系趋势不再照显。
         guard let cur = current else { return nil }
-        let sameSeries = h.filter { $0.calibrationVersion == cur.calibrationVersion }
+        let sameSeries = h.filter { $0.calibrationVersion == StrengthReport.currentCalibrationVersion }
         guard let curIdx = sameSeries.firstIndex(where: { $0.id == cur.id }),
               curIdx > 0 else { return nil }
         return sameSeries[curIdx - 1]
