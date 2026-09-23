@@ -19,6 +19,41 @@ enum GameEndReason: String {
     case stalemate      // 无棋可走（困毙）
 }
 
+// MARK: - T-0923-OC-01 ④（KI-2026-0922-02 修法 A）：级别视角归账
+
+/// diffA 视角 W/L/D 计数（级别视角，非座位视角）。
+/// 依据：SelfPlayGameResult 记录每局**实际持方**（run 换手后的 actualRed/Black），
+/// 按 game.redDifficulty == diffA 归账即自描述，免奇偶推断，对 swapSides 语义变化免疫。
+/// 背景：redWins/blackWins 系座位计数器，swapSides 轮换下直估是"座位视角"——
+/// 被 v6.5 立项误作级别视角消费（KI-2026-0922-02，两人中招）。
+struct LevelPerspectiveScore {
+    let diffAWins: Int
+    let diffALosses: Int
+    let draws: Int
+    var total: Int { diffAWins + diffALosses + draws }
+}
+
+extension SelfPlayRunner {
+    /// 级别视角归账：diffA 视角 W/L/D（未知终局不计，与 run 座位计数器同语义）
+    static func levelPerspective(games: [SelfPlayGameResult], diffA: AIDifficulty) -> LevelPerspectiveScore {
+        var w = 0, l = 0, d = 0
+        for g in games {
+            let redIsDiffA = (g.redDifficulty == diffA)
+            switch g.result {
+            case .redWon:
+                if redIsDiffA { w += 1 } else { l += 1 }
+            case .blackWon:
+                if redIsDiffA { l += 1 } else { w += 1 }
+            case .draw:
+                d += 1
+            default:
+                break
+            }
+        }
+        return LevelPerspectiveScore(diffAWins: w, diffALosses: l, draws: d)
+    }
+}
+
 // MARK: - 耗时统计（排除休眠）
 
 /// 双时钟计时器：墙钟（wall clock，含休眠）+ 纯计算时钟（systemUptime，macOS 休眠期间暂停计时）
@@ -1715,10 +1750,17 @@ func runCalibrateNativeFromCLI() async {
         SelfPlayRunner.writeMoveHistory(gameResult, to: mhDir, groupLabel: groupLabel)
     }
 
-    let eloDelta = BayesElo.estimateDelta(wins: result.redWins, losses: result.blackWins, draws: result.draws)
+    // T-0923-OC-01 ④（KI-2026-0922-02 修法 A）：主估值改**级别视角**（diffA 视角按实际持方归账）。
+    // 旧实现直取座位计数器（redWins/blackWins），swapSides 轮换下是"座位视角"——消费误用源。
+    let level = SelfPlayRunner.levelPerspective(games: result.games, diffA: diffA)
+    let eloDelta = BayesElo.estimateDelta(wins: level.diffAWins, losses: level.diffALosses, draws: level.draws)
+    // 参照列（双列透明，报告侧 9827312 同口径）：座位视角直估值保留但显式标注
+    let seatDelta = BayesElo.estimateDelta(wins: result.redWins, losses: result.blackWins, draws: result.draws)
 
     var report = result.summary + "\n\n"
-    report += "BayesElo 估值：\(eloDelta >= 0 ? "+" : "")\(eloDelta)\n"
+    report += "BayesElo 估值（级别视角，diffA=\(diffA.rawValue) vs diffB=\(diffB.rawValue)）：\(eloDelta >= 0 ? "+" : "")\(eloDelta)\n"
+    report += "  W/L/D（diffA 视角）：\(level.diffAWins)-\(level.diffALosses)-\(level.draws)\n"
+    report += "  参照（座位视角，红/黑计数器直估）：\(seatDelta >= 0 ? "+" : "")\(seatDelta)——轮换下两视角差异即换手效应\n"
     report += "\n逐局结果：\n"
     for game in result.games {
         let winnerStr: String
@@ -1728,7 +1770,7 @@ func runCalibrateNativeFromCLI() async {
         case .draw: winnerStr = "和棋"
         default: winnerStr = "未知"
         }
-        report += "  第\(game.gameIndex + 1)局：\(winnerStr)（\(game.totalMoves)步, \(game.reason.rawValue)）\n"
+        report += "  第\(game.gameIndex + 1)局：\(winnerStr)（\(game.totalMoves)步, \(game.reason.rawValue)）[红:\(game.redDifficulty.rawValue) 黑:\(game.blackDifficulty.rawValue)]\n"
     }
 
     print("")
