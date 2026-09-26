@@ -29,8 +29,13 @@ actor AIEngine: AIEngineProtocol {
     private var lastIterationFullySearched: Bool = true
     /// v4.0: 搜索中的 TimeManager 引用（negamax 内部检查用）
     private var activeTimeManager: TimeManager? = nil
-    /// 每 4096 个节点检查一次时间
-    private let timeCheckInterval = 4096
+    /// T-0926-OC-01 Phase 0：deadline 硬中止旗标——首个周期检查点置位后，
+    /// 全树节点 O(1) 快退（修复迭代内无 deadline 截断：open-a 5000ms 实跑 13498ms，KI-2026-0829）
+    private var searchAborted = false
+    /// 每 64 个节点检查一次时间（T-0926-OC-01：4096→64——实测 mediumNoQS 满子力中局
+    /// 单节点可达 ~2.2ms（mobility eval+checkLegal 排序），粗粒度检查点=置位前满负荷盲区
+    /// 最坏 1023×2.2ms≈2.3s（mid-b 实测 2000→4285）；64 粒度最坏 ≈140ms，shouldStop 开销 <0.1%）
+    private let timeCheckInterval = 64
 
     /// Contempt factor（校准专用）：均势局面下给当前走方的正向偏置
     /// 默认 0（人机对弈不受影响），校准时由 bestMove/bestMoves 根据 difficulty 设置
@@ -175,6 +180,7 @@ actor AIEngine: AIEngineProtocol {
         nodeCount = 0
         lastIterationFullySearched = true
         activeTimeManager = timeManager
+        searchAborted = false  // T-0926-OC-01：迭代入口复位硬中止旗标
         // P0 归因探针：make/unmake 平衡断言（Debug，位置保真版——计数平衡不足以检出 teleport）
         #if DEBUG
         let histAtEntry = board.moveHistory.count
@@ -450,6 +456,7 @@ actor AIEngine: AIEngineProtocol {
         nodeCount = 0
         lastIterationFullySearched = true
         activeTimeManager = timeManager
+        searchAborted = false  // T-0926-OC-01：迭代入口复位硬中止旗标
 
         // P1 fix: 统一 resolve searchConfig，确保 evalConfig（含 contempt）传播到 negamax
         let resolvedConfig = searchConfig ?? {
@@ -654,9 +661,13 @@ actor AIEngine: AIEngineProtocol {
         defer { assert(board.moveHistory.count == histAtEntry,
                        "negamax make/unmake 不平衡: depth=\(depth) 入口\(histAtEntry) 出口\(board.moveHistory.count)") }
         // v4.0: 周期性时间检查，防止超时
+        // T-0926-OC-01 Phase 0：硬中止两段式——旗标置位后全节点 O(1) 快退（值弃用：
+        // 部分迭代经 lastIterationFullySearched=false 通道整体废弃，不消费中止值）
         nodeCount += 1
-        if nodeCount & (timeCheckInterval - 1) == 0, // 每 4096 节点
+        if searchAborted { return 0 }
+        if nodeCount & (timeCheckInterval - 1) == 0, // 每 1024 节点
            let tm = activeTimeManager, tm.shouldStop {
+            searchAborted = true
             return evaluator.evaluate(board, config: searchConfig.evalConfig)
         }
 
@@ -889,8 +900,11 @@ actor AIEngine: AIEngineProtocol {
         defer { assert(board.moveHistory.count == histAtEntry,
                        "quiescenceSearch make/unmake 不平衡: 入口\(histAtEntry) 出口\(board.moveHistory.count)") }
         // v3.9.1: QS 内部时间检查（防止 master maxQSDepth=6 超时）
+        // T-0926-OC-01 Phase 0：与 negamax 同款硬中止两段式（旗标快退）
         nodeCount += 1
+        if searchAborted { return 0 }
         if nodeCount & (timeCheckInterval - 1) == 0, let tm = activeTimeManager, tm.shouldStop {
+            searchAborted = true
             return evaluator.evaluate(board, config: searchConfig.evalConfig)
         }
 
