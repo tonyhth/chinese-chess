@@ -268,7 +268,8 @@ actor AIEngine: AIEngineProtocol {
         if scoredMoves.isEmpty { return nil }
 
         // 存 TT（用最佳走法）
-        if useTT {
+        // T-0926-OC-01 Ruby P2：中止迭代不写 TT——快退 0 值/部分分驻留会经 lookup/probe 污染后续搜索
+        if useTT && !searchAborted {
             let bestScore = scoredMoves[0].score
             let bestMove = scoredMoves[0].move
             let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
@@ -531,7 +532,7 @@ actor AIEngine: AIEngineProtocol {
             alpha = max(alpha, bestScore)
         }
 
-        if useTT {
+        if useTT && !searchAborted {  // T-0926-OC-01 Ruby P2：中止迭代不写 TT
             let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
             transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
         }
@@ -665,7 +666,7 @@ actor AIEngine: AIEngineProtocol {
         // 部分迭代经 lastIterationFullySearched=false 通道整体废弃，不消费中止值）
         nodeCount += 1
         if searchAborted { return 0 }
-        if nodeCount & (timeCheckInterval - 1) == 0, // 每 1024 节点
+        if nodeCount & (timeCheckInterval - 1) == 0, // 每 64 节点（T-0926-OC-01：注释漂移修正，Ruby P3-1）
            let tm = activeTimeManager, tm.shouldStop {
             searchAborted = true
             return evaluator.evaluate(board, config: searchConfig.evalConfig)
@@ -878,7 +879,7 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        if useTT {
+        if useTT && !searchAborted {  // T-0926-OC-01 Ruby P2：快退退栈路径不写 TT（0 值垃圾类）
             let flag: TranspositionTable.TTFlag = (bestScore <= origAlpha) ? .upper : (bestScore >= beta) ? .lower : .exact
             transpositionTable.store(hash: hash, depth: depth, score: bestScore, flag: flag, bestMove: bestMove)
         }

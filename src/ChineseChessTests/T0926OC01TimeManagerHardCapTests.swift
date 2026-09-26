@@ -57,4 +57,12 @@ struct T0926OC01TimeManagerHardCapTests {
     func lvl3OpeningHardCap() async throws {
         try await assertHardCap(.amateurLow, budgetMs: 2000, fen: Self.openingFEN, label: "lvl3-open-a")
     }
+
+    @Test("硬上限④: lvl5（8000ms）最大改善位守护——历史 45.4s/5.7× 违约位（Ruby P3-3 建议）")
+    func lvl5DenseMidHardCap() async throws {
+        // 墙钟两段合法相位：CheckmateSearch 前缀（killTimeLimit=8000*3/20=1200ms 自有预算）
+        // + IDS 主体（detBudgetMs 缺省 8000ms 硬上限）；容差 2000 覆盖根层/调度
+        try await assertHardCap(.amateurHigh, budgetMs: 8000, fen: Self.denseMidFEN, label: "lvl5-mid-b",
+                                extraPhaseMs: 1300)
+    }
 }
