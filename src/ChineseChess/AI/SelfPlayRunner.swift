@@ -202,8 +202,36 @@ final class SelfPlayRunner {
         return "\(fromCol)\(move.from.row)\(toCol)\(move.to.row)"
     }
 
+    /// v6.5 v2 §3.1: 确定性 best 选择——C1 反重复过滤 + score 最高走法（温度轴整体撤销）
+    /// 保留 softmaxSelect 的 C1 新鲜度/反重复过滤逻辑，选法从 softmax 改为确定性 pool[0]
+    private static func selectBestMove(
+        candidates: [(move: Move, score: Int)],
+        on board: Board,
+        fenCounts: [String: Int]
+    ) -> Move {
+        guard !candidates.isEmpty else {
+            fatalError("selectBestMove called with empty candidates")
+        }
+
+        // C1 反重复过滤（同 softmaxSelect 逻辑，A3r2 根治 B 保留）
+        let nonRepeating = candidates.filter { candidate in
+            guard Self.isFreshCandidate(candidate.move, on: board) else { return false }
+            board.execute(candidate.move)
+            let fen = FENParser.generate(board: board)
+            _ = board.undoLastMove()
+            return fenCounts[fen, default: 0] == 0
+        }
+
+        let freshPool = candidates.filter { Self.isFreshCandidate($0.move, on: board) }
+        let pool = !nonRepeating.isEmpty ? nonRepeating
+                  : (!freshPool.isEmpty ? freshPool : candidates)
+
+        return pool[0].move  // 确定性 best（bestMoves 已按分降序）
+    }
+
     /// v4.3 v1.2: 按难度级别返回 Softmax temperature（cp）
     /// lvl2=30, lvl3=40, lvl4=35, lvl5=25（lvl3 随机峰值，lvl3→lvl5 递减：强方更确定）
+    /// v6.5 v2 §3.1: 温度轴整体撤销——此方法保留为死代码，selectBestMove 替代
     private static func softmaxTemperature(for difficulty: AIDifficulty) -> Double {
         switch difficulty {
         case .beginner:      return 30  // lvl2
@@ -389,9 +417,8 @@ final class SelfPlayRunner {
                 )
             }
 
-            // C1+Softmax: 先过滤重复候选，再 Softmax 加权随机选择
-            let temp = Self.softmaxTemperature(for: difficulty)
-            let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts, temperature: temp)
+            // v6.5 v2 §3.1: 确定性 best（温度轴撤销）
+            let move = Self.selectBestMove(candidates: candidates, on: board, fenCounts: fenCounts)
 
             // P0 遥测：边界检查点（检出异常 dump 后继续，不阻塞对弈）
             Self.preExecuteCheckpoint(board, move: move, gameIndex: gameIndex, ply: moveHistory.count)
@@ -898,9 +925,8 @@ extension SelfPlayRunner {
                     return (winner, moveHistory.count, endReason, moveHistory)
                 }
 
-                // C1+Softmax: 先过滤重复候选，再 Softmax 加权随机选择
-                let temp = Self.softmaxTemperature(for: nativeDifficulty)
-                let move = Self.softmaxSelect(candidates: candidates, on: board, fenCounts: fenCounts, temperature: temp)
+                // v6.5 v2 §3.1: 确定性 best（温度轴撤销）
+                let move = Self.selectBestMove(candidates: candidates, on: board, fenCounts: fenCounts)
 
                 let iccs = SelfPlayRunner.iccsNotation(for: move)
                 moveHistory.append(iccs)

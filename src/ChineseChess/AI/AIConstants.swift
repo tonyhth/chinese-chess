@@ -74,6 +74,24 @@ struct AISearchConfig {
         maxCheckExtensions: 8
     )
 
+    /// v6.5 v2: lvl1 简化 minimax — 无 killer/LMR/checkExt/QS/PVS（§3.2 lvl1 简化例外）
+    static let simplified = AISearchConfig(
+        enableQuiescence: false,
+        enableKillerMove: false,
+        enableCheckExtension: false,
+        enableNullMoveFix: false,
+        enableLMR: false,
+        enableSmartTime: false,
+        enablePVS: false,
+        enableCountermove: false,
+        enableFutility: false,
+        enableRazoring: false,
+        enableIID: false,
+        evalConfig: .basic,
+        maxQSDepth: 0,
+        maxCheckExtensions: 0
+    )
+
     /// v4.2: lvl3 专用 — .medium 去掉 QS（killer + checkExtension + LMR + futility，无 QS/PVS）
     static let mediumNoQS = AISearchConfig(
         enableQuiescence: false,

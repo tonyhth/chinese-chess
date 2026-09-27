@@ -41,6 +41,20 @@ actor AIEngine: AIEngineProtocol {
     /// 默认 0（人机对弈不受影响），校准时由 bestMove/bestMoves 根据 difficulty 设置
     private var calibrationContempt: Int = 0
 
+    /// v6.5 v2: 叶节点评估噪声幅度（§3.3 消费侧包装层）
+    /// 由 bestMove/bestMoves 按 difficulty.leafNoiseAmplitude 设置；
+    /// noisyEvaluate 消费——noise=0 时直接返回 raw（lvl5 等价性锚点）
+    private var leafNoise: Int = 0
+
+    /// v6.5 v2 §3.3: 消费侧包装层——不动 evaluator.evaluate 本体（红线）
+    /// noise=0 时直接返回 raw（lvl5 等价性锚点）；noise>0 时加有界 ±noise
+    /// alpha-beta 不变量保持（附录 A 伪码转正）
+    private func noisyEvaluate(_ board: LegacySearchBoard, config: AIEvalConfig) -> Int {
+        let raw = evaluator.evaluate(board, config: config)
+        guard leafNoise > 0 else { return raw }
+        return raw + Int.random(in: -leafNoise...leafNoise)
+    }
+
     /// 原有初始化器（兼容现有代码）
     init() {
         self.weights = EvalConfigManager.shared.weights
@@ -102,18 +116,14 @@ actor AIEngine: AIEngineProtocol {
     func bestMove(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false) async -> Move? {
         // ⚠️ 唯一的 Board → LegacySearchBoard 转换点
         calibrationContempt = Self.contemptFor(difficulty)
+        leafNoise = difficulty.leafNoiseAmplitude  // v6.5 v2: §3.3 叶噪声设置
         var workBoard = LegacySearchBoard(from: board)
 
         switch difficulty {
         case .novice:
-            return beginnerMove(for: &workBoard)
+            return noviceSearch(for: &workBoard, isIOS: isIOS)
         case .beginner:
-            // v4: depth=2, 1000ms
-            let tm = TimeManager(timeLimitMs: 1000, startTime: Date())
-            var evalCfg = AIEvalConfig.basic
-            evalCfg.contempt = calibrationContempt
-            return rootSearch(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
-                              evalConfig: evalCfg, timeManager: tm)
+            return beginnerSearch(for: &workBoard, isIOS: isIOS)
         case .amateurLow:
             return mediumSearch(for: &workBoard, isIOS: isIOS)
         case .amateurMid:
@@ -133,30 +143,15 @@ actor AIEngine: AIEngineProtocol {
     /// 仅支持自研引擎级别（novice 走 beginnerMove 逻辑，也返回 top-k）。
     func bestMoves(for board: Board, difficulty: AIDifficulty, isIOS: Bool = false, topK: Int = 3) async -> [(move: Move, score: Int)] {
         calibrationContempt = Self.contemptFor(difficulty)
+        leafNoise = difficulty.leafNoiseAmplitude  // v6.5 v2: §3.3 叶噪声设置
         var workBoard = LegacySearchBoard(from: board)
 
         switch difficulty {
         case .novice:
-            // novice 已有 top-3 评分逻辑，直接复用
-            let side = workBoard.currentTurn
-            let moves = MoveValidator.allLegalMoves(for: side, on: workBoard)
-            guard !moves.isEmpty else { return [] }
-            var scoredMoves: [(move: Move, score: Int)] = []
-            for move in moves {
-                workBoard.execute(move)
-                let rawScore = -evaluator.evaluate(workBoard, config: .basic)
-                _ = workBoard.undoLastMove()
-                scoredMoves.append((move, rawScore))
-            }
-            scoredMoves.sort { $0.score > $1.score }
-            return Array(scoredMoves.prefix(topK))
+            return noviceSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
 
         case .beginner:
-            let tm = TimeManager(timeLimitMs: 1000, startTime: Date())
-            var evalCfg = AIEvalConfig.basic
-            evalCfg.contempt = calibrationContempt
-            return rootSearchScored(for: &workBoard, depth: 2, useTT: true, useMoveOrder: true,
-                                    evalConfig: evalCfg, timeManager: tm, topK: topK) ?? []
+            return beginnerSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
 
         case .amateurLow:
             return mediumSearchScored(for: &workBoard, isIOS: isIOS, topK: topK) ?? []
@@ -282,26 +277,11 @@ actor AIEngine: AIEngineProtocol {
     // MARK: - C1 辅助: 各级别的 scored 变体
 
     /// v4.3: lvl3 scored — IDS maxDepth=3, 2000ms, .mediumNoQS
-    private func mediumSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
-        let hash = ZobristHash.hash(board: board)
-        if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-           let move = openingBook.parseICCSMove(iccsMove, on: board) {
-            return [(move, 0)]
-        }
+    // MARK: - v6.5 v2 §3.2 五档总表 Scored 变体
 
-        var config = AISearchConfig.mediumNoQS
-        config.evalConfig.contempt = calibrationContempt
-
-        let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
-                                               searchConfig: config, topK: topK, depthLogLabel: "lvl3")
-    }
-
-    /// v4.3 v1.2: lvl4 scored — IDS maxDepth=6, 5000ms, .hard, CheckmateSearch(12, 800ms)
-    private func hardSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
-        let side = board.currentTurn
-
-        if board.moveHistory.count < 6 {
+    /// lvl1 scored — depth=2, 500/300ms, .simplified, 叶噪声 180（§3.2）
+    private func noviceSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
             if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
@@ -309,50 +289,103 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        let killTimeLimit = isIOS ? 600 : 800
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
-            // A3r2 根治 A（docs/bugs/A3r2-first-cause-root-cause.md）：只返回杀法序列第一步。
-            // 旧实现 prefix(topK) 返回 m2/m3 未来着法，softmaxSelect 过滤循环对它们
-            // execute/undo → 棋子 id 盲搬漂移 → 棋盘腐败（A3-r2 OVERLAP 7 条现场）。
-            // 连将杀每步重新命中 CheckmateSearch，行为等价、语义正确。
-// 边界声明（Ruby 快审 P2a）：dfs 的 maxResponses=8 截断下，多应着局面可能
-            // 假杀——此时走 m1 后对方实际应着解杀 → 下轮不再命中 → 正常搜索 fallback。
-            // 即"每步重新命中"严格说是"命中或正常搜索"的良性退化，非完备杀保证。
-                        return [killMoves[0]].map { ($0, 0) }
+        var config = AISearchConfig.simplified
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 300 : 500
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl1")
+    }
+
+    /// lvl2 scored — depth=2, 1000/600ms, .hard, 叶噪声 120（§3.2）
+    private func beginnerSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        if board.moveHistory.count < 8 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return [(move, 0)]
+            }
         }
 
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 6, timeManager: tm,
+        let budget = isIOS ? 600 : 1000
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl2")
+    }
+
+    /// lvl3 scored — depth=2, 2000/1200ms, .hard, 叶噪声 70（§3.2）
+    private func mediumSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        if board.moveHistory.count < 8 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return [(move, 0)]
+            }
+        }
+
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 1200 : 2000
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl3")
+    }
+
+    /// lvl4 scored — depth=3, 3000/1800ms, .hard, CheckmateSearch(12, kill≤6 地板), 叶噪声 35（§3.2）
+    private func hardSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        let side = board.currentTurn
+
+        if board.moveHistory.count < 8 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return [(move, 0)]
+            }
+        }
+
+        let killTimeLimit = isIOS ? 450 : 750  // §3.2 浅层 ≤6 地板（iOS ×0.6）
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 6, timeLimitMs: killTimeLimit) {
+            // A3r2 根治 A：只返回杀法序列第一步（memo: docs/bugs/A3r2-first-cause-root-cause.md）
+            return [killMoves[0]].map { ($0, 0) }
+        }
+
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 1800 : 3000
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl4")
     }
 
-    /// v4.3 v1.2: lvl5 scored — IDS maxDepth=7, 8000ms, .hard, CheckmateSearch(maxDepth=12, 1200ms)
+    /// lvl5 scored — depth=3, 5000/3000ms, .hard, CheckmateSearch(12, 1200ms 全量终局模块), 叶噪声 0（§3.2）
     /// ZD-A' 定案（Luke 08-21 批）：预算可注入——detBudgetMs() 读 env
-    /// SELFPLAY_DET_BUDGET_MS，缺省 8000（产品零变化）；killTimeLimit 同源缩放。
-    /// 门/校准跑超大预算即消墙钟抖动（CheckmateSearch 与 IDS 两截断点同治）。
+    /// SELFPLAY_DET_BUDGET_MS，缺省 5000（v6.5 v2 §3.2 顶档预算下调）；killTimeLimit 同源缩放。
     private static func detBudgetMs() -> Int {
         if let raw = ProcessInfo.processInfo.environment["SELFPLAY_DET_BUDGET_MS"], let v = Int(raw), v > 0 {
             return v
         }
-        return 8000
+        return 5000  // v6.5 v2：8000→5000（§3.2 名义 depth 3 预算）
     }
 
     private func masterSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         let side = board.currentTurn
 
-        if board.moveHistory.count < 6 {
+        if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookup(zobristHash: hash),
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
                 return [(move, 0)]
             }
         }
 
         let budget = Self.detBudgetMs()
-        let killTimeLimit = isIOS ? budget / 10 : budget * 3 / 20   // 缺省 8000 → 800 / 1200（原值不变）
+        let killTimeLimit = isIOS ? budget * 3 / 20 : budget * 3 / 20   // 缺省 5000 → 750（全量终局模块）
         if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
             // A3r2 根治 A（同 lvl4 注释，memo 见 docs/bugs/A3r2-first-cause-root-cause.md）
             return [killMoves[0]].map { ($0, 0) }
@@ -362,7 +395,7 @@ actor AIEngine: AIEngineProtocol {
         config.evalConfig.contempt = calibrationContempt
 
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 7, timeManager: tm,
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl5")
     }
 
@@ -407,44 +440,44 @@ actor AIEngine: AIEngineProtocol {
 
     // v4.0 旧方案：depth-1 + ±150cp 噪声 + top-5 加权随机（三重扰动不可控）
     // v2.1 新方案：depth-1 + top-3 加权随机（去掉噪声，更可预测）
-    private func beginnerMove(for board: inout LegacySearchBoard) -> Move? {
-        let side = board.currentTurn
-        let moves = MoveValidator.allLegalMoves(for: side, on: board)
-        guard !moves.isEmpty else { return nil }
+    // MARK: - v6.5 v2 §3.2 五档总表（非 Scored 变体）
 
-        // 对每个走法做 depth-1 评估（无噪声）
-        var scoredMoves: [(move: Move, score: Int)] = []
-        for move in moves {
-            board.execute(move)
-            let rawScore = -evaluator.evaluate(board, config: .basic)
-            _ = board.undoLastMove()
-            scoredMoves.append((move, rawScore))
+    /// lvl1 — depth=2, 500/300ms, .simplified, 叶噪声 180（§3.2）
+    private func noviceSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
+        if board.moveHistory.count < 8 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return move
+            }
         }
 
-        // 排序，取前 3 名（v2.1: top-5→top-3）
-        scoredMoves.sort { $0.score > $1.score }
-        let topN = min(3, scoredMoves.count)
-        let candidates = Array(scoredMoves.prefix(topN))
+        var config = AISearchConfig.simplified
+        config.evalConfig.contempt = calibrationContempt
 
-        // 加权随机选择：分数越高被选概率越大
-        return weightedRandomPick(from: candidates)
+        let budget = isIOS ? 300 : 500
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl1")
     }
 
-    /// 加权随机选择：分数越高被选概率越大
-    private func weightedRandomPick(from candidates: [(move: Move, score: Int)]) -> Move {
-        // 用指数加权确保高分走法有更高概率
-        let weights = candidates.map { entry in
-            // 偏移确保所有权重为正，然后取平方增强高分偏好
-            let offset = entry.score - (candidates.last?.score ?? 0) + 1
-            return max(1, offset * offset)
+    /// lvl2 — depth=2, 1000/600ms, .hard, 叶噪声 120（§3.2）
+    private func beginnerSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
+        if board.moveHistory.count < 8 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return move
+            }
         }
-        let totalWeight = weights.reduce(0, +)
-        var r = SeededRandom.int(in: 0..<totalWeight)  // Phase 1 seed 注入点③
-        for (i, w) in weights.enumerated() {
-            r -= w
-            if r < 0 { return candidates[i].move }
-        }
-        return candidates.last!.move
+
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 600 : 1000
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl2")
     }
 
     // MARK: - Negamax 根搜索（统一接口）
@@ -540,31 +573,11 @@ actor AIEngine: AIEngineProtocol {
         return bestMove
     }
 
-    // MARK: - 中级
+    // MARK: - 中级（v6.5 v2：lvl3 depth=2, 2000/1200ms, .hard）
 
-    /// v4.3: lvl3 — IDS maxDepth=3, 2000ms, .mediumNoQS config
+    /// lvl3 — depth=2, 2000/1200ms, .hard, 叶噪声 70（§3.2）
     private func mediumSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
-        let hash = ZobristHash.hash(board: board)
-        if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-           let move = openingBook.parseICCSMove(iccsMove, on: board) {
-            return move
-        }
-
-        var config = AISearchConfig.mediumNoQS
-        config.evalConfig.contempt = calibrationContempt
-
-        let tm = TimeManager(timeLimitMs: 2000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config,
-                                        depthLogLabel: "lvl3")
-    }
-
-    // MARK: - 高级
-
-    /// v4.3 v1.2: lvl4 — IDS maxDepth=6, 5000ms, .hard config, CheckmateSearch(12, 800ms)
-    private func hardSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
-        let side = board.currentTurn
-
-        if board.moveHistory.count < 6 {
+        if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
             if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
@@ -572,34 +585,60 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        let killTimeLimit = isIOS ? 600 : 800
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
-            return killMoves.first
-        }
-
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 5000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 6, timeManager: tm, searchConfig: config,
-                                        depthLogLabel: "lvl4")
+        let budget = isIOS ? 1200 : 2000
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl3")
     }
 
-    // MARK: - 大师
+    // MARK: - 高级（v6.5 v2：lvl4 depth=3, 3000/1800ms, .hard, CheckmateSearch ≤6 地板）
 
-    /// v4.3 v1.2: lvl5 — IDS maxDepth=7, 8000ms, .hard config, CheckmateSearch(maxDepth=12, 1200ms)
-    private func masterSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
+    /// lvl4 — depth=3, 3000/1800ms, .hard, CheckmateSearch(6, kill≤6 地板), 叶噪声 35（§3.2）
+    private func hardSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
-        if board.moveHistory.count < 6 {
+        if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookup(zobristHash: hash),
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
                let move = openingBook.parseICCSMove(iccsMove, on: board) {
                 return move
             }
         }
 
-        let killTimeLimit = isIOS ? 800 : 1200
+        let killTimeLimit = isIOS ? 450 : 750  // §3.2 浅层 ≤6 地板（iOS ×0.6）
+        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 6, timeLimitMs: killTimeLimit) {
+            return killMoves.first
+        }
+
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 1800 : 3000
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl4")
+    }
+
+    // MARK: - 大师（v6.5 v2：lvl5 depth=3, 5000/3000ms, .hard, 全量终局模块）
+
+    /// lvl5 — depth=3, 5000/3000ms, .hard, CheckmateSearch(12, 750ms 全量终局模块), 叶噪声 0（§3.2）
+    /// ZD-A' 预算可注入：detBudgetMs() 缺省 5000（v6.5 v2 从 8000 下调）
+    private func masterSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
+        let side = board.currentTurn
+
+        if board.moveHistory.count < 8 {
+            let hash = ZobristHash.hash(board: board)
+            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
+               let move = openingBook.parseICCSMove(iccsMove, on: board) {
+                return move
+            }
+        }
+
+        let budget = Self.detBudgetMs()
+        let killTimeLimit = budget * 3 / 20   // 缺省 5000 → 750（全量终局模块）
         if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
             return killMoves.first
         }
@@ -607,8 +646,8 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let tm = TimeManager(timeLimitMs: 8000, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 7, timeManager: tm, searchConfig: config,
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl5")
     }
 
@@ -669,7 +708,7 @@ actor AIEngine: AIEngineProtocol {
         if nodeCount & (timeCheckInterval - 1) == 0, // 每 64 节点（T-0926-OC-01：注释漂移修正，Ruby P3-1）
            let tm = activeTimeManager, tm.shouldStop {
             searchAborted = true
-            return evaluator.evaluate(board, config: searchConfig.evalConfig)
+            return noisyEvaluate(board, config: searchConfig.evalConfig)  // v6.5 v2: 超时叶噪声包装
         }
 
         let side = board.currentTurn
@@ -700,7 +739,7 @@ actor AIEngine: AIEngineProtocol {
         }
 
         if isTerminal(board) {
-            return evaluator.evaluate(board, config: evalCfg)
+            return noisyEvaluate(board, config: evalCfg)  // v6.5 v2: 叶噪声包装
         }
 
         if depth <= 0 {
@@ -710,7 +749,7 @@ actor AIEngine: AIEngineProtocol {
                                          qDepth: searchConfig.maxQSDepth,
                                          searchConfig: searchConfig)
             } else {
-                return evaluator.evaluate(board, config: evalCfg)
+                return noisyEvaluate(board, config: evalCfg)  // v6.5 v2: 叶噪声包装
             }
         }
 
@@ -906,10 +945,10 @@ actor AIEngine: AIEngineProtocol {
         if searchAborted { return 0 }
         if nodeCount & (timeCheckInterval - 1) == 0, let tm = activeTimeManager, tm.shouldStop {
             searchAborted = true
-            return evaluator.evaluate(board, config: searchConfig.evalConfig)
+            return noisyEvaluate(board, config: searchConfig.evalConfig)  // v6.5 v2: QS 超时叶噪声包装
         }
 
-        let standPat = evaluator.evaluate(board, config: searchConfig.evalConfig)
+        let standPat = noisyEvaluate(board, config: searchConfig.evalConfig)  // v6.5 v2: QS standPat 噪声包装
 
         if standPat >= beta { return beta }
         var alpha = alpha
