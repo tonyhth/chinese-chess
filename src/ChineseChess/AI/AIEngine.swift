@@ -283,7 +283,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 300 : 2000  // iOS ×0.6 与 §Y 统一预算冲突待裁（T-1001-2 上报项）
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 1, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl1")
@@ -294,7 +294,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 600 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl2")
@@ -313,7 +313,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 1200 : 2000
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl3")
@@ -332,7 +332,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 1800 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl4")
@@ -422,7 +422,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 300 : 2000  // iOS ×0.6 与 §Y 统一预算冲突待裁（T-1001-2 上报项）
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 1, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl1")
@@ -433,7 +433,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 600 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl2")
@@ -547,7 +547,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 1200 : 2000
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl3")
@@ -568,7 +568,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 1800 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
+        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl4")
