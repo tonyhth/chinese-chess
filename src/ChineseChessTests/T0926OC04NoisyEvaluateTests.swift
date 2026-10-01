@@ -1,10 +1,10 @@
 import XCTest
 @testable import ChineseChess
 
-/// T-0926-OC-04 v6.5 v2 §3.3: noisyEvaluate 等价性测试
-/// 验证：① noise=0 时搜索确定性（lvl5 等价性锚点）② noise>0 时非确定性
+/// T-0926-OC-04 v6.5 v2 §3.3: noisyEvaluate 等价性测试（T-1001-2 §Y N-out 对齐：五档噪声全零）
+/// 验证：① noise=0 时搜索确定性（lvl5 等价性锚点）② lvl1 噪声归零后确定性（§Y N-out，Luke 10-01 12:57 裁）
 /// ③ 跨相位覆盖（开局/中局/残局）④ QS 路径覆盖（含吃子的中局位）
-/// ⑤ leafNoiseAmplitude 属性值与 §3.2 五档总表一致
+/// ⑤ leafNoiseAmplitude 属性值与 v0.4.2 §Y 五档总表一致（全零锚，断言随 operative spec）
 /// 红线验证：noisyEvaluate 不改 evaluator.evaluate 本体（noise=0 → raw 直返）
 final class T0926OC04NoisyEvaluateTests: XCTestCase {
 
@@ -19,7 +19,13 @@ final class T0926OC04NoisyEvaluateTests: XCTestCase {
     }
 
     /// ① noise=0 确定性：lvl5 同一局面两次搜索结果一致（叶噪声=0 → 无随机源）
+    /// T-1001-2：setenv 注入大预算隔离时间边界抖动——本用例验证噪声通道确定性，非预算行为
+    ///（满开局位 depth 完成边界在 2000ms 护栏下随时钟截断抖动：三批跑两红一绿实证，
+    ///  首轮 partial 收下条款使截断点进结果；注入通道 ZD-A' 现成，runner 每套件独立进程无跨套件污染）
     func testLvl5NoiseZeroDeterminism() async {
+        setenv("SELFPLAY_DET_BUDGET_MS", "8000", 1)
+        defer { unsetenv("SELFPLAY_DET_BUDGET_MS") }
+
         let engine1 = AIEngine()
         let engine2 = AIEngine()
         let board1 = Board(fen: Self.openingFEN)
@@ -33,9 +39,8 @@ final class T0926OC04NoisyEvaluateTests: XCTestCase {
         XCTAssertEqual(move1, move2, "lvl5 noise=0 应确定性——两次搜索结果应一致")
     }
 
-    /// ② noise>0 非确定性：lvl1（noise=180）多次搜索至少出现一次不同结果
-    /// 开局位置多走法评估接近，±180cp 噪声应能翻转选法
-    func testLvl1NoisePositiveNondeterminism() async {
+    /// ② §Y N-out：lvl1 噪声归零（180→0）后确定性——多轮同结果（断言随 operative spec，T-1001-2）
+    func testLvl1NoiseZeroDeterminism() async {
         let engine = AIEngine()
         let board = Board(fen: Self.openingFEN)
 
@@ -46,8 +51,8 @@ final class T0926OC04NoisyEvaluateTests: XCTestCase {
             }
         }
         XCTAssertGreaterThanOrEqual(moveKeys.count, 1, "至少应有一个合法走法")
-        // noise=180 在开局位（多走法评估接近）应引入随机性——多轮至少 2 种不同走法
-        XCTAssertGreaterThan(moveKeys.count, 1, "lvl1 noise=180 应产生随机性——多轮至少 2 种走法（实际: \(moveKeys)）")
+        // noise=0（§Y N-out 全零）→ 搜索确定性——多轮同走法
+        XCTAssertEqual(moveKeys.count, 1, "lvl1 noise=0（§Y N-out）应确定性——多轮同走法（实际: \(moveKeys)）")
     }
 
     /// ③ 跨相位：lvl5 在开局/中局/残局均产生合法走法
@@ -81,12 +86,12 @@ final class T0926OC04NoisyEvaluateTests: XCTestCase {
         XCTAssertGreaterThan(moveKeys.count, 0, "lvl4 QS 路径应正常工作")
     }
 
-    /// ⑤ 红线验证：leafNoiseAmplitude 属性值与 §3.2 五档总表一致
+    /// ⑤ 红线验证：leafNoiseAmplitude 属性值与 v0.4.2 §Y 五档总表一致（全零锚，T-1001-2 spec 对齐）
     func testLeafNoiseAmplitudeValues() {
-        XCTAssertEqual(AIDifficulty.novice.leafNoiseAmplitude, 180, "lvl1=180")
-        XCTAssertEqual(AIDifficulty.beginner.leafNoiseAmplitude, 120, "lvl2=120")
-        XCTAssertEqual(AIDifficulty.amateurLow.leafNoiseAmplitude, 70, "lvl3=70")
-        XCTAssertEqual(AIDifficulty.amateurMid.leafNoiseAmplitude, 35, "lvl4=35")
+        XCTAssertEqual(AIDifficulty.novice.leafNoiseAmplitude, 0, "lvl1=0（§Y N-out）")
+        XCTAssertEqual(AIDifficulty.beginner.leafNoiseAmplitude, 0, "lvl2=0（§Y N-out）")
+        XCTAssertEqual(AIDifficulty.amateurLow.leafNoiseAmplitude, 0, "lvl3=0（§Y N-out）")
+        XCTAssertEqual(AIDifficulty.amateurMid.leafNoiseAmplitude, 0, "lvl4=0（§Y N-out）")
         XCTAssertEqual(AIDifficulty.amateurHigh.leafNoiseAmplitude, 0, "lvl5=0（等价性锚点）")
     }
 }

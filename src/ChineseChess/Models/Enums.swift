@@ -152,15 +152,15 @@ enum AIDifficulty: CaseIterable, Codable {
         }
     }
 
-    /// v6.5 v2: 叶节点评估噪声幅度（±cp，消费侧包装层，§3.2 五档总表）
-    /// noise=0 时 noisyEvaluate 直接返回 raw（lvl5 等价性锚点）
+    /// v0.4.2 §Y N-out：噪声轴整体出局，五档全零（Luke 10-01 12:57 裁，T-1001-2）
+    /// noisyEvaluate 机制保留：0 幅=无操作（guard leafNoise > 0 直返 raw，lvl5 等价性锚点扩为全档）
     var leafNoiseAmplitude: Int {
         switch self {
-        case .novice:        return 180  // lvl1
-        case .beginner:      return 120  // lvl2
-        case .amateurLow:    return 70   // lvl3
-        case .amateurMid:    return 35   // lvl4
-        case .amateurHigh:   return 0    // lvl5（纯净路径）
+        case .novice:        return 0  // lvl1（§Y N-out 全零）
+        case .beginner:      return 0  // lvl2
+        case .amateurLow:    return 0  // lvl3
+        case .amateurMid:    return 0  // lvl4
+        case .amateurHigh:   return 0  // lvl5
         case .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster:
             return 0  // 专业级不走自研引擎
         }
