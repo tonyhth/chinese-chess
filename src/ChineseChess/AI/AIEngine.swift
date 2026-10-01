@@ -276,48 +276,31 @@ actor AIEngine: AIEngineProtocol {
 
     // MARK: - C1 辅助: 各级别的 scored 变体
 
-    /// v4.3: lvl3 scored — IDS maxDepth=3, 2000ms, .mediumNoQS
-    // MARK: - v6.5 v2 §3.2 五档总表 Scored 变体
+    // MARK: - v0.4.2 §Y 五档总表 Scored 变体（T-1001-2 对齐）
 
-    /// lvl1 scored — depth=2, 500/300ms, .simplified, 叶噪声 180（§3.2）
+    /// lvl1 scored — depth=1, 2000ms, .hard, 无库（T-1001-2：v0.4.2 §Y 分支 Y）
     private func noviceSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
-        if board.moveHistory.count < 8 {
-            let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
-                return [(move, 0)]
-            }
-        }
-
-        var config = AISearchConfig.simplified
-        config.evalConfig.contempt = calibrationContempt
-
-        let budget = isIOS ? 300 : 500
-        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
-        return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
-                                               searchConfig: config, topK: topK, depthLogLabel: "lvl1")
-    }
-
-    /// lvl2 scored — depth=2, 1000/600ms, .hard, 叶噪声 120（§3.2）
-    private func beginnerSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
-        if board.moveHistory.count < 8 {
-            let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
-                return [(move, 0)]
-            }
-        }
-
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 600 : 1000
+        let budget = isIOS ? 300 : 2000  // iOS ×0.6 与 §Y 统一预算冲突待裁（T-1001-2 上报项）
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearchScored(for: &board, maxDepth: 1, timeManager: tm,
+                                               searchConfig: config, topK: topK, depthLogLabel: "lvl1")
+    }
+
+    /// lvl2 scored — depth=2, 2000ms, .hard, 无库（T-1001-2：v0.4.2 §Y 分支 Y）
+    private func beginnerSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 600 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 2, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl2")
     }
 
-    /// lvl3 scored — depth=2, 2000/1200ms, .hard, 叶噪声 70（§3.2）
+    /// lvl3 scored — depth=2, 2000ms, .hard, 有库（T-1001-2：v0.4.2 §Y 已符合，仅注释对齐）
     private func mediumSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
         if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
@@ -336,10 +319,8 @@ actor AIEngine: AIEngineProtocol {
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl3")
     }
 
-    /// lvl4 scored — depth=3, 3000/1800ms, .hard, CheckmateSearch(12, kill≤6 地板), 叶噪声 35（§3.2）
+    /// lvl4 scored — depth=3, 2000ms, .hard, 有库, kill off（T-1001-2：v0.4.2 §Y 分支 Y）
     private func hardSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
-        let side = board.currentTurn
-
         if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
             if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
@@ -348,29 +329,23 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        let killTimeLimit = isIOS ? 450 : 750  // §3.2 浅层 ≤6 地板（iOS ×0.6）
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 6, timeLimitMs: killTimeLimit) {
-            // A3r2 根治 A：只返回杀法序列第一步（memo: docs/bugs/A3r2-first-cause-root-cause.md）
-            return [killMoves[0]].map { ($0, 0) }
-        }
-
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 1800 : 3000
+        let budget = isIOS ? 1800 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 3, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl4")
     }
 
-    /// lvl5 scored — depth=3, 5000/3000ms, .hard, CheckmateSearch(12, 1200ms 全量终局模块), 叶噪声 0（§3.2）
+    /// lvl5 scored — depth=3, 2000ms, .hard, 有库, CheckmateSearch(12, 750ms 显式常量)（T-1001-2：v0.4.2 §Y）
     /// ZD-A' 定案（Luke 08-21 批）：预算可注入——detBudgetMs() 读 env
-    /// SELFPLAY_DET_BUDGET_MS，缺省 5000（v6.5 v2 §3.2 顶档预算下调）；killTimeLimit 同源缩放。
+    /// SELFPLAY_DET_BUDGET_MS，缺省 2000（v0.4.2 §Y 全档统一护栏值）；killTimeLimit=750 显式常量（§3.1 v0.3 解耦）。
     private static func detBudgetMs() -> Int {
         if let raw = ProcessInfo.processInfo.environment["SELFPLAY_DET_BUDGET_MS"], let v = Int(raw), v > 0 {
             return v
         }
-        return 5000  // v6.5 v2：8000→5000（§3.2 名义 depth 3 预算）
+        return 2000  // T-1001-2：v0.4.2 §Y 全档统一护栏值（8000→5000→2000）
     }
 
     private func masterSearchScored(for board: inout LegacySearchBoard, isIOS: Bool, topK: Int) -> [(move: Move, score: Int)]? {
@@ -385,7 +360,7 @@ actor AIEngine: AIEngineProtocol {
         }
 
         let budget = Self.detBudgetMs()
-        let killTimeLimit = isIOS ? budget * 3 / 20 : budget * 3 / 20   // 缺省 5000 → 750（全量终局模块）
+        let killTimeLimit = 750  // §3.1 v0.3 算术订正：与统一预算解耦的显式常量（原 ×3/20 仅缺省 5000 时=750；iOS 两支同值，×0.6 从未生效）
         if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
             // A3r2 根治 A（同 lvl4 注释，memo 见 docs/bugs/A3r2-first-cause-root-cause.md）
             return [killMoves[0]].map { ($0, 0) }
@@ -410,7 +385,7 @@ actor AIEngine: AIEngineProtocol {
         var tm = timeManager
         var completedDepth = 0
 
-        for depth in 2...maxDepth {
+        for depth in min(2, maxDepth)...maxDepth {  // T-1001-2：lvl1 depth=1 通道（其余档 min(2,maxDepth)=2 行为不变）
             if searchConfig.enableSmartTime {
                 if depth > 2 && !tm.shouldStartNextIteration { break }
             }
@@ -440,41 +415,25 @@ actor AIEngine: AIEngineProtocol {
 
     // v4.0 旧方案：depth-1 + ±150cp 噪声 + top-5 加权随机（三重扰动不可控）
     // v2.1 新方案：depth-1 + top-3 加权随机（去掉噪声，更可预测）
-    // MARK: - v6.5 v2 §3.2 五档总表（非 Scored 变体）
+    // MARK: - v0.4.2 §Y 五档总表（非 Scored 变体，T-1001-2 对齐）
 
-    /// lvl1 — depth=2, 500/300ms, .simplified, 叶噪声 180（§3.2）
+    /// lvl1 — depth=1, 2000ms, .hard, 无库（T-1001-2：v0.4.2 §Y 分支 Y）
     private func noviceSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
-        if board.moveHistory.count < 8 {
-            let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
-                return move
-            }
-        }
-
-        var config = AISearchConfig.simplified
-        config.evalConfig.contempt = calibrationContempt
-
-        let budget = isIOS ? 300 : 500
-        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
-        return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
-                                        depthLogLabel: "lvl1")
-    }
-
-    /// lvl2 — depth=2, 1000/600ms, .hard, 叶噪声 120（§3.2）
-    private func beginnerSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
-        if board.moveHistory.count < 8 {
-            let hash = ZobristHash.hash(board: board)
-            if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
-               let move = openingBook.parseICCSMove(iccsMove, on: board) {
-                return move
-            }
-        }
-
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 600 : 1000
+        let budget = isIOS ? 300 : 2000  // iOS ×0.6 与 §Y 统一预算冲突待裁（T-1001-2 上报项）
+        let tm = TimeManager(timeLimitMs: budget, startTime: Date())
+        return iterativeDeepeningSearch(for: &board, maxDepth: 1, timeManager: tm, searchConfig: config,
+                                        depthLogLabel: "lvl1")
+    }
+
+    /// lvl2 — depth=2, 2000ms, .hard, 无库（T-1001-2：v0.4.2 §Y 分支 Y）
+    private func beginnerSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
+        var config = AISearchConfig.hard
+        config.evalConfig.contempt = calibrationContempt
+
+        let budget = isIOS ? 600 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 2, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl2")
@@ -573,9 +532,9 @@ actor AIEngine: AIEngineProtocol {
         return bestMove
     }
 
-    // MARK: - 中级（v6.5 v2：lvl3 depth=2, 2000/1200ms, .hard）
+    // MARK: - 中级（v0.4.2 §Y：lvl3 depth=2, 2000ms, .hard）
 
-    /// lvl3 — depth=2, 2000/1200ms, .hard, 叶噪声 70（§3.2）
+    /// lvl3 — depth=2, 2000ms, .hard, 有库（T-1001-2：v0.4.2 §Y 已符合，仅注释对齐）
     private func mediumSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
         if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
@@ -594,12 +553,10 @@ actor AIEngine: AIEngineProtocol {
                                         depthLogLabel: "lvl3")
     }
 
-    // MARK: - 高级（v6.5 v2：lvl4 depth=3, 3000/1800ms, .hard, CheckmateSearch ≤6 地板）
+    // MARK: - 高级（v0.4.2 §Y：lvl4 depth=3, 2000ms, .hard, kill off）
 
-    /// lvl4 — depth=3, 3000/1800ms, .hard, CheckmateSearch(6, kill≤6 地板), 叶噪声 35（§3.2）
+    /// lvl4 — depth=3, 2000ms, .hard, 有库, kill off（T-1001-2：v0.4.2 §Y 分支 Y）
     private func hardSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
-        let side = board.currentTurn
-
         if board.moveHistory.count < 8 {
             let hash = ZobristHash.hash(board: board)
             if let iccsMove = openingBook.lookupWeightedRandom(zobristHash: hash),
@@ -608,24 +565,19 @@ actor AIEngine: AIEngineProtocol {
             }
         }
 
-        let killTimeLimit = isIOS ? 450 : 750  // §3.2 浅层 ≤6 地板（iOS ×0.6）
-        if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 6, timeLimitMs: killTimeLimit) {
-            return killMoves.first
-        }
-
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = isIOS ? 1800 : 3000
+        let budget = isIOS ? 1800 : 2000  // iOS ×0.6 待裁（T-1001-2 上报项）
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 3, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl4")
     }
 
-    // MARK: - 大师（v6.5 v2：lvl5 depth=3, 5000/3000ms, .hard, 全量终局模块）
+    // MARK: - 大师（v0.4.2 §Y：lvl5 depth=3, 2000ms, .hard, kill≤12+750ms 显式常量）
 
-    /// lvl5 — depth=3, 5000/3000ms, .hard, CheckmateSearch(12, 750ms 全量终局模块), 叶噪声 0（§3.2）
-    /// ZD-A' 预算可注入：detBudgetMs() 缺省 5000（v6.5 v2 从 8000 下调）
+    /// lvl5 — depth=3, 2000ms, .hard, 有库, CheckmateSearch(12, 750ms 显式常量)（T-1001-2：v0.4.2 §Y）
+    /// ZD-A' 预算可注入：detBudgetMs() 缺省 2000（v6.5 v2 从 8000 下调；T-1001-2 统一护栏值）
     private func masterSearch(for board: inout LegacySearchBoard, isIOS: Bool) -> Move? {
         let side = board.currentTurn
 
@@ -638,7 +590,7 @@ actor AIEngine: AIEngineProtocol {
         }
 
         let budget = Self.detBudgetMs()
-        let killTimeLimit = budget * 3 / 20   // 缺省 5000 → 750（全量终局模块）
+        let killTimeLimit = 750  // §3.1 v0.3 算术订正：与统一预算解耦的显式常量（原 ×3/20 仅缺省 5000 时=750）
         if let killMoves = CheckmateSearch.search(board: board, for: side, maxDepth: 12, timeLimitMs: killTimeLimit) {
             return killMoves.first
         }
@@ -661,7 +613,7 @@ actor AIEngine: AIEngineProtocol {
         var tm = timeManager
         var completedDepth = 0
 
-        for depth in 2...maxDepth {
+        for depth in min(2, maxDepth)...maxDepth {  // T-1001-2：lvl1 depth=1 通道（其余档行为不变）
             if searchConfig.enableSmartTime {
                 if depth > 2 && !tm.shouldStartNextIteration { break }
             }
