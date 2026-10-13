@@ -13368,13 +13368,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Proficient"
+            "value": "Specialist"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "精通"
+            "value": "专家"
           }
         }
       }

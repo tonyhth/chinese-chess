@@ -88,7 +88,10 @@ enum AIDifficulty: CaseIterable, Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let raw = try container.decode(String.self)
-        if let value = AIDifficulty(rawValue: raw) {
+        // T-1013-OC-03 S2：持久化键迁移（v2.2 §3.2 M-C′ 全表强度就近；仅解码路径消费，
+        // init(rawValue:) 不受污染——防 --calibrate CLI 的 lvlN 直构语义被迁移污染）
+        let migrated = Self.s2MigrationMap[raw] ?? raw
+        if let value = AIDifficulty(rawValue: migrated) {
             self = value
         } else {
             // 未知值 fallback
@@ -107,6 +110,16 @@ enum AIDifficulty: CaseIterable, Codable {
     static let amateurLevels: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
     static let professionalLevels: [AIDifficulty] = [.amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster]
 
+    /// 候裁开关（Checkpoint 1 提案②随附，08:53 已报 dashboard）：true=过渡期选择器隐藏 lvl6-9
+    /// （迁移后无用户驻留、与 lvl2-5 同参数重复且 lvl6=s0 对 lvl5=s10 过渡倒挂；重锚定案后回填）；
+    /// Luke 裁否改 false 即回全表
+    static let transitionProfessionalPickerHidden = true
+
+    /// T-1013-OC-03 过渡期专业级选择器可见集（消费点：SettingsView/ToolbarView）
+    static var visibleProfessionalLevels: [AIDifficulty] {
+        transitionProfessionalPickerHidden ? [.grandmaster] : professionalLevels
+    }
+
     /// 是否为专业级（使用 Pikafish 引擎）
     var isProfessional: Bool {
         self == .amateurDan || self == .proApprentice || self == .proExpert
@@ -124,6 +137,69 @@ enum AIDifficulty: CaseIterable, Codable {
         default:             return nil
         }
     }
+
+    // MARK: - T-1013-OC-03 S2 难度体系 v2.2 单源参数表（v65-v3 §8①：skill/预算映射表单源，禁散落 if）
+
+    /// S2 载体（v2.2 §2.1）：自研 AIEngine / Pikafish（skill 刻度）
+    enum S2Carrier {
+        case selfResearch
+        case pikafish
+    }
+
+    /// 单源参数表行：usesPikafish=true 时 skill=UCI Skill Level、budgetMs=UCI timeLimitMs 缺省；
+    /// selfResearch 时 budgetMs=自研引擎预算帽。ladderElo=天梯折算锚（单调门自检源）；
+    /// transitionSlot=v2.2 §2.3 过渡位（lvl6-9 维持现行实现，重锚=开放设计位；门检/选择器按候裁提案处理）
+    struct S2LevelSpec: Equatable {
+        let usesPikafish: Bool
+        let skill: Int?
+        let budgetMs: Int
+        let ladderElo: Int
+        let transitionSlot: Bool
+        /// lvl1 豁免教学档（v2.2：L1→L2 不计档距门，天梯未标定，门检排除）
+        let ladderExempt: Bool
+    }
+
+    /// lvl1 载体形态开关（v2.2 §2.1 五缺口④）：false=选项 a 自研 hard-d1 维持【默认基线】；
+    /// true=选项 b Pikafish skill0+movetime≤1000ms（隔离可换，洪涛产品面裁量未落，一键切）
+    static var lvl1UsesPikafish = false
+
+    /// S2 锁表参数（v0.3.1 §2.1/§2.3）：lvl2-5=s0/s4/s7/s10（R2 锚）@5000/5000/5000/10000；
+    /// lvl6-9=现行实现维持（过渡位）；lvl10=s20 官方锚延续；lvl1=默认 a（自研 hard-d1，豁免档）
+    var s2Spec: S2LevelSpec {
+        switch self {
+        case .novice:
+            return Self.lvl1UsesPikafish
+                ? S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 1000, ladderElo: 1000, transitionSlot: false, ladderExempt: true)
+                : S2LevelSpec(usesPikafish: false, skill: nil, budgetMs: 2000, ladderElo: 1000, transitionSlot: false, ladderExempt: true)
+        case .beginner:      return S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 5000, ladderElo: 1280, transitionSlot: false, ladderExempt: false)
+        case .amateurLow:    return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 5000, ladderElo: 1777, transitionSlot: false, ladderExempt: false)
+        case .amateurMid:    return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 5000, ladderElo: 2268, transitionSlot: false, ladderExempt: false)
+        case .amateurHigh:   return S2LevelSpec(usesPikafish: true, skill: 10, budgetMs: 10000, ladderElo: 2568, transitionSlot: false, ladderExempt: false)
+        case .amateurDan:    return S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 5000, ladderElo: 1280, transitionSlot: true, ladderExempt: false)
+        case .proApprentice: return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 6000, ladderElo: 1777, transitionSlot: true, ladderExempt: false)
+        case .proExpert:     return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 7000, ladderElo: 2268, transitionSlot: true, ladderExempt: false)
+        case .proMaster:     return S2LevelSpec(usesPikafish: true, skill: 10, budgetMs: 8000, ladderElo: 2568, transitionSlot: true, ladderExempt: false)
+        case .grandmaster:   return S2LevelSpec(usesPikafish: true, skill: 20, budgetMs: 10000, ladderElo: 3300, transitionSlot: false, ladderExempt: false)
+        }
+    }
+
+    /// 引擎载体路由面（EngineRouter.engineFor 分派依据）：
+    /// ⚠️ 与 isProfessional（UI 分组/进度语义）有意分离——S2 后 lvl2-5 载体=Pikafish 但仍属业余序列
+    var usesPikafishEngine: Bool { s2Spec.usesPikafish }
+
+    /// S2 迁移映射表（v2.2 §3.2 M-C′ 全表强度就近；持久化键迁移，仅 Codable 解码路径消费，
+    /// 不入 init(rawValue:)——防 --calibrate CLI 的 lvlN 直构语义被迁移污染）
+    /// ⚠️ 候裁标注（Checkpoint 1 提案①，08:53 已报 dashboard）：锚前提=生产实码 v4.2 重映射
+    /// （lvl6=s0/lvl7=s4/lvl8=s7/lvl9=s10，Enums 上方注释），非规格文本的 v2.1 设计表
+    /// （s4/s7/s10/s13）。Luke 裁规格字面版则换表：lvl6→lvl3/lvl7→lvl4/lvl8→lvl5/lvl9 不迁移
+    private static let s2MigrationMap: [String: String] = [
+        "lvl4": "lvl3",   // 自研 old4≈old5（B5 实测）≈1777 → 新 lvl3 同锚就近（偏差≤1 档合规）
+        "lvl5": "lvl3",   // 自研 old5 下限 1777（plan-b §1.3）→ 新 lvl3 同锚零漂移
+        "lvl6": "lvl2",   // 实码 s0 → 新 lvl2 同锚零漂移（规格字面版=lvl3，候裁）
+        "lvl7": "lvl3",   // 实码 s4 → 新 lvl3 同锚零漂移
+        "lvl8": "lvl4",   // 实码 s7 → 新 lvl4 同锚零漂移
+        "lvl9": "lvl5"    // 实码 s10 → 新 lvl5 同锚零漂移（规格字面版=候重锚挂起，实码锚下免挂起）
+    ]
 
     /// 专业级不可用时 fallback 到最近的自研级别
     var fallbackToAmateur: AIDifficulty {

@@ -91,9 +91,9 @@ final class SelectionConsistencyTests {
             #expect(!seen.contains(name), "中文名重复：\(name)（\(d.rawValue)）")
             seen.insert(name)
         }
-        // 顺序锚（防档位错位——选择态一致性的核心断言）
+        // 顺序锚（防档位错位——选择态一致性的核心断言）；T-1013-OC-03 S2：lvl5 精通→专家（v3 §2 五档表）
         let names = AIDifficulty.allCases.map(\.displayName)
-        #expect(names == ["入门", "初级", "中级", "高级", "精通",
+        #expect(names == ["入门", "初级", "中级", "高级", "专家",
                           "棋友", "棋手", "棋师", "大师", "棋圣"])
     }
 
@@ -109,7 +109,8 @@ final class SelectionConsistencyTests {
             seen.insert(name)
         }
         let en = AIDifficulty.allCases.map(\.displayName)
-        #expect(en == ["Beginner", "Elementary", "Intermediate", "Advanced", "Proficient",
+        // T-1013-OC-03 S2：lvl5 en 专家=Specialist（避免与 lvl8 Expert 撞名；en 命名随命名全表开放位，过渡值）
+        #expect(en == ["Beginner", "Elementary", "Intermediate", "Advanced", "Specialist",
                        "Player", "Expert", "Master", "Grandmaster", "Legend"])
     }
 
@@ -324,18 +325,34 @@ final class SelectionConsistencyTests {
         )
     }
 
-    @Test("④-1 存档→读档 难度回显：10 档全量 Codable 往返无损")
+    @Test("④-1 存档→读档 难度回显：10 档全量 Codable 按 M-C′ 迁移映射回显（S2 有意非恒等，替代原无损断言；实码锚版候裁）")
     func recordDifficultyRoundtrip() throws {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
+        // T-1013-OC-03 S2 迁移映射（候裁提案①）：持久化键经 M-C′ 全表强度就近落位——
+        // 同锚零漂移：lvl6(s0)→lvl2 / lvl7(s4)→lvl3 / lvl8(s7)→lvl4 / lvl9(s10)→lvl5 / lvl10(s20)→lvl10；
+        // 自研就近：lvl4/lvl5(≈1777)→lvl3；lvl1/lvl2/lvl3 键不变（lvl1 同槽豁免 / lvl2 过渡定位 / lvl3 同锚）
+        let expected: [AIDifficulty: AIDifficulty] = [
+            .novice: .novice,
+            .beginner: .beginner,
+            .amateurLow: .amateurLow,
+            .amateurMid: .amateurLow,
+            .amateurHigh: .amateurLow,
+            .amateurDan: .beginner,
+            .proApprentice: .amateurLow,
+            .proExpert: .amateurMid,
+            .proMaster: .amateurHigh,
+            .grandmaster: .grandmaster
+        ]
         for d in AIDifficulty.allCases {
             let record = makeRecord(difficulty: d)
             let data = try encoder.encode(record)
             let loaded = try decoder.decode(GameRecord.self, from: data)
-            #expect(loaded.difficulty == d, "\(d.rawValue) 存读档后难度漂移为 \(String(describing: loaded.difficulty))")
-            #expect(loaded.blackPlayer.difficulty == d)
-            // UI 回显口径（GameHistoryView 摘要行）：displayName 即用户所见
-            #expect(loaded.difficulty?.displayName == d.displayName)
+            let migrated = expected[d]!
+            #expect(loaded.difficulty == migrated, "\(d.rawValue) 存读档后应迁移为 \(migrated.rawValue)，实际 \(String(describing: loaded.difficulty))")
+            #expect(loaded.blackPlayer.difficulty == migrated)
+            // UI 回显口径（GameHistoryView 摘要行）：displayName 即用户所见（迁移后回显新档名=强度连续性叙事）
+            #expect(loaded.difficulty?.displayName == migrated.displayName)
         }
     }
 

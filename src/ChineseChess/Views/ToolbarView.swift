@@ -191,7 +191,7 @@ struct ToolbarView: View {
                         Button(l10n.t("difficulty.\(d.rawValue)")) { viewModel.setDifficulty(d) }
                     }
                     Divider()
-                    ForEach(AIDifficulty.professionalLevels, id: \.self) { d in
+                    ForEach(AIDifficulty.visibleProfessionalLevels, id: \.self) { d in
                         Button(l10n.t("difficulty.\(d.rawValue)")) { viewModel.setDifficulty(d) }
                     }
                 } label: {
@@ -297,7 +297,7 @@ struct ToolbarView: View {
                     ForEach(AIDifficulty.amateurLevels, id: \.self) { d in
                         Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
                     }
-                    ForEach(AIDifficulty.professionalLevels, id: \.self) { d in
+                    ForEach(AIDifficulty.visibleProfessionalLevels, id: \.self) { d in
                         Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
                     }
                 }

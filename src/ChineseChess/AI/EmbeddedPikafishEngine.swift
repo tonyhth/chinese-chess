@@ -271,14 +271,28 @@ actor EmbeddedPikafishEngine: ChessEngine {
 
         // v6.0: 专业级设置 Skill Level（UCI 选项）
         // pfmatch 模式下用 skillLevelOverride 覆盖
-        if let skill = difficulty.skillLevel {
-            setSkillLevel(skill)
+        // T-1013-OC-03 S2：锁表档（lvl2-5 非过渡位）skill 从单源参数表取（skillLevel 旧语义仅覆盖 lvl6-10）；
+        // 外部 skillOverride（--calibrate 通道）优先级最高，行为不变
+        let s2 = difficulty.s2Spec
+        let s2LockTable = s2.usesPikafish && !s2.transitionSlot
+        if lastSkillOverride == nil {
+            if let skill = difficulty.skillLevel {
+                setSkillLevel(skill)
+            } else if s2LockTable, let skill = s2.skill {
+                setSkillLevel(skill)
+            }
         }
 
-        let (mappedDepth, timeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
+        let (mappedDepth, defaultTimeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
         // 校准 v3.0: 当有外部 skillOverride 时，强制 depth=0（无限制搜索）
         // 让 Skill Level 全权控制棋力，避免 mapDifficulty 的 depth 覆盖 pick_best 机制
-        let depth = (lastSkillOverride != nil && difficulty.skillLevel == nil) ? 0 : mappedDepth
+        // T-1013-OC-03 S2：锁表档 depth=0（skill 全权；lvl2-5 的 mapDifficulty depth 面退役）+预算从表
+        var depth = (lastSkillOverride != nil && difficulty.skillLevel == nil) ? 0 : mappedDepth
+        var timeMs = defaultTimeMs
+        if s2LockTable {
+            depth = 0
+            if timeLimitMs <= 0 { timeMs = s2.budgetMs }
+        }
         let movesStr = moveHistory.joined(separator: " ")
 
         // 标记搜索开始（actor 上下文，安全）

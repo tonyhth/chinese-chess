@@ -73,8 +73,9 @@ final class EngineRouter {
     /// v6.3 E5: 引擎开关退场——专业级恒走 Pikafish（不可用降自研），
     /// 对账 ad9126b 守卫：开关不存在后守卫恒真，仅保留可用性 fallback
     func engineFor(difficulty: AIDifficulty) -> any ChessEngine {
-        if difficulty.isProfessional {
-            // 专业级需要 Pikafish（不可用时返回自研——调用方应先 validate）
+        // T-1013-OC-03 S2：分派依据=载体（v2.2 lvl2-5 载体切换 Pikafish；lvl1-a 自研与 lvl6-10 现行语义不变）
+        if difficulty.usesPikafishEngine {
+            // Pikafish 载体（不可用时返回自研——调用方应先 validate）
             if let emb = embeddedEngine, emb.isReady {
                 return emb
             }
@@ -86,11 +87,11 @@ final class EngineRouter {
     // MARK: - 层 1：启动检查（进入对弈前）
 
     /// 检查指定难度的引擎是否可用
-    /// - 业余级：总是可用（自研引擎无需初始化）
-    /// - 专业级：需要 Pikafish 已启动且就绪
+    /// - 自研载体（lvl1-a）：总是可用（自研引擎无需初始化）
+    /// - Pikafish 载体（lvl2-10）：需要 Pikafish 已启动且就绪（T-1013-OC-03 S2：lvl2-5 载体切换后同专业档校验）
     /// v6.3 E5: 开关退场，专业级恒校验 Pikafish 可用性
     func validateEngineAvailability(for difficulty: AIDifficulty) async -> EngineAvailability {
-        guard difficulty.isProfessional else { return .available }
+        guard difficulty.usesPikafishEngine else { return .available }
 
         // 确保 Pikafish 已启动
         if let emb = await acquireEmbeddedEngine(), emb.isReady {
