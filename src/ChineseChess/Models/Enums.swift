@@ -168,6 +168,7 @@ enum AIDifficulty: CaseIterable, Codable {
     var s2Spec: S2LevelSpec {
         switch self {
         case .novice:
+            // lvl1-a budgetMs=自研预算帽（AIEngine noviceSearch/noviceSearchScored 消费，P3-② 单源化）
             return Self.lvl1UsesPikafish
                 ? S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 1000, ladderElo: 1000, transitionSlot: false, ladderExempt: true)
                 : S2LevelSpec(usesPikafish: false, skill: nil, budgetMs: 2000, ladderElo: 1000, transitionSlot: false, ladderExempt: true)
@@ -175,6 +176,8 @@ enum AIDifficulty: CaseIterable, Codable {
         case .amateurLow:    return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 5000, ladderElo: 1777, transitionSlot: false, ladderExempt: false)
         case .amateurMid:    return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 5000, ladderElo: 2268, transitionSlot: false, ladderExempt: false)
         case .amateurHigh:   return S2LevelSpec(usesPikafish: true, skill: 10, budgetMs: 10000, ladderElo: 2568, transitionSlot: false, ladderExempt: false)
+        // P3-② 披露：以下 4 过渡位行=声明镜像（skill/budgetMs 实际消费走 skillLevel/mapDifficulty 旧通道，
+        // 数值与现行实现一致已亲验——单源对此 4 行为文档性；重锚定案后由后续单转正消费）
         case .amateurDan:    return S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 5000, ladderElo: 1280, transitionSlot: true, ladderExempt: false)
         case .proApprentice: return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 6000, ladderElo: 1777, transitionSlot: true, ladderExempt: false)
         case .proExpert:     return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 7000, ladderElo: 2268, transitionSlot: true, ladderExempt: false)
@@ -200,6 +203,25 @@ enum AIDifficulty: CaseIterable, Codable {
         "lvl8": "lvl4",   // 实码 s7 → 新 lvl4 同锚零漂移
         "lvl9": "lvl5"    // 实码 s10 → 新 lvl5 同锚零漂移（规格字面版=候重锚挂起，实码锚下免挂起）
     ]
+
+    /// T-1013-OC-03 P1-1（Ruby 全审修后重走）：skill 应用决策纯函数（可回归测试）——返回应推送的 skill（nil=不推）。
+    /// 优先级：外部 override 存活（非 nil）=不插手（calibrate/pfmatch 盘面）> difficulty.skillLevel（lvl6-10 旧语义）
+    /// > 锁表 spec.skill（lvl2-5 非过渡位）；脏检查：期望==已应用则不推（局中切档即时生效的关键：
+    /// 旧 lastSkillOverride 守卫在首手置位后恒真，切档后期望值更新被吞=P1-1 滞留实锤位）
+    static func s2SkillToApply(difficulty: AIDifficulty, externalOverride: Int?, lastApplied: Int?) -> Int? {
+        guard externalOverride == nil else { return nil }
+        let spec = difficulty.s2Spec
+        let desired: Int?
+        if let skill = difficulty.skillLevel {
+            desired = skill
+        } else if spec.usesPikafish && !spec.transitionSlot {
+            desired = spec.skill
+        } else {
+            desired = nil
+        }
+        guard let desired else { return nil }
+        return desired == lastApplied ? nil : desired
+    }
 
     /// 专业级不可用时 fallback 到最近的自研级别
     var fallbackToAmateur: AIDifficulty {

@@ -144,4 +144,34 @@ struct T1013OC03S2RelevelTests {
         // 数据源锢定（①-4b 同款）：底层数组未动，隐藏仅为过渡期可见集过滤
         #expect(AIDifficulty.amateurLevels + AIDifficulty.professionalLevels == AIDifficulty.allCases)
     }
+
+    // MARK: - P1-1 局中切档 skill 滞留回归（Ruby 全审修后重走）
+
+    @Test("P1-1 局中切档：切档→期望 skill 随切刷新（旧 lastSkillOverride 守卫滞留实锤位回归）")
+    func midGameSwitchResolution() {
+        // 局首首手：lvl4（新锁表 skill7）→ 推 7
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: nil) == 7)
+        // 第二手同档：脏检查跳过（不重复推）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: 7) == nil)
+        // 局中切 lvl2：期望 0（旧守卫在此滞留 7 = P1-1 实锤场景）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .beginner, externalOverride: nil, lastApplied: 7) == 0)
+        // 低→高对称：lvl2 局中切回 lvl4 → 期望 7
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: 0) == 7)
+        // lvl6-10 局中互切：difficulty.skillLevel 旧语义消费（旧码每手无条件刷=新解析器等价）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .proApprentice, externalOverride: nil, lastApplied: 10) == 4)
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .proMaster, externalOverride: nil, lastApplied: 4) == 10)
+        // 外部 override 存活（--calibrate 通道）：难度应用不插手（nil=不推）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .beginner, externalOverride: 7, lastApplied: 7) == nil)
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurLow, externalOverride: 0, lastApplied: 4) == nil)
+        // 过渡位（lvl6-9）无外部 override：difficulty.skillLevel 消费、spec 镜像不双推
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurDan, externalOverride: nil, lastApplied: 4) == 0)
+    }
+
+    @Test("P1-1 外部 override 廊角申报：override≠nil 时 difficulty.skillLevel 不再反覆盖（行为增强已申报）")
+    func externalOverrideCorner() {
+        // 廓角（override≠nil, skillLevel≠nil，如 lvl7 局中 --calibrate 混入）：旧码被 difficulty.skillLevel 反覆盖，
+        // 新码 override 存活——Ruby 全审申报的行为增强，回归钉住
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .proApprentice, externalOverride: 9, lastApplied: 9) == nil,
+                "外部 override 存活期，难度应用不插手（即使 skillLevel≠nil）")
+    }
 }

@@ -283,7 +283,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
+        let budget = AIDifficulty.novice.s2Spec.budgetMs  // T-1013-OC-03 P3-②：lvl1-a 预算单源化（现值 2000 不变；iOS ×0.6 已撤销 v0.4.2 §6）
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearchScored(for: &board, maxDepth: 1, timeManager: tm,
                                                searchConfig: config, topK: topK, depthLogLabel: "lvl1")
@@ -422,7 +422,7 @@ actor AIEngine: AIEngineProtocol {
         var config = AISearchConfig.hard
         config.evalConfig.contempt = calibrationContempt
 
-        let budget = 2000  // iOS ×0.6 已撤销（v0.4.2 §6，Luke 10-01 12:52 裁）：macOS/iOS 同值
+        let budget = AIDifficulty.novice.s2Spec.budgetMs  // T-1013-OC-03 P3-②：lvl1-a 预算单源化（现值 2000 不变；iOS ×0.6 已撤销 v0.4.2 §6）
         let tm = TimeManager(timeLimitMs: budget, startTime: Date())
         return iterativeDeepeningSearch(for: &board, maxDepth: 1, timeManager: tm, searchConfig: config,
                                         depthLogLabel: "lvl1")
