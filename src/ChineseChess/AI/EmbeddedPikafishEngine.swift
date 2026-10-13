@@ -220,6 +220,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
         }
 
         configureTTSize()
+        // T-1013-OC-03 P3-①（Ruby 复审）：防御性复位脏检查基线——新 start=UCI 选项回默认，
+        // 旧基线失真；同实例 stop→start 重启流下保证首手重推 skill
+        lastAppliedSkill = nil
         isReady = true
     }
 
@@ -571,7 +574,8 @@ actor EmbeddedPikafishEngine: ChessEngine {
             depth = 0
             defaultTimeMs = 8000
         case .grandmaster:
-            // v6.0: Skill Level 20
+            // v6.0: Skill Level 20；T-1013-OC-03 P3-① 注：S2 后 lvl10 走 bestMove 锁表短路
+            // （skill20/depth0/10000ms），本 case 数值与锁表等价（保留作非锁表路径兜底面）
             depth = 0
             defaultTimeMs = 10000
         }
