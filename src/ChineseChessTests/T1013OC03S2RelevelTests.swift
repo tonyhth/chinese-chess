@@ -92,27 +92,70 @@ struct T1013OC03S2RelevelTests {
 
     // MARK: - 迁移映射（v2.2 §3.2 M-C′ 全表强度就近；实码锚版=候裁提案①，Checkpoint 1 08:53）
 
-    @Test("迁移映射：Codable 解码路径消费（持久化键迁移），实码锚版候裁")
-    func migrationDecodedPath() {
-        func decode(_ raw: String) -> AIDifficulty? {
-            let data = try! JSONEncoder().encode(raw)
-            return try? JSONDecoder().decode(AIDifficulty.self, from: data)
+    // MARK: - P1-2 边界迁移（Luke 裁定选项 a：挂点收窄至 GameRecord 用户数据边界）
+
+    /// 旧档夹具：s2Migrated=false + S2 前旧语义档位键
+    private func makeOldRecord(difficulty: AIDifficulty, playerDifficulty: AIDifficulty) -> GameRecord {
+        GameRecord(
+            title: "旧档",
+            redPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: playerDifficulty),
+            blackPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: .novice),
+            difficulty: difficulty,
+            result: .draw, totalMoves: 1, moves: [],
+            s2Migrated: false
+        )
+    }
+
+    @Test("P1-2 边界迁移：旧档（无标记）record+players 经映射单次应用（实码锚全同锚零漂移）")
+    func boundaryMigrationOldRecords() {
+        let decoder = JSONDecoder()
+        // 实码锚映射：lvl6(s0)→新 lvl2 / lvl5(≈1777)→新 lvl3 / lvl8(s7)→新 lvl4 / lvl9(s10)→新 lvl5
+        let cases: [(old: AIDifficulty, expected: AIDifficulty)] = [
+            (.amateurDan, .beginner), (.amateurHigh, .amateurLow),
+            (.proExpert, .amateurMid), (.proMaster, .amateurHigh)
+        ]
+        for testCase in cases {
+            let data = try! JSONEncoder().encode(makeOldRecord(difficulty: testCase.old, playerDifficulty: testCase.old))
+            let loaded = try! JSONDecoder().decode(GameRecord.self, from: data)
+            #expect(loaded.difficulty == testCase.expected, "\(testCase.old.rawValue) 应迁移为 \(testCase.expected.rawValue)")
+            #expect(loaded.redPlayer.difficulty == testCase.expected, "redPlayer 应同步迁移")
+            #expect(loaded.blackPlayer.difficulty == .novice, "novice 不在映射表=键不变零漂移")
+            #expect(loaded.s2Migrated, "应用后标记置位")
         }
-        // 实码锚版（候裁提案①）：lvl6=s0→新 lvl2 / lvl7=s4→新 lvl3 / lvl8=s7→新 lvl4 / lvl9=s10→新 lvl5（全同锚零漂移）
-        #expect(decode("lvl6") == .beginner, "old lvl6（实码 s0）→新 lvl2 同锚零漂移")
-        #expect(decode("lvl7") == .amateurLow, "old lvl7（实码 s4）→新 lvl3 同锚零漂移")
-        #expect(decode("lvl8") == .amateurMid, "old lvl8（实码 s7）→新 lvl4 同锚零漂移")
-        #expect(decode("lvl9") == .amateurHigh, "old lvl9（实码 s10）→新 lvl5 同锚零漂移（免挂起）")
-        #expect(decode("lvl10") == .grandmaster, "old lvl10（s20）→新 lvl10 同锚零漂移")
-        // 自研 old1-5 就近（实测锚）：old3/4/5≈1777→新 lvl3；old1 同槽豁免档；old2 锚残缺→过渡定位注记
-        #expect(decode("lvl3") == .amateurLow, "old lvl3（硬 d2，>1777 带）→新 lvl3 就近（偏差≤1 档合规）")
-        #expect(decode("lvl4") == .amateurLow, "old lvl4≈old5（B5）≈1777 →新 lvl3 就近")
-        #expect(decode("lvl5") == .amateurLow, "old lvl5 下限 1777（plan-b §1.3）→新 lvl3 同锚零漂移")
-        #expect(decode("lvl1") == .novice, "old lvl1→新 lvl1 豁免档同槽")
-        #expect(decode("lvl2") == .beginner, "old lvl2 锚残缺→lvl2 过渡定位（文案面注记随行）")
-        // 旧版兼容键（v2.0-v5.x）不受迁移影响
-        #expect(decode("master") == .amateurHigh)
-        #expect(decode("beginner") == .novice)
+    }
+
+    @Test("P1-2 新值零腐蚀：S2 后新档（标记在位）difficulty 直读不迁移")
+    func boundaryZeroCorrosion() {
+        let decoder = JSONDecoder()
+        // S2 后新档：s2Migrated=true + 新语义键（lvl4=s7）——若误迁移会降为 lvl3（腐蚀实锤位回归）
+        for d in [AIDifficulty.beginner, .amateurLow, .amateurMid, .amateurHigh, .grandmaster] {
+            let record = GameRecord(
+                title: "新档",
+                redPlayer: PlayerInfo(name: "AI", isAI: true, difficulty: d),
+                blackPlayer: PlayerInfo(name: "玩家", isAI: false, difficulty: d),
+                difficulty: d,
+                result: .draw, totalMoves: 1, moves: [],
+                s2Migrated: true
+            )
+            let data = try! JSONEncoder().encode(record)
+            let loaded = try! JSONDecoder().decode(GameRecord.self, from: data)
+            #expect(loaded.difficulty == d, "\(d.rawValue) 标记在位应零腐蚀直读")
+            #expect(loaded.redPlayer.difficulty == d)
+        }
+    }
+
+    @Test("P1-2 非设置解码不触迁移：AIDifficulty Codable 纯解码恒等（类型级钩子已撤）")
+    func plainDecodableIdentity() {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for d in AIDifficulty.allCases {
+            let data = try! encoder.encode(d)
+            #expect(try! decoder.decode(AIDifficulty.self, from: data) == d,
+                    "\(d.rawValue) 纯解码应恒等（迁移只在 GameRecord 边界）")
+        }
+        // 锚定：lvl6 纯解码 = .amateurDan（不迁移到 lvl2）
+        let data = try! encoder.encode(AIDifficulty.amateurDan)
+        #expect(try! decoder.decode(AIDifficulty.self, from: data) == .amateurDan)
     }
 
     @Test("迁移不污染 init(rawValue:)：CLI lvlN 直构语义保持（--calibrate/--calibrate-native 依赖）")

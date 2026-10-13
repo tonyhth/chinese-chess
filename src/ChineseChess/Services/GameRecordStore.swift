@@ -11,6 +11,13 @@ struct RecordSummary: Codable, Identifiable {
     let difficulty: AIDifficulty?
     let source: RecordSource
     let puzzleId: String?   // v3.7.1: 用于 puzzleId 去重
+    /// T-1013-OC-03 P1-2：S2 迁移标记（同 GameRecord 边界单次应用协议；var=解码内应用后置位）
+    var s2Migrated: Bool
+
+    // P1-2：显式 Codable——difficulty 解码走 S2 边界迁移（标记缺席=旧档迁移，在位=零腐蚀直读）
+    private enum CodingKeys: String, CodingKey {
+        case id, title, date, result, totalMoves, difficulty, source, puzzleId, s2Migrated
+    }
 
     init(from record: GameRecord) {
         self.id = record.id
@@ -21,6 +28,41 @@ struct RecordSummary: Codable, Identifiable {
         self.difficulty = record.difficulty
         self.source = record.source
         self.puzzleId = record.puzzleId
+        self.s2Migrated = record.s2Migrated
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        title = try c.decode(String.self, forKey: .title)
+        date = try c.decode(Date.self, forKey: .date)
+        result = try c.decode(GameState.self, forKey: .result)
+        totalMoves = try c.decode(Int.self, forKey: .totalMoves)
+        source = try c.decodeIfPresent(RecordSource.self, forKey: .source) ?? .versusAI
+        puzzleId = try c.decodeIfPresent(String.self, forKey: .puzzleId)
+        s2Migrated = try c.decodeIfPresent(Bool.self, forKey: .s2Migrated) ?? false
+        let difficultyRaw = try c.decodeIfPresent(String.self, forKey: .difficulty)
+        if let raw = difficultyRaw {
+            let migrated = s2Migrated ? raw : AIDifficulty.s2MigratedRaw(raw)
+            difficulty = AIDifficulty(rawValue: migrated) ?? .amateurMid
+        } else {
+            difficulty = nil
+        }
+        // P1-2 应用后标记：迁移已应用 → 内存态置 true（persistIndex 写回=单次应用持久化）
+        s2Migrated = true
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(title, forKey: .title)
+        try c.encode(date, forKey: .date)
+        try c.encode(result, forKey: .result)
+        try c.encode(totalMoves, forKey: .totalMoves)
+        try c.encode(difficulty, forKey: .difficulty)
+        try c.encode(source, forKey: .source)
+        try c.encode(puzzleId, forKey: .puzzleId)
+        try c.encode(s2Migrated, forKey: .s2Migrated)
     }
 }
 
