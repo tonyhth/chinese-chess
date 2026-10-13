@@ -1817,6 +1817,10 @@ func runCalibrateNativeFromCLI() async {
 #endif
 
 // MARK: - 校准 v3.0: --calibrate-pf CLI 入口（Pikafish 内部对弈）
+// ⚠️ T-1013-OC-03 §8④ 旧校准批数据迁移注记：v2.1 系历史批（T-0921-6 @500ms、v4.2 前旧锚批）
+// 与 S2 新刻度（lvl2-5=s0/s4/s7/s10 @5000/10000ms 产品口径）不可比——引用历史批数值必须附
+// 保质期/口径迁移注记（v2.2 §五.4：500ms→产品口径偏差 >20% 触发重标定实证在案）；
+// 登记入档：T-1011-plan-b-pf-anchor-assessment.md §1.2 + v65-v3 §4 锁表口径声明
 
 #if os(macOS)
 func runCalibratePfFromCLI() async {

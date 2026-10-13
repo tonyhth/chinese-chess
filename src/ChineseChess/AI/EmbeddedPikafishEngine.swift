@@ -32,6 +32,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
 
     // 校准 v3.0: 记录外部手动设置的 Skill Level，用于 bestMove 判断是否强制 depth=0
     private var lastSkillOverride: Int? = nil
+    /// T-1013-OC-03 P1-1（Ruby 全审）：最后推送到 UCI 的 skill 值（脏检查基线；
+    /// 与 lastSkillOverride【外部 override 标记】分离记账——难度应用不写后者）
+    private var lastAppliedSkill: Int? = nil
 
     // C API 调用专用串行队列——保证同一时间只有一个线程进入 C 层
     // actor 的 withCheckedContinuation 在 suspend 点释放锁，DispatchQueue.global() 会导致
@@ -217,6 +220,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
         }
 
         configureTTSize()
+        // T-1013-OC-03 P3-①（Ruby 复审）：防御性复位脏检查基线——新 start=UCI 选项回默认，
+        // 旧基线失真；同实例 stop→start 重启流下保证首手重推 skill
+        lastAppliedSkill = nil
         isReady = true
     }
 
@@ -269,16 +275,28 @@ actor EmbeddedPikafishEngine: ChessEngine {
             return nil
         }
 
-        // v6.0: 专业级设置 Skill Level（UCI 选项）
-        // pfmatch 模式下用 skillLevelOverride 覆盖
-        if let skill = difficulty.skillLevel {
-            setSkillLevel(skill)
+        // T-1013-OC-03 S2 + P1-1（Ruby 全审修后重走）：skill 应用经单源解析器 + lastAppliedSkill 脏检查——
+        // 局中切档下一手即时生效（修 lastSkillOverride 守卫首手置位后恒真滞留：首手设 skill 后
+        // `lastSkillOverride == nil` 恒假，后续手全跳过=skill 滞留旧档）；
+        // 外部 override（--calibrate/pfmatch 的显式 setSkillLevel 控盘）存活期间难度应用不插手，
+        // 且此角落旧码会被 difficulty.skillLevel 反覆盖、新码 override 存活（行为增强，已申报）
+        let s2 = difficulty.s2Spec
+        let s2LockTable = s2.usesPikafish && !s2.transitionSlot
+        if let toApply = AIDifficulty.s2SkillToApply(difficulty: difficulty,
+                                                     externalOverride: lastSkillOverride,
+                                                     lastApplied: lastAppliedSkill) {
+            pushSkillLevel(toApply)
         }
 
-        let (mappedDepth, timeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
-        // 校准 v3.0: 当有外部 skillOverride 时，强制 depth=0（无限制搜索）
-        // 让 Skill Level 全权控制棋力，避免 mapDifficulty 的 depth 覆盖 pick_best 机制
-        let depth = (lastSkillOverride != nil && difficulty.skillLevel == nil) ? 0 : mappedDepth
+        let (mappedDepth, defaultTimeMs) = mapDifficulty(difficulty, timeLimitMs: timeLimitMs)
+        // 校准 v3.0: 外部 override 存活时强制 depth=0（无限制搜索，Skill 全权控制棋力）
+        // T-1013-OC-03 S2：锁表档 depth=0（skill 全权；lvl2-5 的 mapDifficulty depth 面退役）+预算从表
+        var depth = (lastSkillOverride != nil && difficulty.skillLevel == nil) ? 0 : mappedDepth
+        var timeMs = defaultTimeMs
+        if s2LockTable {
+            depth = 0
+            if timeLimitMs <= 0 { timeMs = s2.budgetMs }
+        }
         let movesStr = moveHistory.joined(separator: " ")
 
         // 标记搜索开始（actor 上下文，安全）
@@ -380,14 +398,21 @@ actor EmbeddedPikafishEngine: ChessEngine {
 
     // MARK: - v6.0: Skill Level 设置
 
-    /// 设置 Pikafish Skill Level（UCI 选项）
-    /// Skill Level 0-20，控制引擎棋力（完整搜索后按概率选劣变）
+    /// 设置 Pikafish Skill Level（UCI 选项）——外部 override 通道（--calibrate/pfmatch 模式：
+    /// SelfPlayRunner 显式控盘）。写 lastSkillOverride 标记（bestMove 深度守卫据此识别外部控盘）
     func setSkillLevel(_ skill: Int) {
         guard isReady else {
             NSLog("[Pikafish] setSkillLevel(\(skill)) called before engine ready — ignored")
             return
         }
         lastSkillOverride = skill
+        pushSkillLevel(skill)
+    }
+
+    /// P1-1：skill 推送 + lastAppliedSkill 记账（难度应用/外部 override 共用底层；
+    /// lastAppliedSkill 仅在此处与 start() 复位时写——脏检查基线单一写点）
+    private func pushSkillLevel(_ skill: Int) {
+        lastAppliedSkill = skill
         let result = pikafish_set_option("Skill Level", String(skill))
         if result == 0 {
             NSLog("[Pikafish] Skill Level set to \(skill)")
@@ -549,7 +574,8 @@ actor EmbeddedPikafishEngine: ChessEngine {
             depth = 0
             defaultTimeMs = 8000
         case .grandmaster:
-            // v6.0: Skill Level 20
+            // v6.0: Skill Level 20；T-1013-OC-03 P3-① 注：S2 后 lvl10 走 bestMove 锁表短路
+            // （skill20/depth0/10000ms），本 case 数值与锁表等价（保留作非锁表路径兜底面）
             depth = 0
             defaultTimeMs = 10000
         }

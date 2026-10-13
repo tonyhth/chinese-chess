@@ -22,7 +22,7 @@ struct SettingsView: View {
                             }
                         }
                         Section(l10n.t("difficulty.proSection")) {
-                            ForEach(AIDifficulty.professionalLevels, id: \.self) { d in
+                            ForEach(AIDifficulty.visibleProfessionalLevels, id: \.self) { d in
                                 Text(l10n.t("difficulty.\(d.rawValue)")).tag(d)
                             }
                         }
