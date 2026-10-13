@@ -88,10 +88,9 @@ enum AIDifficulty: CaseIterable, Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let raw = try container.decode(String.self)
-        // T-1013-OC-03 S2：持久化键迁移（v2.2 §3.2 M-C′ 全表强度就近；仅解码路径消费，
-        // init(rawValue:) 不受污染——防 --calibrate CLI 的 lvlN 直构语义被迁移污染）
-        let migrated = Self.s2MigrationMap[raw] ?? raw
-        if let value = AIDifficulty(rawValue: migrated) {
+        // T-1013-OC-03 P1-2（Luke 裁定选项 a）：AIDifficulty Codable 保持纯解码（类型级迁移钩子已撤——
+        // 迁移收窄至真实用户数据加载边界，见 GameRecord/RecordSummary 的 s2Migrated 标记单次应用）
+        if let value = AIDifficulty(rawValue: raw) {
             self = value
         } else {
             // 未知值 fallback
@@ -190,19 +189,30 @@ enum AIDifficulty: CaseIterable, Codable {
     /// ⚠️ 与 isProfessional（UI 分组/进度语义）有意分离——S2 后 lvl2-5 载体=Pikafish 但仍属业余序列
     var usesPikafishEngine: Bool { s2Spec.usesPikafish }
 
-    /// S2 迁移映射表（v2.2 §3.2 M-C′ 全表强度就近；持久化键迁移，仅 Codable 解码路径消费，
-    /// 不入 init(rawValue:)——防 --calibrate CLI 的 lvlN 直构语义被迁移污染）
-    /// ⚠️ 候裁标注（Checkpoint 1 提案①，08:53 已报 dashboard）：锚前提=生产实码 v4.2 重映射
-    /// （lvl6=s0/lvl7=s4/lvl8=s7/lvl9=s10，Enums 上方注释），非规格文本的 v2.1 设计表
-    /// （s4/s7/s10/s13）。Luke 裁规格字面版则换表：lvl6→lvl3/lvl7→lvl4/lvl8→lvl5/lvl9 不迁移
-    private static let s2MigrationMap: [String: String] = [
+    /// T-1013-OC-03 P1-2（Luke 裁定选项 a）：S2 迁移映射——挂点收窄至用户数据加载边界
+    /// （GameRecord/RecordSummary 的 s2Migrated 标记单次应用），不入 AIDifficulty Codable 类型级
+    /// （类型级钩子致新值腐蚀/旧档改写/设置面无落点三连——Ruby P1-2 + Luke 裁定）。
+    /// 实码锚终值（Checkpoint 1 裁定 08:59）：生产实码 v4.2 重映射 lvl6=s0/lvl7=s4/lvl8=s7/lvl9=s10 →
+    /// 新锁表 lvl2=s0/lvl3=s4/lvl4=s7/lvl5=s10 全同锚零漂移；自研 old4/5≈1777→lvl3
+    static let s2MigrationMap: [String: String] = [
         "lvl4": "lvl3",   // 自研 old4≈old5（B5 实测）≈1777 → 新 lvl3 同锚就近（偏差≤1 档合规）
         "lvl5": "lvl3",   // 自研 old5 下限 1777（plan-b §1.3）→ 新 lvl3 同锚零漂移
-        "lvl6": "lvl2",   // 实码 s0 → 新 lvl2 同锚零漂移（规格字面版=lvl3，候裁）
+        "lvl6": "lvl2",   // 实码 s0 → 新 lvl2 同锚零漂移
         "lvl7": "lvl3",   // 实码 s4 → 新 lvl3 同锚零漂移
         "lvl8": "lvl4",   // 实码 s7 → 新 lvl4 同锚零漂移
-        "lvl9": "lvl5"    // 实码 s10 → 新 lvl5 同锚零漂移（规格字面版=候重锚挂起，实码锚下免挂起）
+        "lvl9": "lvl5"    // 实码 s10 → 新 lvl5 同锚零漂移
     ]
+
+    /// 原始键迁移（未命中=原样返回：v2.0-v5.x 兼容键与 lvl1-3/lvl10 等不受影响）
+    static func s2MigratedRaw(_ raw: String) -> String {
+        s2MigrationMap[raw] ?? raw
+    }
+
+    /// AIDifficulty 便捷迁移（nil 透传；未命中键原样）
+    static func s2Migrated(_ d: AIDifficulty?) -> AIDifficulty? {
+        guard let d else { return nil }
+        return AIDifficulty(rawValue: s2MigratedRaw(d.rawValue)) ?? d
+    }
 
     /// T-1013-OC-03 P1-1（Ruby 全审修后重走）：skill 应用决策纯函数（可回归测试）——返回应推送的 skill（nil=不推）。
     /// 优先级：外部 override 存活（非 nil）=不插手（calibrate/pfmatch 盘面）> difficulty.skillLevel（lvl6-10 旧语义）
