@@ -159,7 +159,7 @@ enum AIDifficulty: CaseIterable, Codable {
     }
 
     /// lvl1 载体形态开关（v2.2 §2.1 五缺口④）：false=选项 a 自研 hard-d1 维持【默认基线】；
-    /// true=选项 b Pikafish skill0+movetime≤1000ms（隔离可换，洪涛产品面裁量未落，一键切）
+    /// true=选项 b Pikafish skill0+movetime≤1000ms（隔离可换，洪涛裁定⑥定案（T-1015-OC-01），一键切）
     static var lvl1UsesPikafish = false
 
     /// S2 锁表参数（v0.3.1 §2.1/§2.3）：lvl2-5=s0/s4/s7/s10（R2 锚）@5000/5000/5000/10000；

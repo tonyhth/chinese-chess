@@ -74,6 +74,7 @@ final class EngineRouter {
     /// 对账 ad9126b 守卫：开关不存在后守卫恒真，仅保留可用性 fallback
     func engineFor(difficulty: AIDifficulty) -> any ChessEngine {
         // T-1013-OC-03 S2：分派依据=载体（v2.2 lvl2-5 载体切换 Pikafish；lvl1-a 自研与 lvl6-10 现行语义不变）
+        // T-1015-OC-01 裁定⑥（决策包 §6.5⑤/§2.3）：lvl1 选项 b（lvl1UsesPikafish）为工程对照资产/dev 实验开关，永不上 UI；其启用时 Pikafish 不可用仍回退自研（lvl1 budgetMs=1000 帽），回退后强度≠skill0，强度跳变为已知语义
         if difficulty.usesPikafishEngine {
             // Pikafish 载体（不可用时返回自研——调用方应先 validate）
             if let emb = embeddedEngine, emb.isReady {
