@@ -31,17 +31,19 @@ struct GameRecordStatsConfig: Codable, Equatable {
 
 // MARK: - 完整性告警（harness 调试队列载体）
 
-enum GameRecordStatsAlertReason {
-    static let zeroMoves = "zeroMoves"                          // 0 步局：物理不可能，不计入统计（裁定③）
-    static let recordFileMissing = "recordFileMissing"          // index 有账、{uuid}.json 不可读（域不可定，挂总面）
-    static let moveCountMismatch = "moveCountMismatch"          // totalMoves ≠ moves.count（观测面，仍计入统计）
-    static let timestampOrderInvalid = "timestampOrderInvalid"  // 首尾 timestamp 倒序：该局时长剔除
-    static let unfinishedResult = "unfinishedResult"            // result=playing 未终局：不计入胜率分母
+/// 完整性告警原因（P3-5 enum 化：String rawValue 即 JSON 载荷，导出 schema 零变更）
+enum GameRecordStatsAlertReason: String, Codable {
+    case zeroMoves                          // 0 步局：物理不可能，不计入统计（裁定③）
+    case recordFileMissing                  // index 有账、{uuid}.json 不可读（域不可定，挂总面）
+    case moveCountMismatch                  // totalMoves ≠ moves.count：观测面仍计入；损坏空 moves 变体剔统计（P3-1 分流）
+    case timestampOrderInvalid              // 首尾 timestamp 倒序：该局时长剔除
+    case unfinishedResult                   // result=playing 未终局：不计入胜率分母
+    case zeroDurationObserved               // 时长 0s（全手同时戳）：观测告警，样本仍计入（P3-6）
 }
 
 struct GameRecordStatsIntegrityAlert: Codable, Equatable {
     let recordId: UUID
-    let reason: String
+    let reason: GameRecordStatsAlertReason
     let detail: String?
 }
 
@@ -150,6 +152,8 @@ struct GameRecordStatsProductReport: Codable, Equatable {
     let novice: GameRecordStatsNoviceReport
     let duration: GameRecordStatsDurationStats
     let durationInvalidCount: Int
+    /// P3-2：未终局（.playing）截断时长剔除计数（系统偏短防御，显式披露）
+    let durationExcludedUnfinishedCount: Int
     let q4TriggerCheck: GameRecordStatsQ4TriggerCheck
     let integrityAlerts: [GameRecordStatsIntegrityAlert]
 }
@@ -207,7 +211,8 @@ struct GameRecordStatsReport: Codable, Equatable {
 enum GameRecordStatsAggregator {
 
     static let unspecifiedTierKey = "unspecified"
-    static let schemaVersion = 1
+    /// v2：P3-2 新增 durationExcludedUnfinishedCount（v6.4.1 patch 批；v1=首版无该字段）
+    static let schemaVersion = 2
 
     // MARK: 纯函数
 
@@ -352,7 +357,8 @@ enum GameRecordStatsAggregator {
         generatedAt: Date = Date(),
         task: String = "T-1017-OC-01"
     ) -> GameRecordStatsReport {
-        let threshold = max(1, config.ultraShortMoveThreshold)
+        // P3-6 上界校验：1...10_000 防误配（下界防零/负，上界防把全量打进异常列）
+        let threshold = min(max(1, config.ultraShortMoveThreshold), 10_000)
 
         // ① 摘要级域过滤（memo §2：产品域过滤 = source == .versusAI）
         let versusAISummaries = summaries.filter { $0.source == .versusAI }
@@ -408,11 +414,20 @@ enum GameRecordStatsAggregator {
         for record in records {
             if record.totalMoves == 0 || record.moves.isEmpty {
                 zeroMoveCount += 1
-                alerts.append(GameRecordStatsIntegrityAlert(
-                    recordId: record.id,
-                    reason: GameRecordStatsAlertReason.zeroMoves,
-                    detail: "产品域 0 步局物理不可能（裁定③）：完整性告警，不计入统计"
-                ))
+                if record.totalMoves > 0 {
+                    // P3-1：totalMoves>0 但 moves 空=损坏记录，分流 mismatch 语义（非「物理不可能」）
+                    alerts.append(GameRecordStatsIntegrityAlert(
+                        recordId: record.id,
+                        reason: .moveCountMismatch,
+                        detail: "totalMoves=\(record.totalMoves)>0 但 moves 为空：记录损坏形态，完整性受损剔除统计（P3-1 分流）"
+                    ))
+                } else {
+                    alerts.append(GameRecordStatsIntegrityAlert(
+                        recordId: record.id,
+                        reason: .zeroMoves,
+                        detail: "产品域 0 步局物理不可能（裁定③）：完整性告警，不计入统计"
+                    ))
+                }
                 continue
             }
             if record.totalMoves != record.moves.count {
@@ -435,14 +450,28 @@ enum GameRecordStatsAggregator {
         // 时长推导（versusAI 域可信；imported 域已在域过滤时排除）
         var durationSamples: [Double] = []
         var durationInvalidCount = 0
+        var durationExcludedUnfinished = 0
         for record in counted {
+            if record.result == .playing {
+                // P3-2：未终局截断时长系统偏短，不进样本（显式披露计数）
+                durationExcludedUnfinished += 1
+                continue
+            }
             if let seconds = deriveDurationSeconds(record) {
+                if seconds == 0 {
+                    // P3-6：全手同时戳 0s 时长——观测告警，样本仍计入
+                    alerts.append(GameRecordStatsIntegrityAlert(
+                        recordId: record.id,
+                        reason: .zeroDurationObserved,
+                        detail: "全手同时戳（last==first）0s 时长：观测告警，样本仍计入（P3-6）"
+                    ))
+                }
                 durationSamples.append(seconds)
             } else {
                 durationInvalidCount += 1
                 alerts.append(GameRecordStatsIntegrityAlert(
                     recordId: record.id,
-                    reason: GameRecordStatsAlertReason.timestampOrderInvalid,
+                    reason: .timestampOrderInvalid,
                     detail: "moves 首尾 timestamp 倒序：该局时长剔除，步数/胜负不受影响"
                 ))
             }
@@ -485,6 +514,7 @@ enum GameRecordStatsAggregator {
             ),
             duration: durationStats(seconds: durationSamples),
             durationInvalidCount: durationInvalidCount,
+            durationExcludedUnfinishedCount: durationExcludedUnfinished,
             q4TriggerCheck: q4,
             integrityAlerts: alerts
         )
@@ -500,11 +530,20 @@ enum GameRecordStatsAggregator {
         for record in records {
             if record.totalMoves == 0 || record.moves.isEmpty {
                 zeroMoveCount += 1
-                alerts.append(GameRecordStatsIntegrityAlert(
-                    recordId: record.id,
-                    reason: GameRecordStatsAlertReason.zeroMoves,
-                    detail: "校准域 0 步局物理不可能（裁定③）：完整性告警，不计入统计"
-                ))
+                if record.totalMoves > 0 {
+                    // P3-1：totalMoves>0 但 moves 空=损坏记录，分流 mismatch 语义
+                    alerts.append(GameRecordStatsIntegrityAlert(
+                        recordId: record.id,
+                        reason: .moveCountMismatch,
+                        detail: "totalMoves=\(record.totalMoves)>0 但 moves 为空：记录损坏形态，完整性受损剔除统计（P3-1 分流）"
+                    ))
+                } else {
+                    alerts.append(GameRecordStatsIntegrityAlert(
+                        recordId: record.id,
+                        reason: .zeroMoves,
+                        detail: "校准域 0 步局物理不可能（裁定③）：完整性告警，不计入统计"
+                    ))
+                }
                 continue
             }
             if record.totalMoves < threshold {
@@ -547,7 +586,9 @@ enum GameRecordStatsAggregator {
     // MARK: 导出（文件级，无 UI）
 
     static func documentsDirectory() -> URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        // P3-5：first! 强解包防御——Documents 不可得时退临时目录（导出仍可达，不崩）
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
     }
 
     /// 聚合结果 JSON 写指定目录；返回文件 URL（game-stats-export-<yyyyMMdd-HHmmss>.json，原子写）
@@ -558,7 +599,14 @@ enum GameRecordStatsAggregator {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
         let data = try encoder.encode(report)
-        let url = directory.appendingPathComponent("game-stats-export-\(fileStamp(from: report.generatedAt)).json")
+        // P3-3：秒级时间戳碰撞防原子覆盖——存在性循环追加序号后缀
+        let baseName = "game-stats-export-\(fileStamp(from: report.generatedAt))"
+        var url = directory.appendingPathComponent(baseName + ".json")
+        var collisionSeq = 1
+        while FileManager.default.fileExists(atPath: url.path) {
+            url = directory.appendingPathComponent("\(baseName)-\(collisionSeq).json")
+            collisionSeq += 1
+        }
         try data.write(to: url, options: [.atomic])
         return url
     }

@@ -330,7 +330,7 @@ struct T1017OC01GameRecordStatsTests {
         #expect(report.loadFailures.first?.reason == GameRecordStatsAlertReason.recordFileMissing)
         #expect(report.product.countedGameCount == 1)
         #expect(report.product.moveStats.p50 == 22)
-        #expect(report.schemaVersion == 1)
+        #expect(report.schemaVersion == 2) // v2：P3-2 durationExcludedUnfinishedCount 披露字段
         #expect(report.config.ultraShortMoveThreshold == 20)
 
         // 导出 + JSON 回读 round-trip
@@ -371,5 +371,133 @@ struct T1017OC01GameRecordStatsTests {
         #expect(FileManager.default.fileExists(atPath: url.path))
         #expect(report.product.countedGameCount == 5)  // 9 局：5 产品域计入（0 步局剔除）+2 校准域+1 imported+1 零步剔除
         #expect(report.calibration.gameCount == 2)
+    }
+
+    // MARK: - T-1018-OC-01 P3×6 消解（v6.4.1 patch）
+
+    /// P3-1：totalMoves>0 但 moves 空=损坏记录，分流 moveCountMismatch 语义（非「物理不可能」），剔除统计
+    @Test func corruptRecordSplitToMismatchSemantics() {
+        let corrupt = makeRecord(moveCount: 0, totalMovesOverride: 5)
+        let normal = makeRecord(difficulty: .amateurMid, moveCount: 30)
+        let records = [corrupt, normal]
+        let summaries = records.map { RecordSummary(from: $0) }
+
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider(records))
+
+        #expect(report.product.excludedZeroMoveCount == 1) // 剔除面共用计数
+        #expect(report.product.countedGameCount == 1)
+        #expect(report.product.integrityAlerts.contains {
+            $0.reason == .moveCountMismatch && $0.recordId == corrupt.id
+        })
+        #expect(!report.product.integrityAlerts.contains { $0.reason == .zeroMoves })
+    }
+
+    /// P3-2：未终局截断时长不进样本（系统偏短），显式披露计数；胜率面剔除不变
+    @Test func unfinishedDurationGatedWithDisclosure() {
+        let playing = makeRecord(result: .playing, moveCount: 18, moveInterval: 30) // 截断 510s 不进样本
+        let finished = makeRecord(result: .redWon, moveCount: 22, moveInterval: 30) // (22-1)*30=630s
+        let records = [playing, finished]
+        let summaries = records.map { RecordSummary(from: $0) }
+
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider(records))
+
+        #expect(report.product.duration.sampleCount == 1)
+        #expect(abs(report.product.duration.p50Seconds! - 630) < 1e-6)
+        #expect(report.product.durationExcludedUnfinishedCount == 1)
+        #expect(report.product.humanPerspective.excludedUnfinishedCount == 1)
+    }
+
+    /// P3-3：同秒双导出文件名不碰撞（存在性循环后缀），前份不被原子覆盖
+    @Test func exportFilenameCollisionAvoided() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("t1018-p33-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let fixedDate = Date(timeIntervalSince1970: 1_700_000_123)
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: [], recordProvider: { _ in nil }, generatedAt: fixedDate)
+
+        let url1 = try GameRecordStatsAggregator.exportJSON(report: report, directory: dir)
+        let url2 = try GameRecordStatsAggregator.exportJSON(report: report, directory: dir)
+        #expect(url1 != url2)
+        #expect(FileManager.default.fileExists(atPath: url1.path))
+        #expect(FileManager.default.fileExists(atPath: url2.path))
+    }
+
+    /// P3-4：==threshold 边界（20 步=入主判据，非超短）
+    @Test func boundaryAtThresholdGoesPrimary() {
+        let at20 = makeRecord(redIsAI: true, blackIsAI: true, moveCount: 20)
+        let summaries = [RecordSummary(from: at20)]
+
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider([at20]))
+
+        #expect(report.calibration.primarySample.sampleCount == 1)
+        #expect(report.calibration.primarySample.p50 == 20)
+        #expect(report.calibration.ultraShortAnomalies.count == 0)
+    }
+
+    /// P3-4/P3-6：threshold clamp 下界（0→1）与上界（999_999→10_000）
+    @Test func configThresholdClampedBothBounds() {
+        let game = makeRecord(redIsAI: true, blackIsAI: true, moveCount: 15)
+        let summaries = [RecordSummary(from: game)]
+
+        // 下界：0→1 → 15 步进主判据
+        let lower = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider([game]),
+            config: GameRecordStatsConfig(ultraShortMoveThreshold: 0))
+        #expect(lower.calibration.primarySample.sampleCount == 1)
+        #expect(lower.calibration.ultraShortAnomalies.count == 0)
+
+        // 上界：999_999→10_000 → 15 步落异常列
+        let upper = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider([game]),
+            config: GameRecordStatsConfig(ultraShortMoveThreshold: 999_999))
+        #expect(upper.calibration.ultraShortAnomalies.count == 1)
+        #expect(upper.calibration.primarySample.sampleCount == 0)
+    }
+
+    /// P3-4：freePlay/puzzle 披露理由锚
+    @Test func otherSourcesReasonsAnchored() {
+        let free = makeRecord(source: .freePlay, moveCount: 25)
+        let puzzle = makeRecord(source: .puzzle, moveCount: 12)
+        let records = [free, puzzle]
+        let summaries = records.map { RecordSummary(from: $0) }
+
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider(records))
+
+        let reasons = Dictionary(uniqueKeysWithValues: report.otherSources.countsBySource.map { ($0.source, $0.reason) })
+        #expect(reasons[RecordSource.freePlay.rawValue]?.contains("非 versusAI") == true)
+        #expect(reasons[RecordSource.puzzle.rawValue]?.contains("残局练习") == true)
+        #expect(report.product.countedGameCount == 0)
+    }
+
+    /// P3-4：novice 缺席 → byDifficultyNovice nil / noviceWinRate nil / Triggered nil；步数线不受影响
+    @Test func noviceAbsentNilChain() {
+        let game = makeRecord(difficulty: .beginner, result: .redWon, moveCount: 30)
+        let summaries = [RecordSummary(from: game)]
+
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider([game]))
+
+        #expect(report.product.novice.byDifficultyNovice == nil)
+        #expect(report.product.q4TriggerCheck.noviceWinRate == nil)
+        #expect(report.product.q4TriggerCheck.noviceWinRateTriggered == nil)
+        #expect(report.product.q4TriggerCheck.moveP50Triggered == true) // P50=30 < 40 步数线独立生效
+    }
+
+    /// P3-6：全手同时戳 0s 时长——观测告警，样本仍计入
+    @Test func zeroDurationObservationalAlert() {
+        let game = makeRecord(difficulty: .amateurMid, result: .redWon, moveCount: 5, moveInterval: 0)
+        let summaries = [RecordSummary(from: game)]
+
+        let report = GameRecordStatsAggregator.aggregate(
+            summaries: summaries, recordProvider: makeProvider([game]))
+
+        #expect(report.product.duration.sampleCount == 1)
+        #expect(report.product.duration.p50Seconds == 0)
+        #expect(report.product.integrityAlerts.contains { $0.reason == .zeroDurationObserved })
     }
 }
