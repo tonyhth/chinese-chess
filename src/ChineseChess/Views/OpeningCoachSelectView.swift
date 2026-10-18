@@ -188,41 +188,75 @@ struct OpeningCoachSelectView: View {
 
     // MARK: - 设置栏
 
+    // T-1020-OC-01：iPhone 竖屏（compact）三控件单行 ~490pt 溢出（执红/执黑 160 定宽+难度 Picker+开始钮）——size-class 分支
+    @Environment(\.horizontalSizeClass) private var settingsHorizontalSizeClass
+
     private var settingsBar: some View {
-        HStack(spacing: 16) {
-            // 执红/执黑切换
-            Picker(selection: $playerSide) {
-                Text(l10n.t("coach.select.playerSide")).tag(Side.red)
-                Text(l10n.t("coach.select.playerSideBlack")).tag(Side.black)
-            } label: {
-                EmptyView()
+        Group {
+            if settingsHorizontalSizeClass == .compact {
+                settingsBarCompact
+            } else {
+                settingsBarRegular
             }
-            .pickerStyle(.segmented)
-            .frame(width: 160)
-
-            // 难度选择
-            Picker(l10n.t("coach.select.difficulty"), selection: $difficulty) {
-                ForEach(AIDifficulty.allCases, id: \.self) { diff in
-                    Text(diff.displayName).tag(diff)
-                }
-            }
-
-            Spacer()
-
-            // 开始练习按钮
-            Button {
-                if selectedSubcategory != nil {
-                    navigateToGame = true
-                } else {
-                    showNoCoachToast = true
-                }
-            } label: {
-                Label(l10n.t("coach.select.start"), systemImage: "play.fill")
-                    .frame(minWidth: 100)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(selectedSubcategory == nil)
         }
+    }
+
+    /// compact（iPhone 竖屏）：两行竖排——行1 执红/执黑+难度；行2 开始按钮
+    private var settingsBarCompact: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                sidePicker
+                difficultyPicker
+            }
+            HStack(spacing: 12) {
+                startButton
+                Spacer()
+            }
+        }
+    }
+
+    /// regular（macOS/iPad 横排）：原三控件单行（视觉零变化）
+    private var settingsBarRegular: some View {
+        HStack(spacing: 16) {
+            sidePicker
+            difficultyPicker
+            Spacer()
+            startButton
+        }
+    }
+
+    private var sidePicker: some View {
+        Picker(selection: $playerSide) {
+            Text(l10n.t("coach.select.playerSide")).tag(Side.red)
+            Text(l10n.t("coach.select.playerSideBlack")).tag(Side.black)
+        } label: {
+            EmptyView()
+        }
+        .pickerStyle(.segmented)
+        .frame(width: 160)
+    }
+
+    private var difficultyPicker: some View {
+        Picker(l10n.t("coach.select.difficulty"), selection: $difficulty) {
+            ForEach(AIDifficulty.allCases, id: \.self) { diff in
+                Text(diff.displayName).tag(diff)
+            }
+        }
+    }
+
+    private var startButton: some View {
+        Button {
+            if selectedSubcategory != nil {
+                navigateToGame = true
+            } else {
+                showNoCoachToast = true
+            }
+        } label: {
+            Label(l10n.t("coach.select.start"), systemImage: "play.fill")
+                .frame(minWidth: 100)
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(selectedSubcategory == nil)
     }
 
     // MARK: - 辅助

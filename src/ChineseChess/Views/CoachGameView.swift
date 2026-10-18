@@ -110,14 +110,16 @@ struct CoachGameView: View {
                     onBack?()
                 }
             )
+            #if os(macOS)
             .frame(minWidth: 360, minHeight: 400)
+            #endif
         }
     }
 
     // MARK: - 导航栏
 
     private var coachNavigationBar: some View {
-        HStack {
+        HStack(spacing: 8) {
             Button {
                 showExitConfirm = true
             } label: {
@@ -125,14 +127,19 @@ struct CoachGameView: View {
             }
             .buttonStyle(.plain)
 
+            // T-1020-OC-01：iPhone 竖屏长开局名挤压步数计数——标题压缩+步数定宽优先
             Text(subcategory.name)
                 .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
 
             Spacer()
 
             Text(l10n.t("coach.game.stepFormat", coachSession.moves.count + 1))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .lineLimit(1)
+                .fixedSize()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
