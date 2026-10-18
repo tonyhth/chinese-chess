@@ -313,34 +313,37 @@ struct ChineseChessApp: App {
     // v6.4 C1（LJ-2 根治）：低频操作收敛工具栏溢出菜单（原底部操作栏整栏入册）
     private func p1OverflowItems() -> [ToolbarOverflowItem] {
         let l10n = L10n.shared
+        // T-1020-OC-02 随批修 A：四功能域分组（学棋/对局/数据/外观与设置）；studyHub 已提权内联（裁 B）
         return [
+            // 学棋域
+            .init(id: "puzzles", title: l10n.t("toolbar.puzzle"), icon: "puzzlepiece",
+                  disabled: false, action: { activeSheet = .puzzles }),
+            .init(id: "coach", title: l10n.t("toolbar.coach"), icon: "brain.head.profile",
+                  disabled: viewModel.gameMoves.isEmpty,
+                  action: { if let r = viewModel.buildGameRecord() { activeSheet = .coach(r) } }),
+            .init(id: "dailyChallenge", title: l10n.t("toolbar.dailyChallenge"), icon: "calendar.badge.clock",
+                  disabled: false, action: { activeSheet = .dailyChallenge }),
+            .divider(id: "d1"),
+            // 对局域
             .init(id: "resign", title: l10n.t("game.resign"), icon: "flag.fill",
                   disabled: viewModel.isThinking || viewModel.gameState != .playing,
                   action: { viewModel.requestResign() }),
             .init(id: "replay", title: l10n.t("game.replay"), icon: "arrow.uturn.forward.circle",
                   disabled: viewModel.gameMoves.isEmpty,
                   action: { openReplayWindow() }),
-            .divider(id: "d1"),
             .init(id: "analysis", title: l10n.t("toolbar.analysis"), icon: "chart.line.uptrend.xyaxis",
                   disabled: viewModel.gameMoves.isEmpty,
                   action: { if let r = viewModel.buildGameRecord() { activeSheet = .analysis(r) } }),
-            .init(id: "coach", title: l10n.t("toolbar.coach"), icon: "brain.head.profile",
-                  disabled: viewModel.gameMoves.isEmpty,
-                  action: { if let r = viewModel.buildGameRecord() { activeSheet = .coach(r) } }),
             .init(id: "record", title: l10n.t("toolbar.record"), icon: "doc.text",
                   disabled: false, action: { activeSheet = .record }),
             .divider(id: "d2"),
-            .init(id: "puzzles", title: l10n.t("toolbar.puzzle"), icon: "puzzlepiece",
-                  disabled: false, action: { activeSheet = .puzzles }),
-            .init(id: "studyHub", title: l10n.t("toolbar.study"), icon: "graduationcap.fill",
-                  disabled: false, action: { activeSheet = .studyHub }),
-            .init(id: "dailyChallenge", title: l10n.t("toolbar.dailyChallenge"), icon: "calendar.badge.clock",
-                  disabled: false, action: { activeSheet = .dailyChallenge }),
-            .divider(id: "d3"),
+            // 数据域
             .init(id: "stats", title: l10n.t("toolbar.stats"), icon: "chart.bar",
                   disabled: false, action: { activeSheet = .stats }),
             .init(id: "history", title: l10n.t("toolbar.history"), icon: "clock.arrow.circlepath",
                   disabled: false, action: { activeSheet = .history }),
+            .divider(id: "d3"),
+            // 外观与设置域
             .init(id: "theme", title: l10n.t("toolbar.theme"), icon: "paintpalette",
                   disabled: false, action: { activeSheet = .themePicker }),
             .init(id: "achievements", title: l10n.t("toolbar.achievements"), icon: "trophy",
@@ -374,6 +377,8 @@ struct ChineseChessApp: App {
                         if let record = viewModel.buildGameRecord() {
                             activeSheet = .toolbarReplay(record)
                         }
+                    }, onStudyHubRequest: {
+                        activeSheet = .studyHub
                     }, overflowItems: p1OverflowItems())
 
                     // v6.4 C1：状态栏+棋钟合并单行信息带（原 ChessClockView+StatusBarView）

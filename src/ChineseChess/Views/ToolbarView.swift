@@ -17,6 +17,8 @@ struct ToolbarOverflowItem: Identifiable {
 struct ToolbarView: View {
     let viewModel: GameViewModel
     var onReplayRequest: (() -> Void)? = nil
+    // T-1020-OC-02 随批修 B：学棋提权入内联的 sheet 回调（与 onReplayRequest 同构）
+    var onStudyHubRequest: (() -> Void)? = nil
     // v6.4 C1（LJ-2 根治）：低频操作入溢出菜单（macOS；iOS 本期不动）
     var overflowItems: [ToolbarOverflowItem] = []
 
@@ -279,6 +281,18 @@ struct ToolbarView: View {
                 .buttonStyle(.bordered)
                 .tint(.brown)
                 .accessibilityHint(l10n.t("accessibility.hintActionHint"))
+
+                // T-1020-OC-02 随批修 B：学棋提权入内联（洪涛主诉学棋折叠找不到；裁定 A+B）
+                Button(action: { onStudyHubRequest?() }) {
+                    Label(l10n.t("toolbar.study"), systemImage: "graduationcap.fill")
+                }
+                #if os(macOS)
+                .controlSize(.small)
+                .help(l10n.t("toolbar.study"))
+                #endif
+                .buttonStyle(.bordered)
+                .tint(.brown)
+                .accessibilityLabel(l10n.t("toolbar.study"))
 
                 // v6.4 C1：认输/复盘/低频项全部入溢出菜单（下方 overflowMenu）
             }
