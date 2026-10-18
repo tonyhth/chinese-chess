@@ -242,7 +242,24 @@ class GameViewModel {
         let piece: Piece? = board.piece(at: from)
         guard let piece = piece else { return }
 
+        // T-1021-OC-01 红线：人类路径执方门零触碰（防真人对局侧别门被绕）
         guard piece.side == humanSide else { return }
+
+        // ① 执方门后核心段剥离：合法性+落子+翻转+记录全在 applyMove
+        applyMove(from: from, to: to)
+    }
+
+    /// T-1021-OC-01 ②：教练脚本走法专用通道（直调 applyMove，绕人类执方门——
+    /// 教练 AI 应答不受 humanSide 门约束；通用门保留 isThinking/终局态静默与原语义对齐）
+    func makeCoachMove(from: Position, to: Position) {
+        guard !isThinking, gameState == .playing else { return }
+        applyMove(from: from, to: to)
+    }
+
+    /// T-1021-OC-01 ①：执方门后核心段（棋盘合法性+挑战限制+落子+翻转+记录，无执方门）
+    /// 人类路径 movePiece 与教练路径 makeCoachMove 共用
+    private func applyMove(from: Position, to: Position) {
+        guard let piece = board.piece(at: from) else { return }
 
         let captured = board.piece(at: to)
         let move = Move(piece: piece, from: from, to: to, captured: captured)

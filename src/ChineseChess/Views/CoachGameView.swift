@@ -449,11 +449,10 @@ struct CoachGameView: View {
         let fen = FENParser.generate(board: viewModel.board)
 
         if let aiMove = coachStrategy.nextAIMove(currentFEN: fen) {
-            // P1-2 修正：通过 GameViewModel 正常走子流程执行 AI 走法
-            // coachConfig != nil 已阻止 movePiece 触发 AI
+            // T-1021-OC-01 ③：教练走法改走 makeCoachMove 专用通道（直调 applyMove 绕人类执方门——
+            // 原 selectPiece+movePiece 人类通道被 GameViewModel L221/L245 双门拒：执红教练黑应答/执黑 AI 先行冻结根因）
             if let move = ICCSParser.parse(aiMove, on: viewModel.board) {
-                viewModel.selectPiece(at: move.from)
-                viewModel.movePiece(from: move.from, to: move.to)
+                viewModel.makeCoachMove(from: move.from, to: move.to)
                 isProcessingAI = false
             } else {
                 // 走法解析失败
