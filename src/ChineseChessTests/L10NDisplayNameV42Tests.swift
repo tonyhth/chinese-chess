@@ -11,8 +11,8 @@ struct L10NDisplayNameV42Tests {
     @Test("displayName: 10 个中文名正确且不重复")
     func displayNamesAllCorrect() {
         let names = AIDifficulty.allCases.map { $0.displayName }
-        // T-1019-OC-01 段位制（v2.2 v1.5 §2.4）
-        let expected = ["学徒棋手", "业余初段", "业余三段", "业余五段", "业余七段", "地方大师", "大师候补", "国家大师", "特级大师候选", "特级大师"]
+        // T-1019-OC-01 段位制终表（洪涛 14:58 裁，v2.2 v1.5 §2.4）
+        let expected = ["学徒棋手", "业余初段", "业余三段", "业余五段", "业余七段", "地方大师", "棋协大师", "国家大师", "特级大师", "棋圣"]
         #expect(names == expected, "displayName 应按顺序匹配：\(names)")
     }
 
@@ -29,9 +29,9 @@ struct L10NDisplayNameV42Tests {
         L10n.shared.setLanguage("en")
         defer { L10n.shared.setLanguage("zh-Hans") }
         let names = AIDifficulty.allCases.map { $0.displayName }
-        // T-1019-OC-01 段位制（v2.2 v1.5 §2.4）
+        // T-1019-OC-01 段位制终表（洪涛 14:58 裁）
         let expected = ["Apprentice", "Amateur 1D", "Amateur 3D", "Amateur 5D", "Amateur 7D",
-                        "Local Master", "Master Candidate", "National Master", "GM Candidate", "Grandmaster"]
+                        "Local Master", "Association Master", "National Master", "Grandmaster", "Sage"]
         #expect(names == expected, "en displayName 应按顺序匹配：\(names)")
     }
 
@@ -53,10 +53,10 @@ struct L10NDisplayNameV42Tests {
         #expect(AIDifficulty.amateurMid.displayName == "业余五段")
         #expect(AIDifficulty.amateurHigh.displayName == "业余七段")
         #expect(AIDifficulty.amateurDan.displayName == "地方大师")
-        #expect(AIDifficulty.proApprentice.displayName == "大师候补")
+        #expect(AIDifficulty.proApprentice.displayName == "棋协大师")
         #expect(AIDifficulty.proExpert.displayName == "国家大师")
-        #expect(AIDifficulty.proMaster.displayName == "特级大师候选")
-        #expect(AIDifficulty.grandmaster.displayName == "特级大师")
+        #expect(AIDifficulty.proMaster.displayName == "特级大师")
+        #expect(AIDifficulty.grandmaster.displayName == "棋圣")
     }
 
     // MARK: - 逐个验证 en displayName（P1-2: 经 l10n en 表单源）
@@ -71,10 +71,10 @@ struct L10NDisplayNameV42Tests {
         #expect(AIDifficulty.amateurMid.displayName == "Amateur 5D")
         #expect(AIDifficulty.amateurHigh.displayName == "Amateur 7D")
         #expect(AIDifficulty.amateurDan.displayName == "Local Master")
-        #expect(AIDifficulty.proApprentice.displayName == "Master Candidate")
+        #expect(AIDifficulty.proApprentice.displayName == "Association Master")
         #expect(AIDifficulty.proExpert.displayName == "National Master")
-        #expect(AIDifficulty.proMaster.displayName == "GM Candidate")
-        #expect(AIDifficulty.grandmaster.displayName == "Grandmaster")
+        #expect(AIDifficulty.proMaster.displayName == "Grandmaster")
+        #expect(AIDifficulty.grandmaster.displayName == "Sage")
     }
 
     // MARK: - 不变性验证（rawValue/order/isProfessional 不受影响）

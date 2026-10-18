@@ -106,9 +106,9 @@ struct DifficultyV21Tests {
         #expect(AIDifficulty.amateurDan.displayName == "地方大师")
     }
 
-    @Test("displayName: 大师候补")
+    @Test("displayName: 棋协大师")
     func displayNameProApprentice() {
-        #expect(AIDifficulty.proApprentice.displayName == "大师候补")
+        #expect(AIDifficulty.proApprentice.displayName == "棋协大师")
     }
 
     @Test("displayName: 国家大师")
@@ -116,14 +116,14 @@ struct DifficultyV21Tests {
         #expect(AIDifficulty.proExpert.displayName == "国家大师")
     }
 
-    @Test("displayName: 特级大师候选")
+    @Test("displayName: 特级大师")
     func displayNameProMaster() {
-        #expect(AIDifficulty.proMaster.displayName == "特级大师候选")
+        #expect(AIDifficulty.proMaster.displayName == "特级大师")
     }
 
-    @Test("displayName: 特级大师")
+    @Test("displayName: 棋圣")
     func displayNameGrandmaster() {
-        #expect(AIDifficulty.grandmaster.displayName == "特级大师")
+        #expect(AIDifficulty.grandmaster.displayName == "棋圣")
     }
 
     @Test("displayName: 10 个级别名称不重复")
@@ -254,10 +254,10 @@ struct DifficultyV21Tests {
             ("difficulty.lvl4",  "业余五段", "Amateur 5D"),
             ("difficulty.lvl5",  "业余七段", "Amateur 7D"),
             ("difficulty.lvl6",  "地方大师", "Local Master"),
-            ("difficulty.lvl7",  "大师候补", "Master Candidate"),
+            ("difficulty.lvl7",  "棋协大师", "Association Master"),
             ("difficulty.lvl8",  "国家大师", "National Master"),
-            ("difficulty.lvl9",  "特级大师候选", "GM Candidate"),
-            ("difficulty.lvl10", "特级大师", "Grandmaster"),
+            ("difficulty.lvl9",  "特级大师", "Grandmaster"),
+            ("difficulty.lvl10", "棋圣", "Sage"),
         ]
 
         for (key, expectedZh, expectedEn) in expectedValues {
@@ -326,10 +326,10 @@ struct DifficultyV21Tests {
             ("difficulty.lvl4",  "Amateur 5D", "业余五段"),
             ("difficulty.lvl5",  "Amateur 7D", "业余七段"),
             ("difficulty.lvl6",  "Local Master", "地方大师"),
-            ("difficulty.lvl7",  "Master Candidate", "大师候补"),
+            ("difficulty.lvl7",  "Association Master", "棋协大师"),
             ("difficulty.lvl8",  "National Master", "国家大师"),
-            ("difficulty.lvl9",  "GM Candidate", "特级大师候选"),
-            ("difficulty.lvl10", "Grandmaster", "特级大师"),
+            ("difficulty.lvl9",  "Grandmaster", "特级大师"),
+            ("difficulty.lvl10", "Sage", "棋圣"),
         ]
 
         for (key, expectedEn, expectedZh) in expectations {
@@ -355,11 +355,11 @@ struct DifficultyV21Tests {
             ("difficulty.short.lvl3",  "3D", "三段"),
             ("difficulty.short.lvl4",  "5D", "五段"),
             ("difficulty.short.lvl5",  "7D", "七段"),
-            ("difficulty.short.lvl6",  "LM", "地方"),
-            ("difficulty.short.lvl7",  "MC", "候补"),
+            ("difficulty.short.lvl6",  "LM", "地方大"),
+            ("difficulty.short.lvl7",  "AM", "棋协"),
             ("difficulty.short.lvl8",  "NM", "国家"),
-            ("difficulty.short.lvl9",  "GMC", "特候"),
-            ("difficulty.short.lvl10", "GM", "特大"),
+            ("difficulty.short.lvl9",  "GM", "特级"),
+            ("difficulty.short.lvl10", "Sage", "棋圣"),
         ]
 
         for (key, expectedEn, expectedZh) in expectations {

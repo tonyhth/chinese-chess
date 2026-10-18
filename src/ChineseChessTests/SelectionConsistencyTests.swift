@@ -91,10 +91,10 @@ final class SelectionConsistencyTests {
             #expect(!seen.contains(name), "中文名重复：\(name)（\(d.rawValue)）")
             seen.insert(name)
         }
-        // 顺序锚（防档位错位——选择态一致性的核心断言）；T-1019-OC-01 段位制（v2.2 v1.5 §2.4，v6.4.1）
+        // 顺序锚（防档位错位——选择态一致性的核心断言）；T-1019-OC-01 段位制终表（洪涛 14:58 裁，v2.2 v1.5 §2.4）
         let names = AIDifficulty.allCases.map(\.displayName)
         #expect(names == ["学徒棋手", "业余初段", "业余三段", "业余五段", "业余七段",
-                          "地方大师", "大师候补", "国家大师", "特级大师候选", "特级大师"])
+                          "地方大师", "棋协大师", "国家大师", "特级大师", "棋圣"])
     }
 
     @Test("①-5 英文名：10 档全覆盖、非空、互不重复、与中文名同序对齐（P1-2: 经 l10n en 表单源）")
@@ -109,9 +109,9 @@ final class SelectionConsistencyTests {
             seen.insert(name)
         }
         let en = AIDifficulty.allCases.map(\.displayName)
-        // T-1019-OC-01 段位制（v2.2 v1.5 §2.4）：en 随命名全表换轨（段位缩写 1D-7D + 称号缩写）
+        // T-1019-OC-01 段位制终表：en 随命名全表换轨（段位缩写 1D-7D + 称号缩写）
         #expect(en == ["Apprentice", "Amateur 1D", "Amateur 3D", "Amateur 5D", "Amateur 7D",
-                       "Local Master", "Master Candidate", "National Master", "GM Candidate", "Grandmaster"])
+                       "Local Master", "Association Master", "National Master", "Grandmaster", "Sage"])
     }
 
     @Test("①-6 Settings Picker tag ↔ l10n 长名：difficulty.lvl1-10 键全存在且非空（zh/en 双语）")

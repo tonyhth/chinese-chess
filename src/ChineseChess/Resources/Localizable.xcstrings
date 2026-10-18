@@ -13400,13 +13400,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Master Candidate"
+            "value": "Association Master"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "大师候补"
+            "value": "棋协大师"
           }
         }
       }
@@ -13432,13 +13432,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GM Candidate"
+            "value": "Grandmaster"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "特级大师候选"
+            "value": "特级大师"
           }
         }
       }
@@ -13448,13 +13448,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Grandmaster"
+            "value": "Sage"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "特级大师"
+            "value": "棋圣"
           }
         }
       }
@@ -13550,7 +13550,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "地方"
+            "value": "地方大"
           }
         }
       }
@@ -13560,13 +13560,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "MC"
+            "value": "AM"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "候补"
+            "value": "棋协"
           }
         }
       }
@@ -13592,13 +13592,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GMC"
+            "value": "GM"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "特候"
+            "value": "特级"
           }
         }
       }
@@ -13608,13 +13608,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "GM"
+            "value": "Sage"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "特大"
+            "value": "棋圣"
           }
         }
       }
