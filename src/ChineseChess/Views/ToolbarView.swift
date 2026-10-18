@@ -365,6 +365,21 @@ struct ToolbarView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
+        // T-1020-OC-02 ④：工具栏宽度采样（LayoutDump 基线；Debug+env LAYOUT_DUMP=1 门控，产品零影响；
+        // Ruby R2 约束：background GeometryReader + onChange，禁 onGeometryChange）
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear {
+                        LayoutDump.sample(page: "T1020-toolbar", width: geo.size.width,
+                          params: ["overflow": String(overflowItems.count), "studyHubInline": "1"])
+                    }
+                    .onChange(of: geo.size.width) { _, w in
+                        LayoutDump.sample(page: "T1020-toolbar", width: w,
+                          params: ["overflow": String(overflowItems.count), "studyHubInline": "1"])
+                    }
+            }
+        )
         #endif
     }
 
