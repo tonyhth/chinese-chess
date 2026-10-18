@@ -9,7 +9,7 @@
 ## 1. 需求源与盘点对象
 
 **需求源（Q4 复审触发条款）**：
-- v2.2 v1.2 §五.6（docs/design/difficulty-system-v2.2-draft.md L138，裁定⑥ Q4 落位）
+- v2.2 v1.2 §五.6=现行 §五.7（v1.3 重编号；docs/design/difficulty-system-v2.2-draft.md，裁定⑥ Q4 落位）
 - T-1015-OC-01 决策包 §5.2（docs/design/T-1015-OC-01-l1-carrier-decision-pack.md）
 - 触发线初值：**人均对局步数 P50 < 40 步** 或 **新手胜率 < 80%** → 触发机型复审
 - 数据域 = **产品域（真人对局）**，非 Tina 校准域；前置 = 统计机制立项（本地对局统计随 v3.0：步数/胜负记录+导出，无账号体系）；新手定义 = 本地对局数 ≤M 场近似（M 候产品面）
@@ -81,4 +81,4 @@
 4. 时长/归账一等字段是否随 v3.0 立项（若认推导通道则 G1 关闭为一等字段「不需要」）
 
 ---
-**依据索引**：GameRecord.swift:29 ｜ GameRecordStore.swift:5/:71 ｜ GameMove.swift:20（timestamp）｜ GameViewModel.swift:1071-1094（buildGameRecord/isHumanRed/undo:369）｜ Enums.swift:21（GameState）｜ v2.2 v1.2 §五.6 L138 ｜ 决策包 §5.2/§2.3
+**依据索引**：GameRecord.swift:29 ｜ GameRecordStore.swift:5/:71 ｜ GameMove.swift:20（timestamp）｜ GameViewModel.swift:1071-1094（buildGameRecord/isHumanRed/undo:369）｜ Enums.swift:21（GameState）｜ v2.2 §五.7（v1.2 旧编 §五.6） ｜ 决策包 §5.2/§2.3
