@@ -13304,13 +13304,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beginner"
+            "value": "Apprentice"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "入门"
+            "value": "学徒棋手"
           }
         }
       }
@@ -13320,13 +13320,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elementary"
+            "value": "Amateur 1D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "初级"
+            "value": "业余初段"
           }
         }
       }
@@ -13336,13 +13336,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Intermediate"
+            "value": "Amateur 3D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "中级"
+            "value": "业余三段"
           }
         }
       }
@@ -13352,13 +13352,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Advanced"
+            "value": "Amateur 5D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "高级"
+            "value": "业余五段"
           }
         }
       }
@@ -13368,13 +13368,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Specialist"
+            "value": "Amateur 7D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "专家"
+            "value": "业余七段"
           }
         }
       }
@@ -13384,13 +13384,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Player"
+            "value": "Local Master"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "棋友"
+            "value": "地方大师"
           }
         }
       }
@@ -13400,13 +13400,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Expert"
+            "value": "Master Candidate"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "棋手"
+            "value": "大师候补"
           }
         }
       }
@@ -13416,18 +13416,34 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Master"
+            "value": "National Master"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "棋师"
+            "value": "国家大师"
           }
         }
       }
     },
     "difficulty.lvl9": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GM Candidate"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特级大师候选"
+          }
+        }
+      }
+    },
+    "difficulty.lvl10": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -13438,23 +13454,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "大师"
-          }
-        }
-      }
-    },
-    "difficulty.lvl10": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legend"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "棋圣"
+            "value": "特级大师"
           }
         }
       }
@@ -13464,13 +13464,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "9C"
+            "value": "Appr"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "九级"
+            "value": "学徒"
           }
         }
       }
@@ -13480,13 +13480,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "8C"
+            "value": "1D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "八级"
+            "value": "初段"
           }
         }
       }
@@ -13496,13 +13496,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "7C"
+            "value": "3D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "七级"
+            "value": "三段"
           }
         }
       }
@@ -13512,13 +13512,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "6C"
+            "value": "5D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "六级"
+            "value": "五段"
           }
         }
       }
@@ -13528,13 +13528,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "5C"
+            "value": "7D"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "五级"
+            "value": "七段"
           }
         }
       }
@@ -13544,13 +13544,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "4C"
+            "value": "LM"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "四级"
+            "value": "地方"
           }
         }
       }
@@ -13560,13 +13560,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "3C"
+            "value": "MC"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "三级"
+            "value": "候补"
           }
         }
       }
@@ -13576,13 +13576,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "2C"
+            "value": "NM"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "二级"
+            "value": "国家"
           }
         }
       }
@@ -13592,13 +13592,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "1C"
+            "value": "GMC"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "一级"
+            "value": "特候"
           }
         }
       }
@@ -14158,7 +14158,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "棋士"
+            "value": "专业段"
           }
         }
       }

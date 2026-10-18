@@ -6,7 +6,7 @@ import Testing
 //
 // 测试范围：
 // 1. skillLevel 映射值（4/7/10/13/20）
-// 2. displayName 段位名称（入门→棋圣）
+// 2. displayName 段位名称（学徒棋手→特级大师，T-1019-OC-01 段位制）
 // 3. 棋力单调递增（order 值）
 // 4. isProfessional / fallback 逻辑不变
 // 5. rawValue / Codable 兼容性
@@ -73,57 +73,57 @@ struct DifficultyV21Tests {
     }
 
     // ============================================================
-    // 2. displayName 段位名称（设计文档 §九.3 + §五.4）
+    // 2. displayName 段位名称（T-1019-OC-01 段位制，v2.2 v1.5 §2.4）
     // ============================================================
 
-    @Test("displayName: 入门")
+    @Test("displayName: 学徒棋手")
     func displayNameNovice() {
-        #expect(AIDifficulty.novice.displayName == "入门")
+        #expect(AIDifficulty.novice.displayName == "学徒棋手")
     }
 
-    @Test("displayName: 初级")
+    @Test("displayName: 业余初段")
     func displayNameBeginner() {
-        #expect(AIDifficulty.beginner.displayName == "初级")
+        #expect(AIDifficulty.beginner.displayName == "业余初段")
     }
 
-    @Test("displayName: 中级")
+    @Test("displayName: 业余三段")
     func displayNameAmateurLow() {
-        #expect(AIDifficulty.amateurLow.displayName == "中级")
+        #expect(AIDifficulty.amateurLow.displayName == "业余三段")
     }
 
-    @Test("displayName: 高级")
+    @Test("displayName: 业余五段")
     func displayNameAmateurMid() {
-        #expect(AIDifficulty.amateurMid.displayName == "高级")
+        #expect(AIDifficulty.amateurMid.displayName == "业余五段")
     }
 
-    @Test("displayName: 精通")
+    @Test("displayName: 业余七段")
     func displayNameAmateurHigh() {
-        #expect(AIDifficulty.amateurHigh.displayName == "精通")
+        #expect(AIDifficulty.amateurHigh.displayName == "业余七段")
     }
 
-    @Test("displayName: 棋友")
+    @Test("displayName: 地方大师")
     func displayNameAmateurDan() {
-        #expect(AIDifficulty.amateurDan.displayName == "棋友")
+        #expect(AIDifficulty.amateurDan.displayName == "地方大师")
     }
 
-    @Test("displayName: 棋手")
+    @Test("displayName: 大师候补")
     func displayNameProApprentice() {
-        #expect(AIDifficulty.proApprentice.displayName == "棋手")
+        #expect(AIDifficulty.proApprentice.displayName == "大师候补")
     }
 
-    @Test("displayName: 棋师")
+    @Test("displayName: 国家大师")
     func displayNameProExpert() {
-        #expect(AIDifficulty.proExpert.displayName == "棋师")
+        #expect(AIDifficulty.proExpert.displayName == "国家大师")
     }
 
-    @Test("displayName: 大师")
+    @Test("displayName: 特级大师候选")
     func displayNameProMaster() {
-        #expect(AIDifficulty.proMaster.displayName == "大师")
+        #expect(AIDifficulty.proMaster.displayName == "特级大师候选")
     }
 
-    @Test("displayName: 棋圣")
+    @Test("displayName: 特级大师")
     func displayNameGrandmaster() {
-        #expect(AIDifficulty.grandmaster.displayName == "棋圣")
+        #expect(AIDifficulty.grandmaster.displayName == "特级大师")
     }
 
     @Test("displayName: 10 个级别名称不重复")
@@ -244,20 +244,20 @@ struct DifficultyV21Tests {
     // 7. l10n 资源验证（difficulty.lvl1-10 + short.lvl1-10 + section）
     // ============================================================
 
-    @Test("l10n: difficulty.lvl1-10 中英文值符合 v2.1 设计")
+    @Test("l10n: difficulty.lvl1-10 中英文值符合 v2.2 v1.5 §2.4 段位制设计")
     func l10nDifficultyLevels() {
         let bundle = Bundle.main
         let expectedValues: [(key: String, zh: String, en: String)] = [
-            ("difficulty.lvl1",  "入门", "Beginner"),
-            ("difficulty.lvl2",  "初级", "Elementary"),
-            ("difficulty.lvl3",  "中级", "Intermediate"),
-            ("difficulty.lvl4",  "高级", "Advanced"),
-            ("difficulty.lvl5",  "精通", "Proficient"),
-            ("difficulty.lvl6",  "棋友", "Player"),
-            ("difficulty.lvl7",  "棋手", "Expert"),
-            ("difficulty.lvl8",  "棋师", "Master"),
-            ("difficulty.lvl9",  "大师", "Grandmaster"),
-            ("difficulty.lvl10", "棋圣", "Legend"),
+            ("difficulty.lvl1",  "学徒棋手", "Apprentice"),
+            ("difficulty.lvl2",  "业余初段", "Amateur 1D"),
+            ("difficulty.lvl3",  "业余三段", "Amateur 3D"),
+            ("difficulty.lvl4",  "业余五段", "Amateur 5D"),
+            ("difficulty.lvl5",  "业余七段", "Amateur 7D"),
+            ("difficulty.lvl6",  "地方大师", "Local Master"),
+            ("difficulty.lvl7",  "大师候补", "Master Candidate"),
+            ("difficulty.lvl8",  "国家大师", "National Master"),
+            ("difficulty.lvl9",  "特级大师候选", "GM Candidate"),
+            ("difficulty.lvl10", "特级大师", "Grandmaster"),
         ]
 
         for (key, expectedZh, expectedEn) in expectedValues {
@@ -283,7 +283,7 @@ struct DifficultyV21Tests {
         }
     }
 
-    @Test("l10n: 分组标题（业余/棋士）")
+    @Test("l10n: 分组标题（业余/专业段）")
     func l10nSectionTitles() {
         // 设计文档 §5.3: Amateur / Professional
         // 中文改为 "业余" / "棋士"
@@ -320,16 +320,16 @@ struct DifficultyV21Tests {
         let strings = json["strings"] as? [String: Any]
 
         let expectations: [(String, String, String)] = [
-            ("difficulty.lvl1",  "Beginner", "入门"),
-            ("difficulty.lvl2",  "Elementary", "初级"),
-            ("difficulty.lvl3",  "Intermediate", "中级"),
-            ("difficulty.lvl4",  "Advanced", "高级"),
-            ("difficulty.lvl5",  "Proficient", "精通"),
-            ("difficulty.lvl6",  "Player", "棋友"),
-            ("difficulty.lvl7",  "Expert", "棋手"),
-            ("difficulty.lvl8",  "Master", "棋师"),
-            ("difficulty.lvl9",  "Grandmaster", "大师"),
-            ("difficulty.lvl10", "Legend", "棋圣"),
+            ("difficulty.lvl1",  "Apprentice", "学徒棋手"),
+            ("difficulty.lvl2",  "Amateur 1D", "业余初段"),
+            ("difficulty.lvl3",  "Amateur 3D", "业余三段"),
+            ("difficulty.lvl4",  "Amateur 5D", "业余五段"),
+            ("difficulty.lvl5",  "Amateur 7D", "业余七段"),
+            ("difficulty.lvl6",  "Local Master", "地方大师"),
+            ("difficulty.lvl7",  "Master Candidate", "大师候补"),
+            ("difficulty.lvl8",  "National Master", "国家大师"),
+            ("difficulty.lvl9",  "GM Candidate", "特级大师候选"),
+            ("difficulty.lvl10", "Grandmaster", "特级大师"),
         ]
 
         for (key, expectedEn, expectedZh) in expectations {
@@ -350,15 +350,15 @@ struct DifficultyV21Tests {
         let strings = json["strings"] as? [String: Any]
 
         let expectations: [(String, String, String)] = [
-            ("difficulty.short.lvl1",  "9C", "九级"),
-            ("difficulty.short.lvl2",  "8C", "八级"),
-            ("difficulty.short.lvl3",  "7C", "七级"),
-            ("difficulty.short.lvl4",  "6C", "六级"),
-            ("difficulty.short.lvl5",  "5C", "五级"),
-            ("difficulty.short.lvl6",  "4C", "四级"),
-            ("difficulty.short.lvl7",  "3C", "三级"),
-            ("difficulty.short.lvl8",  "2C", "二级"),
-            ("difficulty.short.lvl9",  "1C", "一级"),
+            ("difficulty.short.lvl1",  "Appr", "学徒"),
+            ("difficulty.short.lvl2",  "1D", "初段"),
+            ("difficulty.short.lvl3",  "3D", "三段"),
+            ("difficulty.short.lvl4",  "5D", "五段"),
+            ("difficulty.short.lvl5",  "7D", "七段"),
+            ("difficulty.short.lvl6",  "LM", "地方"),
+            ("difficulty.short.lvl7",  "MC", "候补"),
+            ("difficulty.short.lvl8",  "NM", "国家"),
+            ("difficulty.short.lvl9",  "GMC", "特候"),
             ("difficulty.short.lvl10", "GM", "特大"),
         ]
 
@@ -399,8 +399,8 @@ struct DifficultyV21Tests {
             let zh = (locs?["zh-Hans"] as? [String: Any])?["stringUnit"] as? [String: String]
             #expect(en?["value"] == "Professional",
                     "proSection en 应为 Professional，实际: \(en?["value"] ?? "nil")")
-            #expect(zh?["value"] == "棋士",
-                    "proSection zh-Hans 应为 棋士，实际: \(zh?["value"] ?? "nil")")
+            #expect(zh?["value"] == "专业段",
+                    "proSection zh-Hans 应为 专业段，实际: \(zh?["value"] ?? "nil")")
         }
     }
 
@@ -410,11 +410,13 @@ struct DifficultyV21Tests {
 
     @Test("回归: 旧 displayName 值不再使用")
     func legacyDisplayNamesRemoved() {
+        // T-1019-OC-01 段位制（v2.2 v1.5 §2.4，裁定⑤）：业余初段/业余三段/业余五段/特级大师
+        // 已由新体系再合法化，从 legacy 名单移除；棋士 X 级族与其余保持 legacy
         let legacyNames = ["业余初级", "业余中级", "业余高级",
-                           "业余初段", "业余三段", "业余五段", "专业三段",
+                           "专业三段",
                            "九级棋士", "八级棋士", "七级棋士", "六级棋士",
                            "五级棋士", "四级棋士", "三级棋士", "二级棋士",
-                           "一级棋士", "特级大师"]
+                           "一级棋士"]
         let currentNames = Set(AIDifficulty.allCases.map { $0.displayName })
         for legacy in legacyNames {
             #expect(!currentNames.contains(legacy),
