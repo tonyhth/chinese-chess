@@ -2,7 +2,8 @@
 
 > **审查人**：Vera（inspector）｜**日期**：2026-10-18
 > **对象**：m1 双 commit——b691618（fix(stats) P3×6 消解+v6.4.1 版本定版；=派单引 b34abdd 同树+project.yml 定版）+240d86d（memo N6 引用卫生；=派单引 abc7c29 同树）。累计 GameRecordStatsAggregator 621L/测试 503L
-> **规格锚**：Ruby 全审 P3 清单（T-1017-OC-01-R-review-ruby.md，⚠️盘上未检索到——见非阻塞 N1）+ Luke 双域统计口径（harness 卡 7328c9fc）
+> **规格锚**：Ruby 全审 P3 清单（T-1017-OC-01-R-review-ruby.md，**在盘勘误后已直读**：DevTeam 根级 /Users/hth/DevTeam/docs/reviews/，7093B@10-17 23:17——§八 P3×6 原文与本审六项逐一吻合，忠实性升格 primary-source 确认，见 N1）+ Luke 双域统计口径（harness 卡 7328c9fc）
+> **锚链勘误（2026-10-18，Cody 事实纠正+我方亲验）**：本审锚定中间链 b691618/240d86d（当时 HEAD 实况，现已弃）——现权威链 3686c47→b34abdd→abc7c29→8f9df43→3bf5307→6117e59。亲验：git diff 240d86d 8f9df43 空（审定码面逐位一致）+聚合器/T1017 测试面 8f9df43→6117e59 零触碰（后随仅 L10n/manifest/他测试文件钉点）——**判词以码面内容锚结转有效**，hash 引用以本注为准
 > **取证基线**：git diff/show（75f06e0→b691618 增量 + 双 commit 树同一性 + 生产零触碰空 diff）+ 聚合器/测试增量 diff 全读 + 测试 log 双份直读（logs/t1018-oc01-p3-tests2-1018.log、t1019-oc01-tests-1018.log，内层 "Test run with 23 tests in 1 suite passed" ×2 直读）+ HEAD=240d86d=m1 工作树一致
 
 ---
@@ -40,7 +41,7 @@ P3×6 六项实现全部忠实 Ruby 原意（以派单三问枚举承证）；sc
 
 ## 非阻塞登记（随下触，4 项）
 
-- **N1** Ruby 判词文件不在盘：T-1017-OC-01-R-review-ruby.md 全域检索未命中（docs/reviews 仅我方 vera 单；"T-1017-OC-01-R" 字串仅命中我方撤销注）——Ruby P3 原意本审以派单三问枚举承证（Luke 权威传输）；建议 Ruby 判词落盘 docs/reviews/ 补链。
+- **N1**（已勘误 2026-10-18，Cody 事实纠正+我方直读亲验）~~Ruby 判词文件不在盘~~——文件在盘：/Users/hth/DevTeam/docs/reviews/T-1017-OC-01-R-review-ruby.md（7093B@10-17 23:17），我方初检系项目级 docs/reviews/ scope 未及根级。已直读对读：Ruby §八 P3×6 原文与本审六项逐一吻合（P3-1 文案分流/P3-2 时长门控/P3-3 碰撞/P3-4 四缺口/P3-5 防御+enum/P3-6 0s+上界）；另 Ruby 本审独立结论=通过（P0-P2 零/P3×6 同项/四裁量无异议不提级）——两线独立同判收敛互证。是否落项目级副本归链主裁
 - **N2** v1 导出件 v2 解码 fail-fast（见三问②）——未来消费面需读 v1 时补 decodeIfPresent(default 0) 或 v1 结构体。
 - **N3** excludedZeroMoveCount 字段语义外扩（现兼计损坏变体剔除，非严格"零步"计数）——enum/测试注释已披露，结构体字段宜补一行 doc comment 防消费面误读。
 - **N4** 我方原 P3×6（T-1017-OC-01 降级留档单）存量对账：②校准域防御对等、④漏测 2 项**已由本批关闭** ✓；①q4 口径 a 来源披露、③source↔summary 一致性抽验、⑥rawValue 格式耦合**未见本批**（不在 Ruby 六项内）——维持登记随下触。
