@@ -520,6 +520,19 @@ struct UXAdaptationTests {
         @MainActor
 @Test("走棋 + 悔棋 回归")
         func moveAndUndoRegression() {
+            // P4-Batch2 首项（KI：测试进程读入真实 App humanSide 偏好——环境依赖隔离）：
+            // 显式固定执方为红，防本机 App 真实偏好（humanSide=black）致执方门拒；
+            // defer 还原原值，不污染同进程后续用例与用户偏好
+            let originalHumanSide = UserDefaults.standard.string(forKey: "chinesechess.humanSide")
+            UserDefaults.standard.set("red", forKey: "chinesechess.humanSide")
+            defer {
+                if let original = originalHumanSide {
+                    UserDefaults.standard.set(original, forKey: "chinesechess.humanSide")
+                } else {
+                    UserDefaults.standard.removeObject(forKey: "chinesechess.humanSide")
+                }
+            }
+
             let vm = GameViewModel()
             let initialCount = vm.board.pieces.count
 
