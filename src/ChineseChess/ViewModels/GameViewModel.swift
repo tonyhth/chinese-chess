@@ -118,6 +118,11 @@ class GameViewModel {
     private let perpetualCheckThreshold = 6
     /// v4.0 Phase 6: 长捉判负阈值（与长将一致）
     private let perpetualChaseThreshold = 6
+    /// 自然限着判和阈值（半着数）：120 半着 = 60 回合
+    /// 裁决链：丹妮裁决 2026-10-21（采纳 draw-detection-analysis.md §2.8/§4 P1#5 处方）
+    /// + 洪涛拍板 2026-10-22 07:06 + 《中国象棋竞赛规则》自然限着口径
+    /// （原实装 100 半着与文档处方冲突，T-1023-OC-01 P4-A1 合规整改；单源定义见 DrawDetectionRules）
+    private let naturalDrawHalfmoveLimit = DrawDetectionRules.naturalDrawHalfmoveLimit
 
     // P1-2: 外部引擎 fallback 提示（非 nil 时 UI 弹 alert）
     var engineFallbackMessage: String? = nil
@@ -791,8 +796,8 @@ class GameViewModel {
                 return
             }
 
-            // 50 回合规则（100 半回合无吃子/无兵移动判和）
-            if halfmoveClock >= 100 {
+            // 自然限着判和（120 半着 = 60 回合无吃子/无兵移动；P4-A1 合规修正，原 100 半着）
+            if halfmoveClock >= naturalDrawHalfmoveLimit {
                 gameState = .draw
                 isInCheck = false
                 return
@@ -821,6 +826,18 @@ class GameViewModel {
         let fp = boardFingerprint()
         positionFingerprints[fp, default: 0] += 1
     }
+
+    #if DEBUG
+    // MARK: - 测试辅助（仅 DEBUG；T-1023-OC-01 P4-A1/A4 真驱动断言面，承 DrawDetectionRealTests #5 建议方案）
+    /// 读取 halfmoveClock（测试断言用）
+    internal func testGetHalfmoveClock() -> Int { halfmoveClock }
+    /// 设置 halfmoveClock（120 边界用例驱动用）
+    internal func testSetHalfmoveClock(_ value: Int) { halfmoveClock = value }
+    /// 读取局面 fingerprint 计数表（测试断言用）
+    internal func testGetPositionFingerprints() -> [String: Int] { positionFingerprints }
+    /// 直调 checkGameState（边界用例驱动真实判和路径用）
+    internal func testRunCheckGameState() { checkGameState() }
+    #endif
 
     /// 长将检测 — 同一方连续将军 + 局面重复
     /// 中国象棋规则：同一方连续将军且局面循环 → 判将军方负

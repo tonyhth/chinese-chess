@@ -547,17 +547,11 @@ class PuzzleViewModel {
 
     // MARK: - 和局检测辅助方法
 
-    /// 局面指纹(棋子位置+轮次),用于长将检测
+    /// 局面指纹（完整 FEN，含走子方——P4-A4 对齐 Game 侧形态，消除 X-碰撞）
+    /// 同一棋盘布局但不同走子方 = 不同 fingerprint；棋子种类经 FEN 字符全量编码
+    /// （原 X 粗编码马/炮/卒同符，异局同纹致三次重复误判，T-1023-OC-01 P4-A4 修正）
     private func boardFingerprint() -> String {
-        var fp = board.currentTurn == .red ? "w" : "b"
-        for row in 0..<10 {
-            for col in 0..<9 {
-                if let piece = board.piece(at: Position(row: row, col: col)) {
-                    fp += "\(row)\(col)\(piece.kind == .general ? "K" : piece.kind == .chariot ? "R" : "X")\(piece.side == .red ? "r" : "b")"
-                }
-            }
-        }
-        return fp
+        return FENParser.generate(board: board)
     }
 
     /// 检查是否和局
@@ -565,8 +559,8 @@ class PuzzleViewModel {
         let currentFp = boardFingerprint()
         let count = positionHistory.filter { $0 == currentFp }.count
         if count >= 3 { return true }
-        // 50 回合规则（100 半回合无吃子/无兵移动判和）
-        if halfmoveClock >= 100 { return true }
+        // 自然限着判和（120 半着 = 60 回合；P4-A1 合规修正，原 100 半着；单源 DrawDetectionRules）
+        if halfmoveClock >= DrawDetectionRules.naturalDrawHalfmoveLimit { return true }
         let offensiveKinds: Set<PieceKind> = [.chariot, .horse, .cannon, .soldier]
         let hasOffensive = board.pieces.contains { offensiveKinds.contains($0.kind) }
         if !hasOffensive { return true }
@@ -584,6 +578,22 @@ class PuzzleViewModel {
             positionHistory.append(boardFingerprint())
         }
     }
+
+    #if DEBUG
+    // MARK: - 测试辅助（仅 DEBUG；T-1023-OC-01 P4-A4 真驱动断言面）
+    /// 读取当前局面指纹（X-碰撞回归断言用）
+    internal func testBoardFingerprint() -> String { boardFingerprint() }
+    /// 按真实走子语义记录局面历史（真驱动用例：镜像 movePiece 路径的记录调用）
+    internal func testRecordMove(captured: Piece?, movedPiece: Piece) {
+        updatePositionHistory(captured: captured, movedPiece: movedPiece)
+    }
+    /// 直调 checkDraw（真驱动断言用）
+    internal func testCheckDrawNow() -> Bool { checkDraw() }
+    /// 读取局面历史（测试断言用）
+    internal func testPositionHistory() -> [String] { positionHistory }
+    /// 读取 halfmoveClock（测试断言用）
+    internal func testGetHalfmoveClock() -> Int { halfmoveClock }
+    #endif
 
     func dismissMaxMovesWarning() {
         gameState = .playing

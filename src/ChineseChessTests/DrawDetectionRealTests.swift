@@ -66,32 +66,64 @@ final class DrawDetectionRealTests: XCTestCase {
     }
 
     // ============================================================
-    // halfmoveClock >= 100 判和（代码审查确认）
+    // 自然限着判和（P4-A1：120 半着 = 60 回合，原 100 半着合规修正）
     // ============================================================
 
-    /// 代码审查：halfmoveClock 逻辑正确
-    /// 验证点：
-    /// 1. executeMove 后：captured != nil || isPawn → halfmoveClock = 0
-    /// 2. else → halfmoveClock += 1
-    /// 3. checkGameState 中：if halfmoveClock >= 100 { gameState = .draw }
-    func testHalfmoveClock_LogicReview() {
-        // 代码审查确认逻辑正确（见 GameViewModel.swift 205-210, 531-537）
-        // 无法直接访问 halfmoveClock，通过代码审查确认
-        XCTAssertTrue(true, "halfmoveClock 逻辑已通过代码审查确认正确")
+    /// P4-A1 边界：119 半着不判和、120 半着判和（DEBUG 钩子驱动真实 checkGameState 路径）
+    func testNaturalDraw_Boundary119NoDraw_120Draw() {
+        let vm = GameViewModel()
+
+        vm.testSetHalfmoveClock(DrawDetectionRules.naturalDrawHalfmoveLimit - 1)
+        XCTAssertEqual(vm.testGetHalfmoveClock(), 119)
+        vm.testRunCheckGameState()
+        // 初始局面无将杀/困毙/长将/三次重复 → 未达阈值应保持 .playing
+        XCTAssertEqual(vm.gameState, .playing, "119 半着（不足 60 回合）不得判和")
+
+        vm.testSetHalfmoveClock(DrawDetectionRules.naturalDrawHalfmoveLimit)
+        XCTAssertEqual(vm.testGetHalfmoveClock(), 120)
+        vm.testRunCheckGameState()
+        XCTAssertEqual(vm.gameState, .draw, "120 半着（60 回合自然限着）应判和")
+    }
+
+    /// halfmoveClock 递增语义真实驱动：非吃子/非兵移动 +1
+    func testHalfmoveClock_IncrementsOnQuietMove() {
+        let vm = GameViewModel()
+        XCTAssertEqual(vm.testGetHalfmoveClock(), 0, "初始 halfmoveClock 应为 0")
+
+        // 炮二平五：(7,7)→(7,4) 非吃子/非兵移动 → halfmoveClock +1
+        vm.makeCoachMove(from: Position(row: 7, col: 7), to: Position(row: 7, col: 4))
+        XCTAssertEqual(vm.testGetHalfmoveClock(), 1, "非吃子/非兵移动后 halfmoveClock 应 +1")
     }
 
     // ============================================================
-    // 三次重复局面判和（代码审查确认）
+    // 三次重复局面判和（P4-A4：真实驱动）
     // ============================================================
 
-    /// 代码审查：三次重复检测逻辑正确
-    /// 验证点：
-    /// 1. boardFingerprint() = FENParser.generate(board:)（含走子方）
-    /// 2. recordPositionFingerprint() 在 executeMove 后调用
-    /// 3. checkGameState 中：if positionFingerprints[fp] >= 3 { gameState = .draw }
-    func testThreeRepetition_LogicReview() {
-        // 代码审查确认逻辑正确（见 GameViewModel.swift 249-251, 540-543）
-        XCTAssertTrue(true, "三次重复检测逻辑已通过代码审查确认正确")
+    /// 三次重复真实驱动：双边马往返，初始局面指纹三现（半着 3/7/11）→ 判和
+    func testThreeRepetition_RealDriven() {
+        let vm = GameViewModel()
+        let sub = OpeningSubcategory(id: "test", name: "测试", firstMoves: ["h2e2"], gameCount: 1)
+        vm.coachConfig = CoachConfig(targetSubcategory: sub, aiDifficulty: .amateurLow, playerSide: .red)
+
+        // 双边马往返（全非吃子/兵移动）：红 (9,1)↔(7,2)，黑 (0,1)↔(2,2)
+        let cycle: [(Position, Position)] = [
+            (Position(row: 9, col: 1), Position(row: 7, col: 2)),
+            (Position(row: 0, col: 1), Position(row: 2, col: 2)),
+            (Position(row: 7, col: 2), Position(row: 9, col: 1)),
+            (Position(row: 2, col: 2), Position(row: 0, col: 1))
+        ]
+        // 初始局面未预记录（init 不调 record）：指纹在 3/7/11 半着后计 1/2/3
+        for i in 0..<(cycle.count * 3) {
+            let mv = cycle[i % cycle.count]
+            vm.makeCoachMove(from: mv.0, to: mv.1)
+            if i == 7 {
+                XCTAssertEqual(vm.gameState, .playing, "指纹计数为 2 时不得判和")
+                let maxCount = vm.testGetPositionFingerprints().values.max() ?? 0
+                XCTAssertEqual(maxCount, 2, "两循环后最高指纹计数应为 2")
+            }
+            if vm.gameState != .playing { break }
+        }
+        XCTAssertEqual(vm.gameState, .draw, "同一局面+走子方三次重复应判和（完整 FEN 指纹含走子方）")
     }
 
     /// FENParser.generate 含走子方标记
@@ -120,17 +152,37 @@ final class DrawDetectionRealTests: XCTestCase {
     }
 
     // ============================================================
-    // 长将判负（代码审查确认）
+    // 长将判负（P4-A4：真实驱动）
     // ============================================================
 
-    /// 代码审查：长将检测逻辑正确
-    /// 验证点：
-    /// 1. perpetualCheckThreshold = 6（3 个完整回合）
-    /// 2. detectPerpetualCheck：guard gameMoves.count >= 6
-    /// 3. 取 suffix(6)，检查是否有一方 >= 3 步且 allSatisfy(.isCheck)
-    func testPerpetualCheck_LogicReview() {
-        // 代码审查确认逻辑正确（见 GameViewModel.swift 621-636）
-        XCTAssertTrue(true, "长将检测逻辑已通过代码审查确认正确")
+    /// 长将检测真实驱动：自定义局面红车连续将军穿梭 + 局面三现 → 长将判负路径触发
+    /// 口径注：本用例钉"触发且非和"行为面；判负方归属依赖 checkGameState 的 currentSide
+    /// 语义（触发半着的奇偶性），规则口径复核见交付报告观察项。
+    func testPerpetualCheck_RealDriven() {
+        let vm = GameViewModel()
+        let sub = OpeningSubcategory(id: "test", name: "测试", firstMoves: ["h2e2"], gameCount: 1)
+        vm.coachConfig = CoachConfig(targetSubcategory: sub, aiDifficulty: .amateurLow, playerSide: .red)
+
+        // 黑将 (0,4)；红车 (3,3)、红马 (3,2)/(3,5) 封应将格、红炮 (7,5) 封 (0,5)/(1,5)；红帅 (9,4)
+        vm.board = Board(fen: "4k4/9/9/2N1R4/9/9/9/9/9/4K4 w")
+
+        // 红车 (3,3)↔(3,4) 连将，黑将 (0,4)↔(0,3) 唯一应将（H1 封 (1,3)、H2 封 (1,4)、炮封 (0,5)/(1,5)）
+        let seq: [(Position, Position)] = [
+            (Position(row: 3, col: 3), Position(row: 3, col: 4)),
+            (Position(row: 0, col: 4), Position(row: 0, col: 3)),
+            (Position(row: 3, col: 4), Position(row: 3, col: 3)),
+            (Position(row: 0, col: 3), Position(row: 0, col: 4)),
+            (Position(row: 3, col: 3), Position(row: 3, col: 4)),
+            (Position(row: 0, col: 4), Position(row: 0, col: 3)),
+            (Position(row: 3, col: 4), Position(row: 3, col: 3)),
+            (Position(row: 0, col: 3), Position(row: 0, col: 4))
+        ]
+        for mv in seq {
+            vm.makeCoachMove(from: mv.0, to: mv.1)
+            if vm.gameState != .playing { break }
+        }
+        XCTAssertTrue(vm.gameState != .playing, "长将循环（连续将军+局面三现）应触发判负")
+        XCTAssertTrue(vm.gameState != .draw, "长将触发不得判和")
     }
 
     /// perpetualCheckThreshold = 6
