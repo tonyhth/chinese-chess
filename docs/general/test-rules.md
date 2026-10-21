@@ -1,22 +1,23 @@
 # 项目测试规则
 
-## 统一测试入口
-本项目所有测试通过 `scripts/test-runner.sh` 执行，**不直接调用 `swift test`**。
+## 统一测试入口（现行真相源）
+本项目一切测试批通过 `scripts/run-tests-mutex.sh` 执行（flock 全局互斥 + AppleLanguages 语言锁 + 资产预检内置）。
 
 ```bash
-# 全量测试
-bash scripts/test-runner.sh
-
-# 快速测试（跳过慢测试）
-bash scripts/test-runner.sh --quick
+# 专项测试（多 suite 逐个串行、独立进程）
+RUNNER_OWNER=<owner> RUNTESTS_SANDBOX_EXEMPT=1 \
+bash scripts/run-tests-mutex.sh <SuiteName> [Suite2 ...] \
+  > ~/DevTeam/logs/<task>-tests-<mmdd>.log 2>&1; echo "TESTS_RC=$?"
 ```
 
-## 为什么不直接 swift test？
-- 768 tests 需要 ~130-240 秒，直接调用容易 timeout
-- `swift test | grep` 管道会吞掉中间输出，失败信息在输出中间（`Issue recorded at file:line`），汇总在末尾只说"1 issue"
-- test-runner.sh 自动 tee 全量输出，并把失败项追加到末尾，`tail -20` 就能看到结果
+## 禁止事项
+- **禁止裸 `xcodebuild test`**（哨兵 RunnerHygieneTests 判红；全量不带过滤 Intel Mac 必超时）
+- **禁止 `swift test` / `swift build`**（Package.swift 已删除，SPM 已废弃）
 
-## 遇到失败时
-1. 末尾会自动显示失败项
-2. 读 `/tmp/swift-test-result.txt` 搜索 `Issue recorded` 定位具体文件和行号
-3. 不要反复重跑同一命令试图"grep 到失败"——信息已经在末尾了
+## 真相源
+- 测试命令规约：**DEVTEAM.md 测试命令节**（本文件仅入口指引，与 DEVTEAM.md 冲突时以 DEVTEAM.md 为准）
+- skip 名单：**docs/test/skip-registry.md**（单源，勿在命令行手抄）
+- 双环境变量必设：RUNNER_OWNER / RUNTESTS_SANDBOX_EXEMPT，缺一拒起跑
+- 计数门：Swift Testing `Test run with N tests passed` / XCTest `Executed N tests, with 0 failures`——无 count 行批次作废
+
+> 历史：本文件 v6.4 前指引 `scripts/test-runner.sh`+`swift test`——该路径已随 SPM 废弃失效（T-1023-OC-01 P4-B1 改指现行入口，2026-10-22）。

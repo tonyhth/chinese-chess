@@ -176,6 +176,9 @@ fi
 
 cp -R "$XC_APP" "$APP_DIR"
 
+# P4-B3（T-1023-OC-01）：清理 Xcode 构建遗留的 BOM 临时文件（tmp.*），不入发布包
+find "$APP_DIR/Contents/Resources" -name 'tmp.*' -delete 2>/dev/null || true
+
 # 覆盖图标（xcodegen 默认不生成 icns）
 cp "$ICNS_OUTPUT" "$APP_DIR/Contents/Resources/AppIcon.icns"
 rm -f "$ICNS_OUTPUT"
