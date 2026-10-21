@@ -170,13 +170,8 @@ struct BoardCanvasView: View {
     @ViewBuilder
     private func riverText(width: CGFloat, cellSize: CGFloat, padding: CGFloat) -> some View {
         let y = padding + 4 * cellSize + cellSize / 2
-        HStack(spacing: cellSize * 2) {
-            Text("楚  河")
-                .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-            Text("汉  界")
-                .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-        }
-        .foregroundColor(theme.riverTextColor)
-        .position(x: width / 2, y: y)
+        // P4-B7 单源化 + B4 闭环：补 isFlipped（原固定顺序失翻转为 N-1 变体，dim6 §7.3）
+        RiverTextView(cellSize: cellSize, color: theme.riverTextColor, isFlipped: isFlipped)
+            .position(x: width / 2, y: y)
     }
 }

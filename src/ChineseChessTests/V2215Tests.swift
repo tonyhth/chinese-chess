@@ -389,7 +389,7 @@ struct V2215Tests {
                 if let regex = try? NSRegularExpression(pattern: "\"[^\"]*[\u{4e00}-\u{9fff}][^\"]*\"") {
                     let matches = regex.matches(in: trimmed, range: NSRange(location: 0, length: trimmed.utf16.count))
                     if !matches.isEmpty {
-                        // 排除 "楚  河" / "汉  界"（已知文化元素）
+                        // 排除 "楚  河" / "汉  界"（P4-B7 后视图层已无该字面量；守卫保留为惰性安全网）
                         let match = (trimmed as NSString).substring(with: matches[0].range)
                         if match.contains("楚") || match.contains("汉") { continue }
                         Issue.record("PuzzleSelectView 第 \(i+1) 行可能存在硬编码中文: \(trimmed)")

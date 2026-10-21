@@ -100,17 +100,18 @@ struct TutorialBoardIntroView: View {
             blackPalacePath.addLine(to: CGPoint(x: blackPalaceLeft, y: blackPalaceBottom))
             context.stroke(blackPalacePath, with: .color(lineColor), lineWidth: 0.5)
 
-            // 楚河汉界文字
+            // 楚河汉界文字（P4-B7 键接线：board.chuRiver/hanBorder 键消费；
+            // Canvas 内嵌面不接共享组件，isFlipped 恒 false，dim6 §7.4 处方②）
             let riverY = CGFloat(4.5) * cellH
             let center = CGPoint(x: size.width / 2, y: riverY)
             context.draw(
-                Text("楚河")
+                Text("board.chuRiver")
                     .font(.system(size: cellH * 0.6))
                     .foregroundColor(.secondary.opacity(0.5)),
                 at: CGPoint(x: size.width * 0.25, y: center.y)
             )
             context.draw(
-                Text("汉界")
+                Text("board.hanBorder")
                     .font(.system(size: cellH * 0.6))
                     .foregroundColor(.secondary.opacity(0.5)),
                 at: CGPoint(x: size.width * 0.75, y: center.y)

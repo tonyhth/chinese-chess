@@ -206,6 +206,7 @@ final class D5I18nAuditVerificationTests {
     @Test("棋盘楚河汉界在 xcstrings 中保持中文（board.chuRiver / board.hanBorder）")
     func boardRiverTextStaysChinese() {
         // 审计报告：英文版保持中文原文
+        // P4-B7 后：视图层经 RiverTextView 键消费（UXAdaptationTests 钉向已翻转），键面与恒中文语义不变，本钉继续有效
         let chuEn = Self.translationValue("board.chuRiver", "en")
         let hanEn = Self.translationValue("board.hanBorder", "en")
 

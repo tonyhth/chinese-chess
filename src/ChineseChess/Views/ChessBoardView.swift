@@ -532,22 +532,9 @@ struct ChessBoardView: View {
     @ViewBuilder
     private func riverText(width: CGFloat, cellSize: CGFloat, padding: CGFloat) -> some View {
         let y = padding + 4 * cellSize + cellSize / 2
-        HStack(spacing: cellSize * 2) {
-            // 翻转时顺序对调："汉 界"在左，"楚 河"在右
-            if isFlipped {
-                Text("汉  界")
-                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-                Text("楚  河")
-                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-            } else {
-                Text("楚  河")
-                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-                Text("汉  界")
-                    .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.45))
-            }
-        }
-        .foregroundColor(theme.riverTextColor)
-        .position(x: width / 2, y: y)
+        // P4-B7 单源化：RiverTextView 键消费（board.chuRiver/hanBorder），翻转语义单点定义
+        RiverTextView(cellSize: cellSize, color: theme.riverTextColor, isFlipped: isFlipped)
+            .position(x: width / 2, y: y)
     }
 }
 

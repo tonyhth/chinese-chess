@@ -707,14 +707,16 @@ struct UXAdaptationTests {
         }
 
         @MainActor
-@Test("楚河汉界文本是硬编码中文（已知 i18n 遗漏，记录但不阻断）")
-        func riverTextHardcodedChinese() {
+@Test("楚河汉界经 RiverTextView/board 键消费（P4-B7 钉向翻转）")
+        func riverTextKeyConsumption() {
             let content = Self.readFile("ChineseChess/Views/ChessBoardView.swift")
             guard let content = content else { return }
-            let hasRiverText = content.contains("\"楚  河\"") && content.contains("\"汉  界\"")
-            // 这是已知的 i18n 遗漏——"楚河汉界"是中国象棋的传统标识
-            // 作为文化元素保留硬编码是合理的，但记录
-            #expect(hasRiverText == true, "楚河汉界硬编码：已知 i18n 遗漏，作为文化元素保留")
+            // P4-B7 单源化：视图不再硬编码楚河汉界字面量，改经 RiverTextView 共享组件
+            // 消费 board.chuRiver/board.hanBorder 键（键面恒中文，文化元素保留在 xcstrings）
+            let consumesComponent = content.contains("RiverTextView")
+            let hasHardcoded = content.contains("\"楚  河\"") || content.contains("\"汉  界\"")
+            #expect(consumesComponent, "楚河汉界应经 RiverTextView 共享组件消费（P4-B7）")
+            #expect(!hasHardcoded, "ChessBoardView 不应再硬编码楚河汉界字面量（P4-B7 单源化）")
         }
 
         private static func readFile(_ relativePath: String) -> String? {

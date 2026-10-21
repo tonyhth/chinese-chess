@@ -243,7 +243,7 @@ struct MasterGameBrowserView: View {
         }
         .frame(minWidth: 600, minHeight: 700)
         .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
-            Button("OK") {}
+            Button(L10n.shared.t("common.ok")) {}
         } message: {
             Text(L10n.shared.t("master.statsUnavailable"))
         }
@@ -267,7 +267,7 @@ struct MasterGameBrowserView: View {
             }
         }
         .alert(L10n.shared.t("master.statsUnavailable"), isPresented: $showStatsUnavailable) {
-            Button("OK") {}
+            Button(L10n.shared.t("common.ok")) {}
         } message: {
             Text(L10n.shared.t("master.statsUnavailable"))
         }
@@ -998,12 +998,12 @@ struct MasterGameBrowserView: View {
                     if loadingGame { ProgressView() }
                 }
                 .alert(L10n.shared.t("demo.loadError"), isPresented: $showLoadError) {
-                    Button("OK") { loadError = nil }
+                    Button(L10n.shared.t("common.ok")) { loadError = nil }
                 } message: {
                     Text(loadError ?? "")
                 }
                 .alert(L10n.shared.t("demo.incompleteWarning"), isPresented: $showIncompleteWarning) {
-                    Button("OK") {}
+                    Button(L10n.shared.t("common.ok")) {}
                 } message: {
                     Text(L10n.shared.t("demo.incompleteMessage"))
                 }
@@ -1111,12 +1111,12 @@ struct MasterGameBrowserView: View {
                     if loadingGame { ProgressView() }
                 }
                 .alert(L10n.shared.t("demo.loadError"), isPresented: $showLoadError) {
-                    Button("OK") { loadError = nil }
+                    Button(L10n.shared.t("common.ok")) { loadError = nil }
                 } message: {
                     Text(loadError ?? "")
                 }
                 .alert(L10n.shared.t("demo.incompleteWarning"), isPresented: $showIncompleteWarning) {
-                    Button("OK") {}
+                    Button(L10n.shared.t("common.ok")) {}
                 } message: {
                     Text(L10n.shared.t("demo.incompleteMessage"))
                 }
@@ -1124,7 +1124,7 @@ struct MasterGameBrowserView: View {
             #endif
         }
         .alert(L10n.shared.t("demo.loadError"), isPresented: $showMasterLoadError) {
-            Button("OK") {}
+            Button(L10n.shared.t("common.ok")) {}
         } message: {
             Text(masterStore.loadError ?? "")
         }

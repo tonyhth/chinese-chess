@@ -760,16 +760,10 @@ struct OpeningBoardPreview: View {
                     drawLines(context: &context, cellSize: cellSize, padding: padding)
                 }
 
-                // 楚河汉界
+                // 楚河汉界（P4-B7 单源化：RiverTextView 键消费）
                 let yRiver = padding + 4 * cellSize + cellSize / 2
-                HStack(spacing: cellSize * 2) {
-                    Text("楚  河")
-                        .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.4))
-                    Text("汉  界")
-                        .font(.custom(FontRegistry.bestAvailableFontName, size: cellSize * 0.4))
-                }
-                .foregroundColor(theme.riverTextColor)
-                .position(x: boardWidth / 2, y: yRiver)
+                RiverTextView(cellSize: cellSize, color: theme.riverTextColor, fontSizeFactor: 0.4)
+                    .position(x: boardWidth / 2, y: yRiver)
 
                 // 棋子
                 ForEach(board.pieces) { piece in
