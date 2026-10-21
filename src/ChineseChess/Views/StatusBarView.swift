@@ -19,8 +19,6 @@ struct StatusBarView: View {
                 Text(viewModel.currentTurn == .red ? l10n.t("status.redTurn") : l10n.t("status.blackTurn"))
                     .font(.subheadline.weight(.medium))
 
-                // TODO: guided 走错回退文案 — 待 PuzzlePlayView 集成 StatusBarView 后启用
-
                 if viewModel.isThinking {
                     HStack(spacing: 4) {
                         Text(l10n.t("status.aiThinking"))
