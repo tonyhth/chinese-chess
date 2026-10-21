@@ -111,11 +111,17 @@ final class OpeningBook {
 
     // MARK: - v1 兼容索引构建
 
+    /// P4-B10（T-1023-OC-01）：v1 索引构建与解析层解耦——标准开局基盘只过一次解析层
+    /// （原实现每个 variation 重复 parse 同一常量 FEN）；Board 为引用类型，
+    /// 各 variation 经 init(pieces:) 自基盘派生独立工作副本，行为不变
+    private static let v1BasePieces: [Piece]? = FENParser.parse(fen: FENParser.standardInitial)?.pieces
+
     private static func buildV1Index(_ entries: [OpeningEntryV1]) -> [UInt64: [(move: String, weight: Int)]] {
         var idx: [UInt64: [(move: String, weight: Int)]] = [:]
+        guard let basePieces = v1BasePieces else { return idx }
         for entry in entries {
             for variation in entry.variations {
-                guard let board = FENParser.parse(fen: FENParser.standardInitial) else { continue }
+                let board = Board(pieces: basePieces)
 
                 for (stepIndex, iccsMove) in variation.enumerated() {
                     guard let move = ICCSParser.parse(iccsMove, on: board) else {
