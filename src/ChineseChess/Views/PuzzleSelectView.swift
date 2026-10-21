@@ -702,6 +702,23 @@ struct PuzzleRow: View {
 
 // MARK: - 残局闯关视图
 
+/// P4-A2（T-1023-OC-01）：容器几何读取——替代 UIScreen.main（分屏/多窗口/外屏场景正确性）
+private struct ContainerHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+private struct ContainerHeightReader: View {
+    let onChange: (CGFloat) -> Void
+    var body: some View {
+        GeometryReader { geo in
+            Color.clear
+                .preference(key: ContainerHeightKey.self, value: geo.size.height)
+        }
+        .onPreferenceChange(ContainerHeightKey.self, perform: onChange)
+    }
+}
+
 struct PuzzlePlayView: View {
     let puzzle: Puzzle
     var isDailyChallenge: Bool = false
@@ -716,14 +733,18 @@ struct PuzzlePlayView: View {
         viewModel.playMode == .freePlay
     }
 
-    /// 底部区域最大高度（动态计算，防止挤压棋盘）
+    @State private var containerHeight: CGFloat = 0
+
+    /// 底部区域最大高度（P4-A2：GeometryReader 实测容器高度，替代 UIScreen.main——分屏/多窗口/外屏正确性）
+    /// 比例语义保持：iPad 15%/iPhone ≤667 档 25%/其余 20%；667 档位阈值改为对实测容器高度生效；
+    /// 首帧布局前兜底 180（与 macOS 档一致），首帧后即切换实测值
     private var bottomAreaMaxHeight: CGFloat {
         #if os(iOS)
-        let screenHeight = UIScreen.main.bounds.height
+        guard containerHeight > 0 else { return 180 }
         if UIDevice.current.userInterfaceIdiom == .pad {
-            return screenHeight * 0.15  // iPad 占 15%
+            return containerHeight * 0.15  // iPad 占 15%
         } else {
-            return screenHeight <= 667 ? screenHeight * 0.25 : screenHeight * 0.20
+            return containerHeight <= 667 ? containerHeight * 0.25 : containerHeight * 0.20
         }
         #else
         return 180  // macOS 固定值，窗口可调
@@ -747,6 +768,7 @@ struct PuzzlePlayView: View {
             }
         }
         .background(Color(red: 44/255, green: 24/255, blue: 16/255))
+        .background(ContainerHeightReader { containerHeight = $0 })
     }
 
     private var gameContent: some View {
