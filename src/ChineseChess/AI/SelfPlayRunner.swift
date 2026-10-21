@@ -1084,6 +1084,8 @@ extension SelfPlayRunner {
         games: Int,
         maxMoves: Int = 80,
         moveTimeMs: Int = 500,
+        moveTimeRed: Int? = nil,
+        moveTimeBlack: Int? = nil,
         redSkillOverride: Int? = nil,
         blackSkillOverride: Int? = nil,
         progressCallback: ((Int, MixedEngineGameResult) -> Void)? = nil
@@ -1109,6 +1111,10 @@ extension SelfPlayRunner {
         let redName = "Skill\(redSkill)"
         let blackName = "Skill\(blackSkill)"
 
+        // T-1026: 双侧独立 movetime（缺省回落单值 moveTimeMs）；绑定引擎槽位——red 预算=先手执红方（A 引擎档）/black 预算=后手执黑方（B 引擎档）
+        let redBudget = moveTimeRed ?? moveTimeMs
+        let blackBudget = moveTimeBlack ?? moveTimeMs
+
         for gameIndex in 0..<games {
             let actualRed: AIDifficulty
             let actualBlack: AIDifficulty
@@ -1132,12 +1138,17 @@ extension SelfPlayRunner {
                 actualBlackSkillOverride = blackSkillOverride
             }
 
+            // T-1026: 换手时预算随引擎槽位交换颜色归属（偶局 A 红/B 黑；奇局 A 黑/B 红）——渐升梯不对称预算聚合不被对称化
+            let moveTimeRedActual = (gameIndex % 2 == 0) ? redBudget : blackBudget
+            let moveTimeBlackActual = (gameIndex % 2 == 0) ? blackBudget : redBudget
+
             let result = await playPikafishSelfPlayGame(
                 gameIndex: gameIndex,
                 redDifficulty: actualRed,
                 blackDifficulty: actualBlack,
                 maxMoves: maxMoves,
-                moveTimeMs: moveTimeMs,
+                moveTimeRed: moveTimeRedActual,
+                moveTimeBlack: moveTimeBlackActual,
                 engine: engine,
                 redSkillOverride: actualRedSkillOverride,
                 blackSkillOverride: actualBlackSkillOverride
@@ -1213,12 +1224,14 @@ extension SelfPlayRunner {
         redDifficulty: AIDifficulty,
         blackDifficulty: AIDifficulty,
         maxMoves: Int,
-        moveTimeMs: Int,
+        moveTimeRed: Int,
+        moveTimeBlack: Int,
         engine: EmbeddedPikafishEngine,
         redSkillOverride: Int? = nil,
         blackSkillOverride: Int? = nil,
         repetitionThreshold: Int = 6  // T1: 默认 6，统一阈值
     ) async -> (result: GameState, totalMoves: Int, reason: GameEndReason, moveHistory: [String]) {
+        print("  [G\(gameIndex)] movetime 红=\(moveTimeRed)ms 黑=\(moveTimeBlack)ms")
         let board = Board()
         var moveHistory: [String] = []
         var fenCounts: [String: Int] = [:]
@@ -1243,7 +1256,7 @@ extension SelfPlayRunner {
                 fen: fen,
                 moveHistory: [],
                 difficulty: difficulty,
-                timeLimitMs: moveTimeMs
+                timeLimitMs: (currentSide == .red) ? moveTimeRed : moveTimeBlack
             )
 
             guard let uciMove = result,
@@ -1834,6 +1847,11 @@ func runCalibratePfFromCLI() async {
         示例: ChineseChess --calibrate-pf 0 4 20 500 500
 
         skillA/skillB: Pikafish Skill Level (0-20)
+
+        可选 flags:
+          --movetime-red N / --movetime-black N（空格或 = 赋值均可）
+            双侧独立每步时限（绑定引擎槽位：red=A 引擎/black=B 引擎，内建换手随引擎槽位交换颜色归属）
+            只给一侧时另一侧回落 moveTimeMs；非法值/未知参数硬退 rc=2
         """)
         return
     }
@@ -1849,6 +1867,38 @@ func runCalibratePfFromCLI() async {
     let maxMoves = args.count > 5 ? (Int(args[5]) ?? 500) : 500
     let moveTimeMs = args.count > 6 ? (Int(args[6]) ?? 500) : 500
 
+    // T-1026: 双侧独立 movetime flags（全参扫描位置无关——flag 可在 [6] 槽直挂省略 moveTimeMs；
+    // 绑定引擎槽位——red=A 引擎/black=B 引擎；内建换手下预算随引擎槽位交换颜色归属，
+    // 渐升梯不对称预算聚合不被对称化；非法值硬退 rc=2）
+    var movetimeRedOverride: Int? = nil
+    var movetimeBlackOverride: Int? = nil
+    var scanIdx = 2
+    while scanIdx < args.count {
+        let arg = args[scanIdx]
+        if arg == "--movetime-red" || arg == "--movetime-black" {
+            let isRed = (arg == "--movetime-red")
+            guard scanIdx + 1 < args.count, let v = Int(args[scanIdx + 1]), v > 0 else {
+                print("❌ 无效的 \(arg) 用法: 需正整数毫秒值（\(arg) N 或 \(arg)=N）")
+                exit(2)
+            }
+            if isRed { movetimeRedOverride = v } else { movetimeBlackOverride = v }
+            scanIdx += 2
+        } else if arg.hasPrefix("--movetime-red=") || arg.hasPrefix("--movetime-black=") {
+            let isRed = arg.hasPrefix("--movetime-red=")
+            let raw = String(arg.dropFirst((isRed ? "--movetime-red=" : "--movetime-black=").count))
+            guard let v = Int(raw), v > 0 else {
+                print("❌ 无效的 \(isRed ? "--movetime-red" : "--movetime-black") 值: \(raw)（须为正整数毫秒）")
+                exit(2)
+            }
+            if isRed { movetimeRedOverride = v } else { movetimeBlackOverride = v }
+            scanIdx += 1
+        } else {
+            scanIdx += 1
+        }
+    }
+    let redBudget = movetimeRedOverride ?? moveTimeMs
+    let blackBudget = movetimeBlackOverride ?? moveTimeMs
+
     // Skill → AIDifficulty 映射：找最近的枚举值作为占位
     // 实际 Skill 由 skillOverride 参数控制
     let diffA = SelfPlayRunner.skillToDifficulty(skillA)
@@ -1857,7 +1907,8 @@ func runCalibratePfFromCLI() async {
     print("═══════════════════════════════════════════")
     print("  Pikafish 内部对弈校准")
     print("  Skill\(skillA) vs Skill\(skillB)")
-    print("  \(games) 局，最多 \(maxMoves) 步/局，每步 \(moveTimeMs)ms")
+    print("  \(games) 局，最多 \(maxMoves) 步/局")
+    print("  movetime：引擎A(Skill\(skillA))=\(redBudget)ms 引擎B(Skill\(skillB))=\(blackBudget)ms（换手随引擎槽位交换颜色归属）")
     print("═══════════════════════════════════════════")
     print("")
 
@@ -1867,7 +1918,8 @@ func runCalibratePfFromCLI() async {
         blackDifficulty: diffB,
         games: games,
         maxMoves: maxMoves,
-        moveTimeMs: moveTimeMs,
+        moveTimeRed: redBudget,
+        moveTimeBlack: blackBudget,
         redSkillOverride: skillA,
         blackSkillOverride: skillB
     ) { completed, gameResult in
