@@ -397,7 +397,7 @@ struct ReplayWindow: View {
     private var boardPlaceholder: some View {
         VStack(spacing: LayoutSpec.space2) {
             Image(systemName: "checkerboard.rectangle")
-                .font(.system(size: 48))
+                .font(.system(size: LayoutSpec.fontSizeHero))
                 .foregroundStyle(.quaternary)
             Text(l10n.t("p9.shell.boardPending"))
                 .font(.system(size: LayoutSpec.fontSizeCaption))
@@ -533,7 +533,7 @@ struct ReplayWindow: View {
                     .frame(width: 5, height: 5)
             } else if let vm = analysisVM, i < vm.moves.count, !vm.isPlayerMove(at: i) {
                 Text("AI")
-                    .font(.system(size: 7))
+                    .font(.system(size: LayoutSpec.fontSizeNano))
                     .foregroundStyle(.tertiary)
             }
             Text(record.map({ i < $0.moves.count ? $0.moves[i].notation : "" }) ?? "")

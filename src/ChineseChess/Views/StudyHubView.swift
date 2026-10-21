@@ -148,7 +148,7 @@ struct StudyHubView: View {
         } label: {
             HStack(spacing: LayoutSpec.space3) {
                 Image(systemName: "play.circle.fill")
-                    .font(.system(size: 40))
+                    .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                     .foregroundStyle(Color.accentColor)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(l10n.t(tutorialCompleted ? "study.tutorial.reviewTitle" : "study.tutorial.continueTitle"))
@@ -193,7 +193,7 @@ struct StudyHubView: View {
         NavigationLink(destination: destination) {
             VStack(spacing: 12) {
                 Image(systemName: icon)
-                    .font(.system(size: 32))
+                    .font(.system(size: LayoutSpec.fontSizeDisplay))
                     .foregroundStyle(color)
                     .frame(height: 40)
 

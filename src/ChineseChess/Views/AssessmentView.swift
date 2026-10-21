@@ -256,7 +256,7 @@ struct AssessmentView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "chart.bar.doc.horizontal")
-                .font(.system(size: 48))
+                .font(.system(size: LayoutSpec.fontSizeHero))
                 .foregroundColor(.secondary)
             Text(l10n.t("assessment.emptyTitle"))
                 .font(.headline)

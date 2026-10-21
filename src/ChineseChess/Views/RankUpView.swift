@@ -24,7 +24,7 @@ struct RankUpView: View {
             // 段位图标 + 标题
             VStack(spacing: 8) {
                 Image(systemName: newRank.icon)
-                    .font(.system(size: 48))
+                    .font(.system(size: LayoutSpec.fontSizeHero))
                     .foregroundColor(.yellow)
 
                 Text(l10n.t("rankup.title"))

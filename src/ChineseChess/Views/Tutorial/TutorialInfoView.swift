@@ -9,7 +9,7 @@ struct TutorialInfoView: View {
         VStack(spacing: 20) {
             // 图标
             Image(systemName: lesson.icon)
-                .font(.system(size: 56))
+                .font(.system(size: LayoutSpec.fontSizeHeroMax))
                 .foregroundColor(.accentColor)
                 .padding(.top, 20)
 

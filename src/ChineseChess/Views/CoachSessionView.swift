@@ -44,7 +44,7 @@ struct CoachSessionView: View {
     private var lockedView: some View {
         VStack(spacing: 16) {
             Image(systemName: "lock.circle")
-                .font(.system(size: 48))
+                .font(.system(size: LayoutSpec.fontSizeHero))
                 .foregroundColor(.gray)
 
             Text(String(format: l10n.t("coach.unlock.rank"), l10n.t("rank.master")))

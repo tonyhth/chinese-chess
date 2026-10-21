@@ -370,7 +370,7 @@ struct PuzzleDemoView: View {
             if selectedCategory == nil {
                 VStack(spacing: 12) {
                     Image(systemName: "square.grid.2x2")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("demo.selectCategory"))
                         .font(.title3)
@@ -380,7 +380,7 @@ struct PuzzleDemoView: View {
             } else if cachedListItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("demo.noData"))
                         .font(.title3)

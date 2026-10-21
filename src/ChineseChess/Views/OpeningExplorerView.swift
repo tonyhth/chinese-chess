@@ -289,7 +289,7 @@ struct OpeningExplorerView: View {
 
                                 if let subtitle = result.subtitle {
                                     Text(subtitle)
-                                        .font(.system(size: 9))
+                                        .font(.system(size: LayoutSpec.fontSizeFootnote))
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
                                         .truncationMode(.tail)
@@ -300,7 +300,7 @@ struct OpeningExplorerView: View {
                             Spacer()
 
                             Image(systemName: "arrow.right")
-                                .font(.system(size: 9))
+                                .font(.system(size: LayoutSpec.fontSizeFootnote))
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.vertical, LayoutSpec.space1)
@@ -446,7 +446,7 @@ struct OpeningExplorerView: View {
                     .help(l10n.t("opening.explorer.rootPosition"))
                 Spacer(minLength: LayoutSpec.space1)
                 Text("—")
-                    .font(.system(size: 11))
+                    .font(.system(size: LayoutSpec.fontSizeMedium))
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal, LayoutSpec.space2)
@@ -841,7 +841,7 @@ struct ExplorerNodeRow: View {
                 // 展开/折叠图标
                 if !node.isLeaf {
                     Image(systemName: node.isExpanded ? "chevron.down" : "chevron.right")
-                        .font(.system(size: 10))
+                        .font(.system(size: LayoutSpec.fontSizeSmall))
                         .foregroundStyle(.secondary)
                         .frame(width: 14, height: 14)
                         .contentShape(Rectangle())
@@ -864,7 +864,7 @@ struct ExplorerNodeRow: View {
                 // 数据诚信口径展示出现局数，偏差已回传）
                 if node.weight > 0 {
                     Text("\(node.weight)")
-                        .font(.system(size: 11).monospacedDigit())
+                        .font(.system(size: LayoutSpec.fontSizeMedium).monospacedDigit())
                         .foregroundStyle(isSelected ? AnyShapeStyle(Color.white.opacity(0.75))
                                                     : AnyShapeStyle(.secondary))
                         .lineLimit(1)

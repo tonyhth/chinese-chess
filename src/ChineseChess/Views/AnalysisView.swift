@@ -116,7 +116,7 @@ struct AnalysisView: View {
     private var lockedView: some View {
         VStack(spacing: 16) {
             Image(systemName: "lock.circle")
-                .font(.system(size: 48))
+                .font(.system(size: LayoutSpec.fontSizeHero))
                 .foregroundColor(.gray)
 
             Text(String(format: l10n.t("analysis.unlock.rank"), l10n.t("rank.scholar")))
@@ -226,17 +226,17 @@ struct AnalysisView: View {
     private func moveQualityBadge(index: Int, analysis: MoveAnalysis?) -> some View {
         VStack(spacing: 2) {
             Text("\(index + 1)")
-                .font(.system(size: 9))
+                .font(.system(size: LayoutSpec.fontSizeFootnote))
                 .foregroundColor(.gray)
 
             if let a = analysis {
                 Image(systemName: a.quality.symbolName)
-                    .font(.system(size: 14))
+                    .font(.system(size: LayoutSpec.fontSizeBodyLarge))
                     .foregroundColor(qualityColor(a.quality))
             } else if !analysisVM.isPlayerMove(at: index) {
                 // v4.0 Phase 3 #8: AI 走法步显示灰色 AI 标签
                 Text(l10n.t("analysis.aiMove"))
-                    .font(.system(size: 8))
+                    .font(.system(size: LayoutSpec.fontSizeMicro))
                     .foregroundColor(.gray.opacity(0.6))
             } else {
                 Circle()

@@ -22,6 +22,20 @@ enum LayoutSpec {
     static let fontSizeBody: CGFloat = 13
     static let fontSizeTitle: CGFloat = 15
 
+    // MARK: 字阶扩展档（T-1023-OC-01 P4-B6 全量收编：值=现存实测值，零视觉变化；
+    //  cellSize 相对字号为过程值不收编；Dynamic Type 换算沿 F5 登记可选未启用）
+
+    static let fontSizeNano: CGFloat = 7          // 极小角标（AnalysisView 评值）
+    static let fontSizeMicro: CGFloat = 8         // 微型角标
+    static let fontSizeFootnote: CGFloat = 9      // 脚注/评值行
+    static let fontSizeSmall: CGFloat = 10        // 小号辅助
+    static let fontSizeMedium: CGFloat = 11       // 中小辅助（monospacedDigit 计数）
+    static let fontSizeBodyLarge: CGFloat = 14    // 大正文
+    static let fontSizeDisplay: CGFloat = 32      // 展示位
+    static let fontSizeDisplayLarge: CGFloat = 40 // 大展示位（空态图标字号）
+    static let fontSizeHero: CGFloat = 48         // 主视觉数字
+    static let fontSizeHeroMax: CGFloat = 56      // 启动/成就主视觉
+
     // MARK: 面板规格（原则二：全 app 统一三档）
 
     static let panelWidthNarrow: CGFloat = 320

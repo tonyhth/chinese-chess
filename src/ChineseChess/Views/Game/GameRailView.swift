@@ -318,7 +318,7 @@ private struct RailPanel<Content: View>: View {
                         .foregroundColor(.secondary)
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 10))
+                        .font(.system(size: LayoutSpec.fontSizeSmall))
                         .foregroundColor(.secondary)
                         .rotationEffect(.degrees(collapsed ? -90 : 0))
                 }
@@ -400,7 +400,7 @@ private struct MoveRecordList: View {
                         }
                     } label: {
                         Label(l10n.t("p1.rail.backToLatest"), systemImage: "arrow.uturn.backward")
-                            .font(.system(size: 12))
+                            .font(.system(size: LayoutSpec.fontSizeCaption))
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.brown)

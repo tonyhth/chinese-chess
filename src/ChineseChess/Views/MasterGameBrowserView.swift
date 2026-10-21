@@ -932,7 +932,7 @@ struct MasterGameBrowserView: View {
     private var loadingView: some View {
         VStack(spacing: 16) {
             Image(systemName: "crown")
-                .font(.system(size: 40))
+                .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                 .foregroundStyle(.secondary)
             Text(L10n.shared.t("study.masterGame"))
                 .font(.title3)
@@ -964,7 +964,7 @@ struct MasterGameBrowserView: View {
             if cachedItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("master.noData"))
                         .font(.title3)
@@ -1020,7 +1020,7 @@ struct MasterGameBrowserView: View {
             } else if !masterStore.isLoaded {
                 VStack(spacing: 12) {
                     Image(systemName: "crown")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("demo.selectCategory"))
                         .font(.title3)
@@ -1040,7 +1040,7 @@ struct MasterGameBrowserView: View {
             } else if browseMode == .opening && selectedOpening == nil && selectedSubcategory == nil {
                 VStack(spacing: 12) {
                     Image(systemName: "rectangle.grid.2x2")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("demo.selectCategory"))
                         .font(.title3)
@@ -1054,7 +1054,7 @@ struct MasterGameBrowserView: View {
             if !masterStore.isLoaded {
                 VStack(spacing: 12) {
                     Image(systemName: "crown")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("demo.selectCategory"))
                         .font(.title3)
@@ -1077,7 +1077,7 @@ struct MasterGameBrowserView: View {
             } else if cachedItems.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "puzzlepiece.extension")
-                        .font(.system(size: 40))
+                        .font(.system(size: LayoutSpec.fontSizeDisplayLarge))
                         .foregroundStyle(.secondary)
                     Text(L10n.shared.t("master.noData"))
                         .font(.title3)
