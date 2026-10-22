@@ -177,7 +177,9 @@ struct V2215Tests {
                     let trimmed = line.trimmingCharacters(in: .whitespaces)
                     if trimmed.hasPrefix("//") { continue }
                     // 排除 cellSize 计算相关的动态字体（合理保留）
-                    if trimmed.contains(".system(size:") && !trimmed.contains("cellSize") {
+                    // P4-B2.5：排除 LayoutSpec 语义 token（B6 全量收编后 ".system(size: LayoutSpec.*)" 为合规形态
+                    // 非硬编码——守卫语义回归"裸数值魔法数跟踪"原旨，随收编批不再恶化）
+                    if trimmed.contains(".system(size:") && !trimmed.contains("cellSize") && !trimmed.contains("LayoutSpec.") {
                         hardcodedCount += 1
                         hardcodedFiles.append("\(file):\(i+1): \(trimmed)")
                     }

@@ -112,7 +112,7 @@ final class D5I18nAuditVerificationTests {
         let testCases: [(key: String, expected: String)] = [
             ("game.newGame", "New"),
             ("game.undoMove", "Undo"),
-            ("difficulty.lvl3", "Intermediate"),  // v6.2 断言清偿：difficulty 已迁移 lvlN 体系，旧键 amateurLow 不存在
+            ("difficulty.lvl3", "Amateur 3D"),  // v6.4.1 换轨现行表（Batch 2.5 期望值更新：原 Intermediate 为换轨漏网面）
             ("result.redWon", "Red Won"),
             ("result.draw", "Draw"),
         ]
@@ -132,7 +132,7 @@ final class D5I18nAuditVerificationTests {
         let testCases: [(key: String, expected: String)] = [
             ("game.newGame", "新局"),
             ("game.undoMove", "悔棋"),
-            ("difficulty.lvl3", "中级"),  // v6.2 断言清偿：difficulty 已迁移 lvlN 体系，旧键 amateurLow 不存在
+            ("difficulty.lvl3", "业余三段"),  // v6.4.1 换轨现行表（Batch 2.5 期望值更新：原 中级 为换轨漏网面）
             ("result.redWon", "红方胜"),
             ("result.draw", "和棋"),
         ]
