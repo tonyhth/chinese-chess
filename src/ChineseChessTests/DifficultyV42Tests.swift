@@ -140,40 +140,40 @@ struct DifficultyV42Tests {
         #expect(!candidates.isEmpty)
     }
 
-    // MARK: - 4. Pikafish skillLevel 重映射验证
+    // MARK: - 4. skillLevel 单源派生验证（Batch3 渐升梯重锚：skillLevel=s2Spec.skill，v4.2 硬编码通道退役）
 
-    @Test("v4.2 skillLevel: amateurDan(lvl6) = 0（从 4 改为 0）")
+    @Test("Batch3 skillLevel 派生: amateurDan(lvl6) = 9（梯表 s9）")
     func skillLevelAmateurDan() {
-        #expect(AIDifficulty.amateurDan.skillLevel == 0, "amateurDan skillLevel 应为 0")
+        #expect(AIDifficulty.amateurDan.skillLevel == 9, "amateurDan skillLevel 应为梯表 s9")
     }
 
-    @Test("v4.2 skillLevel: proApprentice(lvl7) = 4（从 7 改为 4）")
+    @Test("Batch3 skillLevel 派生: proApprentice(lvl7) = 11（梯表 s11）")
     func skillLevelProApprentice() {
-        #expect(AIDifficulty.proApprentice.skillLevel == 4)
+        #expect(AIDifficulty.proApprentice.skillLevel == 11)
     }
 
-    @Test("v4.2 skillLevel: proExpert(lvl8) = 7（从 10 改为 7）")
+    @Test("Batch3 skillLevel 派生: proExpert(lvl8) = 14（梯表 s14）")
     func skillLevelProExpert() {
-        #expect(AIDifficulty.proExpert.skillLevel == 7)
+        #expect(AIDifficulty.proExpert.skillLevel == 14)
     }
 
-    @Test("v4.2 skillLevel: proMaster(lvl9) = 10（从 13 改为 10）")
+    @Test("Batch3 skillLevel 派生: proMaster(lvl9) = 17（梯表 s17）")
     func skillLevelProMaster() {
-        #expect(AIDifficulty.proMaster.skillLevel == 10)
+        #expect(AIDifficulty.proMaster.skillLevel == 17)
     }
 
-    @Test("v4.2 skillLevel: grandmaster(lvl10) = 20（不变）")
+    @Test("Batch3 skillLevel 派生: grandmaster(lvl10) = 20（梯表 s20 官方锚延续）")
     func skillLevelGrandmaster() {
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
     }
 
-    @Test("v4.2 skillLevel: 业余级(lvl1-5) = nil")
+    @Test("Batch3 skillLevel 派生: 业余档（novice 缺省 a 形态=nil，lvl2-5=s2/s4/s5/s7）")
     func skillLevelAmateurNil() {
-        #expect(AIDifficulty.novice.skillLevel == nil)
-        #expect(AIDifficulty.beginner.skillLevel == nil)
-        #expect(AIDifficulty.amateurLow.skillLevel == nil)
-        #expect(AIDifficulty.amateurMid.skillLevel == nil)
-        #expect(AIDifficulty.amateurHigh.skillLevel == nil)
+        #expect(AIDifficulty.novice.skillLevel == nil, "缺省 a 形态自研载体无引擎刻度")
+        #expect(AIDifficulty.beginner.skillLevel == 2)
+        #expect(AIDifficulty.amateurLow.skillLevel == 4)
+        #expect(AIDifficulty.amateurMid.skillLevel == 5)
+        #expect(AIDifficulty.amateurHigh.skillLevel == 7)
     }
 
     // MARK: - 5. Softmax temperature 分级验证

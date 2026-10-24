@@ -12,13 +12,16 @@ struct V60Phase3RouterTests {
     // MARK: - 维度 4：路由逻辑
     // ============================
 
-    @Test("engineFor: 业余级 1-5 路由到 nativeEngine")
+    @Test("engineFor: lvl1-a 路由到 nativeEngine，lvl2-10 路由到 Pikafish（S2 载体契约，Batch3 重锚沿用）")
     func routeAmateurToNative() {
         let router = EngineRouter.shared
-        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
-            let engine = router.engineFor(difficulty: diff)
-            // nativeEngine 是 AIEngine 实例
-            #expect(engine is AIEngine, "业余级 \(diff.displayName) 应路由到 AIEngine")
+        // S2 后载体契约：novice 缺省 a 形态=自研 AIEngine；lvl2-10=usesPikafishEngine → EmbeddedPikafishEngine
+        // （原"业余级全走 native"断言随 T-1013 S2 载体换轨退役——本钉随 Batch3 扩圈清偿，失败模式 4 issues=恰 lvl2-5 四档实证）
+        #expect(router.engineFor(difficulty: .novice) is AIEngine, "novice 缺省 a 形态应路由到 AIEngine")
+        for diff in [AIDifficulty.beginner, .amateurLow, .amateurMid, .amateurHigh,
+                     .amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster] {
+            #expect(router.engineFor(difficulty: diff) is EmbeddedPikafishEngine,
+                    "\(diff.displayName) 应路由到 EmbeddedPikafishEngine")
         }
     }
 
@@ -153,20 +156,22 @@ struct V60Phase3FallbackTests {
 @Suite("v6.0 Phase 3: Skill Level 链路", .serialized)
 struct V60Phase3SkillLevelTests {
 
-    @Test("skillLevel 值与设计文档一致")
+    @Test("skillLevel 值与设计文档一致（Batch3 渐升梯单源派生）")
     func skillLevelValues() {
-        #expect(AIDifficulty.amateurDan.skillLevel == 0)     // v4.2 重映射
-        #expect(AIDifficulty.proApprentice.skillLevel == 4) // v4.2 重映射
-        #expect(AIDifficulty.proExpert.skillLevel == 7)    // v4.2 重映射
-        #expect(AIDifficulty.proMaster.skillLevel == 10)   // v4.2 重映射
+        #expect(AIDifficulty.amateurDan.skillLevel == 9)     // Batch3 梯表 s9
+        #expect(AIDifficulty.proApprentice.skillLevel == 11) // Batch3 梯表 s11
+        #expect(AIDifficulty.proExpert.skillLevel == 14)    // Batch3 梯表 s14
+        #expect(AIDifficulty.proMaster.skillLevel == 17)   // Batch3 梯表 s17
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
     }
 
-    @Test("业余级 skillLevel 为 nil")
+    @Test("业余档 skillLevel=梯表值（novice 缺省 a 形态 nil，lvl2-5 梯表派生）")
     func amateurSkillLevelNil() {
-        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
-            #expect(diff.skillLevel == nil)
-        }
+        #expect(AIDifficulty.novice.skillLevel == nil, "缺省 a 形态自研载体无引擎刻度")
+        #expect(AIDifficulty.beginner.skillLevel == 2)
+        #expect(AIDifficulty.amateurLow.skillLevel == 4)
+        #expect(AIDifficulty.amateurMid.skillLevel == 5)
+        #expect(AIDifficulty.amateurHigh.skillLevel == 7)
     }
 
     @Test("EmbeddedPikafishEngine 有 setSkillLevel 方法")
@@ -300,11 +305,13 @@ struct V60Phase3P1FixTests {
         }
     }
 
-    @Test("P1-2: 业余级 skillLevel 为 nil（业余级用 depth 控制而非 Skill Level）")
+    @Test("P1-2: 业余档 skillLevel=梯表派生（原 nil 口径随 Batch3 重锚退役：lvl2-5 亦有引擎刻度）")
     func amateurNoSkillLevel() {
-        for diff in [AIDifficulty.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh] {
-            #expect(diff.skillLevel == nil)
-        }
+        #expect(AIDifficulty.novice.skillLevel == nil, "缺省 a 形态自研载体无引擎刻度")
+        #expect(AIDifficulty.beginner.skillLevel == 2)
+        #expect(AIDifficulty.amateurLow.skillLevel == 4)
+        #expect(AIDifficulty.amateurMid.skillLevel == 5)
+        #expect(AIDifficulty.amateurHigh.skillLevel == 7)
     }
 
     // ============================
@@ -349,7 +356,7 @@ struct V60Phase3P1FixTests {
     @Test("P1 回归：Phase 3 原有测试仍通过")
     func regressionPhase3StillWorks() {
         #expect(AIDifficulty.allCases.count == 10)
-        #expect(AIDifficulty.amateurDan.skillLevel == 0)  // v4.2 重映射
+        #expect(AIDifficulty.amateurDan.skillLevel == 9)  // Batch3 梯表 s9
         #expect(AIDifficulty.grandmaster.skillLevel == 20)
         #expect(EngineAvailability.available == .available)
     }

@@ -89,4 +89,25 @@ struct T1023P4B3LadderTableTests {
             }
         }
     }
+
+    @Test("skillToDifficulty 就近映射（梯表派生运行时证据；CalibrationV3Tests 同口径——其 runner 通道被 KI-2026-0922-01 skip/only 撞车阻断）")
+    func skillToDifficultyNearestMapping() {
+        let saved = AIDifficulty.lvl1UsesPikafish
+        defer { AIDifficulty.lvl1UsesPikafish = saved }
+        // 缺省 a 形态：候选集=梯表 skill 非 nil 档（不含 novice），min(by: <) 并列取 allCases 序先
+        let expected: [(skill: Int, level: AIDifficulty)] = [
+            (0, .beginner),      // 距 s2=2 最近
+            (4, .amateurLow),    // s4 精确
+            (5, .amateurMid),    // s5 精确
+            (6, .amateurMid),    // 距 s5=s7=1 并列，序先者
+            (7, .amateurHigh),   // s7 精确
+            (10, .amateurDan),   // 距 s9=1（并列序先）
+            (13, .proExpert),    // 距 s14=1
+            (20, .grandmaster),  // s20 精确
+        ]
+        for row in expected {
+            #expect(SelfPlayRunner.skillToDifficulty(row.skill) == row.level,
+                    "Skill \(row.skill) 应就近映射到 \(row.level.rawValue)")
+        }
+    }
 }

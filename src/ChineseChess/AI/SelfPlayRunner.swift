@@ -933,8 +933,8 @@ extension SelfPlayRunner {
                 board.execute(move)
             } else {
                 // Pikafish 走棋
-                // v2.1: 使用 .amateurLow（skillLevel 返回 nil），避免 bestMove 内部覆盖外部 override
-                // 同时 depth=10（比 .amateurHigh depth=24 快很多），校准变量更干净
+                // v2.1+Batch3: 占位 .amateurLow——外部 override 存活期 s2SkillToApply 不插手（guard externalOverride），
+                // s2LockTable 强制 depth=0 + 显式 timeLimitMs 透传，校准变量干净（旧"skillLevel=nil/depth=10"口径随重锚退役）
                 if let skillOverride = pikafishSkillOverride {
                     await pikafishEngine.setSkillLevel(skillOverride)
                 }
@@ -1241,8 +1241,8 @@ extension SelfPlayRunner {
 
             // 校准 v3.0: 如果有 skillOverride，手动设置 Skill Level
             // bestMove 内部检测 lastSkillOverride != nil 时自动强制 depth=0
-            // ⚠️ 必须传 skillLevel=nil 的 difficulty（如 .amateurLow），否则 bestMove 内部
-            // 会用 difficulty.skillLevel 覆盖我们手动设的 Skill Level（P0 fix）
+            // ⚠️ 占位难度 .amateurLow：手动 setSkillLevel 的 override 存活期 bestMove 不插手
+            // （s2SkillToApply guard externalOverride==nil；Batch3 后 skillLevel=梯表派生，防护来自 override 守卫，P0 fix 语义不变）
             if let skill = skillOverride {
                 await engine.setSkillLevel(skill)
             }
@@ -1650,8 +1650,8 @@ func runPikafishMatchFromCLI() async {
             await engine.setSkillLevel(skill)
             
             let fen = FENParser.generate(board: board)
-            // 传 .amateurLow（skillLevel=nil）避免 bestMove 内部覆盖手动设的 Skill
-            // amateurLow 的 depth=10 + timeLimitMs=1000 控制搜索（v2.1 校准优化）
+            // 占位 .amateurLow：override 存活期 bestMove 不插手（s2SkillToApply 守卫，Batch3 口径）
+            // s2LockTable depth=0 + 显式 timeLimitMs=1000 控制搜索（v2.1 校准优化）
             guard let bestMove = await engine.bestMove(
                 fen: fen, moveHistory: [], difficulty: .amateurLow, timeLimitMs: 1000
             ),
