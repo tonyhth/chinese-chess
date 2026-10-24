@@ -26,3 +26,8 @@
 - tag v6.4.2（定版 a26d902，镜像 8f9df43 形态；iOS 子工程版本同步 1cfd109）
 - T-1021-OC-01：教练应答走人类走子通道被双执方门拒——applyMove 核心段剥离+makeCoachMove 专用通道（5ce0fa2，含 T1021CoachSideGateTests 回归钉 119L）
 - 门禁：6/6 exit 0 + Tina 复验 PASS（60 线归属勘误底实证）→done 终销
+
+## v6.4.3 —— patch 批：P4 Batch 1/2/2.5 修复+校准 harness（2026-10-24）
+- tag v6.4.3（定版 b172bc3，双 yml 同原子；pbxproj xcodegen 再生 ×4）
+- T-1023-OC-01·P4：A2 UIScreen.main→GeometryReader 容器实测（cf37777）；B6 LayoutSpec 字阶 10 token 收编 27 站点零视觉变化（a0dbbcb）；B10 OpeningBook 索引层解耦（9754a84）；humanSide 环境依赖隔离（694a68a，KI 锚）；B1/B2/B3 文档修批（496d67a）；calibrate-pf 双侧独立 movetime harness（a24eb91）；V2215 语义豁免+D5I18n 换轨清偿（a76a1e9）
+- 门禁：BUILD_RC=0 + 七套件 7/7 PASS（零豁免触发）
