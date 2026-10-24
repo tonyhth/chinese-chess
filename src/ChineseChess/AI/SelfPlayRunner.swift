@@ -1065,15 +1065,12 @@ extension SelfPlayRunner {
     /// 将任意 Skill 值 (0-20) 映射到最近的 AIDifficulty 枚举占位
     /// 实际 Skill 由 skillOverride 控制
     static func skillToDifficulty(_ skill: Int) -> AIDifficulty {
-        // 专业级枚举有 skillLevel，选最近的
-        let mapping: [(AIDifficulty, Int)] = [
-            (.amateurDan, 0),
-            (.proApprentice, 4),
-            (.proExpert, 7),
-            (.proMaster, 10),
-            (.grandmaster, 20),
-        ]
-        return mapping.min(by: { abs($0.1 - skill) < abs($1.1 - skill) })?.0 ?? .amateurDan
+        // Batch3 单源转正：占位映射以 Enums 梯表为唯一来源（禁散落字面量，洪涛单源纪律）；
+        // 实际 Skill 由 skillOverride 控盘，占位仅承载横幅显示与 bestMove 载体路由
+        let candidates = AIDifficulty.allCases.filter { $0.s2Spec.skill != nil }
+        return candidates.min(by: {
+            abs(($0.s2Spec.skill ?? 0) - skill) < abs(($1.s2Spec.skill ?? 0) - skill)
+        }) ?? .beginner
     }
 
     /// 纯 Pikafish 自对弈：红方 Skill A vs 黑方 Skill B
@@ -1908,7 +1905,11 @@ func runCalibratePfFromCLI() async {
     print("  Pikafish 内部对弈校准")
     print("  Skill\(skillA) vs Skill\(skillB)")
     print("  \(games) 局，最多 \(maxMoves) 步/局")
-    print("  movetime：引擎A(Skill\(skillA))=\(redBudget)ms 引擎B(Skill\(skillB))=\(blackBudget)ms（换手随引擎槽位交换颜色归属）")
+    // T-1026 §五纪要随批（Batch3 注记⑤）：批头 moveTimeMs 缺省位文案随 per-side 旗标更新
+    let movetimeNote = (movetimeRedOverride == nil && movetimeBlackOverride == nil)
+        ? "缺省 moveTimeMs=\(moveTimeMs)ms，--movetime-red/--movetime-black 可按侧覆盖"
+        : "per-side 旗标生效，未设侧回落 moveTimeMs=\(moveTimeMs)ms"
+    print("  movetime：引擎A(Skill\(skillA))=\(redBudget)ms 引擎B(Skill\(skillB))=\(blackBudget)ms（换手随引擎槽位交换颜色归属；\(movetimeNote)）")
     print("═══════════════════════════════════════════")
     print("")
 

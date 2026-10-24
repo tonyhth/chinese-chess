@@ -281,7 +281,8 @@ actor EmbeddedPikafishEngine: ChessEngine {
         // 外部 override（--calibrate/pfmatch 的显式 setSkillLevel 控盘）存活期间难度应用不插手，
         // 且此角落旧码会被 difficulty.skillLevel 反覆盖、新码 override 存活（行为增强，已申报）
         let s2 = difficulty.s2Spec
-        let s2LockTable = s2.usesPikafish && !s2.transitionSlot
+        // T-1023 P3 Batch3 重锚转正：过渡位（lvl6-9）镜像消费退役，全部 Pikafish 档 depth=0+预算从表（单源纪律）
+        let s2LockTable = s2.usesPikafish
         if let toApply = AIDifficulty.s2SkillToApply(difficulty: difficulty,
                                                      externalOverride: lastSkillOverride,
                                                      lastApplied: lastAppliedSkill) {

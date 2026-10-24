@@ -133,20 +133,23 @@ final class SelectionConsistencyTests {
         L10n.shared.setLanguage("zh-Hans")
     }
 
-    @Test("①-7 专业级口径：isProfessional ⇔ skillLevel 非 nil，五专业级 Skill 值对表")
+    @Test("①-7 载体口径（Batch3 重锚）：usesPikafishEngine ⇔ skillLevel 非 nil（单源派生），isProfessional 五档 UI 分组维持")
     func difficultyProfessionalConsistency() {
         for d in AIDifficulty.allCases {
-            #expect(d.isProfessional == (d.skillLevel != nil),
-                    "\(d.rawValue) isProfessional 与 skillLevel 口径冲突")
+            // 单源派生自洽：梯表 usesPikafish 行 skill 必非 nil，自研行必 nil（skillLevel=s2Spec.skill）
+            #expect((d.skillLevel != nil) == d.usesPikafishEngine,
+                    "\(d.rawValue) skillLevel 与载体口径冲突（单源派生应自洽）")
         }
-        #expect(AIDifficulty.amateurDan.skillLevel == 0)     // v4 重映射（4→0）
-        #expect(AIDifficulty.proApprentice.skillLevel == 4)  // v4 重映射（7→4）
-        #expect(AIDifficulty.proExpert.skillLevel == 7)      // v4 重映射（10→7）
-        #expect(AIDifficulty.proMaster.skillLevel == 10)     // v4 重映射（13→10）
-        #expect(AIDifficulty.grandmaster.skillLevel == 20)
-        for d in AIDifficulty.allCases where !d.isProfessional {
-            #expect(d.skillLevel == nil)
+        for d in AIDifficulty.allCases where d.isProfessional {
+            #expect(d.usesPikafishEngine && d.skillLevel != nil,
+                    "\(d.rawValue) 专业级必须为 Pikafish 载体且有引擎刻度")
         }
+        // 专业级五档 UI 分组口径维持（与引擎刻度有意分离）
+        #expect(AIDifficulty.amateurDan.isProfessional)
+        #expect(AIDifficulty.proApprentice.isProfessional)
+        #expect(AIDifficulty.proExpert.isProfessional)
+        #expect(AIDifficulty.proMaster.isProfessional)
+        #expect(AIDifficulty.grandmaster.isProfessional)
     }
 
     @Test("①-8 l10n 长名 ↔ displayName 同源一致（P1-2 后 displayName 即 l10n 单源读取，本测试锚定 key 映射正确性）")

@@ -125,17 +125,10 @@ enum AIDifficulty: CaseIterable, Codable {
         || self == .proMaster || self == .grandmaster
     }
 
-    /// Pikafish Skill Level（仅专业级有值）
-    var skillLevel: Int? {
-        switch self {
-        case .amateurDan:    return 0   // lvl6: v4 重映射（从 4 改为 0）
-        case .proApprentice: return 4   // lvl7: v4 重映射（从 7 改为 4）
-        case .proExpert:     return 7   // lvl8: v4 重映射（从 10 改为 7）
-        case .proMaster:     return 10  // lvl9: v4 重映射（从 13 改为 10）
-        case .grandmaster:   return 20  // lvl10: 不变
-        default:             return nil
-        }
-    }
+    /// Pikafish Skill Level（Batch3 渐升梯重锚后=单源派生 s2Spec.skill：lvl2-10 Pikafish 档均有值，lvl1-a 自研 nil）。
+    /// 旧 lvl6-10 硬编码通道（0/4/7/10/20，v4 重映射）随 2026-10-24 方案 A 重锚退役——梯表为唯一真相源（洪涛单源纪律）；
+    /// 专业级 UI 分组口径见 isProfessional（与引擎刻度有意分离）
+    var skillLevel: Int? { s2Spec.skill }
 
     // MARK: - T-1013-OC-03 S2 难度体系 v2.2 单源参数表（v65-v3 §8①：skill/预算映射表单源，禁散落 if）
 
@@ -159,29 +152,36 @@ enum AIDifficulty: CaseIterable, Codable {
     }
 
     /// lvl1 载体形态开关（v2.2 §2.1 五缺口④）：false=选项 a 自研 hard-d1 维持【默认基线】；
-    /// true=选项 b Pikafish skill0+movetime≤1000ms（隔离可换，洪涛裁定⑥定案（T-1015-OC-01），一键切）
+    /// true=选项 b Pikafish skill0+movetime≤1000ms（隔离可换，洪涛裁定⑥定案（T-1015-OC-01），一键切）。
+    /// Batch3 重锚回填（plan v1.1 注记④）：b 形态行=梯表 lvl1 豁免位 s0@1000/ladderElo 1000（方案 A 采定表；
+    /// 丹妮 10-24 22:4x 确认 movetime 首值 1000 系定稿，转达 500 系笔误）；开关本身维持现状，Luke 裁否权不变
     static var lvl1UsesPikafish = false
 
-    /// S2 锁表参数（v0.3.1 §2.1/§2.3）：lvl2-5=s0/s4/s7/s10（R2 锚）@5000/5000/5000/10000；
-    /// lvl6-9=现行实现维持（过渡位）；lvl10=s20 官方锚延续；lvl1=默认 a（自研 hard-d1，豁免档）
+    /// S2 锁表参数（T-1023 P3 Batch3 渐升梯重锚，2026-10-24 洪涛裁定方案 A；真相源=t1023-remediation-plan v1.1 §五首项表
+    /// + T-1026 §三方案 A 定稿/§四链式 ladderElo，s0=1000 基）：
+    /// 三轴单源——skill 严格递增 s0/s2/s4/s5/s7/s9/s11/s14/s17/s20 ｜ movetime lvl2 起非降 500→5000 ｜ ladderElo 非降 1000→≈3170；
+    /// lvl1=豁免位（裁定⑥ movetime≤1000ms 锁值，ladderExempt）；调用处禁散落字面量（单源纪律，Ruby 审查点）。
+    /// 消费转正：lvl6-9 过渡位镜像通道（skillLevel/mapDifficulty 旧映射）退役，全部 Pikafish 档 depth=0+预算从表
+    /// （EmbeddedPikafishEngine.bestMove s2LockTable=usesPikafish）；段距 ≥100 门按方案 A 放宽为非降（C7 边承载）
     var s2Spec: S2LevelSpec {
         switch self {
         case .novice:
-            // lvl1-a budgetMs=自研预算帽（AIEngine noviceSearch/noviceSearchScored 消费，P3-② 单源化）
+            // lvl1 豁免位：a=自研预算帽（AIEngine noviceSearch/noviceSearchScored 消费，P3-② 单源化）；
+            // b=梯表 lvl1 行（Pikafish s0@1000，豁免档裁定⑥锁值）
             return Self.lvl1UsesPikafish
                 ? S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 1000, ladderElo: 1000, transitionSlot: false, ladderExempt: true)
                 : S2LevelSpec(usesPikafish: false, skill: nil, budgetMs: 2000, ladderElo: 1000, transitionSlot: false, ladderExempt: true)
-        case .beginner:      return S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 5000, ladderElo: 1280, transitionSlot: false, ladderExempt: false)
-        case .amateurLow:    return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 5000, ladderElo: 1777, transitionSlot: false, ladderExempt: false)
-        case .amateurMid:    return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 5000, ladderElo: 2268, transitionSlot: false, ladderExempt: false)
-        case .amateurHigh:   return S2LevelSpec(usesPikafish: true, skill: 10, budgetMs: 10000, ladderElo: 2568, transitionSlot: false, ladderExempt: false)
-        // P3-② 披露：以下 4 过渡位行=声明镜像（skill/budgetMs 实际消费走 skillLevel/mapDifficulty 旧通道，
-        // 数值与现行实现一致已亲验——单源对此 4 行为文档性；重锚定案后由后续单转正消费）
-        case .amateurDan:    return S2LevelSpec(usesPikafish: true, skill: 0, budgetMs: 5000, ladderElo: 1280, transitionSlot: true, ladderExempt: false)
-        case .proApprentice: return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 6000, ladderElo: 1777, transitionSlot: true, ladderExempt: false)
-        case .proExpert:     return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 7000, ladderElo: 2268, transitionSlot: true, ladderExempt: false)
-        case .proMaster:     return S2LevelSpec(usesPikafish: true, skill: 10, budgetMs: 8000, ladderElo: 2568, transitionSlot: true, ladderExempt: false)
-        case .grandmaster:   return S2LevelSpec(usesPikafish: true, skill: 20, budgetMs: 10000, ladderElo: 3300, transitionSlot: false, ladderExempt: false)
+        case .beginner:      return S2LevelSpec(usesPikafish: true, skill: 2, budgetMs: 500, ladderElo: 1338, transitionSlot: false, ladderExempt: false)   // lvl2 s2@500
+        case .amateurLow:    return S2LevelSpec(usesPikafish: true, skill: 4, budgetMs: 700, ladderElo: 1712, transitionSlot: false, ladderExempt: false)   // lvl3 s4@700
+        case .amateurMid:    return S2LevelSpec(usesPikafish: true, skill: 5, budgetMs: 1000, ladderElo: 1801, transitionSlot: false, ladderExempt: false)  // lvl4 s5@1000
+        case .amateurHigh:   return S2LevelSpec(usesPikafish: true, skill: 7, budgetMs: 1400, ladderElo: 2056, transitionSlot: false, ladderExempt: false)  // lvl5 s7@1400
+        case .amateurDan:    return S2LevelSpec(usesPikafish: true, skill: 9, budgetMs: 2000, ladderElo: 2336, transitionSlot: true, ladderExempt: false)   // lvl6 s9@2000（过渡位标志保留=UI 分组语义，消费已转正单源）
+        case .proApprentice: return S2LevelSpec(usesPikafish: true, skill: 11, budgetMs: 2800, ladderElo: 2473, transitionSlot: true, ladderExempt: false)  // lvl7 s11@2800
+        // C7 薄弱边（lvl8↔lvl9，s14→s17 微差，T-1026 实测）：产品面以「高段渐进感」文案承载（高段打磨语义），
+        // 加局复核入缓裁池候后批（plan v1.1 §七）；本批以代码注记落位，UI 文案改写候具体文案令（L10n 锁表零触碰）
+        case .proExpert:     return S2LevelSpec(usesPikafish: true, skill: 14, budgetMs: 3600, ladderElo: 2627, transitionSlot: true, ladderExempt: false)  // lvl8 s14@3600
+        case .proMaster:     return S2LevelSpec(usesPikafish: true, skill: 17, budgetMs: 4400, ladderElo: 2700, transitionSlot: true, ladderExempt: false)  // lvl9 s17@4400
+        case .grandmaster:   return S2LevelSpec(usesPikafish: true, skill: 20, budgetMs: 5000, ladderElo: 3170, transitionSlot: false, ladderExempt: false) // lvl10 s20@5000 官方锚延续
         }
     }
 
@@ -193,7 +193,9 @@ enum AIDifficulty: CaseIterable, Codable {
     /// （GameRecord/RecordSummary 的 s2Migrated 标记单次应用），不入 AIDifficulty Codable 类型级
     /// （类型级钩子致新值腐蚀/旧档改写/设置面无落点三连——Ruby P1-2 + Luke 裁定）。
     /// 实码锚终值（Checkpoint 1 裁定 08:59）：生产实码 v4.2 重映射 lvl6=s0/lvl7=s4/lvl8=s7/lvl9=s10 →
-    /// 新锁表 lvl2=s0/lvl3=s4/lvl4=s7/lvl5=s10 全同锚零漂移；自研 old4/5≈1777→lvl3
+    /// 新锁表 lvl2=s0/lvl3=s4/lvl4=s7/lvl5=s10 全同锚零漂移；自研 old4/5≈1777→lvl3。
+    /// （Batch3 注记：2026-10-24 方案 A 梯表重锚后本映射保持冻结——用户数据迁移锚不随梯表重锚变动；
+    /// 就近档语义按新梯表复核仍成立：旧 lvl6(s0)→新 lvl2(s2) 差距 1 档内合规）
     static let s2MigrationMap: [String: String] = [
         "lvl4": "lvl3",   // 自研 old4≈old5（B5 实测）≈1777 → 新 lvl3 同锚就近（偏差≤1 档合规）
         "lvl5": "lvl3",   // 自研 old5 下限 1777（plan-b §1.3）→ 新 lvl3 同锚零漂移
@@ -215,21 +217,13 @@ enum AIDifficulty: CaseIterable, Codable {
     }
 
     /// T-1013-OC-03 P1-1（Ruby 全审修后重走）：skill 应用决策纯函数（可回归测试）——返回应推送的 skill（nil=不推）。
-    /// 优先级：外部 override 存活（非 nil）=不插手（calibrate/pfmatch 盘面）> difficulty.skillLevel（lvl6-10 旧语义）
-    /// > 锁表 spec.skill（lvl2-5 非过渡位）；脏检查：期望==已应用则不推（局中切档即时生效的关键：
+    /// 优先级：外部 override 存活（非 nil）=不插手（calibrate/pfmatch 盘面）> 单源梯表 spec.skill
+    /// （Batch3 重锚转正：全 Pikafish 档唯一来源；旧 difficulty.skillLevel 硬编码通道已退役为单源派生，无第二真相源）。
+    /// 脏检查：期望==已应用则不推（局中切档即时生效的关键：
     /// 旧 lastSkillOverride 守卫在首手置位后恒真，切档后期望值更新被吞=P1-1 滞留实锤位）
     static func s2SkillToApply(difficulty: AIDifficulty, externalOverride: Int?, lastApplied: Int?) -> Int? {
         guard externalOverride == nil else { return nil }
-        let spec = difficulty.s2Spec
-        let desired: Int?
-        if let skill = difficulty.skillLevel {
-            desired = skill
-        } else if spec.usesPikafish && !spec.transitionSlot {
-            desired = spec.skill
-        } else {
-            desired = nil
-        }
-        guard let desired else { return nil }
+        guard let desired = difficulty.s2Spec.skill else { return nil }
         return desired == lastApplied ? nil : desired
     }
 

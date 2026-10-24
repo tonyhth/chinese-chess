@@ -15,9 +15,9 @@ import Foundation
 @Suite("T1013OC03 S2 Relevel", .serialized)
 struct T1013OC03S2RelevelTests {
 
-    // MARK: - 单调性硬门（v2.2 §2.2 门 1：锁表段严格递增无并列；过渡位/豁免位按 §2.3 分层排除）
+    // MARK: - 单调性硬门（v2.2 门 1 锁表段严格递增无并列；段距 ≥100 门经 2026-10-24 方案 A 裁定放宽为全梯非降）
 
-    @Test("单调硬门：锁表段 lvl2-5 严格递增（1280<1777<2268<2568）")
+    @Test("单调硬门：锁表段 lvl2-5 严格递增（方案 A：1338<1712<1801<2056）")
     func monotonicLockedSegment() {
         let locked: [AIDifficulty] = [.beginner, .amateurLow, .amateurMid, .amateurHigh]
         let ladders = locked.map { $0.s2Spec.ladderElo }
@@ -27,48 +27,49 @@ struct T1013OC03S2RelevelTests {
         }
     }
 
-    @Test("单调硬门：过渡位分层排除后 lvl10 尾锚仍须高于锁表顶（lvl5=2568 < lvl10=3300）")
+    @Test("单调硬门：lvl10 尾锚仍须高于 lvl5（方案 A：lvl5=2056 < lvl10=3170）")
     func tailSegmentAboveLockedTop() {
         #expect(AIDifficulty.grandmaster.s2Spec.ladderElo > AIDifficulty.amateurHigh.s2Spec.ladderElo,
                 "过渡位 lvl6-9 分层排除后，lvl10 官方锚延续仍须高于锁表顶（结构衔接）")
     }
 
-    @Test("段距下限门：锁表段相邻天梯差 ≥100（v2.2 §2.2 门 2 锁值，T-1013-OC-02）")
+    @Test("梯距门（方案 A 放宽）：全梯 ladderElo 非降（10-24 裁定：≥100 段距门放宽为非降，C7 高段渐进感承载）")
     func segmentDistanceFloor() {
-        let locked: [AIDifficulty] = [.beginner, .amateurLow, .amateurMid, .amateurHigh]
-        let ladders = locked.map { $0.s2Spec.ladderElo }
+        let all: [AIDifficulty] = AIDifficulty.allCases
+        let ladders: [Int] = all.map { $0.s2Spec.ladderElo }
         for i in 0..<(ladders.count - 1) {
-            #expect(ladders[i + 1] - ladders[i] >= 100,
-                    "\(locked[i].rawValue)→\(locked[i + 1].rawValue) 天梯差 \(ladders[i + 1] - ladders[i]) < 100（防小档距体感反模式）")
+            #expect(ladders[i + 1] >= ladders[i],
+                    "\(all[i].rawValue)→\(all[i + 1].rawValue) 天梯 \(ladders[i])→\(ladders[i + 1]) 倒挂（方案 A 门=非降）")
         }
+        #expect(ladders.first == 1000 && ladders.last == 3170, "s0=1000 基→s20≈3170 尾锚（T-1026 §四链式）")
     }
 
     // MARK: - 锁表参数（v0.3.1 §2.1 锁数）
 
-    @Test("锁表参数：lvl2-5 载体/skill/预算逐档对表（R2-P1/P2 锚 + lvl5 现行 10000ms）")
+    @Test("锁表参数：lvl2-5 载体/skill/预算逐档对表（方案 A 梯表，2026-10-24 重锚）")
     func lockedTableParams() {
         let b = AIDifficulty.beginner.s2Spec
-        #expect(b.usesPikafish && b.skill == 0 && b.budgetMs == 5000, "lvl2=skill0@5000ms（R2-P1 锚）")
+        #expect(b.usesPikafish && b.skill == 2 && b.budgetMs == 500, "lvl2=s2@500ms（方案 A 梯表）")
         let l = AIDifficulty.amateurLow.s2Spec
-        #expect(l.usesPikafish && l.skill == 4 && l.budgetMs == 5000, "lvl3=skill4@5000ms（R2-P1/G-M1 段距 798）")
+        #expect(l.usesPikafish && l.skill == 4 && l.budgetMs == 700, "lvl3=s4@700ms（方案 A 梯表）")
         let m = AIDifficulty.amateurMid.s2Spec
-        #expect(m.usesPikafish && m.skill == 7 && m.budgetMs == 5000, "lvl4=skill7@5000ms（R2-P2/G-M2 段距 301）")
+        #expect(m.usesPikafish && m.skill == 5 && m.budgetMs == 1000, "lvl4=s5@1000ms（方案 A 梯表）")
         let h = AIDifficulty.amateurHigh.s2Spec
-        #expect(h.usesPikafish && h.skill == 10 && h.budgetMs == 10000, "lvl5=skill10@10000ms（现行标定沿用，保质期注记）")
+        #expect(h.usesPikafish && h.skill == 7 && h.budgetMs == 1400, "lvl5=s7@1400ms（方案 A 梯表）")
     }
 
-    @Test("过渡位维持现行：lvl6-9 skill/预算与 v4.2 现值一致（§2.3 维持现状）+ lvl10 官方锚延续")
-    func transitionSlotsUnchanged() {
-        #expect(AIDifficulty.amateurDan.s2Spec.skill == 0 && AIDifficulty.amateurDan.s2Spec.budgetMs == 5000
-                && AIDifficulty.amateurDan.s2Spec.transitionSlot, "lvl6 过渡位维持现行 s0@5000")
-        #expect(AIDifficulty.proApprentice.s2Spec.skill == 4 && AIDifficulty.proApprentice.s2Spec.budgetMs == 6000
-                && AIDifficulty.proApprentice.s2Spec.transitionSlot, "lvl7 过渡位维持现行 s4@6000")
-        #expect(AIDifficulty.proExpert.s2Spec.skill == 7 && AIDifficulty.proExpert.s2Spec.budgetMs == 7000
-                && AIDifficulty.proExpert.s2Spec.transitionSlot, "lvl8 过渡位维持现行 s7@7000")
-        #expect(AIDifficulty.proMaster.s2Spec.skill == 10 && AIDifficulty.proMaster.s2Spec.budgetMs == 8000
-                && AIDifficulty.proMaster.s2Spec.transitionSlot, "lvl9 过渡位维持现行 s10@8000")
-        #expect(AIDifficulty.grandmaster.s2Spec.skill == 20 && AIDifficulty.grandmaster.s2Spec.budgetMs == 10000
-                && !AIDifficulty.grandmaster.s2Spec.transitionSlot, "lvl10 官方锚延续非过渡位")
+    @Test("过渡位转正：lvl6-9 三轴已入方案 A 梯表（消费单源转正）+ 过渡位标志保留 + lvl10 官方锚 s20 延续")
+    func transitionSlotsReladder() {
+        #expect(AIDifficulty.amateurDan.s2Spec.skill == 9 && AIDifficulty.amateurDan.s2Spec.budgetMs == 2000
+                && AIDifficulty.amateurDan.s2Spec.transitionSlot, "lvl6=s9@2000（过渡位标志保留，消费已转正单源）")
+        #expect(AIDifficulty.proApprentice.s2Spec.skill == 11 && AIDifficulty.proApprentice.s2Spec.budgetMs == 2800
+                && AIDifficulty.proApprentice.s2Spec.transitionSlot, "lvl7=s11@2800")
+        #expect(AIDifficulty.proExpert.s2Spec.skill == 14 && AIDifficulty.proExpert.s2Spec.budgetMs == 3600
+                && AIDifficulty.proExpert.s2Spec.transitionSlot, "lvl8=s14@3600（C7 薄弱边起点：高段渐进感承载）")
+        #expect(AIDifficulty.proMaster.s2Spec.skill == 17 && AIDifficulty.proMaster.s2Spec.budgetMs == 4400
+                && AIDifficulty.proMaster.s2Spec.transitionSlot, "lvl9=s17@4400")
+        #expect(AIDifficulty.grandmaster.s2Spec.skill == 20 && AIDifficulty.grandmaster.s2Spec.budgetMs == 5000
+                && !AIDifficulty.grandmaster.s2Spec.transitionSlot, "lvl10=s20@5000 官方锚延续非过渡位")
     }
 
     // MARK: - L1 载体双形态（v2.2 §2.1 五缺口④：默认 a，b 隔离可换）
@@ -190,24 +191,24 @@ struct T1013OC03S2RelevelTests {
 
     // MARK: - P1-1 局中切档 skill 滞留回归（Ruby 全审修后重走）
 
-    @Test("P1-1 局中切档：切档→期望 skill 随切刷新（旧 lastSkillOverride 守卫滞留实锤位回归）")
+    @Test("P1-1 局中切档：切档→期望 skill 随切刷新（旧 lastSkillOverride 守卫滞留实锤位回归；Batch3 后单源梯表值）")
     func midGameSwitchResolution() {
-        // 局首首手：lvl4（新锁表 skill7）→ 推 7
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: nil) == 7)
+        // 局首首手：lvl4（梯表 s5）→ 推 5
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: nil) == 5)
         // 第二手同档：脏检查跳过（不重复推）
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: 7) == nil)
-        // 局中切 lvl2：期望 0（旧守卫在此滞留 7 = P1-1 实锤场景）
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .beginner, externalOverride: nil, lastApplied: 7) == 0)
-        // 低→高对称：lvl2 局中切回 lvl4 → 期望 7
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: 0) == 7)
-        // lvl6-10 局中互切：difficulty.skillLevel 旧语义消费（旧码每手无条件刷=新解析器等价）
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .proApprentice, externalOverride: nil, lastApplied: 10) == 4)
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .proMaster, externalOverride: nil, lastApplied: 4) == 10)
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: 5) == nil)
+        // 局中切 lvl2：期望 2（旧守卫在此滞留 5 = P1-1 实锤场景）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .beginner, externalOverride: nil, lastApplied: 5) == 2)
+        // 低→高对称：lvl2 局中切回 lvl4 → 期望 5
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurMid, externalOverride: nil, lastApplied: 2) == 5)
+        // lvl6-10 局中互切：Batch3 后同走单源梯表（旧 skillLevel 双通道已退役）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .proApprentice, externalOverride: nil, lastApplied: 9) == 11)
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .proMaster, externalOverride: nil, lastApplied: 11) == 17)
         // 外部 override 存活（--calibrate 通道）：难度应用不插手（nil=不推）
         #expect(AIDifficulty.s2SkillToApply(difficulty: .beginner, externalOverride: 7, lastApplied: 7) == nil)
         #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurLow, externalOverride: 0, lastApplied: 4) == nil)
-        // 过渡位（lvl6-9）无外部 override：difficulty.skillLevel 消费、spec 镜像不双推
-        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurDan, externalOverride: nil, lastApplied: 4) == 0)
+        // 过渡位 lvl6（无外部 override）：直接走单源梯表 s9（镜像双推面已随转正退役）
+        #expect(AIDifficulty.s2SkillToApply(difficulty: .amateurDan, externalOverride: nil, lastApplied: 4) == 9)
     }
 
     @Test("P1-1 外部 override 廊角申报：override≠nil 时 difficulty.skillLevel 不再反覆盖（行为增强已申报）")
