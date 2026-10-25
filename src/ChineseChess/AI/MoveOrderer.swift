@@ -129,7 +129,7 @@ struct MoveOrderer {
     // MARK: - 将军检测
 
     /// 判断走法是否会导致将军。
-    /// 在原 board 上 execute/undo，避免 snapshot 深拷贝开销。
+    /// 在 makeSearchBoard 值副本上 execute/undo（v3.9 D1 P1-5：值副本方案结构性消除原板改动风险；原"在原 board 上"注释与实现矛盾，T-1023 文档修批校正）。
     private func givesCheck<T: BoardReadable>(_ move: Move, on board: T) -> Bool {
         var workBoard = board.makeSearchBoard()
         workBoard.execute(move)
