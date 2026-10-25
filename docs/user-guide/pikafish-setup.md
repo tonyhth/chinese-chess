@@ -6,7 +6,7 @@
 
 ## 系统要求
 
-- macOS 12.0+ / iOS 17.0+
+- macOS 14.0+ / iOS 17.0+（T-1023 ①维更正 2026-10-25：LSMinimumSystemVersion=14.0 PlistBuddy 亲证+PRD v2.1 同口径；原书 12.0+ 系滞后两代笔误）
 - Pikafish 引擎可执行文件（macOS）
 
 ## 安装 Pikafish
