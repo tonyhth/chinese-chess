@@ -27,19 +27,19 @@ enum GameState: String, Equatable, Codable {
 
 // MARK: - AI 难度（v6.0: 10 级统一棋力系统）
 enum AIDifficulty: CaseIterable, Codable {
-    // 业余级（自研引擎）
+    // 业余序列（载体单源见 s2Spec.usesPikafish：lvl1-a 自研 hard-d1，lvl2-5 Pikafish）
     case novice        // 1级 入门
     case beginner      // 2级 初级
     case amateurLow    // 3级 中级
     case amateurMid    // 4级 高级
     case amateurHigh   // 5级 精通
 
-    // 棋士级（Pikafish Skill Level）
-    case amateurDan    // 6级 棋友 (Skill 0)
-    case proApprentice // 7级 棋手 (Skill 4)
-    case proExpert     // 8级 棋师 (Skill 7)
-    case proMaster     // 9级 大师 (Skill 10)
-    case grandmaster   // 10级 棋圣 (Skill 20)
+    // 棋士序列（Pikafish 载体；skill/movetime/ladderElo 三轴刻度单源=s2Spec 梯表，勿在此硬编码——O-T1 旧刻度尾注已撤）
+    case amateurDan    // 6级 棋友
+    case proApprentice // 7级 棋手
+    case proExpert     // 8级 棋师
+    case proMaster     // 9级 大师
+    case grandmaster   // 10级 棋圣
 
     // MARK: - rawValue（持久化用，lvl1-lvl10）
 
