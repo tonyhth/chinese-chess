@@ -197,40 +197,28 @@ final class DrawDetectionRealTests: XCTestCase {
     // GameMove.isCheck 正确记录
     // ============================================================
 
-    /// 走棋后 GameMove.isCheck 应正确反映是否将军
+    /// 走棋后 GameMove.isCheck 应正确反映是否将军（P3-N2 残面清偿：原 true 占位断言转真驱动）
     func testGameMove_IsCheck_Recorded() {
-        let board = Board(fen: FENParser.standardInitial)
-        let moves = MoveValidator.allLegalMoves(for: .red, on: board)
+        let sub = OpeningSubcategory(id: "test", name: "测试", firstMoves: ["h2e2"], gameCount: 1)
 
-        // 找一个将军走法（如果存在）
-        for move in moves {
-            board.execute(move)
-            let isCheck = MoveValidator.isInCheck(.black, on: board)
-            // 如果这步走法导致将军，isCheck 应为 true
+        // ① 安静着法不记将军：炮二平五（7,7)→(7,4) 非吃子且不将军
+        let quietVM = GameViewModel()
+        quietVM.coachConfig = CoachConfig(targetSubcategory: sub, aiDifficulty: .amateurLow, playerSide: .red)
+        quietVM.makeCoachMove(from: Position(row: 7, col: 7), to: Position(row: 7, col: 4))
+        XCTAssertEqual(quietVM.gameMoves.last?.isCheck, false, "安静着法 isCheck 应记录为 false")
 
-            // 简化：只验证 isInCheck 方法可调用
-            // 实际 GameMove.isCheck 在 GameViewModel.executeMove 中记录
-            XCTAssertTrue(true, "isCheck 检测方法可用")
-            return
-        }
+        // ② 将军着法记录 isCheck：红车 (3,3)→(3,4) 后同列 (1,4)/(2,4) 空，直将黑将 (0,4)
+        let checkVM = GameViewModel()
+        checkVM.coachConfig = CoachConfig(targetSubcategory: sub, aiDifficulty: .amateurLow, playerSide: .red)
+        checkVM.board = Board(fen: "4k4/9/9/3R5/9/9/9/9/9/4K4 w")
+        checkVM.makeCoachMove(from: Position(row: 3, col: 3), to: Position(row: 3, col: 4))
+        XCTAssertEqual(checkVM.gameMoves.last?.isCheck, true, "将军着法 isCheck 应记录为 true")
     }
 }
 
-// MARK: - #5 建议：添加 internal 测试辅助方法
-
-/*
- * 为了更直接测试和棋检测逻辑，建议在 GameViewModel 中添加：
- *
- * #if DEBUG
- * // MARK: - 测试辅助（仅 DEBUG）
- * internal func testGetHalfmoveClock() -> Int { halfmoveClock }
- * internal func testGetPositionFingerprints() -> [String: Int] { positionFingerprints }
- * internal func testCheckDrawCondition() -> Bool {
- *     return halfmoveClock >= 100 ||
- *            positionFingerprints[boardFingerprint(), default: 0] >= 3 ||
- *            detectPerpetualCheck()
- * }
- * #endif
- *
- * 这样测试可以直接调用 `vm.testCheckDrawCondition()` 等方法。
- */
+// MARK: - #5 自留 TODO 销账注记（P3-N2 残面清偿 2026-10-27）
+// 原建议的 internal 测试辅助已落地：testGetHalfmoveClock/testGetPositionFingerprints/
+// testSetHalfmoveClock/testRunCheckGameState 已在 GameViewModel（DEBUG 块）在位，
+// 由本文件自然限着/三次重复真驱动用例消费；
+// 原建议的 testCheckDrawCondition（100 半着字面量）口径已废——阈值移入单源
+// DrawDetectionRules（120 半着），边界行为由 testNaturalDraw_Boundary119NoDraw_120Draw 钉住。

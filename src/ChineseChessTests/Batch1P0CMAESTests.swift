@@ -4,7 +4,10 @@ import Testing
 
 // MARK: - 第一批次 P0: CMAESOptimizer 权重注入 + 参数顺序修复
 
-@Suite("CMA-ES P0: evaluateFitness 权重注入恢复")
+// T-1023 测试面批注（2026-10-27）：套件内 4 测试中 3 个改 EvalConfigManager.shared，
+// Swift Testing 默认套件内并行 → 注入/还原/断言互相踩踏（实测 positionWeight 1.0≠3.0）。
+// .serialized 对齐 EvalWeightsTests 先例（同为动 shared 的套件）。
+@Suite("CMA-ES P0: evaluateFitness 权重注入恢复", .serialized)
 struct CMAESWeightInjectionTests {
 
     @Test("EvalConfigManager.setWeights 注入自定义权重")

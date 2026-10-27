@@ -79,4 +79,19 @@ struct PuzzleDrawDetectionP4Tests {
         // （120 边界行为由 Game 侧 testNaturalDraw_Boundary119NoDraw_120Draw 钉住，此处钉单源引用存在性）
         #expect(DrawDetectionRules.naturalDrawHalfmoveLimit == 120, "自然限着阈值单源应为 120 半着（60 回合）")
     }
+
+    @Test("无进攻子力判和：双侧仅剩将/士/象 → checkDraw 直真（P3-N2 残面）")
+    func insufficientOffensiveMaterialDraw() {
+        // checkDraw 第三分支（dim2 :197 登记的两侧不对称面）：历史零覆盖——
+        // 黑：士 (0,3) + 将 (0,5)；红：帅 (9,3) + 士 (9,5)——全盘无车马炮卒
+        // 摆位纪律①：FEN 行宽必须恰 9 列（FENDecoder :70 col==9 guard，超宽即拒）——
+        // 首版 3a1k4=10 列被拒后 Board 静默回退标准开局，症状为 checkDraw 恒 false
+        // 摆位纪律②：双将异列（col5/col3）避对脸
+        let vm = makeVM(fen: "3a1k3/9/9/9/9/9/9/9/9/3K1A3 w")
+        #expect(vm.testCheckDrawNow() == true, "双侧无进攻子力应直真判和（无进攻子力分支）")
+
+        // 负对照：补一匹马恢复进攻子力 → 分支转假（非和局）
+        vm.board = Board(fen: "3a1k3/9/9/9/9/9/9/4N4/9/3K1A3 w")
+        #expect(vm.testCheckDrawNow() == false, "补马后存在进攻子力，不得判和")
+    }
 }
