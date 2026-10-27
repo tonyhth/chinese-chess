@@ -96,7 +96,7 @@
 | `docs/tech-debt.md` | `docs/general/tech-debt.md` | 技术债务登记册，归入 general/ |
 | `docs/test-debt-cleanup.md` | `docs/general/test-debt-cleanup.md` | 测试技术债清理方案，归入 general/ |
 | `docs/test-infra-fix.md` | `docs/general/test-infra-fix.md` | 测试基础设施修复方案（v1），归入 general/（与 test-infra-redesign.md v3 并列保留。**P2-1 修复**：迁移后在两个文件头部各加交叉引用注释：<br>test-infra-fix.md 头部加 `> ℹ️ 初版方案，修订版见 test-infra-redesign.md（v3，Vera 复查后定稿）` <br>test-infra-redesign.md 头部加 `> ℹ️ v3 修订版（Vera 复查后定稿），初版见 test-infra-fix.md`） |
-| `docs/需求功能说明书.md` | `docs/general/需求功能说明书.md` | PRD 文档，归入 general/ |
+| `docs/需求功能说明书.md` | `docs/general/需求功能说明书.md` | PRD 文档，归入 general/（⑥ 清退注记 2026-10-27：general 副本与 docs/archive/需求功能说明书-v1.1-2026-08-08-archived.md 逐字节相同，已自 general/ 清退；真相源=docs/需求功能说明书.md v2.1） |
 | `docs/README.md` | 不移动（保留在根级） | 文档索引，应在根级 |
 
 ### 2.3 active/ 已交付文档归档
