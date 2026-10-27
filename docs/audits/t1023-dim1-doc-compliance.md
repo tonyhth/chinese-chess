@@ -168,5 +168,5 @@
 - **v4.1-phase7.2-swift-testing-filter.md**（Swift Testing Filter 调研）=**类 5 调研件销项**：消费凭证=测试基建演进链（test-runner→run-tests-mutex.sh H-1）｜处置：销项
 - **bayeselo 系终裁**：2 件在盘（bayeselo-dual-layer-calibration-report.md+bayeselo-three-anchor-summary-template.md，docs/design/）——**T-1022 校准域归属**，本检查只登记在盘不对照（difficulty-v3 数据源引用链已在 difficulty-v3 件判定中覆盖）｜处置：登记，移交 T-1022 视域
 - **coach 系终裁**：设计件定位=**docs/proposals/coach-explainer-enhancement.md**（proposals 目录，在 Cody design/ 探测面外）+教练执方门修复链 docs/plans/T-1021-OC-01｜**CoachModeOverlay 未集成（v3.9 D4 P2-3）维持仍开放**（ChineseChessApp.swift 852L 零引用）→P3 整改候选；coach 功能链细查归②维 Tina；独立 design 件缺位=设计债登记（P3 文档批）
-- **引用卫生候选**：v4.0-×6/v4.1-×3 引用链中探测全失的件名（v4.0-plan/v4.1-opening-bugfix 等）=「引用存在但文件不存在」候选，P4 文档修批核对引用卫生时一并清
+- **引用卫生候选**：v4.0-×6/v4.1-×3 引用链中探测全失的件名（v4.0-plan/v4.1-opening-bugfix 等）=「引用存在但文件不存在」候选，P4 文档修批核对引用卫生时一并清｜**处置（⑤ 清偿 2026-10-27 Batch3-C）：销项**——全 docs 双模式复扫亲证：带 .md 后缀件名引用 8 种全实存（v4.1-plan×12/v4.0-analysis-optimization×11/v4.0-daily-challenge-modes×9 等）；无后缀死名（v4.0-plan/v4.1-opening-bugfix/v4.0-coach）audits 登记行外零命中——候选系探测猜测名非实引用，无清理面
 - **代码定位缺口登记**（逻辑面已销项，定位注记归 P4 文档批，不影响结论）：DailyChallengeManager.swift/CommentaryEngine.swift（类型引用实证、文件路径未定位）/SearchBoard 类型定义文件（使用实证充分）
