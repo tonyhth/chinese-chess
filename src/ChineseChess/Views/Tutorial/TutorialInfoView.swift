@@ -46,5 +46,5 @@ struct TutorialInfoView: View {
         descriptionKey: "tutorial.lesson0.description",
         icon: "rectangle.grid"
     ))
-    .preferredColorScheme(.dark)
+    // F7（T-1023 功能打磨批 2026-10-28）：视图层强制深色撤除——App 层 F2 已全局强制深色，此处重复声明为死代码面
 }

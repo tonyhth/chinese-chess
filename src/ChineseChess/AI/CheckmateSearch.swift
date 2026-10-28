@@ -68,13 +68,10 @@ struct CheckmateSearch {
             }
 
             // 对方有应将走法：必须验证所有应将后我方都能赢，才是强制将杀
-            let maxResponses = 8
-            let opponentMovesToCheck: [Move]
-            if opponentMoves.count > maxResponses {
-                opponentMovesToCheck = Array(opponentMoves.sorted { moveScore($0, on: board) > moveScore($1, on: board) }.prefix(maxResponses))
-            } else {
-                opponentMovesToCheck = opponentMoves
-            }
+            // P3-N1 清偿（T-1023 功能打磨批 2026-10-28）：原 prefix(8) 排序剪枝留假阳性域
+            // （第 9+ 应将未校验，破杀局面被误判强制将杀）——改全量校验；
+            // 成本由调用方 killTimeLimit=750ms 显式常量与 dfs 超时守卫兜底
+            let opponentMovesToCheck: [Move] = opponentMoves.sorted { moveScore($0, on: board) > moveScore($1, on: board) }
 
             var allResponsesWin = true
             for response in opponentMovesToCheck {

@@ -150,12 +150,11 @@ actor PositionAnalyzer {
             return embedded
         }
 
-        #if DEBUG
+        // 错误码上抛+os_log 常开（T-1023 功能打磨批 2026-10-28）：失败面日志撤 DEBUG 包裹改常开
+        //（Release 可观测），冗余 NSLog 撤除统一走 AppLog(os_log)
         let engineType = String(describing: type(of: engine))
         let isReady = (engine as? EmbeddedPikafishEngine)?.isReady ?? false
         AppLog.engine.error("[PositionAnalyzer] Engine not usable: type=\(engineType), isReady=\(isReady)")
-        #endif
-        NSLog("[PositionAnalyzer] Active engine is not EmbeddedPikafishEngine or not ready")
         return nil
     }
 

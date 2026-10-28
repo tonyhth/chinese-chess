@@ -298,7 +298,7 @@ struct AnalysisView: View {
                                 .font(.caption.weight(.medium))
                                 .foregroundColor(Color(red: 200/255, green: 160/255, blue: 100/255))
                             Text("\(v.cpAfter > 0 ? "+" : "")\(v.cpAfter)")
-                                .font(.system(size: 9, design: .monospaced))
+                                .font(.system(size: 11, design: .monospaced))
                                 .foregroundColor(.gray)
                         }
                     }

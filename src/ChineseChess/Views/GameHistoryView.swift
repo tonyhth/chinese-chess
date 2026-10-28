@@ -166,6 +166,7 @@ struct GameHistoryView: View {
                     TextField(l10n.t("history.searchPlaceholder"), text: $searchText)
                         .textFieldStyle(.plain)
                         .frame(width: 160)
+                        .onExitCommand { searchText = "" }  // P3-3 ESC 清除搜索（T-1023 功能打磨批）
                 }
             }
         }

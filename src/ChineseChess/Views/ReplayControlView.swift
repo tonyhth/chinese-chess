@@ -57,6 +57,7 @@ struct ReplayControlView: View {
                 }
                 .disabled(!viewModel.canGoBack)
                 .accessibilityLabel(l10n.t("replay.previous"))
+                .keyboardShortcut(.leftArrow, modifiers: [])  // P3-2 键盘快捷键（T-1023 功能打磨批）
 
                 Button(action: { viewModel.toggleAutoPlay() }) {
                     Image(systemName: viewModel.isAutoPlaying ? "pause.fill" : "play.fill")
@@ -72,6 +73,7 @@ struct ReplayControlView: View {
                 }
                 .disabled(!viewModel.canGoForward)
                 .accessibilityLabel(l10n.t("replay.next"))
+                .keyboardShortcut(.rightArrow, modifiers: [])  // P3-2 键盘快捷键（T-1023 功能打磨批）
 
                 Button(action: { viewModel.goToEnd() }) {
                     Image(systemName: "forward.end.fill")

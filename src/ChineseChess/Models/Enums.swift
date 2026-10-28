@@ -159,6 +159,8 @@ enum AIDifficulty: CaseIterable, Codable {
 
     /// S2 锁表参数（T-1023 P3 Batch3 渐升梯重锚，2026-10-24 洪涛裁定方案 A；真相源=t1023-remediation-plan v1.1 §五首项表
     /// + T-1026 §三方案 A 定稿/§四链式 ladderElo，s0=1000 基）：
+    /// 正式锚定登记（随批项 2026-10-28 并入；五点裁语 Q1=A，difficulty-system-v2.2-draft v1.7 §四落档）：
+    /// ladderElo 全轴由「框架建议」转「正式锚定」；C7 边加局复核与关键边加局仍列缓裁池候后批，加局后按实测回填、采定值不因加局回退。
     /// 三轴单源——skill 严格递增 s0/s2/s4/s5/s7/s9/s11/s14/s17/s20 ｜ movetime lvl2 起非降 500→5000 ｜ ladderElo 非降 1000→≈3170；
     /// lvl1=豁免位（裁定⑥ movetime≤1000ms 锁值，ladderExempt）；调用处禁散落字面量（单源纪律，Ruby 审查点）。
     /// 消费转正：lvl6-9 过渡位镜像通道（skillLevel/mapDifficulty 旧映射）退役，全部 Pikafish 档 depth=0+预算从表

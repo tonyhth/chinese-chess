@@ -170,6 +170,7 @@ struct ChessBoardView: View {
                 .position(posToCGPoint(pos, cellSize: cellSize, padding: padding))
                 .accessibilityLabel(l10n.t("board.legalMove"))
                 .accessibilityHint(String(format: l10n.t("board.legalMoveHint"), pos.col, pos.row))
+                .accessibilityAddTraits(.isButton)  // P3-5 a11y trait（T-1023 功能打磨批）：可点按走法目标
         }
 
         // 拖拽时显示当前拖拽棋子的合法走法

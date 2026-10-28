@@ -271,7 +271,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
         timeLimitMs: Int
     ) async -> String? {
         guard isReady else {
-            NSLog("[EmbeddedPikafishEngine] bestMove called before start(), returning nil")
+            AppLog.engine.error("[EmbeddedPikafishEngine] bestMove called before start(), returning nil")  // os_log 统一（功能打磨批）
             return nil
         }
 
@@ -427,7 +427,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
     /// 评估当前局面（单 PV）
     func evaluate(fen: String, moveHistory: [String], depth: Int, timeMs: Int) async -> AnalysisLine? {
         guard isReady else {
-            NSLog("[EmbeddedPikafishEngine] evaluate called before start(), returning nil")
+            AppLog.engine.error("[EmbeddedPikafishEngine] evaluate called before start(), returning nil")  // os_log 统一（功能打磨批）
             return nil
         }
 
@@ -472,6 +472,9 @@ actor EmbeddedPikafishEngine: ChessEngine {
                         pv: pv
                     ))
                 } else {
+                    // 错误码上抛（T-1023 功能打磨批 2026-10-28，KI 2026-08-29 长期建议落地）：
+                    // C 层失败码不再静默吞——surfaced 到 os_log（AppLog.engine.error 常开，Release 可观测）
+                    AppLog.engine.error("[EmbeddedPikafishEngine] pikafish_eval failed (r=\(ok)) depth=\(depth) timeMs=\(timeMs) fenPrefix=\(fen.prefix(40))")
                     continuation.resume(returning: nil)
                 }
             }

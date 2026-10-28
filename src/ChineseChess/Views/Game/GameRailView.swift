@@ -364,14 +364,14 @@ private struct MoveRecordList: View {
                         let blackNotation = moves.first(where: { $0.piece.side == .black })?.notation ?? ""
                         HStack(spacing: 4) {
                             Text("\(roundNo).")
-                                .font(.system(size: 12.5, design: .monospaced))
+                                .font(.system(size: 13, design: .monospaced))
                                 .foregroundColor(.secondary)
                                 .frame(width: 28, alignment: .leading)
                             Text(redNotation)
-                                .font(.system(size: 12.5, design: .monospaced))
+                                .font(.system(size: 13, design: .monospaced))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Text(blackNotation)
-                                .font(.system(size: 12.5, design: .monospaced))
+                                .font(.system(size: 13, design: .monospaced))
                                 .foregroundColor(.white.opacity(0.9))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
