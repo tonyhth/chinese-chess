@@ -121,7 +121,11 @@ final class EvalConfigManager {
         stateLock.lock()
         if isMonitoring {
             stateLock.unlock()
-            source.cancel()  // fd 由 cancel handler 关闭
+            // P2-1（Ruby 判词 2026-10-27）：源尚未 resume（suspended 态）事件不交付，
+            // 直接 cancel 不保证 cancel handler 执行——close(fd) 有泄漏窗口。
+            // resume-then-cancel：先使源进入已交付态再取消，确保 fd 关闭落地。
+            source.resume()
+            source.cancel()
             return
         }
         isMonitoring = true
