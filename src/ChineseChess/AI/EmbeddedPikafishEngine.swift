@@ -474,7 +474,7 @@ actor EmbeddedPikafishEngine: ChessEngine {
                 } else {
                     // 错误码上抛（T-1023 功能打磨批 2026-10-28，KI 2026-08-29 长期建议落地）：
                     // C 层失败码不再静默吞——surfaced 到 os_log（AppLog.engine.error 常开，Release 可观测）
-                    AppLog.engine.error("[EmbeddedPikafishEngine] pikafish_eval failed (r=\(ok)) depth=\(depth) timeMs=\(timeMs) fenPrefix=\(fen.prefix(40))")
+                    AppLog.engine.error("[EmbeddedPikafishEngine] pikafish_eval failed (r=\(ok)) depth=\(depth) timeMs=\(timeMs) fenPrefix=\(fen.prefix(40), privacy: .public)")  // P3-1 勘误：FEN 非敏感数据，显式 public 保 Release 诊断价值
                     continuation.resume(returning: nil)
                 }
             }

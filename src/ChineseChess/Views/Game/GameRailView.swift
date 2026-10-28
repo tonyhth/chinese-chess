@@ -366,7 +366,7 @@ private struct MoveRecordList: View {
                             Text("\(roundNo).")
                                 .font(.system(size: 13, design: .monospaced))
                                 .foregroundColor(.secondary)
-                                .frame(width: 28, alignment: .leading)
+                                .frame(width: 32, alignment: .leading)  // P3-2 勘误（Ruby 判词 2026-10-28）：28→32，三位数回合「100.」13pt 等宽不溢出
                             Text(redNotation)
                                 .font(.system(size: 13, design: .monospaced))
                                 .frame(maxWidth: .infinity, alignment: .leading)

@@ -38,24 +38,57 @@ struct CheckmateSearchTests {
 
     @Test("无杀法时返回 nil")
     func noCheckmate() {
-        // 初始局面，没有连将杀
+        // 初始局面，没有连将杀（P2-1 勘误 2026-10-28：占位断言转真实断言——初始局面 depth=4 内不存在强制连将杀，恒 nil）
         let board = Board()
         board.setCurrentTurn(.red)
 
         let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 4)
-        // 初始局面 depth=4 内不太可能有连将杀
-        // 不做严格断言，只验证不崩溃
-        _ = result
+        #expect(result == nil, "初始局面 depth=4 内不得报强制将杀")
     }
 
-    @Test("超时安全退出")
+    @Test("极短超时安全退出：初始局面恒无杀返回 nil")
     func checkmateSearchTimeout() {
         let board = Board()
         board.setCurrentTurn(.red)
-        // 极短超时
+        // 极短超时（P2-1 勘误 2026-10-28：占位断言转真实断言——初始局面不存在强制连将杀，超时/搜完两态均应 nil）
         let result = CheckmateSearch.search(board: LegacySearchBoard(from: board), for: .red, maxDepth: 12, timeLimitMs: 1)
-        // 超时应安全退出
-        _ = result
+        #expect(result == nil, "初始局面无论超时与否都不得报强制将杀")
+    }
+
+    @Test("≥9 应将局面全量校验契约：捕车拆将局面不得假阳性（P3-N1 回归锚，P2-1 补）")
+    func nineResponsesFullValidationContract() {
+        // 摆位推演（Ruby P2-1 回归锚；探针实证修正 2026-10-28）：红帅 (9,3)，红车 R1 (3,3)；
+        // 黑将 (0,4)，士 (0,3)/(0,5)，马 (2,2)/(2,6)，相 (4,2)/(4,6)，车 (3,1)/(3,8)
+        // R1 (3,3)→(3,4) 将（col4 直将，行1-2 空）；黑方应将恰 10 手：
+        //   士插 (1,4)×2（(0,3)/(0,5) 对角一步）｜马插 (1,4)×2（马腿 (2,3)/(2,5) 空）｜相插 (2,4)×2（象眼 (3,3)/(3,5) 空）｜
+        //   捕 R1×4（马 (2,2) 腿(2,3)/马 (2,6) 腿(2,5)/车 (3,1) 路(3,2)(3,3)/车 (3,8) 路(3,5)-(3,7) 全空）
+        // 纪律注：马腿=|Δ|=2 轴向一格（马 (2,2)→(1,4) 腿在 (2,3) 非 (1,2)）——首版摆位士占马腿致 4 手马应将全蹩，探针实证后修正
+        // 真值=非强制将杀（捕 R1 即拆将且红方再无攻击子）；旧 prefix(8) 剪枝在 10 应将面存在假阳性域
+        let rg = Piece(kind: .general, side: .red, position: Position(row: 9, col: 3), id: 8)
+        let bg = TestPieceFactory.blackGeneral(0, 4)
+        let rc = TestPieceFactory.makePiece(kind: .chariot, side: .red, position: Position(row: 3, col: 3))
+        let ba1 = TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 0, col: 3))
+        let ba2 = TestPieceFactory.makePiece(kind: .advisor, side: .black, position: Position(row: 0, col: 5))
+        let bh1 = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 2, col: 2))
+        let bh2 = TestPieceFactory.makePiece(kind: .horse, side: .black, position: Position(row: 2, col: 6))
+        let be1 = TestPieceFactory.makePiece(kind: .elephant, side: .black, position: Position(row: 4, col: 2))
+        let be2 = TestPieceFactory.makePiece(kind: .elephant, side: .black, position: Position(row: 4, col: 6))
+        let bc1 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 3, col: 1))
+        let bc2 = TestPieceFactory.makePiece(kind: .chariot, side: .black, position: Position(row: 3, col: 8))
+        let preCheck = Board(pieces: [rg, bg, rc, ba1, ba2, bh1, bh2, be1, be2, bc1, bc2])
+        preCheck.setCurrentTurn(.red)
+
+        // 前置断言：应将态黑方合法应将手数 ≥9（摆位自检，防夹具漂移静默通过）
+        let checked = Board(pieces: [rg, bg, rc, ba1, ba2, bh1, bh2, be1, be2, bc1, bc2])
+        checked.setCurrentTurn(.red)
+        let r1 = checked.piece(at: Position(row: 3, col: 3))
+        #expect(r1 != nil, "夹具红车应在位")
+        checked.execute(Move(piece: r1!, from: Position(row: 3, col: 3), to: Position(row: 3, col: 4), captured: nil))
+        let responses = MoveValidator.allLegalMoves(for: .black, on: checked)
+        #expect(responses.count >= 9, "应将手数应 ≥9（实测 \(responses.count)）——P3-N1 剪枝阈值面")
+
+        let result = CheckmateSearch.search(board: LegacySearchBoard(from: preCheck), for: .red, maxDepth: 8)
+        #expect(result == nil, "黑方可捕 R1 拆将且红方再无攻击子——全量校验下不得假阳性报杀")
     }
 }
 
