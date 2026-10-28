@@ -151,11 +151,10 @@ actor PositionAnalyzer {
         }
 
         // 错误码上抛+os_log 常开（T-1023 功能打磨批 2026-10-28）：失败面日志撤 DEBUG 包裹改常开
-        //（Release 可观测），冗余 NSLog 撤除统一走 AppLog(os_log)；P3-1 清偿（Ruby FP 判词）：引擎类型串显式
-        // .public（缺省 private 致 Release 显 <private> 诊断折损），诊断信息非敏感数据
+        //（Release 可观测），冗余 NSLog 撤除统一走 AppLog(os_log)
         let engineType = String(describing: type(of: engine))
         let isReady = (engine as? EmbeddedPikafishEngine)?.isReady ?? false
-        AppLog.engine.error("[PositionAnalyzer] Engine not usable: type=\(engineType, privacy: .public), isReady=\(isReady, privacy: .public)")
+        AppLog.engine.error("[PositionAnalyzer] Engine not usable: type=\(engineType), isReady=\(isReady)")
         return nil
     }
 
