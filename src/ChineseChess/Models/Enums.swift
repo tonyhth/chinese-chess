@@ -109,10 +109,11 @@ enum AIDifficulty: CaseIterable, Codable {
     static let amateurLevels: [AIDifficulty] = [.novice, .beginner, .amateurLow, .amateurMid, .amateurHigh]
     static let professionalLevels: [AIDifficulty] = [.amateurDan, .proApprentice, .proExpert, .proMaster, .grandmaster]
 
-    /// 候裁开关（Checkpoint 1 提案②随附，08:53 已报 dashboard）：true=过渡期选择器隐藏 lvl6-9
-    /// （迁移后无用户驻留、与 lvl2-5 同参数重复且 lvl6=s0 对 lvl5=s10 过渡倒挂；重锚定案后回填）；
-    /// Luke 裁否改 false 即回全表
-    static let transitionProfessionalPickerHidden = true
+    /// 过渡期开关（Checkpoint 1 提案②随附，08:53 已报 dashboard）：原 true=过渡期选择器隐藏 lvl6-9
+    /// （迁移后无用户驻留、与 lvl2-5 同参数重复且 lvl6=s0 对 lvl5=s10 过渡倒挂）。
+    /// B1-R3 裁定执行（2026-10-28，v6.5 评估 v1.2 R3）：过渡期结束（方案 A 重锚落码+ladderElo 正式锚定落档 v1.7），
+    /// 翻转 false=lvl6-9 回全表；底层数据源全程未动，仅可见集过滤解除
+    static let transitionProfessionalPickerHidden = false
 
     /// T-1013-OC-03 过渡期专业级选择器可见集（消费点：SettingsView/ToolbarView）
     static var visibleProfessionalLevels: [AIDifficulty] {

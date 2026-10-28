@@ -181,11 +181,11 @@ struct T1013OC03S2RelevelTests {
         #expect(!AIDifficulty.beginner.isProfessional, "isProfessional=UI 分组/进度旧语义，lvl2-5 有意保持 false（语义分离注记）")
     }
 
-    @Test("过渡期选择器：visibleProfessionalLevels=[lvl10]，底层数据源锢定不破（候裁提案②）")
+    @Test("回全表：visibleProfessionalLevels=professionalLevels 全表，数据源锢定不破（B1-R3 裁定执行）")
     func transitionPicker() {
-        #expect(AIDifficulty.transitionProfessionalPickerHidden, "候裁默认=过渡期隐藏 lvl6-9")
-        #expect(AIDifficulty.visibleProfessionalLevels == [.grandmaster])
-        // 数据源锢定（①-4b 同款）：底层数组未动，隐藏仅为过渡期可见集过滤
+        #expect(!AIDifficulty.transitionProfessionalPickerHidden, "B1-R3：过渡期结束，lvl6-9 回全表")
+        #expect(AIDifficulty.visibleProfessionalLevels == AIDifficulty.professionalLevels)
+        // 数据源锢定（①-4b 同款）：底层数组未动，回全表=可见集过滤解除
         #expect(AIDifficulty.amateurLevels + AIDifficulty.professionalLevels == AIDifficulty.allCases)
     }
 
