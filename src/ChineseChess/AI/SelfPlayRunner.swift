@@ -1958,6 +1958,11 @@ func runCalibratePfFromCLI() async {
     let outputPath = "\(outputDir)/pikafish_skill\(skillA)_vs_skill\(skillB)_\(timestamp).txt"
     try? report.write(toFile: outputPath, atomically: true, encoding: .utf8)
     print("报告已保存：\(outputPath)")
+
+    // Bug 修复⑤（2026-10-29 校准 runner GUI 泄漏派单）：批末引擎态显式清场——
+    // 校准内部对弈的引擎实例（skillOverride 档）批后 shutdown，防批态引擎残留
+    // （搜索线程/全局引擎态）污染同进程后续交互路径（洪涛实测对局 AI 永久卡死场景）
+    await EngineRouter.shared.shutdown()
 }
 #endif
 

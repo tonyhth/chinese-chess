@@ -37,6 +37,13 @@ struct ChineseChessApp: App {
         // v3.0: 命令行自对弈模式（CLI-only，非用户路径）
         #if os(macOS)
         let args = CommandLine.arguments
+        // Bug 修复③（2026-10-29 校准 runner GUI 泄漏派单）：CLI 批跑模式统一 headless 化——
+        // accessory 策略下批进程不进 Dock/不激活/不物化窗口。此前 CLI 批跑进程以常规 GUI app
+        // 形态驻留整段批期（LaunchServices 常规激活+主 RunLoop 保活），激活面可物化窗口=
+        // 洪涛 10-29 报告「滞留桌面窗口」现象根因。用户路径（无 -- 前缀）不受影响。
+        if args.count >= 2 && args[1].hasPrefix("--") {
+            NSApplication.shared.setActivationPolicy(.accessory)
+        }
         if args.count >= 2 && args[1] == "--selfplay" {
             Task.detached {
                 await runSelfPlayFromCLI()
