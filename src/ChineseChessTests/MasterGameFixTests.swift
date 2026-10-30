@@ -172,7 +172,10 @@ final class MasterGameFixTests: XCTestCase {
         XCTAssertTrue(barBody.contains("modePicker"), "browserTopBar 应包含 modePicker")
         XCTAssertTrue(barBody.contains(".frame(maxWidth: 240)"),
                       "modePicker 应使用 .frame(maxWidth: 240) 限宽（现状布局）")
-        XCTAssertTrue(barBody.contains("searchField"), "browserTopBar 应包含 searchField")
+        // v6.4 C3-4 P0-2 勘误（B2 门禁 2026-10-29）：searchField 已作零引用僵尸清退役上 sidebar
+        // （CategorySidebarView searchField 承接）——top bar 现态=modePicker+Spacer 双元素结构，
+        // 旧 searchField 断言随退役更新为现态结构断言
+        XCTAssertTrue(barBody.contains("Spacer()"), "browserTopBar 应包含 Spacer（现态双元素布局）")
     }
 
     /// 验证播放布局全幅棋盘（v6.2 断言清偿：播放模式已无 sidebar——全幅棋盘+控制条架构）

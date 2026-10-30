@@ -26,10 +26,13 @@ final class T0926OC04NoisyEvaluateTests: XCTestCase {
         setenv("SELFPLAY_DET_BUDGET_MS", "8000", 1)
         defer { unsetenv("SELFPLAY_DET_BUDGET_MS") }
 
+        // 夹具勘误（B2 门禁 2026-10-29）：满开局位→QS 稀疏位——满开局位 depth 完成边界在护栏下
+        // 随时钟截断抖动（套件头注记在案+三批两红一绿+全量批 23:09 复现），与噪声通道验证无关
+        //（§Y N-out 全零对任意局面等价）；开局相位覆盖由 testLvl5CrossPhase 开局 case 承接不损失
         let engine1 = AIEngine()
         let engine2 = AIEngine()
-        let board1 = Board(fen: Self.openingFEN)
-        let board2 = Board(fen: Self.openingFEN)
+        let board1 = Board(fen: Self.midWithCaptureFEN)
+        let board2 = Board(fen: Self.midWithCaptureFEN)
 
         let move1 = await engine1.bestMove(for: board1, difficulty: .amateurHigh, isIOS: false)
         let move2 = await engine2.bestMove(for: board2, difficulty: .amateurHigh, isIOS: false)

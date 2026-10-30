@@ -31,3 +31,17 @@
 - tag v6.4.3（定版 b172bc3，双 yml 同原子；pbxproj xcodegen 再生 ×4）
 - T-1023-OC-01·P4：A2 UIScreen.main→GeometryReader 容器实测（cf37777）；B6 LayoutSpec 字阶 10 token 收编 27 站点零视觉变化（a0dbbcb）；B10 OpeningBook 索引层解耦（9754a84）；humanSide 环境依赖隔离（694a68a，KI 锚）；B1/B2/B3 文档修批（496d67a）；calibrate-pf 双侧独立 movetime harness（a24eb91）；V2215 语义豁免+D5I18n 换轨清偿（a76a1e9）
 - 门禁：BUILD_RC=0 + 七套件 7/7 PASS（零豁免触发）
+
+---
+
+# Release Notes 标记（v6.5 系）
+
+## v6.5.0 —— 弱化链 S2 定稿+B1 裁定执行+T-1023-OC-01 P4 整改叙事完整落版（2026-10-29 收口）
+- tag v6.5.0（annotated 收口锚；验收件直引——Ruby P3-1 建议消费：v6.5 评估 v1.2 §3（R3/R4 裁点落档）+ difficulty-system-v2.2-draft v1.7 §四（ladderElo 正式锚定落档））
+- v6.5 弱化链 S2 定稿落地：§Y 噪声表全零 N-out（96af46d）+ T-0926-OC-04 noisyEvaluate 等价性测试与夹具勘误（15ccd62/96af46d/本收口）+ B1-R3 选择器 lvl6-9 回全表（599ccab——过渡期结束双前提达成：方案 A 重锚落码+ladderElo 正式锚定落档 v1.7）
+- 基线件对齐：B0=difficulty-system-v2.2-draft v1.6 基线对齐批（吸收方案 A 重锚+基线代际差清偿，Alex）+B1=v1.7 Q1 锚定落档（洪涛五点裁语 Q1=A，vera 快审通过）
+- T-1023-OC-01 P4 收口：首项 Enums 渐升梯参数表（43d43d2 方案 A 落码）+文档修批六子批+② 测试面+① 功能打磨（e93ccc1）+随批勘误四件（7afdb2a）+C 案收口（27f1d43）
+- 校准 runner GUI 泄漏三修（1735d39——洪涛 10-29 实测滞留+对局卡死根因消除：③CLI 模式统一 headless/④批末自动退出/⑤批末引擎清场）+ iOS 子工程 xcodegen 重生成收编 Oct 19 后源漂移面
+- C7 加局批判读：T1 s14↔s17 亚阈值均势登记（预承诺回流档，Δ=-17.4 CI 跨零，-73 旧异常未复现）+T2 s4↔s7 定值 -255 消 B3 双值（judgment-report-cody + C7-VERIFY-JUDGMENT 双算互证，随批入库）
+- 门禁：全量批 838 tests 首度全量对账（2 失败→双修定向回归绿：MasterGameFixTests 陈旧断言勘误+T0926OC04 夹具勘误）+iOS 编译门禁 RC=0（子工程重生成后）+T1013OC03S2RelevelTests 15/15+CheckmateSearchTests 5/5+A3r2FirstCauseTests 5/5
+- KI：known-red/未验证测试禁上 m1（7afdb2a 案例立规）+ s14↔s17 邻接面未来校准观察清单
