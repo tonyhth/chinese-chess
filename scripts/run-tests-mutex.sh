@@ -33,6 +33,14 @@ set -uo pipefail
 # 非交互 shell 默认 PATH 不含 → 首跑抢锁 4h 超时。前置补全两处 Homebrew bin。
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
+# ---------- T-1101-1 件3 P3-2（Ruby 审查建议）：GameRecordStore 测试底座重定向，默认双通道注入 ----------
+# 取证：测试宿主 GameRecordStore.shared init 枚举 ~/Documents/GameRecords（TCC 保护域）；
+# agent-session/脱离上下文丢归因 → open() 内核态停滞（sample 栈 __open 100%），挂所有触碰 .shared 的套件。
+# /tmp 在 TCC 盲区外 0s 实证。DEBUG 缝（GameRecordStore.swift）消费 GAMERECORDSTORE_BASEURL；
+# 调用方预设 env 优先（:- 不覆盖）。
+export TEST_RUNNER_GAMERECORDSTORE_BASEURL="${TEST_RUNNER_GAMERECORDSTORE_BASEURL:-/tmp/chinesechess-test-gamerecords}"
+export GAMERECORDSTORE_BASEURL="${GAMERECORDSTORE_BASEURL:-/tmp/chinesechess-test-gamerecords}"
+
 # ---------- 沙箱守卫（KI-2026-0913-01，Luke 2026-09-16 批准“防呆不防贼”） ----------
 # 根因：代理会话沙箱随进程树继承到测试宿主，宿主回连 xctest 的文件/Mach 操作被拒
 # → 7m20s+ hung（四象限唯“前台+豁免获批”绿，后台豁免不继承）。
