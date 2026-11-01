@@ -76,7 +76,7 @@ echo "📦 [1/6] xcodebuild Release..."
 cd "$PROJECT_ROOT"
 xcodegen generate 2>&1
 xcodebuild -target ChineseChess -sdk macosx -configuration Release build \
-    ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO \
+    ARCHS="x86_64 arm64" ONLY_ACTIVE_ARCH=NO \
     CONFIGURATION_BUILD_DIR="$BUILD_DIR/Release" 2>&1 | tail -5
 
 if [[ ! -d "$XC_APP" ]]; then
