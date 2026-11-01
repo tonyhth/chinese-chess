@@ -154,7 +154,7 @@ actor PositionAnalyzer {
         //（Release 可观测），冗余 NSLog 撤除统一走 AppLog(os_log)
         let engineType = String(describing: type(of: engine))
         let isReady = (engine as? EmbeddedPikafishEngine)?.isReady ?? false
-        AppLog.engine.error("[PositionAnalyzer] Engine not usable: type=\(engineType), isReady=\(isReady)")
+        AppLog.engine.error("[PositionAnalyzer] Engine not usable: type=\(engineType, privacy: .public), isReady=\(isReady, privacy: .public)")  // T-1101-1 件2：privacy .public 收口（随 v6.5 FP P3 批入库）
         return nil
     }
 
