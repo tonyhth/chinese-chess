@@ -74,7 +74,19 @@ struct RecordSummary: Codable, Identifiable {
 /// - 原子写入：Data.write(to:options:.atomic) 本身即原子操作
 /// - id 去重：addRecord 中检查 summaries
 final class GameRecordStore {
-    static let shared = GameRecordStore()
+    /// T-1101-1 件3（P4B1 移交项①/B3TF 登记项②根修）：DEBUG+env 双重门测试底座重定向——
+    /// agent-session/脱离上下文的测试宿主内，本单例 init 的 reconcileOrphanFiles 对 ~/Documents
+    /// （TCC 保护域）的目录枚举 open() 可内核态无限停滞（sample 实证 __open 占全部样本，
+    /// testPerpetualCheck_RealDriven 挂起根因，P4B1 §三.1/B3TF §三 同族）。GAMERECORDSTORE_BASEURL
+    /// 在位时走本类既有文档化测试初始化器 init(baseURL:)；#if DEBUG 门禁——release 编译路径零变化。
+    static let shared: GameRecordStore = {
+        #if DEBUG
+        if let base = ProcessInfo.processInfo.environment["GAMERECORDSTORE_BASEURL"] {
+            return GameRecordStore(baseURL: URL(fileURLWithPath: base))
+        }
+        #endif
+        return GameRecordStore()
+    }()
 
     let fileManager = FileManager.default
     let baseURL: URL           // Documents/GameRecords/

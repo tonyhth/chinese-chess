@@ -86,8 +86,15 @@ final class DrawDetectionRealTests: XCTestCase {
     }
 
     /// halfmoveClock 递增语义真实驱动：非吃子/非兵移动 +1
+    /// T-1101-1 件3（P4B1 移交项①/B3TF 登记项②清偿）：补 coachConfig 断开引擎链路——
+    /// coachConfig=nil 时 makeCoachMove→applyMove 末尾会走 triggerAIMove()，其首行无条件
+    /// await switchEngineIfNeeded()→acquireEmbeddedEngine()→Pikafish 建连（P4B1 §三.1
+    /// 资源争用窗口偶发挂起同族，KI-2026-0913-01 家族）；coachConfig 在位时 applyMove 不触发
+    /// AI 应答（coach 通道语义），本用例断言面（halfmoveClock 递增）不受影响，套件对环境敏感挂起免疫
     func testHalfmoveClock_IncrementsOnQuietMove() {
         let vm = GameViewModel()
+        let sub = OpeningSubcategory(id: "test", name: "测试", firstMoves: ["h2e2"], gameCount: 1)
+        vm.coachConfig = CoachConfig(targetSubcategory: sub, aiDifficulty: .amateurLow, playerSide: .red)
         XCTAssertEqual(vm.testGetHalfmoveClock(), 0, "初始 halfmoveClock 应为 0")
 
         // 炮二平五：(7,7)→(7,4) 非吃子/非兵移动 → halfmoveClock +1
