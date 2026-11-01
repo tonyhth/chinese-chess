@@ -33,6 +33,12 @@ set -uo pipefail
 # 非交互 shell 默认 PATH 不含 → 首跑抢锁 4h 超时。前置补全两处 Homebrew bin。
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
+# T-1101-7 R1 根修（bash 3.2 多字节变量名吞雷）：LC_ALL=C 强制字节序名扫描——
+# python3 spawn 的子进程带 LC_CTYPE=C.UTF-8（python locale 强制），bash 3.2 在 UTF-8 locale 下
+# 把 $VAR 后紧跟的全角字符吞进变量名（$WAKE_RC）→ set -u unbound 静默杀脚本（v1-v6 五轮法证钉死）。
+# LC_ALL 优先级压倒一切继承 locale；中文输出字符串按原始字节透传不受影响。
+export LC_ALL=C
+
 # ---------- T-1101-1 件3 P3-2（Ruby 审查建议）：GameRecordStore 测试底座重定向，默认双通道注入 ----------
 # 取证：测试宿主 GameRecordStore.shared init 枚举 ~/Documents/GameRecords（TCC 保护域）；
 # agent-session/脱离上下文丢归因 → open() 内核态停滞（sample 栈 __open 100%），挂所有触碰 .shared 的套件。
@@ -65,7 +71,7 @@ case "${1:-}" in
   --check-sandbox)
     sandbox_guard
     rc=$?
-    [ $rc -eq 0 ] && echo "[sandbox-guard] 自检结论：可跑" || echo "[sandbox-guard] 自检结论：拒起跑（rc=$rc）"
+    [ $rc -eq 0 ] && echo "[sandbox-guard] 自检结论：可跑" || echo "[sandbox-guard] 自检结论：拒起跑(rc=$rc)"
     exit $rc
     ;;
 esac
@@ -88,6 +94,26 @@ SKIP_REGISTRY="$PROJECT/docs/test/skip-registry.md"
 EXIT_SUMMARY=()
 
 mkdir -p "$LOCK_DIR" "$LOG_DIR"
+
+# ---------- T-1101-7 R3：自剥离守护（RUNNER_SURVIVE=1）----------
+# 11-01 实证：flock 排队/在跑进程随调用方进程组树被杀（Ruby 复跑排队死、/tmp 日志 0 字节）。
+# 开启后 python3 setsid 重执行自身：转后台（新会话脱离进程组）、输出投固定日志、
+# 免疫父树连坐；调用方立即拿 rc=0，完结态由 R1 唤醒钩子送达。
+# 长跑/脱离形态推荐开启（替代手工 python3 setsid 咒语；setsid 二进制本机不存在，故内联）。
+if [ "${RUNNER_SURVIVE:-0}" = "1" ] && [ -z "${RUNNER_SURVIVE_DONE:-}" ]; then
+  export RUNNER_SURVIVE_DONE=1
+  RUNNER_LOG="${RUNNER_LOG:-$LOG_DIR/runner-$(date +%H%M%S)-$$.log}"
+  export RUNNER_LOG
+  RUNNER_ABS="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+  echo "[survive] setsid 自剥离转后台：日志 -> $RUNNER_LOG (完结态由 runner-wake 送达)"
+  RUNNER_SCRIPT="$RUNNER_ABS" python3 -c '
+import subprocess, os, sys
+argv = ["bash", os.environ["RUNNER_SCRIPT"]] + sys.argv[1:]
+p = subprocess.Popen(argv, stdout=open(os.environ["RUNNER_LOG"], "a"), stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, preexec_fn=os.setsid)
+print("[survive] 后台 PID=%d" % p.pid)
+' "$@"
+  exit 0
+fi
 
 # ---------- 语言锁：一处定义 ----------
 inject_language_lock() {
@@ -188,6 +214,38 @@ run_suite() {
   return $rc
 }
 
+# ---------- T-1101-7 R1：完批唤醒钩子（EXIT trap 消费，v2 全非阻塞）----------
+# 11-01 实证：xcresult 落盘+锁已释、发起会话停摆 4h（完批不自知；历史同族 10+ 例）。
+# v1 教训（live test 实证）：openclaw agent 对忙会话阻塞等轮完成（40s rc=124 实测）——
+# trap 内直发会拖延锁释放（fd 9 至进程死才关）且有静默死亡面。v2 全非阻塞：
+# trap 只做「入队+拉守护+echo」（毫秒级），投递全走 deliver-retry daemon（异步 backoff，
+# 服务端持久入列 pendingInputs，忙会话轮完即消费）；RUNNER_WAKE=0 可关。
+wake_owner() {
+  # v6：去 local 化（WAKE_ 前缀全局）——bash 3.2 + set -u + local 声明在 trap/survive 语境有
+  # 语境依赖性 unbound 失效（v1-v5 四轮“静默死亡”均为此图：local 赋值后引用报 unbound，
+  # 前台却全过；mini1/mini2 无 local 实验全部存活）——去 local 是唯一全语境实证存活形状
+  WAKE_RC="${1:-0}"
+  [ "${RUNNER_WAKE:-1}" = "1" ] || return 0
+  [ -n "$OWNER" ] || return 0
+  WAKE_TARGET="agent:${OWNER}:main"
+  WAKE_MSGFILE="$LOCK_DIR/runner-wake-$$.msg"
+  echo "[runner-wake] 批完结自动唤醒（T-1101-7 R1，pid $$，rc=$WAKE_RC)" > "$WAKE_MSGFILE"
+  echo "suite 汇总：" >> "$WAKE_MSGFILE"
+  if [ ${#EXIT_SUMMARY[@]} -gt 0 ]; then
+    for WAKE_LINE in "${EXIT_SUMMARY[@]}"; do echo "  $WAKE_LINE" >> "$WAKE_MSGFILE"; done
+  else
+    echo "  （空——早退/未起跑路径）" >> "$WAKE_MSGFILE"
+  fi
+  echo "收割：grep -E 'Executed .* tests|Test run with|H-1 runner' 上述 suite 日志" >> "$WAKE_MSGFILE"
+  if bash ~/DevTeam/scripts/deliver-retry.sh enqueue "$WAKE_TARGET" "$WAKE_MSGFILE" 2>/dev/null; then
+    bash ~/DevTeam/scripts/deliver-retry.sh ensure-daemon 2>/dev/null || true
+    echo "[runner-wake] ✅ 已入队 $WAKE_TARGET (daemon 异步投递, 批 rc=$WAKE_RC)"
+    rm -f "$WAKE_MSGFILE"
+  else
+    echo "[runner-wake] ⚠️ 入队失败，唤醒降级（msgfile=$WAKE_MSGFILE 留档待收割）"
+  fi
+}
+
 # ---------- 主流程：抢锁 → 逐 suite 串行 ----------
 OWNER="${RUNNER_OWNER:-}"
 if [ -z "$OWNER" ]; then
@@ -198,11 +256,23 @@ fi
 main() {
   exec 9>"$LOCK_FILE"
   echo "⏳ [mutex] 等待测试锁 $LOCK_FILE $(date '+%F %T')"
+  # R3 排队可观测（T-1101-7）：等待者登记 pid|owner|state|ts（亡行留痕=被杀在队的诊断证据）
+  echo "$$|$OWNER|waiting|$(date '+%F %T')" >> "$LOCK_DIR/queue.state"
   if ! flock -w 14400 9; then   # 最长排队 4h
+    if [ -f "$LOCK_DIR/queue.state" ]; then
+      awk -F'|' -v pid="$$" '$1 != pid' "$LOCK_DIR/queue.state" > "$LOCK_DIR/queue.state.tmp" && mv "$LOCK_DIR/queue.state.tmp" "$LOCK_DIR/queue.state"
+    fi
     echo "❌ 抢锁超时（4h），放弃起跑"; exit 4
   fi
+  if [ -f "$LOCK_DIR/queue.state" ]; then
+    awk -F'|' -v pid="$$" '$1 != pid' "$LOCK_DIR/queue.state" > "$LOCK_DIR/queue.state.tmp" && mv "$LOCK_DIR/queue.state.tmp" "$LOCK_DIR/queue.state"
+  fi
+  # R3 持锁可观测：holder.state（释放由 EXIT trap 清理）
+  echo "$$|$OWNER|holding|$(date '+%F %T')" > "$LOCK_DIR/holder.state"
   echo "🔒 [mutex] 获得锁 $(date '+%F %T') (holder=$$, owner=$OWNER)"
-  trap 'unlock_language' EXIT
+  # T-1101-7 v3：trap 只留清理（unlock+holder）——wake 改主流程直调（trap 上下文有不可复现的静默死亡面，
+  # v1/v2/v3 三轮法证钉死于 trap 尾段；主流程毫秒前刚成功打印汇总行=同上下文实证健康）
+  trap 'unlock_language; rm -f "$LOCK_DIR/holder.state"' EXIT
   lock_language   # 语言锁整批只加一次（每 suite 重复加锁会把注入值误当原值备份 → 批后残留）
   check_dd_artifacts   # 2026-08-30 Tina 修①：dd 产物自检/强制重建
 
@@ -228,11 +298,13 @@ main() {
     if [ "${ftotal:-0}" -lt 500 ]; then
       echo "❌ [full] 对账门禁：总 Executed=${ftotal} <500，批次作废"
       EXIT_SUMMARY+=("FAIL(zero-run total=${ftotal}) full $flog")
+      wake_owner 5
       echo "锁释放 $(date '+%F %T')"; exit 5
     fi
     if [ "$frc" -eq 0 ]; then echo "✅ [full] rc=0"; else echo "❌ [full] rc=$frc"; fi
     echo "[full] 总对账 Executed=${ftotal} tests $(date '+%T')"
     EXIT_SUMMARY+=("rc=$frc full total=${ftotal} $flog")
+    wake_owner "$frc"
     echo "锁释放 $(date '+%F %T')"
     exit "$frc"
   else
@@ -247,6 +319,7 @@ main() {
 
   echo ""; echo "═══════ H-1 runner 汇总 ═══════"
   for line in "${EXIT_SUMMARY[@]}"; do echo "  $line"; done
+  wake_owner "$overall"   # T-1101-7 R1：主流程直调唤醒（trap 只留清理）
   echo "锁释放 $(date '+%F %T')"
   exit $overall
 }
