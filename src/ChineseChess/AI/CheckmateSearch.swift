@@ -6,6 +6,21 @@ import Foundation
 /// 只扩展将军走法，搜索空间远小于全搜索，可深入 6-8 层。
 struct CheckmateSearch {
 
+    #if DEBUG
+    /// T-1102-1 判定循环语义钉缝（裁定单 docs/reviews/T-1101-5-anchor-verdict-vera.md §3.2）：
+    /// 受控 oracle 注入位（tests-only）。非 nil 时，响应校验循环以 oracle(checkMove, responseIndex)
+    /// 替代逐应将的 dfs 递归判定结果——释放判定真值注入，用于钉「全量校验循环语义」回归向量
+    /// （prefix(k) 截断回潮/早退假优化）。
+    /// Release 编译剔除=语义恒等（先例=T-1101-1 件3② GameRecordStore DEBUG 缝五点裁定框架：
+    /// Release 恒等/tests-only 替代不存在/最小路径）。
+    /// 调用语义务（裁定 §3.2 + 实施适配注记）：原口径为纯调用计数（「前 8 次调用判红赢、
+    /// 第 9 次起判黑活」）；实施首跑实证（t1102-loopsem-2.log）多将军线夹具下调用计数有
+    /// 次序依赖（非锚将军线先咨询会以其少量应将全胜翻 mate）——适配为 checkMove 判别键：
+    /// 锚线按 responseIndex 注入前 8 败着/第 9 起活手，非锚线由测试注入真实语义对齐真值。
+    /// 适配回 Vera 再裁通道已注记（裁定单 §六）。测试纪律：用毕 defer 置 nil 防跨用例泄漏。
+    static var debugResponseOracle: ((_ checkMove: Move, _ responseIndex: Int) -> Bool)?
+    #endif
+
     /// 搜索连将杀。返回杀法走法序列（如果找到），否则 nil。
     /// - Parameters:
     ///   - board: 当前局面（不会被修改）
@@ -74,14 +89,37 @@ struct CheckmateSearch {
             let opponentMovesToCheck: [Move] = opponentMoves.sorted { moveScore($0, on: board) > moveScore($1, on: board) }
 
             var allResponsesWin = true
+            #if DEBUG
+            var responseIndex = -1   // 语义钉 oracle 注入位用（应将序号，0 基）；Release 剔除
+            #endif
             for response in opponentMovesToCheck {
                 board.execute(response)
-                if !dfs(board: &board, side: side, depth: depth + 2, maxDepth: maxDepth,
-                         path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
+                #if DEBUG
+                // T-1102-1 语义钉缝（裁定单 T-1101-5 §3.2）：oracle 非 nil 时以受控真值替代
+                // 本位 dfs 递归判定（tests-only）；#else 分支语义恒等保留原语句（与原语句仅
+                // 续行缩进一空格差异，Ruby P3-1 措辞勘误）——Release 语义恒等由构造保证
+                // 由构造保证（先例=T-1101-1 件3② GameRecordStore 缝五点框架）。
+                responseIndex += 1
+                let redWinsAfterResponse: Bool
+                if let oracle = Self.debugResponseOracle {
+                    redWinsAfterResponse = oracle(move, responseIndex)
+                } else {
+                    redWinsAfterResponse = dfs(board: &board, side: side, depth: depth + 2, maxDepth: maxDepth,
+                                                path: &path, startTime: startTime, timeLimitMs: timeLimitMs)
+                }
+                if !redWinsAfterResponse {
                     allResponsesWin = false
                     board.undoLastMove()
                     break
                 }
+                #else
+                if !dfs(board: &board, side: side, depth: depth + 2, maxDepth: maxDepth,
+                        path: &path, startTime: startTime, timeLimitMs: timeLimitMs) {
+                    allResponsesWin = false
+                    board.undoLastMove()
+                    break
+                }
+                #endif
                 board.undoLastMove()
             }
 

@@ -1,5 +1,7 @@
 # 判别性杀法锚摆位独立审·Vera 审计报告（Luke 5.5 派单）
 
+> **⚠️ supersede（2026-11-02，lead 代行授权注记）**：本件「单 punish 结构可作曲」前提已被取代——现行口径见 docs/reviews/T-1101-5-anchor-verdict-vera.md（T-1101-5 裁定单：裁①机理成立含域界声明；§3.2 判定循环语义钉为实施口径）。本件按沿革纪律存档不改写。
+>
 > **主审**：Vera（审查者，inspector）｜**日期**：2026-10-28
 > **派单**：Luke lead:main 5.5 交叉验证条款（Cody 判别锚二修失败触发；产出交 lead:main 汇总，执行面归属 Luke 裁）
 > **对象**：CheckmateSearch P3-N1 全量校验回归锚的判别性夹具——需求面=黑被将+应将 ≥9+moveScore 序 1-8 位全败着（红有 punish）+第 ≥9 位唯一活手→旧 prefix(8) 假阳性 vs 全量校验正解
