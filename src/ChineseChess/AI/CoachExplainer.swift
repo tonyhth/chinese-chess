@@ -17,23 +17,31 @@ enum CoachScenario: String, CaseIterable {
     case centerControl      // 控制中线
     case generic            // 通用 fallback
 
-    // 开局阶段场景（4 种）
+    // 开局阶段场景（5 种，T-1104-1 补全：+openingTrap）
     case openingInitiative  // 抢先手
     case openingSolid       // 稳健布阵
+    case openingTrap        // 陷阱走法（T-1104-1 新增）
     case openingPoorDev     // 布阵失误
     case openingZhongPao    // 中炮应对
 
-    // 中局阶段场景（5 种）
+    // 中局阶段场景（10 种，T-1104-1 补全：+5）
     case sacrificeAttack    // 弃子攻杀
     case winMaterial        // 交换得子
     case controlPoint       // 控制要点
     case tacticCombo        // 战术组合
     case mutualAttack       // 对攻互缠
+    case recoverMaterial    // 失子挽回（T-1104-1 新增）
+    case attackKing         // 攻王（T-1104-1 新增）
+    case defensiveCounter   // 防守反击（T-1104-1 新增）
+    case simplifyExchange   // 兑子简化（T-1104-1 新增）
+    case middleBlunder      // 中盘失误（T-1104-1 新增）
 
-    // 残局阶段场景（3 种）
+    // 残局阶段场景（5 种，T-1104-1 补全：+2）
     case endgameWinning     // 例胜定式
     case endgameHolding     // 求和技巧
     case kingCoordination   // 王棋配合
+    case endgameTechnique   // 残局技巧（T-1104-1 新增）
+    case endgameBlunder     // 残局失误（T-1104-1 新增）
 
     // 跨阶段战术场景（4 种）
     case tacticFork         // 闪击
@@ -148,9 +156,9 @@ actor CoachExplainer {
         case .opening:
             return classifyOpening(delta: delta, bestMove: bestMove, moveNumber: moveNumber, fenBefore: fenBefore)
         case .endgame:
-            return classifyEndgame(delta: delta, bestMove: bestMove, moveNumber: moveNumber)
+            return classifyEndgame(delta: delta, bestMove: bestMove, moveNumber: moveNumber, analysis: analysis, fenBefore: fenBefore)
         case .middle, .all:
-            return classifyMiddle(delta: delta, bestMove: bestMove, analysis: analysis, fenBefore: fenBefore)
+            return classifyMiddle(delta: delta, bestMove: bestMove, analysis: analysis, fenBefore: fenBefore, moveNumber: moveNumber)
         }
     }
 
@@ -160,18 +168,33 @@ actor CoachExplainer {
         if delta > 100 { return .openingPoorDev }
         if delta <= 30 && isDevelopmentMove(bestMove, fen: fenBefore) { return .openingInitiative }
         if delta < 10 { return .openingSolid }
+        // T-1104-1 新增：陷阱走法（spec §1.1：步数 ≤15 + 引诱性走法即弃子位附近）——
+        // delta ≤ 100（引擎未判失误 = 诱饵有后续补偿）且落点被对方低值子攻击（诱饵语义）
+        if moveNumber <= 15 && isBaitMove(bestMove, fen: fenBefore) { return .openingTrap }
         return .generic
     }
 
     // MARK: 中局场景判断
 
-    private func classifyMiddle(delta: Int, bestMove: String, analysis: MoveAnalysis, fenBefore: String) -> CoachScenario {
-        // 大失误
+    private func classifyMiddle(delta: Int, bestMove: String, analysis: MoveAnalysis, fenBefore: String, moveNumber: Int) -> CoachScenario {
+        // 大失误（delta ≥ 300：旧 8 场景兼容路径不变）
         if delta >= 300 {
             if isMateScore(analysis.bestEval) && !isMateScore(analysis.playerEval) {
                 return .missedMate
             }
             return .blunder
+        }
+
+        // T-1104-1 新增：中盘失误（spec §1.2：步数 15-35 + delta >200；
+        // delta ≥ 300 仍归旧 blunder 保向后兼容）
+        if delta >= 200 && (15...35).contains(moveNumber) { return .middleBlunder }
+
+        // T-1104-1 接线（spec §1.2）：winMaterial/recoverMaterial 为八月遗留死 case
+        //（枚举/变体在库但 classify 从未返回）——delta > 100 + 安全吃子时按回追子力分流；
+        // delta 50-100 的吃子仍归 missedCapture（复盘语义：错失的吃子机会）
+        if delta > 100 && isSafeCapture(bestMove, fen: fenBefore) {
+            if isBigPieceRecapture(bestMove, fen: fenBefore) { return .recoverMaterial }
+            return .winMaterial
         }
 
         // 中等落差
@@ -184,24 +207,42 @@ actor CoachExplainer {
 
         // 低 delta——好棋场景
         if delta <= 10 {
-            // 检查战术类型
-            if isCheckingMove(bestMove, fen: fenBefore) { return .tacticDoubleCheck }
+            // T-1104-1 精化：双将（两个攻击子）优先于泛将军——v1.1 将 attackKing 从
+            // 泛将军名义下拆出（旧实现 isCheckingMove → tacticDoubleCheck 名实不符，Phase3Tests 同步勘误）
+            if isDoubleCheckMove(bestMove, fen: fenBefore) { return .tacticDoubleCheck }
+            if isCheckingMove(bestMove, fen: fenBefore) { return .attackKing }
+            // T-1104-1 新增：兑子简化（spec §1.2：delta < 30 + 兑子走法）
+            if isTradeMove(bestMove, fen: fenBefore) { return .simplifyExchange }
             if isCenterControlMove(bestMove, fen: fenBefore) { return .controlPoint }
             return .tacticCombo
         }
 
+        // delta 10-50 带
+        // T-1104-1 新增：攻王（spec §1.2：bestMove 使对方被将军，无 delta 约束）
+        if isCheckingMove(bestMove, fen: fenBefore) { return .attackKing }
+        // T-1104-1 新增：防守反击（spec §1.2：bestEval < 0 己方劣势 + bestMove 反击型即吃子/将军）
+        if analysis.bestEval < 0 && isSafeCapture(bestMove, fen: fenBefore) { return .defensiveCounter }
         if isDevelopmentMove(bestMove, fen: fenBefore) { return .developPiece }
         if isCenterControlMove(bestMove, fen: fenBefore) { return .centerControl }
 
         return .generic
     }
 
-    // MARK: 残局场景判断
+    // MARK: 残局场景判断（T-1101-5 裁定 v1.1 精化：按 spec §1.3 条件分流）
 
-    private func classifyEndgame(delta: Int, bestMove: String, moveNumber: Int) -> CoachScenario {
-        if delta > 150 { return .blunder }
-        if delta <= 10 { return .endgameWinning }
-        if delta < 50 { return .kingCoordination }
+    private func classifyEndgame(delta: Int, bestMove: String, moveNumber: Int, analysis: MoveAnalysis, fenBefore: String) -> CoachScenario {
+        // 残局失误（spec §1.3：delta > 150；v1.1 从旧 .blunder 改为 endgame 特有场景——
+        // 旧 .blunder 兼容路径仅限 middle 相位，endgame 相位不波及旧 8 场景判定）
+        if delta > 150 { return .endgameBlunder }
+        // 例胜定式（spec：bestEval > 500 有必胜路径）
+        if analysis.bestEval > 500 { return .endgameWinning }
+        // 求和技巧（spec：bestEval < -200 弱势方守和）
+        if analysis.bestEval < -200 { return .endgameHolding }
+        // 王棋配合（spec：bestMove 是将/帅走法）
+        if isGeneralMove(bestMove, fen: fenBefore) { return .kingCoordination }
+        // 残局技巧（spec：delta ≤ 10 精确算度）
+        if delta <= 10 { return .endgameTechnique }
+        // 残余 fallback（spec 风险表：误分类 fallback 到 .generic 不影响功能）
         return .generic
     }
 
@@ -239,14 +280,22 @@ actor CoachExplainer {
         case .openingSolid: return "稳健布阵"
         case .openingPoorDev: return "布阵失误"
         case .openingZhongPao: return "中炮应对"
+        case .openingTrap: return "开局陷阱"
         case .sacrificeAttack: return "弃子攻杀"
         case .winMaterial: return "交换得子"
         case .controlPoint: return "控制要点"
         case .tacticCombo: return "精妙组合"
         case .mutualAttack: return "对攻互缠"
+        case .recoverMaterial: return "失子挽回"
+        case .attackKing: return "攻王"
+        case .defensiveCounter: return "防守反击"
+        case .simplifyExchange: return "兑子简化"
+        case .middleBlunder: return "中盘失误"
         case .endgameWinning: return "例胜定式"
         case .endgameHolding: return "求和技巧"
         case .kingCoordination: return "王棋配合"
+        case .endgameTechnique: return "残局技巧"
+        case .endgameBlunder: return "残局失误"
         case .tacticFork: return "闪击"
         case .tacticPin: return "牵制"
         case .tacticDoubleCheck: return "双将"
@@ -315,6 +364,12 @@ actor CoachExplainer {
                 "中炮应对要准确，不能大意。",
                 "面对中炮，防守要紧。",
             ])
+        case .openingTrap:
+            detail = pickVariant(from: [
+                "陷阱走法！看似平常，实则暗藏杀机。",
+                "设伏待敌——这步棋引诱对方进入不利局面。",
+                "小心！这步棋在设置陷阱。",
+            ])
         case .sacrificeAttack:
             detail = pickVariant(from: [
                 "弃子攻杀！牺牲子力换取强大攻势。",
@@ -343,6 +398,35 @@ actor CoachExplainer {
                 "双方各攻一侧，比拼速度！",
                 "对攻局面，先手为王。",
             ])
+        case .recoverMaterial:
+            detail = pickVariant(from: [
+                String(format: "失子挽回！%@ 追回失子。", betterMove),
+                "稳住——失子之后冷静补救，局面可控。",
+                String(format: "回追 %@，把损失降到最小。", betterMove),
+            ])
+        case .attackKing:
+            detail = pickVariant(from: [
+                "攻王！直指九宫，对方压力骤增。",
+                String(format: "%@ 直击要害，攻击目标明确。", betterMove),
+                "攻击目标对准主将，杀势渐成。",
+            ])
+        case .defensiveCounter:
+            detail = pickVariant(from: [
+                "防守中寻找反击机会！",
+                "劣势不慌——防守反击，一击制胜。",
+                String(format: "先守后攻，%@ 蕴含反击之意。", betterMove),
+            ])
+        case .simplifyExchange:
+            detail = pickVariant(from: [
+                "兑子简化局面，优势更易把握。",
+                "化繁为简——兑子之后形势明朗。",
+                String(format: "%@ 兑子简化，进入自己熟悉的局面。", betterMove),
+            ])
+        case .middleBlunder:
+            detail = pickVariant(from: [
+                String(format: "中盘严重失误！建议走 %@，损失 %dcp。", betterMove, deltaStr),
+                String(format: "这步损失惨重，%@ 才是正着。", betterMove),
+            ])
         case .endgameWinning:
             detail = pickVariant(from: [
                 "残局例胜定式。按此走法，可逐步转化为胜势。",
@@ -358,6 +442,17 @@ actor CoachExplainer {
             detail = pickVariant(from: [
                 "将帅主动配合，残局关键。",
                 "老将出马，发挥战斗力。",
+            ])
+        case .endgameTechnique:
+            detail = pickVariant(from: [
+                "残局精确算度，细节决定成败。",
+                "残局功力尽显——每一步都要精确。",
+                "进入残局技术阶段，走法毫厘必争。",
+            ])
+        case .endgameBlunder:
+            detail = pickVariant(from: [
+                String(format: "残局关键失误！%@ 才能守住。", betterMove),
+                String(format: "残局一着不慎，建议 %@。", betterMove),
             ])
         case .tacticFork:
             detail = pickVariant(from: [
@@ -463,6 +558,68 @@ actor CoachExplainer {
         guard move.count >= 3 else { return false }
         let toCol = move[move.index(move.startIndex, offsetBy: 2)]
         return toCol == "d" || toCol == "e" || toCol == "f"
+    }
+
+    // MARK: T-1102-1 新增场景启发式（spec §1.1-1.3）
+
+    /// 是否是双将走法（T-1102-1 精化：泛将军拆出 attackKing 后，双将需独立检测）——
+    /// 走后对方被将军且攻击将军的我方棋子 ≥ 2 个（knoxn 免疫棋子不在 legal 集内，近似成立）
+    private func isDoubleCheckMove(_ move: String, fen: String) -> Bool {
+        guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        guard let piece = board.piece(at: from) else { return false }
+        let opponent: Side = (piece.side == .red) ? .black : .red
+        let chessMove = Move(piece: piece, from: from, to: to, captured: board.piece(at: to))
+        board.execute(chessMove)
+        guard MoveValidator.isInCheck(opponent, on: board),
+              let gp = board.generalPosition(of: opponent) else { return false }
+        let ourMoves = MoveValidator.allLegalMoves(for: piece.side, on: board)
+        let distinctAttackers = Set(ourMoves.filter { $0.to == gp }.map { $0.piece.id })
+        return distinctAttackers.count >= 2
+    }
+
+    /// 是否是诱饵走法（T-1104-1 开局陷阱）：落点被对方攻击且攻击子价值低于走子价值
+    /// （低值换高值诱饵语义），且评估未判失误（诱饵有后续补偿——由调用方 delta 约束）
+    private func isBaitMove(_ move: String, fen: String) -> Bool {
+        guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        guard let piece = board.piece(at: from) else { return false }
+        let opponent: Side = (piece.side == .red) ? .black : .red
+        let chessMove = Move(piece: piece, from: from, to: to, captured: board.piece(at: to))
+        board.execute(chessMove)
+        let opponentMoves = MoveValidator.allLegalMoves(for: opponent, on: board)
+        let attackers = opponentMoves.filter { $0.to == to && $0.captured != nil }
+        guard let cheapestAttacker = attackers.compactMap({ $0.piece.baseValue }).min() else { return false }
+        return piece.baseValue > cheapestAttacker
+    }
+
+    /// 是否是兑子走法（T-1104-1 兑子简化）：吃子后对方可立即回吃（形成交换）且
+    /// 被吃子价值 ≥ 走子价值（等价或更优交换）
+    private func isTradeMove(_ move: String, fen: String) -> Bool {
+        guard let (from, to) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        guard let piece = board.piece(at: from), let captured = board.piece(at: to) else { return false }
+        guard captured.baseValue >= piece.baseValue else { return false }
+        let chessMove = Move(piece: piece, from: from, to: to, captured: captured)
+        board.execute(chessMove)
+        let opponent: Side = (piece.side == .red) ? .black : .red
+        let opponentMoves = MoveValidator.allLegalMoves(for: opponent, on: board)
+        return opponentMoves.contains { $0.to == to && $0.captured != nil }
+    }
+
+    /// 是否是将/帅走法（T-1104-1 王棋配合）：起始位置棋子为将/帅
+    private func isGeneralMove(_ move: String, fen: String) -> Bool {
+        guard let (from, _) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        return board.piece(at: from)?.kind == .general
+    }
+
+    /// 是否是大子回追（T-1104-1 失子挽回）：吃回车/炮/马级子力
+    private func isBigPieceRecapture(_ move: String, fen: String) -> Bool {
+        guard let (_, to) = UCIMoveConverter.positions(from: move) else { return false }
+        let board = Board(fen: fen)
+        guard let captured = board.piece(at: to) else { return false }
+        return captured.baseValue >= 400  // 马/炮/车级
     }
 
     // MARK: - v3.9.1: Hint 教练整合
