@@ -112,8 +112,8 @@ struct CoachModeOverlay: View {
         case .tacticDoubleCheck: return "bolt.fill"
         case .tacticSkewer:      return "line.diagonal"
         // 转折
-        case .advantageEstablished: return "chart.line.uptrend.xyaxis"
-        case .suddenChange:         return "tornado"
+
+
         }
     }
 
@@ -156,8 +156,8 @@ struct CoachModeOverlay: View {
         case .tacticDoubleCheck: return .red
         case .tacticSkewer:      return .purple
         // 转折
-        case .advantageEstablished: return .blue
-        case .suddenChange:         return .orange
+
+
         }
     }
 }

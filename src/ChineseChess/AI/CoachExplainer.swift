@@ -50,8 +50,8 @@ enum CoachScenario: String, CaseIterable {
     case tacticSkewer       // 串打
 
     // 局面转折场景（2 种）
-    case advantageEstablished  // 优势确立
-    case suddenChange          // 局面突变
+
+
 }
 
 /// 教练讲解结果
@@ -114,7 +114,8 @@ actor CoachExplainer {
             delta: delta,
             betterMove: bestMove,
             analysis: analysis,
-            phase: phase
+            phase: phase,
+            moveNumber: moveNumber
         )
 
         return CoachExplanation(
@@ -197,7 +198,7 @@ actor CoachExplainer {
             return .winMaterial
         }
 
-        // 中等落差
+        // 中等落差——向后兼容锚点带（missedCapture missedCheck defensiveMove 回归断言保护）
         if delta >= 50 {
             if isCheckingMove(bestMove, fen: fenBefore) { return .missedCheck }
             if isSafeCapture(bestMove, fen: fenBefore) { return .missedCapture }
@@ -259,9 +260,15 @@ actor CoachExplainer {
     }
 
     /// ~15% 概率插入棋谚
-    private func maybeAppendProverb(to text: String, phase: GamePhase) -> String {
+    /// 上次棋谚出现的 moveNumber（防连续步都出棋谚）
+    private var lastProverbMove: Int = -1
+
+    private func maybeAppendProverb(to text: String, phase: GamePhase, moveNumber: Int = 0) -> String {
         guard Int.random(in: 0..<100) < 15 else { return text }
+        // 连续性 guard：距上次棋谚不足 3 步则跳过
+        guard moveNumber - lastProverbMove >= 3 || lastProverbMove < 0 else { return text }
         guard let proverb = ProverbLibrary.randomProverb(for: phase) else { return text }
+        lastProverbMove = moveNumber
         return text + "——" + proverb
     }
 
@@ -300,8 +307,8 @@ actor CoachExplainer {
         case .tacticPin: return "牵制"
         case .tacticDoubleCheck: return "双将"
         case .tacticSkewer: return "串打"
-        case .advantageEstablished: return "优势确立"
-        case .suddenChange: return "局面突变"
+
+
         }
     }
 
@@ -310,7 +317,8 @@ actor CoachExplainer {
         delta: Int,
         betterMove: String,
         analysis: MoveAnalysis,
-        phase: GamePhase = .middle
+        phase: GamePhase,
+        moveNumber: Int
     ) -> String {
         let deltaStr = String(delta)
 
@@ -474,19 +482,10 @@ actor CoachExplainer {
                 String(format: "串打！%@ 贯穿两个棋子，必得其一。", betterMove),
                 "串打妙手，攻其必救。",
             ])
-        case .advantageEstablished:
-            detail = pickVariant(from: [
-                "优势确立！局面逐步倾向己方。",
-                "步步紧逼，对手已显被动。",
-            ])
-        case .suddenChange:
-            detail = pickVariant(from: [
-                "局面突然紧张！风云突变。",
-                "局势急转直下！",
-            ])
         }
 
-        return maybeAppendProverb(to: detail, phase: phase)
+
+        return maybeAppendProverb(to: detail, phase: phase, moveNumber: moveNumber)
     }
 
     // MARK: - 局面判断辅助
