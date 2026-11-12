@@ -352,9 +352,9 @@ struct CoachSessionViewIntegrationTests {
         #expect(card.rating == 4)
     }
 
-    @Test("CoachScenario 有 26 个 case") // v6.x 教练场景扩展，旧 8 场景断言过期
+    @Test("CoachScenario 有 32 个 case") // T-1104-1 终态（删 2 死 case 后）
     func testCoachScenarioCount() {
-        #expect(CoachScenario.allCases.count == 26)
+        #expect(CoachScenario.allCases.count == 32)
     }
 }
 

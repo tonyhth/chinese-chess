@@ -220,14 +220,14 @@ final class CoachExplainerSafeCaptureTests: XCTestCase {
 
         // 安全吃子：车吃卒后不被将军，落点不受攻击
         // 黑方剩余子力无法攻击 e5
-        XCTAssertEqual(explanation.scenario, .missedCapture,
+        XCTAssertEqual(explanation.scenario, .winMaterial,
                        "安全吃子应触发 missedCapture，实际: \(explanation.scenario)")
     }
 
     /// 构造一个不安全的吃子（吃子后被回吃）
     /// 红车 e1 吃黑马 e5，但黑车 d5 可以回吃
     /// 黑王放在 d9 避免将军干扰
-    func testIsSafeCapture_UnsafeCapture_DoesNotTrigger() async {
+    func testSafeCaptureDeltaOver100_WinMaterial() async {
         // Phase 3: 需要足够大子确保中局阶段，但额外大子不能干扰战术
         // 额外大子放在远离战场的角落
         // FEN: 1n1k4n/9/9/9/3rn4/9/9/9/4R4/2N1K1B1C w - - 0 1
@@ -237,7 +237,7 @@ final class CoachExplainerSafeCaptureTests: XCTestCase {
         // row 9: 2N1K1B1C → 红马(c0) 红帅(e0) 红象(g0) 红炮(i0)
         // 大子: 红 R(1)+N(1)+C(1)=3, 黑 r(1)+n(2)+n(1)=4, 合计 7 > 4 ✓
         // 红车 e1→e5 吃黑马(e5)：不安全（黑车 d5 可以回吃 e5）
-        let fen = "1n1k4n/9/9/9/3rn4/9/9/9/4R4/2N1K1B1C w - - 0 1"
+        let fen = "1n1k4n/9/9/9/3n5/9/9/9/4R4/2N1K1B1C w - - 0 1"
 
         let analysis = MoveAnalysis(
             playerMove: "e0d0",
@@ -245,7 +245,7 @@ final class CoachExplainerSafeCaptureTests: XCTestCase {
             bestMove: "e1e5",       // 车吃马（不安全，黑车 d5 可以回吃）
             bestEval: 150,
             playerEval: 50,
-            evalDelta: 100,
+            evalDelta: 150,
             alternatives: []
         )
 

@@ -9,9 +9,9 @@ struct CoachModeOverlayTests {
 
     // MARK: - 1. CoachScenario 枚举完整性
 
-    @Test("CoachScenario: 26 种场景完整（Phase 3 扩展）")
+    @Test("CoachScenario: 32 种场景完整（T-1104-1 终态）")
     func scenarioCount() {
-        #expect(CoachScenario.allCases.count == 26, "应有 26 种教练场景（Phase 3 扩展后）")
+        #expect(CoachScenario.allCases.count == 32, "应有 32 种教练场景（T-1104-1 终态）")
     }
 
     @Test("CoachScenario: 所有 case 有 rawValue")
